@@ -1,6 +1,3 @@
-__author__ = 'uwe'
-
-
 class Shape(object):
     """Abstract base class for shapes."""
     def intersect(self, ray):

@@ -1,6 +1,3 @@
-__author__ = 'uwe'
-
-
 class Material(object):
     """Abstract base class for materials."""
     def refract(self, ray, normal):
