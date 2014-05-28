@@ -1,6 +1,10 @@
 class Ray(object):
     """
     Class representing a ray.
+    TODO: Maybe it's better to represent a set of rays with common
+            wavelength and polarisation (in order to share common refraction properties),
+            so they can be easier vectorized for parallel processing.
+            self.o and self.d will then be arrays of vectors instead of single 3-element vectors.
     """
     def __init__(self, o, d, wave=0.55, pol=[], n=1.0):
         """
