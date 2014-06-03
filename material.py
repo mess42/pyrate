@@ -48,7 +48,7 @@ class SimpleGlass(Material):
         # except new refractive index
         return Ray(intersection, new_dir, ray.wave, ray.pol, self.n)
 
-class Glass(Material):
+class Glass(SimpleGlass):
     def __init__(self, coefficients, formula):
         """
         Set glass propertied from catalog data
@@ -59,9 +59,6 @@ class Glass(Material):
         """
         self.formula = formula.lower()
         self.coeff = coefficients
-
-    def refract(self, ray, intersection, normal):
-        pass
 
     def getIndex(self, ray):
         pass
