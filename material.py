@@ -1,5 +1,5 @@
 import numpy as np
-from ray import Ray
+from ray import RayBundle
 
 class Material(object):
     """Abstract base class for materials."""
@@ -25,14 +25,14 @@ class SimpleGlass(Material):
     def __init__(self, index):
         self.n = index
 
-    def refract(self, ray, intersection, normal):
+    def refract(self, raybundle, intersection, normal):
         """
         At the moment the method takes one ray at a time.
         TODO: Change the method for efficient processing of multiple rays.
         """
-        abs_k1_normal = np.dot(ray.d, normal)
-        k_perp = ray.d - abs_k1_normal * normal
-        abs_k2 = self.n / ray.n
+        abs_k1_normal = np.dot(raybundle.k, normal)
+        k_perp = raybundle.k - abs_k1_normal * normal
+        abs_k2 = self.n
         square = abs_k2**2 - np.dot(k_perp, k_perp)
 
         # indices_of_nan = find(square < 0)
@@ -43,10 +43,8 @@ class SimpleGlass(Material):
 
         abs_k2_normal = np.sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
-        new_dir = k2 / np.sqrt(np.dot(k2, k2))
         # return ray with new direction and properties of old ray
-        # except new refractive index
-        return Ray(intersection, new_dir, ray.wave, ray.pol, self.n)
+        return RayBundle(intersection, k2, ray.wave, ray.pol, self.n)
 
 class Glass(SimpleGlass):
     def __init__(self, coefficients, formula):
@@ -60,12 +58,12 @@ class Glass(SimpleGlass):
         self.formula = formula.lower()
         self.coeff = coefficients
 
-    def getIndex(self, ray):
+    def getIndex(self, raybundle):
         pass
 
 
 class Birefringent(Material):
-    def refract(self, ray, intersection, normal):
+    def refract(self, raybundle, intersection, normal):
         pass
 
 
@@ -73,8 +71,8 @@ class Mirror(Material):
     def __init__(self):
         pass
 
-    def refract(self, ray, normal):
+    def refract(self, raybundle, normal):
         pass
 
-    def reflect(self, ray, normal):
-        self.refract(ray, normal)
+    def reflect(self, raybundle, normal):
+        self.refract(raybundle, normal)
