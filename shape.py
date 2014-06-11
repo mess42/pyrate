@@ -4,12 +4,13 @@ class Shape(object):
     The shape of a surface provides a function to calculate
     the intersection point with a ray.
     """
-    def intersect(self, ray):
+    def intersect(self, raybundle):
         """
         Intersection routine returning intersection point
         with ray and normal vector of the surface.
-        :param ray: Ray that shall intersect the surface.
-        :return intersection, normal: Intersection point and normal vector.
+        :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
+        :return intersection: Intersection points (2d numpy 3xN array of float)
+        :return normal: surface normal vectors (2d numpy 3xN array of float) 
         """
         raise NotImplementedError()
 
@@ -41,8 +42,46 @@ class Conic(Shape):
         self.sdia = semidiam
 
     def sag(self, x, y):
-        pass
+        rs = x**2 + y**2
+        return self.curvature * rs / ( 1 + sqrt ( 1 - (1+self.conic) * self.curvature**2 * rs) )
 
+    def intersect(self, raybundle):
+        ray_dir = raybundle.k
+        absk = sqrt( sum(ray_dir**2, axis=-1) )
+        ray_dir[0] = raydir[0] / absk
+        ray_dir[1] = raydir[1] / absk
+        ray_dir[2] = raydir[2] / absk
+        
+        r0 = raybundle.o
+        
+        F = ray_dir[2] - self.curvature * ( ray_dir[0] * r0[0] + ray_dir[1] * r0[1] + ray_dir[2] * r0[2] * (1+self.conic) )
+        G = self.curvature * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic) ) - 2 * r0[2]
+        H = - self.curvature - self.conic * self.curvature * ray_dir[2]**2
+    
+        square = F**2 + H*G     
+    
+        # indices of rays that don't intercest with the sphere
+        
+        # indices_of_nan = find( square < 0 ) 
+        
+        # to do: add rays outside the clear aperture to the indices_of_nan list    
+
+        d = G / ( F + sqrt( square ) )
+        
+        # Normal
+        normal    = zeros(shape(intersection), dtype=float)
+        normal[0] =   - self.curvature * intersection[0]
+        normal[1] =   - self.curvature * intersection[1]
+        normal[2] = 1 - self.curvature * intersection[2] * (1+self.conic)
+        
+        absn = sqrt( sum(normal**2, axis=-1) )
+        
+        normal[0] = normal[0] / absn
+        normal[1] = normal[1] / absn
+        normal[2] = normal[2] / absn
+        
+        return intersection, normal
+        
 
 class Asphere(Shape):
     """
