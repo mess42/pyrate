@@ -24,6 +24,21 @@ class Shape(object):
         """
         raise NotImplementedError()
 
+    def draw2d(self, offset = [0,0], vertices=100, color="grey"):
+        """
+        Plots the surface in a matplotlib figure.
+        :param offset: y and z offset (list or 1d numpy array of 2 floats)
+        :param vertices: number of points the polygon representation of the surface contains (int)
+        :param color: surface draw color (str)
+        """
+        raise NotImplementedError()
+        
+    def draw3d(self, offset = [0,0,0], tilt=[0,0,0], color="grey"):
+        """
+        To do: find proper rendering package
+        """
+        raise NotImplementedError()
+        
 
 class Conic(Shape):
     """
@@ -81,7 +96,13 @@ class Conic(Shape):
         normal[2] = normal[2] / absn
         
         return intersection, normal
+
+    def draw2d(self, offset = [0,0], vertices=100, color="grey"):
+        y = self.sdia * linspace(-1,1,vertices)
+        z = self.sag(0,y)
         
+        plot(z+offest[1],y+offest[0], color)
+             
 
 class Asphere(Shape):
     """
