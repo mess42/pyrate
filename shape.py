@@ -101,7 +101,7 @@ class Conic(Shape):
         y = self.sdia * linspace(-1,1,vertices)
         z = self.sag(0,y)
         
-        plot(z+offest[1],y+offest[0], color)
+        plot(z+offset[1],y+offset[0], color)
              
 
 class Asphere(Shape):
