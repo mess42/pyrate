@@ -1,26 +1,55 @@
-class Ray(object):
+class RayBundle(object):
     """
-    Class representing a ray.
-    TODO: Maybe it's better to represent a set of rays with common
-            wavelength and polarisation (in order to share common refraction properties),
-            so they can be easier vectorized for parallel processing.
-            self.o and self.d will then be arrays of vectors instead of single 3-element vectors.
+    Class representing a bundle of rays.
     """
-    def __init__(self, o, d, wave=0.55, pol=[], n=1.0):
+    def __init__(self, o, k,t=0, wave=0.55, pol=[]):
         """
         Constructor defining the ray properties
-        :param o: Origin of the ray
-        :param d: Direction of the ray. The length of the passed vector
-                    sets the propagation length of the ray.
-        :param wave: Wavelength of the radiation in microns.
-        :param pol: Polarization state of the ray.
-        :param n: Refractive index of the medium the ray is created in.
-                TODO: Maybe pass a reference to the Material object instead of n.
+        :param o:    Origin of the rays.   (2d numpy 3xN array of float)
+        :param k:    Wavevector of the rays, normalized by 2pi/lambda.
+                     (2d numpy 3xN array of float) 
+                     The length of the passed 3D vectors
+                     is the  refractive index of the current medium.
+        :param t:    Geometrical path length to the ray final position.
+                     (1d numpy array of float)
+        :param wave: Wavelength of the radiation in microns. (float)
+        :param pol:  Polarization state of the rays. (2d numpy 2xN array of complex)
         """
         self.o = o
-        mag = np.sqrt(np.dot(d, d))
-        self.d = d / mag
-        self.t = mag
+        mag = sqrt( sum( d**2, axis=0 ) )
+        self.k = k
+        self.setRayDir(k)
+        self.t = t
         self.wave = wave
         self.pol = pol
-        self.n = n
+
+    def setRayDir(self,k):
+        """
+        Calculates the unit direction vector of a ray from its wavevector.
+        """
+        ray_dir = k
+        absk = sqrt( sum(ray_dir**2, axis=-1) )
+        ray_dir[0] = raydir[0] / absk
+        ray_dir[1] = raydir[1] / absk
+        ray_dir[2] = raydir[2] / absk
+        self.ray_dir = ray_dir
+ 
+class RayPath(object):
+    """
+    Class representing the Path of a RayBundle through the whole optical system.
+    """
+    def __init__(self, initialraybundle):
+        """
+        Constructor defining initial RayBundle
+        :param initialraybundle: Raybundle at initial position in the OpticalSystem ( Raybundle object )
+
+        """
+        self.raybundles = [ initialraybundle ]
+
+    def traceToNextSurface(self, nextSurface, thicknessOfNextSurface):
+        t, normal = nextSurface.shap.intersect(self.raybundles[-1])
+        self.raybundles[-1].t = t
+        intersection = self.raybundles[-1].o + self.raybundles[-1].dir * t
+        
+        self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal)  )
+ 
