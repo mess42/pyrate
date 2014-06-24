@@ -44,7 +44,8 @@ class SimpleGlass(Material):
         abs_k2_normal = np.sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
         # return ray with new direction and properties of old ray
-        return RayBundle(intersection, k2, ray.wave, ray.pol, self.n)
+        return RayBundle(intersection, k2, raybundle.wave, raybundle.pol)
+
 
 class Glass(SimpleGlass):
     def __init__(self, coefficients, formula):
@@ -76,3 +77,4 @@ class Mirror(Material):
 
     def reflect(self, raybundle, normal):
         self.refract(raybundle, normal)
+

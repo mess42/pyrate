@@ -9,7 +9,7 @@ class Shape(object):
         Intersection routine returning intersection point
         with ray and normal vector of the surface.
         :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
-        :return intersection: Intersection points (2d numpy 3xN array of float)
+        :return t: geometrical path length to the next surface (1d numpy array of float)
         :return normal: surface normal vectors (2d numpy 3xN array of float) 
         """
         raise NotImplementedError()
@@ -61,11 +61,7 @@ class Conic(Shape):
         return self.curvature * rs / ( 1 + sqrt ( 1 - (1+self.conic) * self.curvature**2 * rs) )
 
     def intersect(self, raybundle):
-        ray_dir = raybundle.k
-        absk = sqrt( sum(ray_dir**2, axis=-1) )
-        ray_dir[0] = raydir[0] / absk
-        ray_dir[1] = raydir[1] / absk
-        ray_dir[2] = raydir[2] / absk
+        ray_dir = raybundle.ray_dir
         
         r0 = raybundle.o
         
@@ -81,7 +77,7 @@ class Conic(Shape):
         
         # to do: add rays outside the clear aperture to the indices_of_nan list    
 
-        d = G / ( F + sqrt( square ) )
+        t = G / ( F + sqrt( square ) )
         
         # Normal
         normal    = zeros(shape(intersection), dtype=float)
@@ -95,7 +91,7 @@ class Conic(Shape):
         normal[1] = normal[1] / absn
         normal[2] = normal[2] / absn
         
-        return intersection, normal
+        return t, normal
 
     def draw2d(self, offset = [0,0], vertices=100, color="grey"):
         y = self.sdia * linspace(-1,1,vertices)
