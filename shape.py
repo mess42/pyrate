@@ -1,3 +1,5 @@
+from numpy import *
+
 class Shape(object):
     """
     Virtual Class for all surface shapes.
@@ -24,9 +26,10 @@ class Shape(object):
         """
         raise NotImplementedError()
 
-    def draw2d(self, offset = [0,0], vertices=100, color="grey"):
+    def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         """
         Plots the surface in a matplotlib figure.
+        :param ax: matplotlib axes handle 
         :param offset: y and z offset (list or 1d numpy array of 2 floats)
         :param vertices: number of points the polygon representation of the surface contains (int)
         :param color: surface draw color (str)
@@ -93,11 +96,11 @@ class Conic(Shape):
         
         return t, normal
 
-    def draw2d(self, offset = [0,0], vertices=100, color="grey"):
+    def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         y = self.sdia * linspace(-1,1,vertices)
         z = self.sag(0,y)
         
-        plot(z+offset[1],y+offset[0], color)
+        ax.plot(z+offset[1],y+offset[0], color)
              
 
 class Asphere(Shape):
