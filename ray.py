@@ -1,3 +1,5 @@
+from numpy import *
+
 class RayBundle(object):
     """
     Class representing a bundle of rays.
@@ -16,7 +18,6 @@ class RayBundle(object):
         :param pol:  Polarization state of the rays. (2d numpy 2xN array of complex)
         """
         self.o = o
-        mag = sqrt( sum( d**2, axis=0 ) )
         self.k = k
         self.setRayDir(k)
         self.t = t
@@ -28,28 +29,33 @@ class RayBundle(object):
         Calculates the unit direction vector of a ray from its wavevector.
         """
         ray_dir = k
-        absk = sqrt( sum(ray_dir**2, axis=-1) )
-        ray_dir[0] = raydir[0] / absk
-        ray_dir[1] = raydir[1] / absk
-        ray_dir[2] = raydir[2] / absk
+        absk = sqrt( sum(ray_dir**2, axis=0) )
+        ray_dir[0] = ray_dir[0] / absk
+        ray_dir[1] = ray_dir[1] / absk
+        ray_dir[2] = ray_dir[2] / absk
         self.ray_dir = ray_dir
  
 class RayPath(object):
     """
     Class representing the Path of a RayBundle through the whole optical system.
     """
-    def __init__(self, initialraybundle):
+    def __init__(self, initialraybundle, opticalSystem):
         """
         Constructor defining initial RayBundle
         :param initialraybundle: Raybundle at initial position in the OpticalSystem ( Raybundle object )
 
         """
         self.raybundles = [ initialraybundle ]
+        N = opticalSystem.get_number_of_surfaces()
 
-    def traceToNextSurface(self, nextSurface, thicknessOfNextSurface):
-        t, normal = nextSurface.shap.intersect(self.raybundles[-1])
+        for i in arange(N-1)+1:
+            self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].thickness)
+
+    def traceToNextSurface(self, nextSurface, thicknessOfCurrentSurface):
+        self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
+        intersection, t, normal = nextSurface.shap.intersect(self.raybundles[-1])
         self.raybundles[-1].t = t
-        intersection = self.raybundles[-1].o + self.raybundles[-1].dir * t
         
         self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal)  )
+
  

@@ -82,19 +82,21 @@ class Conic(Shape):
 
         t = G / ( F + sqrt( square ) )
         
+        intersection = r0 + raybundle.ray_dir * t
+        
         # Normal
-        normal    = zeros(shape(intersection), dtype=float)
+        normal    = zeros(shape(r0), dtype=float)
         normal[0] =   - self.curvature * intersection[0]
         normal[1] =   - self.curvature * intersection[1]
         normal[2] = 1 - self.curvature * intersection[2] * (1+self.conic)
         
-        absn = sqrt( sum(normal**2, axis=-1) )
+        absn = sqrt( sum(normal**2, axis=0) )
         
         normal[0] = normal[0] / absn
         normal[1] = normal[1] / absn
         normal[2] = normal[2] / absn
         
-        return t, normal
+        return intersection, t, normal
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         y = self.sdia * linspace(-1,1,vertices)

@@ -35,11 +35,9 @@ class SimpleGlass(Material):
         abs_k2 = self.n
         square = abs_k2**2 - np.dot(k_perp, k_perp)
 
+        # to do: treat total internal reflection
         # indices_of_nan = find(square < 0)
         # indices of rays that are total internal reflected
-
-        if square < 0.0:
-            return None  # Return None for total internal reflection
 
         abs_k2_normal = np.sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
