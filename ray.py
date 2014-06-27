@@ -4,7 +4,7 @@ class RayBundle(object):
     """
     Class representing a bundle of rays.
     """
-    def __init__(self, o, k,t=0, wave=0.55, pol=[]):
+    def __init__(self, o, k, wave=0.55, pol=[]):
         """
         Constructor defining the ray properties
         :param o:    Origin of the rays.   (2d numpy 3xN array of float)
@@ -20,7 +20,7 @@ class RayBundle(object):
         self.o = o
         self.k = k
         self.setRayDir(k)
-        self.t = t
+        self.t = zeros(shape(o)[1])
         self.wave = wave
         self.pol = pol
 
@@ -28,12 +28,20 @@ class RayBundle(object):
         """
         Calculates the unit direction vector of a ray from its wavevector.
         """
-        ray_dir = k
+        ray_dir = 1. * k # copy k, dont just create a pointer
         absk = sqrt( sum(ray_dir**2, axis=0) )
         ray_dir[0] = ray_dir[0] / absk
         ray_dir[1] = ray_dir[1] / absk
         ray_dir[2] = ray_dir[2] / absk
         self.ray_dir = ray_dir
+
+    def draw2d(self, ax, offset=[0,0], color="blue"):
+        nrays = shape(self.o)[1]
+        for i in arange(nrays):
+            y = array( [self.o[1,i], self.o[1,i] + self.t[i] * self.ray_dir[1,i] ] )
+            z = array( [self.o[2,i], self.o[2,i] + self.t[i] * self.ray_dir[2,i] ] )     
+            ax.plot(z+offset[1],y+offset[0], color)
+
  
 class RayPath(object):
     """
@@ -54,8 +62,13 @@ class RayPath(object):
     def traceToNextSurface(self, nextSurface, thicknessOfCurrentSurface):
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
         intersection, t, normal = nextSurface.shap.intersect(self.raybundles[-1])
-        self.raybundles[-1].t = t
-        
+        self.raybundles[-1].t = t       
         self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal)  )
 
- 
+    def draw2d(self, opticalsystem, ax, offset=[0,0], color="blue"):
+        Nsurf = len(self.raybundles)
+        offy = offset[0]
+        offz = offset[1]
+        for i in arange(Nsurf):
+            offz += opticalsystem.surfaces[i].thickness
+            self.raybundles[i].draw2d(ax, offset = [offy, offz], color = color)
