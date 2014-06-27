@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import *
 from ray import RayBundle
 
 class Material(object):
@@ -30,16 +30,17 @@ class SimpleGlass(Material):
         At the moment the method takes one ray at a time.
         TODO: Change the method for efficient processing of multiple rays.
         """
-        abs_k1_normal = np.dot(raybundle.k, normal)
+        
+        abs_k1_normal = sum( raybundle.k * normal, axis = 0)
         k_perp = raybundle.k - abs_k1_normal * normal
         abs_k2 = self.n
-        square = abs_k2**2 - np.dot(k_perp, k_perp)
+        square = abs_k2**2 - sum(k_perp * k_perp, axis=0)
 
         # to do: treat total internal reflection
         # indices_of_nan = find(square < 0)
         # indices of rays that are total internal reflected
 
-        abs_k2_normal = np.sqrt(square)
+        abs_k2_normal = sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
         # return ray with new direction and properties of old ray
         return RayBundle(intersection, k2, raybundle.wave, raybundle.pol)
