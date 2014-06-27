@@ -23,7 +23,7 @@ class SimpleGlass(Material):
     A simple glass defined by a single refractive index.
     """
     def __init__(self, index):
-        self.n = index
+        self.n = float(index)
 
     def refract(self, raybundle, intersection, normal):
         """
