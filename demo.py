@@ -46,10 +46,9 @@ k[2] = k[2] / absk
 initialraybundle = RayBundle( origin, k, wave=0.55 )
 r = RayPath(initialraybundle, s)
 
-print r.raybundles[1].k
-
 fig = figure(1)
 ax = fig.add_subplot(111)
 s.draw2d(ax)
+r.draw2d(s, ax)
 
 show()
