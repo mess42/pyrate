@@ -28,18 +28,18 @@ class RayBundle(object):
         """
         Calculates the unit direction vector of a ray from its wavevector.
         """
-        ray_dir = 1. * k # copy k, dont just create a pointer
-        absk = sqrt( sum(ray_dir**2, axis=0) )
-        ray_dir[0] = ray_dir[0] / absk
-        ray_dir[1] = ray_dir[1] / absk
-        ray_dir[2] = ray_dir[2] / absk
-        self.ray_dir = ray_dir
+        rayDir = 1. * k # copy k, dont just create a pointer
+        absk = sqrt( sum(rayDir**2, axis=0) )
+        rayDir[0] = rayDir[0] / absk
+        rayDir[1] = rayDir[1] / absk
+        rayDir[2] = rayDir[2] / absk
+        self.rayDir = rayDir
 
     def draw2d(self, ax, offset=[0,0], color="blue"):
         nrays = shape(self.o)[1]
         for i in arange(nrays):
-            y = array( [self.o[1,i], self.o[1,i] + self.t[i] * self.ray_dir[1,i] ] )
-            z = array( [self.o[2,i], self.o[2,i] + self.t[i] * self.ray_dir[2,i] ] )     
+            y = array( [self.o[1,i], self.o[1,i] + self.t[i] * self.rayDir[1,i] ] )
+            z = array( [self.o[2,i], self.o[2,i] + self.t[i] * self.rayDir[2,i] ] )     
             ax.plot(z+offset[1],y+offset[0], color)
 
  
@@ -54,7 +54,7 @@ class RayPath(object):
 
         """
         self.raybundles = [ initialraybundle ]
-        N = opticalSystem.get_number_of_surfaces()
+        N = opticalSystem.getNumberOfSurfaces()
 
         for i in arange(N-1)+1:
             self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].thickness)

@@ -64,25 +64,25 @@ class Conic(Shape):
         return self.curvature * rs / ( 1 + sqrt ( 1 - (1+self.conic) * self.curvature**2 * rs) )
 
     def intersect(self, raybundle):
-        ray_dir = raybundle.ray_dir
+        rayDir = raybundle.rayDir
         
         r0 = raybundle.o
         
-        F = ray_dir[2] - self.curvature * ( ray_dir[0] * r0[0] + ray_dir[1] * r0[1] + ray_dir[2] * r0[2] * (1+self.conic) )
+        F = rayDir[2] - self.curvature * ( rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic) )
         G = self.curvature * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic) ) - 2 * r0[2]
-        H = - self.curvature - self.conic * self.curvature * ray_dir[2]**2
+        H = - self.curvature - self.conic * self.curvature * rayDir[2]**2
     
         square = F**2 + H*G     
     
         # indices of rays that don't intercest with the sphere
         
-        # indices_of_nan = find( square < 0 ) 
+        # indicesOfNan = find( square < 0 ) 
         
-        # to do: add rays outside the clear aperture to the indices_of_nan list    
+        # to do: add rays outside the clear aperture to the indicesOfNan list    
 
         t = G / ( F + sqrt( square ) )
         
-        intersection = r0 + raybundle.ray_dir * t
+        intersection = r0 + raybundle.rayDir * t
         
         # Normal
         normal    = zeros(shape(r0), dtype=float)

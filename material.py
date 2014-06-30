@@ -15,10 +15,28 @@ class Material(object):
         raise NotImplementedError()
 
     def getIndex(self, ray):
+        """
+        Returns the refractive index or ordinary index.
+
+        :param ray: RayBundle object defining the wavelength
+        :return n: refractive index
+        """
+        raise NotImplementedError()
+
+    def setCoefficients(self, coefficients):
+        """
+        Sets the dispersion coefficients of a glass (if any)
+        """
+        raise NotImplementedError()
+
+    def getCoefficients(self):
+        """
+        Returns the dispersion coefficients of a glass
+        """
         raise NotImplementedError()
 
 
-class SimpleGlass(Material):
+class ConstantIndexGlass(Material):
     """
     A simple glass defined by a single refractive index.
     """
@@ -27,8 +45,6 @@ class SimpleGlass(Material):
 
     def refract(self, raybundle, intersection, normal):
         """
-        At the moment the method takes one ray at a time.
-        TODO: Change the method for efficient processing of multiple rays.
         """
         
         abs_k1_normal = sum( raybundle.k * normal, axis = 0)
@@ -37,7 +53,7 @@ class SimpleGlass(Material):
         square = abs_k2**2 - sum(k_perp * k_perp, axis=0)
 
         # to do: treat total internal reflection
-        # indices_of_nan = find(square < 0)
+        # indicesOfNan = find(square < 0)
         # indices of rays that are total internal reflected
 
         abs_k2_normal = sqrt(square)
@@ -45,7 +61,13 @@ class SimpleGlass(Material):
         # return ray with new direction and properties of old ray
         return RayBundle(intersection, k2, raybundle.wave, raybundle.pol)
 
-class Glass(SimpleGlass):
+    def setCoefficients(self, n):
+        self.n = n
+
+    def getCoefficients(self):
+        return self.n
+
+class Glass(ConstantIndexGlass):
     def __init__(self, coefficients, formula):
         """
         Set glass propertied from catalog data

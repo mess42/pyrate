@@ -16,7 +16,7 @@ class Surface():
     """
     def __init__(self, thickness = 0.0):
         self.shap  = surfShape.Conic()
-        self.mater = material.SimpleGlass( index=1.0 )
+        self.mater = material.ConstantIndexGlass( index=1.0 )
         self.thickness = thickness
         
         self.availableShapeNames, self.availableShapeClasses = self.getAvailableShapes()
@@ -91,37 +91,36 @@ class Surface():
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         self.shap.draw2d(ax, offset, vertices, color)      
 
-class Optical_System():
+class OpticalSystem():
     """
     To do: document this class
     """
     def __init__(self):
         self.surfaces = []
-        self.insert_surface(0) # object
-        self.insert_surface(1) # image
+        self.insertSurface(0) # object
+        self.insertSurface(1) # image
         
-    def insert_surface(self,position):
+    def insertSurface(self,position):
         self.surfaces.insert(position, Surface() )
         
-    def remove_surface(self,position):
+    def removeSurface(self,position):
         self.surfaces.pop(position)
         
-    def get_number_of_surfaces(self):
+    def getNumberOfSurfaces(self):
         return len(self.surfaces)
         
-    def set_thickness(self, position, thickness):
+    def setThickness(self, position, thickness):
         self.surfaces[position].thickness = thickness
 
     def setMaterial(self, position, materialType, materialName):
         self.surfaces[position].setMaterial(materialType, materialName)
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
-        N = self.get_number_of_surfaces()
+        N = self.getNumberOfSurfaces()
         offy = offset[0]
         offz = offset[1]
         for i in arange(N):
             self.surfaces[i].draw2d(ax, offset = [offy, offz])
             offz += self.surfaces[i].thickness
  
-    def trace(self, raybundle):
-        raise NotImplementedError()
+
