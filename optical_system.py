@@ -56,17 +56,20 @@ class Surface():
         return listOfMaterialTypeNames, listOfMaterialTypeClasses
 
 
-    def setMaterial(self, materialType, materialName):
+    def setMaterial(self, materialType, materialInitData=""):
         """
         Sets the material object self.mater
         
         :param materialType: name of the material dispersion formula (str)
-        :param materialName: name of the material (str)
+        :param materialInitData: data to initialize the material. Type depends on materialType. Will assume standard values if set to empty str.
         """
         
         if materialType in self.availableMaterialTypeNames:
-            i = self.availableMaterialTypeNames.index(materialType)            
-            self.mater = self.availableMaterialTypeClasses[i]( materialName )
+            i = self.availableMaterialTypeNames.index(materialType)
+            if materialInitData == "":
+                self.mater = self.availableMaterialTypeClasses[i]()
+            else:
+                self.mater = self.availableMaterialTypeClasses[i]( materialInitData )
         else:
             print 'Warning: material type \'', materialType, '\' not found. setMaterial() aborted.'
 
@@ -112,8 +115,8 @@ class OpticalSystem():
     def setThickness(self, position, thickness):
         self.surfaces[position].thickness = thickness
 
-    def setMaterial(self, position, materialType, materialName):
-        self.surfaces[position].setMaterial(materialType, materialName)
+    def setMaterial(self, position, materialType, materialInitData=""):
+        self.surfaces[position].setMaterial(materialType, materialInitData)
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         N = self.getNumberOfSurfaces()

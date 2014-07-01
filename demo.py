@@ -21,7 +21,8 @@ s.setThickness( position = 0, thickness = 15 )
 
 s.insertSurface(1)
 s.setThickness( position = 1, thickness = 5 )
-s.setMaterial( position = 1, materialType = 'ConstantIndexGlass', materialName = 1.5)
+s.setMaterial( position = 1, materialType = "ModelGlass" )
+s.surfaces[1].mater.calcCoefficientsFrom_nd_vd_PgF( nd = 1.51680, vd = 64.17, PgF = 0.5349 )
 s.surfaces[1].setShapeType("Conic")
 s.surfaces[1].shap.curvature = 1/15.279
 s.surfaces[1].shap.sdia = 6
