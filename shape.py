@@ -1,3 +1,5 @@
+#!/usr/bin/env/python
+
 from numpy import *
 
 class Shape(object):
@@ -6,6 +8,12 @@ class Shape(object):
     The shape of a surface provides a function to calculate
     the intersection point with a ray.
     """
+
+    def __init__(self):
+        self.curvature = 0 # spherical curvature
+        self.sdia = 0 # semi-diameter
+        raise NotImplementedError()
+
     def intersect(self, raybundle):
         """
         Intersection routine returning intersection point
@@ -16,13 +24,20 @@ class Shape(object):
         """
         raise NotImplementedError()
 
-    def sag(self, x, y):
+    def getSag(self, x, y):
         """
         Returns the sag of the surface for given coordinates - mostly used
         for plotting purposes.
-        :param x:
-        :param y:
-        :raise NotImplementedError:
+        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :return z: sag (list or numpy 1d array of float)
+        """
+        raise NotImplementedError()
+
+    def GetCentralCurvature(self):
+        """
+        Returns the curvature ( inverse local radius ) on the optical axis.
+        :return curv: (float)
         """
         raise NotImplementedError()
 
@@ -59,9 +74,13 @@ class Conic(Shape):
         self.conic = cc
         self.sdia = semidiam
 
-    def sag(self, x, y):
+    def getSag(self, x, y):
         rs = x**2 + y**2
         return self.curvature * rs / ( 1 + sqrt ( 1 - (1+self.conic) * self.curvature**2 * rs) )
+
+    def GetCentralCurvature(self):
+        # Conic curvature on axis is only influenced by spherical curvature term
+        return self.curvature
 
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
@@ -100,7 +119,7 @@ class Conic(Shape):
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         y = self.sdia * linspace(-1,1,vertices)
-        z = self.sag(0,y)
+        z = self.getSag(0,y)
         
         ax.plot(z+offset[1],y+offset[0], color)
              

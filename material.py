@@ -1,3 +1,5 @@
+#!/usr/bin/env/python
+
 from numpy import *
 from ray import RayBundle
 
@@ -14,15 +16,6 @@ class Material(object):
         """
         raise NotImplementedError()
 
-    def getIndex(self, ray):
-        """
-        Returns the refractive index or ordinary index.
-
-        :param ray: RayBundle object defining the wavelength
-        :return n: refractive index
-        """
-        raise NotImplementedError()
-
     def setCoefficients(self, coefficients):
         """
         Sets the dispersion coefficients of a glass (if any)
@@ -33,6 +26,26 @@ class Material(object):
         """
         Returns the dispersion coefficients of a glass
         """
+        return self.n
+
+    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
+        """
+        Returns an ABCD matrix of the current surface.
+        The matrix is set up in geometric convention for (y, dy/dz) vectors.
+
+        The matrix contains:
+        - paraxial refraction from vacuum through the front surface
+        - paraxial translation through the material
+        - paraxial refraction at the rear surface into vacuum
+
+        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ), 
+        this method picks the correct paraxial propagators.
+
+        :param curvature: front surface (self.) curvature on the optical axis (float)
+        :param thickness: material thickness on axis (float)
+        :param nextCurvature: rear surface curvature on the optical axis (float)
+        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
+        """
         raise NotImplementedError()
 
 
@@ -40,8 +53,8 @@ class ConstantIndexGlass(Material):
     """
     A simple glass defined by a single refractive index.
     """
-    def __init__(self, index):
-        self.n = float(index)
+    def __init__(self):
+        self.n = 1.0
 
     def refract(self, raybundle, intersection, normal):
         """
@@ -62,30 +75,37 @@ class ConstantIndexGlass(Material):
         return RayBundle(intersection, k2, raybundle.wave, raybundle.pol)
 
     def setCoefficients(self, n):
-        self.n = n
+        """
+        Sets the refractive index.
 
-    def getCoefficients(self):
-        return self.n
+        :param n: refractive index (float)
+        """
+        self.n = n
 
     def getIndex(self, ray):
         return self.n
 
+    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
+        n = self.getIndex(ray)
+        abcd = dot( [[1,thickness],[0,1]]  ,  [[1,0],[(1./n-1)*curvature,1./n]] ) # translation * front
+        abcd = dot( [[1,0],[(n-1)*nextCurvature, n]]  ,  abcd )                   # rear * abcd
+        return abcd
 
 class ModelGlass(ConstantIndexGlass):
-    def __init__(self, coefficients = [1.49749699179, 0.0100998734374, 0.000328623343942] ):
+    def __init__(self):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
-
-        :param coefficients: [n0, A, B] coefficients of the Conrady formula (list or numpy 1d array)
         """
-        self.coeff = coefficients
+        self.coeff = [1.49749699179, 0.0100998734374, 0.000328623343942]
 
-    def setCoefficients(self, coefficients):
-        self.coeff = coefficients
+    def setCoefficients(self,  n0_A_B):
+        """
+        Sets the coefficients of the Conrady model.
 
-    def getCoefficients(self):
-        return self.coeff
+        :param n0_A_B: coefficients (list or 1d numpy 3x1 array of float)
+        """
+        self.coeff =  n0_A_B
 
     def getIndex(self, raybundle):
         wave = raybundle.wave # wavelength in um
