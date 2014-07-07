@@ -44,6 +44,7 @@ class Material(object):
         :param curvature: front surface (self.) curvature on the optical axis (float)
         :param thickness: material thickness on axis (float)
         :param nextCurvature: rear surface curvature on the optical axis (float)
+        :param ray: ray bundle to obtain wavelength (RayBundle object)
         :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
         """
         raise NotImplementedError()

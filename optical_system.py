@@ -99,6 +99,24 @@ class Surface():
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         self.shap.draw2d(ax, offset, vertices, color)      
 
+    def getABCDMatrix(self, nextSurface, ray):
+        """
+        Returns an ABCD matrix of the current surface.
+        The matrix is set up in geometric convention for (y, dy/dz) vectors.
+
+        The matrix contains:
+        - paraxial refraction from vacuum through the front surface
+        - paraxial translation through the material
+        - paraxial refraction at the rear surface into vacuum
+
+        :param nextSurface: next surface for rear surface curvature (Surface object)
+        :param ray: ray bundle to obtain wavelength (RayBundle object)
+        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
+        """
+        curvature = self.shap.getCentralCurvature()
+        nextCurvature = nextSurface.shap.getCentralCurvature()
+        return self.mater.getABCDMatrix(curvature, self.thickness, nextCurvature, ray)
+
 class OpticalSystem():
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
@@ -189,6 +207,60 @@ class OpticalSystem():
         :param position: number of the surface (int) 
         """
         self.stopPosition = position
+
+    def getABCDMatrix(self, ray, firstSurfacePosition = 0, lastSurfacePosition = -1):
+        """
+        Returns an ABCD matrix of the optical system.
+        The matrix is set up in geometric convention for (y, dy/dz) vectors.
+
+        The matrix contains:
+        - paraxial refraction from vacuum through the first surface
+        - paraxial propagation through the system
+        - paraxial refraction after the last surface into vacuum
+
+        :param firstSurfacePosition: Position of the first surface to consider (int).
+          Preset is 0 (object position).
+        :param lastSurfacePosition: Position of the last surface to consider (int).
+          Preset is -1 (image position)
+        :param ray: Ray bundle object.
+        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
+        """
+        print "first", firstSurfacePosition, lastSurfacePosition
+
+        if lastSurfacePosition < 0:
+            lastSurfacePosition = self.getNumberOfSurfaces() - lastSurfacePosition - 3
+
+        print "first", firstSurfacePosition, lastSurfacePosition
+
+        abcd = [[1,0],[0,1]]
+
+        for i in arange( lastSurfacePosition - firstSurfacePosition + 1) + firstSurfacePosition:
+            print "i=",i
+            abcd = dot( self.surfaces[i].getABCDMatrix(self.surfaces[i+1], ray)  ,  abcd )
+
+        return abcd
+
+    def getParaxialPupil(self, ray):
+        """
+        Returns the paraxially calculated pupil positions.
+
+        :param ray: Raybundle object
+        :return zen: entrance pupil position from object (float)
+        :return magen: entrance pupil magnificaction; entrance pupil diameter per stop diameter (float)
+        :return zex: exit pupil position from image (float)
+        :return magex: exit pupil magnificaction; exit pupil diameter per stop diameter (float)
+        """ 
+        abcd = self.getABCDMatrix(ray, 0 , self.stopPosition - 1) # object to stop
+
+        zen  = abcd[0,1] / abcd[0,0] # entrance pupil position from object
+        magen = 1.0 / abcd[0,0]     
+
+        abcd = self.getABCDMatrix(ray, self.stopPosition, -1) # stop to image
+
+        zex = - abcd[0,1] / abcd[1,1] # exit pupil position from image
+        magex = abcd[0,0] - abcd[0,1] * abcd[1,0] / abcd[1,1]
+
+        return zen, magen, zex, magex
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         N = self.getNumberOfSurfaces()

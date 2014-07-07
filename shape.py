@@ -34,7 +34,7 @@ class Shape(object):
         """
         raise NotImplementedError()
 
-    def GetCentralCurvature(self):
+    def getCentralCurvature(self):
         """
         Returns the curvature ( inverse local radius ) on the optical axis.
         :return curv: (float)
@@ -78,7 +78,7 @@ class Conic(Shape):
         rs = x**2 + y**2
         return self.curvature * rs / ( 1 + sqrt ( 1 - (1+self.conic) * self.curvature**2 * rs) )
 
-    def GetCentralCurvature(self):
+    def getCentralCurvature(self):
         # Conic curvature on axis is only influenced by spherical curvature term
         return self.curvature
 
