@@ -60,6 +60,7 @@ s.setShape( position = 7, shapeName = "Conic" )
 s.surfaces[7].shap.curvature = 1/1.479
 s.surfaces[7].shap.sdia = 1.0
 
+s.aimInitialRayBundle(pupilType = "image space NA" , size=.02538266, wavelength = 0.55)
 
 # benchmark
 # definition of rays
