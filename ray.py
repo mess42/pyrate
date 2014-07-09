@@ -1,8 +1,32 @@
+#!/usr/bin/env/python
+"""
+Pyrate - Optical raytracing based on Python
+
+Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and    Uwe Lippmann  uwe.lippmann@web.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
+
+from numpy import *
+
 class RayBundle(object):
     """
     Class representing a bundle of rays.
     """
-    def __init__(self, o, k,t=0, wave=0.55, pol=[]):
+    def __init__(self, o, k, wave=0.55, pol=[]):
         """
         Constructor defining the ray properties
         :param o:    Origin of the rays.   (2d numpy 3xN array of float)
@@ -16,10 +40,9 @@ class RayBundle(object):
         :param pol:  Polarization state of the rays. (2d numpy 2xN array of complex)
         """
         self.o = o
-        mag = sqrt( sum( d**2, axis=0 ) )
         self.k = k
         self.setRayDir(k)
-        self.t = t
+        self.t = zeros(shape(o)[1])
         self.wave = wave
         self.pol = pol
 
@@ -27,29 +50,40 @@ class RayBundle(object):
         """
         Calculates the unit direction vector of a ray from its wavevector.
         """
-        ray_dir = k
-        absk = sqrt( sum(ray_dir**2, axis=-1) )
-        ray_dir[0] = raydir[0] / absk
-        ray_dir[1] = raydir[1] / absk
-        ray_dir[2] = raydir[2] / absk
-        self.ray_dir = ray_dir
+        rayDir = 1. * k # copy k, dont just create a pointer
+        absk = sqrt( sum(rayDir**2, axis=0) )
+        rayDir[0] = rayDir[0] / absk
+        rayDir[1] = rayDir[1] / absk
+        rayDir[2] = rayDir[2] / absk
+        self.rayDir = rayDir
+
+    def draw2d(self, ax, offset=[0,0], color="blue"):
+        nrays = shape(self.o)[1]
+        for i in arange(nrays):
+            y = array( [self.o[1,i], self.o[1,i] + self.t[i] * self.rayDir[1,i] ] )
+            z = array( [self.o[2,i], self.o[2,i] + self.t[i] * self.rayDir[2,i] ] )     
+            ax.plot(z+offset[1],y+offset[0], color)
+
  
 class RayPath(object):
     """
     Class representing the Path of a RayBundle through the whole optical system.
     """
-    def __init__(self, initialraybundle):
+    def __init__(self, initialraybundle, opticalSystem):
         """
         Constructor defining initial RayBundle
         :param initialraybundle: Raybundle at initial position in the OpticalSystem ( Raybundle object )
 
         """
         self.raybundles = [ initialraybundle ]
+        N = opticalSystem.getNumberOfSurfaces()
 
-    def traceToNextSurface(self, nextSurface, thicknessOfNextSurface):
-        t, normal = nextSurface.shap.intersect(self.raybundles[-1])
-        self.raybundles[-1].t = t
-        intersection = self.raybundles[-1].o + self.raybundles[-1].dir * t
-        
+        for i in arange(N-1)+1:
+            self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].thickness)
+
+    def traceToNextSurface(self, nextSurface, thicknessOfCurrentSurface):
+        self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
+        intersection, t, normal = nextSurface.shap.intersect(self.raybundles[-1])
+        self.raybundles[-1].t = t       
         self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal)  )
-
+ 

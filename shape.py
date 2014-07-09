@@ -1,9 +1,39 @@
+#!/usr/bin/env/python
+"""
+Pyrate - Optical raytracing based on Python
+
+Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and    Uwe Lippmann  uwe.lippmann@web.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
+
+from numpy import *
+
 class Shape(object):
     """
     Virtual Class for all surface shapes.
     The shape of a surface provides a function to calculate
     the intersection point with a ray.
     """
+
+    def __init__(self):
+        self.curvature = 0 # spherical curvature
+        self.sdia = 0 # semi-diameter
+        raise NotImplementedError()
+
     def intersect(self, raybundle):
         """
         Intersection routine returning intersection point
@@ -14,19 +44,27 @@ class Shape(object):
         """
         raise NotImplementedError()
 
-    def sag(self, x, y):
+    def getSag(self, x, y):
         """
         Returns the sag of the surface for given coordinates - mostly used
         for plotting purposes.
-        :param x:
-        :param y:
-        :raise NotImplementedError:
+        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :return z: sag (list or numpy 1d array of float)
         """
         raise NotImplementedError()
 
-    def draw2d(self, offset = [0,0], vertices=100, color="grey"):
+    def getCentralCurvature(self):
+        """
+        Returns the curvature ( inverse local radius ) on the optical axis.
+        :return curv: (float)
+        """
+        raise NotImplementedError()
+
+    def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         """
         Plots the surface in a matplotlib figure.
+        :param ax: matplotlib axes handle 
         :param offset: y and z offset (list or 1d numpy array of 2 floats)
         :param vertices: number of points the polygon representation of the surface contains (int)
         :param color: surface draw color (str)
@@ -56,48 +94,54 @@ class Conic(Shape):
         self.conic = cc
         self.sdia = semidiam
 
-    def sag(self, x, y):
+    def getSag(self, x, y):
         rs = x**2 + y**2
         return self.curvature * rs / ( 1 + sqrt ( 1 - (1+self.conic) * self.curvature**2 * rs) )
 
+    def getCentralCurvature(self):
+        # Conic curvature on axis is only influenced by spherical curvature term
+        return self.curvature
+
     def intersect(self, raybundle):
-        ray_dir = raybundle.ray_dir
+        rayDir = raybundle.rayDir
         
         r0 = raybundle.o
         
-        F = ray_dir[2] - self.curvature * ( ray_dir[0] * r0[0] + ray_dir[1] * r0[1] + ray_dir[2] * r0[2] * (1+self.conic) )
+        F = rayDir[2] - self.curvature * ( rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic) )
         G = self.curvature * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic) ) - 2 * r0[2]
-        H = - self.curvature - self.conic * self.curvature * ray_dir[2]**2
+        H = - self.curvature - self.conic * self.curvature * rayDir[2]**2
     
         square = F**2 + H*G     
     
         # indices of rays that don't intercest with the sphere
         
-        # indices_of_nan = find( square < 0 ) 
+        # indicesOfNan = find( square < 0 ) 
         
-        # to do: add rays outside the clear aperture to the indices_of_nan list    
+        # to do: add rays outside the clear aperture to the indicesOfNan list    
 
         t = G / ( F + sqrt( square ) )
         
+        intersection = r0 + raybundle.rayDir * t
+        
         # Normal
-        normal    = zeros(shape(intersection), dtype=float)
+        normal    = zeros(shape(r0), dtype=float)
         normal[0] =   - self.curvature * intersection[0]
         normal[1] =   - self.curvature * intersection[1]
         normal[2] = 1 - self.curvature * intersection[2] * (1+self.conic)
         
-        absn = sqrt( sum(normal**2, axis=-1) )
+        absn = sqrt( sum(normal**2, axis=0) )
         
         normal[0] = normal[0] / absn
         normal[1] = normal[1] / absn
         normal[2] = normal[2] / absn
         
-        return t, normal
+        return intersection, t, normal
 
-    def draw2d(self, offset = [0,0], vertices=100, color="grey"):
+    def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         y = self.sdia * linspace(-1,1,vertices)
-        z = self.sag(0,y)
+        z = self.getSag(0,y)
         
-        plot(z+offset[1],y+offset[0], color)
+        ax.plot(z+offset[1],y+offset[0], color)
              
 
 class Asphere(Shape):
