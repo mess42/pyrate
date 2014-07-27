@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import inspect
 import shape as surfShape # the name 'shape' already denotes the dimensions of a numpy array
 import material
+import pupil
 
 from numpy import *
 from ray import RayBundle
@@ -76,7 +77,6 @@ class Surface():
                 listOfMaterialTypeNames.append( name )
                 listOfMaterialTypeClasses.append( cla )
         return listOfMaterialTypeNames, listOfMaterialTypeClasses
-
 
     def setMaterial(self, materialType):
         """
@@ -137,6 +137,7 @@ class Surface():
         nextCurvature = nextSurface.shap.getCentralCurvature()
         return self.mater.getABCDMatrix(curvature, self.thickness, nextCurvature, ray)
 
+
 class OpticalSystem():
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
@@ -146,6 +147,9 @@ class OpticalSystem():
         self.insertSurface(0) # object
         self.insertSurface(1) # image
         self.stopPosition = None        
+        self.stopDiameter = 0
+
+        self.listOfPupilTypeNames, self.listOfPupilTypeClasses = self.getAvailablePupilDefinitions()
 
     def insertSurface(self,position):
         """
@@ -190,6 +194,22 @@ class OpticalSystem():
         Returns a list of valid Material child class names (list of str)
         """
         return self.surfaces[0].availableMaterialTypeNames
+
+    def getAvailablePupilDefinitions(self):
+        """
+        Parses pupil.py for class defintions.
+        
+        :return listOfPupilTypeNames: List of strings
+        :return listOfPupilTypeClasses: List of Class references
+        """
+        listOfPupilTypeNames = []
+        listOfPupilTypeClasses = []
+        for name, cla in inspect.getmembers(pupil):
+            fullname = str(cla).strip()
+            if fullname.startswith('<class \'pupil.'):
+                listOfPupilTypeNames.append( name )
+                listOfPupilTypeClasses.append( cla )
+        return listOfPupilTypeNames, listOfPupilTypeClasses
 
     def setMaterial(self, position, materialType):
         """
@@ -266,17 +286,17 @@ class OpticalSystem():
         :return zex: exit pupil position from image (float)
         :return magex: exit pupil magnificaction; exit pupil diameter per stop diameter (float)
         """ 
-        abcd = self.getABCDMatrix(ray, 0 , self.stopPosition - 1) # object to stop
+        abcdObjStop = self.getABCDMatrix(ray, 0 , self.stopPosition - 1) # object to stop
 
-        zen  = abcd[0,1] / abcd[0,0] # entrance pupil position from object
-        magen = 1.0 / abcd[0,0]     
+        zen  = abcdObjStop[0,1] / abcdObjStop[0,0] # entrance pupil position from object
+        magen = 1.0 / abcdObjStop[0,0]     
 
-        abcd = self.getABCDMatrix(ray, self.stopPosition, -1) # stop to image
+        abcdStopIm = self.getABCDMatrix(ray, self.stopPosition, -1) # stop to image
 
-        zex = - abcd[0,1] / abcd[1,1] # exit pupil position from image
-        magex = abcd[0,0] - abcd[0,1] * abcd[1,0] / abcd[1,1]
+        zex = - abcdStopIm[0,1] / abcdStopIm[1,1] # exit pupil position from image
+        magex = abcdStopIm[0,0] - abcdStopIm[0,1] * abcdStopIm[1,0] / abcdStopIm[1,1]
 
-        return zen, magen, zex, magex
+        return zen, magen, zex, magex, abcdObjStop, abcdStopIm
 
     def getEffectiveFocalLength(self, ray):
         """
@@ -300,96 +320,39 @@ class OpticalSystem():
         print abcd
         return abcd[0,0] - abcd[0,1] * abcd[1,0] / abcd[1,1]
 
+    def setPupilData(self, stopPosition, pupilType, pupilSize, wavelength):
+        """
+        Sets up the private data of this class required to aim rays through the pupil.
 
-    def aimInitialRayBundle(self, pupilType, pupilSize, fieldType, fieldSize, wavelength = 0.55):
+        :param stopPosition: surface number of the stop (int)
+        :param pupilType: name of the class in pupil.py that defines the type of pupil (F#, NA, stop dia, ...) (str)
+        :param pupilSize: size parameter of the pupil. Unit depends on pupilType. (float)
+        :param wavelength: wavelength for pupil size calculation in um (float)
+        """
+        self.stopPosition = stopPosition
+
+        pupilType = pupilType.upper().strip()
+        if pupilType in self.listOfPupilTypeNames:
+            i = self.listOfPupilTypeNames.index(pupilType)
+        
+            temp_ray = RayBundle(zeros((3,3)), zeros((3,3)), wavelength) # dummy ray 
+            temp_obj = self.listOfPupilTypeClasses[i]()
+            tenp_ms, self.stopDiameter = temp_obj.get_marginalSlope(self, temp_ray, pupilSize)
+        else:
+            print 'Warning: pupil type \'', pupilType, '\' not found. setPupilData() aborted.'      
+            self.stopDiameter = 0
+
+    def aimInitialRayBundle(self, fieldType, fieldSize):
         """
         Creates and returns a RayBundle object that aims at the optical system pupil.
         Pupil position is estimated paraxially.
         Aiming into the pupil is non-iterative, which means there is no check 
-        whether the ray actually hits the stop at the desired position.
+        whether the real ray actually hits the stop at the paraxially calculated position.
         
-        :param pupilType: type of the pupil definition (str)
-        :param pupilSize: pupil or stop size. Definition of size and unit depends on pupilType, see below. (float)
-        :param fieldType: type of the field definition (str)
-        :param fieldSize: Field position or angle. Definition and unit depends on fieldType, see below. (float)
-        :param wavelength: wavelength in um (float)
-        :return raybundle: RayBundle object
-       
-          pupilType                    definition of pupilSize
-          "stop radius"                stop radius in lens units
-          "stop diameter"              stop diameter in lens units
-          "entrance pupil radius"      pupil radius in lens units
-          "entrance pupil diameter"    pupil diameter in lens units
-          "exit pupil radius"          pupil radius in lens units
-                                         uses paraxial estimate for ratio of entrance and exit pupil size
-          "exit pupil diameter"        pupil diameter in lens units
-                                         uses paraxial estimate for ratio of entrance and exit pupil size
-          "object space f#"            aperture number, unitless
-                                         infinite conjugate object sided aperture number
-                                         (ratio of paraxial exit pupil diameter and paraxial focal length)
-          "image space f#"             aperture number, unitless
-                                         infinite conjugate image sided aperture number
-                                         (ratio of entrance pupil diameter and paraxial focal length)
-          "object space working f#"    aperture number, unitless
-                                         finite conjugate object sided aperture number
-          "image space working f#"     aperture number, unitless
-                                         finite conjugate image sided aperture number
-          "object space na"            numerical aperture, unitless
-          "image space na"             numerical aperture, unitless
-                                         uses paraxial magnification to convert image to object sided NA
-    
-          fieldType                            definition of fieldSize
-          "object height"                      object height in lens units
-                                                 Distance from object to first lens must be finite.
-          "image height"                       paraxial image height in lens units
-                                                 System must not be image sided afocal.
-          "infinite conjugate image height"    paraxial image height for incident collimated beam in lens units
-                                                 System must not be image sided afocal.
-                                                 Thickness of object may be finite.
-          "chief ray angle"                    finite conjugate chief ray angle from object to entrance pupil in deg
-                                                 System must not be object sided telecentric.
-          "infinite conjugate chief ray angle" chief ray angle of collimated incident beam in deg
-                                                 Thickness of object may be finite.
-
-        TO DO: complete implementation of pupil definitions
         TO DO: At the moment, this function fails to produce correct values for immersion
         """
-        pupilType = pupilType.upper().strip()
 
-        raybundle = RayBundle(zeros((3,3)), zeros((3,3)), wavelength) # dummy ray
-        f = self.getEffectiveFocalLength(raybundle)
-        zen, magen, zex, magex = self.getParaxialPupil(raybundle)
-        pmag = self.getParaxialMagnification(raybundle)        
-
-        # definition of entrance pupil radius epr
-        if pupilType == "STOP RADIUS":
-            epr = magen * pupilSize
-        if pupilType == "STOP RADIUS":
-            epr = magen * pupilSize
-        if pupilType == "ENTRANCE PUPIL RADIUS":
-            epr = pupilSize
-        if pupilType == "ENTRANCE PUPIL DIAMETER":
-            epr = 0.5 * pupilSize
-        if pupilType == "EXIT PUPIL RADIUS":
-            epr =  magen / magex * pupilSize
-        if pupilType == "EXIT PUPIL DIAMETER":
-            epr =  0.5 * magen / magex * pupilSize
-        if pupilType == "IMAGE SPACE F#":
-            epr = 0.5 * f / pupilSize
-        if pupilType == "OBJECT SPACE F#":
-            expr = 0.5 * f / pupilSize
-            epr =  magen / magex * expr
-        if pupilType == "IMAGE SPACE WORKING F#":
-            raise NotImplementedError()
-        if pupilType == "OBJECT SPACE WORKING F#":
-            raise NotImplementedError()
-        if pupilType == "OBJECT SPACE NA":
-            epr = zen * tan( arcsin( pupilSize ) )
-        if pupilType == "IMAGE SPACE NA":
-            object_space_na = size * pmag
-            epr = zen * tan( arcsin( object_space_na ) )
-            # this is only correct for small NA s
-            raise NotImplementedError()
+        raise NotImplementedError()
         
         return raybundle
 

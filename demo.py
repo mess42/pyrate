@@ -1,6 +1,7 @@
 from numpy import *
 from pylab import *
 import time
+import pupil
 
 from optical_system import OpticalSystem
 from ray import RayPath, RayBundle
@@ -60,11 +61,11 @@ s.setShape( position = 7, shapeName = "Conic" )
 s.surfaces[7].shap.curvature = 1/1.479
 s.surfaces[7].shap.sdia = 1.0
 
-s.aimInitialRayBundle(pupilType = "image space NA" , size=.02538266, wavelength = 0.55)
+
 
 # benchmark
 # definition of rays
-nray = 1E6 # number of rays
+nray = 1E3 # number of rays
 origin = zeros((3,nray), dtype=float )
 k = zeros((3,nray), dtype=float )
 k[1,:] = linspace(-.2, .2, nray)
@@ -105,5 +106,11 @@ fig = figure(1)
 ax = fig.add_subplot(111)
 s.draw2d(ax)
 r.draw2d(s, ax)
+
+# pupil aiming test
+s.getAvailablePupilDefinitions()
+
+
+
 
 show()
