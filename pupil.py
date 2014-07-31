@@ -49,7 +49,7 @@ class EntrancePupilDiameter(object):
         doubleInfConj = True
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
-    def get_marginalSlope(self, opticalSystem, ray, epd):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, epd):
         """
         Returns the entrance pupil diameter of an optical System.
         
@@ -60,25 +60,26 @@ class EntrancePupilDiameter(object):
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0,1]
         ms = epd / (2*zen)
         stopDia = 2*Bo*ms
         return ms, stopDia
 
 class EntrancePupilRadius(EntrancePupilDiameter):
-    def get_marginalSlope(self, opticalSystem, ray, epr):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, epr):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param epr: entrance pupil radius (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0,1]
         ms = epr / zen
         stopDia = 2*Bo*ms
@@ -94,35 +95,37 @@ class StopDiameter(EntrancePupilDiameter):
         doubleInfConj = True
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
-    def get_marginalSlope(self, opticalSystem, ray, stopDia):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, stopDia):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param stopDia: stop diameter (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0,1]
         ms = .5 / Bo * stopDia
         return ms, stopDia
 
 class StopRadius(StopDiameter):
-    def get_marginalSlope(self, opticalSystem, ray, stopRad):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, stopRad):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param stopRad: stop radius (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0,1]
         ms = stopRad / Bo
         stopDia = 2*stopRad
@@ -138,36 +141,38 @@ class ExitPupilDiameter(EntrancePupilDiameter):
         doubleInfConj = True
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
-    def get_marginalSlope(self, opticalSystem, ray, exPupDia):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, exPupDia):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param exPupDia: exit pupil diameter (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0,1]
         ms = 0.5 / (Bo * magex) * exPupDia
         stopDia = 1 / magex * exPupDia
         return ms, stopDia
     
 class ExitPupilRadius(ExitPupilDiameter):
-    def get_marginalSlope(self, opticalSystem, ray, exPupRad):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, exPupRad):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param exPupRad: exit pupil radius (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0,1]
         ms = exPupRad / (Bo * magex) 
         stopDia = 2 / magex * exPupRad
@@ -183,18 +188,19 @@ class InfiniteConjugateImageSpaceFNumber(EntrancePupilDiameter):
         doubleInfConj = False
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
-    def get_marginalSlope(self, opticalSystem, ray, fnumber):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, fnumber):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param fnumber: infinite conjugate image space aperture number (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         f = opticalSystem.getEffectiveFocalLength(ray)
 
         ms = f / (2*fnumber*zen)
@@ -211,18 +217,19 @@ class InfiniteConjugateObjectSpaceFNumber(EntrancePupilDiameter):
         doubleInfConj = False
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
-    def get_marginalSlope(self, opticalSystem, ray, fnumber):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, fnumber):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param fnumber: infinite conjugate object space aperture number (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         f = opticalSystem.getEffectiveFocalLength(ray)
         Bo = abcd_obj_stop[0,1]
         ms = f / (2*fnumber*Bo*magex)
@@ -240,25 +247,26 @@ class WorkingImageSpaceFNumber(EntrancePupilDiameter):
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
     # TO DO: calculated values do not coincide with Zemax
-    def get_marginalSlope(self, opticalSystem, ray, fnumber):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, fnumber):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param fnumber: paraxial working image space aperture number (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Ai = abcd_stop_im[0,0]
         Bi = abcd_stop_im[0,1]
         Ci = abcd_stop_im[1,0]
         Di = abcd_stop_im[1,1]
         Bo = abcd_obj_stop[0,1]
         ms = .5 * Bi / ((Ai*Di-Bi*Ci)*Bo*fnumber)
-        print "Warning: calculated values with this method in epd.py do not coincide with Zemax results. There might be a bug."
+        print "Warning: calculated values with this method in pupil.py do not coincide with Zemax results. There might be a bug."
         stopDia = Bi / ((Ai*Di-Bi*Ci)*fnumber)
         return ms, stopDia
 
@@ -274,11 +282,12 @@ class WorkingObjectSpaceFNumber(EntrancePupilDiameter):
 
     # TO DO: calculated values do not coincide with Zemax
     # TO DO: set boolenas for special cases
-    def get_marginalSlope(self, opticalSystem, ray, fnumber):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, fnumber):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param fnumber: paraxial working object space aperture number (float)
         
@@ -286,8 +295,8 @@ class WorkingObjectSpaceFNumber(EntrancePupilDiameter):
         :return StopDia: stop diameter (float)
         """
         ms = 0.5 / fnumber
-        print "Warning: calculated values with this method in epd.py do not coincide with Zemax results. There might be a bug."
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        print "Warning: calculated values with this method in pupil.py do not coincide with Zemax results. There might be a bug."
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0,1]
         stopDia = Bo / fnumber
         return ms, stopDia
@@ -302,11 +311,12 @@ class ObjectSpaceNA(EntrancePupilDiameter):
         doubleInfConj = False
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
-    def get_marginalSlope(self, opticalSystem, ray, na):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, na):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param na: object space numerical aperture (float)
         
@@ -314,7 +324,7 @@ class ObjectSpaceNA(EntrancePupilDiameter):
         :return StopDia: stop diameter (float)
         """
         ms = tan(arcsin(na))
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0,1]
         stopDia = 2*Bo*ms
         return ms, stopDia
@@ -329,18 +339,19 @@ class ImageSpaceNA(EntrancePupilDiameter):
         doubleInfConj = False
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
-    def get_marginalSlope(self, opticalSystem, ray, na):
+    def get_marginalSlope(self, opticalSystem, stopPosition, ray, na):
         """
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: raybundle object
         :param na: image space numerical aperture (float)
         
         :return marginalSlope: slope of the marginal ray (float)
         :return StopDia: stop diameter (float)
         """
-        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(ray)
+        zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         pmag = opticalSystem.getParaxialMagnification(ray)        
         ms = tan(arcsin(na*pmag))  
         Bo = abcd_obj_stop[0,1]

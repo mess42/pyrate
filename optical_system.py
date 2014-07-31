@@ -146,11 +146,7 @@ class OpticalSystem():
         self.surfaces = []
         self.insertSurface(0) # object
         self.insertSurface(1) # image
-        self.stopPosition = None        
-        self.stopDiameter = 0
-
-        self.listOfPupilTypeNames, self.listOfPupilTypeClasses = self.getAvailablePupilDefinitions()
-
+ 
     def insertSurface(self,position):
         """
         Inserts a new surface into the optical system.
@@ -195,22 +191,6 @@ class OpticalSystem():
         """
         return self.surfaces[0].availableMaterialTypeNames
 
-    def getAvailablePupilDefinitions(self):
-        """
-        Parses pupil.py for class defintions.
-        
-        :return listOfPupilTypeNames: List of strings
-        :return listOfPupilTypeClasses: List of Class references
-        """
-        listOfPupilTypeNames = []
-        listOfPupilTypeClasses = []
-        for name, cla in inspect.getmembers(pupil):
-            fullname = str(cla).strip()
-            if fullname.startswith('<class \'pupil.'):
-                listOfPupilTypeNames.append( name )
-                listOfPupilTypeClasses.append( cla )
-        return listOfPupilTypeNames, listOfPupilTypeClasses
-
     def setMaterial(self, position, materialType):
         """
         Sets the material of a surface.
@@ -240,14 +220,6 @@ class OpticalSystem():
         """
         self.surfaces[position].setShape(shapeName)
 
-    def setStopPosition(self, position):
-        """
-        Sets one surface as the stop. Don't forget to set its semi-diameter.
-
-        :param position: number of the surface (int) 
-        """
-        self.stopPosition = position
-
     def getABCDMatrix(self, ray, firstSurfacePosition = 0, lastSurfacePosition = -1):
         """
         Returns an ABCD matrix of the optical system.
@@ -276,22 +248,24 @@ class OpticalSystem():
 
         return abcd
 
-    def getParaxialPupil(self, ray):
+    def getParaxialPupil(self, stopPosition, ray):
         """
         Returns the paraxially calculated pupil positions.
 
+        :param stopPosition: surface number of the surface that is defined as stop (int)
         :param ray: Raybundle object
+
         :return zen: entrance pupil position from object (float)
         :return magen: entrance pupil magnificaction; entrance pupil diameter per stop diameter (float)
         :return zex: exit pupil position from image (float)
         :return magex: exit pupil magnificaction; exit pupil diameter per stop diameter (float)
         """ 
-        abcdObjStop = self.getABCDMatrix(ray, 0 , self.stopPosition - 1) # object to stop
+        abcdObjStop = self.getABCDMatrix(ray, 0 , stopPosition - 1) # object to stop
 
         zen  = abcdObjStop[0,1] / abcdObjStop[0,0] # entrance pupil position from object
         magen = 1.0 / abcdObjStop[0,0]     
 
-        abcdStopIm = self.getABCDMatrix(ray, self.stopPosition, -1) # stop to image
+        abcdStopIm = self.getABCDMatrix(ray, stopPosition, -1) # stop to image
 
         zex = - abcdStopIm[0,1] / abcdStopIm[1,1] # exit pupil position from image
         magex = abcdStopIm[0,0] - abcdStopIm[0,1] * abcdStopIm[1,0] / abcdStopIm[1,1]
@@ -319,43 +293,6 @@ class OpticalSystem():
         abcd = self.getABCDMatrix(ray)
         print abcd
         return abcd[0,0] - abcd[0,1] * abcd[1,0] / abcd[1,1]
-
-    def setPupilData(self, stopPosition, pupilType, pupilSize, wavelength):
-        """
-        Sets up the private data of this class required to aim rays through the pupil.
-
-        :param stopPosition: surface number of the stop (int)
-        :param pupilType: name of the class in pupil.py that defines the type of pupil (F#, NA, stop dia, ...) (str)
-        :param pupilSize: size parameter of the pupil. Unit depends on pupilType. (float)
-        :param wavelength: wavelength for pupil size calculation in um (float)
-        """
-        self.stopPosition = stopPosition
-
-        pupilType = pupilType.upper().strip()
-        if pupilType in self.listOfPupilTypeNames:
-            i = self.listOfPupilTypeNames.index(pupilType)
-        
-            temp_ray = RayBundle(zeros((3,3)), zeros((3,3)), wavelength) # dummy ray 
-            temp_obj = self.listOfPupilTypeClasses[i]()
-            tenp_ms, self.stopDiameter = temp_obj.get_marginalSlope(self, temp_ray, pupilSize)
-        else:
-            print 'Warning: pupil type \'', pupilType, '\' not found. setPupilData() aborted.'      
-            self.stopDiameter = 0
-
-    def aimInitialRayBundle(self, fieldType, fieldSize):
-        """
-        Creates and returns a RayBundle object that aims at the optical system pupil.
-        Pupil position is estimated paraxially.
-        Aiming into the pupil is non-iterative, which means there is no check 
-        whether the real ray actually hits the stop at the paraxially calculated position.
-        
-        TO DO: At the moment, this function fails to produce correct values for immersion
-        """
-
-        raise NotImplementedError()
-        
-        return raybundle
-
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         N = self.getNumberOfSurfaces()

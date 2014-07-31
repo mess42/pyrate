@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 from numpy.random import *
 
-def rectGrid(nray):
+def rasterRectGrid(nray):
     """
     Returns a grid of pupil coordinates with rectangular rastering.
 
@@ -41,7 +41,7 @@ def rectGrid(nray):
     ypup = ypup[ ind ]    
     return xpup,ypup
 
-def hexGrid(nray):
+def rasterHexGrid(nray):
     """
     Returns a grid of pupil coordinates with hexagonal rastering.
 
@@ -78,7 +78,7 @@ def hexGrid(nray):
     ypup[N1+arange(N2)] = ypup2
     return xpup,ypup
 
-def randomGrid(nray):
+def rasterRandomGrid(nray):
     """
     Returns a grid of pupil coordinates with random distribution.
 
@@ -99,7 +99,7 @@ def randomGrid(nray):
         ypup.append(ynew)
     return array(xpup), array(ypup)
 
-def meridionalFan(nray, phi=0):
+def rasterMeridionalFan(nray, phi=0):
     """
     Returns a fan of pupil coordinates in the meridional plane.
 
@@ -115,7 +115,7 @@ def meridionalFan(nray, phi=0):
     ypup = xlin * cos(alpha)
     return xpup,ypup
 
-def sagitalFan(nray, phi=0):
+def rasterSagitalFan(nray, phi=0):
     """
     Returns a fan of pupil coordinates in the sagital plane.
 
@@ -127,7 +127,7 @@ def sagitalFan(nray, phi=0):
     """
     return meridionalFan(nray, phi - 90.)
 
-def chiefAndComa(nray,phi=0):
+def rasterChiefAndComa(nray,phi=0):
     """
     Returns pupil coordinates of chief, 
     upper meridional coma, lower meridional coma,

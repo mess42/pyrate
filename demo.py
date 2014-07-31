@@ -108,7 +108,7 @@ s.draw2d(ax)
 r.draw2d(s, ax)
 
 # pupil aiming test
-s.getAvailablePupilDefinitions()
+
 
 
 
