@@ -24,10 +24,16 @@ import inspect
 import pupil
 import field
 import raster
+from ray import RayBundle
 from numpy import *
 
 class aimFiniteByMakingASurfaceTheStop(object):
-    def __init__(self):
+    def __init__(self, opticalSystem, 
+        pupilType="EntrancePupilDiameter", pupilSizeParameter = 0,
+        fieldType="ObjectHeight",
+        rasterType="rasterRectGrid", nray = 10,
+        wavelength = 0.55,
+        stopPosition = 1):
         """
         This class provides functionality to create an initial ray bundle that can be traced through an optical system.
         It is intended for finite object distances and assumes one surface of the optical system to be the stop surface.
@@ -35,14 +41,16 @@ class aimFiniteByMakingASurfaceTheStop(object):
         aimed for.
         """
 
-        # to do: set all private data (pupil types and sizes) with presets, allow arguments in constructor
-        self.stopPosition = None        
         self.stopDiameter = 0
 
         self.listOfPupilTypeNames, self.listOfPupilTypeClasses = self.getAvailablePupilDefinitions()
-        self.listOfFieldTypeNames, self.listOfFieldTypeFunctions = self.getAvailableFieldDefinitions()
+        self.listOfFieldTypeNames, self.listOfFieldTypeClasses = self.getAvailableFieldDefinitions()
         self.listOfRasterTypeNames, self.listOfRasterTypeFunctions = self.getAvailableRasterDefinitions()
 
+        self.setPupilType(opticalSystem, stopPosition, pupilType, wavelength )
+        self.setStopSize(opticalSystem, pupilSizeParameter)
+        self.setFieldType( fieldType )
+        self.setPupilRaster(rasterType, nray)
 
     def getAvailablePupilDefinitions(self):
         """
@@ -72,7 +80,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         for name, cla in inspect.getmembers(field):
             fullname = str(cla).strip()
             
-            if fullname.startswith('<function ChiefSlopeBy'):
+            if fullname.startswith('<class \'field.'):
                 listOfFieldTypeNames.append( name )
                 listOfFieldTypeFunctions.append( cla )
         return listOfFieldTypeNames, listOfFieldTypeFunctions     
@@ -94,13 +102,6 @@ class aimFiniteByMakingASurfaceTheStop(object):
                 listOfRasterTypeFunctions.append( cla )
         return listOfRasterTypeNames, listOfRasterTypeFunctions
 
-    def setStopPosition(self, position):
-        """
-        Sets one surface as the stop. Don't forget to set its semi-diameter.
-
-        :param position: number of the surface (int) 
-        """
-        self.stopPosition = position
 
     def setPupilType(self, opticalSystem, stopPosition, pupilType, wavelength ):
         """
@@ -112,11 +113,10 @@ class aimFiniteByMakingASurfaceTheStop(object):
         """
         self.stopPosition = stopPosition
 
-        pupilType = pupilType.upper().strip()
         if pupilType in self.listOfPupilTypeNames:
             i = self.listOfPupilTypeNames.index(pupilType)
         
-            self.dummyRay = RayBundle(zeros((3,3)), zeros((3,3)), wavelength) # dummy ray that carries the wavelength information
+            self.dummyRay = RayBundle(zeros((3,3)), ones((3,3)), wavelength) # dummy ray that carries the wavelength information
             self.pupilSizeCalculatorObject = self.listOfPupilTypeClasses[i]()
         else:
             print 'Warning: pupil type \'', pupilType, '\' not found. setPupilType() aborted.'      
@@ -132,7 +132,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         """
         temp_ms, self.stopDiameter = self.pupilSizeCalculatorObject.get_marginalSlope(opticalSystem, self.stopPosition, self.dummyRay, pupilSizeParameter)
 
-    def getMarginalSlope(self, opticalSystem, wavelength):
+    def getMarginalSlope(self, opticalSystem, ray):
         """
         Returns the marginal ray slope required for ray aiming.
         Once the pupil type and stop size are set up at the primary wavelength, this method 
@@ -142,9 +142,8 @@ class aimFiniteByMakingASurfaceTheStop(object):
 
         :return marginalSlope: slope (dy/dz) of the marginal ray (float)
         """
-        dummyRay2 = RayBundle(zeros((3,3)), zeros((3,3)), wavelength) # dummy ray that carries the wavelength information
-        calculatorObject2 = pupil.StopDiameter()
-        marginalslope, temp_stopDia = CalculatorObject2.get_marginalSlope(opticalSystem, self.stopPosition, dummyRay2, self.stopDiameter)
+        CalculatorObject2 = pupil.StopDiameter()
+        marginalslope, temp_stopDia = CalculatorObject2.get_marginalSlope(opticalSystem, self.stopPosition, ray, self.stopDiameter)
         return marginalslope
 
     def setFieldType(self, fieldType ):
@@ -154,23 +153,21 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param fieldType: name of the function in field.py that defines the type of field (height, angle, ...) (str)
         """
 
-        fieldType = fieldType.upper().strip()
         if fieldType in self.listOfFieldTypeNames:
             i = self.listOfFieldTypeNames.index(fieldType)
         
-            self.chiefSlopeCalculatorFunction = self.listOfFieldTypeFunctions[i]
+            self.chiefSlopeCalculatorObject = self.listOfFieldTypeClasses[i]()
         else:
             print 'Warning: field type \'', fieldType, '\' not found. setFieldType() aborted.'      
 
     def setPupilRaster(self, rasterType, nray):
-       """
+        """
         Sets up the private data of this class required to aim rays through the pupil.
 
         :param rasterType: name of the function in raster.py that defines the type of pupil raster (grid, fan, random, ...) (str)
         :param nray: desired number of rays for the raster (int)
         """
 
-        rasterType = rasterType.upper().strip()
         if rasterType in self.listOfRasterTypeNames:
             i = self.listOfRasterTypeNames.index(rasterType)
         
@@ -178,7 +175,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         else:
             print 'Warning: raster type \'', rasterType, '\' not found. setPupilRaster() aborted.'      
 
-    def getInitialRayBundle(self, fieldXY):
+    def getInitialRayBundle(self, opticalSystem, fieldXY, wavelength):
         """
         Creates and returns a RayBundle object that aims at the optical system pupil.
         Pupil position is estimated paraxially.
@@ -187,20 +184,36 @@ class aimFiniteByMakingASurfaceTheStop(object):
         
         TO DO: At the moment, this function fails to produce correct values for immersion
         """
-
-        raise NotImplementedError()
+        # dummy ray that carries the wavelength information
+        ray = RayBundle(zeros((3,3)), ones((3,3)), wavelength) 
 
         marginalslope = self.getMarginalSlope(opticalSystem, wavelength)
-        chiefslopeXY  = self.chiefSlopeCalculatorFunction(opticalSystem, ray, fieldXY)
+        chiefslopeXY  = self.chiefSlopeCalculatorObject.getChiefSlope(opticalSystem, self.stopPosition, ray, fieldXY)
         
         slopeX = chiefslopeXY[0] + marginalslope * self.xpup # dx/dz
         slopeY = chiefslopeXY[1] + marginalslope * self.ypup # dy/dz
-        k = 
+        k = ones((3,nray), dtype=float )
+        k[0,:] = slopeX
+        k[1,:] = slopeY
+        #k[2,:] = 1
 
-        o = 
+        print "slopx", slopeX
+        print "slopy", slopeY
+        print "k", k
 
-        raybundle = RayBundle( o, k, wavelength, pol=[])
-        return raybundle
+        absk = sqrt( sum(k**2, axis=0) )
+        k[0] = k[0] / absk
+        k[1] = k[1] / absk
+        k[2] = k[2] / absk
+
+        originXY = self.chiefSlopeCalculatorObject.getObjectHeight(opticalSystem, ray, self.stopPosition, fieldXY)
+        nray = len( self.xpup )
+        o = zeros((3,nray), dtype=float )
+        o[0,:] = originXY[0]
+        o[1,:] = originXY[1]
+
+        #raybundle = RayBundle( o, k, wavelength, pol=[])
+        return 0#raybundle
 
 
 
