@@ -64,6 +64,7 @@ class EntrancePupilDiameter(object):
         Bo = abcd_obj_stop[0,1]
         ms = epd / (2*zen)
         stopDia = 2*Bo*ms
+
         return ms, stopDia
 
 class EntrancePupilRadius(EntrancePupilDiameter):

@@ -189,17 +189,14 @@ class aimFiniteByMakingASurfaceTheStop(object):
 
         marginalslope = self.getMarginalSlope(opticalSystem, wavelength)
         chiefslopeXY  = self.chiefSlopeCalculatorObject.getChiefSlope(opticalSystem, self.stopPosition, ray, fieldXY)
-        
+
+        nray = len(self.xpup)
         slopeX = chiefslopeXY[0] + marginalslope * self.xpup # dx/dz
         slopeY = chiefslopeXY[1] + marginalslope * self.ypup # dy/dz
         k = ones((3,nray), dtype=float )
         k[0,:] = slopeX
         k[1,:] = slopeY
         #k[2,:] = 1
-
-        print "slopx", slopeX
-        print "slopy", slopeY
-        print "k", k
 
         absk = sqrt( sum(k**2, axis=0) )
         k[0] = k[0] / absk
@@ -212,8 +209,8 @@ class aimFiniteByMakingASurfaceTheStop(object):
         o[0,:] = originXY[0]
         o[1,:] = originXY[1]
 
-        #raybundle = RayBundle( o, k, wavelength, pol=[])
-        return 0#raybundle
+        raybundle = RayBundle( o, k, wavelength, pol=[])
+        return raybundle
 
 
 

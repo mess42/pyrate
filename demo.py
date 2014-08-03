@@ -2,6 +2,7 @@ from numpy import *
 from pylab import *
 import time
 import pupil
+import aim
 
 from optical_system import OpticalSystem
 from ray import RayPath, RayBundle
@@ -45,7 +46,6 @@ s.setThickness( position = 5, thickness = 2 )
 s.setShape( position = 5, shapeName = "Conic" )
 s.surfaces[5].shap.curvature = 0
 s.surfaces[5].shap.sdia = 1.01
-s.setStopPosition(5)
 
 s.insertSurface(6)
 s.setThickness( position = 6, thickness = 3 )
@@ -66,20 +66,11 @@ s.surfaces[7].shap.sdia = 1.0
 # benchmark
 # definition of rays
 nray = 1E3 # number of rays
-origin = zeros((3,nray), dtype=float )
-k = zeros((3,nray), dtype=float )
-k[1,:] = linspace(-.2, .2, nray)
-k[2,:] = 1
-absk = sqrt( sum(k**2, axis=0) )
-k[0] = k[0] / absk
-k[1] = k[1] / absk
-k[2] = k[2] / absk
-
-
-initialraybundle = RayBundle( origin, k, wave=0.55 )
+aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType="EntrancePupilDiameter", pupilSizeParameter = 5.5, fieldType="ObjectHeight", rasterType="rasterRectGrid", nray=nray, wavelength = 0.55, stopPosition = 5)
+initialBundle = aimy.getInitialRayBundle(s, fieldXY=array([0,0]), wavelength=.55)
 
 t0 = time.clock()
-r = RayPath(initialraybundle, s)
+r = RayPath(initialBundle, s)
 print "raytrace core : ", time.clock() - t0, "s for tracing ", nray, " rays."
 
 
@@ -87,28 +78,19 @@ print "raytrace core : ", time.clock() - t0, "s for tracing ", nray, " rays."
 
 
 # plot
-# definition of rays
-nray = 7 # number of rays
-origin = zeros((3,nray), dtype=float )
-k = zeros((3,nray), dtype=float )
-k[1,:] = linspace(-.2, .2, nray)
-k[2,:] = 1
-absk = sqrt( sum(k**2, axis=0) )
-k[0] = k[0] / absk
-k[1] = k[1] / absk
-k[2] = k[2] / absk
+aimy.setPupilRaster(rasterType="rasterChiefAndComa", nray=5)
+initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=array([0,0]), wavelength=.55)
+r2 = RayPath(initialBundle2, s)
 
-initialraybundle = RayBundle( origin, k, wave=0.55 )
+initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=array([0,0.1]), wavelength=.55)
+r3 = RayPath(initialBundle3, s)
 
-r = RayPath(initialraybundle, s)
 
 fig = figure(1)
 ax = fig.add_subplot(111)
 s.draw2d(ax)
-r.draw2d(s, ax)
-
-# pupil aiming test
-
+r2.draw2d(s, ax, color="blue")
+r3.draw2d(s, ax, color="green")
 
 
 
