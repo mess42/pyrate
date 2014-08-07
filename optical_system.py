@@ -20,10 +20,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import inspect
 import shape as surfShape # the name 'shape' already denotes the dimensions of a numpy array
 import material
 import pupil
+import inspector
 
 from numpy import *
 from ray import RayBundle
@@ -42,41 +42,9 @@ class Surface():
         self.mater = material.ConstantIndexGlass()
         self.thickness = thickness
         
-        self.availableShapeNames, self.availableShapeClasses = self.getAvailableShapes()
-        self.availableMaterialTypeNames, self.availableMaterialTypeClasses = self.getAvailableMaterialTypes()
+        self.availableShapeNames, self.availableShapeClasses = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
+        self.availableMaterialTypeNames, self.availableMaterialTypeClasses = inspector.getListOfClasses(material, "<class \'material.", "<class \'material.Material\'>")
 
-
-    def getAvailableShapes(self):
-        """
-        Parses shape.py for class definitions. Returns all but shape.Shape
-        
-        :return listOfShapeNames: List of strings
-        :return listOfShapeClasses: List of Class references
-        """
-        listOfShapeNames = []
-        listOfShapeClasses = []
-        for name, cla in inspect.getmembers(surfShape):
-            fullname = str(cla).strip()
-            if fullname.startswith('<class \'shape.') and fullname != '<class \'shape.Shape\'>':
-                listOfShapeNames.append( name )
-                listOfShapeClasses.append( cla )
-        return listOfShapeNames, listOfShapeClasses
-
-    def getAvailableMaterialTypes(self):
-        """
-        Parses material.py for class defintions. Returns all but material.Material
-        
-        :return listOfMaterialTypeNames: List of strings
-        :return listOfMaterialTypeClasses: List of Class references
-        """
-        listOfMaterialTypeNames = []
-        listOfMaterialTypeClasses = []
-        for name, cla in inspect.getmembers(material):
-            fullname = str(cla).strip()
-            if fullname.startswith('<class \'material.') and fullname != '<class \'material.Material\'>':
-                listOfMaterialTypeNames.append( name )
-                listOfMaterialTypeClasses.append( cla )
-        return listOfMaterialTypeNames, listOfMaterialTypeClasses
 
     def setMaterial(self, materialType):
         """

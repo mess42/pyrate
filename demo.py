@@ -66,7 +66,7 @@ s.surfaces[7].shap.sdia = 1.0
 # benchmark
 # definition of rays
 nray = 1E3 # number of rays
-aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType="EntrancePupilDiameter", pupilSizeParameter = 5.5, fieldType="ObjectHeight", rasterType="rasterRectGrid", nray=nray, wavelength = 0.55, stopPosition = 5)
+aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType="EntrancePupilDiameter", pupilSizeParameter = 5.5, fieldType="ObjectHeight", rasterType="RectGrid", nray=nray, wavelength = 0.55, stopPosition = 5)
 initialBundle = aimy.getInitialRayBundle(s, fieldXY=array([0,0]), wavelength=.55)
 
 t0 = time.clock()
@@ -78,7 +78,7 @@ print "raytrace core : ", time.clock() - t0, "s for tracing ", nray, " rays."
 
 
 # plot
-aimy.setPupilRaster(rasterType="rasterChiefAndComa", nray=5)
+aimy.setPupilRaster(rasterType="ChiefAndComa", nray=5)
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=array([0,0]), wavelength=.55)
 r2 = RayPath(initialBundle2, s)
 
