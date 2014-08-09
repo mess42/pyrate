@@ -52,12 +52,7 @@ class Surface():
         
         :param materialType: name of the material dispersion formula (str)
         """
-        
-        if materialType in self.availableMaterialTypeNames:
-            i = self.availableMaterialTypeNames.index(materialType)
-            self.mater = self.availableMaterialTypeClasses[i]()
-        else:
-            print 'Warning: material type \'', materialType, '\' not found. setMaterial() aborted.'
+        self.mater = inspector.createObjectFromList(self.availableMaterialTypeNames, self.availableMaterialTypeClasses, materialType )
 
     def setMaterialCoefficients(self, coeff):
         """
@@ -73,16 +68,16 @@ class Surface():
         
         :param shapeName: name of the shape type (str)
         """
-        if shapeName in self.availableShapeNames:
-            i = self.availableShapeNames.index(shapeName)
 
-            # conserve the most basic parameters of the shape
-            curv = self.shap.curvature 
-            semidiam = self.shap.sdia
+        # conserve the most basic parameters of the shape
+        curv = self.shap.curvature 
+        semidiam = self.shap.sdia
          
-            self.shap = self.availableShapeClasses[i](curv=curv, semidiam=semidiam)
-        else:
-            print 'Warning: shape \'', materialType, '\' not found. setShape() aborted.'
+        self.shap = inspector.createObjectFromList(self.availableShapeNames, self.availableShapeClasses, shapeName )
+
+        self.shap.curvature = curv
+        self.shap.sdia = semidiam
+
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         self.shap.draw2d(ax, offset, vertices, color)      

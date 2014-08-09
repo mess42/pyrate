@@ -61,12 +61,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param pupilType: name of the class in pupil.py that defines the type of pupil (F#, NA, stop dia, ...) (str)
         """
 
-        if pupilType in self.listOfPupilTypeNames:
-            i = self.listOfPupilTypeNames.index(pupilType)
-        
-            self.pupilSizeCalculatorObject = self.listOfPupilTypeClasses[i]()
-        else:
-            print 'Warning: pupil type \'', pupilType, '\' not found. setPupilType() aborted.'      
+        self.pupilSizeCalculatorObject = inspector.createObjectFromList(self.listOfPupilTypeNames, self.listOfPupilTypeClasses, pupilType )
 
 
     def setStopSize(self, opticalSystem, pupilSizeParameter, stopPosition, wavelength):
@@ -102,14 +97,10 @@ class aimFiniteByMakingASurfaceTheStop(object):
         Sets up the private data of this class required to aim rays through the pupil.
 
         :param fieldType: name of the function in field.py that defines the type of field (height, angle, ...) (str)
-        """
+        """ 
 
-        if fieldType in self.listOfFieldTypeNames:
-            i = self.listOfFieldTypeNames.index(fieldType)
-        
-            self.chiefSlopeCalculatorObject = self.listOfFieldTypeClasses[i]()
-        else:
-            print 'Warning: field type \'', fieldType, '\' not found. setFieldType() aborted.'      
+        self.chiefSlopeCalculatorObject = inspector.createObjectFromList(self.listOfFieldTypeNames, self.listOfFieldTypeClasses, fieldType )
+
 
     def setPupilRaster(self, rasterType, nray):
         """
@@ -118,14 +109,9 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param rasterType: name of the function in raster.py that defines the type of pupil raster (grid, fan, random, ...) (str)
         :param nray: desired number of rays for the raster (int)
         """
-
-        if rasterType in self.listOfRasterTypeNames:
-            i = self.listOfRasterTypeNames.index(rasterType)
-        
-            temp_obj = self.listOfRasterTypeClasses[i]()
-            self.xpup, self.ypup = temp_obj.getGrid(nray)
-        else:
-            print 'Warning: raster type \'', rasterType, '\' not found. setPupilRaster() aborted.'      
+        temp_obj = inspector.createObjectFromList(self.listOfRasterTypeNames, self.listOfRasterTypeClasses, rasterType )
+        self.xpup, self.ypup = temp_obj.getGrid(nray)
+     
 
     def getInitialRayBundle(self, opticalSystem, fieldXY, wavelength):
         """
