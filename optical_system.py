@@ -27,9 +27,9 @@ import inspector
 
 from numpy import *
 from ray import RayBundle
+from optimize import ClassWithOptimizableVariables
 
-
-class Surface():
+class Surface(ClassWithOptimizableVariables):
     """
     Represents a surface of an optical system.
     
@@ -44,7 +44,6 @@ class Surface():
         
         self.availableShapeNames, self.availableShapeClasses = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
         self.availableMaterialTypeNames, self.availableMaterialTypeClasses = inspector.getListOfClasses(material, "<class \'material.", "<class \'material.Material\'>")
-
 
     def setMaterial(self, materialType):
         """
@@ -70,14 +69,13 @@ class Surface():
         """
 
         # conserve the most basic parameters of the shape
-        curv = self.shap.curvature 
-        semidiam = self.shap.sdia
+        curv = self.shap.curvature.val 
+        semidiam = self.shap.sdia.val
          
         self.shap = inspector.createObjectFromList(self.availableShapeNames, self.availableShapeClasses, shapeName )
 
-        self.shap.curvature = curv
-        self.shap.sdia = semidiam
-
+        self.shap.curvature.val = curv
+        self.shap.sdia.val = semidiam
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         self.shap.draw2d(ax, offset, vertices, color)      
@@ -100,8 +98,35 @@ class Surface():
         nextCurvature = nextSurface.shap.getCentralCurvature()
         return self.mater.getABCDMatrix(curvature, self.thickness, nextCurvature, ray)
 
+    def createOptimizableVariable(self, name, value = 0.0, status=False):
+        """
+        This class is not able to create own variables. 
+        It only forwards variables from its property objects for shape, material and so on.
+        """
+        raise NotImplementedError()
+    
+    # to do: implement thew following functions    
+    def getAllOptimizableVariables(self):
+        raise NotImplementedError()
 
-class OpticalSystem():
+    def getNamesOfAllOptimizableVariables(self):
+        raise NotImplementedError()
+
+    def getActiveOptimizableVariables(self):
+        raise NotImplementedError()
+
+    def getNamesOfActiveOptimizableVariables(self):
+        raise NotImplementedError()
+
+    def getOptimizableVariable(self, name):
+        raise NotImplementedError()
+
+    def setStatusOfOptimizableVariable(self, name, status):
+        raise NotImplementedError()
+
+
+
+class OpticalSystem(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
@@ -265,4 +290,31 @@ class OpticalSystem():
             self.surfaces[i].draw2d(ax, offset = [offy, offz])
             offz += self.surfaces[i].thickness
  
+
+    def createOptimizableVariable(self, name, value = 0.0, status=False):
+        """
+        This class is not able to create own variables. 
+        It only forwards variables from its surfaces.
+        """
+        raise NotImplementedError()
+    
+    # to do: implement thew following functions    
+    def getAllOptimizableVariables(self):
+        raise NotImplementedError()
+
+    def getNamesOfAllOptimizableVariables(self):
+        raise NotImplementedError()
+
+    def getActiveOptimizableVariables(self):
+        raise NotImplementedError()
+
+    def getNamesOfActiveOptimizableVariables(self):
+        raise NotImplementedError()
+
+    def getOptimizableVariable(self, name):
+        raise NotImplementedError()
+
+    def setStatusOfOptimizableVariable(self, name, status):
+        raise NotImplementedError()
+
 

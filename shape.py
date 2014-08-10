@@ -21,8 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from numpy import *
+from optimize import ClassWithOptimizableVariables
 
-class Shape(object):
+class Shape(ClassWithOptimizableVariables):
     """
     Virtual Class for all surface shapes.
     The shape of a surface provides a function to calculate
@@ -30,8 +31,12 @@ class Shape(object):
     """
 
     def __init__(self):
-        self.curvature = 0 # spherical curvature
-        self.sdia = 0 # semi-diameter
+        self.listOfOptimizableVariables = []
+        self.nameOfOptimizableVariables = []
+        self.statusOfOptimizableVariables = []
+
+        self.curvature = self.createOptimizableVariable("curvature", value = 0.0, status=False) # spherical curvature
+        self.sdia = self.createOptimizableVariable("semi diameter", value = 0.0, status=False) # semi-diameter
         raise NotImplementedError()
 
     def intersect(self, raybundle):
@@ -90,26 +95,30 @@ class Conic(Shape):
         :param cc: Conic constant.
         :param semidiam: Semi-diameter of the surface.
         """
-        self.curvature = curv
-        self.conic = cc
-        self.sdia = semidiam
+        self.listOfOptimizableVariables = []
+        self.nameOfOptimizableVariables = []
+        self.statusOfOptimizableVariables = []
+
+        self.curvature = self.createOptimizableVariable("curvature", value = curv, status=False)
+        self.conic = self.createOptimizableVariable("conic constant", value = cc, status=False)
+        self.sdia = self.createOptimizableVariable("semi diameter", value = semidiam, status=False)
 
     def getSag(self, x, y):
         rs = x**2 + y**2
-        return self.curvature * rs / ( 1 + sqrt ( 1 - (1+self.conic) * self.curvature**2 * rs) )
+        return self.curvature.val * rs / ( 1 + sqrt ( 1 - (1+self.conic.val) * self.curvature.val**2 * rs) )
 
     def getCentralCurvature(self):
         # Conic curvature on axis is only influenced by spherical curvature term
-        return self.curvature
+        return self.curvature.val
 
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
         
         r0 = raybundle.o
         
-        F = rayDir[2] - self.curvature * ( rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic) )
-        G = self.curvature * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic) ) - 2 * r0[2]
-        H = - self.curvature - self.conic * self.curvature * rayDir[2]**2
+        F = rayDir[2] - self.curvature.val * ( rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val) )
+        G = self.curvature.val * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.val) ) - 2 * r0[2]
+        H = - self.curvature.val - self.conic.val * self.curvature.val * rayDir[2]**2
     
         square = F**2 + H*G     
     
@@ -125,9 +134,9 @@ class Conic(Shape):
         
         # Normal
         normal    = zeros(shape(r0), dtype=float)
-        normal[0] =   - self.curvature * intersection[0]
-        normal[1] =   - self.curvature * intersection[1]
-        normal[2] = 1 - self.curvature * intersection[2] * (1+self.conic)
+        normal[0] =   - self.curvature.val * intersection[0]
+        normal[1] =   - self.curvature.val * intersection[1]
+        normal[2] = 1 - self.curvature.val * intersection[2] * (1+self.conic.val)
         
         absn = sqrt( sum(normal**2, axis=0) )
         
@@ -138,7 +147,7 @@ class Conic(Shape):
         return intersection, t, normal
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
-        y = self.sdia * linspace(-1,1,vertices)
+        y = self.sdia.val * linspace(-1,1,vertices)
         z = self.getSag(0,y)
         
         ax.plot(z+offset[1],y+offset[0], color)
@@ -151,7 +160,7 @@ class Asphere(Shape):
     pass
 
 
-class Aperture(object):
+class Aperture(Shape):
     """
     Base class representing the aperture of a surface.
     Subclasses may define the actual shapes (circular,
