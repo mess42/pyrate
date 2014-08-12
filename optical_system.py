@@ -38,20 +38,32 @@ class Surface(ClassWithOptimizableVariables):
     :param thickness: distance to next surface on the optical axis
     """
     def __init__(self, thickness = 0.0):
-        self.shap  = surfShape.Conic()
-        self.mater = material.ConstantIndexGlass()
-        self.thickness = thickness
-        
-        self.availableShapeNames, self.availableShapeClasses = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
-        self.availableMaterialTypeNames, self.availableMaterialTypeClasses = inspector.getListOfClasses(material, "<class \'material.", "<class \'material.Material\'>")
+        self.listOfOptimizableVariables = []
+        self.nameOfOptimizableVariables = []
+        self.statusOfOptimizableVariables = []
+
+        self.shap  = self.setShape("Conic")
+        self.mater = self.setMaterial("ConstantIndexGlass")
+        self.thickness = self.createOptimizableVariable("thickness", value = thickness, status=False)      
+
+    def setThickness(self, thickness):
+        self.thickness.val = thickness
+
+    def getThickness(self):
+        return self.thickness.val
 
     def setMaterial(self, materialType):
         """
         Sets the material object self.mater
         
         :param materialType: name of the material dispersion formula (str)
+
+        :return self.mater: new Material object 
         """
-        self.mater = inspector.createObjectFromList(self.availableMaterialTypeNames, self.availableMaterialTypeClasses, materialType )
+        names, classes = inspector.getListOfClasses(material, "<class \'material.", "<class \'material.Material\'>")
+
+        self.mater = inspector.createObjectFromList(names, classes, materialType )
+        return self.mater
 
     def setMaterialCoefficients(self, coeff):
         """
@@ -66,16 +78,29 @@ class Surface(ClassWithOptimizableVariables):
         Sets the shape object self.shap
         
         :param shapeName: name of the shape type (str)
+        
+        :return self.shap: new Shape object
         """
 
         # conserve the most basic parameters of the shape
-        curv = self.shap.curvature.val 
-        semidiam = self.shap.sdia.val
-         
-        self.shap = inspector.createObjectFromList(self.availableShapeNames, self.availableShapeClasses, shapeName )
+        try:
+            curv = self.shap.curvature.val 
+            semidiam = self.shap.sdia.val
+            # to do: remove optimizable variables
+        except:
+            # self.shap does not exist yet
+            curv = 0.0
+            semidiam = 0.0 
 
+        names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
+ 
+        self.shap = inspector.createObjectFromList(names, classes, shapeName )
         self.shap.curvature.val = curv
         self.shap.sdia.val = semidiam
+
+        # to do: create optimizable variables
+
+        return self.shap
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         self.shap.draw2d(ax, offset, vertices, color)      
@@ -96,36 +121,8 @@ class Surface(ClassWithOptimizableVariables):
         """
         curvature = self.shap.getCentralCurvature()
         nextCurvature = nextSurface.shap.getCentralCurvature()
-        return self.mater.getABCDMatrix(curvature, self.thickness, nextCurvature, ray)
-
-    def createOptimizableVariable(self, name, value = 0.0, status=False):
-        """
-        This class is not able to create own variables. 
-        It only forwards variables from its property objects for shape, material and so on.
-        """
-        raise NotImplementedError()
-    
-    # to do: implement thew following functions    
-    def getAllOptimizableVariables(self):
-        raise NotImplementedError()
-
-    def getNamesOfAllOptimizableVariables(self):
-        raise NotImplementedError()
-
-    def getActiveOptimizableVariables(self):
-        raise NotImplementedError()
-
-    def getNamesOfActiveOptimizableVariables(self):
-        raise NotImplementedError()
-
-    def getOptimizableVariable(self, name):
-        raise NotImplementedError()
-
-    def setStatusOfOptimizableVariable(self, name, status):
-        raise NotImplementedError()
-
-
-
+        return self.mater.getABCDMatrix(curvature, self.thickness.val, nextCurvature, ray)
+   
 class OpticalSystem(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
@@ -165,19 +162,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         :param position: number of the surface (int) 
         """
-        self.surfaces[position].thickness = thickness
-
-    def getAvailableShapeNames(self):
-        """
-        Returns a list of valid Shape child class names (list of str)
-        """
-        return self.surfaces[0].availableShapeNames
-
-    def getAvailableMaterialTypeNames(self):
-        """
-        Returns a list of valid Material child class names (list of str)
-        """
-        return self.surfaces[0].availableMaterialTypeNames
+        self.surfaces[position].setThickness(thickness)
 
     def setMaterial(self, position, materialType):
         """
@@ -185,7 +170,6 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         :param position: number of the surface (int)
         :param materialType: name of the Material child class (str)
-          See OpticalSystem.getAvailableMaterialTypeNames() for details.
         """
         self.surfaces[position].setMaterial(materialType)
 
@@ -204,7 +188,6 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         :param position: number of the surface (int)
         :param shapeName: name of the Shape child class (str)
-          See OpticalSystem.getAvailableShapeNames() for details.
         """
         self.surfaces[position].setShape(shapeName)
 
@@ -288,7 +271,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         offz = offset[1]
         for i in arange(N):
             self.surfaces[i].draw2d(ax, offset = [offy, offz])
-            offz += self.surfaces[i].thickness
+            offz += self.surfaces[i].getThickness()
  
 
     def createOptimizableVariable(self, name, value = 0.0, status=False):

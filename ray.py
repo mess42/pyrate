@@ -79,7 +79,7 @@ class RayPath(object):
         N = opticalSystem.getNumberOfSurfaces()
 
         for i in arange(N-1)+1:
-            self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].thickness)
+            self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].getThickness() )
 
     def traceToNextSurface(self, nextSurface, thicknessOfCurrentSurface):
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
@@ -92,5 +92,5 @@ class RayPath(object):
         offy = offset[0]
         offz = offset[1]
         for i in arange(Nsurf):
-            offz += opticalsystem.surfaces[i].thickness
+            offz += opticalsystem.surfaces[i].getThickness()
             self.raybundles[i].draw2d(ax, offset = [offy, offz], color = color)
