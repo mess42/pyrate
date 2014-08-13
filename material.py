@@ -77,9 +77,7 @@ class ConstantIndexGlass(Material):
     """
     def __init__(self, n=1.0):
         self.listOfOptimizableVariables = []
-        self.nameOfOptimizableVariables = []
-        self.statusOfOptimizableVariables = []
-
+        
         self.n = self.createOptimizableVariable("refractive index", value = n, status=False)
      
     def refract(self, raybundle, intersection, normal):
@@ -124,9 +122,7 @@ class ModelGlass(ConstantIndexGlass):
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
         """
         self.listOfOptimizableVariables = []
-        self.nameOfOptimizableVariables = []
-        self.statusOfOptimizableVariables = []
-
+        
         self.n0 = self.createOptimizableVariable("Conrady n0", value = 1.49749699179, status=False)
         self.A  = self.createOptimizableVariable("Conrady A" , value = 0.0100998734374, status=False)
         self.B  = self.createOptimizableVariable("Conrady B" , value = 0.000328623343942, status=False)

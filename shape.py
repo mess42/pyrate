@@ -32,8 +32,6 @@ class Shape(ClassWithOptimizableVariables):
 
     def __init__(self):
         self.listOfOptimizableVariables = []
-        self.nameOfOptimizableVariables = []
-        self.statusOfOptimizableVariables = []
 
         self.curvature = self.createOptimizableVariable("curvature", value = 0.0, status=False) # spherical curvature
         self.sdia = self.createOptimizableVariable("semi diameter", value = 0.0, status=False) # semi-diameter
@@ -96,9 +94,7 @@ class Conic(Shape):
         :param semidiam: Semi-diameter of the surface.
         """
         self.listOfOptimizableVariables = []
-        self.nameOfOptimizableVariables = []
-        self.statusOfOptimizableVariables = []
-
+        
         self.curvature = self.createOptimizableVariable("curvature", value = curv, status=False)
         self.conic = self.createOptimizableVariable("conic constant", value = cc, status=False)
         self.sdia = self.createOptimizableVariable("semi diameter", value = semidiam, status=False)

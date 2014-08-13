@@ -64,15 +64,14 @@ s.surfaces[7].shap.sdia.val = 1.0
 
 # benchmark
 # definition of rays
-nray = 1E3 # number of rays
+nray = 1000 # number of rays
 aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType="EntrancePupilDiameter", pupilSizeParameter = 5.5, fieldType="ObjectHeight", rasterType="RectGrid", nray=nray, wavelength = 0.55, stopPosition = 5)
 initialBundle = aimy.getInitialRayBundle(s, fieldXY=array([0,0]), wavelength=.55)
 
 t0 = time.clock()
 r = RayPath(initialBundle, s)
-print "raytrace core : ", time.clock() - t0, "s for tracing ", nray, " rays."
-
-
+print "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through ", len(s.surfaces) - 1, " surfaces."
+print "             That is ", int(round( nray * ( len(s.surfaces) - 1 ) / ( time.clock() - t0 ) )), "ray-surface-operations per second"
 
 
 

@@ -39,8 +39,6 @@ class Surface(ClassWithOptimizableVariables):
     """
     def __init__(self, thickness = 0.0):
         self.listOfOptimizableVariables = []
-        self.nameOfOptimizableVariables = []
-        self.statusOfOptimizableVariables = []
 
         self.shap  = self.setShape("Conic")
         self.mater = self.setMaterial("ConstantIndexGlass")
@@ -60,9 +58,22 @@ class Surface(ClassWithOptimizableVariables):
 
         :return self.mater: new Material object 
         """
+
+       # conserve the most basic parameters of the shape
+        try:        
+            varsToRemove = self.mater.getAllOptimizableVariables()
+            for v in varsToRemove:
+                self.listOfOptimizableVariables.remove(v)
+        except:
+            pass
+
         names, classes = inspector.getListOfClasses(material, "<class \'material.", "<class \'material.Material\'>")
 
         self.mater = inspector.createObjectFromList(names, classes, materialType )
+
+        # add optimizable variables of new shape
+        self.listOfOptimizableVariables += self.mater.getAllOptimizableVariables()
+
         return self.mater
 
     def setMaterialCoefficients(self, coeff):
@@ -86,7 +97,11 @@ class Surface(ClassWithOptimizableVariables):
         try:
             curv = self.shap.curvature.val 
             semidiam = self.shap.sdia.val
-            # to do: remove optimizable variables
+            
+            varsToRemove = self.shap.getAllOptimizableVariables()
+            for v in varsToRemove:
+                self.listOfOptimizableVariables.remove(v)
+
         except:
             # self.shap does not exist yet
             curv = 0.0
@@ -98,7 +113,8 @@ class Surface(ClassWithOptimizableVariables):
         self.shap.curvature.val = curv
         self.shap.sdia.val = semidiam
 
-        # to do: create optimizable variables
+        # add optimizable variables of new shape
+        self.listOfOptimizableVariables += self.shap.getAllOptimizableVariables()
 
         return self.shap
 
@@ -280,24 +296,13 @@ class OpticalSystem(ClassWithOptimizableVariables):
         It only forwards variables from its surfaces.
         """
         raise NotImplementedError()
-    
-    # to do: implement thew following functions    
+     
     def getAllOptimizableVariables(self):
-        raise NotImplementedError()
+        varsToReturn = []
+        for sur in self.surfaces:
+            varsToReturn += sur.getAllOptimizableVariables()
+        return varsToReturn
+        #values = [a.val for a in s.getAllOptimizableVariables()]
 
-    def getNamesOfAllOptimizableVariables(self):
-        raise NotImplementedError()
-
-    def getActiveOptimizableVariables(self):
-        raise NotImplementedError()
-
-    def getNamesOfActiveOptimizableVariables(self):
-        raise NotImplementedError()
-
-    def getOptimizableVariable(self, name):
-        raise NotImplementedError()
-
-    def setStatusOfOptimizableVariable(self, name, status):
-        raise NotImplementedError()
 
 
