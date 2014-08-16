@@ -28,18 +28,20 @@ class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
     def refract(self, ray, intersection, normal):
         """
-        Method describing the interaction of the ray at the surface based on the material.
-        :param intersection: Intersection point with the surface
-        :param ray: Incoming ray
-        :param normal: Normal vector at the intersection point
-        :returns ray after surface interaction
-        :raise NotImplementedError: Error is raised if subclass fails to re-implement method
+        Class describing the interaction of the ray at the surface based on the material.
+
+        :param ray: Incoming ray ( RayBundle object )
+        :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
+        :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
+        :return newray: rays after surface interaction ( RayBundle object )
         """
         raise NotImplementedError()
 
     def setCoefficients(self, coefficients):
         """
         Sets the dispersion coefficients of a glass (if any)
+
+        :param coefficients: float or list or numpy array of float
         """
         raise NotImplementedError()
 
@@ -115,7 +117,8 @@ class ConstantIndexGlass(Material):
         abcd = dot( [[1,0],[(n-1)*nextCurvature, n]]  ,  abcd )                   # rear * abcd
         return abcd
 
-class ModelGlass(ConstantIndexGlass):
+class ModelGlass(ConstantIndexGlass, 
+    n0_A_B = [1.49749699179, 0.0100998734374, 0.000328623343942]):
     def __init__(self):
         """
         Set glass properties from the Conrady dispersion model.
@@ -123,15 +126,15 @@ class ModelGlass(ConstantIndexGlass):
         """
         self.listOfOptimizableVariables = []
         
-        self.n0 = self.createOptimizableVariable("Conrady n0", value = 1.49749699179, status=False)
-        self.A  = self.createOptimizableVariable("Conrady A" , value = 0.0100998734374, status=False)
-        self.B  = self.createOptimizableVariable("Conrady B" , value = 0.000328623343942, status=False)
+        self.n0 = self.createOptimizableVariable("Conrady n0", value = n0_A_B[0], status=False)
+        self.A  = self.createOptimizableVariable("Conrady A" , value = n0_A_B[1], status=False)
+        self.B  = self.createOptimizableVariable("Conrady B" , value = n0_A_B[2], status=False)
 
     def setCoefficients(self,  n0_A_B):
         """
         Sets the coefficients of the Conrady model.
 
-        :param n0_A_B: coefficients (list or 1d numpy 3x1 array of float)
+        :param n0_A_B: coefficients (list or 1d numpy array of 3 floats)
         """
         self.n0.val =  n0_A_B[0]
         self.A.val  =  n0_A_B[1]
@@ -139,6 +142,13 @@ class ModelGlass(ConstantIndexGlass):
 
 
     def getIndex(self, raybundle):
+        """
+        Private routine for all isotropic materials obeying the Snell law of refraction.
+
+        :param raybundle: RayBundle object containing the wavelength of the rays.
+
+        :return index: refractive index at respective wavelength (float)
+        """
         wave = raybundle.wave # wavelength in um
         return self.n0.val + self.A.val / wave + self.B.val / (wave**3.5)
 
@@ -146,9 +156,9 @@ class ModelGlass(ConstantIndexGlass):
         """
         Calculates the dispersion formula coefficients from nd, vd, and PgF.
 
-        :param nd: refractive index at the d-line ( 587.5618 nm )
-        :param vd: Abbe number
-        :param PgF: partial dispersion with respect to g- and F-line
+        :param nd: refractive index at the d-line ( 587.5618 nm ) (float)
+        :param vd: Abbe number with respect to the d-line (float)
+        :param PgF: partial dispersion with respect to g- and F-line (float)
         """
     
         nF_minus_nC = ( nd - 1 ) / vd
@@ -156,17 +166,14 @@ class ModelGlass(ConstantIndexGlass):
         A = 1.87513751845  * nF_minus_nC - B * 15.2203074842
         n0 = nd - 1.70194862906 * A - 6.43150432188 * B
     
-        self.n0.val = n0
-        self.A.val  = A
-        self.B.val  = B
+        self.setCoefficients(self,  [n0,A,B])
 
     def calcCoefficientsFrom_nd_vd(self, nd = 1.51680, vd = 64.17):
         """
-        Calculates the dispersion formula coefficients, assuming the glass to be on the normal line.
-        Less accurate than calcCoefficientsFrom_nd_vd_PgF().
+        Calculates the dispersion formula coefficients, assuming the glass on the normal line.
 
-        :param nd: refractive index at the d-line ( 587.5618 nm )
-        :param vd: Abbe number
+        :param nd: refractive index at the d-line ( 587.5618 nm ) (float)
+        :param vd: Abbe number (float)
         """
 
         PgF = 0.6438 - 0.001682 * vd     
@@ -174,10 +181,9 @@ class ModelGlass(ConstantIndexGlass):
 
     def calcCoefficientsFromSchottCode(self, schottCode = 517642):
         """
-        Calculates the dispersion formula coefficients from the Schott Code, assuming the glass to be on the normal line.
-        Less accurate than calcCoefficientsFrom_nd_vd_PgF().
-
-        :param schottCode: 6 digit Schott Code (first 3 digits are 1000*(nd-1), last 3 digits are 10*vd)
+        Calculates the dispersion formula coefficients from the Schott Code, assuming the glass on the normal line.
+  
+        :param schottCode: 6 digit Schott Code; first 3 digits are 1000*(nd-1), last 3 digits are 10*vd (int)
         """
         if ( ( type(schottCode) is int ) and schottCode >= 1E5 and schottCode < 1E6 ):
             first3digits = schottCode / 1000
@@ -189,6 +195,3 @@ class ModelGlass(ConstantIndexGlass):
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd( nd , vd )
-
-
-#class Glass(ConstantIndexGlass):

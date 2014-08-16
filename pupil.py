@@ -54,7 +54,8 @@ class EntrancePupilDiameter(object):
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
-        :param ray: raybundle object
+        :param stopPosition: surface number that represents the stop (int)
+        :param ray: RayBundle object
         :param epd: entrance pupil diameter (float)
         
         :return marginalSlope: slope of the marginal ray (float)
@@ -73,7 +74,7 @@ class EntrancePupilRadius(EntrancePupilDiameter):
         Returns the entrance pupil diameter of an optical System.
         
         :param opticalSystem: OpticalSystem object
-        :param stopPosition: surface number of the surface that is defined as stop (int)
+        :param stopPosition: surface number that represents the stop (int)
         :param ray: raybundle object
         :param epr: entrance pupil radius (float)
         

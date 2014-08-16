@@ -24,17 +24,12 @@ from numpy import *
 from optimize import ClassWithOptimizableVariables
 
 class Shape(ClassWithOptimizableVariables):
-    """
-    Virtual Class for all surface shapes.
-    The shape of a surface provides a function to calculate
-    the intersection point with a ray.
-    """
-
     def __init__(self):
-        self.listOfOptimizableVariables = []
-
-        self.curvature = self.createOptimizableVariable("curvature", value = 0.0, status=False) # spherical curvature
-        self.sdia = self.createOptimizableVariable("semi diameter", value = 0.0, status=False) # semi-diameter
+        """
+        Virtual Class for all surface shapes.
+        The shape of a surface provides a function to calculate
+        the intersection point with a ray.
+        """
         raise NotImplementedError()
 
     def intersect(self, raybundle):
@@ -67,7 +62,7 @@ class Shape(ClassWithOptimizableVariables):
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         """
         Plots the surface in a matplotlib figure.
-        :param ax: matplotlib axes handle 
+        :param ax: matplotlib subplot handle 
         :param offset: y and z offset (list or 1d numpy array of 2 floats)
         :param vertices: number of points the polygon representation of the surface contains (int)
         :param color: surface draw color (str)
@@ -76,22 +71,25 @@ class Shape(ClassWithOptimizableVariables):
         
     def draw3d(self, offset = [0,0,0], tilt=[0,0,0], color="grey"):
         """
-        To do: find proper rendering package
+        To do: find fancy rendering package
         """
         raise NotImplementedError()
         
 
 class Conic(Shape):
-    """
-    Defines a rotationally symmetric conic section (sphere, paraboloid,
-    ellipsoid, hyperboloid).
-    """
     def __init__(self, curv=0.0, cc=0.0, semidiam=0.0):
         """
-        Create conic surface.
-        :param curv: Curvature of the surface.
-        :param cc: Conic constant.
-        :param semidiam: Semi-diameter of the surface.
+        Create rotationally symmetric conic section surface.
+
+        :param curv: Curvature of the surface (float).
+        :param cc: Conic constant (float).
+        :param semidiam: Semi-diameter of the surface (float).
+
+        -1 < cc < 0 oblate ellipsoid
+             cc = 0 sphere
+         0 < cc < 1 prolate ellipsoid
+             cc = 1 paraboloid
+             cc > 1 hyperboloid
         """
         self.listOfOptimizableVariables = []
         
@@ -151,7 +149,7 @@ class Conic(Shape):
 
 class Asphere(Shape):
     """
-
+    to do: polynomial asphere as base class for sophisticated surface descriptions
     """
     pass
 

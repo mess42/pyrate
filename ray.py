@@ -23,21 +23,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 
 class RayBundle(object):
-    """
-    Class representing a bundle of rays.
-    """
     def __init__(self, o, k, wave=0.55, pol=[]):
         """
-        Constructor defining the ray properties
+        Class representing a bundle of rays.
+
         :param o:    Origin of the rays.   (2d numpy 3xN array of float)
-        :param k:    Wavevector of the rays, normalized by 2pi/lambda.
+        :param k:    Wavevectors of the rays, normalized by 2pi/lambda.
                      (2d numpy 3xN array of float) 
-                     The length of the passed 3D vectors
+                     For media obeying the Snell law, the length of each vector
                      is the  refractive index of the current medium.
         :param t:    Geometrical path length to the ray final position.
                      (1d numpy array of float)
-        :param wave: Wavelength of the radiation in microns. (float)
-        :param pol:  Polarization state of the rays. (2d numpy 2xN array of complex)
+        :param wave: Wavelength of the radiation in micrometers. (float)
+        :param pol:  Polarization state of the rays. (2d numpy 2xN array of complex); not implemented yet
+
+        to do: implement polarization
+        to do: implement reflection / transmission coefficients
         """
         self.o = o
         self.k = k
@@ -66,13 +67,12 @@ class RayBundle(object):
 
  
 class RayPath(object):
-    """
-    Class representing the Path of a RayBundle through the whole optical system.
-    """
-    def __init__(self, initialraybundle, opticalSystem):
+     def __init__(self, initialraybundle, opticalSystem):
         """
-        Constructor defining initial RayBundle
-        :param initialraybundle: Raybundle at initial position in the OpticalSystem ( Raybundle object )
+        Class representing the Path of a RayBundle through the whole optical system.
+
+        :param initialraybundle: Raybundle at initial position in the optical system ( RayBundle object )
+        :param opticalSystem:  optical system through which the rays are propagated ( OpticalSystem object )
 
         """
         self.raybundles = [ initialraybundle ]
@@ -82,12 +82,26 @@ class RayPath(object):
             self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].getThickness() )
 
     def traceToNextSurface(self, nextSurface, thicknessOfCurrentSurface):
+        """
+        Private routine that propagates a ray bundle to the next surface.
+        Please respect the privacy of this class and call it only from methods inside this class.
+
+        :param nextSurface: (Surface object)
+        :param thicknessOfCurrentSurface: on-axis geometrical distance between current and nextSurface (float)
+        """
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
         intersection, t, normal = nextSurface.shap.intersect(self.raybundles[-1])
         self.raybundles[-1].t = t       
         self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal)  )
 
     def draw2d(self, opticalsystem, ax, offset=[0,0], color="blue"):
+       """
+        Plots the surface in a matplotlib figure.
+        :param ax: matplotlib subplot handle 
+        :param offset: y and z offset (list or 1d numpy array of 2 floats)
+        :param vertices: number of points the polygon representation of the surface contains (int)
+        :param color: surface draw color (str)
+        """
         Nsurf = len(self.raybundles)
         offy = offset[0]
         offz = offset[1]

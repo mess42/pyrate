@@ -28,7 +28,7 @@ class ObjectHeight(object):
 
     def getChiefSlope(self, opticalSystem, stopPosition, ray, objFieldXY):
         """
-        Calculates the chief ray slope from a object field height.
+        Calculates the chief ray slope from an object field height.
 
         :param opticalSystem: OpticalSystem object
         :param ray: raybundle object
@@ -67,7 +67,7 @@ class ObjectChiefAngle(ObjectHeight):
 class ParaxialImageHeight(ObjectHeight):
     def getChiefSlope(self, opticalSystem, stopPosition, ray, imFieldXY):
         """
-        Calculates the chief ray slope from a object field height.
+        Calculates the chief ray slope from an image field height assuming no distortion.
 
         :param opticalSystem: OpticalSystem object
         :param ray: raybundle object
