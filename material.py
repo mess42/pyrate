@@ -117,9 +117,8 @@ class ConstantIndexGlass(Material):
         abcd = dot( [[1,0],[(n-1)*nextCurvature, n]]  ,  abcd )                   # rear * abcd
         return abcd
 
-class ModelGlass(ConstantIndexGlass, 
-    n0_A_B = [1.49749699179, 0.0100998734374, 0.000328623343942]):
-    def __init__(self):
+class ModelGlass(ConstantIndexGlass):
+    def __init__(self, n0_A_B = [1.49749699179, 0.0100998734374, 0.000328623343942]):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)

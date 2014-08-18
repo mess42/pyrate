@@ -32,16 +32,21 @@ class RectGrid(object):
 
         :param nray: desired number of rays. Return may deviate, especially for small nray. (int)
 
-        :return xpup: normalized pupil x coordinates in [-1,1]. (1d numpy array of approx nray floats)
-        :return ypup: normalized pupil y coordinates in [-1,1]. (1d numpy array of approx nray floats)
+        :return xpup: normalized pupil x coordinates in [-1,1]. (1d numpy array of approx (nray+1) floats)
+                      xpup[0] is the chief ray; xpup[1:] is the grid of length nray
+        :return ypup: normalized pupil y coordinates in [-1,1]. (1d numpy array of approx (nray+1) floats)
         """
         nPerDim = int( round( sqrt( nray * 4 / pi ) ) ) 
         dx = 1. / nPerDim
         x1d = linspace(-1+.5*dx,1-.5*dx,nPerDim)
-        xpup, ypup = meshgrid( x1d, x1d )
-        ind = ( (xpup**2 + ypup**2) <= 1 )
-        xpup = xpup[ ind ]
-        ypup = ypup[ ind ]    
+        xpup2, ypup2 = meshgrid( x1d, x1d )
+        ind = ( (xpup2**2 + ypup2**2) <= 1 )
+
+        xpup = zeros(len(ind)+1, dtype=float)
+        ypup = zeros(len(ind)+1, dtype=float)
+
+        xpup[ind+1] = xpup2[ ind ]
+        ypup[ind+1] = ypup2[ ind ]
         return xpup,ypup
 
 class HexGrid(RectGrid):
@@ -66,18 +71,19 @@ class HexGrid(RectGrid):
     
         N1 = len(xpup1)
         N2 = len(xpup2)
-        xpup = zeros((N1+N2), dtype=float)
-        xpup[arange(N1)] = xpup1
-        xpup[N1+arange(N2)] = xpup2
-        ypup = zeros(N1+N2, dtype=float)
-        ypup[arange(N1)] = ypup1
-        ypup[N1+arange(N2)] = ypup2
+        xpup = zeros(N1+N2+1, dtype=float)
+        ypup = zeros(N1+N2+1, dtype=float)
+        xpup[arange(N1)+1] = xpup1
+        xpup[N1+arange(N2)+1] = xpup2
+        ypup[arange(N1)+1] = ypup1
+        ypup[N1+arange(N2)+1] = ypup2
+
         return xpup,ypup
 
 class RandomGrid(RectGrid):
     def getGrid(self,nray):
-        xpup = []
-        ypup = []
+        xpup = [0.0]
+        ypup = [0.0]
         for i in arange(nray):
             xnew = 42
             ynew = 42
@@ -90,7 +96,8 @@ class RandomGrid(RectGrid):
 
 class MeridionalFan(RectGrid):
     def getGrid(self,nray, phi=0.):
-        xlin = linspace(0,1,nray)
+        xlin = zeros(nray+1, dtype=float)
+        xlin[arange(nray)+1] = linspace(0,1,nray)
         alpha = phi / 180. * pi
         xpup = xlin * -sin(alpha)
         ypup = xlin * cos(alpha)

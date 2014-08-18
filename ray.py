@@ -67,7 +67,7 @@ class RayBundle(object):
 
  
 class RayPath(object):
-     def __init__(self, initialraybundle, opticalSystem):
+    def __init__(self, initialraybundle, opticalSystem):
         """
         Class representing the Path of a RayBundle through the whole optical system.
 
@@ -95,7 +95,7 @@ class RayPath(object):
         self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal)  )
 
     def draw2d(self, opticalsystem, ax, offset=[0,0], color="blue"):
-       """
+        """
         Plots the surface in a matplotlib figure.
         :param ax: matplotlib subplot handle 
         :param offset: y and z offset (list or 1d numpy array of 2 floats)
