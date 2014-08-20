@@ -5,9 +5,7 @@ import pupil
 import aim
 
 from optical_system import OpticalSystem
-from ray import RayPath, RayBundle
-
-
+from ray import RayPath
 
 # definition of optical system
 s = OpticalSystem()
@@ -64,7 +62,7 @@ s.surfaces[7].shap.sdia.val = 1.0
 
 # benchmark
 # definition of rays
-nray = 10 # number of rays
+nray = 1E6 # number of rays
 aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType="EntrancePupilDiameter", pupilSizeParameter = 5.5, fieldType="ObjectHeight", rasterType="RectGrid", nray=nray, wavelength = 0.55, stopPosition = 5)
 initialBundle = aimy.getInitialRayBundle(s, fieldXY=array([0,0]), wavelength=.55)
 nray = len(initialBundle.o[0,:])
@@ -83,7 +81,6 @@ r2 = RayPath(initialBundle2, s)
 
 initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=array([0,0.1]), wavelength=.55)
 r3 = RayPath(initialBundle3, s)
-
 
 fig = figure(1)
 ax = fig.add_subplot(111)

@@ -26,13 +26,15 @@ from optimize import ClassWithOptimizableVariables
 
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
-    def refract(self, ray, intersection, normal):
+    def refract(self, ray, intersection, normal, validIndices):
         """
         Class describing the interaction of the ray at the surface based on the material.
 
         :param ray: Incoming ray ( RayBundle object )
         :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
         :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
+        :param validIndices: whether the rays did hit the shape correctly (1d numpy array of bool)
+
         :return newray: rays after surface interaction ( RayBundle object )
         """
         raise NotImplementedError()
@@ -82,23 +84,32 @@ class ConstantIndexGlass(Material):
         
         self.n = self.createOptimizableVariable("refractive index", value = n, status=False)
      
-    def refract(self, raybundle, intersection, normal):
-        """
-        """
+    def refract(self, raybundle, intersection, normal, previouslyValid):
         
         abs_k1_normal = sum( raybundle.k * normal, axis = 0)
         k_perp = raybundle.k - abs_k1_normal * normal
         abs_k2 = self.getIndex(raybundle)
         square = abs_k2**2 - sum(k_perp * k_perp, axis=0)
 
-        # to do: treat total internal reflection
-        # indicesOfNan = find(square < 0)
-        # indices of rays that are total internal reflected
+        # make total internal reflection invalid
+        valid = previouslyValid * ( square > 0 )
 
         abs_k2_normal = sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
+
         # return ray with new direction and properties of old ray
-        return RayBundle(intersection, k2, raybundle.wave, raybundle.pol)
+        # return only valid rays
+        Nval = sum( valid )
+        orig    = zeros((3,Nval), dtype=float)
+        orig[0] = intersection[0][valid]
+        orig[1] = intersection[1][valid]
+        orig[2] = intersection[2][valid]
+        newk    = zeros((3,Nval), dtype=float)
+        newk[0] = k2[0][valid]
+        newk[1] = k2[1][valid]
+        newk[2] = k2[2][valid]
+
+        return RayBundle( orig, newk, raybundle.rayID[valid], raybundle.wave )
 
     def setCoefficients(self, n):
         """

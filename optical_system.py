@@ -26,7 +26,6 @@ import pupil
 import inspector
 
 from numpy import *
-from ray import RayBundle
 from optimize import ClassWithOptimizableVariables
 
 class Surface(ClassWithOptimizableVariables):
@@ -147,6 +146,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         self.surfaces = []
         self.insertSurface(0) # object
         self.insertSurface(1) # image
+        self.surfaces[1].shap.sdia.val = 1E100
  
     def insertSurface(self,position):
         """
@@ -285,7 +285,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         N = self.getNumberOfSurfaces()
         offy = offset[0]
         offz = offset[1]
-        for i in arange(N):
+        for i in arange(N-1):
             self.surfaces[i].draw2d(ax, offset = [offy, offz])
             offz += self.surfaces[i].getThickness()
  

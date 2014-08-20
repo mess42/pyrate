@@ -38,7 +38,8 @@ class Shape(ClassWithOptimizableVariables):
         with ray and normal vector of the surface.
         :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
         :return t: geometrical path length to the next surface (1d numpy array of float)
-        :return normal: surface normal vectors (2d numpy 3xN array of float) 
+        :return normal: surface normal vectors (2d numpy 3xN array of float)
+        :return validIndices: whether indices hit the surface (1d numpy array of bool) 
         """
         raise NotImplementedError()
 
@@ -114,18 +115,16 @@ class Conic(Shape):
         G = self.curvature.val * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.val) ) - 2 * r0[2]
         H = - self.curvature.val - self.conic.val * self.curvature.val * rayDir[2]**2
     
-        square = F**2 + H*G     
-    
-        # indices of rays that don't intercest with the sphere
-        
-        # indicesOfNan = find( square < 0 ) 
-        
-        # to do: add rays outside the clear aperture to the indicesOfNan list    
+        square = F**2 + H*G           
 
         t = G / ( F + sqrt( square ) )
         
         intersection = r0 + raybundle.rayDir * t
         
+        # find indices of rays that don't intersect with the sphere        
+        validIndices = (     ( square > 0 ) * ( intersection[0]**2 + intersection[1]**2 <= self.sdia.val**2 )     )
+
+
         # Normal
         normal    = zeros(shape(r0), dtype=float)
         normal[0] =   - self.curvature.val * intersection[0]
@@ -138,7 +137,7 @@ class Conic(Shape):
         normal[1] = normal[1] / absn
         normal[2] = normal[2] / absn
         
-        return intersection, t, normal
+        return intersection, t, normal, validIndices
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         y = self.sdia.val * linspace(-1,1,vertices)

@@ -23,27 +23,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 
 class RayBundle(object):
-    def __init__(self, o, k, wave=0.55, pol=[]):
+    def __init__(self, o, k, rayID, wave=0.55, pol=[]):
         """
         Class representing a bundle of rays.
 
-        :param o:    Origin of the rays.   (2d numpy 3xN array of float)
-        :param k:    Wavevectors of the rays, normalized by 2pi/lambda.
-                     (2d numpy 3xN array of float) 
-                     For media obeying the Snell law, the length of each vector
-                     is the  refractive index of the current medium.
-        :param t:    Geometrical path length to the ray final position.
-                     (1d numpy array of float)
-        :param wave: Wavelength of the radiation in micrometers. (float)
-        :param pol:  Polarization state of the rays. (2d numpy 2xN array of complex); not implemented yet
+        :param o:     Origin of the rays.   (2d numpy 3xN array of float)
+        :param k:     Wavevectors of the rays, normalized by 2pi/lambda.
+                      (2d numpy 3xN array of float) 
+                      For media obeying the Snell law, the length of each vector
+                      is the  refractive index of the current medium.
+        :param rayID: Set an ID number for each ray in the bundle (1d numpy array of int)
+                      (for example, the ray index at surface 0)
+        :param wave:  Wavelength of the radiation in micrometers. (float)
+        :param pol:   Polarization state of the rays. (2d numpy 2xN array of complex); not implemented yet
 
         to do: implement polarization
         to do: implement reflection / transmission coefficients
+               coherent (Jones formalism) or incoherent (Mueller/Stokes formalism) ?
+               the difference is, that Jones allows for description of phases of the coherent, fully polarized beam
+               and Mueller allows for describing intensity transmission of partially polarized beams
         """
         self.o = o
         self.k = k
+        self.rayID = rayID
         self.setRayDir(k)
-        self.t = zeros(shape(o)[1])
+        self.t = zeros(shape(o)[1]) # Geometrical path length to the ray final position.
         self.wave = wave
         self.pol = pol
 
@@ -90,9 +94,9 @@ class RayPath(object):
         :param thicknessOfCurrentSurface: on-axis geometrical distance between current and nextSurface (float)
         """
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
-        intersection, t, normal = nextSurface.shap.intersect(self.raybundles[-1])
+        intersection, t, normal, validIndices = nextSurface.shap.intersect(self.raybundles[-1])
         self.raybundles[-1].t = t       
-        self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal)  )
+        self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal, validIndices)  )
 
     def draw2d(self, opticalsystem, ax, offset=[0,0], color="blue"):
         """

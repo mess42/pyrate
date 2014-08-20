@@ -110,6 +110,13 @@ class SagitalFan(RectGrid):
 class ChiefAndComa(RectGrid):
     def getGrid(self,nray, phi=0.):
         alpha= phi / 180. * pi
-        xpup = array([0,sin(alpha+pi),sin(alpha),cos(alpha),cos(alpha+pi)],dtype=float)
-        ypup = array([0,cos(alpha),cos(alpha+pi),sin(alpha),sin(alpha+pi)],dtype=float)
+        xpup = array([0,-sin(alpha),sin(alpha),cos(alpha),-cos(alpha)],dtype=float)
+        ypup = array([0,cos(alpha),-cos(alpha),sin(alpha),-sin(alpha)],dtype=float)
         return xpup,ypup
+
+class Single(RectGrid):
+    def getGrid(self, nray, xpup=0.0, ypup=0.0):
+        return array([0,xpup]), array([0, ypup])
+
+
+
