@@ -93,6 +93,7 @@ class ConstantIndexGlass(Material):
 
         # make total internal reflection invalid
         valid = previouslyValid * ( square > 0 )
+        valid[0] = True # hail to the chief
 
         abs_k2_normal = sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
