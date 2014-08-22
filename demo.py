@@ -62,7 +62,7 @@ s.surfaces[7].shap.sdia.val = 1.0
 
 # benchmark
 # definition of rays
-nray = 1E6 # number of rays
+nray = 1E5 # number of rays
 aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType="EntrancePupilDiameter", pupilSizeParameter = 5.5, fieldType="ObjectHeight", rasterType="RectGrid", nray=nray, wavelength = 0.55, stopPosition = 5)
 initialBundle = aimy.getInitialRayBundle(s, fieldXY=array([0,0]), wavelength=.55)
 nray = len(initialBundle.o[0,:])

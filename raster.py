@@ -38,12 +38,16 @@ class RectGrid(object):
         """
         nPerDim = int( round( sqrt( nray * 4 / pi ) ) ) 
         dx = 1. / nPerDim
-        x1d = linspace(-1+.5*dx,1-.5*dx,nPerDim)
+        x1d = linspace(-1+.25*dx,1-.25*dx,nPerDim)
         xpup2, ypup2 = meshgrid( x1d, x1d )
+
+        xpup2 = reshape(xpup2,nPerDim**2)
+        ypup2 = reshape(ypup2,nPerDim**2)
+
         ind = ( (xpup2**2 + ypup2**2) <= 1 )
 
-        xpup = zeros(len(ind)+1, dtype=float)
-        ypup = zeros(len(ind)+1, dtype=float)
+        xpup = zeros(sum(ind)+1, dtype=float)
+        ypup = zeros(sum(ind)+1, dtype=float)
 
         xpup[ind+1] = xpup2[ ind ]
         ypup[ind+1] = ypup2[ ind ]
@@ -52,7 +56,7 @@ class RectGrid(object):
 class HexGrid(RectGrid):
     def getGrid(self,nray):
         # the hex grid is split up into two rect grids (Bravais grid + base)
-        nx = sqrt(2*sqrt(3)*nray/pi) + 1
+        nx = int(round(sqrt(2*sqrt(3)*nray/pi) + 1))
         x1d = linspace(-1,1,nx)
         y1d = x1d * sqrt(3)
         dx = x1d[1] - x1d[0]
@@ -61,6 +65,12 @@ class HexGrid(RectGrid):
         xpup1,ypup1 = meshgrid( x1d, y1d )
         xpup2 = xpup1 + 0.5*dx
         ypup2 = ypup1 + 0.5*dy
+
+        xpup1 = reshape(xpup1, nx**2)
+        ypup1 = reshape(ypup1, nx**2)
+        xpup2 = reshape(xpup2, nx**2)
+        ypup2 = reshape(ypup2, nx**2)
+
 
         ind = ( (xpup1**2 + ypup1**2) <= 1 )
         xpup1 = xpup1[ ind ]

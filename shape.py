@@ -123,7 +123,7 @@ class Conic(Shape):
         
         # find indices of rays that don't intersect with the sphere        
         validIndices = (     ( square > 0 ) * ( intersection[0]**2 + intersection[1]**2 <= self.sdia.val**2 )     )
-        validInidces[0] = True # hail to the chief
+        validIndices[0] = True # hail to the chief
 
         # Normal
         normal    = zeros(shape(r0), dtype=float)
