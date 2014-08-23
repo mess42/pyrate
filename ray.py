@@ -62,6 +62,62 @@ class RayBundle(object):
         rayDir[2] = rayDir[2] / absk
         self.rayDir = rayDir
 
+    def getCentroidPos(self):
+        """
+        Returns the arithmetic average position of all rays at the origin of the ray bundle.        
+
+        :return centr: centroid position (1d numpy array of 3 floats)
+        """
+        oneOverN =  1.0 / (shape(self.o)[1] - 1)
+        xav = sum(self.o[0][1:]) * oneOverN
+        yav = sum(self.o[1][1:]) * oneOverN
+        zav = sum(self.o[2][1:]) * oneOverN
+        return array([xav, yav, zav])
+
+    def getChiefPos(self):
+        """
+        Returns the chief ray position at the origin of the ray bundle.      
+
+        :return chief: centroid position (1d numpy array of 3 floats)
+        """
+        return self.o[:,0]
+
+   def getRMSspotSize(self, referencePos):
+        """
+        Returns the root mean square (RMS) deviation of all ray positions 
+        with respect to a reference position at the origin of the ray bundle.        
+
+        :referencePos: (1d numpy array of 3 floats)
+
+        :return rms: RMS spot size (float)
+        """
+        deltax = self.o[0][1:] - referencePos[0]
+        deltay = self.o[1][1:] - referencePos[1]
+        deltaz = self.o[2][1:] - referencePos[2]
+        N = len(deltax)
+
+        return sqrt( ( sum(deltax**2) + sum(deltay**2) + sum(deltaz**2) ) / (N-1) )
+
+    def getRMSspotSizeCentroid(self):
+        """
+        Returns the root mean square (RMS) deviation of all ray positions 
+        with respect to the centroid at the origin of the ray bundle.        
+
+        :return rms: RMS spot size (float)
+        """
+        centr = self.getCentroidPos()
+        return getRMSspotSize(self, centr)
+
+    def getRMSspotSizeChief(self):
+        """
+        Returns the root mean square (RMS) deviation of all ray positions 
+        with respect to the chief ray at the origin of the ray bundle.        
+
+        :return rms: RMS spot size (float)
+        """
+        chief = self.getChiefPos()
+        return getRMSspotSize(self, chief)
+
     def draw2d(self, ax, offset=[0,0], color="blue"):
         nrays = shape(self.o)[1]
         for i in arange(nrays):
