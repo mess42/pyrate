@@ -78,7 +78,7 @@ class RayBundle(object):
         """
         Returns the chief ray position at the origin of the ray bundle.      
 
-        :return chief: centroid position (1d numpy array of 3 floats)
+        :return chief: chief position (1d numpy array of 3 floats)
         """
         return self.o[:,0]
 
@@ -96,7 +96,7 @@ class RayBundle(object):
         deltaz = self.o[2][1:] - referencePos[2]
         N = len(deltax)
 
-        return sqrt( ( sum(deltax**2) + sum(deltay**2) + sum(deltaz**2) ) / (N-1) )
+        return sqrt( ( sum(deltax**2) + sum(deltay**2) + sum(deltaz**2) ) / (N-1.0) )
 
     def getRMSspotSizeCentroid(self):
         """
@@ -117,6 +117,69 @@ class RayBundle(object):
         """
         chief = self.getChiefPos()
         return getRMSspotSize(self, chief)
+
+    def getCentroidDirection(self):
+        """
+        Returns the arithmetic average direction of all rays at the origin of the ray bundle.        
+
+        :return centr: centroid unit direction vector (1d numpy array of 3 floats)
+        """
+        xav = sum(self.rayDir[0][1:]) 
+        yav = sum(self.rayDir[1][1:]) 
+        zav = sum(self.rayDir[2][1:]) 
+
+        length = sqrt( xav**2 + yav**2 + zav**2 )
+
+        return array([xav, yav, zav]) / length
+
+    def getChiefDir(self):
+        """
+        Returns the chief ray unit direction vector.
+
+        :return chief: chief unit direction (1d numpy array of 3 floats)
+        """
+        return self.rayDir[:,0]
+
+    def getRMSangluarSize(self, refDir):
+        """
+        Returns the root mean square (RMS) deviation of all ray directions
+        with respect to a reference direction.
+        The return value is approximated for small angluar deviations from refDir.
+
+        :param refDir: reference direction vector (1d numpy array of 3 floats)
+                       Must be normalized to unit length.
+
+        :return rms: RMS angular size in rad (float)
+        """
+
+        # sin(angle between rayDir and refDir) = abs( rayDir crossproduct refDir )
+        # sin(angle)**2 approx angle**2 for small deviations from the reference,
+        # but for large deviations the definition makes no sense, anyway
+
+        crossX = self.rayDir[1][1:] * refDir[2] - self.rayDir[2][1:] * refDir[1]
+        crossY = self.rayDir[2][1:] * refDir[0] - self.rayDir[0][1:] * refDir[2]
+        crossZ = self.rayDir[0][1:] * refDir[1] - self.rayDir[1][1:] * refDir[0]
+        N = len(crossX)
+
+        return sqrt( sum( crossX**2 + crossY**2 + crossZ**2 ) / (N-1.0) )
+
+    def getRMSangluarSizeCentroid(self):
+        """
+        Returns the root mean square (RMS) deviation of all ray directions
+        with respect to the centroid direction.
+
+        :return rms: RMS angular size in rad (float)
+        """
+        return self.getRMSangluarSize( self.getCentroidDirection() )
+
+    def getRMSangluarSizeCentroid(self):
+        """
+        Returns the root mean square (RMS) deviation of all ray directions
+        with respect to the chief direction.
+
+        :return rms: RMS angular size in rad (float)
+        """
+        return self.getRMSangluarSize( self.getChiefDirection() )
 
     def draw2d(self, ax, offset=[0,0], color="blue"):
         nrays = shape(self.o)[1]

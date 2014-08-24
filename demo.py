@@ -72,8 +72,6 @@ r = RayPath(initialBundle, s)
 print "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through ", len(s.surfaces) - 1, " surfaces."
 print "             That is ", int(round( nray * ( len(s.surfaces) - 1 ) / ( time.clock() - t0 ) )), "ray-surface-operations per second"
 
-
-
 # plot
 aimy.setPupilRaster(rasterType="ChiefAndComa", nray=5)
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=array([0,0]), wavelength=.55)
