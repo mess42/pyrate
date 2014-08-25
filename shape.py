@@ -21,17 +21,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from numpy import *
+from optimize import ClassWithOptimizableVariables
 
-class Shape(object):
-    """
-    Virtual Class for all surface shapes.
-    The shape of a surface provides a function to calculate
-    the intersection point with a ray.
-    """
-
+class Shape(ClassWithOptimizableVariables):
     def __init__(self):
-        self.curvature = 0 # spherical curvature
-        self.sdia = 0 # semi-diameter
+        """
+        Virtual Class for all surface shapes.
+        The shape of a surface provides a function to calculate
+        the intersection point with a ray.
+        """
         raise NotImplementedError()
 
     def intersect(self, raybundle):
@@ -40,7 +38,8 @@ class Shape(object):
         with ray and normal vector of the surface.
         :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
         :return t: geometrical path length to the next surface (1d numpy array of float)
-        :return normal: surface normal vectors (2d numpy 3xN array of float) 
+        :return normal: surface normal vectors (2d numpy 3xN array of float)
+        :return validIndices: whether indices hit the surface (1d numpy array of bool) 
         """
         raise NotImplementedError()
 
@@ -64,7 +63,7 @@ class Shape(object):
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
         """
         Plots the surface in a matplotlib figure.
-        :param ax: matplotlib axes handle 
+        :param ax: matplotlib subplot handle 
         :param offset: y and z offset (list or 1d numpy array of 2 floats)
         :param vertices: number of points the polygon representation of the surface contains (int)
         :param color: surface draw color (str)
@@ -73,61 +72,64 @@ class Shape(object):
         
     def draw3d(self, offset = [0,0,0], tilt=[0,0,0], color="grey"):
         """
-        To do: find proper rendering package
+        To do: find fancy rendering package
         """
         raise NotImplementedError()
         
 
 class Conic(Shape):
-    """
-    Defines a rotationally symmetric conic section (sphere, paraboloid,
-    ellipsoid, hyperboloid).
-    """
     def __init__(self, curv=0.0, cc=0.0, semidiam=0.0):
         """
-        Create conic surface.
-        :param curv: Curvature of the surface.
-        :param cc: Conic constant.
-        :param semidiam: Semi-diameter of the surface.
+        Create rotationally symmetric conic section surface.
+
+        :param curv: Curvature of the surface (float).
+        :param cc: Conic constant (float).
+        :param semidiam: Semi-diameter of the surface (float).
+
+        -1 < cc < 0 oblate ellipsoid
+             cc = 0 sphere
+         0 < cc < 1 prolate ellipsoid
+             cc = 1 paraboloid
+             cc > 1 hyperboloid
         """
-        self.curvature = curv
-        self.conic = cc
-        self.sdia = semidiam
+        self.listOfOptimizableVariables = []
+        
+        self.curvature = self.createOptimizableVariable("curvature", value = curv, status=False)
+        self.conic = self.createOptimizableVariable("conic constant", value = cc, status=False)
+        self.sdia = self.createOptimizableVariable("semi diameter", value = semidiam, status=False)
 
     def getSag(self, x, y):
         rs = x**2 + y**2
-        return self.curvature * rs / ( 1 + sqrt ( 1 - (1+self.conic) * self.curvature**2 * rs) )
+        return self.curvature.val * rs / ( 1 + sqrt ( 1 - (1+self.conic.val) * self.curvature.val**2 * rs) )
 
     def getCentralCurvature(self):
         # Conic curvature on axis is only influenced by spherical curvature term
-        return self.curvature
+        return self.curvature.val
 
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
         
         r0 = raybundle.o
         
-        F = rayDir[2] - self.curvature * ( rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic) )
-        G = self.curvature * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic) ) - 2 * r0[2]
-        H = - self.curvature - self.conic * self.curvature * rayDir[2]**2
+        F = rayDir[2] - self.curvature.val * ( rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val) )
+        G = self.curvature.val * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.val) ) - 2 * r0[2]
+        H = - self.curvature.val - self.conic.val * self.curvature.val * rayDir[2]**2
     
-        square = F**2 + H*G     
-    
-        # indices of rays that don't intercest with the sphere
-        
-        # indicesOfNan = find( square < 0 ) 
-        
-        # to do: add rays outside the clear aperture to the indicesOfNan list    
+        square = F**2 + H*G           
 
         t = G / ( F + sqrt( square ) )
         
         intersection = r0 + raybundle.rayDir * t
         
+        # find indices of rays that don't intersect with the sphere        
+        validIndices = (     ( square > 0 ) * ( intersection[0]**2 + intersection[1]**2 <= self.sdia.val**2 )     )
+        validIndices[0] = True # hail to the chief
+
         # Normal
         normal    = zeros(shape(r0), dtype=float)
-        normal[0] =   - self.curvature * intersection[0]
-        normal[1] =   - self.curvature * intersection[1]
-        normal[2] = 1 - self.curvature * intersection[2] * (1+self.conic)
+        normal[0] =   - self.curvature.val * intersection[0]
+        normal[1] =   - self.curvature.val * intersection[1]
+        normal[2] = 1 - self.curvature.val * intersection[2] * (1+self.conic.val)
         
         absn = sqrt( sum(normal**2, axis=0) )
         
@@ -135,10 +137,10 @@ class Conic(Shape):
         normal[1] = normal[1] / absn
         normal[2] = normal[2] / absn
         
-        return intersection, t, normal
+        return intersection, t, normal, validIndices
 
     def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
-        y = self.sdia * linspace(-1,1,vertices)
+        y = self.sdia.val * linspace(-1,1,vertices)
         z = self.getSag(0,y)
         
         ax.plot(z+offset[1],y+offset[0], color)
@@ -146,12 +148,12 @@ class Conic(Shape):
 
 class Asphere(Shape):
     """
-
+    to do: polynomial asphere as base class for sophisticated surface descriptions
     """
     pass
 
 
-class Aperture(object):
+class Aperture(Shape):
     """
     Base class representing the aperture of a surface.
     Subclasses may define the actual shapes (circular,
