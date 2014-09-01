@@ -3,6 +3,7 @@ from pylab import *
 import time
 import pupil
 import aim
+import merit
 
 from optical_system import OpticalSystem
 from ray import RayPath
@@ -85,6 +86,15 @@ ax = fig.add_subplot(111)
 s.draw2d(ax)
 r2.draw2d(s, ax, color="blue")
 r3.draw2d(s, ax, color="green")
+
+# optimize
+print "Initial merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s) 
+
+# make surface curvatures variable
+s.surfaces[2].setStatus("curvature", True)
+s.surfaces[3].setStatus("curvature", True)
+s.surfaces[4].setStatus("curvature", True)
+s.surfaces[5].setStatus("curvature", True)
 
 
 

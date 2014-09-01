@@ -19,6 +19,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+from numpy import *
+
 
 class OptimizableVariable(object):
     """
@@ -57,15 +59,44 @@ class ClassWithOptimizableVariables(object):
     def getAllOptimizableVariables(self):
         return self.listOfOptimizableVariables
 
+    def setStatus(self, name, status=True):
+        N = len( self.listOfOptimizableVariables )
+
+        names = []
+        for i in arange(N):
+            names.append( self.listOfOptimizableVariables[i].name ) 
+
+        if ( name in names ):
+            i = names.index(name)
+            self.listOfOptimizableVariables[i].status = status
 
 
+def optimizeNewton1D(s, merite, dxFactor = 1.00001):
+    """
+    1 dimensional Newton optimizer for an optical system.
 
+    :param s: initial OpticalSystem object
+    :param merite: pointer on the merit function
+    :param dxFactor: factor determining an infinitessimal change (float)
 
+    :return s: optimized OpticalSystem object
+    """
 
-
-
-
-
+    # list of active variables = all optimizable variables in s with ( status == True )
+    # for i in listofactivevariables:
+    #     initmerit = merite(s)
+    #     currentvar = listofactivevariables[i]
+    #     initvalue = currentvar.val
+    #     valuePlusDx = initialvalue *  1.00001
+    #     s. set variable (valuePlusDx)
+    #     meritplusdx = merite(s)
+    #     
+    #     m = ( meritplusdx - initmerit ) / ( valuePlusDx - initvalue )
+    #     n = initmerit - m * initvalue
+    # 
+    #     newtonvalue = - n / m
+    #     s. set variable (newtonvalue)
+    #     to do: test whether merit function decreased
 
 
 

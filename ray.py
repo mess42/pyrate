@@ -82,7 +82,7 @@ class RayBundle(object):
         """
         return self.o[:,0]
 
-   def getRMSspotSize(self, referencePos):
+    def getRMSspotSize(self, referencePos):
         """
         Returns the root mean square (RMS) deviation of all ray positions 
         with respect to a reference position at the origin of the ray bundle.        
@@ -106,7 +106,7 @@ class RayBundle(object):
         :return rms: RMS spot size (float)
         """
         centr = self.getCentroidPos()
-        return getRMSspotSize(self, centr)
+        return self.getRMSspotSize(centr)
 
     def getRMSspotSizeChief(self):
         """
@@ -116,7 +116,7 @@ class RayBundle(object):
         :return rms: RMS spot size (float)
         """
         chief = self.getChiefPos()
-        return getRMSspotSize(self, chief)
+        return self.getRMSspotSize(chief)
 
     def getCentroidDirection(self):
         """
