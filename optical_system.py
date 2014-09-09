@@ -302,7 +302,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         for sur in self.surfaces:
             varsToReturn += sur.getAllOptimizableVariables()
         return varsToReturn
-        #values = [a.val for a in s.getAllOptimizableVariables()]
+        
 
 
 

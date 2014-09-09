@@ -59,6 +59,18 @@ class ClassWithOptimizableVariables(object):
     def getAllOptimizableVariables(self):
         return self.listOfOptimizableVariables
 
+    def getAllOptimizableValues(self):
+        return [a.val for a in self.getAllOptimizableVariables()]
+
+    def getAllOptimiziableStates(self):
+        return [a.status for a in self.getAllOptimizableVariables()]
+
+    def getActiveOptimizableVariables(self):
+        return self.getAllOptimizableVariables()[self.getAllOptimiziableStates()]
+
+    def getActiveOptimizableValues(self):
+        return self.getAllOptimizableValues()[self.getAllOptimiziableStates()]
+
     def setStatus(self, name, status=True):
         N = len( self.listOfOptimizableVariables )
 
@@ -71,39 +83,44 @@ class ClassWithOptimizableVariables(object):
             self.listOfOptimizableVariables[i].status = status
 
 
-def optimizeNewton1D(s, merite, dxFactor = 1.00001):
+def optimizeNewton1D(s, meritfunction, iterations=0, dxFactor = 1.00001):
     """
     1 dimensional Newton optimizer for an optical system.
 
-    :param s: initial OpticalSystem object
-    :param merite: pointer on the merit function
+    :param s: initial OpticalSystem object, will be overwritten
+    :param meritfunction: pointer on the merit function
+    :param iterations: number of iterations (int)
     :param dxFactor: factor determining an infinitessimal change (float)
 
     :return s: optimized OpticalSystem object
     """
 
-    # list of active variables = all optimizable variables in s with ( status == True )
-    # for i in listofactivevariables:
-    #     initmerit = merite(s)
-    #     currentvar = listofactivevariables[i]
-    #     initvalue = currentvar.val
-    #     valuePlusDx = initialvalue *  1.00001
-    #     s. set variable (valuePlusDx)
-    #     meritplusdx = merite(s)
-    #     
-    #     m = ( meritplusdx - initmerit ) / ( valuePlusDx - initvalue )
-    #     n = initmerit - m * initvalue
-    # 
-    #     newtonvalue = - n / m
-    #     s. set variable (newtonvalue)
-    #     to do: test whether merit function decreased
+    if dxFactor <= 1:
+        print "Warning: dxFactor must be larger than 1. Setting value to 1.00001"
+        dxFactor = 1.00001
 
+    optVars = s.getActiveOptimizableVariables()
 
+    for i in arange(len(iterations)):
+        for v in arange(len(optVars)):
+            merit0 = meritfunction(s)
+            var = optVars[v]
+            varvalue0 = var.val
+            varvalue1 = var.val * dxFactor
+            var.val = varvalue1
+            merit1 = meritfunction(s)
+      
+            m = ( merit1 - merit0 ) / ( varvalue1 - varvalue0 )
+            n = merit0 - m * varvalue0
+            varvalue2 = - n / m  # Newton method for next iteration value
 
+            var.val = varvalue2    
+            merit2 = meritfunction(s)
 
-
-
-
-
-
-
+            guard = 0 # guard element to prevent freezing
+            while merit2 > merit0 and varvalue2 / varvalue0 > dxFactor and guard < 1000:
+                varvalue2 = 0.5 * ( varvalue2 + varvalue0 )
+                var.val = varvalue2    
+                merit2 = meritfunction(s)
+                guard += 1
+    return s
