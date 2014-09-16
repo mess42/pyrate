@@ -4,6 +4,7 @@ import time
 import pupil
 import aim
 import merit
+import optimize
 
 from optical_system import OpticalSystem
 from ray import RayPath
@@ -88,7 +89,8 @@ r2.draw2d(s, ax, color="blue")
 r3.draw2d(s, ax, color="green")
 
 # optimize
-print "Initial merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s) 
+print "Initial   merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s) 
+
 
 # make surface curvatures variable
 s.surfaces[2].setStatus("curvature", True)
@@ -96,6 +98,9 @@ s.surfaces[3].setStatus("curvature", True)
 s.surfaces[4].setStatus("curvature", True)
 s.surfaces[5].setStatus("curvature", True)
 
+s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=1, dxFactor = 1.00001)
+
+print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s) 
 
 
 

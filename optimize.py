@@ -66,10 +66,12 @@ class ClassWithOptimizableVariables(object):
         return [a.status for a in self.getAllOptimizableVariables()]
 
     def getActiveOptimizableVariables(self):
-        return self.getAllOptimizableVariables()[self.getAllOptimiziableStates()]
+        ind = self.getAllOptimiziableStates()
+        return array( self.getAllOptimizableVariables() )[ind]
 
     def getActiveOptimizableValues(self):
-        return self.getAllOptimizableValues()[self.getAllOptimiziableStates()]
+        ind = self.getAllOptimiziableStates()
+        return array( self.getAllOptimizableValues() )[ind]
 
     def setStatus(self, name, status=True):
         N = len( self.listOfOptimizableVariables )
@@ -81,9 +83,10 @@ class ClassWithOptimizableVariables(object):
         if ( name in names ):
             i = names.index(name)
             self.listOfOptimizableVariables[i].status = status
+        else:
+            print "not found"
 
-
-def optimizeNewton1D(s, meritfunction, iterations=0, dxFactor = 1.00001):
+def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor = 1.00001):
     """
     1 dimensional Newton optimizer for an optical system.
 
@@ -101,7 +104,7 @@ def optimizeNewton1D(s, meritfunction, iterations=0, dxFactor = 1.00001):
 
     optVars = s.getActiveOptimizableVariables()
 
-    for i in arange(len(iterations)):
+    for i in arange(iterations):
         for v in arange(len(optVars)):
             merit0 = meritfunction(s)
             var = optVars[v]
