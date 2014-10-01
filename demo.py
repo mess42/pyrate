@@ -84,6 +84,7 @@ r3 = RayPath(initialBundle3, s)
 
 fig = figure(1)
 ax = fig.add_subplot(111)
+ax.axis('equal')
 s.draw2d(ax)
 r2.draw2d(s, ax, color="blue")
 r3.draw2d(s, ax, color="green")
