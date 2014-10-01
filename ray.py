@@ -68,10 +68,10 @@ class RayBundle(object):
 
         :return centr: centroid position (1d numpy array of 3 floats)
         """
-        oneOverN =  1.0 / (shape(self.o)[1] - 1)
-        xav = sum(self.o[0][1:]) * oneOverN
-        yav = sum(self.o[1][1:]) * oneOverN
-        zav = sum(self.o[2][1:]) * oneOverN
+        oneOverN =  1.0 / (shape(self.o)[1])
+        xav = sum(self.o[0][0:]) * oneOverN
+        yav = sum(self.o[1][0:]) * oneOverN
+        zav = sum(self.o[2][0:]) * oneOverN
         return array([xav, yav, zav])
 
     def getChiefPos(self):
@@ -222,5 +222,5 @@ class RayPath(object):
         offy = offset[0]
         offz = offset[1]
         for i in arange(Nsurf):
-            offz += opticalsystem.surfaces[i].thickness
+            offz += opticalsystem.surfaces[i].thickness.val
             self.raybundles[i].draw2d(ax, offset = [offy, offz], color = color)
