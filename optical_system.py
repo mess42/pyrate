@@ -22,10 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import shape as surfShape  # the name 'shape' already denotes the dimensions of a numpy array
 import material
-import pupil
+from material import ConstantIndexGlass
 import inspector
 
-from numpy import *
+import numpy as np
 from optimize import ClassWithOptimizableVariables
 
 
@@ -33,14 +33,14 @@ class Surface(ClassWithOptimizableVariables):
     """
     Represents a surface of an optical system.
     
-    :param shap: Shape of the surface. Calculates the intersection with rays. ( Shape object or child )
-    :param mater: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
+    :param shape: Shape of the surface. Calculates the intersection with rays. ( Shape object or child )
+    :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, thickness=0.0):
+    def __init__(self, shape=surfShape.Conic(), thickness=0.0, glass=ConstantIndexGlass()):
         super(Surface, self).__init__()
-        self.shap = self.setShape("Conic")
-        self.mater = self.setMaterial("ConstantIndexGlass")
+        self.shape = shape
+        self.material = glass
         self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
 
     def setThickness(self, thickness):
@@ -83,42 +83,43 @@ class Surface(ClassWithOptimizableVariables):
         """
         self.mater.setCoefficients(coeff)
 
-    def setShape(self, shapeName):
+    def setShape(self, shape):
         """
         Sets the shape object self.shap
         
-        :param shapeName: name of the shape type (str)
+        :param shape: the new Shape object
         
-        :return self.shap: new Shape object
+        :return self.shape: new Shape object
         """
 
         # conserve the most basic parameters of the shape
         try:
-            curv = self.shap.curvature.val 
-            semidiam = self.shap.sdia.val
+            curv = self.shape.curvature.val
+            semidiam = self.shape.sdia.val
             
-            varsToRemove = self.shap.getAllOptimizableVariables()
+            varsToRemove = self.shape.getAllOptimizableVariables()
             for v in varsToRemove:
                 self.listOfOptimizableVariables.remove(v)
 
         except:
-            # self.shap does not exist yet
+            # self.shape does not exist yet
             curv = 0.0
             semidiam = 0.0 
 
-        names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
+        # names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
  
-        self.shap = inspector.createObjectFromList(names, classes, shapeName)
-        self.shap.curvature.val = curv
-        self.shap.sdia.val = semidiam
+        # self.shape = inspector.createObjectFromList(names, classes, shapeName)
+        self.shape = shape
+        self.shape.curvature.val = curv
+        self.shape.sdia.val = semidiam
 
         # add optimizable variables of new shape
-        self.listOfOptimizableVariables += self.shap.getAllOptimizableVariables()
+        self.listOfOptimizableVariables += self.shape.getAllOptimizableVariables()
 
-        return self.shap
+        return self.shape
 
-    def draw2d(self, ax, offset=[0, 0], vertices=100, color="grey"):
-        self.shap.draw2d(ax, offset, vertices, color)      
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
+        self.shape.draw2d(ax, offset, vertices, color)
 
     def getABCDMatrix(self, nextSurface, ray):
         """
@@ -134,9 +135,9 @@ class Surface(ClassWithOptimizableVariables):
         :param ray: ray bundle to obtain wavelength (RayBundle object)
         :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
         """
-        curvature = self.shap.getCentralCurvature()
-        nextCurvature = nextSurface.shap.getCentralCurvature()
-        return self.mater.getABCDMatrix(curvature, self.thickness.val, nextCurvature, ray)
+        curvature = self.shape.getCentralCurvature()
+        nextCurvature = nextSurface.shape.getCentralCurvature()
+        return self.material.getABCDMatrix(curvature, self.thickness.val, nextCurvature, ray)
 
 
 class OpticalSystem(ClassWithOptimizableVariables):
@@ -146,11 +147,21 @@ class OpticalSystem(ClassWithOptimizableVariables):
     def __init__(self):
         super(OpticalSystem, self).__init__()
         self.surfaces = []
-        self.insertSurface(0)  # object
-        self.insertSurface(1)  # image
-        self.surfaces[1].shap.sdia.val = 1E100
+        self.insertSurface(0, Surface())  # object
+        self.insertSurface(1, Surface())  # image
+        self.surfaces[1].shape.sdia.val = 0.0  # 1E100
  
-    def insertSurface(self, position):
+    def appendSurface(self, surface):
+        """
+        Appends a new surface into the optical system.
+
+        :param position: number of the new surface (int).
+           Surface that is currently at this position
+           and all following surface indices are incremented.
+        """
+        self.surfaces.insert(len(self.surfaces)-1, surface)
+
+    def insertSurface(self, position, surface):
         """
         Inserts a new surface into the optical system.
 
@@ -158,7 +169,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
            Surface that is currently at this position 
            and all following surface indices are incremented.
         """
-        self.surfaces.insert(position, Surface())
+        self.surfaces.insert(position, surface)
         
     def removeSurface(self, position):
         """
@@ -200,14 +211,14 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         self.surfaces[position].setMaterialCoefficients(coeff)
 
-    def setShape(self, position, shapeName):
+    def setShape(self, position, shape):
         """
         Sets the shape of a surface.
 
         :param position: number of the surface (int)
         :param shapeName: name of the Shape child class (str)
         """
-        self.surfaces[position].setShape(shapeName)
+        self.surfaces[position].setShape(shape)
 
     def getABCDMatrix(self, ray, firstSurfacePosition=0, lastSurfacePosition=-1):
         """
@@ -232,8 +243,8 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         abcd = [[1, 0], [0, 1]]
 
-        for i in arange(lastSurfacePosition - firstSurfacePosition + 1) + firstSurfacePosition:
-            abcd = dot(self.surfaces[i].getABCDMatrix(self.surfaces[i+1], ray), abcd)
+        for i in np.arange(lastSurfacePosition - firstSurfacePosition + 1) + firstSurfacePosition:
+            abcd = np.dot(self.surfaces[i].getABCDMatrix(self.surfaces[i+1], ray), abcd)
 
         return abcd
 
@@ -283,13 +294,12 @@ class OpticalSystem(ClassWithOptimizableVariables):
         print abcd
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
-    def draw2d(self, ax, offset=[0, 0], vertices=100, color="grey"):
-        N = self.getNumberOfSurfaces()
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         offy = offset[0]
         offz = offset[1]
-        for i in arange(N-1):
-            self.surfaces[i].draw2d(ax, offset=[offy, offz])
-            offz += self.surfaces[i].getThickness()
+        for s in self.surfaces:
+            s.draw2d(ax, offset=(offy, offz), vertices=vertices, color=color)
+            offz += s.getThickness()
 
     def createOptimizableVariable(self, name, value=0.0, status=False):
         """

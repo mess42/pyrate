@@ -19,7 +19,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
-from numpy import *
+
+import numpy as np
 
 
 class OptimizableVariable(object):
@@ -68,20 +69,20 @@ class ClassWithOptimizableVariables(object):
 
     def getActiveOptimizableVariables(self):
         ind = self.getAllOptimiziableStates()
-        return array(self.getAllOptimizableVariables())[ind]
+        return np.array(self.getAllOptimizableVariables())[ind]
 
     def getActiveOptimizableValues(self):
         ind = self.getAllOptimiziableStates()
-        return array(self.getAllOptimizableValues())[ind]
+        return np.array(self.getAllOptimizableValues())[ind]
 
     def setStatus(self, name, status=True):
         N = len(self.listOfOptimizableVariables)
 
         names = []
-        for i in arange(N):
+        for i in np.arange(N):
             names.append(self.listOfOptimizableVariables[i].name)
 
-        if ( name in names ):
+        if (name in names):
             i = names.index(name)
             self.listOfOptimizableVariables[i].status = status
         else:
@@ -106,8 +107,8 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
 
     optVars = s.getActiveOptimizableVariables()
 
-    for i in arange(iterations):
-        for v in arange(len(optVars)):
+    for i in np.arange(iterations):
+        for v in np.arange(len(optVars)):
             merit0 = meritfunction(s)
             var = optVars[v]
             varvalue0 = var.val

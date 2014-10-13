@@ -213,9 +213,9 @@ class RayPath(object):
         :param thicknessOfCurrentSurface: on-axis geometrical distance between current and nextSurface (float)
         """
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
-        intersection, t, normal, validIndices = nextSurface.shap.intersect(self.raybundles[-1])
+        intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])
         self.raybundles[-1].t = t       
-        self.raybundles.append(nextSurface.mater.refract(self.raybundles[-1], intersection, normal, validIndices))
+        self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))
 
     def draw2d(self, opticalsystem, ax, offset=(0, 0), color="blue"):
         Nsurf = len(self.raybundles)
