@@ -51,12 +51,12 @@ class RayBundle(object):
         self.wave = wave
         self.pol = pol
 
-    def setRayDir(self,k):
+    def setRayDir(self, k):
         """
         Calculates the unit direction vector of a ray from its wavevector.
         """
-        rayDir = 1. * k # copy k, dont just create a pointer
-        absk = sqrt( sum(rayDir**2, axis=0) )
+        rayDir = 1. * k  # copy k, dont just create a pointer
+        absk = sqrt(sum(rayDir**2, axis=0))
         rayDir[0] = rayDir[0] / absk
         rayDir[1] = rayDir[1] / absk
         rayDir[2] = rayDir[2] / absk
@@ -68,7 +68,7 @@ class RayBundle(object):
 
         :return centr: centroid position (1d numpy array of 3 floats)
         """
-        oneOverN =  1.0 / (shape(self.o)[1])
+        oneOverN = 1.0 / (shape(self.o)[1])
         xav = sum(self.o[0][0:]) * oneOverN
         yav = sum(self.o[1][0:]) * oneOverN
         zav = sum(self.o[2][0:]) * oneOverN
@@ -80,7 +80,7 @@ class RayBundle(object):
 
         :return chief: chief position (1d numpy array of 3 floats)
         """
-        return self.o[:,0]
+        return self.o[:, 0]
 
     def getRMSspotSize(self, referencePos):
         """
@@ -96,7 +96,7 @@ class RayBundle(object):
         deltaz = self.o[2][1:] - referencePos[2]
         N = len(deltax)
 
-        return sqrt( ( sum(deltax**2) + sum(deltay**2) + sum(deltaz**2) ) / (N-1.0) )
+        return sqrt((sum(deltax**2) + sum(deltay**2) + sum(deltaz**2)) / (N-1.0))
 
     def getRMSspotSizeCentroid(self):
         """
@@ -138,7 +138,7 @@ class RayBundle(object):
 
         :return chief: chief unit direction (1d numpy array of 3 floats)
         """
-        return self.rayDir[:,0]
+        return self.rayDir[:, 0]
 
     def getRMSangluarSize(self, refDir):
         """
@@ -170,23 +170,23 @@ class RayBundle(object):
 
         :return rms: RMS angular size in rad (float)
         """
-        return self.getRMSangluarSize( self.getCentroidDirection() )
+        return self.getRMSangluarSize(self.getCentroidDirection())
 
-    def getRMSangluarSizeCentroid(self):
+    def getRMSangluarSizeChief(self):
         """
         Returns the root mean square (RMS) deviation of all ray directions
         with respect to the chief direction.
 
         :return rms: RMS angular size in rad (float)
         """
-        return self.getRMSangluarSize( self.getChiefDirection() )
+        return self.getRMSangluarSize(self.getChiefDirection())
 
-    def draw2d(self, ax, offset=[0,0], color="blue"):
+    def draw2d(self, ax, offset=(0, 0), color="blue"):
         nrays = shape(self.o)[1]
         for i in arange(nrays):
-            y = array( [self.o[1,i], self.o[1,i] + self.t[i] * self.rayDir[1,i] ] )
-            z = array( [self.o[2,i], self.o[2,i] + self.t[i] * self.rayDir[2,i] ] )     
-            ax.plot(z+offset[1],y+offset[0], color)
+            y = array([self.o[1, i], self.o[1, i] + self.t[i] * self.rayDir[1, i]])
+            z = array([self.o[2, i], self.o[2, i] + self.t[i] * self.rayDir[2, i]])
+            ax.plot(z+offset[1], y+offset[0], color)
 
  
 class RayPath(object):
@@ -198,11 +198,11 @@ class RayPath(object):
         :param opticalSystem:  optical system through which the rays are propagated ( OpticalSystem object )
 
         """
-        self.raybundles = [ initialraybundle ]
+        self.raybundles = [initialraybundle]
         N = opticalSystem.getNumberOfSurfaces()
 
         for i in arange(N-1)+1:
-            self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].getThickness() )
+            self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].getThickness())
 
     def traceToNextSurface(self, nextSurface, thicknessOfCurrentSurface):
         """
@@ -215,12 +215,12 @@ class RayPath(object):
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
         intersection, t, normal, validIndices = nextSurface.shap.intersect(self.raybundles[-1])
         self.raybundles[-1].t = t       
-        self.raybundles.append(  nextSurface.mater.refract( self.raybundles[-1], intersection, normal, validIndices)  )
+        self.raybundles.append(nextSurface.mater.refract(self.raybundles[-1], intersection, normal, validIndices))
 
-    def draw2d(self, opticalsystem, ax, offset=[0,0], color="blue"):
+    def draw2d(self, opticalsystem, ax, offset=[0, 0], color="blue"):
         Nsurf = len(self.raybundles)
         offy = offset[0]
         offz = offset[1]
         for i in arange(Nsurf):
             offz += opticalsystem.surfaces[i].thickness.val
-            self.raybundles[i].draw2d(ax, offset = [offy, offz], color = color)
+            self.raybundles[i].draw2d(ax, offset=(offy, offz), color=color)

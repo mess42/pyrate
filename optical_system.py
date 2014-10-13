@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import shape as surfShape # the name 'shape' already denotes the dimensions of a numpy array
+import shape as surfShape  # the name 'shape' already denotes the dimensions of a numpy array
 import material
 import pupil
 import inspector
@@ -28,20 +28,21 @@ import inspector
 from numpy import *
 from optimize import ClassWithOptimizableVariables
 
+
 class Surface(ClassWithOptimizableVariables):
     """
     Represents a surface of an optical system.
     
-    :param shap: Shape of the surface. Claculates the intersection with rays. ( Shape object or child )
-    :param mater: Material of the volume behind the surface. Claculates the refraction. ( Material object or child )
+    :param shap: Shape of the surface. Calculates the intersection with rays. ( Shape object or child )
+    :param mater: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, thickness = 0.0):
+    def __init__(self, thickness=0.0):
         self.listOfOptimizableVariables = []
 
-        self.shap  = self.setShape("Conic")
+        self.shap = self.setShape("Conic")
         self.mater = self.setMaterial("ConstantIndexGlass")
-        self.thickness = self.createOptimizableVariable("thickness", value = thickness, status=False)      
+        self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
 
     def setThickness(self, thickness):
         self.thickness.val = thickness
@@ -108,7 +109,7 @@ class Surface(ClassWithOptimizableVariables):
 
         names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
  
-        self.shap = inspector.createObjectFromList(names, classes, shapeName )
+        self.shap = inspector.createObjectFromList(names, classes, shapeName)
         self.shap.curvature.val = curv
         self.shap.sdia.val = semidiam
 
@@ -117,7 +118,7 @@ class Surface(ClassWithOptimizableVariables):
 
         return self.shap
 
-    def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
+    def draw2d(self, ax, offset=[0, 0], vertices=100, color="grey"):
         self.shap.draw2d(ax, offset, vertices, color)      
 
     def getABCDMatrix(self, nextSurface, ray):
@@ -144,11 +145,11 @@ class OpticalSystem(ClassWithOptimizableVariables):
     """
     def __init__(self):
         self.surfaces = []
-        self.insertSurface(0) # object
-        self.insertSurface(1) # image
+        self.insertSurface(0)  # object
+        self.insertSurface(1)  # image
         self.surfaces[1].shap.sdia.val = 1E100
  
-    def insertSurface(self,position):
+    def insertSurface(self, position):
         """
         Inserts a new surface into the optical system.
 
@@ -156,9 +157,9 @@ class OpticalSystem(ClassWithOptimizableVariables):
            Surface that is currently at this position 
            and all following surface indices are incremented.
         """
-        self.surfaces.insert(position, Surface() )
+        self.surfaces.insert(position, Surface())
         
-    def removeSurface(self,position):
+    def removeSurface(self, position):
         """
         Removes a surface from the optical system.
 
@@ -207,7 +208,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         self.surfaces[position].setShape(shapeName)
 
-    def getABCDMatrix(self, ray, firstSurfacePosition = 0, lastSurfacePosition = -1):
+    def getABCDMatrix(self, ray, firstSurfacePosition=0, lastSurfacePosition=-1):
         """
         Returns an ABCD matrix of the optical system.
         The matrix is set up in geometric convention for (y, dy/dz) vectors.
@@ -228,10 +229,10 @@ class OpticalSystem(ClassWithOptimizableVariables):
         if lastSurfacePosition < 0:
             lastSurfacePosition = self.getNumberOfSurfaces() - lastSurfacePosition - 3
 
-        abcd = [[1,0],[0,1]]
+        abcd = [[1, 0], [0, 1]]
 
-        for i in arange( lastSurfacePosition - firstSurfacePosition + 1) + firstSurfacePosition:
-            abcd = dot( self.surfaces[i].getABCDMatrix(self.surfaces[i+1], ray)  ,  abcd )
+        for i in arange(lastSurfacePosition - firstSurfacePosition + 1) + firstSurfacePosition:
+            abcd = dot(self.surfaces[i].getABCDMatrix(self.surfaces[i+1], ray), abcd)
 
         return abcd
 
@@ -247,15 +248,15 @@ class OpticalSystem(ClassWithOptimizableVariables):
         :return zex: exit pupil position from image (float)
         :return magex: exit pupil magnificaction; exit pupil diameter per stop diameter (float)
         """ 
-        abcdObjStop = self.getABCDMatrix(ray, 0 , stopPosition - 1) # object to stop
+        abcdObjStop = self.getABCDMatrix(ray, 0, stopPosition - 1)  # object to stop
 
-        zen  = abcdObjStop[0,1] / abcdObjStop[0,0] # entrance pupil position from object
-        magen = 1.0 / abcdObjStop[0,0]     
+        zen = abcdObjStop[0, 1] / abcdObjStop[0, 0]  # entrance pupil position from object
+        magen = 1.0 / abcdObjStop[0, 0]
 
-        abcdStopIm = self.getABCDMatrix(ray, stopPosition, -1) # stop to image
+        abcdStopIm = self.getABCDMatrix(ray, stopPosition, -1)  # stop to image
 
-        zex = - abcdStopIm[0,1] / abcdStopIm[1,1] # exit pupil position from image
-        magex = abcdStopIm[0,0] - abcdStopIm[0,1] * abcdStopIm[1,0] / abcdStopIm[1,1]
+        zex = - abcdStopIm[0, 1] / abcdStopIm[1, 1]  # exit pupil position from image
+        magex = abcdStopIm[0, 0] - abcdStopIm[0, 1] * abcdStopIm[1, 0] / abcdStopIm[1, 1]
 
         return zen, magen, zex, magex, abcdObjStop, abcdStopIm
 
@@ -267,7 +268,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         :return f: focal length (float)
         """
         abcd = self.getABCDMatrix(ray)
-        return -1.0 / abcd[1,0]
+        return -1.0 / abcd[1, 0]
 
     def getParaxialMagnification(self, ray):
         """
@@ -279,18 +280,18 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         abcd = self.getABCDMatrix(ray)
         print abcd
-        return abcd[0,0] - abcd[0,1] * abcd[1,0] / abcd[1,1]
+        return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
-    def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
+    def draw2d(self, ax, offset=[0, 0], vertices=100, color="grey"):
         N = self.getNumberOfSurfaces()
         offy = offset[0]
         offz = offset[1]
         for i in arange(N-1):
-            self.surfaces[i].draw2d(ax, offset = [offy, offz])
+            self.surfaces[i].draw2d(ax, offset=[offy, offz])
             offz += self.surfaces[i].getThickness()
  
 
-    def createOptimizableVariable(self, name, value = 0.0, status=False):
+    def createOptimizableVariable(self, name, value=0.0, status=False):
         """
         This class is not able to create own variables. 
         It only forwards variables from its surfaces.
@@ -302,7 +303,3 @@ class OpticalSystem(ClassWithOptimizableVariables):
         for sur in self.surfaces:
             varsToReturn += sur.getAllOptimizableVariables()
         return varsToReturn
-        
-
-
-
