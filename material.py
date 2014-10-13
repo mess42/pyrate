@@ -81,6 +81,7 @@ class ConstantIndexGlass(Material):
     A simple glass defined by a single refractive index.
     """
     def __init__(self, n=1.0):
+        super(ConstantIndexGlass, self).__init__()
         self.listOfOptimizableVariables = []
         
         self.n = self.createOptimizableVariable("refractive index", value=n, status=False)
@@ -137,6 +138,7 @@ class ModelGlass(ConstantIndexGlass):
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
         """
+        super(ModelGlass, self).__init__(n0_A_B[0])
         self.listOfOptimizableVariables = []
         
         self.n0 = self.createOptimizableVariable("Conrady n0", value=n0_A_B[0], status=False)
@@ -152,7 +154,6 @@ class ModelGlass(ConstantIndexGlass):
         self.n0.val = n0_A_B[0]
         self.A.val = n0_A_B[1]
         self.B.val = n0_A_B[2]
-
 
     def getIndex(self, raybundle):
         """
@@ -179,7 +180,7 @@ class ModelGlass(ConstantIndexGlass):
         A = 1.87513751845 * nF_minus_nC - B * 15.2203074842
         n0 = nd - 1.70194862906 * A - 6.43150432188 * B
     
-        self.setCoefficients(self,  [n0, A, B])
+        self.setCoefficients(self,  (n0, A, B))
 
     def calcCoefficientsFrom_nd_vd(self, nd=1.51680, vd=64.17):
         """

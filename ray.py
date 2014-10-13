@@ -132,7 +132,7 @@ class RayBundle(object):
 
         return array([xav, yav, zav]) / length
 
-    def getChiefDir(self):
+    def getChiefDirection(self):
         """
         Returns the chief ray unit direction vector.
 
@@ -161,7 +161,7 @@ class RayBundle(object):
         crossZ = self.rayDir[0][1:] * refDir[1] - self.rayDir[1][1:] * refDir[0]
         N = len(crossX)
 
-        return sqrt( sum( crossX**2 + crossY**2 + crossZ**2 ) / (N-1.0) )
+        return sqrt(sum(crossX**2 + crossY**2 + crossZ**2) / (N-1.0))
 
     def getRMSangluarSizeCentroid(self):
         """
@@ -217,7 +217,7 @@ class RayPath(object):
         self.raybundles[-1].t = t       
         self.raybundles.append(nextSurface.mater.refract(self.raybundles[-1], intersection, normal, validIndices))
 
-    def draw2d(self, opticalsystem, ax, offset=[0, 0], color="blue"):
+    def draw2d(self, opticalsystem, ax, offset=(0, 0), color="blue"):
         Nsurf = len(self.raybundles)
         offy = offset[0]
         offz = offset[1]

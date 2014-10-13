@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from numpy import *
 
+
 class ObjectHeight(object):
     def __init__(self):
         pass
@@ -44,8 +45,9 @@ class ObjectHeight(object):
     def getObjectHeight(self, opticalSystem, ray, stopPosition, objFieldXY):
         return objFieldXY
 
+
 class ObjectChiefAngle(ObjectHeight):
-    def getChiefSlope(self,opticalSystem, stopPosition, ray, objChiefAngle):
+    def getChiefSlope(self, opticalSystem, stopPosition, ray, objChiefAngle):
         """
         Calculates the chief ray slope from the object sided chief ray angle.
 
@@ -56,11 +58,11 @@ class ObjectChiefAngle(ObjectHeight):
         :return chiefSlopeXY: chief ray slope in x and y direction (1d numpy array of 2 floats)
         """
     
-        return tan( objChiefAngle * pi / 180. )
+        return tan(objChiefAngle * pi / 180.0)
 
     def getObjectHeight(self, opticalSystem, ray, stopPosition, objChiefAngle):
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        objFieldXY = -zen * tan( objChiefAngle * pi / 180. )
+        objFieldXY = -zen * tan(objChiefAngle * pi / 180.0)
         return objFieldXY
 
 
@@ -79,10 +81,9 @@ class ParaxialImageHeight(ObjectHeight):
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         pmag = opticalSystem.getParaxialMagnification(ray)        
 
-        chiefSlopeXY = - imFieldXY / ( zen * pmag )
+        chiefSlopeXY = - imFieldXY / (zen * pmag)
         return chiefSlopeXY
 
     def getObjectHeight(self, opticalSystem, ray, stopPosition, imFieldXY):
         pmag = opticalSystem.getParaxialMagnification(ray)        
         return imFieldXY / pmag
-

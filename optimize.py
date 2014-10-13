@@ -31,6 +31,7 @@ class OptimizableVariable(object):
         self.val = value
         self.status = status
 
+
 class ClassWithOptimizableVariables(object):
     """
     Virtual class for all classes that contain an optimizable variable.
@@ -85,6 +86,7 @@ class ClassWithOptimizableVariables(object):
             self.listOfOptimizableVariables[i].status = status
         else:
             print "not found"
+
 
 def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
     """

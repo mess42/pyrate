@@ -38,8 +38,7 @@ class Surface(ClassWithOptimizableVariables):
     :param thickness: distance to next surface on the optical axis
     """
     def __init__(self, thickness=0.0):
-        self.listOfOptimizableVariables = []
-
+        super(Surface, self).__init__()
         self.shap = self.setShape("Conic")
         self.mater = self.setMaterial("ConstantIndexGlass")
         self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
@@ -138,12 +137,14 @@ class Surface(ClassWithOptimizableVariables):
         curvature = self.shap.getCentralCurvature()
         nextCurvature = nextSurface.shap.getCentralCurvature()
         return self.mater.getABCDMatrix(curvature, self.thickness.val, nextCurvature, ray)
-   
+
+
 class OpticalSystem(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
     def __init__(self):
+        super(OpticalSystem, self).__init__()
         self.surfaces = []
         self.insertSurface(0)  # object
         self.insertSurface(1)  # image
@@ -289,7 +290,6 @@ class OpticalSystem(ClassWithOptimizableVariables):
         for i in arange(N-1):
             self.surfaces[i].draw2d(ax, offset=[offy, offz])
             offz += self.surfaces[i].getThickness()
- 
 
     def createOptimizableVariable(self, name, value=0.0, status=False):
         """

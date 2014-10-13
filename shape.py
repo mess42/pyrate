@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 from optimize import ClassWithOptimizableVariables
 
+
 class Shape(ClassWithOptimizableVariables):
     def __init__(self):
         """
@@ -30,6 +31,7 @@ class Shape(ClassWithOptimizableVariables):
         The shape of a surface provides a function to calculate
         the intersection point with a ray.
         """
+        super(Shape, self).__init__()
         raise NotImplementedError()
 
     def intersect(self, raybundle):
@@ -60,7 +62,7 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
-    def draw2d(self, ax, offset=[0, 0], vertices=100, color="grey"):
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         """
         Plots the surface in a matplotlib figure.
         :param ax: matplotlib subplot handle 
@@ -70,7 +72,7 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
         
-    def draw3d(self, offset=[0, 0, 0], tilt=[0, 0, 0], color="grey"):
+    def draw3d(self, offset=(0, 0, 0), tilt=(0, 0, 0), color="grey"):
         """
         To do: find fancy rendering package
         """
@@ -92,7 +94,7 @@ class Conic(Shape):
              cc = 1 paraboloid
              cc > 1 hyperboloid
         """
-        self.listOfOptimizableVariables = []
+        super(Conic, self).__init__()
         
         self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
         self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
@@ -139,7 +141,7 @@ class Conic(Shape):
         
         return intersection, t, normal, validIndices
 
-    def draw2d(self, ax, offset=[0, 0], vertices=100, color="grey"):
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         y = self.sdia.val * linspace(-1, 1, vertices)
         z = self.getSag(0, y)
         
