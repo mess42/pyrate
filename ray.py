@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from numpy import *
 
+
 class RayBundle(object):
     def __init__(self, o, k, rayID, wave=0.55, pol=[]):
         """
@@ -47,7 +48,7 @@ class RayBundle(object):
         self.k = k
         self.rayID = rayID
         self.setRayDir(k)
-        self.t = zeros(shape(o)[1]) # Geometrical path length to the ray final position.
+        self.t = zeros(shape(o)[1])  # Geometrical path length to the ray final position.
         self.wave = wave
         self.pol = pol
 
@@ -128,7 +129,7 @@ class RayBundle(object):
         yav = sum(self.rayDir[1][1:]) 
         zav = sum(self.rayDir[2][1:]) 
 
-        length = sqrt( xav**2 + yav**2 + zav**2 )
+        length = sqrt(xav**2 + yav**2 + zav**2)
 
         return array([xav, yav, zav]) / length
 

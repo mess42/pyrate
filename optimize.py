@@ -82,7 +82,7 @@ class ClassWithOptimizableVariables(object):
         for i in np.arange(N):
             names.append(self.listOfOptimizableVariables[i].name)
 
-        if (name in names):
+        if name in names:
             i = names.index(name)
             self.listOfOptimizableVariables[i].status = status
         else:

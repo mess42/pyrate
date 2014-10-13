@@ -33,8 +33,8 @@ class EntrancePupilDiameter(object):
         """
         Returns a set of booleans indicating whether this pupil definition is compatible with telecentricity and afocality.
 
-        :return objTelec:      Pupil definition is suitable for object sided telecentric systems and finite exit pupil (bool)        
-        :return imTelec:       Pupil definition is suitable for image  sided telecentric systems and finite entrance pupil (bool)        
+        :return objTelec:      Pupil definition is suitable for object sided telecentric systems and finite exit pupil (bool)
+        :return imTelec:       Pupil definition is suitable for image  sided telecentric systems and finite entrance pupil (bool)
         :return doubleTelec:   Pupil definition is suitable for object and image sided telecentric systems (bool)
                                      A double telecentric system must have finite conjugates.
         :return objInfConj:    Pupil definition is suitable for object at infinite distance and finite image distance (bool)

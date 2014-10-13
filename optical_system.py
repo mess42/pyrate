@@ -37,10 +37,10 @@ class Surface(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, shape=surfShape.Conic(), thickness=0.0, glass=ConstantIndexGlass()):
+    def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass()):
         super(Surface, self).__init__()
         self.shape = shape
-        self.material = glass
+        self.material = material
         self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
 
     def setThickness(self, thickness):

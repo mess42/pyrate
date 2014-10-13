@@ -13,12 +13,12 @@ from ray import RayPath
 s = OpticalSystem()
 s.setThickness(position=0, thickness=2.0)
 
-s.insertSurface(1, Surface(Conic(curv=1/-5.922, semidiam=0.55), thickness=3.0, glass=ConstantIndexGlass(1.7)))
+s.insertSurface(1, Surface(Conic(curv=1/-5.922, semidiam=0.55), thickness=3.0, material=ConstantIndexGlass(1.7)))
 s.insertSurface(2, Surface(Conic(curv=1/-3.160, semidiam=1.0), thickness=5.0))
-s.insertSurface(3, Surface(Conic(curv=1/15.884, semidiam=1.3), thickness=3.0, glass=ConstantIndexGlass(1.7)))
+s.insertSurface(3, Surface(Conic(curv=1/15.884, semidiam=1.3), thickness=3.0, material=ConstantIndexGlass(1.7)))
 s.insertSurface(4, Surface(Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0))
 s.insertSurface(5, Surface(Conic(semidiam=1.01), thickness=2.0))
-s.insertSurface(6, Surface(Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, glass=ConstantIndexGlass(1.5)))
+s.insertSurface(6, Surface(Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, material=ConstantIndexGlass(1.5)))
 s.insertSurface(7, Surface(Conic(curv=1/1.479, semidiam=1.0), thickness=19))
 
 # benchmark
