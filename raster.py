@@ -107,7 +107,7 @@ class RandomGrid(RectGrid):
 class MeridionalFan(RectGrid):
     def getGrid(self,nray, phi=0.):
         xlin = zeros(nray+1, dtype=float)
-        xlin[arange(nray)+1] = linspace(0,1,nray)
+        xlin[arange(nray)+1] = linspace(-1, 1, nray)
         alpha = phi / 180. * pi
         xpup = xlin * -sin(alpha)
         ypup = xlin * cos(alpha)

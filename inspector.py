@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import inspect
 
+
 def getListOfClasses(module, startPattern="", excludeName=""):
     """
     Returns class names contained in a module.
@@ -42,7 +43,7 @@ def getListOfClasses(module, startPattern="", excludeName=""):
     return listOfNames, listOfClasses
 
 
-def createObjectFromList(listOfNames, listOfClassPointers, desiredName ):
+def createObjectFromList(listOfNames, listOfClassPointers, desiredName):
     """
     Creates an object from a list of available classes.
 
@@ -56,8 +57,6 @@ def createObjectFromList(listOfNames, listOfClassPointers, desiredName ):
     if desiredName in listOfNames:
         i = listOfNames.index(desiredName)      
     else:
-        print 'Warning: class name \'', desiredName, '\' not found. Setting \'', listOfNames[0] , '\' instead.'      
+        print 'Warning: class name \'', desiredName, '\' not found. Setting \'', listOfNames[0], '\' instead.'
         i = 0
     return listOfClassPointers[i]()
-
-

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 from optimize import ClassWithOptimizableVariables
 
+
 class Shape(ClassWithOptimizableVariables):
     def __init__(self):
         """
@@ -30,6 +31,7 @@ class Shape(ClassWithOptimizableVariables):
         The shape of a surface provides a function to calculate
         the intersection point with a ray.
         """
+        super(Shape, self).__init__()
         raise NotImplementedError()
 
     def intersect(self, raybundle):
@@ -60,7 +62,7 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
-    def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         """
         Plots the surface in a matplotlib figure.
         :param ax: matplotlib subplot handle 
@@ -70,7 +72,7 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
         
-    def draw3d(self, offset = [0,0,0], tilt=[0,0,0], color="grey"):
+    def draw3d(self, offset=(0, 0, 0), tilt=(0, 0, 0), color="grey"):
         """
         To do: find fancy rendering package
         """
@@ -92,15 +94,15 @@ class Conic(Shape):
              cc = 1 paraboloid
              cc > 1 hyperboloid
         """
-        self.listOfOptimizableVariables = []
+        super(Conic, self).__init__()
         
-        self.curvature = self.createOptimizableVariable("curvature", value = curv, status=False)
-        self.conic = self.createOptimizableVariable("conic constant", value = cc, status=False)
-        self.sdia = self.createOptimizableVariable("semi diameter", value = semidiam, status=False)
+        self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
+        self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
+        self.sdia = self.createOptimizableVariable("semi diameter", value=semidiam, status=False)
 
     def getSag(self, x, y):
         rs = x**2 + y**2
-        return self.curvature.val * rs / ( 1 + sqrt ( 1 - (1+self.conic.val) * self.curvature.val**2 * rs) )
+        return self.curvature.val * rs / (1 + sqrt(1 - (1+self.conic.val) * self.curvature.val**2 * rs))
 
     def getCentralCurvature(self):
         # Conic curvature on axis is only influenced by spherical curvature term
@@ -111,27 +113,27 @@ class Conic(Shape):
         
         r0 = raybundle.o
         
-        F = rayDir[2] - self.curvature.val * ( rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val) )
-        G = self.curvature.val * ( r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.val) ) - 2 * r0[2]
+        F = rayDir[2] - self.curvature.val * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val))
+        G = self.curvature.val * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.val)) - 2 * r0[2]
         H = - self.curvature.val - self.conic.val * self.curvature.val * rayDir[2]**2
     
         square = F**2 + H*G           
 
-        t = G / ( F + sqrt( square ) )
+        t = G / (F + sqrt(square))
         
         intersection = r0 + raybundle.rayDir * t
         
         # find indices of rays that don't intersect with the sphere        
-        validIndices = (     ( square > 0 ) * ( intersection[0]**2 + intersection[1]**2 <= self.sdia.val**2 )     )
-        validIndices[0] = True # hail to the chief
+        validIndices = ((square > 0) * (intersection[0]**2 + intersection[1]**2 <= self.sdia.val**2))
+        validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal    = zeros(shape(r0), dtype=float)
-        normal[0] =   - self.curvature.val * intersection[0]
-        normal[1] =   - self.curvature.val * intersection[1]
+        normal = zeros(shape(r0), dtype=float)
+        normal[0] = -self.curvature.val * intersection[0]
+        normal[1] = -self.curvature.val * intersection[1]
         normal[2] = 1 - self.curvature.val * intersection[2] * (1+self.conic.val)
         
-        absn = sqrt( sum(normal**2, axis=0) )
+        absn = sqrt(sum(normal**2, axis=0))
         
         normal[0] = normal[0] / absn
         normal[1] = normal[1] / absn
@@ -139,11 +141,11 @@ class Conic(Shape):
         
         return intersection, t, normal, validIndices
 
-    def draw2d(self, ax, offset = [0,0], vertices=100, color="grey"):
-        y = self.sdia.val * linspace(-1,1,vertices)
-        z = self.getSag(0,y)
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
+        y = self.sdia.val * linspace(-1, 1, vertices)
+        z = self.getSag(0, y)
         
-        ax.plot(z+offset[1],y+offset[0], color)
+        ax.plot(z+offset[1], y+offset[0], color)
              
 
 class Asphere(Shape):

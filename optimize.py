@@ -26,10 +26,11 @@ class OptimizableVariable(object):
     """
     Class that contains a float. Used to get a pointer on a variable.
     """
-    def __init__(self,name, value=0.0, status=False):
-        self.name =  name
+    def __init__(self, name, value=0.0, status=False):
+        self.name = name
         self.val = value
         self.status = status
+
 
 class ClassWithOptimizableVariables(object):
     """
@@ -38,7 +39,7 @@ class ClassWithOptimizableVariables(object):
     def __init__(self):
         self.listOfOptimizableVariables = []
 
-    def createOptimizableVariable(self, name, value = 0.0, status=False):
+    def createOptimizableVariable(self, name, value=0.0, status=False):
         """
         Creates a new float that can be used with optimization algorithms.
 
@@ -67,18 +68,18 @@ class ClassWithOptimizableVariables(object):
 
     def getActiveOptimizableVariables(self):
         ind = self.getAllOptimiziableStates()
-        return array( self.getAllOptimizableVariables() )[ind]
+        return array(self.getAllOptimizableVariables())[ind]
 
     def getActiveOptimizableValues(self):
         ind = self.getAllOptimiziableStates()
-        return array( self.getAllOptimizableValues() )[ind]
+        return array(self.getAllOptimizableValues())[ind]
 
     def setStatus(self, name, status=True):
-        N = len( self.listOfOptimizableVariables )
+        N = len(self.listOfOptimizableVariables)
 
         names = []
         for i in arange(N):
-            names.append( self.listOfOptimizableVariables[i].name ) 
+            names.append(self.listOfOptimizableVariables[i].name)
 
         if ( name in names ):
             i = names.index(name)
@@ -86,7 +87,8 @@ class ClassWithOptimizableVariables(object):
         else:
             print "not found"
 
-def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor = 1.00001):
+
+def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
     """
     1 dimensional Newton optimizer for an optical system.
 
@@ -113,16 +115,16 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor = 1.00001):
             var.val = varvalue1
             merit1 = meritfunction(s)
       
-            m = ( merit1 - merit0 ) / ( varvalue1 - varvalue0 )
+            m = (merit1 - merit0) / (varvalue1 - varvalue0)
             n = merit0 - m * varvalue0
             varvalue2 = - n / m  # Newton method for next iteration value
 
             var.val = varvalue2    
             merit2 = meritfunction(s)
 
-            guard = 0 # guard element to prevent freezing
+            guard = 0  # guard element to prevent freezing
             while merit2 > merit0 and varvalue2 / varvalue0 > dxFactor and guard < 1000:
-                varvalue2 = 0.5 * ( varvalue2 + varvalue0 )
+                varvalue2 = 0.5 * (varvalue2 + varvalue0)
                 var.val = varvalue2    
                 merit2 = meritfunction(s)
                 guard += 1

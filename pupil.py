@@ -24,9 +24,11 @@ from numpy import *
 
 # TO DO: correct all of these definitions also for immersion
 
+
 class EntrancePupilDiameter(object):
     def __init__(self):
         pass
+
     def worksWithSpecialCases(self):
         """
         Returns a set of booleans indicating whether this pupil definition is compatible with telecentricity and afocality.
@@ -41,11 +43,11 @@ class EntrancePupilDiameter(object):
                                      An imaging system with double infinite conjugates has zero focal power.
                                      Examples are telescopes with ocular, binoculars, and laser beam expanders.
         """
-        objTelec      = False   
-        imTelec       = True 
-        doubleTelec   = False
-        objInfConj    = True
-        imInfConj     = True
+        objTelec = False
+        imTelec = True
+        doubleTelec = False
+        objInfConj = True
+        imInfConj = True
         doubleInfConj = True
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -62,11 +64,12 @@ class EntrancePupilDiameter(object):
         :return StopDia: stop diameter (float)
         """
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         ms = epd / (2*zen)
         stopDia = 2*Bo*ms
 
         return ms, stopDia
+
 
 class EntrancePupilRadius(EntrancePupilDiameter):
     def get_marginalSlope(self, opticalSystem, stopPosition, ray, epr):
@@ -82,18 +85,19 @@ class EntrancePupilRadius(EntrancePupilDiameter):
         :return StopDia: stop diameter (float)
         """
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         ms = epr / zen
         stopDia = 2*Bo*ms
         return ms, stopDia
 
+
 class StopDiameter(EntrancePupilDiameter):
     def worksWithSpecialCases(self):
-        objTelec      = True   
-        imTelec       = True 
-        doubleTelec   = True
-        objInfConj    = True
-        imInfConj     = True
+        objTelec = True
+        imTelec = True
+        doubleTelec = True
+        objInfConj = True
+        imInfConj = True
         doubleInfConj = True
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -110,9 +114,10 @@ class StopDiameter(EntrancePupilDiameter):
         :return StopDia: stop diameter (float)
         """
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         ms = .5 / Bo * stopDia
         return ms, stopDia
+
 
 class StopRadius(StopDiameter):
     def get_marginalSlope(self, opticalSystem, stopPosition, ray, stopRad):
@@ -128,18 +133,19 @@ class StopRadius(StopDiameter):
         :return StopDia: stop diameter (float)
         """
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         ms = stopRad / Bo
         stopDia = 2*stopRad
         return ms, stopDia
 
+
 class ExitPupilDiameter(EntrancePupilDiameter):
     def worksWithSpecialCases(self):
-        objTelec      = True   
-        imTelec       = False 
-        doubleTelec   = False
-        objInfConj    = True
-        imInfConj     = True
+        objTelec = True
+        imTelec = False
+        doubleTelec = False
+        objInfConj = True
+        imInfConj = True
         doubleInfConj = True
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -156,11 +162,12 @@ class ExitPupilDiameter(EntrancePupilDiameter):
         :return StopDia: stop diameter (float)
         """
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         ms = 0.5 / (Bo * magex) * exPupDia
         stopDia = 1 / magex * exPupDia
         return ms, stopDia
-    
+
+
 class ExitPupilRadius(ExitPupilDiameter):
     def get_marginalSlope(self, opticalSystem, stopPosition, ray, exPupRad):
         """
@@ -175,18 +182,19 @@ class ExitPupilRadius(ExitPupilDiameter):
         :return StopDia: stop diameter (float)
         """
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         ms = exPupRad / (Bo * magex) 
         stopDia = 2 / magex * exPupRad
         return ms, stopDia
-    
+
+
 class InfiniteConjugateImageSpaceFNumber(EntrancePupilDiameter):
     def worksWithSpecialCases(self):
-        objTelec      = False 
-        imTelec       = True 
-        doubleTelec   = False
-        objInfConj    = True
-        imInfConj     = True
+        objTelec = False
+        imTelec = True
+        doubleTelec = False
+        objInfConj = True
+        imInfConj = True
         doubleInfConj = False
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -206,16 +214,17 @@ class InfiniteConjugateImageSpaceFNumber(EntrancePupilDiameter):
         f = opticalSystem.getEffectiveFocalLength(ray)
 
         ms = f / (2*fnumber*zen)
-        stopDia = f / fnumber * abcd_obj_stop[0,0]
+        stopDia = f / fnumber * abcd_obj_stop[0, 0]
         return ms, stopDia
-    
+
+
 class InfiniteConjugateObjectSpaceFNumber(EntrancePupilDiameter):
     def worksWithSpecialCases(self):
-        objTelec      = True 
-        imTelec       = False 
-        doubleTelec   = False
-        objInfConj    = True
-        imInfConj     = True
+        objTelec = True
+        imTelec = False
+        doubleTelec = False
+        objInfConj = True
+        imInfConj = True
         doubleInfConj = False
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -233,18 +242,19 @@ class InfiniteConjugateObjectSpaceFNumber(EntrancePupilDiameter):
         """
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         f = opticalSystem.getEffectiveFocalLength(ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         ms = f / (2*fnumber*Bo*magex)
         stopDia = f / (fnumber*magex)
         return ms, stopDia
 
+
 class WorkingImageSpaceFNumber(EntrancePupilDiameter):
     def worksWithSpecialCases(self):
-        objTelec      = True
-        imTelec       = True 
-        doubleTelec   = True
-        objInfConj    = True
-        imInfConj     = True
+        objTelec = True
+        imTelec = True
+        doubleTelec = True
+        objInfConj = True
+        imInfConj = True
         doubleInfConj = True
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -262,23 +272,24 @@ class WorkingImageSpaceFNumber(EntrancePupilDiameter):
         :return StopDia: stop diameter (float)
         """
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Ai = abcd_stop_im[0,0]
-        Bi = abcd_stop_im[0,1]
-        Ci = abcd_stop_im[1,0]
-        Di = abcd_stop_im[1,1]
-        Bo = abcd_obj_stop[0,1]
+        Ai = abcd_stop_im[0, 0]
+        Bi = abcd_stop_im[0, 1]
+        Ci = abcd_stop_im[1, 0]
+        Di = abcd_stop_im[1, 1]
+        Bo = abcd_obj_stop[0, 1]
         ms = .5 * Bi / ((Ai*Di-Bi*Ci)*Bo*fnumber)
         print "Warning: calculated values with this method in pupil.py do not coincide with Zemax results. There might be a bug."
         stopDia = Bi / ((Ai*Di-Bi*Ci)*fnumber)
         return ms, stopDia
 
+
 class WorkingObjectSpaceFNumber(EntrancePupilDiameter):
     def worksWithSpecialCases(self):
-        objTelec      = True 
-        imTelec       = True 
-        doubleTelec   = True
-        objInfConj    = True
-        imInfConj     = True
+        objTelec = True
+        imTelec = True
+        doubleTelec = True
+        objInfConj = True
+        imInfConj = True
         doubleInfConj = True
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -299,17 +310,18 @@ class WorkingObjectSpaceFNumber(EntrancePupilDiameter):
         ms = 0.5 / fnumber
         print "Warning: calculated values with this method in pupil.py do not coincide with Zemax results. There might be a bug."
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         stopDia = Bo / fnumber
         return ms, stopDia
 
+
 class ObjectSpaceNA(EntrancePupilDiameter):
     def worksWithSpecialCases(self):
-        objTelec      = True 
-        imTelec       = True 
-        doubleTelec   = True
-        objInfConj    = False
-        imInfConj     = True
+        objTelec = True
+        imTelec = True
+        doubleTelec = True
+        objInfConj = False
+        imInfConj = True
         doubleInfConj = False
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -327,17 +339,18 @@ class ObjectSpaceNA(EntrancePupilDiameter):
         """
         ms = tan(arcsin(na))
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         stopDia = 2*Bo*ms
         return ms, stopDia
 
+
 class ImageSpaceNA(EntrancePupilDiameter):
     def worksWithSpecialCases(self):
-        objTelec      = True
-        imTelec       = True 
-        doubleTelec   = True
-        objInfConj    = True
-        imInfConj     = False
+        objTelec = True
+        imTelec = True
+        doubleTelec = True
+        objInfConj = True
+        imInfConj = False
         doubleInfConj = False
         return objTelec, imTelec, doubleTelec, objInfConj, imInfConj, doubleInfConj
 
@@ -356,6 +369,6 @@ class ImageSpaceNA(EntrancePupilDiameter):
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         pmag = opticalSystem.getParaxialMagnification(ray)        
         ms = tan(arcsin(na*pmag))  
-        Bo = abcd_obj_stop[0,1]
+        Bo = abcd_obj_stop[0, 1]
         stopDia = 2*Bo*ms
         return ms, stopDia

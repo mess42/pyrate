@@ -27,18 +27,19 @@ import raster
 from ray import RayBundle
 from numpy import *
 
+
 class aimFiniteByMakingASurfaceTheStop(object):
     def __init__(self, opticalSystem, 
-    pupilType="EntrancePupilDiameter", pupilSizeParameter = 0,
+    pupilType="EntrancePupilDiameter", pupilSizeParameter=0,
     fieldType="ObjectHeight", 
-    rasterType="rasterRectGrid", nray = 10, 
-    wavelength = 0.55, stopPosition = 1):
+    rasterType="rasterRectGrid", nray=10,
+    wavelength=0.55, stopPosition=1):
         """
         This class provides functionality to create an initial ray bundle 
         that can be traced through an optical system.
         It is intended for finite object distances and assumes one surface 
         of the optical system to be the stop surface.
-        The aiming is non-iterative, which means there is no chcek whether 
+        The aiming is non-iterative, which means there is no check whether
         the ray actually hits the pupil position it was
         aimed for.
         """
@@ -49,19 +50,19 @@ class aimFiniteByMakingASurfaceTheStop(object):
         self.listOfFieldTypeNames, self.listOfFieldTypeClasses = inspector.getListOfClasses(field, "<class \'field.", "")
         self.listOfRasterTypeNames, self.listOfRasterTypeClasses = inspector.getListOfClasses(raster, "<class \'raster.", "")
 
-        self.setPupilType( pupilType )
+        self.setPupilType(pupilType)
         self.setStopSize(opticalSystem, pupilSizeParameter,stopPosition, wavelength)
-        self.setFieldType( fieldType )
+        self.setFieldType(fieldType)
         self.setPupilRaster(rasterType, nray)
 
-    def setPupilType(self, pupilType ):
+    def setPupilType(self, pupilType):
         """
         Sets up the private data of this class required to aim rays through the pupil.
 
         :param pupilType: name of the class in pupil.py that defines the type of pupil (F#, NA, stop dia, ...) (str)
         """
 
-        self.pupilSizeCalculatorObject = inspector.createObjectFromList(self.listOfPupilTypeNames, self.listOfPupilTypeClasses, pupilType )
+        self.pupilSizeCalculatorObject = inspector.createObjectFromList(self.listOfPupilTypeNames, self.listOfPupilTypeClasses, pupilType)
 
 
     def setStopSize(self, opticalSystem, pupilSizeParameter, stopPosition, wavelength):
@@ -75,7 +76,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param wavelength: wavelength for pupil size calculation in um (float)
         """
         self.stopPosition = stopPosition
-        dummyRay = RayBundle(zeros((3,1)), ones((3,1)), [0], wavelength)
+        dummyRay = RayBundle(zeros((3, 1)), ones((3, 1)), [0], wavelength)
         temp_ms, self.stopDiameter = self.pupilSizeCalculatorObject.get_marginalSlope(opticalSystem, self.stopPosition, dummyRay, pupilSizeParameter)
 
     def getMarginalSlope(self, opticalSystem, ray):
@@ -92,14 +93,14 @@ class aimFiniteByMakingASurfaceTheStop(object):
         marginalslope, temp_stopDia = CalculatorObject2.get_marginalSlope(opticalSystem, self.stopPosition, ray, self.stopDiameter)
         return marginalslope
 
-    def setFieldType(self, fieldType ):
+    def setFieldType(self, fieldType):
         """
         Sets up the private data of this class required to aim rays through the pupil.
 
         :param fieldType: name of the function in field.py that defines the type of field (height, angle, ...) (str)
         """ 
 
-        self.chiefSlopeCalculatorObject = inspector.createObjectFromList(self.listOfFieldTypeNames, self.listOfFieldTypeClasses, fieldType )
+        self.chiefSlopeCalculatorObject = inspector.createObjectFromList(self.listOfFieldTypeNames, self.listOfFieldTypeClasses, fieldType)
 
 
     def setPupilRaster(self, rasterType, nray):
@@ -109,7 +110,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param rasterType: name of the function in raster.py that defines the type of pupil raster (grid, fan, random, ...) (str)
         :param nray: desired number of rays for the raster (int)
         """
-        temp_obj = inspector.createObjectFromList(self.listOfRasterTypeNames, self.listOfRasterTypeClasses, rasterType )
+        temp_obj = inspector.createObjectFromList(self.listOfRasterTypeNames, self.listOfRasterTypeClasses, rasterType)
         self.xpup, self.ypup = temp_obj.getGrid(nray)
      
 
@@ -123,33 +124,29 @@ class aimFiniteByMakingASurfaceTheStop(object):
         TO DO: At the moment, this function fails to produce correct values for immersion (marginalslope and absk need to be corrected)
         """
         # dummy ray that carries the wavelength information
-        ray = RayBundle(zeros((3,1)), ones((3,1)), [0], wavelength) 
+        ray = RayBundle(zeros((3, 1)), ones((3, 1)), [0], wavelength)
 
         marginalslope = self.getMarginalSlope(opticalSystem, wavelength)
         chiefslopeXY  = self.chiefSlopeCalculatorObject.getChiefSlope(opticalSystem, self.stopPosition, ray, fieldXY)
 
         nray = len(self.xpup)
-        slopeX = chiefslopeXY[0] + marginalslope * self.xpup # dx/dz
-        slopeY = chiefslopeXY[1] + marginalslope * self.ypup # dy/dz
-        k = ones((3,nray), dtype=float )
+        slopeX = chiefslopeXY[0] + marginalslope * self.xpup  # dx/dz
+        slopeY = chiefslopeXY[1] + marginalslope * self.ypup  # dy/dz
+        k = ones((3, nray), dtype=float)
         k[0,:] = slopeX
         k[1,:] = slopeY
         #k[2,:] = 1
 
-        absk = sqrt( sum(k**2, axis=0) )
+        absk = sqrt(sum(k**2, axis=0))
         k[0] = k[0] / absk
         k[1] = k[1] / absk
         k[2] = k[2] / absk
 
         originXY = self.chiefSlopeCalculatorObject.getObjectHeight(opticalSystem, ray, self.stopPosition, fieldXY)
-        nray = len( self.xpup )
-        o = zeros((3,nray), dtype=float )
-        o[0,:] = originXY[0]
-        o[1,:] = originXY[1]
+        nray = len(self.xpup)
+        o = zeros((3, nray), dtype=float)
+        o[0, :] = originXY[0]
+        o[1, :] = originXY[1]
 
-        raybundle = RayBundle( o, k, arange(nray), wavelength, pol=[])
+        raybundle = RayBundle(o, k, arange(nray), wavelength, pol=[])
         return raybundle
-
-
-
-
