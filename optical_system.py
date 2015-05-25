@@ -67,12 +67,12 @@ class Surface(ClassWithOptimizableVariables):
         except:
             pass
 
-        self.mater = materialType()
+        self.material = materialType()
 
         # add optimizable variables of new shape
         self.listOfOptimizableVariables += self.mater.getAllOptimizableVariables()
 
-        return self.mater
+        return self.material
 
     def setMaterialCoefficients(self, coeff):
         """
@@ -80,7 +80,7 @@ class Surface(ClassWithOptimizableVariables):
 
         :param coeff: coefficients. Type and format depend on Material child class.
         """
-        self.mater.setCoefficients(coeff)
+        self.material.setCoefficients(coeff)
 
     def setShape(self, shape):
         """

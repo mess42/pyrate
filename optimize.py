@@ -78,9 +78,13 @@ class ClassWithOptimizableVariables(object):
     def setStatus(self, name, status=True):
         N = len(self.listOfOptimizableVariables)
 
+        print "setstatus name: ", name
+
         names = []
         for i in np.arange(N):
             names.append(self.listOfOptimizableVariables[i].name)
+
+        print "setstatus names: ", names
 
         if name in names:
             i = names.index(name)
@@ -88,6 +92,7 @@ class ClassWithOptimizableVariables(object):
         else:
             print "not found"
 
+        print "setstatus listofvars: ", [i.name + " " + str(i.val) + " " + str(i.status)  for i in self.listOfOptimizableVariables]
 
 def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
     """
@@ -107,12 +112,15 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
 
     optVars = s.getActiveOptimizableVariables()
 
+    print optVars
+
     for i in np.arange(iterations):
+        print "Iteration: ", i
         for v in np.arange(len(optVars)):
             merit0 = meritfunction(s)
             var = optVars[v]
             varvalue0 = var.val
-            varvalue1 = var.val * dxFactor
+            varvalue1 = var.val * dxFactor # problematic for zero values!
             var.val = varvalue1
             merit1 = meritfunction(s)
 
