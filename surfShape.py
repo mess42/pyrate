@@ -32,7 +32,6 @@ class Shape(ClassWithOptimizableVariables):
         the intersection point with a ray.
         """
         super(Shape, self).__init__()
-        
 
     def intersect(self, raybundle):
         """
@@ -144,7 +143,6 @@ class Conic(Shape):
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         y = self.sdia.val * linspace(-1, 1, vertices)
         z = self.getSag(0, y)
-        
         ax.plot(z+offset[1], y+offset[0], color)
              
 

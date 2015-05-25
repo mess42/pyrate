@@ -22,7 +22,7 @@ def myPersonalMeritFunctionForTestingPurposes(s):
     rasterType= raster.RectGrid
     wavelength = 0.55
     stopPosition = 5
-    fieldXY=array([0, 0])
+    fieldXY = array([0, 0])
 
     aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType, pupilSizeParameter, fieldType, rasterType, nray, wavelength, stopPosition)
     initialBundle = aimy.getInitialRayBundle(s, fieldXY, wavelength)
