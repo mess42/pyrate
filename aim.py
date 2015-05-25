@@ -20,7 +20,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import inspector
 import pupil
 import field
 import raster
@@ -30,10 +29,13 @@ from numpy import *
 
 class aimFiniteByMakingASurfaceTheStop(object):
     def __init__(self, opticalSystem, 
-    pupilType="EntrancePupilDiameter", pupilSizeParameter=0,
-    fieldType="ObjectHeight", 
-    rasterType="rasterRectGrid", nray=10,
-    wavelength=0.55, stopPosition=1):
+    pupilType= pupil.EntrancePupilDiameter, 
+    pupilSizeParameter=0,
+    fieldType= field.ObjectHeight, 
+    rasterType= raster.RectGrid, 
+    nray=10,
+    wavelength=0.55, 
+    stopPosition=1):
         """
         This class provides functionality to create an initial ray bundle 
         that can be traced through an optical system.
@@ -45,10 +47,6 @@ class aimFiniteByMakingASurfaceTheStop(object):
         """
 
         self.stopDiameter = 0
-
-        self.listOfPupilTypeNames, self.listOfPupilTypeClasses = inspector.getListOfClasses(pupil, "<class \'pupil.", "")
-        self.listOfFieldTypeNames, self.listOfFieldTypeClasses = inspector.getListOfClasses(field, "<class \'field.", "")
-        self.listOfRasterTypeNames, self.listOfRasterTypeClasses = inspector.getListOfClasses(raster, "<class \'raster.", "")
 
         self.setPupilType(pupilType)
         self.setStopSize(opticalSystem, pupilSizeParameter,stopPosition, wavelength)
@@ -62,7 +60,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param pupilType: name of the class in pupil.py that defines the type of pupil (F#, NA, stop dia, ...) (str)
         """
 
-        self.pupilSizeCalculatorObject = inspector.createObjectFromList(self.listOfPupilTypeNames, self.listOfPupilTypeClasses, pupilType)
+        self.pupilSizeCalculatorObject =  pupilType()
 
 
     def setStopSize(self, opticalSystem, pupilSizeParameter, stopPosition, wavelength):
@@ -100,7 +98,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param fieldType: name of the function in field.py that defines the type of field (height, angle, ...) (str)
         """ 
 
-        self.chiefSlopeCalculatorObject = inspector.createObjectFromList(self.listOfFieldTypeNames, self.listOfFieldTypeClasses, fieldType)
+        self.chiefSlopeCalculatorObject = fieldType()
 
 
     def setPupilRaster(self, rasterType, nray):
@@ -110,7 +108,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param rasterType: name of the function in raster.py that defines the type of pupil raster (grid, fan, random, ...) (str)
         :param nray: desired number of rays for the raster (int)
         """
-        temp_obj = inspector.createObjectFromList(self.listOfRasterTypeNames, self.listOfRasterTypeClasses, rasterType)
+        temp_obj = rasterType()
         self.xpup, self.ypup = temp_obj.getGrid(nray)
      
 

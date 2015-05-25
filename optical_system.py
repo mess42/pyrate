@@ -20,10 +20,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import shape as surfShape  # the name 'shape' already denotes the dimensions of a numpy array
+import surfShape
 import material
 import pupil
-import inspector
 
 from numpy import *
 from optimize import ClassWithOptimizableVariables
@@ -39,8 +38,8 @@ class Surface(ClassWithOptimizableVariables):
     """
     def __init__(self, thickness=0.0):
         super(Surface, self).__init__()
-        self.shap = self.setShape("Conic")
-        self.mater = self.setMaterial("ConstantIndexGlass")
+        self.shap = self.setShape( surfShape.Conic )
+        self.mater = self.setMaterial( material.ConstantIndexGlass )
         self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
 
     def setThickness(self, thickness):
@@ -66,9 +65,7 @@ class Surface(ClassWithOptimizableVariables):
         except:
             pass
 
-        names, classes = inspector.getListOfClasses(material, "<class \'material.", "<class \'material.Material\'>")
-
-        self.mater = inspector.createObjectFromList(names, classes, materialType )
+        self.mater = materialType()
 
         # add optimizable variables of new shape
         self.listOfOptimizableVariables += self.mater.getAllOptimizableVariables()
@@ -106,9 +103,7 @@ class Surface(ClassWithOptimizableVariables):
             curv = 0.0
             semidiam = 0.0 
 
-        names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
- 
-        self.shap = inspector.createObjectFromList(names, classes, shapeName)
+        self.shap = shapeName()
         self.shap.curvature.val = curv
         self.shap.sdia.val = semidiam
 

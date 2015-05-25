@@ -1,5 +1,8 @@
 from numpy import *
 import aim
+import field
+import raster
+import pupil
 from ray import RayPath
 
 
@@ -13,10 +16,10 @@ def myPersonalMeritFunctionForTestingPurposes(s):
     """
 
     nray = 1E3  # number of rays
-    pupilType="EntrancePupilDiameter"
+    pupilType= pupil.EntrancePupilDiameter
     pupilSizeParameter = 5.5
-    fieldType="ObjectHeight"
-    rasterType="RectGrid"
+    fieldType= field.ObjectHeight
+    rasterType= raster.RectGrid
     wavelength = 0.55
     stopPosition = 5
     fieldXY=array([0, 0])
