@@ -32,7 +32,7 @@ class Shape(ClassWithOptimizableVariables):
         the intersection point with a ray.
         """
         super(Shape, self).__init__()
-        raise NotImplementedError()
+        
 
     def intersect(self, raybundle):
         """
