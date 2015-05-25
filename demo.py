@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-<<<<<<< HEAD
 import pupil
 import field
 import raster
@@ -26,7 +25,6 @@ s.insertSurface(7, Surface(Conic(curv=1/1.479, semidiam=1.0), thickness=19))
 
 # benchmark
 # definition of rays
-<<<<<<< HEAD
 nray = 1E5 # number of rays
 aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType= pupil.EntrancePupilDiameter,
                                             pupilSizeParameter=5.5,

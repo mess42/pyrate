@@ -57,7 +57,7 @@ class ClassWithOptimizableVariables(object):
         self.listOfOptimizableVariables.append(newvar)
 
         return newvar
-        
+
     def getAllOptimizableVariables(self):
         return self.listOfOptimizableVariables
 
@@ -68,11 +68,11 @@ class ClassWithOptimizableVariables(object):
         return [a.status for a in self.getAllOptimizableVariables()]
 
     def getActiveOptimizableVariables(self):
-        ind = self.getAllOptimiziableStates()
+        ind = np.array(self.getAllOptimiziableStates())
         return np.array(self.getAllOptimizableVariables())[ind]
 
     def getActiveOptimizableValues(self):
-        ind = self.getAllOptimiziableStates()
+        ind = np.array(self.getAllOptimiziableStates())
         return np.array(self.getAllOptimizableValues())[ind]
 
     def setStatus(self, name, status=True):
@@ -115,18 +115,18 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
             varvalue1 = var.val * dxFactor
             var.val = varvalue1
             merit1 = meritfunction(s)
-      
+
             m = (merit1 - merit0) / (varvalue1 - varvalue0)
             n = merit0 - m * varvalue0
             varvalue2 = - n / m  # Newton method for next iteration value
 
-            var.val = varvalue2    
+            var.val = varvalue2
             merit2 = meritfunction(s)
 
             guard = 0  # guard element to prevent freezing
             while merit2 > merit0 and varvalue2 / varvalue0 > dxFactor and guard < 1000:
                 varvalue2 = 0.5 * (varvalue2 + varvalue0)
-                var.val = varvalue2    
+                var.val = varvalue2
                 merit2 = meritfunction(s)
                 guard += 1
     return s
