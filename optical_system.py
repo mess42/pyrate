@@ -56,12 +56,12 @@ class Surface(ClassWithOptimizableVariables):
 
         :param materialType: name of the material dispersion formula (str)
 
-        :return self.mater: new Material object
+        :return self.material: new Material object
         """
 
        # conserve the most basic parameters of the shape
         try:
-            varsToRemove = self.mater.getAllOptimizableVariables()
+            varsToRemove = self.material.getAllOptimizableVariables()
             for v in varsToRemove:
                 self.listOfOptimizableVariables.remove(v)
         except:
@@ -70,7 +70,7 @@ class Surface(ClassWithOptimizableVariables):
         self.material = materialType()
 
         # add optimizable variables of new shape
-        self.listOfOptimizableVariables += self.mater.getAllOptimizableVariables()
+        self.listOfOptimizableVariables += self.material.getAllOptimizableVariables()
 
         return self.material
 
