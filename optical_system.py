@@ -24,7 +24,7 @@ import surfShape
 import material
 import pupil
 from material import ConstantIndexGlass
-import inspector
+#import inspector
 import numpy as np
 from optimize import ClassWithOptimizableVariables
 
@@ -39,8 +39,6 @@ class Surface(ClassWithOptimizableVariables):
     """
     def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass()):
         super(Surface, self).__init__()
-        self.shap = self.setShape( surfShape.Conic )
-        self.mater = self.setMaterial( material.ConstantIndexGlass )
 
         self.shape = shape
         self.material = material
@@ -106,10 +104,6 @@ class Surface(ClassWithOptimizableVariables):
             # self.shape does not exist yet
             curv = 0.0
             semidiam = 0.0
-
-        self.shap = shapeName()
-        self.shap.curvature.val = curv
-        self.shap.sdia.val = semidiam
 
         # names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
 
