@@ -43,6 +43,8 @@ class Surface(ClassWithOptimizableVariables):
         self.shape = shape
         self.material = material
         self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
+        self.copyOptimizableVariables(shape)
+        self.copyOptimizableVariables(material)
 
     def setThickness(self, thickness):
         self.thickness.val = thickness
@@ -69,8 +71,14 @@ class Surface(ClassWithOptimizableVariables):
 
         self.material = materialType()
 
+        print "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+        print "material listofoptvars: ", [i.name for i in self.material.getAllOptimizableVariables()]
+
         # add optimizable variables of new shape
         self.listOfOptimizableVariables += self.material.getAllOptimizableVariables()
+
+        print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+
 
         return self.material
 

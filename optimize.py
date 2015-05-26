@@ -52,6 +52,8 @@ class ClassWithOptimizableVariables(object):
         """
         # to do: improve status so that it can also handle solves
 
+        print "create opt var: ",name, " val ", value, " status ", status
+
         newvar = OptimizableVariable(name, value, status)
 
         self.listOfOptimizableVariables.append(newvar)
@@ -59,6 +61,7 @@ class ClassWithOptimizableVariables(object):
         return newvar
 
     def getAllOptimizableVariables(self):
+        print "getAllOptVariables: ", [i.name for i in self.listOfOptimizableVariables]
         return self.listOfOptimizableVariables
 
     def getAllOptimizableValues(self):
@@ -94,6 +97,26 @@ class ClassWithOptimizableVariables(object):
 
         print "setstatus listofvars: ", [i.name + " " + str(i.val) + " " + str(i.status)  for i in self.listOfOptimizableVariables]
 
+    def copyOptimizableVariables(self, otherClassWithOptVars):
+
+        try:
+            varsToRemove = otherClassWithOptVars.getAllOptimizableVariables()
+            print "other listofoptvars: ", [i.name for i in varsToRemove]
+
+            for v in varsToRemove:
+                self.listOfOptimizableVariables.remove(v)
+        except:
+            pass
+
+        print "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+
+
+        # add optimizable variables other object
+        self.listOfOptimizableVariables += otherClassWithOptVars.getAllOptimizableVariables()
+
+        print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+
+
 def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
     """
     1 dimensional Newton optimizer for an optical system.
@@ -112,10 +135,12 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
 
     optVars = s.getActiveOptimizableVariables()
 
-    print optVars
+    print [i.name + ": " + str(i.val) + "; " + str(i.status) for i in optVars]
 
     for i in np.arange(iterations):
         print "Iteration: ", i
+        print [i.name + ": " + str(i.val) + "; " + str(i.status) for i in optVars]
+
         for v in np.arange(len(optVars)):
             merit0 = meritfunction(s)
             var = optVars[v]
@@ -124,9 +149,14 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
             var.val = varvalue1
             merit1 = meritfunction(s)
 
-            m = (merit1 - merit0) / (varvalue1 - varvalue0)
-            n = merit0 - m * varvalue0
-            varvalue2 = - n / m  # Newton method for next iteration value
+
+            if (abs(merit1 - merit0) > 1e-6 and abs(varvalue0 - varvalue1) > 1e-6):
+                m = (merit1 - merit0) / (varvalue1 - varvalue0)
+                n = merit0 - m * varvalue0
+                varvalue2 = - n / m  # Newton method for next iteration value
+                print m, " ", n, " ", varvalue0, " ", varvalue1, " ", varvalue2
+            else:
+                varvalue2 = varvalue1
 
             var.val = varvalue2
             merit2 = meritfunction(s)
