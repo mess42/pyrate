@@ -24,7 +24,7 @@ import surfShape
 import material
 import pupil
 from material import ConstantIndexGlass
-import inspector
+#import inspector
 import numpy as np
 from optimize import ClassWithOptimizableVariables
 
@@ -32,19 +32,19 @@ from optimize import ClassWithOptimizableVariables
 class Surface(ClassWithOptimizableVariables):
     """
     Represents a surface of an optical system.
-    
+
     :param shape: Shape of the surface. Calculates the intersection with rays. ( Shape object or child )
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
     def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass()):
         super(Surface, self).__init__()
-        self.shap = self.setShape( surfShape.Conic )
-        self.mater = self.setMaterial( material.ConstantIndexGlass )
 
         self.shape = shape
         self.material = material
         self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
+        self.copyOptimizableVariables(shape)
+        self.copyOptimizableVariables(material)
 
     def setThickness(self, thickness):
         self.thickness.val = thickness
@@ -55,41 +55,47 @@ class Surface(ClassWithOptimizableVariables):
     def setMaterial(self, materialType):
         """
         Sets the material object self.mater
-        
+
         :param materialType: name of the material dispersion formula (str)
 
-        :return self.mater: new Material object 
+        :return self.material: new Material object
         """
 
        # conserve the most basic parameters of the shape
-        try:        
-            varsToRemove = self.mater.getAllOptimizableVariables()
+        try:
+            varsToRemove = self.material.getAllOptimizableVariables()
             for v in varsToRemove:
                 self.listOfOptimizableVariables.remove(v)
         except:
             pass
 
-        self.mater = materialType()
+        self.material = materialType()
+
+        print "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+        print "material listofoptvars: ", [i.name for i in self.material.getAllOptimizableVariables()]
 
         # add optimizable variables of new shape
-        self.listOfOptimizableVariables += self.mater.getAllOptimizableVariables()
+        self.listOfOptimizableVariables += self.material.getAllOptimizableVariables()
 
-        return self.mater
+        print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+
+
+        return self.material
 
     def setMaterialCoefficients(self, coeff):
         """
-        Sets the coefficients that determine the material behavior. 
+        Sets the coefficients that determine the material behavior.
 
         :param coeff: coefficients. Type and format depend on Material child class.
         """
-        self.mater.setCoefficients(coeff)
+        self.material.setCoefficients(coeff)
 
     def setShape(self, shape):
         """
         Sets the shape object self.shap
-        
+
         :param shape: the new Shape object
-        
+
         :return self.shape: new Shape object
         """
 
@@ -97,7 +103,7 @@ class Surface(ClassWithOptimizableVariables):
         try:
             curv = self.shape.curvature.val
             semidiam = self.shape.sdia.val
-            
+
             varsToRemove = self.shape.getAllOptimizableVariables()
             for v in varsToRemove:
                 self.listOfOptimizableVariables.remove(v)
@@ -105,14 +111,10 @@ class Surface(ClassWithOptimizableVariables):
         except:
             # self.shape does not exist yet
             curv = 0.0
-            semidiam = 0.0 
-
-        self.shap = shapeName()
-        self.shap.curvature.val = curv
-        self.shap.sdia.val = semidiam
+            semidiam = 0.0
 
         # names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
- 
+
         # self.shape = inspector.createObjectFromList(names, classes, shapeName)
         self.shape = shape
         self.shape.curvature.val = curv
@@ -156,7 +158,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         self.insertSurface(0, Surface())  # object
         self.insertSurface(1, Surface())  # image
         self.surfaces[1].shape.sdia.val = 0.0  # 1E100
- 
+
     def appendSurface(self, surface):
         """
         Appends a new surface into the optical system.
@@ -171,31 +173,31 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         Inserts a new surface into the optical system.
 
-        :param position: number of the new surface (int). 
-           Surface that is currently at this position 
+        :param position: number of the new surface (int).
+           Surface that is currently at this position
            and all following surface indices are incremented.
         """
         self.surfaces.insert(position, surface)
-        
+
     def removeSurface(self, position):
         """
         Removes a surface from the optical system.
 
-        :param position: number of the surface to remove (int) 
+        :param position: number of the surface to remove (int)
         """
         self.surfaces.pop(position)
-        
+
     def getNumberOfSurfaces(self):
         """
         Returns the number of surfaces, including object and image (int)
         """
         return len(self.surfaces)
-        
+
     def setThickness(self, position, thickness):
         """
         Sets the on-axis thickness of a surface.
 
-        :param position: number of the surface (int) 
+        :param position: number of the surface (int)
         """
         self.surfaces[position].setThickness(thickness)
 
@@ -210,7 +212,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
     def setMaterialCoefficients(self, position, coeff):
         """
-        Sets the coefficients that determine the material behavior. 
+        Sets the coefficients that determine the material behavior.
 
         :param position: number of the surface (int)
         :param coeff: coefficients. Type and format depend on Material child class.
@@ -265,7 +267,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         :return magen: entrance pupil magnificaction; entrance pupil diameter per stop diameter (float)
         :return zex: exit pupil position from image (float)
         :return magex: exit pupil magnificaction; exit pupil diameter per stop diameter (float)
-        """ 
+        """
         abcdObjStop = self.getABCDMatrix(ray, 0, stopPosition - 1)  # object to stop
 
         zen = abcdObjStop[0, 1] / abcdObjStop[0, 0]  # entrance pupil position from object
@@ -292,7 +294,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         Returns the paraxial real space magnification of the system.
         Before calculation, the image is shifted into paraxial   finite conjugate plane.
- 
+
         :param ray: Raybundle object
         :return pmag: real space paraxial magnification (float)
         """
@@ -309,11 +311,11 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
     def createOptimizableVariable(self, name, value=0.0, status=False):
         """
-        This class is not able to create own variables. 
+        This class is not able to create own variables.
         It only forwards variables from its surfaces.
         """
         raise NotImplementedError()
-     
+
     def getAllOptimizableVariables(self):
         varsToReturn = []
         for sur in self.surfaces:
