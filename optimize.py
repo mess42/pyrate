@@ -52,7 +52,7 @@ class ClassWithOptimizableVariables(object):
         """
         # to do: improve status so that it can also handle solves
 
-        print "create opt var: ",name, " val ", value, " status ", status
+        #print "create opt var: ",name, " val ", value, " status ", status
 
         newvar = OptimizableVariable(name, value, status)
 
@@ -61,7 +61,7 @@ class ClassWithOptimizableVariables(object):
         return newvar
 
     def getAllOptimizableVariables(self):
-        print "getAllOptVariables: ", [i.name for i in self.listOfOptimizableVariables]
+        #print "getAllOptVariables: ", [i.name for i in self.listOfOptimizableVariables]
         return self.listOfOptimizableVariables
 
     def getAllOptimizableValues(self):
@@ -81,13 +81,9 @@ class ClassWithOptimizableVariables(object):
     def setStatus(self, name, status=True):
         N = len(self.listOfOptimizableVariables)
 
-        print "setstatus name: ", name
-
         names = []
         for i in np.arange(N):
             names.append(self.listOfOptimizableVariables[i].name)
-
-        print "setstatus names: ", names
 
         if name in names:
             i = names.index(name)
@@ -95,26 +91,28 @@ class ClassWithOptimizableVariables(object):
         else:
             print "not found"
 
-        print "setstatus listofvars: ", [i.name + " " + str(i.val) + " " + str(i.status)  for i in self.listOfOptimizableVariables]
+        #print "setstatus listofvars: ", [i.name + " " + str(i.val) + " " + str(i.status)  for i in self.listOfOptimizableVariables]
 
     def copyOptimizableVariables(self, otherClassWithOptVars):
+        """ Helper function due to non optimal communication of optvars between surface, material and shape
+            should be removed later """
 
         try:
             varsToRemove = otherClassWithOptVars.getAllOptimizableVariables()
-            print "other listofoptvars: ", [i.name for i in varsToRemove]
+            #print "other listofoptvars: ", [i.name for i in varsToRemove]
 
             for v in varsToRemove:
                 self.listOfOptimizableVariables.remove(v)
         except:
             pass
 
-        print "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+        #print "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
 
 
         # add optimizable variables other object
         self.listOfOptimizableVariables += otherClassWithOptVars.getAllOptimizableVariables()
 
-        print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+        #print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
 
 
 def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):

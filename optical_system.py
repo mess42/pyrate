@@ -157,7 +157,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         self.surfaces = []
         self.insertSurface(0, Surface())  # object
         self.insertSurface(1, Surface())  # image
-        self.surfaces[1].shape.sdia.val = 0.0  # 1E100
+        #self.surfaces[1].shape.sdia.val = 0.0  # 1E100
 
     def appendSurface(self, surface):
         """
@@ -305,9 +305,11 @@ class OpticalSystem(ClassWithOptimizableVariables):
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         offy = offset[0]
         offz = offset[1]
-        for s in self.surfaces:
+        for (num, s) in enumerate(self.surfaces):
+            print num, " ", s.shape.curvature.val, " ", s.shape.conic.val, " ", s.material.n.val
             s.draw2d(ax, offset=(offy, offz), vertices=vertices, color=color)
             offz += s.getThickness()
+
 
     def createOptimizableVariable(self, name, value=0.0, status=False):
         """

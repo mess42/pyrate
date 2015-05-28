@@ -15,11 +15,12 @@ from ray import RayPath
 # definition of optical system
 s = OpticalSystem()
 
-s.insertSurface(1, Surface(surfShape.Conic(curv=1/-5.922, semidiam=0.55), thickness=3.0, material=material.ConstantIndexGlass(1.7)))
-s.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160, semidiam=1.0), thickness=5.0))
-s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884, semidiam=1.3), thickness=3.0, material=material.ConstantIndexGlass(1.7)))
-s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0))
-s.insertSurface(5, Surface(surfShape.Conic(semidiam=1.01), thickness=2.0)) # semidiam=1.01
+s.surfaces[0].thickness.val = 2.0 # it is not good give the object itself a thickness if the user is not aware of that
+s.insertSurface(1, Surface(surfShape.Conic(curv=1/-5.922, semidiam=0.55), thickness=3.0, material=material.ConstantIndexGlass(1.7))) # 0.55
+s.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160, semidiam=1.0), thickness=5.0)) # 1.0
+s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884, semidiam=1.3), thickness=3.0, material=material.ConstantIndexGlass(1.7))) # 1.3
+s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0)) # 1.3
+s.insertSurface(5, Surface(surfShape.Conic(semidiam=1.01), thickness=5.0)) # semidiam=1.01 # STOP
 s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, material=material.ConstantIndexGlass(1.5))) # semidiam=1.0
 s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479, semidiam=1.0), thickness=19.0)) # semidiam=1.0
 
@@ -51,7 +52,9 @@ r3 = RayPath(initialBundle3, s)
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
 ax.axis('equal')
+
 s.draw2d(ax)
+
 r2.draw2d(s, ax, color="blue")
 r3.draw2d(s, ax, color="green")
 
