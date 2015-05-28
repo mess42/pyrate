@@ -144,7 +144,8 @@ class Conic(Shape):
         return intersection, t, normal, validIndices
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
-        y = self.sdia.val * linspace(-1, 1, vertices)
+        effdia = self.sdia.val if self.sdia.val < 10.0 else 10.0
+        y = effdia * linspace(-1, 1, vertices)
         z = self.getSag(0, y)
         ax.plot(z+offset[1], y+offset[0], color)
 

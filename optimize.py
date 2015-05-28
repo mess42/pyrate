@@ -148,7 +148,7 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
             merit1 = meritfunction(s)
 
 
-            if (abs(merit1 - merit0) > 1e-6 and abs(varvalue0 - varvalue1) > 1e-6):
+            if (abs(merit1 - merit0) > 1e-16 and abs(varvalue0 - varvalue1) > 1e-16):
                 m = (merit1 - merit0) / (varvalue1 - varvalue0)
                 n = merit0 - m * varvalue0
                 varvalue2 = - n / m  # Newton method for next iteration value

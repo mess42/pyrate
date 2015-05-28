@@ -218,6 +218,16 @@ class RayPath(object):
 
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface
         intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])
+
+#        print "=================="
+#        print "== INTERSECTION =="
+#        print intersection
+#        print "== t =="
+#        print t
+#        print "== normal =="
+#        print normal
+#        print "=================="
+
         self.raybundles[-1].t = t
         self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))
 

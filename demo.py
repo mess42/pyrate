@@ -16,11 +16,12 @@ from ray import RayPath
 s = OpticalSystem()
 
 s.surfaces[0].thickness.val = 2.0 # it is not good give the object itself a thickness if the user is not aware of that
+s.surfaces[1].shape.sdia.val = 1e10 # image radius has to be large enough to catch all rays. this is also very implicit
 s.insertSurface(1, Surface(surfShape.Conic(curv=1/-5.922, semidiam=0.55), thickness=3.0, material=material.ConstantIndexGlass(1.7))) # 0.55
 s.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160, semidiam=1.0), thickness=5.0)) # 1.0
 s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884, semidiam=1.3), thickness=3.0, material=material.ConstantIndexGlass(1.7))) # 1.3
 s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0)) # 1.3
-s.insertSurface(5, Surface(surfShape.Conic(semidiam=1.01), thickness=5.0)) # semidiam=1.01 # STOP
+s.insertSurface(5, Surface(surfShape.Conic(semidiam=1.01), thickness=2.0)) # semidiam=1.01 # STOP
 s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, material=material.ConstantIndexGlass(1.5))) # semidiam=1.0
 s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479, semidiam=1.0), thickness=19.0)) # semidiam=1.0
 
@@ -67,8 +68,10 @@ s.surfaces[3].setStatus("curvature", True)
 s.surfaces[4].setStatus("curvature", True)
 s.surfaces[5].setStatus("curvature", True)
 
-s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=1, dxFactor=1.00001)
+s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=10, dxFactor=1.00001)
 
 print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
+
+s.draw2d(ax, color="red")
 
 plt.show()
