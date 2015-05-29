@@ -2,6 +2,9 @@ import FreeCAD,FreeCADGui, Part
 import PartGui # wichtig fuer import von icons falls keine eigenen XPMs verwendet werden
 import Points
 
+from traits.api import HasTraits, Str, Int, Float
+import traitsui
+
 from PySide import QtGui, QtCore
 
 from numpy import *
@@ -9,8 +12,11 @@ from numpy import *
 import os.path
 ICONS_PATH = os.path.dirname(__file__)
 
+class Ball(HasTraits):
+    radius = Float
+
 class CreateSystemTool:
-    "My tool1 object"
+    "Tool for creating optical system"
 
     def GetResources(self):
         return {"Pixmap"  : "testicon.xpm", #QtGui.QPixmap(str(ICONS_PATH) + "Gui/Resources/testicon.xpm"), # resource qrc file needed, and precompile with python-rcc
@@ -27,11 +33,14 @@ class CreateSystemTool:
 
     def Activated(self):
         QtGui.QMessageBox.information(None,"","Houston, we have a problem")
+        ball = Ball()
+        ball.configure_traits()
+
         pp = Points.Points()
         ptslist =[]
         for i in range(1000):
             r3 = random.randn(3)
-            r3 = r3/linalg.norm(r3)
+            r3 = ball.radius * r3/linalg.norm(r3)
             ptslist.append(tuple(r3))
         pp.addPoints(ptslist)
         Points.show(pp)
