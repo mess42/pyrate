@@ -19,7 +19,7 @@ class CreateSystemTool:
     "Tool for creating optical system"
 
     def GetResources(self):
-        return {"Pixmap"  : "testicon.xpm", #QtGui.QPixmap(str(ICONS_PATH) + "Gui/Resources/testicon.xpm"), # resource qrc file needed, and precompile with python-rcc
+        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
                 "MenuText": "Create optical system ...",
                 "Accel": "Ctrl+M",
                 "ToolTip": "Opens dialog for system creation"
