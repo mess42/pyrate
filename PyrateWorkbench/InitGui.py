@@ -1,31 +1,12 @@
+import sys
+sys.path.append("../") # core files are one directory below
+
 import resources_rc
 
 class PyrateWorkbench ( Workbench ):
     "Pyrate workbench object"
     Icon = ":/icons/pyrate_logo_icon.svg"
-#     Icon = """
-#             /* XPM */
-#             static const char *test_icon[]={
-#             "16 16 2 1",
-#             "a c #000000",
-#             ". c None",
-#             "................",
-#             ".###............",
-#             ".#..#...........",
-#             ".#..#...........",
-#             ".###..#..#.###..",
-#             ".#....#..#.#....",
-#             ".#.....###.#....",
-#             ".........#......",
-#             "......###.......",
-#             "................",
-#             "........#.......",
-#             ".......###..##..",
-#             "..###...#..#..#.",
-#             ".#..#...#..####.",
-#             "..####...#.#....",
-#             "............##.."};
-#             """
+
     MenuText = "Pyrate Workbench"
     ToolTip = "Pyrate optical design Workbench"
     def GetClassName(self):
