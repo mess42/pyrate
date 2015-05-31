@@ -30,7 +30,7 @@ class RayBundle(object):
 
         :param o:     Origin of the rays.   (2d numpy 3xN array of float)
         :param k:     Wavevectors of the rays, normalized by 2pi/lambda.
-                      (2d numpy 3xN array of float) 
+                      (2d numpy 3xN array of float)
                       For media obeying the Snell law, the length of each vector
                       is the  refractive index of the current medium.
         :param rayID: Set an ID number for each ray in the bundle (1d numpy array of int)
@@ -65,7 +65,7 @@ class RayBundle(object):
 
     def getCentroidPos(self):
         """
-        Returns the arithmetic average position of all rays at the origin of the ray bundle.        
+        Returns the arithmetic average position of all rays at the origin of the ray bundle.
 
         :return centr: centroid position (1d numpy array of 3 floats)
         """
@@ -73,11 +73,12 @@ class RayBundle(object):
         xav = sum(self.o[0][0:]) * oneOverN
         yav = sum(self.o[1][0:]) * oneOverN
         zav = sum(self.o[2][0:]) * oneOverN
+
         return array([xav, yav, zav])
 
     def getChiefPos(self):
         """
-        Returns the chief ray position at the origin of the ray bundle.      
+        Returns the chief ray position at the origin of the ray bundle.
 
         :return chief: chief position (1d numpy array of 3 floats)
         """
@@ -85,8 +86,8 @@ class RayBundle(object):
 
     def getRMSspotSize(self, referencePos):
         """
-        Returns the root mean square (RMS) deviation of all ray positions 
-        with respect to a reference position at the origin of the ray bundle.        
+        Returns the root mean square (RMS) deviation of all ray positions
+        with respect to a reference position at the origin of the ray bundle.
 
         :referencePos: (1d numpy array of 3 floats)
 
@@ -95,14 +96,15 @@ class RayBundle(object):
         deltax = self.o[0][1:] - referencePos[0]
         deltay = self.o[1][1:] - referencePos[1]
         deltaz = self.o[2][1:] - referencePos[2]
+
         N = len(deltax)
 
         return sqrt((sum(deltax**2) + sum(deltay**2) + sum(deltaz**2)) / (N-1.0))
 
     def getRMSspotSizeCentroid(self):
         """
-        Returns the root mean square (RMS) deviation of all ray positions 
-        with respect to the centroid at the origin of the ray bundle.        
+        Returns the root mean square (RMS) deviation of all ray positions
+        with respect to the centroid at the origin of the ray bundle.
 
         :return rms: RMS spot size (float)
         """
@@ -111,8 +113,8 @@ class RayBundle(object):
 
     def getRMSspotSizeChief(self):
         """
-        Returns the root mean square (RMS) deviation of all ray positions 
-        with respect to the chief ray at the origin of the ray bundle.        
+        Returns the root mean square (RMS) deviation of all ray positions
+        with respect to the chief ray at the origin of the ray bundle.
 
         :return rms: RMS spot size (float)
         """
@@ -121,13 +123,13 @@ class RayBundle(object):
 
     def getCentroidDirection(self):
         """
-        Returns the arithmetic average direction of all rays at the origin of the ray bundle.        
+        Returns the arithmetic average direction of all rays at the origin of the ray bundle.
 
         :return centr: centroid unit direction vector (1d numpy array of 3 floats)
         """
-        xav = sum(self.rayDir[0][1:]) 
-        yav = sum(self.rayDir[1][1:]) 
-        zav = sum(self.rayDir[2][1:]) 
+        xav = sum(self.rayDir[0][1:])
+        yav = sum(self.rayDir[1][1:])
+        zav = sum(self.rayDir[2][1:])
 
         length = sqrt(xav**2 + yav**2 + zav**2)
 
@@ -189,7 +191,7 @@ class RayBundle(object):
             z = array([self.o[2, i], self.o[2, i] + self.t[i] * self.rayDir[2, i]])
             ax.plot(z+offset[1], y+offset[0], color)
 
- 
+
 class RayPath(object):
     def __init__(self, initialraybundle, opticalSystem):
         """
@@ -213,9 +215,20 @@ class RayPath(object):
         :param nextSurface: (Surface object)
         :param thicknessOfCurrentSurface: on-axis geometrical distance between current and nextSurface (float)
         """
-        self.raybundles[-1].o[2] -= thicknessOfCurrentSurface 
+
+        self.raybundles[-1].o[2] -= thicknessOfCurrentSurface
         intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])
-        self.raybundles[-1].t = t       
+
+#        print "=================="
+#        print "== INTERSECTION =="
+#        print intersection
+#        print "== t =="
+#        print t
+#        print "== normal =="
+#        print normal
+#        print "=================="
+
+        self.raybundles[-1].t = t
         self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))
 
     def draw2d(self, opticalsystem, ax, offset=(0, 0), color="blue"):
@@ -225,3 +238,4 @@ class RayPath(object):
         for i in arange(Nsurf):
             offz += opticalsystem.surfaces[i].thickness.val
             self.raybundles[i].draw2d(ax, offset=(offy, offz), color=color)
+
