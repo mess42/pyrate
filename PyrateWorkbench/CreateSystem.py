@@ -34,7 +34,14 @@ class CreateSystemTool:
     def Activated(self):
         PyrateInterface.OSinterface.dummycreate()
         PyrateInterface.OSinterface.createSurfaceViews()
-        pass
+        PyrateInterface.OSinterface.createRayViews()
+        # would be useful if one could center the view on a specific surface
+        # how to implement apertures?
+        # todo: create view objects for rays and for intersection points
+        # draw coordinate frame per default
+        # selection coupling to certain surface
+        # later create system by table and update view per button
+
 #        QtGui.QMessageBox.information(None,"","Houston, we have a problem")
 #        ball = Ball()
 #        ball.configure_traits()
@@ -90,8 +97,8 @@ class MyTool2:
             return True
 
     def Activated(self):
-        pyrateinterface.OSinterface.configure_traits()
-        FreeCAD.Console.PrintMessage(str(pyrateinterface.OSinterface.bla) + "\n")
+        PyrateInterface.OSinterface.configure_traits()
+        FreeCAD.Console.PrintMessage(str(PyrateInterface.OSinterface.bla) + "\n")
 
         for i in FreeCAD.ActiveDocument.Objects:
             i.touch()
