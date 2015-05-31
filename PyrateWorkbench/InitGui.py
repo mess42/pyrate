@@ -1,6 +1,8 @@
-import sys
-sys.path.append("../") # core files are one directory below
+# access to global variables for the FreeCAD interface
 
+import PyrateInterface
+
+# access to the resource file
 import resources_rc
 
 class PyrateWorkbench ( Workbench ):
@@ -14,8 +16,9 @@ class PyrateWorkbench ( Workbench ):
 
     def Initialize(self):
         import CreateSystem
-        self.appendToolbar("Pyrate", ["CreateSystemCommand"])
-        self.appendMenu("Pyrate", ["CreateSystemCommand"])
+        self.appendToolbar("Pyrate", ["CreateSystemCommand", "MyCommand2"])
+        self.appendMenu("Pyrate", ["CreateSystemCommand", "MyCommand2"])
+
         Log ("Loading Create System Module... done\n")
 
     def Activated(self):

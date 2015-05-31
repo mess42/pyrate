@@ -9,8 +9,8 @@ from PySide import QtGui, QtCore
 
 from numpy import *
 
-import os.path
-ICONS_PATH = os.path.dirname(__file__)
+import PyrateInterface
+
 
 class Ball(HasTraits):
     radius = Float
@@ -32,18 +32,21 @@ class CreateSystemTool:
             return True
 
     def Activated(self):
-        QtGui.QMessageBox.information(None,"","Houston, we have a problem")
-        ball = Ball()
-        ball.configure_traits()
+        PyrateInterface.OSinterface.dummycreate()
+        PyrateInterface.OSinterface.createSurfaceViews()
+        pass
+#        QtGui.QMessageBox.information(None,"","Houston, we have a problem")
+#        ball = Ball()
+#        ball.configure_traits()
 
-        pp = Points.Points()
-        ptslist =[]
-        for i in range(1000):
-            r3 = random.randn(3)
-            r3 = ball.radius * r3/linalg.norm(r3)
-            ptslist.append(tuple(r3))
-        pp.addPoints(ptslist)
-        Points.show(pp)
+#        pp = Points.Points()
+#        ptslist =[]
+#        for i in range(1000):
+#            r3 = random.randn(3)
+#            r3 = ball.radius * r3/linalg.norm(r3)
+#            ptslist.append(tuple(r3))
+#        pp.addPoints(ptslist)
+#        Points.show(pp)
 # do something here...
 
 
@@ -87,20 +90,8 @@ class MyTool2:
             return True
 
     def Activated(self):
-        r1 = random.rand(3) + 0.1
-        r2 = 2.0*random.rand(3) - 1.0
-        r3 = random.randn(3)
-        r3 = r3/linalg.norm(r3)
-        FreeCAD.Console.PrintMessage("rand1: " + str(r1) + " rand2: " + str(r2) + "\n")
-        maxl = 10.0;
-        maxrange = 20;
-        cube = Part.makeBox(maxl*r1[0], maxl*r1[1], maxl*r1[2], FreeCAD.Vector(tuple(maxrange*r2)), FreeCAD.Vector(tuple(r3)))
-        Part.show(cube)
-
-        #f=ray.Wrapper(ray.Ray,[0,0,0],[1,2,3])
-        #FreeCAD.Console.PrintMessage(f.__doc__)
-        #FreeCAD.Console.PrintMessage(str(f.getStart()))
-        #FreeCAD.Console.PrintMessage(str(f.getEnd()))
+        pyrateinterface.OSinterface.configure_traits()
+        FreeCAD.Console.PrintMessage(str(pyrateinterface.OSinterface.bla) + "\n")
 
         for i in FreeCAD.ActiveDocument.Objects:
             i.touch()
@@ -112,4 +103,4 @@ class MyTool2:
 
 
 FreeCADGui.addCommand('CreateSystemCommand', CreateSystemTool())
-#FreeCADGui.addCommand('MyCommand2',MyTool2())
+FreeCADGui.addCommand('MyCommand2',MyTool2())

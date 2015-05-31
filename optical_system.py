@@ -157,7 +157,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         self.surfaces = []
         self.insertSurface(0, Surface())  # object
         self.insertSurface(1, Surface())  # image
-        #self.surfaces[1].shape.sdia.val = 0.0  # 1E100
+        self.surfaces[1].shape.sdia.val = 0.0  # 1E100
 
     def appendSurface(self, surface):
         """
