@@ -180,7 +180,7 @@ class OpticalSystemInterface(HasTraits):
         self.makeRaysFromRayPath(r3,offset=(0,0,0))
 
     def returnPrescriptionData(self):
-
+	pass
         # get effective focal length and so on from self.os and put it into some string which could be shown by
         # some dialog
 
