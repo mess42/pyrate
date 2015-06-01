@@ -36,21 +36,27 @@ class RectGrid(object):
                       xpup[0] is the chief ray; xpup[1:] is the grid of length nray
         :return ypup: normalized pupil y coordinates in [-1,1]. (1d numpy array of approx (nray+1) floats)
         """
-        nPerDim = int( round( sqrt( nray * 4 / pi ) ) ) 
+        nPerDim = int( round( sqrt( nray * 4.0 / pi ) ) )
         dx = 1. / nPerDim
         x1d = linspace(-1+.25*dx,1-.25*dx,nPerDim)
-        xpup2, ypup2 = meshgrid( x1d, x1d )
+        print "nperdim: ", nPerDim
+        print "dx: ", dx
+        print x1d
+
+        (xpup2, ypup2) = meshgrid( x1d, x1d )
 
         xpup2 = reshape(xpup2,nPerDim**2)
         ypup2 = reshape(ypup2,nPerDim**2)
 
-        ind = ( (xpup2**2 + ypup2**2) <= 1 )
+        ind = array(( (xpup2**2 + ypup2**2) <= 1 ))
 
         xpup = zeros(sum(ind)+1, dtype=float)
         ypup = zeros(sum(ind)+1, dtype=float)
+        selectedind = arange(sum(ind))
 
-        xpup[ind+1] = xpup2[ ind ]
-        ypup[ind+1] = ypup2[ ind ]
+        xpup[selectedind+1] = xpup2[ ind ]
+        ypup[selectedind+1] = ypup2[ ind ]
+
         return xpup,ypup
 
 class HexGrid(RectGrid):
@@ -74,11 +80,11 @@ class HexGrid(RectGrid):
 
         ind = ( (xpup1**2 + ypup1**2) <= 1 )
         xpup1 = xpup1[ ind ]
-        ypup1 = ypup1[ ind ]    
+        ypup1 = ypup1[ ind ]
         ind = ( (xpup2**2 + ypup2**2) <= 1 )
         xpup2 = xpup2[ ind ]
-        ypup2 = ypup2[ ind ]    
-    
+        ypup2 = ypup2[ ind ]
+
         N1 = len(xpup1)
         N2 = len(xpup2)
         xpup = zeros(N1+N2+1, dtype=float)
@@ -114,8 +120,8 @@ class MeridionalFan(RectGrid):
         return xpup,ypup
 
 class SagitalFan(RectGrid):
-    def getGrid(self,nray):
-        return meridionalFan(nray, phi - 90.)
+    def getGrid(self,nray, phi =0.):
+        return MeridionalFan().getGrid(nray, phi - 90.)
 
 class ChiefAndComa(RectGrid):
     def getGrid(self,nray, phi=0.):

@@ -172,7 +172,7 @@ class OpticalSystemInterface(HasTraits):
 
         doc = FreeCAD.ActiveDocument
 
-        numrays = 10
+        numrays = 20
         pupilsize = 5.5
         stopposition = 5
         wavelengthparam = 0.55
@@ -187,7 +187,8 @@ class OpticalSystemInterface(HasTraits):
                                                     rasterType= raster.RectGrid, \
                                                     nray=numrays, wavelength=wavelengthparam, \
                                                     stopPosition=stopposition)
-        aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=numrays)
+        #aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=numrays)
+        aimy.setPupilRaster(rasterType= raster.RectGrid, nray=numrays)
         initialBundle2 = aimy.getInitialRayBundle(self.os, fieldXY=array(fieldvariable), wavelength=wavelengthparam)
 
         r2 = RayPath(initialBundle2, self.os)
