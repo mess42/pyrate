@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 from numpy.random import *
 
+import pds
+
 class RectGrid(object):
     def __init__(self):
         pass
@@ -109,6 +111,23 @@ class RandomGrid(RectGrid):
             xpup.append(xnew)
             ypup.append(ynew)
         return array(xpup), array(ypup)
+
+class PoissonDiskSampling(RectGrid):
+    def getGrid(self,nray):
+        nPerDim = int( round( sqrt( nray * 4.0 / pi ) ) )
+        dx = 1. / nPerDim
+
+        obj = pds.pds(2.0, 2.0, dx, 100) # square [0,1]x[0,1] mean dist= dx, testpoints 30
+        sample = obj.rvs()
+        xs = array(sample[:,0]) - 1.0
+        ys = array(sample[:,1]) - 1.0
+
+        ind = array(xs**2 + ys**2 <= 1)
+
+        xpup = xs[ind]
+        ypup = ys[ind]
+
+        return xpup, ypup
 
 class MeridionalFan(RectGrid):
     def getGrid(self,nray, phi=0.):

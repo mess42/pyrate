@@ -188,7 +188,7 @@ class OpticalSystemInterface(HasTraits):
                                                     nray=numrays, wavelength=wavelengthparam, \
                                                     stopPosition=stopposition)
         #aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=numrays)
-        aimy.setPupilRaster(rasterType= raster.RectGrid, nray=numrays)
+        aimy.setPupilRaster(rasterType= raster.PoissonDiskSampling, nray=numrays)
         initialBundle2 = aimy.getInitialRayBundle(self.os, fieldXY=array(fieldvariable), wavelength=wavelengthparam)
 
         r2 = RayPath(initialBundle2, self.os)
