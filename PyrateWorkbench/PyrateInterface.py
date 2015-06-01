@@ -134,25 +134,45 @@ class OpticalSystemInterface(HasTraits):
                 res.append(Part.makeLine((x1,y1,z1),(x2,y2,z2))) # draw ray
                 sectionpoints.append((x2,y2,z2))
         pp.addPoints(sectionpoints)
-        Points.show(pp) # draw intersection points per raybundle per field point
+        #Points.show(pp) # draw intersection points per raybundle per field point
 
-        return res
+        return (pp, res)
 
 
-    def makeRaysFromRayPath(self, raypath, offset):
+    def makeRaysFromRayPath(self, raypath, offset, color = (0.5, 0.5, 0.5)):
+        doc = FreeCAD.ActiveDocument # in initialisierung auslagern
         Nsurf = len(raypath.raybundles)
         offx = offset[0]
         offy = offset[1]
         offz = offset[2]
+
         for i in arange(Nsurf):
             offz += self.os.surfaces[i].getThickness()
-            [Part.show(j) for j in self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))]
+            (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
+
+            FCptsobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_Intersectionpoints")
+            FCptsobj.Points = intersectionpts
+            FCptsview = FCptsobj.ViewObject
+            FCptsview.PointSize = 5.0
+            FCptsview.ShapeColor = (1.0, 1.0, 0.0)
+
+            for (n, ray) in enumerate(rays):
+                FCrayobj = doc.addObject("Part::Feature", "Surf_"+str(i)+"_Ray_"+str(n))
+                FCrayobj.Shape = ray
+                FCrayview = FCrayobj.ViewObject
+
+                FCrayview.LineColor = color
+                FCrayview.PointColor = (1.0, 1.0, 0.0)
+
+
 
 
 
     def createRayViews(self):
 
-        numrays = 5
+        doc = FreeCAD.ActiveDocument
+
+        numrays = 10
         pupilsize = 5.5
         stopposition = 5
         wavelengthparam = 0.55
@@ -176,11 +196,17 @@ class OpticalSystemInterface(HasTraits):
         r3 = RayPath(initialBundle3, self.os)
 
 
-        self.makeRaysFromRayPath(r2,offset=(0,0,0))
-        self.makeRaysFromRayPath(r3,offset=(0,0,0))
+        self.makeRaysFromRayPath(r2,offset=(0,0,0), color=(0.0, 1.0, 0.0))
+        self.makeRaysFromRayPath(r3,offset=(0,0,0), color=(0.0, 0.0, 1.0))
+
+        for obj in doc.Objects:
+            obj.touch()
+        doc.recompute()
+
+
 
     def returnPrescriptionData(self):
-	pass
+        pass
         # get effective focal length and so on from self.os and put it into some string which could be shown by
         # some dialog
 
