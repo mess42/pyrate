@@ -32,7 +32,6 @@ class Shape(ClassWithOptimizableVariables):
         the intersection point with a ray.
         """
         super(Shape, self).__init__()
-        raise NotImplementedError()
 
     def intersect(self, raybundle):
         """
@@ -41,7 +40,7 @@ class Shape(ClassWithOptimizableVariables):
         :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
         :return t: geometrical path length to the next surface (1d numpy array of float)
         :return normal: surface normal vectors (2d numpy 3xN array of float)
-        :return validIndices: whether indices hit the surface (1d numpy array of bool) 
+        :return validIndices: whether indices hit the surface (1d numpy array of bool)
         """
         raise NotImplementedError()
 
@@ -65,19 +64,19 @@ class Shape(ClassWithOptimizableVariables):
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         """
         Plots the surface in a matplotlib figure.
-        :param ax: matplotlib subplot handle 
+        :param ax: matplotlib subplot handle
         :param offset: y and z offset (list or 1d numpy array of 2 floats)
         :param vertices: number of points the polygon representation of the surface contains (int)
         :param color: surface draw color (str)
         """
         raise NotImplementedError()
-        
+
     def draw3d(self, offset=(0, 0, 0), tilt=(0, 0, 0), color="grey"):
         """
         To do: find fancy rendering package
         """
         raise NotImplementedError()
-        
+
 
 class Conic(Shape):
     def __init__(self, curv=0.0, cc=0.0, semidiam=0.0):
@@ -95,14 +94,17 @@ class Conic(Shape):
              cc > 1 hyperboloid
         """
         super(Conic, self).__init__()
-        
+
         self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
         self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
         self.sdia = self.createOptimizableVariable("semi diameter", value=semidiam, status=False)
 
     def getSag(self, x, y):
         rs = x**2 + y**2
-        return self.curvature.val * rs / (1 + sqrt(1 - (1+self.conic.val) * self.curvature.val**2 * rs))
+        sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rs
+        res =  self.curvature.val * rs / (1 + sqrt(sqrtterm))
+
+        return res
 
     def getCentralCurvature(self):
         # Conic curvature on axis is only influenced by spherical curvature term
@@ -110,20 +112,20 @@ class Conic(Shape):
 
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
-        
+
         r0 = raybundle.o
-        
+
         F = rayDir[2] - self.curvature.val * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val))
         G = self.curvature.val * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.val)) - 2 * r0[2]
         H = - self.curvature.val - self.conic.val * self.curvature.val * rayDir[2]**2
-    
-        square = F**2 + H*G           
+
+        square = F**2 + H*G
 
         t = G / (F + sqrt(square))
-        
+
         intersection = r0 + raybundle.rayDir * t
-        
-        # find indices of rays that don't intersect with the sphere        
+
+        # find indices of rays that don't intersect with the sphere
         validIndices = ((square > 0) * (intersection[0]**2 + intersection[1]**2 <= self.sdia.val**2))
         validIndices[0] = True  # hail to the chief
 
@@ -132,21 +134,21 @@ class Conic(Shape):
         normal[0] = -self.curvature.val * intersection[0]
         normal[1] = -self.curvature.val * intersection[1]
         normal[2] = 1 - self.curvature.val * intersection[2] * (1+self.conic.val)
-        
+
         absn = sqrt(sum(normal**2, axis=0))
-        
+
         normal[0] = normal[0] / absn
         normal[1] = normal[1] / absn
         normal[2] = normal[2] / absn
-        
+
         return intersection, t, normal, validIndices
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
-        y = self.sdia.val * linspace(-1, 1, vertices)
+        effdia = self.sdia.val if self.sdia.val < 10.0 else 10.0
+        y = effdia * linspace(-1, 1, vertices)
         z = self.getSag(0, y)
-        
         ax.plot(z+offset[1], y+offset[0], color)
-             
+
 
 class Asphere(Shape):
     """
