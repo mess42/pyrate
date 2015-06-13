@@ -1,0 +1,386 @@
+\documentclass[12pt,a4paper,twoside,openright,BCOR10mm,headsepline,titlepage,abstracton,chapterprefix,final]{scrreprt}
+
+
+\RequirePackage{ifpdf}  % flag for pdf or dvi backend
+\ifpdf
+  \usepackage[pdftex]{graphicx}
+  \usepackage[pdftitle={RTFM on Imaging Theory and Basics of Optical Raytracing},%
+              pdfsubject={},%
+              pdfauthor={},%
+              pdfkeywords={},%
+              bookmarks=true,%
+%              colorlinks=true,%
+              urlcolor=blue,%
+              pdfpagelayout=TwoColumnRight,%
+              pdfpagemode=UseNone,%
+              pdfstartview=Fit,%
+              pdftex]{hyperref}
+\else
+  \usepackage[dvips]{graphicx}
+  \usepackage[colorlinks=false,dvips]{hyperref}
+\fi
+%\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
+
+\usepackage{ae}
+\usepackage[ngerman, english]{babel}
+
+\usepackage{SIunits}
+\newcommand\elementarycharge{\textrm{e}}
+\newcommand\sccm{\textrm{sccm}}
+\newcommand\mbar{\milli\textrm{bar}}
+
+
+\usepackage{amsmath}
+%\usepackage{amssymb}
+\usepackage{setspace}
+
+%\widowpenalty = 1000
+
+
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
+
+
+
+
+
+
+\newcommand\vacuum{0}
+
+\newcommand\location{r}
+\newcommand\Location{\Vector{r}}
+
+
+\newcommand\wavenumber{k}
+\newcommand\vacuumWavenumber{\wavenumber_{\vacuum}}
+\newcommand\Wavevector{\Vector{\wavenumber}}
+
+\newcommand\Vector[1]{\vec{#1}}
+\newcommand\Nabla{\Vector{\nabla}}
+\newcommand\Laplace{\Delta}
+\newcommand\timederivative[1]{\dot{{#1}}}
+\newcommand\Tensor[1]{\hat{#1}}
+\newcommand\conjugate[1]{\overline{#1}}
+\newcommand\transpose[1]{#1^{T}}
+\newcommand\Norm[1]{\left| #1 \right|}
+\newcommand{\ket}[1]{\left\vert{#1}\right\rangle}
+\newcommand{\bra}[1]{\left\langle{#1}\right\vert}
+\newcommand{\braket}[2]{\left\langle{#1}\vert{#2}\right\rangle}
+\newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
+
+\newcommand\Greenfunction{\Tensor{G}}
+
+\newcommand\scalarEfield{E}
+\newcommand\scalarBfield{B}
+\newcommand\scalarHfield{H}
+\newcommand\scalarDfield{D}
+\newcommand\scalarTipfield{T}
+\newcommand\scalarSamplefield{S}
+\newcommand\scalarDipolarmoment{p}
+\newcommand\Efield{\Vector{\scalarEfield}}
+\newcommand\Bfield{\Vector{\scalarBfield}}
+\newcommand\Hfield{\Vector{\scalarHfield}}
+\newcommand\Dfield{\Vector{\scalarDfield}}
+\newcommand\Dipolarmoment{\Vector{\scalarDipolarmoment}}
+
+\newcommand\permeability{\Tensor{\mu}}
+\newcommand\vacuumpermeability{\mu_{\vacuum}}
+\newcommand\permittivity{\Tensor{\epsilon}}
+\newcommand\generalPermittivity{\Tensor{\tilde\epsilon}}
+\newcommand\vacuumpermittivity{\epsilon_{\vacuum}}
+\newcommand\scalarpermittivity{\epsilon}
+\newcommand\conductivity{\Tensor{\sigma}}
+\newcommand\susceptibility{\Tensor{\chi}}
+\newcommand\currentdensity{\Vector{j}}
+\newcommand\Current{\Vector{I}}
+\newcommand\chargedensity{\rho}
+\newcommand\PoyntingVector{\Vector{S}}
+
+
+
+\begin{document}
+
+\titlehead{ }
+\subject{Pyrate -- Optical raytracing based on Python}
+\title{Read This Fundamental Manual \\ on Imaging Theory and Basics of Optical Raytracing}
+\author{}
+\date{2014-2015}
+\publishers{}
+\maketitle
+
+\onehalfspacing
+
+\chapter{Optics from Maxwell Equations}
+\section{The Source Free Maxwell Equations}
+The content of this chapter is well known from textbooks \cite{Jackson}. Still, we repeat some of the equations to have a consistent nomeclature throughout this manual and the pyrate program
+as well as a gain in clarity which aproximations are made.
+We start from the Maxwell equations in SI units
+\begin{subequations}\label{eq:Maxwell}
+\begin{eqnarray}
+  \Nabla \Dfield &=& \chargedensity 							\label{eq:MaxwellNablaD}\\
+  \Nabla \times \Efield &=& - \timederivative{\Bfield}  					\label{eq:MaxwellNablaCrossE}\\
+  \Nabla \Bfield &=& 0  									\label{eq:MaxwellNablaB}\\
+  \Nabla \times \Hfield &=& \timederivative{\Dfield} + \currentdensity  		\label{eq:MaxwellNablaCrossH}
+\end{eqnarray}
+\end{subequations}
+with the constitutive equations
+\begin{subequations}\label{eq:Material}
+\begin{eqnarray}
+  \Dfield &=& \permittivity \Efield 								\label{eq:ConstitutiveEpsilon}\\
+  \Bfield &=& \permeability \Hfield 								\label{eq:ConstitutiveMu}\\
+  \currentdensity &=& \conductivity \Efield						\label{eq:ConstitutiveSigma}
+\end{eqnarray}
+\end{subequations}
+and the continuity equation
+\begin{eqnarray}
+  \Nabla \currentdensity + \timederivative{\chargedensity} &=& 0		\label{eq:continuity}
+\end{eqnarray}
+All quantities are real valued.
+All material properties are described by unit bearing quantities, i.e., they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. $\permittivity$ and $\permeability$ are the electric and magnetic permittivity, respectively, and $\conductivity$ the conductivity. 
+
+We consider the strictly monochromatic case and introduce complex valued fields with the phase representing temporal retardation $\Efield,\Dfield,\Hfield,\Bfield \propto \exp(-i \omega t)$ for electrodynamic scenarios only, $\omega \neq 0$. 
+Further we assume all materials are non-magnetic at the optical frequency $\omega$, that is $\permeability(\omega) = \vacuumpermeability$. 
+Effects like the Magneto-Optical Kerr Effect (MOKE) stem from the deflection of oscillating electrons in a static (DC) magnetic field and are typically modeled by off-diagonal elements in the permittivity tensor, not the permeability.
+\begin{subequations}
+\begin{eqnarray}
+  \Nabla \Dfield &=& \chargedensity 					\\
+  \Nabla \times \Efield &=& i \omega \vacuumpermeability \Hfield	\\
+  \Nabla \Hfield &=& 0  					\\
+  \Nabla \times \Hfield &=& - i \omega \Dfield + \currentdensity  		
+\end{eqnarray}
+\end{subequations}
+
+The physically measurable fields are $\Efield$ and $\Bfield$. All other fields are fictional fields introduced in the Maxwell model for ease of calculation.
+To obtain the so-called source-free Maxwell equations, we replace some of them by newly defined quantities.
+We introduce a \emph{new} permittivity
+\begin{eqnarray}
+  \permittivity_{new} = \permittivity - \frac{\conductivity}{i \omega}
+\end{eqnarray}
+Note that this newly defined permittivity is complex valued, where the imaginary part denotes electric conductivity and thus ohmic losses.
+We introduce a corresponding \emph{new} $\Dfield$-field
+\begin{eqnarray}
+  \Dfield_{new} &=& \permittivity_{new} \Efield \\
+  \Dfield &=& \Dfield_{new} + \frac{\conductivity}{i \omega} \Efield
+\end{eqnarray}
+
+In the Maxwell equations, we substitute the $\Dfield$-field by our newly defined field $\Dfield_{new}$.
+With the conductivity equation \ref{eq:ConstitutiveSigma} and the continuity equation \ref{eq:continuity}, we find the so called source-free Maxwell equations
+\begin{subequations}
+\begin{eqnarray}
+  \Nabla \Dfield_{new} &=& 0 					\\
+  \Nabla \times \Efield &=& i \omega \vacuumpermeability \Hfield	\\
+  \Nabla \Hfield &=& 0  					\\
+  \Nabla \times \Hfield &=& - i \omega \Dfield_{new}  		
+\end{eqnarray}
+\end{subequations}
+There are neither electric nor magnetic monopolar sources.
+The equations are nearly symmetric in $\Dfield$ and $\Hfield$.
+From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_{new}$ without explicitly writing the index \emph{new} (call us lazy, we don't care).
+\begin{subequations}
+\begin{eqnarray}
+  \Nabla \Dfield &=& 0 					\\
+  \Nabla \times \Efield &=& i \omega \vacuumpermeability \Hfield	\\
+  \Nabla \Hfield &=& 0  					\\
+  \Nabla \times \Hfield &=& - i \omega \Dfield  		
+\end{eqnarray}
+\label{eq:sourcefreemaxwell}
+\end{subequations}
+
+\section{Plane Wave Solutions and Dispersion}
+\subsection{The general case}
+We consider a homogeneous material $\permittivity(\Location) = const.$ We apply the Nabla curl operatur on the Maxwell curl equation for the electric field
+\begin{eqnarray}
+  \Nabla \times ( \Nabla \times \Efield ) &=& \Nabla \times ( i \omega \vacuumpermeability \Hfield ) 
+  \\
+  \nabla_i \nabla_i \scalarEfield_j - \nabla_i \nabla_j \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
+\end{eqnarray}
+This is a differential equation with constant coefficients, so we use the ansatz
+\begin{eqnarray}
+ \Efield(\Location,\omega) &=& \Efield_0(\omega) \exp(i \Wavevector \Location)
+\end{eqnarray}
+where the $\Efield_0$ contains polarisation, electric field amplitude and harmonic time dependence. We find the eigenvalue equation
+
+\begin{eqnarray}
+\begin{pmatrix}
+ \wavenumber_y^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} 
+ &
+ - \wavenumber_x \wavenumber_y - \omega^2 \vacuumpermeability \scalarpermittivity_{xy}
+ &
+ - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{xz}
+ \\
+ - \wavenumber_x \wavenumber_y - \omega^2 \vacuumpermeability \scalarpermittivity_{yx}
+ &
+ \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{yy} 
+ &
+ - \wavenumber_y \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{yz}
+ \\
+ - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{zx}
+ &
+ - \wavenumber_y \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{zy}
+ &
+ \wavenumber_x^2 + \wavenumber_y^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{zz}  
+\end{pmatrix}
+\Efield
+&=& 0
+\end{eqnarray}
+In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield$,
+that is, a propagation wavector is only valid for a certain polarisation.
+
+\subsection{uniaxial anisotropic media}
+to do
+
+ordinary mode:
+\begin{eqnarray}
+ \wavenumber^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity_{ord}
+\end{eqnarray}
+$\Efield$ is perpendicular on both the crystal optical axis and the propagation direction.
+
+extraordinary mode:
+\begin{eqnarray}
+  \frac{\wavenumber_{ord}^2 }{\scalarpermittivity_{ex} } + \frac{\wavenumber_{ex}^2 }{\scalarpermittivity_{ord} } &=& \omega^2 \vacuumpermeability
+\end{eqnarray}
+$\Efield$ is in one plane with optical crystal axis and $\Wavevector$.
+
+
+\subsection{isotropic media}
+
+We use the result for uniaxial anisotropic materials and insert the same value for both ordinary and extraordinary permittivity $\scalarpermittivity_{ord} = \scalarpermittivity_{ex} = \scalarpermittivity$.
+This results in a degenerate solution for both polarisations.
+\begin{eqnarray}
+ \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity \\
+ \Wavevector \Efield &=& 0
+\end{eqnarray}
+where $\Wavevector^2$ is not the absolute square, but the scalar product of the wavevector with itself.
+We introduce the refractive index $n$ as
+\begin{eqnarray}
+ \Wavevector^2 &=& \omega^2 \vacuumpermeability \vacuumpermittivity n^2 \\
+ n &=& \sqrt{ \frac{\scalarpermittivity}{\vacuumpermittivity} }
+\end{eqnarray}
+In general, there are two roots. 
+The choice of the root does not change anything in optics based on the Maxwell equations, as the permittivity is the only physically relevant quantity.
+
+
+\section{Boundary Conditions}
+Considering two media $\permittivity_1$ and $\permittivity_2$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
+\begin{subequations}
+\begin{eqnarray}
+ ( \Dfield_2 - \Dfield_1 ) \vec{n} &=& 0 \\
+ ( \Bfield_2 - \Bfield_1 ) \vec{n} &=& 0 \\
+ \vec{n} \times ( \Efield_2 - \Efield_1 ) &=& 0 \\
+ \vec{n} \times ( \Hfield_2 - \Hfield_1 ) &=& 0 
+\end{eqnarray}
+\label{eq:boundary_conditions} 
+\end{subequations}
+These relations hold for a step-interface between two homogeneous media. 
+In mesoscopically inhomogenous media like  diffractive optical elements and metamaterials, 
+the boundary conditions hold at each interface between homogeneous materials of the mesoscopic sub-structure.
+
+
+\section{Refraction of Plane Waves at Planar Surfaces}
+
+\subsection{Derivation}
+We consider a plane wave incident on a planar boundary between two homogeneous materials.
+The incident plane wave projects a grating on the boundary plane. $\Dfield_1$ and $\Efield_1$ on the boundary in medium $\permittivity_1$ are modulated with the in-plane component of the wavevector. 
+\begin{eqnarray}
+ \Dfield_1, \Efield_1 &\propto& \exp( i \Wavevector_{1\parallel} \Location)|_{boundary} \\
+ \Wavevector_{1\perp} &=& ( \Wavevector_1 \vec{n} ) \vec{n} \\
+ \Wavevector_{1\parallel} &=& \Wavevector_1 - \Wavevector_{1\perp}
+\end{eqnarray}
+From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_1$ and $\Efield_1$, also the fields $\Dfield_2$ and $\Efield_2$ in medium 2 are to be modulated by the same in-plane wavevector component.
+\begin{eqnarray}
+  \Dfield_2, \Efield_2 &\propto& \exp( i \Wavevector_{2\parallel} \Location)|_{boundary} \\
+  \Wavevector_{2\parallel} &=& \Wavevector_{1\parallel}
+\end{eqnarray}
+From angular spectrum representation we conclude that the field in medium 2 is also a plane wave. 
+
+\subsection{Results and Discussion}
+Our formulation of the law of refraction is
+\begin{eqnarray}
+ \Efield_1(\Location) &=& \Efield_{01} \exp(i \Wavevector_1 \Location) \\
+ \Efield_2(\Location) &=& \Efield_{02} \exp(i \Wavevector_2 \Location) \\
+ \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \vec{n}
+\end{eqnarray}
+This formulation holds for any planar boundary between two homogeneous media. The normal component of the wavevector in medium 2 depends on the material dispersion in material $\permittivity_2$.
+Compared to the law of Snellius, this formulation bears the following advantages:
+\begin{itemize}
+ \item It does not require the calculation of angles in 3D space, only scalar products.
+ \item The incident wavevector is a property of the ray. When calculating the refraction, the dispersion relation in material $\permittivity_1$ is not required.
+ \item In object-oriented programming, we can introduce a class for refraction with objects isolated from adjacent ones.
+ \item Unkline in the Snellius law, we can also calculate with complex valued permittivities and anisotropic permittivities.
+\end{itemize}
+The formulation does not actually solve the problem of refraction, but just forward it to the problem of finding a solution of the material dispersion. 
+This calculation can, for certain types of anisotropic materials, be time consuming.
+
+\section{Raytracing}
+In raytracing, we assume that radiation is propagated in rays, that are thin, collimated beams. 
+We assume that the rims of these beams are negligible compared to the central area. That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
+Further we assume that all rays are much smaller than the characteristic length of surface curvatures and all surfaces are locally approximated planar on the cross-section area of a ray.
+Even in cases where the assumptions are not completely fulfilled, its accuracy compared to experiments is astonishing and lead to the great success of technical optics.
+However, the optical designer has to check for each calculation whether the ray approximation is justified.
+
+Classical raytracing consists of the following steps: The ray is considered a straight in 3D space. First its intersection point with the next surface is calculated. 
+Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
+
+\subsection{Intersections of Straights with Spheres, Aspheres and Free-shapes}
+\subsubsection{Spheres}
+We consider a ray and a Sphere that intersects the optical axis in the origin
+\begin{eqnarray}
+ \Location &=& \Location_0 + \vec{d} t \\
+ \left| \Location + \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2
+\end{eqnarray}
+$\Location_0$ is the ray start point, $\vec{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
+Mathematically, the solution is easily found. 
+A solution numerically stable for the case of a planar surface $R \rightarrow \infty$ is:
+\begin{eqnarray}
+   F &=& d_z - \rho \left( \vec{d} \Location \right) \\
+   G &=& \rho |\Location|^2 - 2 z \\
+   H &=& - \rho \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+Where $\rho = 1 / R$ is the surface curvature. 
+The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
+Otherwise, the ray misses the sphere.
+
+\subsubsection{Conics}
+Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
+Their surface sag $z$ can be described by
+\begin{eqnarray}
+ z =  \frac
+ { \rho ( x^2 + y^2 ) }
+ { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }
+\end{eqnarray}
+where $c$ is the conic constant. Depending on this parameter, the conic is a
+\begin{eqnarray*}
+-1 < c < 0 && \textrm{oblate ellipsoid} \\
+     c = 0 && \textrm{sphere} \\
+ 0 < c < 1 && \textrm{prolate ellipsoid} \\
+     c = 1 && \textrm{paraboloid} \\
+     c > 1 && \textrm{hyperboloid}
+\end{eqnarray*}
+The solution is
+\begin{eqnarray}
+   F &=& d_z - \rho \left( d_x x + d_y y + d_z z (1+c) \right) \\
+   G &=& \rho (x^2 + y^2 + z^2 (1+c)) - 2 z \\
+   H &=& - \rho ( 1 + c \, d_z^2 ) \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+
+\subsubsection{Biconics}
+to do
+\subsubsection{Polynomial Asphere}
+to do
+\subsubsection{Strong Forbes Asphere}
+to do
+\subsubsection{Mild Forbes Asphere}
+to do
+\subsubsection{Cylindric}
+to do
+\subsubsection{Acylindric}
+to do
+\subsubsection{Free Shapes}
+to do
+
+
+
+
+
+\end{document}
