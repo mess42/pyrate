@@ -1,28 +1,14 @@
+# access to global variables for the FreeCAD interface
+
+import PyrateInterface
+
+# access to the resource file
+import resources_rc
+
 class PyrateWorkbench ( Workbench ):
     "Pyrate workbench object"
-    Icon = """
-            /* XPM */
-            static const char *test_icon[]={
-            "16 16 2 1",
-            "a c #000000",
-            ". c None",
-            "................",
-            ".###............",
-            ".#..#...........",
-            ".#..#...........",
-            ".###..#..#.###..",
-            ".#....#..#.#....",
-            ".#.....###.#....",
-            ".........#......",
-            "......###.......",
-            "................",
-            "........#.......",
-            ".......###..##..",
-            "..###...#..#..#.",
-            ".#..#...#..####.",
-            "..####...#.#....",
-            "............##.."};
-            """
+    Icon = ":/icons/pyrate_logo_icon.svg"
+
     MenuText = "Pyrate Workbench"
     ToolTip = "Pyrate optical design Workbench"
     def GetClassName(self):
@@ -30,8 +16,9 @@ class PyrateWorkbench ( Workbench ):
 
     def Initialize(self):
         import CreateSystem
-        self.appendToolbar("Pyrate", ["CreateSystemCommand"])
-        self.appendMenu("Pyrate", ["CreateSystemCommand"])
+        self.appendToolbar("Pyrate", ["CreateSystemCommand", "MyCommand2"])
+        self.appendMenu("Pyrate", ["CreateSystemCommand", "MyCommand2"])
+
         Log ("Loading Create System Module... done\n")
 
     def Activated(self):
