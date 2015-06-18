@@ -67,6 +67,8 @@
 \newcommand{\braket}[2]{\left\langle{#1}\vert{#2}\right\rangle}
 \newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
 
+\newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
+
 \newcommand\Greenfunction{\Tensor{G}}
 
 \newcommand\scalarEfield{E}
@@ -324,21 +326,78 @@ Then, a new wavevector is determined using the refraction law for plane waves on
 \subsubsection{Spheres}
 We consider a ray and a Sphere that intersects the optical axis in the origin
 \begin{eqnarray}
- \Location &=& \Location_0 + \vec{d} t \\
- \left| \Location + \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2
+ \Location &=& \Location_0 + \vec{d} t \label{eq:ray}\,,\\
+ \left| \Location - \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2\,, \label{eq:sphereeq}
 \end{eqnarray}
 $\Location_0$ is the ray start point, $\vec{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
-Mathematically, the solution is easily found. 
+The standard manner to derive the solution would be to insert the ray equation \eqref{eq:ray} into
+\eqref{eq:sphereeq} and calculate the solutions for $t$ from the arising quadratic equation. This leads to a numerically unstable solution
+for large radii $R$.
 A solution numerically stable for the case of a planar surface $R \rightarrow \infty$ is:
+\begin{subequations}
+\label{eq:spheresolution}
 \begin{eqnarray}
-   F &=& d_z - \rho \left( \vec{d} \Location \right) \\
-   G &=& \rho |\Location|^2 - 2 z \\
-   H &=& - \rho \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+   F &=& d_z - \rho \scpm{\vec{d}}{\Location_0}\,, \\
+   G &=& \rho |\Location_0|^2 - 2 z_0\,, \\
+   H &=& - \rho\,, \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,, \label{eq:tsolsphere}
 \end{eqnarray}
-Where $\rho = 1 / R$ is the surface curvature. 
+\end{subequations}
+where $\rho = 1 / R$ is the surface curvature. 
 The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
 Otherwise, the ray misses the sphere.
+
+The derivation of the former equations \eqref{eq:spheresolution} is not straight forward. Therefore we provide them for the reader in a stepwise manner.
+If one rewrites the equation \eqref{eq:sphereeq} into components one gets
+\begin{equation}
+ z^2 - 2 z R = x^2 + y^2 \label{eq:quadraticimplicit}\,.
+\end{equation}
+This equation can be easily inverted for $z$ giving
+\begin{equation}
+ z = R \left(1\pm\sqrt{1 - \rho^2 (x^2 + y^2)}\right)\label{eq:solquadratic}\,,
+\end{equation}
+which is not the well-known form of the equation, yet.
+The condition $z=0$ for $x=y=0$ fixes the solution branch to the one 
+with the minus sign. Further the well-known form arises by multiplying 
+$(1+ \sqrt{\dots})/(1+\sqrt{\dots})$ at the left hand side
+of \eqref{eq:solquadratic} and expanding the numerator, which leads to
+\begin{equation}
+ z = \frac{\rho (x^2 + y^2)}{1 + \sqrt{1 - \rho^2 (x^2 + y^2)}} \label{eq:finalsagsphere}\,.
+\end{equation}
+Due to the former choice of the correct solution branch there are no
+singularities occuring at $x=y=0$. Form \eqref{eq:finalsagsphere} of the 
+sag equation is not well suited to calculate the intersection points. Therefore it is 
+useful to go back to \eqref{eq:quadraticimplicit} and insert the ray \eqref{eq:ray}
+into it in an invariant manner which leads to
+\begin{equation}
+ t^2 - 2 t \underbrace{\left(\frac{d_z}{\rho} - \scpm{\Location_0}{\vec{d}}\right)}_{F'} 
+    - \underbrace{\left(\frac{2 z_0}{\rho} - |\Location_0|^2\right)}_{H' G'} = 0\,,\label{eq:teqsphere}
+\end{equation}
+where $H' = -1$ and $G' = |\Location_0|^2 - \tfrac{2 z_0}{\rho}$.
+Solving this simple quadratic equation one gets
+\begin{align}
+ t &= F' \pm \sqrt{{F'}^2 + H' G'}\,.
+\end{align}
+Here the solution has still not the form \eqref{eq:tsolsphere} such that
+we also multiply the left hand side by $(F' \mp \sqrt{\dots})/(F' \mp \sqrt{\dots})$.
+Therefore we get
+\begin{align}
+ t &= \frac{\overbrace{-H'}^{=1} G'}{F' \mp \sqrt{{F'}^2 + H' G'}} = \frac{G'}{F' \mp \sqrt{{F'}^2 + H' G'}}\label{eq:tpresolutionsphere}\,.
+\end{align}
+To avoid singularities the plus branch of the solution is chosen and therefore the
+form of the solution above turns into the one with the minus. Otherwise the $t$ would be
+$t>0$ always. $F'$, $G'$ and $F$, $G$ can be converted into one another by
+\begin{subequations}
+\label{eq:fghscaling}
+\begin{eqnarray}
+ F &=& \rho F'\,,\\
+ G &=& \rho G'\,,\\
+ H &=& \rho H'\,.
+\end{eqnarray}
+\end{subequations}
+An inspection of \eqref{eq:tpresolutionsphere} shows that it is invariant under scaling transformations \eqref{eq:fghscaling}
+and therefore we may omit the primes and get \eqref{eq:tsolsphere}.
+
 
 \subsubsection{Conics}
 Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
@@ -346,7 +405,7 @@ Their surface sag $z$ can be described by
 \begin{eqnarray}
  z =  \frac
  { \rho ( x^2 + y^2 ) }
- { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }
+ { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }\,,
 \end{eqnarray}
 where $c$ is the conic constant. Depending on this parameter, the conic is a
 \begin{eqnarray*}
@@ -357,12 +416,14 @@ where $c$ is the conic constant. Depending on this parameter, the conic is a
      c > 1 && \textrm{hyperboloid}
 \end{eqnarray*}
 The solution is
+\begin{subequations}
 \begin{eqnarray}
-   F &=& d_z - \rho \left( d_x x + d_y y + d_z z (1+c) \right) \\
-   G &=& \rho (x^2 + y^2 + z^2 (1+c)) - 2 z \\
-   H &=& - \rho ( 1 + c \, d_z^2 ) \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+   F &=& d_z - \rho \left( d_x x + d_y y + d_z z (1+c) \right)\,, \\
+   G &=& \rho (x^2 + y^2 + z^2 (1+c)) - 2 z\,, \\
+   H &=& - \rho ( 1 + c \, d_z^2 )\,, \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G}\,. }
 \end{eqnarray}
+\end{subequations}
 
 \subsubsection{Biconics}
 to do
