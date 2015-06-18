@@ -401,7 +401,9 @@ and therefore we may omit the primes and get \eqref{eq:tsolsphere}.
 
 \subsubsection{Conics}
 Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
-Their surface sag $z$ can be described by
+The word ``conic" is short for conic section. This refers to these figures as the
+intersections of a plane with a cone.
+In the vertex form their surface sag $z$ can be described by
 \begin{eqnarray}
  z =  \frac
  { \rho ( x^2 + y^2 ) }
@@ -415,7 +417,13 @@ where $c$ is the conic constant. Depending on this parameter, the conic is a
      c = 1 && \textrm{paraboloid} \\
      c > 1 && \textrm{hyperboloid}
 \end{eqnarray*}
-The solution is
+As shown in the last section, for explicit calculation of the intersection parameter $t$ one
+needs the implicit form of the surface equation
+\begin{align}
+ (1 + c) z^2 - \frac{2}{\rho} z + x^2 + y^2 &=0\,.
+\end{align}
+After insertion of \eqref{eq:ray} and following a slightly generalized form of the calculation
+given in sphere section the solution is
 \begin{subequations}
 \begin{eqnarray}
    F &=& d_z - \rho \left( d_x x + d_y y + d_z z (1+c) \right)\,, \\
@@ -426,7 +434,25 @@ The solution is
 \end{subequations}
 
 \subsubsection{Biconics}
-to do
+A biconic describes a surface which has two perpendicular sections
+which have a conic structure. So these surfaces have two symmetry planes.
+The explicit surface sag formula is given by
+\begin{align}
+ z &= \frac{\rho_x x^2 + \rho_y y^2}{1 + \sqrt{1 - (1+c_x) \rho_x^2 x^2 - (1+c_y) \rho_y^2 y^2}} \label{eq:biconic}\,.
+\end{align}
+The variables are $\rho_x = 1/R_x$ the $x$ curvature, $\rho_y = 1/R_y$ the $y$ curvature, $c_x$ the conic constant in $x$ direction,
+and $c_y$ the conic constant in $y$ direction respectively. Setting $\rho_x = \rho_y = \rho$ and $c_x = c_y = c$ gives
+the standard conic from the former section.
+
+Unfortunately finding the invariant or implicit form of \eqref{eq:biconic} is not so easy. The simplest implicit form is given by
+\begin{align}
+ (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,
+\end{align}
+where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \rho_x x^2 + \rho_y y^2$. This means inserting \eqref{eq:ray}
+leads to a fourth order equation, which is in principle analytically solvable. But one the one hand it is very complicated and it is not known
+whether there exists such a user-friendly numerically stable form of $t$ like in the former cases.
+
+
 \subsubsection{Polynomial Asphere}
 to do
 \subsubsection{Strong Forbes Asphere}
