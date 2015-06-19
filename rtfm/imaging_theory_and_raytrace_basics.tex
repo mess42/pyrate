@@ -420,7 +420,7 @@ where $c$ is the conic constant. Depending on this parameter, the conic is a
 As shown in the last section, for explicit calculation of the intersection parameter $t$ one
 needs the implicit form of the surface equation
 \begin{align}
- (1 + c) z^2 - \frac{2}{\rho} z + x^2 + y^2 &=0\,.
+ \rho (1 + c) z^2 - 2 z + \rho (x^2 + y^2) &=0\,.
 \end{align}
 After insertion of \eqref{eq:ray} and following a slightly generalized form of the calculation
 given in sphere section the solution is
@@ -444,13 +444,22 @@ The variables are $\rho_x = 1/R_x$ the $x$ curvature, $\rho_y = 1/R_y$ the $y$ c
 and $c_y$ the conic constant in $y$ direction respectively. Setting $\rho_x = \rho_y = \rho$ and $c_x = c_y = c$ gives
 the standard conic from the former section.
 
-Unfortunately finding the invariant or implicit form of \eqref{eq:biconic} is not so easy. The simplest implicit form is given by
+Unfortunately finding the invariant or implicit form of \eqref{eq:biconic} is not so easy. The simplest implicit form we found at least is given by
 \begin{align}
- (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,
+ (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,\label{eq:implicitbiconic}
 \end{align}
-where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \rho_x x^2 + \rho_y y^2$. This means inserting \eqref{eq:ray}
-leads to a fourth order equation, which is in principle analytically solvable. But one the one hand it is very complicated and it is not known
-whether there exists such a user-friendly numerically stable form of $t$ like in the former cases.
+where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \rho_x x^2 + \rho_y y^2$. 
+This leads to a fourth order equation after inserting \eqref{eq:ray}.
+Such equations are in principle analytically solvable. But on the one hand it is very complicated and on the other hand 
+it is not known whether there exists such a user-friendly numerically stable form of $t$ like in the former cases.
+
+Let at first $a(x,y) \ge 1$ then \eqref{eq:implicitbiconic} can only be zero if $z = b(x,y)$. This leads to a quadratic equation for $t$ which
+has nearly the same structure as shown in the former sections.\footnote{
+In fact the word ``biconic" is misleading because it suggests that
+it is a surface of second degree which is wrong. \eqref{eq:implicitbiconic}
+shows clearly that it is a surface of degree four.}
+
+
 
 
 \subsubsection{Polynomial Asphere}
