@@ -74,6 +74,12 @@ s.surfaces[3].setStatus("curvature", True)
 s.surfaces[4].setStatus("curvature", True)
 s.surfaces[5].setStatus("curvature", True)
 
+#s.surfaces[1].setStatus("thickness", True)
+#s.surfaces[2].setStatus("thickness", True)
+#s.surfaces[3].setStatus("thickness", True)
+#s.surfaces[4].setStatus("thickness", True)
+#s.surfaces[5].setStatus("thickness", True)
+
 s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=10, dxFactor=1.00001)
 
 print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
