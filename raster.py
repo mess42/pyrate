@@ -41,9 +41,9 @@ class RectGrid(object):
         nPerDim = int( round( sqrt( nray * 4.0 / pi ) ) )
         dx = 1. / nPerDim
         x1d = linspace(-1+.25*dx,1-.25*dx,nPerDim)
-        print "nperdim: ", nPerDim
-        print "dx: ", dx
-        print x1d
+        #print "nperdim: ", nPerDim
+        #print "dx: ", dx
+        #print x1d
 
         (xpup2, ypup2) = meshgrid( x1d, x1d )
 

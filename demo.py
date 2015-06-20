@@ -42,7 +42,7 @@ print "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through 
 print "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second"
 
 # plot
-aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=5)
+aimy.setPupilRaster(rasterType= raster.MeridionalFan, nray=20)
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 
 r2 = RayPath(initialBundle2, s)
@@ -51,13 +51,19 @@ initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelen
 r3 = RayPath(initialBundle3, s)
 
 fig = plt.figure(1)
-ax = fig.add_subplot(111)
-ax.axis('equal')
+ax = fig.add_subplot(211)
+ax2 = fig.add_subplot(212)
 
-s.draw2d(ax)
+ax.axis('equal')
+ax.set_axis_bgcolor('black')
+ax2.axis('equal')
+ax2.set_axis_bgcolor('black')
+
 
 r2.draw2d(s, ax, color="blue")
-r3.draw2d(s, ax, color="green")
+#r3.draw2d(s, ax, color="green")
+s.draw2d(ax, color='orange')
+
 
 # optimize
 print "Initial   merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
@@ -72,6 +78,17 @@ s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes
 
 print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
 
-s.draw2d(ax, color="red")
+initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
+
+r2 = RayPath(initialBundle2, s)
+
+initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55)
+r3 = RayPath(initialBundle3, s)
+
+
+r2.draw2d(s, ax2, color="blue")
+#r3.draw2d(s, ax2, color="green")
+
+s.draw2d(ax2, color="red")
 
 plt.show()
