@@ -306,7 +306,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         offy = offset[0]
         offz = offset[1]
         for (num, s) in enumerate(self.surfaces):
-            print num, " ", s.shape.curvature.val, " ", s.shape.conic.val, " ", s.material.n.val
+            #print num, " ", s.shape.curvature.val, " ", s.shape.conic.val, " ", s.material.n.val
             s.draw2d(ax, offset=(offy, offz), vertices=vertices, color=color)
             offz += s.getThickness()
 

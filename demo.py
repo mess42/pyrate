@@ -5,6 +5,7 @@ import pupil
 import field
 import raster
 import material
+import mirror
 import aim
 import merit
 import surfShape
@@ -23,7 +24,7 @@ s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884, semidiam=1.3), thickne
 s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0)) # 1.3
 s.insertSurface(5, Surface(surfShape.Conic(semidiam=1.01), thickness=2.0)) # semidiam=1.01 # STOP
 s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, material=material.ConstantIndexGlass(1.5))) # semidiam=1.0
-s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479, semidiam=1.0), thickness=19.0)) # semidiam=1.0
+s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479, semidiam=1.0), thickness=-19.0)) # semidiam=1.0
 
 # benchmark
 # definition of rays
