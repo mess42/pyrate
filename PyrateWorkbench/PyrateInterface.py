@@ -5,6 +5,7 @@ from numpy import *
 
 
 import material
+import mirror
 import surfShape
 import aim
 import field
