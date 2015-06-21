@@ -29,6 +29,6 @@ class Mirror(Material):
         return RayBundle(orig, newk, raybundle.rayID[valid], raybundle.wave)
     
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, -1.]])  # translation * mirror
+        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
         return abcd
     
