@@ -324,7 +324,7 @@ However, the optical designer has to check for each calculation whether the ray 
 Classical raytracing consists of the following steps: The ray is considered a straight in 3D space. First its intersection point with the next surface is calculated. 
 Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
 
-\subsection{Intersections of Straights with Spheres, Aspheres and Free-shapes}
+\subsection{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
 \subsubsection{Spheres}
 We consider a ray and a Sphere that intersects the optical axis in the origin
 \begin{eqnarray}
@@ -552,16 +552,57 @@ variables more difficult.}
 \subsection{Intersections in nonlinear XYUV formalism}
 According to {{\tt \url{http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf}}}
 we will call the incident vector $\vec{i}$ the reflected one $\vec{r}$ and the refracted one $\vec{t}$.
-From reflection law we get the following
+From reflection law we get the following ($\vec{n}$ is pointing into medium $n_1$ and the incidence vector is pointing from $n_1$ to $n_2$)
 \begin{align}
- \vec{r} &= \vec{i} - 2 \scpm{\vec{i}}{\vec{n}} \vec{n}\,.
+ \vec{r} &= \vec{i} - 2 \scpm{\vec{i}}{\vec{n}} \vec{n}\,.\label{eq:reflection_vector}
 \end{align}
 From refraction we get
 \begin{align}
  \vec{t} &= \frac{n_1}{n_2} \vec{i} 
  + \left[\frac{n_1}{n_2} \scpm{\vec{i}}{\vec{n}} 
-      - \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{i}}{\vec{n}}}^2)}\right] \vec{n}\,.
+      - \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{i}}{\vec{n}}}^2)}\right] \vec{n}\,.\label{eq:refraction_vector}
 \end{align}
+Let us now consider the optical axis $\vec{e}_z$ and some starting point of the ray at distance $d_1$ at the left hand side
+of the optical surface $F(x, y)$, $\vec{X} = (x,y,-d_1)$,. The direction vector is given by $\vec{d} = (d_x, d_y, \sqrt{1 - d_x^2 - d_y^2})$
+The components of the direction vector are equivalent to some aiming angles. For our convenience at the moment we take our
+four variables $(x, y, d_x, d_y)$ as free starting parameters and try to calculate the new parameters at distance $d_2$ behind the
+optical surface $F(x, y)$, $(x', y', {d_x}', {d_y}')$, via some nonlinear transform $(x', y', {d_x}', {d_y}') = T(x, y, d_x, d_y)$,
+where $T$ is some function $T:\mathbb{R}^4 \to \mathbb{R}^4$.
+
+By using the formulas from \ref{subsec:intersectionformulas} it is possible to invert the equation 
+$z - t d_1 = F(x + t d_x, y + t d_y)$ for $t$ either analytically or numerically. The equation tells
+us where the ray started at $z = -d_1$ and $x, y$ intersects the surface $F(x, y)$. Let the solution
+of this equation $t_\text{intersect} = \sigma(x, y, d_x, d_y)$. (Notice that the function $\sigma$
+is in general nonlinear in its arguments, even for the simplest case of a sphere.) Then by using the 
+sigma notation the intersection point is also given by a nonlinear vector entity:
+\begin{align}
+ \vec{p}_\text{i} &= \begin{pmatrix} x + \sigma(x,y,d_x,d_y) d_x \\ y + \sigma(x,y,d_x,d_y) d_y \\ -d_1 + \sigma(x,y,d_x,d_y) \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.\label{eq:pintersect}
+\end{align}
+The vector perpendicular on the surface pointing in direction of medium $n_1$ (left hand side, negative $z$ direction) is given
+by
+\begin{align}
+ \vec{n}(x, y) &= 
+  \frac{1}{\sqrt{1 + (\vec{\nabla}_{x,y} F)^2}} 
+  \begin{pmatrix} \frac{\partial F}{\partial y} \\ \frac{\partial F}{\partial y} \\ -1 \end{pmatrix}\,.\label{eq:surfacenormal}
+\end{align}
+This direction vector has to be evaluated at $\vec{p}_\text{i}$ to get the appropriate results for
+the transmission and reflection direction. Now we may use \eqref{eq:refraction_vector} or \eqref{eq:reflection_vector}
+and \eqref{eq:surfacenormal} evaluated at \eqref{eq:pintersect} to calculate the direction vector $\vec{d}'(p_{\text{i} x}, p_{\text{i} y})$.
+To calculate $x'$ and $y'$ we have to calculate another ray which starts at $p_\text{intersect}$ and ends at the
+distance $d_2$ from the plane. Therefore $\vec{p}_{\text{intersect}\,z} + t_\text{new} \sqrt{1 - {d'}_x^2 - {d'}_y^2} = d_2$ and so
+\begin{align}
+t_\text{new} &= \frac{d_2 - p_{\text{i}\,z}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}}\,.
+\end{align}
+Thus the final coordinates are given by
+\begin{subequations}
+\begin{align}
+ x' &= p_{\text{i}\,x} + \frac{d_2 - p_{\text{i}\,z}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_x\,,\\
+ y' &= p_{\text{i}\,y} + \frac{d_2 - p_{\text{i}\,z}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_y\,.
+\end{align}
+\end{subequations}
+
+
+
 \remark{I know that is not as elegant as the former solution by considering the field components at material boundaries :-)}
 
 
