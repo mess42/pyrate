@@ -549,6 +549,20 @@ to do
 \subsubsection{Linear Combinations}
 \remark{I would suggest to implement a few standard forms and to combine them by a linear combination operator. This makes the search for optimizable
 variables more difficult.}
+\subsection{Intersections in nonlinear XYUV formalism}
+According to {{\tt \url{http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf}}}
+we will call the incident vector $\vec{i}$ the reflected one $\vec{r}$ and the refracted one $\vec{t}$.
+From reflection law we get the following
+\begin{align}
+ \vec{r} &= \vec{i} - 2 \scpm{\vec{i}}{\vec{n}} \vec{n}\,.
+\end{align}
+From refraction we get
+\begin{align}
+ \vec{t} &= \frac{n_1}{n_2} \vec{i} 
+ + \left[\frac{n_1}{n_2} \scpm{\vec{i}}{\vec{n}} 
+      - \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{i}}{\vec{n}}}^2)}\right] \vec{n}\,.
+\end{align}
+\remark{I know that is not as elegant as the former solution by considering the field components at material boundaries :-)}
 
 
 \end{document}
