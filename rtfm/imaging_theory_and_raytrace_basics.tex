@@ -24,14 +24,16 @@
 \usepackage{ae}
 \usepackage[ngerman, english]{babel}
 
-\usepackage{SIunits}
+%\usepackage{SIunits}
 \newcommand\elementarycharge{\textrm{e}}
 \newcommand\sccm{\textrm{sccm}}
 \newcommand\mbar{\milli\textrm{bar}}
 
 
 \usepackage{amsmath}
-%\usepackage{amssymb}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
 \usepackage{setspace}
 
 %\widowpenalty = 1000
@@ -97,7 +99,7 @@
 \newcommand\chargedensity{\rho}
 \newcommand\PoyntingVector{\Vector{S}}
 
-
+\newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
 
 \begin{document}
 
@@ -478,9 +480,58 @@ for $t_{Q21/2} = \tau \pm i \sigma$ this expression becomes
 \begin{align}
  Q_2(t) - 1 &= A_2 \left(\left(t-\tau\right)^2 + \frac{1}{2}\sigma^2\right)<0\,,
 \end{align}
-for real $t$.
+for real $t$. However the final equation is given by
+\begin{align}
+ a t^4 + b t^3 + c t^2 + d t + e &= 0\,,
+\end{align}
+where\remark{Coefficients as functions of biconics parameters!}
+\begin{subequations}
+ \begin{align}
+  a &= \,,\\
+  b &= \,,\\
+  c &= \,,\\
+  d &= \,,\\
+  e &= \,.
+ \end{align}
+\end{subequations}
+Then we may consider the nature of the zeros (see Wiki) by considering the following combinations, namely
+the discriminant $\Delta$, the quadratic coefficient of the depressed quartic $P$, the linear coefficient of
+the depressed quartic $Q$, $\Delta_0$ which is zero if the quartic has a triple root and $D$ which is zero
+if the quartic has two double roots:
+\begin{subequations}
+ \begin{align}
+  \Delta &= 256 a^3 e^3 - 192 a^2 b d e^2 - 128 a^2 c^2 e^2 + 144 a^2 c d^2 e - 27 a^2 d^4 \nonumber\\ 
+&+ 144 a b^2 c e^2 - 6 a b^2 d^2 e - 80 a b c^2 d e + 18 a b c d^3 + 16 a c^4 e \nonumber\\
+&- 4 a c^3 d^2 - 27 b^4 e^2 + 18 b^3 c d e - 4 b^3 d^3 - 4 b^2 c^3 e + b^2 c^2 d^2\,,\\
+   P &= 8ac - 3b^2\,,\\
+   Q &= b^3+8da^2-4abc\,,\\
+   \Delta_0 &= c^2 - 3bd + 12ae\,,\\
+   D &= 64 a^3 e - 16 a^2 c^2 + 16 a b^2 c - 16 a^2 bd - 3 b^4\,.
+ \end{align}
+\end{subequations}
 
-
+\begin{itemize}
+\item If $\Delta < 0$  then the equation has two real roots and two complex conjugate roots.
+\item If $\Delta > 0$  then the equation's four roots are either all real or all complex.
+\begin{itemize}
+\item If $P < 0$ and $D < 0$ then all four roots are real and distinct.
+\item If $P > 0$ or $D > 0$ then there are two pairs of complex conjugate roots.
+\end{itemize}
+\item If $\Delta = 0$  then either the polynomial has a multiple root, 
+  or it is the square of a quadratic polynomial. Here are the different cases that can occur:
+  \begin{itemize}
+\item If $P < 0$ and $D < 0$ and $\Delta_0\ne0$, there is a real double root and two real simple roots.
+\item If $D > 0$ or ($P > 0$ and ($D \ne 0$ or $Q \ne 0$)), there is a real double root and two complex conjugate roots.
+\item If $\Delta_0 = 0$ and $D \ne 0$, there is a triple root and a simple root, all real.
+\item If $D = 0$, then:
+  \begin{itemize}
+\item If $P < 0$, there are two real double roots.
+\item If $P > 0$ and $Q = 0$, there are two complex conjugate double roots.
+\item If $ \Delta_0  = 0$, all four roots are equal to $-\frac{b}{4a}$
+  \end{itemize}
+  \end{itemize}
+\end{itemize}
+Some of the discussed cases show that the ray misses the surfaces.
 
 \subsubsection{Polynomial Asphere}
 to do
@@ -495,8 +546,9 @@ to do
 \subsubsection{Free Shapes}
 to do
 
-
-
+\subsubsection{Linear Combinations}
+\remark{I would suggest to implement a few standard forms and to combine them by a linear combination operator. This makes the search for optimizable
+variables more difficult.}
 
 
 \end{document}
