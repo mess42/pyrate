@@ -561,8 +561,8 @@ From refraction we get\remark{I know that is not as elegant as the former
 solution by considering the field components at material boundaries :-)}
 \begin{align}
  \vec{t} &= \frac{n_1}{n_2} \vec{i} 
- + \left[\frac{n_1}{n_2} \scpm{\vec{i}}{\vec{n}} 
-      - \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{i}}{\vec{n}}}^2)}\right] \vec{n}\,.\label{eq:refraction_vector}
+ - \left[\frac{n_1}{n_2} \scpm{\vec{i}}{\vec{n}} 
+      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{i}}{\vec{n}}}^2)}\right] \vec{n}\,.\label{eq:refraction_vector}
 \end{align}
 Let us now consider the optical axis $\vec{e}_z$ and some starting point of the ray at distance $d_1$ at the left hand side
 of the optical surface $F(x, y)$, $(x,y,-d_1)$,. The direction vector is given by $\vec{d} = (d_x, d_y, \sqrt{1 - d_x^2 - d_y^2})$.
@@ -620,8 +620,8 @@ The unit normal vector has to be evaluated and according to \eqref{eq:surfacenor
 For a refractive problem the new direction vector is derived from \eqref{eq:refraction_vector} and therefore
 \begin{align}
  \vec{d}' &= \frac{n_1}{n_2} \vec{d} 
- + \left[\frac{n_1}{n_2} \scpm{\vec{d}}{\vec{N}} 
-      - \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{d}}{\vec{N}}}^2)}\right] \vec{N}\,.\label{eq:newdirection}
+ - \left[\frac{n_1}{n_2} \scpm{\vec{d}}{\vec{N}} 
+      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{d}}{\vec{N}}}^2)}\right] \vec{N}\,.\label{eq:newdirection}
 \end{align}
 and for the final coordinates after inserting the intersection point coordinates
 \begin{subequations}
