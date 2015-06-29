@@ -652,8 +652,8 @@ If we further assume that we may neglect the normal vector terms in the new dire
 which means
 \begin{subequations}
  \begin{align}
-  {d'}_1 &= \frac{n_1}{n_2} d_1\,,\\
-  {d'}_2 &= \frac{n_1}{n_2} d_2\,,
+  {d'}_x &= \frac{n_1}{n_2} d_x\,,\\
+  {d'}_y &= \frac{n_1}{n_2} d_y\,,
  \end{align}
 \end{subequations}
 we can simplify the new coordinates to (note: linear approximation! So the square roots are $\approx1$!)
@@ -671,6 +671,16 @@ Therefore the matrix formulation is given by
  \begin{pmatrix} x \\ y \\ d_x \\ d_y \end{pmatrix}\,,
 \end{align}
 which is a very rough approximation which is only valid directly on the optical axis.
+This should be equivalent to translation by distance $d_1$ to the optical surface,
+refraction of the rays at the optical surface (conic section) and translation by distance
+$d_2$. Further we could reduce this problem to $ABCD$ matrices because there is no mixing
+between $x$ and $y$ axis,
+\begin{align}
+ \begin{pmatrix} r'  \\ d' \end{pmatrix} &= 
+ \begin{pmatrix} 1 &  d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \\ 0 & \frac{n_1}{n_2} \end{pmatrix}
+ \begin{pmatrix} r  \\ d \end{pmatrix}\,.
+\end{align}
+\remark{Perhaps the approximation in the angular parts is too rough!}
 
 
 
