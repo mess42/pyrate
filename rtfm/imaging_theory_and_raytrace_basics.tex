@@ -565,7 +565,7 @@ solution by considering the field components at material boundaries :-)}
       + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{i}}{\vec{n}}}^2)}\right] \vec{n}\,.\label{eq:refraction_vector}
 \end{align}
 Let us now consider the optical axis $\vec{e}_z$ and some starting point of the ray at distance $d_1$ at the left hand side
-of the optical surface $F(x, y)$, $(x,y,-d_1)$,. The direction vector is given by $\vec{d} = (d_x, d_y, \sqrt{1 - d_x^2 - d_y^2})$.
+of the optical surface $F(x, y)$, $(x,y,-d_1)$. The direction vector is given by $\vec{d} = (d_x, d_y, \sqrt{1 - d_x^2 - d_y^2})$.
 The components of the direction vector are equivalent to some aiming angles. For our convenience we take our
 four variables $(x, y, d_x, d_y)$ as free starting parameters and try to calculate the new parameters at distance $d_2$ behind the
 optical surface $F(x, y)$, $(x', y', {d_x}', {d_y}')$, via some nonlinear transform $(x', y', {d_x}', {d_y}') = T(x, y, d_x, d_y)$,
@@ -576,7 +576,7 @@ By using the formulas from \ref{subsec:intersectionformulas} it is possible to i
 -d_1 + t \sqrt{1-d_x^2-d_y^2} &= F(x + t d_x, y + t d_y)\,,\label{eq:genintersection} 
 \end{align}
 for $t$ either analytically or numerically. The equation tells
-us where the ray started at $z = -d_1$ and $x, y$ intersects the surface $F(x, y)$. Let the solution
+us where the ray started at $x, y$, $z = -d_1$ intersects the surface $F(x, y)$. Let the solution
 of this equation $t_\text{intersect} = \sigma(x, y, d_x, d_y)$. (Notice that the function $\sigma$
 is in general nonlinear in its arguments, even for the simplest case of a sphere.) Then by using the 
 sigma notation the intersection point is also given by a nonlinear vector entity:
@@ -590,7 +590,7 @@ by
   \frac{1}{\sqrt{1 + (\vec{\nabla}_{x,y} F)^2}} 
   \begin{pmatrix} \frac{\partial F}{\partial y} \\ \frac{\partial F}{\partial y} \\ -1 \end{pmatrix}\,.\label{eq:surfacenormal}
 \end{align}
-This direction vector has to be evaluated at $\vec{p}_\text{i}$ to get the appropriate results for
+This vector has to be evaluated at $\vec{p}_\text{i}$ to get the appropriate results for
 the transmission and reflection direction. Now we may use \eqref{eq:refraction_vector} or \eqref{eq:reflection_vector}
 and \eqref{eq:surfacenormal} evaluated at \eqref{eq:pintersect} to calculate the direction vector $\vec{d}'(p_{\text{i} x}, p_{\text{i} y})$.
 To calculate $x'$ and $y'$ we have to calculate another ray which starts at $p_\text{intersect}$ and ends at the
@@ -633,8 +633,8 @@ and for the final coordinates after inserting the intersection point coordinates
 \end{subequations}
 Eqns. \eqref{eq:newdirection} and \eqref{eq:newposition} together with \eqref{eq:surfacenormal2}, \eqref{eq:surfacenormal},
 \eqref{eq:pintersect} and \eqref{eq:sigmasol} give the final nonlinear transformation for a refractive optical surface between
-two materials with constant optical indices. Notice that $\sigma$ depends on the starting variables two, e.g., 
-for a conic section it is given by (see \eqref{eq:intersectionconicsection})
+two materials with constant optical indices. Notice that $\sigma$ depends on the starting variables, too.  
+For, e.g., a conic section it is given by (see \eqref{eq:intersectionconicsection})
 \begin{align}
  \sigma_{\text{conic section}} &= \frac{G}{ F + \sqrt{F^2 + H G} }\,,
 \end{align}
@@ -644,12 +644,12 @@ where
    G &=& \rho (x^2 + y^2 + d_1^2 (1+c)) + 2 d_1\,, \\
    H &=& - \rho ( 1 + c \, (1 - d_x^2 - d_y^2) )\,.
 \end{eqnarray}
-In a strictly linear approximation of the new coordinates where we neglect all dependencies of $x$, $y$, $d_x$, $d_y$ in $\sigma$ this gives
+In a strictly linear approximation of the new coordinates where we neglect all dependencies of $x$, $y$, $d_x$, $d_y$,
 \begin{align}
  \sigma_\text{conic section} &\approx \frac{d_1}{1+ \frac{1}{\rho d_1 (1 + c)}} \stackrel{\rho d_1 (1+c)\gg 1}{\approx} d_1 \left(1 - d_1 \rho(1+c) + \mathcal{O}(\rho d_1 (1+c))^2\right)\,. 
 \end{align}
 If we further assume that we may neglect nonlinear terms in the new direction equation \eqref{eq:newdirection}
-which means (the second terms come from the linear expansion of the normal vector [we also approximate $\sigma \approx d_1$])\\
+which means [we also approximate $\sigma \approx d_1$]\\
 \begin{subequations}
  \begin{align}
   {d'}_x &= {\left(\left[\frac{n_{1}}{n_{2}} - 1\right]\rho \sigma + \frac{n_{1}}{n_{2}}\right)} d_{x} + {\left(\frac{n_{1}}{n_{2}} - 1\right)} \rho x\,,\\
@@ -695,11 +695,13 @@ This is exactly the transformation which can be obtained from using the linear $
 Thus the linear approximation relies on the following points:
 \begin{itemize}
  \item Small angles and small deviations from optical axis (linear approximation)
- \item Approximation of $\sigma$ by distance to surface 
+ \item Approximation of $\sigma$ by distance $d_1$ to surface 
  \item Linear approximation of normal vector of surface [this implies approximation of surface by local curvature at $x=y=0$]
  \item At least for the $ABCD$ formalism: rotationally symmetric surface
  \item Properties of surface enter the calculation only via $\sigma$ and $\vec{N}$: the linear dependence of $\rho$ comes from $\vec{N}$
 \end{itemize}
+\remark{Is it possible by comparison of fully nonlinear transfer formalism and linear approximation, i.e. $ABCD$ formalism, to obtain the
+aberrations?}
 
 
 
