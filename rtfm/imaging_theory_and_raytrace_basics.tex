@@ -427,11 +427,12 @@ needs the implicit form of the surface equation
 After insertion of \eqref{eq:ray} and following a slightly generalized form of the calculation
 given in sphere section the solution is
 \begin{subequations}
+\label{eq:intersectionconicsection}
 \begin{eqnarray}
    F &=& d_z - \rho \left( d_x x_0 + d_y y_0 + d_z z_0 (1+c) \right)\,, \\
    G &=& \rho (x_0^2 + y_0^2 + z_0^2 (1+c)) - 2 z_0\,, \\
    H &=& - \rho ( 1 + c \, d_z^2 )\,, \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G}\,. }
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,.
 \end{eqnarray}
 \end{subequations}
 
@@ -572,7 +573,7 @@ where $T$ is some function $T:\mathbb{R}^4 \to \mathbb{R}^4$.
 
 By using the formulas from \ref{subsec:intersectionformulas} it is possible to invert the equation 
 \begin{align}
--d_1 + t \sqrt{1-d_x^2-d_y^2} &= F(x + t d_x, y + t d_y)\,, 
+-d_1 + t \sqrt{1-d_x^2-d_y^2} &= F(x + t d_x, y + t d_y)\,,\label{eq:genintersection} 
 \end{align}
 for $t$ either analytically or numerically. The equation tells
 us where the ray started at $z = -d_1$ and $x, y$ intersects the surface $F(x, y)$. Let the solution
@@ -604,7 +605,72 @@ Thus the final coordinates are given by
  y' &= p_{\text{i}\,y} + \frac{d_2 - p_{\text{i}\,z}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_y\,.
 \end{align}
 \end{subequations}
-
+Collecting all together: The first $t$ value is (via inverting \eqref{eq:genintersection})
+\begin{align}
+ t_\text{intersect} &= \sigma(x, y, d_x, d_y) = \sigma\,.\label{eq:sigmasol}
+\end{align}
+The intersection point is given by
+\begin{align}
+ \vec{p}_\text{i} &= \begin{pmatrix} x + \sigma d_x \\ y + \sigma d_y \\ -d_1 + \sigma \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.\label{eq:pintersect}
+\end{align}
+The unit normal vector has to be evaluated and according to \eqref{eq:surfacenormal} given by
+\begin{align}
+ \vec{N} &:= \vec{n}(p_{\text{i}x}, p_{\text{j}y})\,.\label{eq:surfacenormal2}
+\end{align}
+For a refractive problem the new direction vector is derived from \eqref{eq:refraction_vector} and therefore
+\begin{align}
+ \vec{d}' &= \frac{n_1}{n_2} \vec{d} 
+ + \left[\frac{n_1}{n_2} \scpm{\vec{d}}{\vec{N}} 
+      - \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{d}}{\vec{N}}}^2)}\right] \vec{N}\,.\label{eq:newdirection}
+\end{align}
+and for the final coordinates after inserting the intersection point coordinates
+\begin{subequations}
+\label{eq:newposition}
+\begin{align}
+ x' &= x + \sigma d_x + \frac{d_2 + d_1 - \sigma \sqrt{1 - d_x^2 - d_y^2}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_x\,,\\
+ y' &= y + \sigma d_y + \frac{d_2 + d_1 - \sigma \sqrt{1 - d_x^2 - d_y^2}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_y\,.
+\end{align}
+\end{subequations}
+Eqns. \eqref{eq:newdirection} and \eqref{eq:newposition} together with \eqref{eq:surfacenormal2}, \eqref{eq:surfacenormal},
+\eqref{eq:pintersect} and \eqref{eq:sigmasol} give the final nonlinear transformation for a refractive optical surface between
+two materials with constant optical indices. Notice that $\sigma$ depends on the starting variables two, e.g., 
+for a conic section it is given by (see \eqref{eq:intersectionconicsection})
+\begin{align}
+ \sigma_{\text{conic section}} &= \frac{G}{ F + \sqrt{F^2 + H G} }\,,
+\end{align}
+where
+\begin{eqnarray}
+   F &=& \sqrt{1 - d_x^2 - d_y^2} - \rho \left( d_x x + d_y y - d_1 (1+c) \sqrt{1 - d_x^2 - d_y^2} \right)\,, \\
+   G &=& \rho (x^2 + y^2 + d_1^2 (1+c)) + 2 d_1\,, \\
+   H &=& - \rho ( 1 + c \, (1 - d_x^2 - d_y^2) )\,.
+\end{eqnarray}
+In a strictly linear approximation of the new coordinates where we neglect all dependencies of $x$, $y$, $d_x$, $d_y$ in $\sigma$ this gives
+\begin{align}
+ \sigma_\text{conic section} &\approx \frac{d_1}{1+ \frac{1}{\rho d_1 (1 + c)}} \stackrel{\rho d_1 (1+c)\gg 1}{\approx} d_1 \left(1 - d_1 \rho(1+c) + \mathcal{O}(\rho d_1 (1+c))^2\right)\,. 
+\end{align}
+If we further assume that we may neglect the normal vector terms in the new direction equation \eqref{eq:newdirection}
+which means
+\begin{subequations}
+ \begin{align}
+  {d'}_1 &= \frac{n_1}{n_2} d_1\,,\\
+  {d'}_2 &= \frac{n_1}{n_2} d_2\,,
+ \end{align}
+\end{subequations}
+we can simplify the new coordinates to (note: linear approximation! So the square roots are $\approx1$!)
+\begin{subequations}
+\label{eq:linearapprox}
+\begin{align}
+ x' &\approx x + \left(d_1 + (d_2 + d^2_1 \rho(1+c)) \frac{n_1}{n_2}\right) d_x\,,\\
+ y' &\approx y + \left(d_1 + (d_2 + d^2_1 \rho(1+c)) \frac{n_1}{n_2}\right) d_y\,.
+\end{align}
+\end{subequations}
+Therefore the matrix formulation is given by
+\begin{align}
+ \begin{pmatrix} x' \\ y' \\ {d'}_x \\ {d'}_y \end{pmatrix} &= 
+ \begin{pmatrix} 1 & 0 & d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \frac{n_1}{n_2} & 0 \\ 0 & 1 & 0 & d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \frac{n_1}{n_2} \\ 0 & 0 & \frac{n_1}{n_2} & 0 \\ 0 & 0 & 0 & \frac{n_1}{n_2} \end{pmatrix} 
+ \begin{pmatrix} x \\ y \\ d_x \\ d_y \end{pmatrix}\,,
+\end{align}
+which is a very rough approximation which is only valid directly on the optical axis.
 
 
 
