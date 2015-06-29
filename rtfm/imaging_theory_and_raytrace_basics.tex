@@ -649,29 +649,29 @@ In a strictly linear approximation of the new coordinates where we neglect all d
  \sigma_\text{conic section} &\approx \frac{d_1}{1+ \frac{1}{\rho d_1 (1 + c)}} \stackrel{\rho d_1 (1+c)\gg 1}{\approx} d_1 \left(1 - d_1 \rho(1+c) + \mathcal{O}(\rho d_1 (1+c))^2\right)\,. 
 \end{align}
 If we further assume that we may neglect nonlinear terms in the new direction equation \eqref{eq:newdirection}
-which means (the second terms come from the linear expansion of the normal vector
+which means (the second terms come from the linear expansion of the normal vector [we also approximate $\sigma \approx d_1$])\\
 \begin{subequations}
  \begin{align}
-  {d'}_x &= \frac{n_1}{n_2} d_x + \frac{n_1}{n_2} \rho(x+\sigma d_x)\,,\\
-  {d'}_y &= \frac{n_1}{n_2} d_y + \frac{n_1}{n_2} \rho(x+\sigma d_y)\,,
+  {d'}_x &= {\left(\left[\frac{n_{1}}{n_{2}} - 1\right]\rho \sigma + \frac{n_{1}}{n_{2}}\right)} d_{x} + {\left(\frac{n_{1}}{n_{2}} - 1\right)} \rho x\,,\\
+  {d'}_y &= {\left(\left[\frac{n_{1}}{n_{2}} - 1\right]\rho \sigma + \frac{n_{1}}{n_{2}}\right)} d_{y} + {\left(\frac{n_{1}}{n_{2}} - 1\right)} \rho y\,,
  \end{align}
 \end{subequations}
 we can simplify the new coordinates to (note: linear approximation! So the square roots are $\approx1$!)
 \begin{subequations}
 \label{eq:linearapprox}
 \begin{align}
- x' &\approx x + \left(d_1 + (d_2 + d^2_1 \rho(1+c)) \frac{n_1}{n_2}\right) d_x\,,\\
- y' &\approx y + \left(d_1 + (d_2 + d^2_1 \rho(1+c)) \frac{n_1}{n_2}\right) d_y\,.
+ x' &\approx {\left({\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1}\right)} d_{x} + {\left(\rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1\right)} x\,,\\
+ y' &\approx {\left({\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1}\right)} d_{y} + {\left(\rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1\right)} y\,.
 \end{align}
 \end{subequations}
 Therefore the matrix formulation is given by
 \begin{align}
- \begin{pmatrix} x' \\ y' \\ {d'}_x \\ {d'}_y \end{pmatrix} &= 
- \begin{pmatrix} 1 & 0 & d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \frac{n_1}{n_2} & 0 \\ 
-		  0 & 1 & 0 & d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \frac{n_1}{n_2} \\ 
-		  \frac{n_1}{n_2} \rho & 0 & \frac{n_1}{n_2} (1 + \rho d_1 (1 - \rho d_1 (1+c))) & 0 \\ 
-		  0 & \frac{n_1}{n_2} \rho & 0 & \frac{n_1}{n_2} (1 + \rho d_1 (1 - \rho d_1 (1+c)))\end{pmatrix} 
- \begin{pmatrix} x \\ y \\ d_x \\ d_y \end{pmatrix}\,,
+ &\begin{pmatrix} x' \\ y' \\ {d'}_x \\ {d'}_y \end{pmatrix} =\nonumber\\ 
+ &\begin{pmatrix} \rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1 & 0 & {\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1} & 0 \\ 
+		  0 & \rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1 & 0 & {\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1} \\ 
+		  \left(\frac{n_{1}}{n_{2}} - 1\right) \rho & 0 & \left[\frac{n_{1}}{n_{2}} - 1\right]\rho d_1 + \frac{n_{1}}{n_{2}} & 0 \\ 
+		  0 & \left(\frac{n_{1}}{n_{2}} - 1\right) \rho & 0 & \left[\frac{n_{1}}{n_{2}} - 1\right]\rho d_1 + \frac{n_{1}}{n_{2}}\end{pmatrix}\nonumber\\ 
+ &\times\begin{pmatrix} x \\ y \\ d_x \\ d_y \end{pmatrix}\,,
 \end{align}
 which is a very rough approximation.
 This should be equivalent to translation by distance $d_1$ to the optical surface,
@@ -680,7 +680,16 @@ $d_2$. Further we could reduce this problem to $ABCD$ matrices because there is 
 between $x$ and $y$ axis,
 \begin{align}
  \begin{pmatrix} r'  \\ d' \end{pmatrix} &= 
- \begin{pmatrix} 1 &  d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \\ \frac{n_1}{n_2} \rho & \frac{n_1}{n_2} (1 + \rho d_1 (1 - \rho d_1 (1+c))) \end{pmatrix}
+ \begin{pmatrix} \rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1 & {\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1} \\ 
+		\left(\frac{n_{1}}{n_{2}} - 1\right) \rho &  \left[\frac{n_{1}}{n_{2}} - 1\right]\rho d_1 + \frac{n_{1}}{n_{2}} \end{pmatrix}
+ \begin{pmatrix} r  \\ d \end{pmatrix}\,.
+\end{align}
+This is exactly the transformation which can be obtained from using the linear $ABCD$ matrix formalism by considering
+\begin{align}
+ \begin{pmatrix} r'  \\ d' \end{pmatrix} &=
+ \begin{pmatrix} 1 & d_2 \\ 0 & 1 \end{pmatrix}
+ \begin{pmatrix} 1 & 0 \\ \left(\frac{n_1}{n_2} - 1\right)\rho & \frac{n_1}{n_2} \end{pmatrix}
+ \begin{pmatrix} 1 & d_1 \\ 0 & 1 \end{pmatrix}
  \begin{pmatrix} r  \\ d \end{pmatrix}\,.
 \end{align}
 
