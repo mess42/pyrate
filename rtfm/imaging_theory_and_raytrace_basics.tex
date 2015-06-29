@@ -648,12 +648,12 @@ In a strictly linear approximation of the new coordinates where we neglect all d
 \begin{align}
  \sigma_\text{conic section} &\approx \frac{d_1}{1+ \frac{1}{\rho d_1 (1 + c)}} \stackrel{\rho d_1 (1+c)\gg 1}{\approx} d_1 \left(1 - d_1 \rho(1+c) + \mathcal{O}(\rho d_1 (1+c))^2\right)\,. 
 \end{align}
-If we further assume that we may neglect the normal vector terms in the new direction equation \eqref{eq:newdirection}
-which means
+If we further assume that we may neglect nonlinear terms in the new direction equation \eqref{eq:newdirection}
+which means (the second terms come from the linear expansion of the normal vector
 \begin{subequations}
  \begin{align}
-  {d'}_x &= \frac{n_1}{n_2} d_x\,,\\
-  {d'}_y &= \frac{n_1}{n_2} d_y\,,
+  {d'}_x &= \frac{n_1}{n_2} d_x + \frac{n_1}{n_2} \rho(x+\sigma d_x)\,,\\
+  {d'}_y &= \frac{n_1}{n_2} d_y + \frac{n_1}{n_2} \rho(x+\sigma d_y)\,,
  \end{align}
 \end{subequations}
 we can simplify the new coordinates to (note: linear approximation! So the square roots are $\approx1$!)
@@ -667,20 +667,23 @@ we can simplify the new coordinates to (note: linear approximation! So the squar
 Therefore the matrix formulation is given by
 \begin{align}
  \begin{pmatrix} x' \\ y' \\ {d'}_x \\ {d'}_y \end{pmatrix} &= 
- \begin{pmatrix} 1 & 0 & d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \frac{n_1}{n_2} & 0 \\ 0 & 1 & 0 & d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \frac{n_1}{n_2} \\ 0 & 0 & \frac{n_1}{n_2} & 0 \\ 0 & 0 & 0 & \frac{n_1}{n_2} \end{pmatrix} 
+ \begin{pmatrix} 1 & 0 & d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \frac{n_1}{n_2} & 0 \\ 
+		  0 & 1 & 0 & d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \frac{n_1}{n_2} \\ 
+		  \frac{n_1}{n_2} \rho & 0 & \frac{n_1}{n_2} (1 + \rho d_1 (1 - \rho d_1 (1+c))) & 0 \\ 
+		  0 & \frac{n_1}{n_2} \rho & 0 & \frac{n_1}{n_2} (1 + \rho d_1 (1 - \rho d_1 (1+c)))\end{pmatrix} 
  \begin{pmatrix} x \\ y \\ d_x \\ d_y \end{pmatrix}\,,
 \end{align}
-which is a very rough approximation which is only valid directly on the optical axis.
+which is a very rough approximation.
 This should be equivalent to translation by distance $d_1$ to the optical surface,
 refraction of the rays at the optical surface (conic section) and translation by distance
 $d_2$. Further we could reduce this problem to $ABCD$ matrices because there is no mixing
 between $x$ and $y$ axis,
 \begin{align}
  \begin{pmatrix} r'  \\ d' \end{pmatrix} &= 
- \begin{pmatrix} 1 &  d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \\ 0 & \frac{n_1}{n_2} \end{pmatrix}
+ \begin{pmatrix} 1 &  d_1 \left(1 + d_1 \rho(1+c)\frac{n_1}{n_2}\right) + d_2 \\ \frac{n_1}{n_2} \rho & \frac{n_1}{n_2} (1 + \rho d_1 (1 - \rho d_1 (1+c))) \end{pmatrix}
  \begin{pmatrix} r  \\ d \end{pmatrix}\,.
 \end{align}
-\remark{Perhaps the approximation in the angular parts is too rough!}
+
 
 
 
