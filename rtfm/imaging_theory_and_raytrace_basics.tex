@@ -113,6 +113,8 @@
 
 \onehalfspacing
 
+\tableofcontents
+
 \chapter{Optics from Maxwell Equations}
 \section{The Source Free Maxwell Equations}
 The content of this chapter is well known from textbooks \cite{Jackson}. Still, we repeat some of the equations to have a consistent nomeclature throughout this manual and the pyrate program
@@ -315,6 +317,7 @@ The formulation does not actually solve the problem of refraction, but just forw
 This calculation can, for certain types of anisotropic materials, be time consuming.
 
 \section{Raytracing}
+\remark{new chapter?}
 In raytracing, we assume that radiation is propagated in rays, that are thin, collimated beams. 
 We assume that the rims of these beams are negligible compared to the central area. That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
 Further we assume that all rays are much smaller than the characteristic length of surface curvatures and all surfaces are locally approximated planar on the cross-section area of a ray.
@@ -760,7 +763,9 @@ gives a condition to the third component of $\vec{D}$, namely
  D_z &= -\sqrt{1 - d_x^2 - d_y^2} \pm \sqrt{1 - (d_x + D_x)^2 - (d_y + D_y)^2}\,.
 \end{align}
 Maybe this extension of the $XYUV$ (non linear) transfer formalism can be useful as a further generalization of
-the optical design calculation.
+the optical design calculation. By multiplying the direction vector with the optical index one immediately gets
+a so called phase space formulation of the optical ray. In this formulation several theorems from Hamiltonian
+mechanics and phase space theory in general hold. This formulation may be investigated in further subsections of this document.
 
 \subsection{GRIN Media}
 The consideration of GRIN media also fits into this transfer formalism.
