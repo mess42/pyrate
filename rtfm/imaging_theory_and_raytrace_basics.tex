@@ -703,8 +703,102 @@ Thus the linear approximation relies on the following points:
 \remark{Is it possible by comparison of fully nonlinear transfer formalism and linear approximation, i.e. $ABCD$ formalism, to obtain the
 aberrations?}
 
+\subsection{5x5 formalism}
+In computer vision there are homogeneous coordinates used to implement translation and rotation in a single matrix.
+There is a further coordinate $c$ introduced such that $\bar{x} = x/c, \bar{y} = y/c$ where $x$, $y$ and $c$
+are the homogeneous coordinates and $\bar{x}$ and $\bar{y}$ are the view coordinates. Then general transformations have to following block
+structure
+\begin{align}
+ \begin{pmatrix} \vec{r}' \\ c' \end{pmatrix} &= 
+ \begin{pmatrix}
+  R & \vec{t} \\
+  0 & 1
+ \end{pmatrix}
+ \begin{pmatrix}
+  \vec{r} \\ 
+  c
+ \end{pmatrix}\,.
+\end{align}
+Therefore
+\begin{align}
+ \vec{r}' &= R \vec{r} + c \vec{t}\,,\label{eq:homotransform}\\
+ c' &= c
+\end{align}
+Usually one sets the $c$ equal to one and therefore $\vec{r}'$ contains
+the transformed coordinates already. As one can see in \eqref{eq:homotransform}
+$\vec{r}'$ is also translated.
 
+In the $XYUV$ formalism $\vec{r}$ and $\vec{r}'$ are given by $(x,y,d_x,d_y)$ and $(x',y',{d'}_x,{d'}_y)$
+respectively. To get a feeling for the transformation of the homogeneous coordinates we consider only
+a translation
+\begin{align}
+ \begin{pmatrix} x' \\ y' \\ {d'}_x \\ {d'}_y \\ 1 \end{pmatrix} &=
+ \begin{pmatrix} 1 & 0 & 0 & 0 & t_x \\
+                 0 & 1 & 0 & 0 & t_y \\
+                 0 & 0 & 1 & 0 & D_x \\
+                 0 & 0 & 0 & 1 & D_y \\
+                 0 & 0 & 0 & 0 & 1 \\
+ \end{pmatrix}
+ \begin{pmatrix} x \\ y \\ d_x \\ d_y \\ 1 \end{pmatrix}\,.
+\end{align}
+Therefore we get
+\begin{subequations}
+\begin{align}
+ x' &= x + t_x\,,\\
+ y' &= y + t_y\,,\\
+ {d'}_x &= d_x + D_x\,,\\
+ {d'}_y &= d_y + D_y\,.
+\end{align}
+\end{subequations}
+end corresponds to a absolute change in intersection points and ray direction.
+Notice that the new direction vector also has to be a unit vector such that
+\begin{align}
+ \underbrace{{\vec{d}}^{\prime 2}}_{=1} &= \underbrace{\vec{d}^2}_{=1} + 2 \scpm{\vec{d}}{\vec{D}} + \vec{D}^2\,,
+\end{align}
+gives a condition to the third component of $\vec{D}$, namely
+\begin{align}
+ D_z &= -\sqrt{1 - d_x^2 - d_y^2} \pm \sqrt{1 - (d_x + D_x)^2 - (d_y + D_y)^2}\,.
+\end{align}
+Maybe this extension of the $XYUV$ (non linear) transfer formalism can be useful as a further generalization of
+the optical design calculation.
 
+\subsection{GRIN Media}
+The consideration of GRIN media also fits into this transfer formalism.
+A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
+and a fixed $z$ position the ray starting point is $(x,y,z)$ and the direction vector
+is $(d_x,d_y,\sqrt{1-d_x^2-d_y^2})$. This fixes the initial conditions of the ray propagation
+uniquely. Now the optical path length functional is given by the where the ``Lagrangian'' of the 
+correspoding mechanical theory is given by $\mathcal{L}$,
+\begin{align}
+ L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.
+\end{align}
+Notice $s$ is the arc length and therefore the derivative $\vec{r}'(s)$ is a unit vector. (For the Euler Lagrange
+equations we may not set it to one at the moment)
+Euler-Lagrange-Equations are given by
+\begin{align}
+ \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= \frac{\partial \mathcal{L}}{\partial \vec{r}}\,.
+\end{align}
+The sloppy notation with vector derivatives means a differentiation by components.
+\begin{align}
+ \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= n(\vec{r}(s)) \frac{\vec{r}'(s)}{|\vec{r}'(s)|} \stackrel{|\vec{r}'(s)|=1}{=} n(\vec{r}(s))\vec{r}'(s)\,.
+\end{align}
+Therefore the differential equation is given by
+\begin{align}
+ \frac{\text{d}}{\text{d}s} \left(n(\vec{r}(s)) \frac{\text{d}\vec{r}}{\text{d}s}\right) &= (\vec{\nabla} n)(\vec{r}(s)) \label{eq:ODEGRIN}\,.
+\end{align}
+(Notice: For a homogeneous medium the ODE system reduces to a system of algebraic equations [btw. this corresponds to a reduction of the
+first variation of the integral to a first derivative of the corresponding sum].) 
+For our formalism the initial conditions are given by:
+\begin{subequations}
+\label{eq:ODEGRINic}
+\begin{align}
+ \vec{r}(s=0) &= (x,y,z)\,,\\
+ \vec{r}'(s=0) &= (d_x, d_y, \sqrt{1-d_x^2-d_y^2})\,.
+\end{align}
+\end{subequations}
+Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqref{eq:ODEGRINic}
+and obtain after a (in general numerical) integration a set of values $\vec{r}(s)$ and $\vec{r}'(s)$
+which correspond to the final position and direction of the ray.
 
 
 \end{document}
