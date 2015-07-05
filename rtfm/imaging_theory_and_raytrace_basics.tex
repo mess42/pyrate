@@ -768,17 +768,19 @@ a so called phase space formulation of the optical ray. In this formulation seve
 mechanics and phase space theory in general hold. This formulation may be investigated in further subsections of this document.
 
 \subsection{GRIN Media}
+
+\subsubsection{General Considerations}
 The consideration of GRIN media also fits into this transfer formalism.
 A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
 and a fixed $z$ position the ray starting point is $(x,y,z)$ and the direction vector
 is $(d_x,d_y,\sqrt{1-d_x^2-d_y^2})$. This fixes the initial conditions of the ray propagation
-uniquely. Now the optical path length functional is given by the where the ``Lagrangian'' of the 
-correspoding mechanical theory is given by $\mathcal{L}$,
+uniquely. Now the optical path length functional is given b ,
 \begin{align}
  L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.
 \end{align}
+with the corresponding ``Lagrangian'' $\mathcal{L}$.
 Notice $s$ is the arc length and therefore the derivative $\vec{r}'(s)$ is a unit vector. (For the Euler Lagrange
-equations we may not set it to one at the moment)
+equations we may not set it to $1$ at the moment.)
 Euler-Lagrange-Equations are given by
 \begin{align}
  \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= \frac{\partial \mathcal{L}}{\partial \vec{r}}\,.
@@ -804,7 +806,93 @@ For our formalism the initial conditions are given by:
 Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqref{eq:ODEGRINic}
 and obtain after a (in general numerical) integration a set of values $\vec{r}(s)$ and $\vec{r}'(s)$
 which correspond to the final position and direction of the ray.
-\remark{Maybe use of a symplectic integrator is useful, since a Hamilton formulation of optics is possible. See: en.wiki for some
-first to fourth order schemes. Order of scheme indicates the violation of conservation of Hamiltonian in terms of order of timesteps.}
+\subsubsection{Hamiltonian Formulation}
+There are two distinct parametrizations. The first one parametrizes the theory with respect to the
+arc length $s$ in 3D space where (one possible choice of) the Hamiltonian is given by
+\begin{align}
+ H &= \vec{p}^2 - n^2 = 0\,.
+\end{align}
+The canonical momentum $\vec{p}$ is given by $\vec{p} = n \vec{d}$. (From this consideration the constraint on
+the Hamiltonian becomes clear, since $|\vec{d}| = 1$.) The canonical equations are given by
+\begin{align}
+ \frac{\text{d}\vec{q}}{\text{d}s} &= \frac{\partial H}{\partial \vec{p}} = 2 \vec{p}\,,\\
+ \frac{\text{d}\vec{p}}{\text{d}s} &= -\frac{\partial H}{\partial \vec{q}} = 2 n (\vec{\nabla} n)\,, 
+\end{align}
+The second parametrization is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
+given by
+\begin{align}
+ H_{\text{2D}} &= -n \sqrt{1 - \frac{\vec{P}^2}{n^2}}\,.
+\end{align}
+The equations of motion are therefore given by [$\vec{Q} = (x,y)$, $\vec{P} = n (d_x, d_y)$]
+\begin{align}
+ \frac{\text{d}\vec{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \vec{P}} = - \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,,\\
+ \frac{\text{d}\vec{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \vec{Q}} = - \frac{\vec{\nabla} n}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.    
+\end{align}
+(For constant $n$ this formulation is very similar to the Hamiltonian formulation of a 
+massive particle in special relativity with imaginary linear momentum.
+Therefore nearly all of the results there are applicable here. It is also very useful 
+for the paraxial approximation which corresponds to a post-Newtonian expansion.)
+
+\subsubsection{Numerical Integration}
+Let us start with the integration of the 3D formulation since it is separable $H = T + U$. Here we use a symplectic integration formalism
+for its symmetry preserving phase space integration structure. For the details we kindly refer the reader to the
+literature. A symplectic integrator for a separable Hamiltonian is given by the following scheme with time step $h$:
+\begin{align}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} \mapsto
+ \begin{pmatrix}
+  \vec{q} + c_i h \frac{\partial T}{\partial \vec{p}} \\
+  \vec{p}
+ \end{pmatrix}
+\end{align}
+and succesively
+\begin{align}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} \mapsto
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p} - d_i h \frac{\partial U}{\partial \vec{q}}
+ \end{pmatrix}\,.
+\end{align}
+For a fourth order scheme $i=1\dots4$ and the coefficients are given by
+\begin{align}
+ c_1 = c_4 = \frac{1}{2(2 - 2^{1/3})}\,,\\
+ c_2 = c_3 = \frac{1 - 2^{1/3}}{2(2 - 2^{1/3})}\,,\\
+ d_1 = d_3 = \frac{1}{2 - 2^{1/3}}\,,\\
+ d_2 = -\frac{2^{1/3}}{2 - 2^{1/3}}\,\quad d_4 = 0\,.
+\end{align}
+For a further improvement it may be necessary to use adaptive ``time'' steps.
+These can be implemented, e.g., by an extension of the phase space where
+the time and is an additional canonical coordinate. The extension is achieved by
+a so-called Sundman transformation (which is in fact a Poincar{\'e} transformation)
+of the ``time'' coordinate
+$\text{d}s/\text{d}\sigma = g(\vec{q}, \vec{p})$.
+By using a special form of this transformation the new Hamiltonian is separable and we
+may use a symplectic scheme like the one mentioned above to integrate the new formulation.
+
+\subsubsection{Analytical Tests}
+
+For a special form of the refractive index, e.g.,
+\begin{align}
+ n(\vec{q}) &= \sqrt{1 - \frac{1}{4} \alpha^2 \vec{q}^2}\,,
+\end{align}
+the equations of motion are given by
+\begin{align}
+ \frac{\text{d}\vec{q}}{\text{d}s} &=  2 \vec{p}\,,\\
+ \frac{\text{d}\vec{p}}{\text{d}s} &= \vec{\nabla}(n^2) = -\frac{1}{2}\alpha^2 \vec{q}\,. 
+\end{align}
+The resulting ODE for $\vec{q}$ is given by
+\begin{align}
+ \frac{\text{d}^2\vec{q}}{\text{d}s^2} &= -\alpha^2 \vec{q}\,,
+\end{align}
+and is solved by
+\begin{align}
+ \vec{q} &= \vec{C}_1 \cos(\alpha s) + \vec{C}_2 \sin(\alpha s)\,.
+\end{align}
+With appropriate initial conditions this could be used as a check for the integrator code later.
 
 \end{document}
