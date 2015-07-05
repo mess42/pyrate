@@ -5,6 +5,7 @@ import pupil
 import field
 import raster
 import material
+import mirror
 import aim
 import merit
 import surfShape
@@ -23,7 +24,7 @@ s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884, semidiam=1.3), thickne
 s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0)) # 1.3
 s.insertSurface(5, Surface(surfShape.Conic(semidiam=1.01), thickness=2.0)) # semidiam=1.01 # STOP
 s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, material=material.ConstantIndexGlass(1.5))) # semidiam=1.0
-s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479, semidiam=1.0), thickness=19.0)) # semidiam=1.0
+s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479, semidiam=1.0), thickness=-19.0)) # semidiam=1.0
 
 # benchmark
 # definition of rays
@@ -42,7 +43,7 @@ print "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through 
 print "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second"
 
 # plot
-aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=5)
+aimy.setPupilRaster(rasterType= raster.MeridionalFan, nray=20)
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 
 r2 = RayPath(initialBundle2, s)
@@ -51,13 +52,19 @@ initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelen
 r3 = RayPath(initialBundle3, s)
 
 fig = plt.figure(1)
-ax = fig.add_subplot(111)
-ax.axis('equal')
+ax = fig.add_subplot(211)
+ax2 = fig.add_subplot(212)
 
-s.draw2d(ax)
+ax.axis('equal')
+ax.set_axis_bgcolor('black')
+ax2.axis('equal')
+ax2.set_axis_bgcolor('black')
+
 
 r2.draw2d(s, ax, color="blue")
-r3.draw2d(s, ax, color="green")
+#r3.draw2d(s, ax, color="green")
+s.draw2d(ax, color='orange')
+
 
 # optimize
 print "Initial   merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
@@ -68,10 +75,27 @@ s.surfaces[3].setStatus("curvature", True)
 s.surfaces[4].setStatus("curvature", True)
 s.surfaces[5].setStatus("curvature", True)
 
+#s.surfaces[1].setStatus("thickness", True)
+#s.surfaces[2].setStatus("thickness", True)
+#s.surfaces[3].setStatus("thickness", True)
+#s.surfaces[4].setStatus("thickness", True)
+#s.surfaces[5].setStatus("thickness", True)
+
 s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=10, dxFactor=1.00001)
 
 print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
 
-s.draw2d(ax, color="red")
+initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
+
+r2 = RayPath(initialBundle2, s)
+
+initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55)
+r3 = RayPath(initialBundle3, s)
+
+
+r2.draw2d(s, ax2, color="blue")
+#r3.draw2d(s, ax2, color="green")
+
+s.draw2d(ax2, color="red")
 
 plt.show()

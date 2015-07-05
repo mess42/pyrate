@@ -41,9 +41,9 @@ class RectGrid(object):
         nPerDim = int( round( sqrt( nray * 4.0 / pi ) ) )
         dx = 1. / nPerDim
         x1d = linspace(-1+.25*dx,1-.25*dx,nPerDim)
-        print "nperdim: ", nPerDim
-        print "dx: ", dx
-        print x1d
+        #print "nperdim: ", nPerDim
+        #print "dx: ", dx
+        #print x1d
 
         (xpup2, ypup2) = meshgrid( x1d, x1d )
 
@@ -117,8 +117,12 @@ class PoissonDiskSampling(RectGrid):
         nPerDim = int( round( sqrt( nray * 4.0 / pi ) ) )
         dx = 1. / nPerDim
 
-        obj = pds.pds(2.0, 2.0, dx, 100) # square [0,1]x[0,1] mean dist= dx, testpoints 30
-        sample = obj.rvs()
+        obj = pds.Poisson2D(2.0, 2.0, dx, 100) # square [0,1]x[0,1] mean dist= dx, testpoints 30
+	obj.initialize()
+        obj.run()
+        sample = obj.returnCompleteSample()
+        sample = sample
+
         xs = array(sample[:,0]) - 1.0
         ys = array(sample[:,1]) - 1.0
 

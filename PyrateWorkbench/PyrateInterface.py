@@ -5,6 +5,7 @@ from numpy import *
 
 
 import material
+import mirror
 import surfShape
 import aim
 import field
@@ -51,6 +52,14 @@ class OpticalSystemInterface(HasTraits):
         self.os.insertSurface(5, Surface(surfShape.Conic(semidiam=1.01), thickness=2.0)) # semidiam=1.01 # STOP
         self.os.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, material=material.ConstantIndexGlass(1.5))) # semidiam=1.0
         self.os.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479, semidiam=1.0), thickness=19.0)) # semidiam=1.0
+
+    def dummycreate2(self):
+        self.os.surfaces[0].thickness.val = 0.0
+        self.os.surfaces[1].shape.sdia.val = 1e10
+        self.os.insertSurface(1, Surface(surfShape.Conic(semidiam=1.1), thickness = 20.0))
+        self.os.insertSurface(2, Surface(surfShape.Conic(curv=1./10.,semidiam=2.0), thickness = -1.0, material=mirror.Mirror()))
+        self.os.insertSurface(3, Surface(surfShape.Conic(semidiam=1.0), thickness = -30.0))
+        
 
     def makeSurfaceFromSag(self, surface, startpoint = [0,0,0], R=50.0, rpoints=10, phipoints=12):
         surPoints = []
@@ -122,7 +131,7 @@ class OpticalSystemInterface(HasTraits):
         res = []
 
         for i in range(nrays):
-            if raybundle.t[i] > 1e-6:
+            if abs(raybundle.t[i]) > 1e-6:
                 x1 = raysorigin[0, i] + offset[0]
                 y1 = raysorigin[1, i] + offset[1]
                 z1 = raysorigin[2, i] + offset[2]
@@ -172,9 +181,9 @@ class OpticalSystemInterface(HasTraits):
 
         doc = FreeCAD.ActiveDocument
 
-        numrays = 20
-        pupilsize = 5.5
-        stopposition = 5
+        numrays = 100
+        pupilsize = 2.0 # fix to appropriate system pupilsize
+        stopposition = 3 # fix to appropriate system stop position
         wavelengthparam = 0.55
 
         fieldvariable = [0., 0.]
@@ -188,7 +197,9 @@ class OpticalSystemInterface(HasTraits):
                                                     nray=numrays, wavelength=wavelengthparam, \
                                                     stopPosition=stopposition)
         #aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=numrays)
-        aimy.setPupilRaster(rasterType= raster.PoissonDiskSampling, nray=numrays)
+        aimy.setPupilRaster(rasterType= raster.RectGrid, nray=numrays)
+
+        #aimy.setPupilRaster(rasterType= raster.PoissonDiskSampling, nray=numrays)
         initialBundle2 = aimy.getInitialRayBundle(self.os, fieldXY=array(fieldvariable), wavelength=wavelengthparam)
 
         r2 = RayPath(initialBundle2, self.os)

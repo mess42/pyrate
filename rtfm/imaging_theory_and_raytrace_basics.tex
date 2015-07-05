@@ -24,14 +24,16 @@
 \usepackage{ae}
 \usepackage[ngerman, english]{babel}
 
-\usepackage{SIunits}
+%\usepackage{SIunits}
 \newcommand\elementarycharge{\textrm{e}}
 \newcommand\sccm{\textrm{sccm}}
 \newcommand\mbar{\milli\textrm{bar}}
 
 
 \usepackage{amsmath}
-%\usepackage{amssymb}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
 \usepackage{setspace}
 
 %\widowpenalty = 1000
@@ -67,6 +69,8 @@
 \newcommand{\braket}[2]{\left\langle{#1}\vert{#2}\right\rangle}
 \newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
 
+\newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
+
 \newcommand\Greenfunction{\Tensor{G}}
 
 \newcommand\scalarEfield{E}
@@ -95,7 +99,7 @@
 \newcommand\chargedensity{\rho}
 \newcommand\PoyntingVector{\Vector{S}}
 
-
+\newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
 
 \begin{document}
 
@@ -108,6 +112,8 @@
 \maketitle
 
 \onehalfspacing
+
+\tableofcontents
 
 \chapter{Optics from Maxwell Equations}
 \section{The Source Free Maxwell Equations}
@@ -311,6 +317,7 @@ The formulation does not actually solve the problem of refraction, but just forw
 This calculation can, for certain types of anisotropic materials, be time consuming.
 
 \section{Raytracing}
+\remark{new chapter?}
 In raytracing, we assume that radiation is propagated in rays, that are thin, collimated beams. 
 We assume that the rims of these beams are negligible compared to the central area. That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
 Further we assume that all rays are much smaller than the characteristic length of surface curvatures and all surfaces are locally approximated planar on the cross-section area of a ray.
@@ -320,33 +327,92 @@ However, the optical designer has to check for each calculation whether the ray 
 Classical raytracing consists of the following steps: The ray is considered a straight in 3D space. First its intersection point with the next surface is calculated. 
 Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
 
-\subsection{Intersections of Straights with Spheres, Aspheres and Free-shapes}
+\subsection{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
 \subsubsection{Spheres}
 We consider a ray and a Sphere that intersects the optical axis in the origin
 \begin{eqnarray}
- \Location &=& \Location_0 + \vec{d} t \\
- \left| \Location + \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2
+ \Location &=& \Location_0 + \vec{d} t \label{eq:ray}\,,\\
+ \left| \Location - \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2\,, \label{eq:sphereeq}
 \end{eqnarray}
 $\Location_0$ is the ray start point, $\vec{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
-Mathematically, the solution is easily found. 
+The standard manner to derive the solution would be to insert the ray equation \eqref{eq:ray} into
+\eqref{eq:sphereeq} and calculate the solutions for $t$ from the arising quadratic equation. This leads to a numerically unstable solution
+for large radii $R$.
 A solution numerically stable for the case of a planar surface $R \rightarrow \infty$ is:
+\begin{subequations}
+\label{eq:spheresolution}
 \begin{eqnarray}
-   F &=& d_z - \rho \left( \vec{d} \Location \right) \\
-   G &=& \rho |\Location|^2 - 2 z \\
-   H &=& - \rho \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+   F &=& d_z - \rho \scpm{\vec{d}}{\Location_0}\,, \\
+   G &=& \rho |\Location_0|^2 - 2 z_0\,, \\
+   H &=& - \rho\,, \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,, \label{eq:tsolsphere}
 \end{eqnarray}
-Where $\rho = 1 / R$ is the surface curvature. 
+\end{subequations}
+where $\rho = 1 / R$ is the surface curvature. 
 The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
 Otherwise, the ray misses the sphere.
 
+The derivation of the former equations \eqref{eq:spheresolution} is not straight forward. Therefore we provide them for the reader in a stepwise manner.
+If one rewrites the equation \eqref{eq:sphereeq} into components one gets
+\begin{equation}
+ z^2 - 2 z R = x^2 + y^2 \label{eq:quadraticimplicit}\,.
+\end{equation}
+This equation can be easily inverted for $z$ giving
+\begin{equation}
+ z = R \left(1\pm\sqrt{1 - \rho^2 (x^2 + y^2)}\right)\label{eq:solquadratic}\,,
+\end{equation}
+which is not the well-known form of the equation, yet.
+The condition $z=0$ for $x=y=0$ fixes the solution branch to the one 
+with the minus sign. Further the well-known form arises by multiplying 
+$(1+ \sqrt{\dots})/(1+\sqrt{\dots})$ at the left hand side
+of \eqref{eq:solquadratic} and expanding the numerator, which leads to
+\begin{equation}
+ z = \frac{\rho (x^2 + y^2)}{1 + \sqrt{1 - \rho^2 (x^2 + y^2)}} \label{eq:finalsagsphere}\,.
+\end{equation}
+Due to the former choice of the correct solution branch there are no
+singularities occuring at $x=y=0$. Form \eqref{eq:finalsagsphere} of the 
+sag equation is not well suited to calculate the intersection points. Therefore it is 
+useful to go back to \eqref{eq:quadraticimplicit} and insert the ray \eqref{eq:ray}
+into it in an invariant manner which leads to
+\begin{equation}
+ t^2 - 2 t \underbrace{\left(\frac{d_z}{\rho} - \scpm{\Location_0}{\vec{d}}\right)}_{F'} 
+    - \underbrace{\left(\frac{2 z_0}{\rho} - |\Location_0|^2\right)}_{H' G'} = 0\,,\label{eq:teqsphere}
+\end{equation}
+where $H' = -1$ and $G' = |\Location_0|^2 - \tfrac{2 z_0}{\rho}$.
+Solving this simple quadratic equation one gets
+\begin{align}
+ t &= F' \pm \sqrt{{F'}^2 + H' G'}\,.
+\end{align}
+Here the solution has still not the form \eqref{eq:tsolsphere} such that
+we also multiply the left hand side by $(F' \mp \sqrt{\dots})/(F' \mp \sqrt{\dots})$.
+Therefore we get
+\begin{align}
+ t &= \frac{\overbrace{-H'}^{=1} G'}{F' \mp \sqrt{{F'}^2 + H' G'}} = \frac{G'}{F' \mp \sqrt{{F'}^2 + H' G'}}\label{eq:tpresolutionsphere}\,.
+\end{align}
+To avoid singularities the plus branch of the solution is chosen and therefore the
+form of the solution above turns into the one with the minus. Otherwise the $t$ would be
+$t>0$ always. $F'$, $G'$ and $F$, $G$ can be converted into one another by
+\begin{subequations}
+\label{eq:fghscaling}
+\begin{eqnarray}
+ F &=& \rho F'\,,\\
+ G &=& \rho G'\,,\\
+ H &=& \rho H'\,.
+\end{eqnarray}
+\end{subequations}
+An inspection of \eqref{eq:tpresolutionsphere} shows that it is invariant under scaling transformations \eqref{eq:fghscaling}
+and therefore we may omit the primes and get \eqref{eq:tsolsphere}.
+
+
 \subsubsection{Conics}
 Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
-Their surface sag $z$ can be described by
+The word ``conic" is short for conic section. This refers to these figures as the
+intersections of a plane with a cone.
+In the vertex form their surface sag $z$ can be described by
 \begin{eqnarray}
  z =  \frac
  { \rho ( x^2 + y^2 ) }
- { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }
+ { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }\,,
 \end{eqnarray}
 where $c$ is the conic constant. Depending on this parameter, the conic is a
 \begin{eqnarray*}
@@ -356,16 +422,121 @@ where $c$ is the conic constant. Depending on this parameter, the conic is a
      c = 1 && \textrm{paraboloid} \\
      c > 1 && \textrm{hyperboloid}
 \end{eqnarray*}
-The solution is
+As shown in the last section, for explicit calculation of the intersection parameter $t$ one
+needs the implicit form of the surface equation
+\begin{align}
+ \rho (1 + c) z^2 - 2 z + \rho (x^2 + y^2) &=0\,.
+\end{align}
+After insertion of \eqref{eq:ray} and following a slightly generalized form of the calculation
+given in sphere section the solution is
+\begin{subequations}
+\label{eq:intersectionconicsection}
 \begin{eqnarray}
-   F &=& d_z - \rho \left( d_x x + d_y y + d_z z (1+c) \right) \\
-   G &=& \rho (x^2 + y^2 + z^2 (1+c)) - 2 z \\
-   H &=& - \rho ( 1 + c \, d_z^2 ) \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+   F &=& d_z - \rho \left( d_x x_0 + d_y y_0 + d_z z_0 (1+c) \right)\,, \\
+   G &=& \rho (x_0^2 + y_0^2 + z_0^2 (1+c)) - 2 z_0\,, \\
+   H &=& - \rho ( 1 + c \, d_z^2 )\,, \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,.
 \end{eqnarray}
+\end{subequations}
 
 \subsubsection{Biconics}
-to do
+A biconic describes a surface which has two perpendicular sections
+which have a conic structure. So these surfaces have two symmetry planes.
+The explicit surface sag formula is given by
+\begin{align}
+ z &= \frac{\rho_x x^2 + \rho_y y^2}{1 + \sqrt{1 - (1+c_x) \rho_x^2 x^2 - (1+c_y) \rho_y^2 y^2}} \label{eq:biconic}\,.
+\end{align}
+The variables are $\rho_x = 1/R_x$ the $x$ curvature, $\rho_y = 1/R_y$ the $y$ curvature, $c_x$ the conic constant in $x$ direction,
+and $c_y$ the conic constant in $y$ direction respectively. Setting $\rho_x = \rho_y = \rho$ and $c_x = c_y = c$ gives
+the standard conic from the former section.
+
+Unfortunately finding the invariant or implicit form of \eqref{eq:biconic} is not so easy. The simplest implicit form we found at least is given by
+\begin{align}
+ (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,\label{eq:implicitbiconic}
+\end{align}
+where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \rho_x x^2 + \rho_y y^2$. 
+This leads to a fourth order equation after inserting \eqref{eq:ray}.
+Such equations are in principle analytically solvable. But on the one hand it is very complicated and on the other hand 
+it is not known whether there exists such a user-friendly numerically stable form of $t$ like in the former cases.\footnote{
+In fact the word ``biconic" is misleading because it suggests that
+it is a surface of second degree which is wrong. \eqref{eq:implicitbiconic}
+shows clearly that it is a surface of degree four.}
+
+Let us first assume that $\vec{r} = \vec{r}_0 + t \vec{d}$ is the insertion of the ray into
+\eqref{eq:implicitbiconic}. Then $a(x(t), y(t)) =: Q_2(t)$ and $b(x(t), y(t)) =: Q_1(t)$ become quadratic polynomials 
+in $t$. Further $z(t) =: L(t)$ becomes linear in $t$. Therefore this leads to
+\begin{align}
+ (Q_2(t) - 1) \underbrace{L^2(t)}_{\ge0} + \underbrace{(L(t) - Q_1(t))^2}_{\ge0} &= 0\,.\label{eq:biconict}
+\end{align}
+From \eqref{eq:biconic} and \eqref{eq:implicitbiconic} it follows that $1 - Q_2(t) \ge 0$ such that the
+prefactor in \eqref{eq:biconict} is non-positive. Therefore the intersection equations lead to a real
+fourth order polynomial which has to be solved. The quadratic polynomial $Q_2(t) - 1$ can be factorized
+\begin{align}
+ Q_2(t) - 1 &= A_2 (t - t_{Q21})(t - t_{Q22}) \le 0\,,
+\end{align}
+where $A_2 = (1 + c_x) \rho_x^2 d_x^2 + (1 + c_y) \rho_y^2 d_y^2$. If $A_2 > 0$ then at least one zero must exist and
+$t \in [t_{Q21}, t_{Q22}]$. If $A_2 = 0$ then $Q_2(t)$ is not quadratic anymore. If $A_2 < 0$ then in 
+\begin{align}
+ Q_2(t) - 1 &= A_2 \left(\left(t-\frac{t_{Q21} + t_{Q22}}{2}\right)^2 - \frac{1}{4}(t_{Q21} - t_{Q22})^2\right)\,,
+\end{align}
+the expression in brackets has to be positive or zero. This is only true if the zeros are either the same or they are complex, because
+for $t_{Q21/2} = \tau \pm i \sigma$ this expression becomes
+\begin{align}
+ Q_2(t) - 1 &= A_2 \left(\left(t-\tau\right)^2 + \frac{1}{2}\sigma^2\right)<0\,,
+\end{align}
+for real $t$. However the final equation is given by
+\begin{align}
+ a t^4 + b t^3 + c t^2 + d t + e &= 0\,,
+\end{align}
+where\remark{Coefficients as functions of biconics parameters!}
+\begin{subequations}
+ \begin{align}
+  a &= \,,\\
+  b &= \,,\\
+  c &= \,,\\
+  d &= \,,\\
+  e &= \,.
+ \end{align}
+\end{subequations}
+Then we may consider the nature of the zeros (see Wiki) by considering the following combinations, namely
+the discriminant $\Delta$, the quadratic coefficient of the depressed quartic $P$, the linear coefficient of
+the depressed quartic $Q$, $\Delta_0$ which is zero if the quartic has a triple root and $D$ which is zero
+if the quartic has two double roots:
+\begin{subequations}
+ \begin{align}
+  \Delta &= 256 a^3 e^3 - 192 a^2 b d e^2 - 128 a^2 c^2 e^2 + 144 a^2 c d^2 e - 27 a^2 d^4 \nonumber\\ 
+&+ 144 a b^2 c e^2 - 6 a b^2 d^2 e - 80 a b c^2 d e + 18 a b c d^3 + 16 a c^4 e \nonumber\\
+&- 4 a c^3 d^2 - 27 b^4 e^2 + 18 b^3 c d e - 4 b^3 d^3 - 4 b^2 c^3 e + b^2 c^2 d^2\,,\\
+   P &= 8ac - 3b^2\,,\\
+   Q &= b^3+8da^2-4abc\,,\\
+   \Delta_0 &= c^2 - 3bd + 12ae\,,\\
+   D &= 64 a^3 e - 16 a^2 c^2 + 16 a b^2 c - 16 a^2 bd - 3 b^4\,.
+ \end{align}
+\end{subequations}
+
+\begin{itemize}
+\item If $\Delta < 0$  then the equation has two real roots and two complex conjugate roots.
+\item If $\Delta > 0$  then the equation's four roots are either all real or all complex.
+\begin{itemize}
+\item If $P < 0$ and $D < 0$ then all four roots are real and distinct.
+\item If $P > 0$ or $D > 0$ then there are two pairs of complex conjugate roots.
+\end{itemize}
+\item If $\Delta = 0$  then either the polynomial has a multiple root, 
+  or it is the square of a quadratic polynomial. Here are the different cases that can occur:
+  \begin{itemize}
+\item If $P < 0$ and $D < 0$ and $\Delta_0\ne0$, there is a real double root and two real simple roots.
+\item If $D > 0$ or ($P > 0$ and ($D \ne 0$ or $Q \ne 0$)), there is a real double root and two complex conjugate roots.
+\item If $\Delta_0 = 0$ and $D \ne 0$, there is a triple root and a simple root, all real.
+\item If $D = 0$, then:
+  \begin{itemize}
+\item If $P < 0$, there are two real double roots.
+\item If $P > 0$ and $Q = 0$, there are two complex conjugate double roots.
+\item If $ \Delta_0  = 0$, all four roots are equal to $-\frac{b}{4a}$
+  \end{itemize}
+  \end{itemize}
+\end{itemize}
+Some of the discussed cases show that the ray misses the surfaces.
+
 \subsubsection{Polynomial Asphere}
 to do
 \subsubsection{Strong Forbes Asphere}
@@ -379,8 +550,261 @@ to do
 \subsubsection{Free Shapes}
 to do
 
+\subsubsection{Linear Combinations}
+\remark{I would suggest to implement a few standard forms and to combine them by a linear combination operator. This makes the search for optimizable
+variables more difficult.}
+\subsection{Intersections in nonlinear XYUV formalism}
+According to {{\tt \url{http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf}}}
+we will call the incident vector $\vec{i}$ the reflected one $\vec{r}$ and the refracted one $\vec{t}$.
+From reflection law we get the following ($\vec{n}$ is pointing into medium $n_1$ and the incidence vector is pointing from $n_1$ to $n_2$)
+\begin{align}
+ \vec{r} &= \vec{i} - 2 \scpm{\vec{i}}{\vec{n}} \vec{n}\,.\label{eq:reflection_vector}
+\end{align}
+From refraction we get\remark{I know that is not as elegant as the former 
+solution by considering the field components at material boundaries :-)}
+\begin{align}
+ \vec{t} &= \frac{n_1}{n_2} \vec{i} 
+ - \left[\frac{n_1}{n_2} \scpm{\vec{i}}{\vec{n}} 
+      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{i}}{\vec{n}}}^2)}\right] \vec{n}\,.\label{eq:refraction_vector}
+\end{align}
+Let us now consider the optical axis $\vec{e}_z$ and some starting point of the ray at distance $d_1$ at the left hand side
+of the optical surface $F(x, y)$, $(x,y,-d_1)$. The direction vector is given by $\vec{d} = (d_x, d_y, \sqrt{1 - d_x^2 - d_y^2})$.
+The components of the direction vector are equivalent to some aiming angles. For our convenience we take our
+four variables $(x, y, d_x, d_y)$ as free starting parameters and try to calculate the new parameters at distance $d_2$ behind the
+optical surface $F(x, y)$, $(x', y', {d_x}', {d_y}')$, via some nonlinear transform $(x', y', {d_x}', {d_y}') = T(x, y, d_x, d_y)$,
+where $T$ is some function $T:\mathbb{R}^4 \to \mathbb{R}^4$.
 
+By using the formulas from \ref{subsec:intersectionformulas} it is possible to invert the equation 
+\begin{align}
+-d_1 + t \sqrt{1-d_x^2-d_y^2} &= F(x + t d_x, y + t d_y)\,,\label{eq:genintersection} 
+\end{align}
+for $t$ either analytically or numerically. The equation tells
+us where the ray started at $x, y$, $z = -d_1$ intersects the surface $F(x, y)$. Let the solution
+of this equation $t_\text{intersect} = \sigma(x, y, d_x, d_y)$. (Notice that the function $\sigma$
+is in general nonlinear in its arguments, even for the simplest case of a sphere.) Then by using the 
+sigma notation the intersection point is also given by a nonlinear vector entity:
+\begin{align}
+ \vec{p}_\text{i} &= \begin{pmatrix} x + \sigma(x,y,d_x,d_y) d_x \\ y + \sigma(x,y,d_x,d_y) d_y \\ -d_1 + \sigma(x,y,d_x,d_y) \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.\label{eq:pintersect}
+\end{align}
+The vector perpendicular on the surface pointing in direction of medium $n_1$ (left hand side, negative $z$ direction) is given
+by
+\begin{align}
+ \vec{n}(x, y) &= 
+  \frac{1}{\sqrt{1 + (\vec{\nabla}_{x,y} F)^2}} 
+  \begin{pmatrix} \frac{\partial F}{\partial y} \\ \frac{\partial F}{\partial y} \\ -1 \end{pmatrix}\,.\label{eq:surfacenormal}
+\end{align}
+This vector has to be evaluated at $\vec{p}_\text{i}$ to get the appropriate results for
+the transmission and reflection direction. Now we may use \eqref{eq:refraction_vector} or \eqref{eq:reflection_vector}
+and \eqref{eq:surfacenormal} evaluated at \eqref{eq:pintersect} to calculate the direction vector $\vec{d}'(p_{\text{i} x}, p_{\text{i} y})$.
+To calculate $x'$ and $y'$ we have to calculate another ray which starts at $p_\text{intersect}$ and ends at the
+distance $d_2$ from the plane. Therefore $p_{\text{i}\,z} + t_\text{new} \sqrt{1 - {d'}_x^2 - {d'}_y^2} = d_2$ and so
+\begin{align}
+t_\text{new} &= \frac{d_2 - p_{\text{i}\,z}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}}\,.
+\end{align}
+Thus the final coordinates are given by
+\begin{subequations}
+\begin{align}
+ x' &= p_{\text{i}\,x} + \frac{d_2 - p_{\text{i}\,z}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_x\,,\\
+ y' &= p_{\text{i}\,y} + \frac{d_2 - p_{\text{i}\,z}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_y\,.
+\end{align}
+\end{subequations}
+Collecting all together: The first $t$ value is (via inverting \eqref{eq:genintersection})
+\begin{align}
+ t_\text{intersect} &= \sigma(x, y, d_x, d_y) = \sigma\,.\label{eq:sigmasol}
+\end{align}
+The intersection point is given by
+\begin{align}
+ \vec{p}_\text{i} &= \begin{pmatrix} x + \sigma d_x \\ y + \sigma d_y \\ -d_1 + \sigma \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.\label{eq:pintersect}
+\end{align}
+The unit normal vector has to be evaluated and according to \eqref{eq:surfacenormal} given by
+\begin{align}
+ \vec{N} &:= \vec{n}(p_{\text{i}x}, p_{\text{j}y})\,.\label{eq:surfacenormal2}
+\end{align}
+For a refractive problem the new direction vector is derived from \eqref{eq:refraction_vector} and therefore
+\begin{align}
+ \vec{d}' &= \frac{n_1}{n_2} \vec{d} 
+ - \left[\frac{n_1}{n_2} \scpm{\vec{d}}{\vec{N}} 
+      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{d}}{\vec{N}}}^2)}\right] \vec{N}\,.\label{eq:newdirection}
+\end{align}
+and for the final coordinates after inserting the intersection point coordinates
+\begin{subequations}
+\label{eq:newposition}
+\begin{align}
+ x' &= x + \sigma d_x + \frac{d_2 + d_1 - \sigma \sqrt{1 - d_x^2 - d_y^2}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_x\,,\\
+ y' &= y + \sigma d_y + \frac{d_2 + d_1 - \sigma \sqrt{1 - d_x^2 - d_y^2}}{\sqrt{1 - {d'}_x^2 - {d'}_y^2}} {d'}_y\,.
+\end{align}
+\end{subequations}
+Eqns. \eqref{eq:newdirection} and \eqref{eq:newposition} together with \eqref{eq:surfacenormal2}, \eqref{eq:surfacenormal},
+\eqref{eq:pintersect} and \eqref{eq:sigmasol} give the final nonlinear transformation for a refractive optical surface between
+two materials with constant optical indices. Notice that $\sigma$ depends on the starting variables, too.  
+For, e.g., a conic section it is given by (see \eqref{eq:intersectionconicsection})
+\begin{align}
+ \sigma_{\text{conic section}} &= \frac{G}{ F + \sqrt{F^2 + H G} }\,,
+\end{align}
+where
+\begin{eqnarray}
+   F &=& \sqrt{1 - d_x^2 - d_y^2} - \rho \left( d_x x + d_y y - d_1 (1+c) \sqrt{1 - d_x^2 - d_y^2} \right)\,, \\
+   G &=& \rho (x^2 + y^2 + d_1^2 (1+c)) + 2 d_1\,, \\
+   H &=& - \rho ( 1 + c \, (1 - d_x^2 - d_y^2) )\,.
+\end{eqnarray}
+In a strictly linear approximation of the new coordinates where we neglect all dependencies of $x$, $y$, $d_x$, $d_y$,
+\begin{align}
+ \sigma_\text{conic section} &\approx \frac{d_1}{1+ \frac{1}{\rho d_1 (1 + c)}} \stackrel{\rho d_1 (1+c)\gg 1}{\approx} d_1 \left(1 - d_1 \rho(1+c) + \mathcal{O}(\rho d_1 (1+c))^2\right)\,. 
+\end{align}
+If we further assume that we may neglect nonlinear terms in the new direction equation \eqref{eq:newdirection}
+which means [we also approximate $\sigma \approx d_1$]\\
+\begin{subequations}
+ \begin{align}
+  {d'}_x &= {\left(\left[\frac{n_{1}}{n_{2}} - 1\right]\rho \sigma + \frac{n_{1}}{n_{2}}\right)} d_{x} + {\left(\frac{n_{1}}{n_{2}} - 1\right)} \rho x\,,\\
+  {d'}_y &= {\left(\left[\frac{n_{1}}{n_{2}} - 1\right]\rho \sigma + \frac{n_{1}}{n_{2}}\right)} d_{y} + {\left(\frac{n_{1}}{n_{2}} - 1\right)} \rho y\,,
+ \end{align}
+\end{subequations}
+we can simplify the new coordinates to (note: linear approximation! So the square roots are $\approx1$!)
+\begin{subequations}
+\label{eq:linearapprox}
+\begin{align}
+ x' &\approx {\left({\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1}\right)} d_{x} + {\left(\rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1\right)} x\,,\\
+ y' &\approx {\left({\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1}\right)} d_{y} + {\left(\rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1\right)} y\,.
+\end{align}
+\end{subequations}
+Therefore the matrix formulation is given by
+\begin{align}
+ &\begin{pmatrix} x' \\ y' \\ {d'}_x \\ {d'}_y \end{pmatrix} =\nonumber\\ 
+ &\begin{pmatrix} \rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1 & 0 & {\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1} & 0 \\ 
+		  0 & \rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1 & 0 & {\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1} \\ 
+		  \left(\frac{n_{1}}{n_{2}} - 1\right) \rho & 0 & \left[\frac{n_{1}}{n_{2}} - 1\right]\rho d_1 + \frac{n_{1}}{n_{2}} & 0 \\ 
+		  0 & \left(\frac{n_{1}}{n_{2}} - 1\right) \rho & 0 & \left[\frac{n_{1}}{n_{2}} - 1\right]\rho d_1 + \frac{n_{1}}{n_{2}}\end{pmatrix}\nonumber\\ 
+ &\times\begin{pmatrix} x \\ y \\ d_x \\ d_y \end{pmatrix}\,,
+\end{align}
+which is a very rough approximation.
+This should be equivalent to translation by distance $d_1$ to the optical surface,
+refraction of the rays at the optical surface (conic section) and translation by distance
+$d_2$. Further we could reduce this problem to $ABCD$ matrices because there is no mixing
+between $x$ and $y$ axis,
+\begin{align}
+ \begin{pmatrix} r'  \\ d' \end{pmatrix} &= 
+ \begin{pmatrix} \rho d_{2} {\left(\frac{n_{1}}{n_{2}} - 1\right)} + 1 & {\left(\rho d_{1} \left(\frac{n_{1}}{n_{2}} - 1\right) + \frac{n_{1}}{n_{2}}\right)} d_{2} + d_{1} \\ 
+		\left(\frac{n_{1}}{n_{2}} - 1\right) \rho &  \left[\frac{n_{1}}{n_{2}} - 1\right]\rho d_1 + \frac{n_{1}}{n_{2}} \end{pmatrix}
+ \begin{pmatrix} r  \\ d \end{pmatrix}\,.
+\end{align}
+This is exactly the transformation which can be obtained from using the linear $ABCD$ matrix formalism by considering
+\begin{align}
+ \begin{pmatrix} r'  \\ d' \end{pmatrix} &=
+ \begin{pmatrix} 1 & d_2 \\ 0 & 1 \end{pmatrix}
+ \begin{pmatrix} 1 & 0 \\ \left(\frac{n_1}{n_2} - 1\right)\rho & \frac{n_1}{n_2} \end{pmatrix}
+ \begin{pmatrix} 1 & d_1 \\ 0 & 1 \end{pmatrix}
+ \begin{pmatrix} r  \\ d \end{pmatrix}\,.
+\end{align}
+Thus the linear approximation relies on the following points:
+\begin{itemize}
+ \item Small angles and small deviations from optical axis (linear approximation)
+ \item Approximation of $\sigma$ by distance $d_1$ to surface 
+ \item Linear approximation of normal vector of surface [this implies approximation of surface by local curvature at $x=y=0$]
+ \item At least for the $ABCD$ formalism: rotationally symmetric surface
+ \item Properties of surface enter the calculation only via $\sigma$ and $\vec{N}$: the linear dependence of $\rho$ comes from $\vec{N}$
+\end{itemize}
+\remark{Is it possible by comparison of fully nonlinear transfer formalism and linear approximation, i.e. $ABCD$ formalism, to obtain the
+aberrations?}
 
+\subsection{5x5 formalism}
+In computer vision there are homogeneous coordinates used to implement translation and rotation in a single matrix.
+There is a further coordinate $c$ introduced such that $\bar{x} = x/c, \bar{y} = y/c$ where $x$, $y$ and $c$
+are the homogeneous coordinates and $\bar{x}$ and $\bar{y}$ are the view coordinates. Then general transformations have to following block
+structure
+\begin{align}
+ \begin{pmatrix} \vec{r}' \\ c' \end{pmatrix} &= 
+ \begin{pmatrix}
+  R & \vec{t} \\
+  0 & 1
+ \end{pmatrix}
+ \begin{pmatrix}
+  \vec{r} \\ 
+  c
+ \end{pmatrix}\,.
+\end{align}
+Therefore
+\begin{align}
+ \vec{r}' &= R \vec{r} + c \vec{t}\,,\label{eq:homotransform}\\
+ c' &= c
+\end{align}
+Usually one sets the $c$ equal to one and therefore $\vec{r}'$ contains
+the transformed coordinates already. As one can see in \eqref{eq:homotransform}
+$\vec{r}'$ is also translated.
 
+In the $XYUV$ formalism $\vec{r}$ and $\vec{r}'$ are given by $(x,y,d_x,d_y)$ and $(x',y',{d'}_x,{d'}_y)$
+respectively. To get a feeling for the transformation of the homogeneous coordinates we consider only
+a translation
+\begin{align}
+ \begin{pmatrix} x' \\ y' \\ {d'}_x \\ {d'}_y \\ 1 \end{pmatrix} &=
+ \begin{pmatrix} 1 & 0 & 0 & 0 & t_x \\
+                 0 & 1 & 0 & 0 & t_y \\
+                 0 & 0 & 1 & 0 & D_x \\
+                 0 & 0 & 0 & 1 & D_y \\
+                 0 & 0 & 0 & 0 & 1 \\
+ \end{pmatrix}
+ \begin{pmatrix} x \\ y \\ d_x \\ d_y \\ 1 \end{pmatrix}\,.
+\end{align}
+Therefore we get
+\begin{subequations}
+\begin{align}
+ x' &= x + t_x\,,\\
+ y' &= y + t_y\,,\\
+ {d'}_x &= d_x + D_x\,,\\
+ {d'}_y &= d_y + D_y\,.
+\end{align}
+\end{subequations}
+end corresponds to a absolute change in intersection points and ray direction.
+Notice that the new direction vector also has to be a unit vector such that
+\begin{align}
+ \underbrace{{\vec{d}}^{\prime 2}}_{=1} &= \underbrace{\vec{d}^2}_{=1} + 2 \scpm{\vec{d}}{\vec{D}} + \vec{D}^2\,,
+\end{align}
+gives a condition to the third component of $\vec{D}$, namely
+\begin{align}
+ D_z &= -\sqrt{1 - d_x^2 - d_y^2} \pm \sqrt{1 - (d_x + D_x)^2 - (d_y + D_y)^2}\,.
+\end{align}
+Maybe this extension of the $XYUV$ (non linear) transfer formalism can be useful as a further generalization of
+the optical design calculation. By multiplying the direction vector with the optical index one immediately gets
+a so called phase space formulation of the optical ray. In this formulation several theorems from Hamiltonian
+mechanics and phase space theory in general hold. This formulation may be investigated in further subsections of this document.
+
+\subsection{GRIN Media}
+The consideration of GRIN media also fits into this transfer formalism.
+A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
+and a fixed $z$ position the ray starting point is $(x,y,z)$ and the direction vector
+is $(d_x,d_y,\sqrt{1-d_x^2-d_y^2})$. This fixes the initial conditions of the ray propagation
+uniquely. Now the optical path length functional is given by the where the ``Lagrangian'' of the 
+correspoding mechanical theory is given by $\mathcal{L}$,
+\begin{align}
+ L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.
+\end{align}
+Notice $s$ is the arc length and therefore the derivative $\vec{r}'(s)$ is a unit vector. (For the Euler Lagrange
+equations we may not set it to one at the moment)
+Euler-Lagrange-Equations are given by
+\begin{align}
+ \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= \frac{\partial \mathcal{L}}{\partial \vec{r}}\,.
+\end{align}
+The sloppy notation with vector derivatives means a differentiation by components.
+\begin{align}
+ \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= n(\vec{r}(s)) \frac{\vec{r}'(s)}{|\vec{r}'(s)|} \stackrel{|\vec{r}'(s)|=1}{=} n(\vec{r}(s))\vec{r}'(s)\,.
+\end{align}
+Therefore the differential equation is given by
+\begin{align}
+ \frac{\text{d}}{\text{d}s} \left(n(\vec{r}(s)) \frac{\text{d}\vec{r}}{\text{d}s}\right) &= (\vec{\nabla} n)(\vec{r}(s)) \label{eq:ODEGRIN}\,.
+\end{align}
+(Notice: For a homogeneous medium the ODE system reduces to a system of algebraic equations [btw. this corresponds to a reduction of the
+first variation of the integral to a first derivative of the corresponding sum].) 
+For our formalism the initial conditions are given by:
+\begin{subequations}
+\label{eq:ODEGRINic}
+\begin{align}
+ \vec{r}(s=0) &= (x,y,z)\,,\\
+ \vec{r}'(s=0) &= (d_x, d_y, \sqrt{1-d_x^2-d_y^2})\,.
+\end{align}
+\end{subequations}
+Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqref{eq:ODEGRINic}
+and obtain after a (in general numerical) integration a set of values $\vec{r}(s)$ and $\vec{r}'(s)$
+which correspond to the final position and direction of the ray.
+\remark{Maybe use of a symplectic integrator is useful, since a Hamilton formulation of optics is possible. See: en.wiki for some
+first to fourth order schemes. Order of scheme indicates the violation of conservation of Hamiltonian in terms of order of timesteps.}
 
 \end{document}

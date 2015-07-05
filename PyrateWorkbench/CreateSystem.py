@@ -32,7 +32,7 @@ class CreateSystemTool:
             return True
 
     def Activated(self):
-        PyrateInterface.OSinterface.dummycreate()
+        PyrateInterface.OSinterface.dummycreate2()
         PyrateInterface.OSinterface.createSurfaceViews()
         PyrateInterface.OSinterface.createRayViews()
         # would be useful if one could center the view on a specific surface
