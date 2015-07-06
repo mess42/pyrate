@@ -6,7 +6,7 @@
   \usepackage[pdftex]{graphicx}
   \usepackage[pdftitle={RTFM on Imaging Theory and Basics of Optical Raytracing},%
               pdfsubject={},%
-              pdfauthor={},%
+              pdfauthor={M. Esslinger, J. Hartung, U. Lippmann},%
               pdfkeywords={},%
               bookmarks=true,%
 %              colorlinks=true,%
@@ -106,7 +106,7 @@
 \titlehead{ }
 \subject{Pyrate -- Optical raytracing based on Python}
 \title{Read This Fundamental Manual \\ on Imaging Theory and Basics of Optical Raytracing}
-\author{}
+\author{M. Esslinger, J. Hartung, U. Lippmann}
 \date{2014-2015}
 \publishers{}
 \maketitle
@@ -834,12 +834,18 @@ the Hamiltonian becomes clear, since $|\vec{d}| = 1$.) The canonical equations a
 The second parametrization is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
 given by
 \begin{align}
- H_{\text{2D}} &= -n \sqrt{1 - \frac{\vec{P}^2}{n^2}}\,.
+ H_{\text{2D}} &= -n(\vec{Q}, z)\sqrt{1 - \frac{\vec{P}^2}{n(\vec{Q}, z)^2}}\,,
 \end{align}
+and is equal to the negative component of the 3D momentum.
 The equations of motion are therefore given by [$\vec{Q} = (x,y)$, $\vec{P} = n (d_x, d_y)$]
 \begin{align}
- \frac{\text{d}\vec{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \vec{P}} = - \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,,\\
- \frac{\text{d}\vec{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \vec{Q}} = - \frac{\vec{\nabla} n}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.    
+ \frac{\text{d}\vec{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \vec{P}} = \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,,\\
+ \frac{\text{d}\vec{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \vec{Q}} = \frac{\vec{\nabla}_{\vec{Q}} n}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.    
+\end{align}
+Notice that $n = n(\vec{Q}, z)$ in general, so the Hamiltonian depends explicitly on the independent variable.
+Therefore for $z$ dependent $n$ the Hamiltonian is no conserved quantity anymore and
+\begin{align}
+ \frac{\partial H_{\text{2D}}}{\partial z} &= -\frac{\frac{\partial n}{\partial z}}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.
 \end{align}
 (For constant $n$ this formulation is very similar to the Hamiltonian formulation of a 
 massive particle in special relativity with imaginary linear momentum.
