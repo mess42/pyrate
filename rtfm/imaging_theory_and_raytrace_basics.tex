@@ -835,7 +835,7 @@ for the paraxial approximation which corresponds to a post-Newtonian expansion.)
 
 \subsubsection{Numerical Integration}
 Let us start with the integration of the 3D formulation since it is separable $H = T + U$. Here we use a symplectic integration formalism
-for its symmetry preserving phase space integration structure. For the details we kindly refer the reader to the
+due to its symmetry preserving phase space integration structure. For the details we kindly refer the reader to the
 literature. A symplectic integrator for a separable Hamiltonian is given by the following scheme with time step $h$:
 \begin{align}
  \begin{pmatrix}
@@ -867,11 +867,11 @@ For a fourth order scheme $i=1\dots4$ and the coefficients are given by
 \end{align}
 For a further improvement it may be necessary to use adaptive ``time'' steps.
 These can be implemented, e.g., by an extension of the phase space where
-the time and is an additional canonical coordinate. The extension is achieved by
+the time is an additional canonical coordinate. The extension is achieved by
 a so-called Sundman transformation (which is in fact a Poincar{\'e} transformation)
 of the ``time'' coordinate
 $\text{d}s/\text{d}\sigma = g(\vec{q}, \vec{p})$.
-By using a special form of this transformation the new Hamiltonian is separable and we
+By using a special form of this transformation $g$ the new Hamiltonian is separable and we
 may use a symplectic scheme like the one mentioned above to integrate the new formulation.
 
 \subsubsection{Analytical Tests}
