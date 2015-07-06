@@ -488,14 +488,41 @@ for real $t$. However the final equation is given by
 \begin{align}
  a t^4 + b t^3 + c t^2 + d t + e &= 0\,,
 \end{align}
-where\remark{Coefficients as functions of biconics parameters!}
+where\remark{Simplify coefficients!}
 \begin{subequations}
  \begin{align}
-  a &= \,,\\
-  b &= \,,\\
-  c &= \,,\\
-  d &= \,,\\
-  e &= \,.
+  a &= c_{x}^{2} d_{x}^{4} + 2 \, c_{x} c_{y} d_{x}^{2} d_{y}^{2} + c_{y}^{2} d_{y}^{4} 
+	+ {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x}^{2} d_{z}^{2} + {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y}^{2} d_{z}^{2}\,,\\
+  b &= 4 \, c_{x}^{2} d_{x}^{3} x_{0} + 4 \, c_{x} c_{y} d_{x} d_{y}^{2} x_{0} 
+	+ 4 \, c_{x} c_{y} d_{x}^{2} d_{y} y_{0} + 4 \, c_{y}^{2} d_{y}^{3} y_{0} \nonumber\\&
+	+ 2 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x} d_{z}^{2} x_{0} 
+	+ 2 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y} d_{z}^{2} y_{0} \nonumber\\& 
+	+ 2 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x}^{2} d_{z} z_{0} 
+	+ 2 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y}^{2} d_{z} z_{0} 
+	- 2 \, c_{x} d_{x}^{2} d_{z} - 2 \, c_{y} d_{y}^{2} d_{z}\,,\\
+  c &= 6 \, c_{x}^{2} d_{x}^{2} x_{0}^{2} + 2 \, c_{x} c_{y} d_{y}^{2} x_{0}^{2} + 8 \, c_{x} c_{y} d_{x} d_{y} x_{0} y_{0} 
+      + 2 \, c_{x} c_{y} d_{x}^{2} y_{0}^{2} + 6 \, c_{y}^{2} d_{y}^{2} y_{0}^{2} \nonumber\\&
+      + {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{z}^{2} x_{0}^{2} 
+      + {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{z}^{2} y_{0}^{2} 
+      + 4 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x} d_{z} x_{0} z_{0} 
+      + 4 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y} d_{z} y_{0} z_{0}\nonumber\\& 
+      + {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x}^{2} z_{0}^{2} 
+      + {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y}^{2} z_{0}^{2} 
+      - 4 \, c_{x} d_{x} d_{z} x_{0} - 4 \, c_{y} d_{y} d_{z} y_{0} \nonumber\\&
+      - 2 \, c_{x} d_{x}^{2} z_{0} - 2 \, c_{y} d_{y}^{2} z_{0} 
+      - 2 \, c_{x} d_{x}^{2} - 2 \, c_{y} d_{y}^{2} + d_{z}^{2}\,,\\
+  d &= 4 \, c_{x}^{2} d_{x} x_{0}^{3} + 4 \, c_{x} c_{y} d_{y} x_{0}^{2} y_{0} 
+       + 4 \, c_{x} c_{y} d_{x} x_{0} y_{0}^{2} + 4 \, c_{y}^{2} d_{y} y_{0}^{3} \nonumber\\& 
+       + 2 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{z} x_{0}^{2} z_{0} 
+       + 2 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{z} y_{0}^{2} z_{0} 
+       + 2 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x} x_{0} z_{0}^{2} 
+       + 2 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y} y_{0} z_{0}^{2} \nonumber\\&
+       - 2 \, c_{x} d_{z} x_{0}^{2} - 2 \, c_{y} d_{z} y_{0}^{2} - 4 \, c_{x} d_{x} x_{0} z_{0} 
+       - 4 \, c_{y} d_{y} y_{0} z_{0} - 4 \, c_{x} d_{x} x_{0} - 4 \, c_{y} d_{y} y_{0}\nonumber\\&
+       + 2 \, d_{z} z_{0} + 2 \, d_{z}\,,\\
+  e &= c_{x}^{2} x_{0}^{4} + 2 \, c_{x} c_{y} x_{0}^{2} y_{0}^{2} + c_{y}^{2} y_{0}^{4} 
+       + {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} x_{0}^{2} z_{0}^{2} + {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} y_{0}^{2} z_{0}^{2} \nonumber\\&
+       - 2 \, c_{x} x_{0}^{2} z_{0} - 2 \, c_{y} y_{0}^{2} z_{0} - 2 \, c_{x} x_{0}^{2} - 2 \, c_{y} y_{0}^{2} + z_{0}^{2} + 2 \, z_{0} + 1\,.
  \end{align}
 \end{subequations}
 Then we may consider the nature of the zeros (see Wiki) by considering the following combinations, namely
