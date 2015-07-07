@@ -316,7 +316,142 @@ Compared to the law of Snellius, this formulation bears the following advantages
 The formulation does not actually solve the problem of refraction, but just forward it to the problem of finding a solution of the material dispersion. 
 This calculation can, for certain types of anisotropic materials, be time consuming.
 
-\section{Raytracing}
+\chapter{Geometrical Optics}
+
+\section{General Considerations}
+The consideration of GRIN media also fits into this transfer formalism.
+A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
+and a fixed $z$ position the ray starting point is $(x,y,z)$ and the direction vector
+is $(d_x,d_y,\sqrt{1-d_x^2-d_y^2})$. This fixes the initial conditions of the ray propagation
+uniquely. Now the optical path length functional is given b ,
+\begin{align}
+ L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.
+\end{align}
+with the corresponding ``Lagrangian'' $\mathcal{L}$.
+Notice $s$ is the arc length and therefore the derivative $\vec{r}'(s)$ is a unit vector. (For the Euler Lagrange
+equations we may not set it to $1$ at the moment.)
+Euler-Lagrange-Equations are given by
+\begin{align}
+ \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= \frac{\partial \mathcal{L}}{\partial \vec{r}}\,.
+\end{align}
+The sloppy notation with vector derivatives means a differentiation by components.
+\begin{align}
+ \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= n(\vec{r}(s)) \frac{\vec{r}'(s)}{|\vec{r}'(s)|} \stackrel{|\vec{r}'(s)|=1}{=} n(\vec{r}(s))\vec{r}'(s)\,.
+\end{align}
+Therefore the differential equation is given by
+\begin{align}
+ \frac{\text{d}}{\text{d}s} \left(n(\vec{r}(s)) \frac{\text{d}\vec{r}}{\text{d}s}\right) &= (\vec{\nabla} n)(\vec{r}(s)) \label{eq:ODEGRIN}\,.
+\end{align}
+(Notice: For a homogeneous medium the ODE system reduces to a system of algebraic equations [btw. this corresponds to a reduction of the
+first variation of the integral to a first derivative of the corresponding sum].) 
+For our formalism the initial conditions are given by:
+\begin{subequations}
+\label{eq:ODEGRINic}
+\begin{align}
+ \vec{r}(s=0) &= (x,y,z)\,,\\
+ \vec{r}'(s=0) &= (d_x, d_y, \sqrt{1-d_x^2-d_y^2})\,.
+\end{align}
+\end{subequations}
+Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqref{eq:ODEGRINic}
+and obtain after a (in general numerical) integration a set of values $\vec{r}(s)$ and $\vec{r}'(s)$
+which correspond to the final position and direction of the ray.
+\section{Hamiltonian Formulation}
+There are two distinct parametrizations. The first one parametrizes the theory with respect to the
+arc length $s$ in 3D space where (one possible choice of) the Hamiltonian is given by
+\begin{align}
+ H &= \vec{p}^2 - n^2 = 0\,.
+\end{align}
+The canonical momentum $\vec{p}$ is given by $\vec{p} = n \vec{d}$. (From this consideration the constraint on
+the Hamiltonian becomes clear, since $|\vec{d}| = 1$.) The canonical equations are given by
+\begin{align}
+ \frac{\text{d}\vec{q}}{\text{d}s} &= \frac{\partial H}{\partial \vec{p}} = 2 \vec{p}\,,\\
+ \frac{\text{d}\vec{p}}{\text{d}s} &= -\frac{\partial H}{\partial \vec{q}} = 2 n (\vec{\nabla} n)\,, 
+\end{align}
+The second parametrization is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
+given by
+\begin{align}
+ H_{\text{2D}} &= -n(\vec{Q}, z)\sqrt{1 - \frac{\vec{P}^2}{n(\vec{Q}, z)^2}}\,,
+\end{align}
+and is equal to the negative component of the 3D momentum.
+The equations of motion are therefore given by [$\vec{Q} = (x,y)$, $\vec{P} = n (d_x, d_y)$]
+\begin{align}
+ \frac{\text{d}\vec{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \vec{P}} = \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,,\\
+ \frac{\text{d}\vec{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \vec{Q}} = \frac{\vec{\nabla}_{\vec{Q}} n}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.    
+\end{align}
+Notice that $n = n(\vec{Q}, z)$ in general, so the Hamiltonian depends explicitly on the independent variable.
+Therefore for $z$ dependent $n$ the Hamiltonian is no conserved quantity anymore and
+\begin{align}
+ \frac{\partial H_{\text{2D}}}{\partial z} &= -\frac{\frac{\partial n}{\partial z}}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.
+\end{align}
+(For constant $n$ this formulation is very similar to the Hamiltonian formulation of a 
+massive particle in special relativity with imaginary linear momentum.
+Therefore nearly all of the results there are applicable here. It is also very useful 
+for the paraxial approximation which corresponds to a post-Newtonian expansion.)
+
+\section{Numerical Integration for GRIN Media}
+Let us start with the integration of the 3D formulation since it is separable $H = T + U$. Here we use a symplectic integration formalism
+due to its symmetry preserving phase space integration structure. For the details we kindly refer the reader to the
+literature. A symplectic integrator for a separable Hamiltonian is given by the following scheme with time step $h$:
+\begin{align}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} \mapsto
+ \begin{pmatrix}
+  \vec{q} + c_i h \frac{\partial T}{\partial \vec{p}} \\
+  \vec{p}
+ \end{pmatrix}
+\end{align}
+and succesively
+\begin{align}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} \mapsto
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p} - d_i h \frac{\partial U}{\partial \vec{q}}
+ \end{pmatrix}\,.
+\end{align}
+For a fourth order scheme $i=1\dots4$ and the coefficients are given by
+\begin{align}
+ c_1 = c_4 = \frac{1}{2(2 - 2^{1/3})}\,,\\
+ c_2 = c_3 = \frac{1 - 2^{1/3}}{2(2 - 2^{1/3})}\,,\\
+ d_1 = d_3 = \frac{1}{2 - 2^{1/3}}\,,\\
+ d_2 = -\frac{2^{1/3}}{2 - 2^{1/3}}\,\quad d_4 = 0\,.
+\end{align}
+For a further improvement it may be necessary to use adaptive ``time'' steps.
+These can be implemented, e.g., by an extension of the phase space where
+the time is an additional canonical coordinate. The extension is achieved by
+a so-called Sundman transformation (which is in fact a Poincar{\'e} transformation)
+of the ``time'' coordinate
+$\text{d}s/\text{d}\sigma = g(\vec{q}, \vec{p})$.
+By using a special form of this transformation $g$ the new Hamiltonian is separable and we
+may use a symplectic scheme like the one mentioned above to integrate the new formulation.
+
+\section{Analytical Tests}
+
+For a special form of the refractive index, e.g.,
+\begin{align}
+ n(\vec{q}) &= \sqrt{1 - \frac{1}{4} \alpha^2 \vec{q}^2}\,,
+\end{align}
+the equations of motion are given by
+\begin{align}
+ \frac{\text{d}\vec{q}}{\text{d}s} &=  2 \vec{p}\,,\\
+ \frac{\text{d}\vec{p}}{\text{d}s} &= \vec{\nabla}(n^2) = -\frac{1}{2}\alpha^2 \vec{q}\,. 
+\end{align}
+The resulting ODE for $\vec{q}$ is given by
+\begin{align}
+ \frac{\text{d}^2\vec{q}}{\text{d}s^2} &= -\alpha^2 \vec{q}\,,
+\end{align}
+and is solved by
+\begin{align}
+ \vec{q} &= \vec{C}_1 \cos(\alpha s) + \vec{C}_2 \sin(\alpha s)\,.
+\end{align}
+With appropriate initial conditions this could be used as a check for the integrator code later.
+
+
+\chapter{Raytracing}
 \remark{new chapter?}
 In raytracing, we assume that radiation is propagated in rays, that are thin, collimated beams. 
 We assume that the rims of these beams are negligible compared to the central area. That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
@@ -327,8 +462,8 @@ However, the optical designer has to check for each calculation whether the ray 
 Classical raytracing consists of the following steps: The ray is considered a straight in 3D space. First its intersection point with the next surface is calculated. 
 Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
 
-\subsection{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
-\subsubsection{Spheres}
+\section{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
+\subsection{Spheres}
 We consider a ray and a Sphere that intersects the optical axis in the origin
 \begin{eqnarray}
  \Location &=& \Location_0 + \vec{d} t \label{eq:ray}\,,\\
@@ -404,7 +539,7 @@ An inspection of \eqref{eq:tpresolutionsphere} shows that it is invariant under 
 and therefore we may omit the primes and get \eqref{eq:tsolsphere}.
 
 
-\subsubsection{Conics}
+\subsection{Conics}
 Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
 The word ``conic" is short for conic section. This refers to these figures as the
 intersections of a plane with a cone.
@@ -439,7 +574,7 @@ given in sphere section the solution is
 \end{eqnarray}
 \end{subequations}
 
-\subsubsection{Biconics}
+\subsection{Biconics}
 A biconic describes a surface which has two perpendicular sections
 which have a conic structure. So these surfaces have two symmetry planes.
 The explicit surface sag formula is given by
@@ -550,23 +685,37 @@ if the quartic has two double roots:
 \end{itemize}
 Some of the discussed cases show that the ray misses the surfaces.
 
-\subsubsection{Polynomial Asphere}
+\subsection{Polynomial Asphere}
 to do
-\subsubsection{Strong Forbes Asphere}
+\subsection{Strong Forbes Asphere}
 to do
-\subsubsection{Mild Forbes Asphere}
+\subsection{Mild Forbes Asphere}
 to do
-\subsubsection{Cylindric}
+\subsection{Cylindric}
 to do
-\subsubsection{Acylindric}
+\subsection{Acylindric}
 to do
-\subsubsection{Free Shapes}
+\subsection{Free Shapes}
 to do
 
-\subsubsection{Linear Combinations}
+\subsection{Linear Combinations}
 \remark{I would suggest to implement a few standard forms and to combine them by a linear combination operator. This makes the search for optimizable
 variables more difficult.}
-\subsection{Intersections in nonlinear XYUV formalism}
+
+\section{Suggestions for linear and non-linear transfer formalisms}
+The following section shows some suggestions for linear and non-linear transfer formalisms
+to simplify and unify ray tracing. The transfer formalisms should have the following properties:
+
+\begin{itemize}
+ \item They should be physical and not ad-hoc (physical foundations, quick access to conserved quantities and so on)
+ \item A linear transfer formalism like $ABCD$ should be the linearisation of a non-linear transfer formalism
+ \item They should be formulated with respect to the optical axis
+ \item They should incorporate changes of the optical axis in a unified manner
+\end{itemize}
+
+
+
+\subsection{Nonlinear XYUV formalism}
 According to {{\tt \url{http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf}}}
 we will call the incident vector $\vec{i}$ the reflected one $\vec{r}$ and the refracted one $\vec{t}$.
 From reflection law we get the following ($\vec{n}$ is pointing into medium $n_1$ and the incidence vector is pointing from $n_1$ to $n_2$)
@@ -766,7 +915,7 @@ Therefore we get
  {d'}_y &= d_y + D_y\,.
 \end{align}
 \end{subequations}
-end corresponds to a absolute change in intersection points and ray direction.
+which corresponds to a absolute change in intersection points and ray direction.
 Notice that the new direction vector also has to be a unit vector such that
 \begin{align}
  \underbrace{{\vec{d}}^{\prime 2}}_{=1} &= \underbrace{\vec{d}^2}_{=1} + 2 \scpm{\vec{d}}{\vec{D}} + \vec{D}^2\,,
@@ -778,140 +927,13 @@ gives a condition to the third component of $\vec{D}$, namely
 Maybe this extension of the $XYUV$ (non linear) transfer formalism can be useful as a further generalization of
 the optical design calculation. By multiplying the direction vector with the optical index one immediately gets
 a so called phase space formulation of the optical ray. In this formulation several theorems from Hamiltonian
-mechanics and phase space theory in general hold. This formulation may be investigated in further subsections of this document.
+mechanics and phase space theory in general hold. These formulation will be investigated in further subsections.
 
-\subsection{GRIN Media}
+\subsection{$PQ$-2D-Formalism}
 
-\subsubsection{General Considerations}
-The consideration of GRIN media also fits into this transfer formalism.
-A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
-and a fixed $z$ position the ray starting point is $(x,y,z)$ and the direction vector
-is $(d_x,d_y,\sqrt{1-d_x^2-d_y^2})$. This fixes the initial conditions of the ray propagation
-uniquely. Now the optical path length functional is given b ,
-\begin{align}
- L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.
-\end{align}
-with the corresponding ``Lagrangian'' $\mathcal{L}$.
-Notice $s$ is the arc length and therefore the derivative $\vec{r}'(s)$ is a unit vector. (For the Euler Lagrange
-equations we may not set it to $1$ at the moment.)
-Euler-Lagrange-Equations are given by
-\begin{align}
- \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= \frac{\partial \mathcal{L}}{\partial \vec{r}}\,.
-\end{align}
-The sloppy notation with vector derivatives means a differentiation by components.
-\begin{align}
- \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= n(\vec{r}(s)) \frac{\vec{r}'(s)}{|\vec{r}'(s)|} \stackrel{|\vec{r}'(s)|=1}{=} n(\vec{r}(s))\vec{r}'(s)\,.
-\end{align}
-Therefore the differential equation is given by
-\begin{align}
- \frac{\text{d}}{\text{d}s} \left(n(\vec{r}(s)) \frac{\text{d}\vec{r}}{\text{d}s}\right) &= (\vec{\nabla} n)(\vec{r}(s)) \label{eq:ODEGRIN}\,.
-\end{align}
-(Notice: For a homogeneous medium the ODE system reduces to a system of algebraic equations [btw. this corresponds to a reduction of the
-first variation of the integral to a first derivative of the corresponding sum].) 
-For our formalism the initial conditions are given by:
-\begin{subequations}
-\label{eq:ODEGRINic}
-\begin{align}
- \vec{r}(s=0) &= (x,y,z)\,,\\
- \vec{r}'(s=0) &= (d_x, d_y, \sqrt{1-d_x^2-d_y^2})\,.
-\end{align}
-\end{subequations}
-Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqref{eq:ODEGRINic}
-and obtain after a (in general numerical) integration a set of values $\vec{r}(s)$ and $\vec{r}'(s)$
-which correspond to the final position and direction of the ray.
-\subsubsection{Hamiltonian Formulation}
-There are two distinct parametrizations. The first one parametrizes the theory with respect to the
-arc length $s$ in 3D space where (one possible choice of) the Hamiltonian is given by
-\begin{align}
- H &= \vec{p}^2 - n^2 = 0\,.
-\end{align}
-The canonical momentum $\vec{p}$ is given by $\vec{p} = n \vec{d}$. (From this consideration the constraint on
-the Hamiltonian becomes clear, since $|\vec{d}| = 1$.) The canonical equations are given by
-\begin{align}
- \frac{\text{d}\vec{q}}{\text{d}s} &= \frac{\partial H}{\partial \vec{p}} = 2 \vec{p}\,,\\
- \frac{\text{d}\vec{p}}{\text{d}s} &= -\frac{\partial H}{\partial \vec{q}} = 2 n (\vec{\nabla} n)\,, 
-\end{align}
-The second parametrization is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
-given by
-\begin{align}
- H_{\text{2D}} &= -n(\vec{Q}, z)\sqrt{1 - \frac{\vec{P}^2}{n(\vec{Q}, z)^2}}\,,
-\end{align}
-and is equal to the negative component of the 3D momentum.
-The equations of motion are therefore given by [$\vec{Q} = (x,y)$, $\vec{P} = n (d_x, d_y)$]
-\begin{align}
- \frac{\text{d}\vec{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \vec{P}} = \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,,\\
- \frac{\text{d}\vec{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \vec{Q}} = \frac{\vec{\nabla}_{\vec{Q}} n}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.    
-\end{align}
-Notice that $n = n(\vec{Q}, z)$ in general, so the Hamiltonian depends explicitly on the independent variable.
-Therefore for $z$ dependent $n$ the Hamiltonian is no conserved quantity anymore and
-\begin{align}
- \frac{\partial H_{\text{2D}}}{\partial z} &= -\frac{\frac{\partial n}{\partial z}}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.
-\end{align}
-(For constant $n$ this formulation is very similar to the Hamiltonian formulation of a 
-massive particle in special relativity with imaginary linear momentum.
-Therefore nearly all of the results there are applicable here. It is also very useful 
-for the paraxial approximation which corresponds to a post-Newtonian expansion.)
+\subsection{$pq$-3D-Formalism}
 
-\subsubsection{Numerical Integration}
-Let us start with the integration of the 3D formulation since it is separable $H = T + U$. Here we use a symplectic integration formalism
-due to its symmetry preserving phase space integration structure. For the details we kindly refer the reader to the
-literature. A symplectic integrator for a separable Hamiltonian is given by the following scheme with time step $h$:
-\begin{align}
- \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
- \end{pmatrix} \mapsto
- \begin{pmatrix}
-  \vec{q} + c_i h \frac{\partial T}{\partial \vec{p}} \\
-  \vec{p}
- \end{pmatrix}
-\end{align}
-and succesively
-\begin{align}
- \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
- \end{pmatrix} \mapsto
- \begin{pmatrix}
-  \vec{q} \\
-  \vec{p} - d_i h \frac{\partial U}{\partial \vec{q}}
- \end{pmatrix}\,.
-\end{align}
-For a fourth order scheme $i=1\dots4$ and the coefficients are given by
-\begin{align}
- c_1 = c_4 = \frac{1}{2(2 - 2^{1/3})}\,,\\
- c_2 = c_3 = \frac{1 - 2^{1/3}}{2(2 - 2^{1/3})}\,,\\
- d_1 = d_3 = \frac{1}{2 - 2^{1/3}}\,,\\
- d_2 = -\frac{2^{1/3}}{2 - 2^{1/3}}\,\quad d_4 = 0\,.
-\end{align}
-For a further improvement it may be necessary to use adaptive ``time'' steps.
-These can be implemented, e.g., by an extension of the phase space where
-the time is an additional canonical coordinate. The extension is achieved by
-a so-called Sundman transformation (which is in fact a Poincar{\'e} transformation)
-of the ``time'' coordinate
-$\text{d}s/\text{d}\sigma = g(\vec{q}, \vec{p})$.
-By using a special form of this transformation $g$ the new Hamiltonian is separable and we
-may use a symplectic scheme like the one mentioned above to integrate the new formulation.
 
-\subsubsection{Analytical Tests}
 
-For a special form of the refractive index, e.g.,
-\begin{align}
- n(\vec{q}) &= \sqrt{1 - \frac{1}{4} \alpha^2 \vec{q}^2}\,,
-\end{align}
-the equations of motion are given by
-\begin{align}
- \frac{\text{d}\vec{q}}{\text{d}s} &=  2 \vec{p}\,,\\
- \frac{\text{d}\vec{p}}{\text{d}s} &= \vec{\nabla}(n^2) = -\frac{1}{2}\alpha^2 \vec{q}\,. 
-\end{align}
-The resulting ODE for $\vec{q}$ is given by
-\begin{align}
- \frac{\text{d}^2\vec{q}}{\text{d}s^2} &= -\alpha^2 \vec{q}\,,
-\end{align}
-and is solved by
-\begin{align}
- \vec{q} &= \vec{C}_1 \cos(\alpha s) + \vec{C}_2 \sin(\alpha s)\,.
-\end{align}
-With appropriate initial conditions this could be used as a check for the integrator code later.
 
 \end{document}
