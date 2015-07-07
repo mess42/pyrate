@@ -731,7 +731,9 @@ to simplify and unify ray tracing. The transfer formalisms should have the follo
  \item They should incorporate changes of the optical axis in a unified manner
 \end{itemize}
 
-
+\remark{It would be cool to only stich these transfer functions together like in the ABCD formalism;
+this means in particular, that a ray just should move by $(\vec{X}_f, \vec{d}_f) = F_n (F_{n-1}( \dots F_2 (F_1(\vec{X}_i, \vec{d}_i))))$ where
+the $F_k$ are functions discussed in the following subsections.}
 
 \subsection{Nonlinear XYUV formalism}
 According to {{\tt \url{http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf}}}
@@ -889,7 +891,7 @@ aberrations?}
 \subsection{5x5 formalism}
 In computer vision there are homogeneous coordinates used to implement translation and rotation in a single matrix.
 There is a further coordinate $c$ introduced such that $\bar{x} = x/c, \bar{y} = y/c$ where $x$, $y$ and $c$
-are the homogeneous coordinates and $\bar{x}$ and $\bar{y}$ are the view coordinates. Then general transformations have to following block
+are the homogeneous coordinates and $\bar{x}$ and $\bar{y}$ are the view coordinates. Then general transformations have the following block
 structure
 \begin{align}
  \begin{pmatrix} \vec{r}' \\ c' \end{pmatrix} &= 
