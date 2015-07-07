@@ -974,7 +974,7 @@ According to Ibn-Sal-Snell's law the coordinate change at surface on surface $z 
  \end{pmatrix} \mapsto\nonumber\\&
  \begin{pmatrix}
   \vec{Q} \\
-  \vec{P} - \left[\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q}) H + \sqrt{n_2^2 - \left\{n_1^2 - [\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q})H]^2\right\}^2}\right] \vec{N}(\vec{Q})
+  \vec{P} - \left[\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q}) H + \sqrt{n_2^2 - n_1^2 + [\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q})H]^2}\right] \vec{N}(\vec{Q})
  \end{pmatrix}\,,
 \end{align}
 where $H = -n_1 \sqrt{1 - \vec{P}^2/n^2}$, 
@@ -983,7 +983,7 @@ $Z(\vec{Q}) = 1/\sqrt{1 + (\text{grad} f)^2(\vec{Q})}$.
 For a complete optical system one has to perform this transformations in a succesive manner on the starting configuration of the ray.
 Notice that due to the non-conservation of the Hamiltonian it will also change at the boundary between two layers in the following manner
 \begin{align}
- H &\mapsto H + \left[\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q}) H + \sqrt{n_2^2 - \left\{n_1^2 - [\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q})H]^2\right\}^2}\right] Z(\vec{Q})\,.
+ H &\mapsto H + \left[\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q}) H + \sqrt{n_2^2 - n_1^2 + [\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q})H]^2}\right] Z(\vec{Q})\,.
 \end{align}
 
 
@@ -1023,7 +1023,7 @@ itself is a biconic with the two local curvatures in the respective coordinate d
  \end{pmatrix} &\stackrel{\text{linear}}{\mapsto}
  \begin{pmatrix}
   \vec{Q} \\
-  \vec{P} + 2(n_1 - n_2) \begin{pmatrix} c_x & 0 \\ 0 & c_y \end{pmatrix}  \vec{Q}
+  \vec{P} + (n_1 - n_2) \begin{pmatrix} c_x & 0 \\ 0 & c_y \end{pmatrix}  \vec{Q}
  \end{pmatrix} =
  \begin{pmatrix}
   1 & 0 & 0 & 0 \\
@@ -1045,8 +1045,12 @@ be given by
 But since a Hamiltonian in linear approximation is not sufficient to generate equations of motion,
 one has to approximate at least to second order
 \begin{align}
- \Delta H_\text{2D} &= n_2-n_1+\frac{p_x^2}{2 n_1}+\frac{p_y^2}{2 n_1} \nonumber\\&
- -\frac{1}{2} c_x^2 q_x^2 (n_2-2 n_1)+c_x p_x q_x-\frac{1}{2} c_y^2 q_y^2 (n_2-2 n_1)+c_y p_y q_y\,.
+ \Delta H_\text{2D} &\stackrel{\text{quadratic}}{=} n_2-n_1
+   +\frac{1}{2} \left(\frac{1}{n_1}-\frac{1}{n_2}\right) p_x^2
+   + \frac{1}{2}  \left(\frac{1}{n_1}-\frac{1}{n_2}\right) p_y^2 \nonumber\\&
+  -\frac{c_x^2 q_x^2 (n_1-n_2)^2}{2 n_2}+c_x p_x q_x \left(1-\frac{n_1}{n_2}\right)
+   -\frac{c_y^2 q_y^2 (n_1-n_2)^2}{2 n_2}+c_y p_y q_y \left(1-\frac{n_1}{n_2}\right)
+\,.
 \end{align}
 
 
@@ -1056,9 +1060,35 @@ The more general consideration of GRIN media in 3D phase space also fits into th
 A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
 and a fixed $z$ position the ray starting point is $(x,y,z)$ and the direction vector
 is $(d_x,d_y,\sqrt{1-d_x^2-d_y^2})$. This fixes the initial conditions of the ray propagation
-uniquely. 
+uniquely. The 3D formulation is useful if the user parametrizes for another paramter then the distance $z$ on the optical
+axis. In this case the Hamiltonian separates well in a kinetic and a potential term. Further the Hamiltonian is conserved and
+equal zero.
 
+\subsubsection{Nonlinear transfer}
 
-
+Transfer through homogeneous medium to arc length $s$
+\begin{align}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} &\mapsto
+ \begin{pmatrix}
+  \vec{q} + s \frac{\vec{p}}{n} \\
+  \vec{p}
+ \end{pmatrix}\,.
+\end{align}
+Notice that this transformation is not nonlinear.
+Refraction at optical surface $f(x,y)$.
+\begin{align}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} &\mapsto
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p} - \left[\scpm{\vec{p}}{\vec{n}(\vec{q})} + \sqrt{n_2^2 - n_1^2 + \scpm{\vec{p}}{\vec{n}(\vec{q})}^2}\right] \vec{n}(\vec{q})
+ \end{pmatrix}\,.
+\end{align}
+Notice that the Hamiltonian $H_\text{3D} = \vec{p}^2 - n^2 = 0$ is conserved.
 
 \end{document}
