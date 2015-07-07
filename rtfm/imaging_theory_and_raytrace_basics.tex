@@ -361,10 +361,13 @@ arc length $s$ in 3D space where (one possible choice of) the Hamiltonian is giv
 \end{align}
 The canonical momentum $\vec{p}$ is given by $\vec{p} = n \vec{d}$. (From this consideration the constraint on
 the Hamiltonian becomes clear, since $|\vec{d}| = 1$.) The canonical equations are given by
+\begin{subequations}
+\label{eq:H3Deom}
 \begin{align}
  \frac{\text{d}\vec{q}}{\text{d}s} &= \frac{\partial H}{\partial \vec{p}} = 2 \vec{p}\,,\\
  \frac{\text{d}\vec{p}}{\text{d}s} &= -\frac{\partial H}{\partial \vec{q}} = 2 n (\vec{\nabla} n)\,, 
 \end{align}
+\end{subequations}
 The second parametrization is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
 given by
 \begin{align}
@@ -386,10 +389,13 @@ with respect to $\vec{V}$ and afterwards the calculation of
 \end{align}
 which leads to \eqref{eq:Hamiltonian2D}. The equations of motion due to the canonical formalism 
 are therefore given by [remember $\vec{Q} = (x,y)$, $\vec{P} = n (d_x, d_y)$]
+\begin{subequations}
+\label{eq:H2Deom}
 \begin{align}
  \frac{\text{d}\vec{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \vec{P}} = \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,,\\
  \frac{\text{d}\vec{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \vec{Q}} = \frac{\vec{\nabla}_{\vec{Q}} n}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.    
 \end{align}
+\end{subequations}
 Notice that $n = n(\vec{Q}, z)$ in general, so the Hamiltonian depends explicitly on the independent variable.
 Therefore for $z$ dependent $n$ the Hamiltonian is no conserved quantity anymore and
 \begin{align}
@@ -942,6 +948,107 @@ a so called phase space formulation of the optical ray. In this formulation seve
 mechanics and phase space theory in general hold. These formulation will be investigated in further subsections.
 
 \subsection{$PQ$-2D-Formalism}
+
+By using the equations of motion \eqref{eq:H2Deom} for appropriate materials one can write down non linear transfers for
+some special materials.
+
+\subsubsection{Nonlinear transfer formalism}
+
+Transfer through homogeneous material:
+\begin{align}
+ \begin{pmatrix}
+  \vec{Q} \\
+  \vec{P}
+ \end{pmatrix} &\mapsto
+ \begin{pmatrix}
+  \vec{Q} + (z' -z') \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}} \\
+  \vec{P}
+ \end{pmatrix}\,.
+\end{align}
+Here $H_{\text{2D}}$ stays constant because the 3D momentum is conserved.
+According to Ibn-Sal-Snell's law the coordinate change at surface on surface $z = f(x,y)$ at $(\vec{Q} , f(\vec{Q}))$ is given by
+\begin{align}
+ &\begin{pmatrix}
+  \vec{Q} \\
+  \vec{P}
+ \end{pmatrix} \mapsto\nonumber\\&
+ \begin{pmatrix}
+  \vec{Q} \\
+  \vec{P} - \left[\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q}) H + \sqrt{n_2^2 - \left\{n_1^2 - [\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q})H]^2\right\}^2}\right] \vec{N}(\vec{Q})
+ \end{pmatrix}\,,
+\end{align}
+where $H = -n_1 \sqrt{1 - \vec{P}^2/n^2}$, 
+$\vec{N}(\vec{Q}) = (\text{grad} f)(\vec{Q})/\sqrt{1 + (\text{grad} f)^2(\vec{Q})}$, 
+$Z(\vec{Q}) = 1/\sqrt{1 + (\text{grad} f)^2(\vec{Q})}$.
+For a complete optical system one has to perform this transformations in a succesive manner on the starting configuration of the ray.
+Notice that due to the non-conservation of the Hamiltonian it will also change at the boundary between two layers in the following manner
+\begin{align}
+ H &\mapsto H + \left[\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q}) H + \sqrt{n_2^2 - \left\{n_1^2 - [\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q})H]^2\right\}^2}\right] Z(\vec{Q})\,.
+\end{align}
+
+
+
+\subsubsection{Linear transfer formalism}
+
+To get the paraxial approximation we need to expand the terms to linear order in $\vec{P}$ (equivalent to a small angle approximation) and linear order in $\vec{Q}$
+(corresponding to near axis rays). An expansion only in $\vec{Q}$ corresponds to near axis rays with finite angles and an $\vec{P}$-only expansion corresponds to
+small angle with finite field heights. The linearization leads to a matrix formulation of the transfer functions.
+
+For the transfer in a homogeneous material one gets
+\begin{align}
+ \begin{pmatrix}
+  \vec{Q} \\
+  \vec{P}
+ \end{pmatrix} &\stackrel{\text{linear}}{\mapsto}
+ \begin{pmatrix}
+  \vec{Q} + (z' -z) \frac{\vec{P}}{n} \\
+  \vec{P}
+ \end{pmatrix} =
+ \begin{pmatrix}
+  1 & \frac{z' - z}{n} \\
+  0 & 1
+ \end{pmatrix}
+ \begin{pmatrix}
+  \vec{Q} \\
+  \vec{P}
+ \end{pmatrix} 
+\,.
+\end{align}
+For the refraction between two homogeneous materials $n_1$ and $n_2$ we get (Assume that the surface at $\vec{Q}=0$ is not tilted and the surface
+itself is a biconic with the two local curvatures in the respective coordinate directions $c_x$, $c_y$.)
+\begin{align}
+ \begin{pmatrix}
+  \vec{Q} \\
+  \vec{P}
+ \end{pmatrix} &\stackrel{\text{linear}}{\mapsto}
+ \begin{pmatrix}
+  \vec{Q} \\
+  \vec{P} + 2(n_1 - n_2) \begin{pmatrix} c_x & 0 \\ 0 & c_y \end{pmatrix}  \vec{Q}
+ \end{pmatrix} =
+ \begin{pmatrix}
+  1 & 0 & 0 & 0 \\
+  0 & 1 & 0 & 0 \\
+  (n_1 - n_2)c_x & 0 & 1 & 0   \\
+  0 & (n_1 - n_2)c_y & 0 & 1  
+ \end{pmatrix}
+ \begin{pmatrix}
+  \vec{Q} \\
+  \vec{P}
+ \end{pmatrix} 
+\,.
+\end{align}
+Also the Hamitonian changes. This change is to first order in $\vec{Q}$ and $\vec{P}$ trivially
+be given by
+\begin{align}
+ H_\text{2D} & \stackrel{\text{linear}}{\mapsto} -n_1 + (n_2 - n_1)\,.
+\end{align}
+But since a Hamiltonian in linear approximation is not sufficient to generate equations of motion,
+one has to approximate at least to second order
+\begin{align}
+ \Delta H_\text{2D} &= n_2-n_1+\frac{p_x^2}{2 n_1}+\frac{p_y^2}{2 n_1} \nonumber\\&
+ -\frac{1}{2} c_x^2 q_x^2 (n_2-2 n_1)+c_x p_x q_x-\frac{1}{2} c_y^2 q_y^2 (n_2-2 n_1)+c_y p_y q_y\,.
+\end{align}
+
 
 \subsection{$pq$-3D-Formalism}
 
