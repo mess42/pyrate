@@ -1115,8 +1115,21 @@ Only for refraction (this time also with tilted surface, where $\vec{n}_0 = \vec
  \begin{pmatrix}
   \vec{q} \\
   -\sqrt{n_2^2 - n_1^2} \vec{n}_0 + \vec{p} - \scpm{\vec{p}}{\vec{n}_0} \vec{n}_0 - \sqrt{n_2^2 - n_1^2} [\scpm{\vec{q}}{\vec{\nabla}} \vec{n}]_0
- \end{pmatrix}\,.
+ \end{pmatrix}\nonumber\\&=
+ \begin{pmatrix}
+  1 & 0\\
+  -\sqrt{n_2^2-n_1^2} (\vec{\nabla} \otimes \vec{n})_0 & 1 - \vec{n}_0 \otimes \vec{n}_0
+ \end{pmatrix}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} -
+ \begin{pmatrix}
+  0 \\
+  \sqrt{n_2^2-n_1^2} \vec{n}_0
+ \end{pmatrix}
+\,.
 \end{align}
-The absolut term which arises due to surface tilt may be absorbed into a homogenious formulation by using the 5x5 formalism mentioned above.
+The absolute term which arises due to surface tilt may be absorbed into a homogenious formulation by using the 5x5 formalism mentioned above.
 
 \end{document}
