@@ -720,7 +720,7 @@ to do
 \remark{I would suggest to implement a few standard forms and to combine them by a linear combination operator. This makes the search for optimizable
 variables more difficult.}
 
-\section{Suggestions for linear and non-linear transfer formalisms}
+\section{Suggestions for linear and nonlinear transfer formalisms}
 The following section shows some suggestions for linear and non-linear transfer formalisms
 to simplify and unify ray tracing. The transfer formalisms should have the following properties:
 
@@ -1090,5 +1090,31 @@ Refraction at optical surface $f(x,y)$.
  \end{pmatrix}\,.
 \end{align}
 Notice that the Hamiltonian $H_\text{3D} = \vec{p}^2 - n^2 = 0$ is conserved.
+GRIN-Medium:
+\begin{align}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} &\stackrel{\text{ODE solver}}{\mapsto}
+ \begin{pmatrix}
+  \vec{q}(s) \\
+  \vec{p}(s)
+ \end{pmatrix}\,.
+\end{align}
+
+
+\subsubsection{Linearized transfer}
+Only for refraction (this time also with tilted surface, where $\vec{n}_0 = \vec{n}(0)$ is the surface tilt vector):
+\begin{align}
+ \begin{pmatrix}
+  \vec{q} \\
+  \vec{p}
+ \end{pmatrix} &\stackrel{\text{linear}}{\mapsto}
+ \begin{pmatrix}
+  \vec{q} \\
+  -\sqrt{n_2^2 - n_1^2} \vec{n}_0 + \vec{p} - \scpm{\vec{p}}{\vec{n}_0} \vec{n}_0 - \sqrt{n_2^2 - n_1^2} [\scpm{\vec{q}}{\vec{\nabla}} \vec{n}]_0
+ \end{pmatrix}\,.
+\end{align}
+The absolut term which arises due to surface tilt may be absorbed into a homogenious formulation by using the 5x5 formalism mentioned above.
 
 \end{document}
