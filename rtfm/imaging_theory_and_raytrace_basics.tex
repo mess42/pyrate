@@ -319,11 +319,7 @@ This calculation can, for certain types of anisotropic materials, be time consum
 \chapter{Geometrical Optics}
 
 \section{General Considerations}
-The consideration of GRIN media also fits into this transfer formalism.
-A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
-and a fixed $z$ position the ray starting point is $(x,y,z)$ and the direction vector
-is $(d_x,d_y,\sqrt{1-d_x^2-d_y^2})$. This fixes the initial conditions of the ray propagation
-uniquely. Now the optical path length functional is given b ,
+From Fermat's principle the optical path length functional is given by,
 \begin{align}
  L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.
 \end{align}
@@ -338,20 +334,22 @@ The sloppy notation with vector derivatives means a differentiation by component
 \begin{align}
  \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= n(\vec{r}(s)) \frac{\vec{r}'(s)}{|\vec{r}'(s)|} \stackrel{|\vec{r}'(s)|=1}{=} n(\vec{r}(s))\vec{r}'(s)\,.
 \end{align}
-Therefore the differential equation is given by
+Therefore the appropriate differential equation (the so-called equation of motion, EOM) is given by
 \begin{align}
  \frac{\text{d}}{\text{d}s} \left(n(\vec{r}(s)) \frac{\text{d}\vec{r}}{\text{d}s}\right) &= (\vec{\nabla} n)(\vec{r}(s)) \label{eq:ODEGRIN}\,.
 \end{align}
-(Notice: For a homogeneous medium the ODE system reduces to a system of algebraic equations [btw. this corresponds to a reduction of the
+(Notice: For a piecewise homogeneous medium the ODE system reduces to a system of algebraic equations 
+[btw. this corresponds to a reduction of the
 first variation of the integral to a first derivative of the corresponding sum].) 
-For our formalism the initial conditions are given by:
+For our later raytracing the initial conditions are given by:
 \begin{subequations}
 \label{eq:ODEGRINic}
 \begin{align}
  \vec{r}(s=0) &= (x,y,z)\,,\\
- \vec{r}'(s=0) &= (d_x, d_y, \sqrt{1-d_x^2-d_y^2})\,.
+ \vec{r}'(s=0) &= (d_x, d_y, \sqrt{1-d_x^2-d_y^2})\,,
 \end{align}
 \end{subequations}
+where $\vec{d}$ is the direction unit vector of some certain ray and $(x,y,z)$ is the starting position.
 Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqref{eq:ODEGRINic}
 and obtain after a (in general numerical) integration a set of values $\vec{r}(s)$ and $\vec{r}'(s)$
 which correspond to the final position and direction of the ray.
@@ -370,10 +368,24 @@ the Hamiltonian becomes clear, since $|\vec{d}| = 1$.) The canonical equations a
 The second parametrization is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
 given by
 \begin{align}
- H_{\text{2D}} &= -n(\vec{Q}, z)\sqrt{1 - \frac{\vec{P}^2}{n(\vec{Q}, z)^2}}\,,
+ H_{\text{2D}} &= -n(\vec{Q}, z)\sqrt{1 - \frac{\vec{P}^2}{n(\vec{Q}, z)^2}}\label{eq:Hamiltonian2D}\,,
 \end{align}
 and is equal to the negative component of the 3D momentum.
-The equations of motion are therefore given by [$\vec{Q} = (x,y)$, $\vec{P} = n (d_x, d_y)$]
+This comes from the Legendre transformation of the Lagrangian
+\begin{align}
+ \mathcal{L} &= n(\vec{Q}, z) \sqrt{1 + V^2}\,,
+\end{align}
+now parametrized by $z$ as independent variable, $\vec{Q} = (x,y)$ and $\vec{V} = (x'(z), y'(z))$.
+The Legendre transformation involves first an inversion of the relation
+\begin{align}
+ \vec{P} &= \frac{\partial \mathcal{L}}{\partial \vec{V}} = n(\vec{R}, z) \frac{\vec{V}}{\sqrt{1 + \vec{V}^2}}\,,
+\end{align}
+with respect to $\vec{V}$ and afterwards the calculation of
+\begin{align}
+ H_{\text{2D}}(\vec{Q}, \vec{P},z) &= \scpm{\vec{P}}{\vec{V}(\vec{P})} - \mathcal{L}(\vec{Q}, z, \vec{P})\,,
+\end{align}
+which leads to \eqref{eq:Hamiltonian2D}. The equations of motion due to the canonical formalism 
+are therefore given by [remember $\vec{Q} = (x,y)$, $\vec{P} = n (d_x, d_y)$]
 \begin{align}
  \frac{\text{d}\vec{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \vec{P}} = \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,,\\
  \frac{\text{d}\vec{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \vec{Q}} = \frac{\vec{\nabla}_{\vec{Q}} n}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.    
@@ -932,6 +944,12 @@ mechanics and phase space theory in general hold. These formulation will be inve
 \subsection{$PQ$-2D-Formalism}
 
 \subsection{$pq$-3D-Formalism}
+
+The more general consideration of GRIN media in 3D phase space also fits into the formerly given transfer formalisms.
+A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
+and a fixed $z$ position the ray starting point is $(x,y,z)$ and the direction vector
+is $(d_x,d_y,\sqrt{1-d_x^2-d_y^2})$. This fixes the initial conditions of the ray propagation
+uniquely. 
 
 
 
