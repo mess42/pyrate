@@ -321,7 +321,7 @@ This calculation can, for certain types of anisotropic materials, be time consum
 \section{General Considerations}
 From Fermat's principle the optical path length functional is given by,
 \begin{align}
- L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.
+ L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.\label{eq:fermatiso}
 \end{align}
 with the corresponding ``Lagrangian'' $\mathcal{L}$.
 Notice $s$ is the arc length and therefore the derivative $\vec{r}'(s)$ is a unit vector. (For the Euler Lagrange
@@ -467,6 +467,37 @@ and is solved by
  \vec{q} &= \vec{C}_1 \cos(\alpha s) + \vec{C}_2 \sin(\alpha s)\,.
 \end{align}
 With appropriate initial conditions this could be used as a check for the integrator code later.
+
+\section{Anisotropic Media}
+The isotropic Fermat's principle -- which tells us to minimize the functional \eqref{eq:fermatiso} -- is by far not the end of the
+story. There are media in which the propagation of light depends on the direction of the light rays. This implies that the
+optical index is direction dependent:
+\begin{align}
+ L &= \int_{s_1}^{s_2} n(\vec{r}(s), \vec{r}'(s)) |\text{d}\vec{s}|\,.\label{eq:fermataniso}
+\end{align}
+For a so called quadrupole material where the refraction index only depends on velocities to second order,
+we have (Einstein summation convention!)
+\begin{align}
+  L &= \int_{s_1}^{s_2} \sqrt{g_{ij}(\vec{r}(s)) \frac{\text{d}r^i}{\text{d}s} \frac{\text{d}r^j}{\text{d}s}} \text{d}s\,.\label{eq:fermataniso2}
+\end{align}
+For $g_{ij} = n^2(\vec{r}) \delta_{ij}$ we get the isotropic case back.
+The tensor field $g_{ij}$ is the Riemann metric. Following the derivations of geodesic equations in general relativity,
+we get the following differential equation
+\begin{align}
+ \frac{\text{d}^2 r^k}{\text{d}s^2} + \Gamma^k_{ij} \frac{\text{d}r^i}{\text{d}s} \frac{\text{d}r^j}{\text{d}s} &= 0\,,
+\end{align}
+where the $\Gamma^k_{ij}$ are the so-called Christoffel symbols which are derived from the gradients of the metric, namely
+\begin{align}
+ \Gamma^k_{ij} &= \frac{1}{2} g^{k\ell} \left(\partial_i g_{\ell j} + \partial_j g_{i \ell} - \partial_\ell g_{ij}\right)\,.
+\end{align}
+Between general relativity and this optics formulation the most import difference is that the metric $g_{ij}$ is no dynamical
+object. It is an external model which has to be derived from other considerations and it does not come from first principles in
+electrodynamic field theory. Although we may think about a dynamical backreaction of the light on the metric by very very very
+high energy processes, but then the geometrical optics approximation is far from being valid. :-)
+All this stuff leads to the well known discussions about parallel transport of vectors on a manifold, about the introduction of a
+kinetic momentum and a canonical momentum differing by a vector potential (aka connection coefficiets).
+\remark{Make more clear! See e.g. A.~L.~Rivera, K.~B.~Wolf, S.~Chumakov, ``Hamiltonian foundation of geometrical anisotropic optics'', JOSA~A~{\bf 12} (1995)}
+\remark{It would be very nice if we could implement this at least for a second rank tensor dependency of the optical index!}
 
 
 \chapter{Raytracing}
