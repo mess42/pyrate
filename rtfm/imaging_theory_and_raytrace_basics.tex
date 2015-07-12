@@ -99,6 +99,8 @@
 
 \begin{document}
 
+\pagenumbering{roman}
+
 \titlehead{ }
 \subject{Pyrate -- Optical raytracing based on Python}
 \title{Read This Fundamental Manual \\ on Imaging Theory and Basics of Optical Raytracing}
@@ -108,6 +110,15 @@
 \maketitle
 
 \onehalfspacing
+
+\tableofcontents
+
+\cleardoublepage
+
+\pagenumbering{arabic}
+
+\singlespacing
+
 
 \chapter{Optics from Maxwell Equations}
 \section{The Source Free Maxwell Equations}
@@ -310,7 +321,7 @@ Compared to the law of Snellius, this formulation bears the following advantages
 The formulation does not actually solve the problem of refraction, but just forward it to the problem of finding a solution of the material dispersion. 
 This calculation can, for certain types of anisotropic materials, be time consuming.
 
-\section{Raytracing}
+\chapter{Raytracing}
 In raytracing, we assume that radiation is propagated in rays, that are thin, collimated beams. 
 We assume that the rims of these beams are negligible compared to the central area. That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
 Further we assume that all rays are much smaller than the characteristic length of surface curvatures and all surfaces are locally approximated planar on the cross-section area of a ray.
@@ -320,29 +331,33 @@ However, the optical designer has to check for each calculation whether the ray 
 Classical raytracing consists of the following steps: The ray is considered a straight in 3D space. First its intersection point with the next surface is calculated. 
 Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
 
-\subsection{Intersections of Straights with Spheres, Aspheres and Free-shapes}
-\subsubsection{Spheres}
-We consider a ray and a Sphere that intersects the optical axis in the origin
-\begin{eqnarray}
- \Location &=& \Location_0 + \vec{d} t \\
- \left| \Location + \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2
-\end{eqnarray}
-$\Location_0$ is the ray start point, $\vec{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
-Mathematically, the solution is easily found. 
-A solution numerically stable for the case of a planar surface $R \rightarrow \infty$ is:
-\begin{eqnarray}
-   F &=& d_z - \rho \left( \vec{d} \Location \right) \\
-   G &=& \rho |\Location|^2 - 2 z \\
-   H &=& - \rho \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
-\end{eqnarray}
-Where $\rho = 1 / R$ is the surface curvature. 
-The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
-Otherwise, the ray misses the sphere.
+\section{Intersections of Straights with Spheres, Aspheres and Free-shapes}
 
-\subsubsection{Conics}
-Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
-Their surface sag $z$ can be described by
+\subsection{Biconics}
+A biconic describes a surface with two perpendicular sections
+of conic shape. Special cases for biconic shapes are, for example, cylinders, spheres, ellipsoids, paraboloids and hyperboloids.
+The explicit surface sag formula is given by
+\begin{align}
+ z &= \frac{\rho_x x^2 + \rho_y y^2}{1 + \sqrt{1 - (1+c_x) \rho_x^2 x^2 - (1+c_y) \rho_y^2 y^2}} \label{eq:biconic}
+\end{align}
+where the sag os zero on the optical axis $x,y = 0$.
+The variables are $\rho_x = 1/R_x$ the $x$ curvature, $\rho_y = 1/R_y$ the $y$ curvature, $c_x$ the conic constant in $x$ direction,
+and $c_y$ the conic constant in $y$ direction respectively.
+
+We intersect the biconic with a ray, reperesented by a straight
+\begin{eqnarray}
+  \Location &=& \Location_0 + \vec{d} t \\
+  |\vec{d}| &=& 1
+\end{eqnarray}
+
+In search of an intersection of a biconic with a straight, one ends up with a quartic equation.
+
+to do
+
+
+\subsection{Conics}
+Conics are the rotationally symmetric special case of a biconic $\rho_x = \rho_y, c_x = c_y$. This class contains spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
+Their surface sag $z$ is described by
 \begin{eqnarray}
  z =  \frac
  { \rho ( x^2 + y^2 ) }
@@ -356,28 +371,132 @@ where $c$ is the conic constant. Depending on this parameter, the conic is a
      c = 1 && \textrm{paraboloid} \\
      c > 1 && \textrm{hyperboloid}
 \end{eqnarray*}
+
+A solution numerically stable for the case of a planar surface $R \rightarrow \infty$ is:
+\begin{eqnarray}
+   F &=& d_z - \rho \left( d_x x_0 + d_y y_0 + d_z z_0 (1+c) \right) \\
+   G &=& \rho (x_0^2 + y_0^2 + z_0^2 (1+c)) - 2 z_0 \\
+   H &=& - \rho ( 1 + c \, d_z^2 ) \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
+Otherwise, the ray misses the conic.
+
+\subsection{Spheres}
+Spheres or spherical lenses are the special case of zero conic constant $c=0$.
+This simplifies the intersection to
+\begin{eqnarray}
+   F &=& d_z - \rho \left( \vec{d} \Location_0 \right) \\
+   G &=& \rho |\Location_0|^2 - 2 z_0 \\
+   H &=& - \rho \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
+Otherwise, the ray misses the sphere.
+
+\subsection{Conical Acylinder}
+A conical acylinder is the special case $\rho_x=0, c_x=0$ of a biconic. It contains cylindric and simple acylindric lenses like elliptical, parabolic and hyperbolic acylindric lenses.
+Without loss of generality, we choose our coordinate system so that the curvature in x-direction vanishes.
+This effectively reduces the problem of an intersection in three-dimensional space to a two-dimensional one.
+
+\begin{align}
+ z &= \frac{ \rho y^2}{1 + \sqrt{1 - (1+c) \rho^2 y^2}}
+\end{align}
 The solution is
 \begin{eqnarray}
-   F &=& d_z - \rho \left( d_x x + d_y y + d_z z (1+c) \right) \\
-   G &=& \rho (x^2 + y^2 + z^2 (1+c)) - 2 z \\
+   F &=& d_z - \rho \left(  d_y y_0 + d_z z_0 (1+c) \right) \\
+   G &=& \rho ( y_0^2 + z_0^2 (1+c)) - 2 z_0 \\
    H &=& - \rho ( 1 + c \, d_z^2 ) \\
    t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
 \end{eqnarray}
 
-\subsubsection{Biconics}
+\subsection{Cylinder}
+A cylindric surface is the special case $c = 0$ of a conical acylinder.
+\begin{align}
+ z &= \frac{ \rho y^2}{1 + \sqrt{1 - \rho^2 y^2}}
+\end{align}
+The solution further simplifies to
+\begin{eqnarray}
+   F &=& d_z - \rho \left(  d_y y_0 + d_z z_0  \right) \\
+   G &=& \rho ( y_0^2 + z_0^2 ) - 2 z_0 \\
+   H &=& - \rho \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+
+
+
+
+\subsection{Polynomial Asphere}
 to do
-\subsubsection{Polynomial Asphere}
+\subsection{Strong Forbes Asphere}
 to do
-\subsubsection{Strong Forbes Asphere}
+\subsection{Mild Forbes Asphere}
 to do
-\subsubsection{Mild Forbes Asphere}
+\subsection{Acylinder}
 to do
-\subsubsection{Cylindric}
+\subsection{Free Shapes}
 to do
-\subsubsection{Acylindric}
+
+\section{Ray Aiming and Pupil Rastering}
+Assume we have an optical system and we want to create some rays to be traced through the system. 
+In classical raytracing, one determines the position of a field point and casts a bundle of rays from this field point towards the entrance pupil of the optical system, filling the pupil with a certain pattern.
+One is interested in a description that is numerically stable for telecentric systems and infinite conjugate systems.
+The problem can be split up into two separate ones: assigning every ray an origin position and a direction.
+
+\subsection{Ray origin for finite conjugate objects}
+For finite conjugate objects, the object plane is part of the optical system. Rays from one field point originate from the same point in the object plane.
+
+to do: paraxial image height definition
+
+to do: angle definition
+
+
+\subsection{Ray origin for infinite conjugate objects}
 to do
-\subsubsection{Free Shapes}
-to do
+
+\subsection{Pupil aiming}
+We assume a plane pupil at finite or infinite distance. We want to cast rays from the ray origin positions so that they hit certain coordinates in the pupil plane. 
+The na\"{\i}ve ansatz to subtract the ray origin from the desired pupil coordinate to obtain the ray direction will likely fail numerically for telecentric systems.
+Therefrore, we derive the marginal ray slope and the chief ray slope from the first order properties of the system and base the ray directions on these two quantities.
+%
+\begin{eqnarray}
+  \left. \frac{\partial x}{\partial z}\right|_{ray} &=& \left. \frac{\partial x}{\partial z}\right|_{chief} + \left. \frac{\partial x}{\partial z}\right|_{marginal} \cdot x_{pup} \\
+  \left. \frac{\partial y}{\partial z}\right|_{ray} &=& \left. \frac{\partial y}{\partial z}\right|_{chief} + \left. \frac{\partial y}{\partial z}\right|_{marginal} \cdot y_{pup}
+\end{eqnarray}
+where $x_{pup}, y_{pup} \in [-1,1]$ are pupil coordinates normalized to the pupil radius. 
+Note that a equidistant mesh of pupil coordinates will not result in a constant ray density per solid angle for high-NA systems.
+
+\subsubsection{Paraxial pupil aiming}
+In paraxial pupil aiming, the optical system is represented by ABCD-Matrices and the marginal slope is calculated paraxially.
+We split the optical system into one ABCD Matrix from the object to the stop
+\begin{eqnarray*}
+ ABCD_{obj\rightarrow stop} &=&
+ \begin{pmatrix}
+  A_o & B_o \\ C_o & D_o
+ \end{pmatrix}
+\end{eqnarray*}
+and one matrix from the stop to the image
+\begin{eqnarray*}
+ ABCD_{stop\rightarrow ima} &=&
+ \begin{pmatrix}
+  A_i & B_i \\ C_i & D_i
+ \end{pmatrix}
+\end{eqnarray*}
+The pupil is the image of the stop, imaged by the front lens group $ABCD_{obj\rightarrow stop}$ for the entrance pupil and the rear lens group $ABCD_{stop\rightarrow ima}$ for the exit pupil, respectively.
+The entrance pupil is imaged to distance $z_{en}$ from the object and appears to be magnified in size by a factor of $mag_{en}$ compared to the stop. 
+Similarly, the exit pupil has a distance $z_{ex}$ from the image and a magnification of $mag_{ex}$.
+\begin{eqnarray}
+ z_{en} &=& \frac{B_o}{A_o} \\
+ mag_{en} &=& \frac{1}{A_o} \\
+ z_{ex} &=& - \frac{B_i}{D_i} \\
+ mag_{ex} &=& A_i - \frac{B_i C_i}{D_i}
+\end{eqnarray}
+For telecentric systems, an expression of the pupil rastering in terms of $z_{en}$ or $z_{ex}$ is depreceated. 
+Expressing everything in terms of ABCD matrices, it is often possible to reduce fractions analytically and avoid numerical instabilities.
+
+
+
+
 
 
 
