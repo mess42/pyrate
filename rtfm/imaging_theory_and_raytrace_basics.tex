@@ -994,7 +994,7 @@ Transfer through homogeneous material:
   \vec{P}
  \end{pmatrix} &\mapsto
  \begin{pmatrix}
-  \vec{Q} + (z' -z') \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}} \\
+  \vec{Q} + (z' -z) \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}} \\
   \vec{P}
  \end{pmatrix}\,.
 \end{align}
@@ -1162,5 +1162,140 @@ Only for refraction (this time also with tilted surface, where $\vec{n}_0 = \vec
 \,.
 \end{align}
 The absolute term which arises due to surface tilt may be absorbed into a homogenious formulation by using the 5x5 formalism mentioned above.
+
+\subsection{Combined 2D 5x5 formalism}
+
+We will start at a nonlinear homogeneous matrix transfer function of 3D variables and try to implement the formalisms discussed above
+\begin{align}
+ \begin{pmatrix}
+  \vec{q}\,{}'\\
+  \vec{p}\,{}'\\
+  1
+ \end{pmatrix}
+ &=
+ \underbrace{\begin{pmatrix}
+  A(\vec{q},\vec{p}) & B(\vec{q},\vec{p}) & \vec{t}(\vec{q},\vec{p})\\
+  C(\vec{q},\vec{p}) & D(\vec{q},\vec{p}) & \vec{\delta}(\vec{q},\vec{p})\\
+  0 & 0 & 1 
+ \end{pmatrix}}_\mathcal{T}
+ \begin{pmatrix}
+  \vec{q}\\
+  \vec{p}\\
+  1
+ \end{pmatrix}\,.
+\end{align}
+As already discussed above this homogeneous transformation is able to include rotation and translation of the optical axis (aka coordinate breaks) 
+in a unified manner. Due to the nonlinearity the formulation of the transfer matrix is not unique. Notice that the components of $\vec{p}$ and $\vec{p}\,{}'$
+are not fully independent from each other. For unification with 2D formalism we split up the canonical coordinates and momenta into 2D and 3-components, i.e.
+$\vec{q} = (\vec{Q}, z) = (Q_\alpha, z)$ where indices from the beginning of the greek alphabet are running over $1,2$. Now we also use Einstein summation
+convention. Therefore the equation $\vec{q}\,{}' = A \vec{q}$ is $(2+1)$ decomposed like the following
+\begin{align}
+ Q^\prime_\alpha &= A_{\alpha\beta} Q_\beta + A_{\alpha 3} z\,,\\
+ z^\prime &= A_{3 \beta} Q_\beta + A_{33} z\,.
+\end{align}
+For the readers convenience we omit the $(\vec{q},\vec{p})$ dependency of the sub matrices and vectors in the large transfer matrix.
+In its full form the transfer reads (notice $H$ and $H'$ are the respective 2D Hamiltonians corresponding to the negative 3-component of the 2D momentum)
+\begin{subequations}
+\begin{align}
+ Q^\prime_\alpha &= A_{\alpha\beta} Q_\beta + A_{\alpha 3} z + B_{\alpha\beta} P_\beta - B_{\alpha 3} H + t_\alpha\,,\\
+ z^\prime &= A_{3 \beta} Q_\beta + A_{33} z + B_{3\beta} P_\beta - B_{33} H + t_3\,,\\
+ P^\prime_\alpha &= C_{\alpha\beta} Q_\beta + C_{\alpha 3} z + D_{\alpha\beta} P_\beta - D_{\alpha 3} H + \delta_\alpha\,,\\
+ H' &= -C_{3\beta} Q_\beta - C_{33} z - D_{3\beta} P_\beta + D_{33} H - \delta_3\,,
+\end{align}
+\end{subequations}
+Notice that the transfer function in this form is only valid for non-GRIN media. I would suggest to treat the transfer function of a GRIN medium
+like a box where you put in $Q_\alpha, P_\alpha, z$ and after the propagation to $z'$ it spits out the primed coordinates.
+\subsubsection{Propagation through constant index $n$}
+\begin{align}
+ \begin{pmatrix}
+  \vec{Q} \\
+  \vec{P}
+ \end{pmatrix} &\mapsto
+ \begin{pmatrix}
+  \vec{Q} + (z' -z) \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}} \\
+  \vec{P}
+ \end{pmatrix}\,.
+\end{align}
+So
+\begin{align}
+ A_{\alpha\beta} &= \delta_{\alpha\beta}\,,\quad A_{\alpha 3} = 0\,,\quad B_{\alpha\beta} = \frac{L}{\sqrt{n^2 - \vec{P}^2}} \delta_{\alpha\beta}\,,\quad B_{\alpha3} = 0\,,\quad t_\alpha = 0 \\
+ A_{3\beta} &= 0\,,\quad A_{33} = 1\,,\quad B_{3\beta} = 0\,,\quad B_{33} = 0\,,\quad t_3 = L\,,\\
+ D_{\alpha\beta} &= \delta_{\alpha\beta}\,,\quad D_{33} = 1\,,
+\end{align}
+rest zero. Therefore\remark{check!}
+\begin{align}
+ \mathcal{T}_n &=
+ \begin{pmatrix}
+  \delta_{\alpha\beta} & 0 &  \frac{L}{\sqrt{n^2 - \vec{P}^2}} \delta_{\alpha\beta} & 0 & 0\\
+   0                   & 1 & 0 & 0 & L\\
+   0                   & 0 & \delta_{\alpha\beta} & 0 & 0\\
+   0                   & 0 & 0 & 1 & 0 \\
+   0 & 0 & 0 & 0 & 1
+ \end{pmatrix}
+\end{align}
+For refraction\remark{check and complete!}
+\begin{align}
+ \mathcal{T}_{n_1\mapsto n_2} &=
+ \begin{pmatrix}
+  \delta_{\alpha\beta} & 0 &  0 & 0 & 0\\
+   0                   & 1 & 0 & 0 & L\\
+   0                   & 0 & \delta_{\alpha\beta} & Z(\vec{Q}) & -\biggl[\scpm{\vec{P}}{\vec{N}} - \sqrt{n_2^2 - n_1^2 + (\scpm{\vec{P}}{\vec{N}} + Z(\vec{Q}) H)^2}\biggr] N_\alpha \\
+   0                   & 0 & 0 & 1 & {\color{red}{*}} \\
+   0 & 0 & 0 & 0 & 1
+ \end{pmatrix}
+\end{align}
+For reflection\remark{check!}
+\begin{align}
+ \mathcal{T}_{\text{mirror}} &=
+ \begin{pmatrix}
+  \delta_{\alpha\beta} & 0 &  0 & 0 & 0\\
+   0                   & 1 & 0 & 0 & 0\\
+   0                   & 0 & \delta_{\alpha\beta} & 0 & -2 \scpm{\vec{P}}{\vec{N}} N_\alpha(\vec{Q}) \\
+   0                   & 0 & 0 & 1 & -2 \scpm{\vec{P}}{\vec{N}} Z(\vec{Q}) \\
+   0 & 0 & 0 & 0 & 1
+ \end{pmatrix}
+\end{align}
+Notice that for a proper treatment of refraction or reflection at a curved surface one has to start a ray in the reference plane of the 
+optical surface and propagate up to the surface. The intersection calculation is not trivial and only for special cases
+available in closed form. After this intersection calculation one may calculate the normal vector at the intersection point
+and refract the ray.
+
+For coordinate break (rotation of momentum direction)
+\begin{align}
+ \mathcal{T}_{\text{CB,pR}} &=
+ \begin{pmatrix}
+  \delta_{\alpha\beta} & 0 &  0 & 0 & 0\\
+   0                   & 1 & 0 & 0 & 0\\
+   0                   & 0 & R_{\alpha\beta} & R_{\alpha 3} & 0 \\
+   0                   & 0 & R_{3\beta} & R_{33} & 0 \\
+   0 & 0 & 0 & 0 & 1
+ \end{pmatrix}
+\end{align}
+For coordinate break (translation of intersection point)
+\begin{align}
+ \mathcal{T}_{\text{CB,T}} &=
+ \begin{pmatrix}
+  \delta_{\alpha\beta} & 0 &  0 & 0 & t_\alpha\\
+   0                   & 1 & 0 & 0 & t_3\\
+   0                   & 0 & \delta_{\alpha\beta} & 0 & 0 \\
+   0                   & 0 & 0 & 1 & 0 \\
+   0 & 0 & 0 & 0 & 1
+ \end{pmatrix}
+\end{align}
+For coordinate break (rotation of intersection point inplane)
+\begin{align}
+ \mathcal{T}_{\text{CB,QR}} &=
+ \begin{pmatrix}
+  R_{\alpha\beta} & 0 &  0 & 0 & 0\\
+   0                   & 1 & 0 & 0 & 0\\
+   0                   & 0 & \delta_{\alpha\beta} & 0 & 0 \\
+   0                   & 0 & 0 & 1 & 0 \\
+   0 & 0 & 0 & 0 & 1
+ \end{pmatrix}
+\end{align}
+These transformations can be combined in a matrix manner since they
+are linear and have no dependency from the coordinates and momentum variables.
+
+
 
 \end{document}
