@@ -1301,5 +1301,33 @@ The nonlinear transfer functions could also be combined in a matrix manner but
 one has to take care about the right arguments to the components.
 
 
+\subsubsection{Linearization}
+
+For a linearized theory one has to treat the coordinate part ($A$, $B$, $C$, $D$) in a different manner than the absolute part ($\vec{t}$, $\vec{\delta}$).
+The former has to be approximated only to zeroth order since they are multiplied by momenta and coordinates. In contrast the latter one
+has to be approximated at first order to generate missing linear terms. Therefore the structure of the linearized theory can still change, but
+at least there is a unique formalism to derive the paraxial approximation.
+\begin{align}
+  \mathcal{T} &= \begin{pmatrix}
+  A_{ab}(\vec{q},\vec{p}) & B_{ab}(\vec{q},\vec{p}) & t_{a}(\vec{q},\vec{p})\\
+  C_{ab}(\vec{q},\vec{p}) & D_{ab}(\vec{q},\vec{p}) & \delta_{a}(\vec{q},\vec{p})\\
+  0 & 0 & 1 
+ \end{pmatrix}
+ \approx \nonumber\\&
+  \begin{pmatrix}
+  A(0,0) & B(0,0) & t_a(0,0) + (\partial^q_b t_a)(0,0) q_b + (\partial^p_b t_a)(0,0) p_b\\
+  C(0,0) & D(0,0) & \delta_a(0,0) + (\partial^q_b \delta_a)(0,0) q_b + (\partial^p_b \delta_a)(0,0) p_b\\
+  0 & 0 & 1 
+ \end{pmatrix} \nonumber\\&
+  \begin{pmatrix}
+  A_{ab}(0,0)  + (\partial^q_b t_a)(0,0) & B_{ab}(0,0)+ (\partial^p_b t_a)(0,0) & t_a(0,0) \\
+  C_{ab}(0,0)+ (\partial^q_b \delta_a)(0,0) & D_{ab}(0,0)  + (\partial^p_b \delta_a)(0,0)& \delta_a(0,0)\\
+  0 & 0 & 1 
+ \end{pmatrix}
+\end{align}
+After a ($2+1$) decomposition it is clear how to transform the 2D components of momentum and coordinates. (Notice
+as mentioned earlier for the Hamiltonian, i.e. the negative 3-component of the momentum, it is not sufficient
+to approximate to first order to generate the appropriate equations of motion. This means the $C_3$ and $D_3$ components
+have to approximated at least to first order and the $\delta_3$ component up to second order.)
 
 \end{document}
