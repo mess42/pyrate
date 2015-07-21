@@ -1328,6 +1328,27 @@ at least there is a unique formalism to derive the paraxial approximation.
 After a ($2+1$) decomposition it is clear how to transform the 2D components of momentum and coordinates. (Notice
 as mentioned earlier for the Hamiltonian, i.e. the negative 3-component of the momentum, it is not sufficient
 to approximate to first order to generate the appropriate equations of motion. This means the $C_3$ and $D_3$ components
-have to approximated at least to first order and the $\delta_3$ component up to second order.)
+have to approximated at least to first order and the $\delta_3$ component up to second order.) Simple propagation in 2D is already linear.
+
+Refraction:
+\begin{align}
+  \mathcal{T}_{n_1\mapsto n_2} \approx \begin{pmatrix}
+  \delta_{ab} & 0 & 0 \\
+   -\sqrt{n_2^2 - n_1^2} (\partial_b n_a)(0) & \delta_{ab} - n_a(0) n_b(0)& -\sqrt{n_2^2 - n_1^2} n_a(0)\\
+  0 & 0 & 1 
+ \end{pmatrix}
+\end{align}
+The first term second row depends on the curvature of the surface in the different directions. The second term is
+a projection operator perpendicular to the unit normal vector of the surface at the optical axis.
+
+Reflection:
+\begin{align}
+  \mathcal{T}_{\text{mirror}} \approx \begin{pmatrix}
+  \delta_{ab} & 0 & 0 \\
+   0 & \delta_{ab} - 2 n_a(0) n_b(0)& 0\\
+  0 & 0 & 1 
+ \end{pmatrix}
+\end{align}
+The higher order corrections in the taylor expansion give rise to the aberrations.
 
 \end{document}
