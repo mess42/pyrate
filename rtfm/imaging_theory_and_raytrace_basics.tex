@@ -752,7 +752,23 @@ if the quartic has two double roots:
 Some of the discussed cases show that the ray misses the surfaces.
 
 \subsection{Polynomial Asphere}
-to do
+
+For a polynomial asphere the general form is
+\begin{align}
+  z &=  \frac
+ { \rho ( x^2 + y^2 ) }
+ { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} } + A(x^2 + y^2)\,,
+\end{align}
+where $A$ is a polynomial starting at second order in the given variable.
+The appropriate equation to find the intersection point is given by [completing the square and so on]\remark{check!}
+\begin{align}
+ \left(z - A(x^2 + y^2) - \frac{1}{1+c}\right)^2 - \frac{1}{(1+c)^2} \left(1 -(1+c)\rho^2 (x^2 + y^2) \right) &= 0\,.
+\end{align}
+The first term is strictly positve, the second is always negative if the ray should hit the asphere. For the calculation
+of the intersection point one has to insert the ray parameters for $x, y, z$ and calculate the intersection parameter $t$.
+In the present case this is only possible numerically.
+
+
 \subsection{Strong Forbes Asphere}
 to do
 \subsection{Mild Forbes Asphere}
