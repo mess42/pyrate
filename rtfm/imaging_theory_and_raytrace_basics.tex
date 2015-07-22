@@ -312,9 +312,17 @@ Our formulation of the law of refraction is
 \begin{eqnarray}
  \Efield_1(\Location) &=& \Efield_{01} \exp(i \Wavevector_1 \Location) \\
  \Efield_2(\Location) &=& \Efield_{02} \exp(i \Wavevector_2 \Location) \\
- \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \vec{n}
+ \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \vec{n}\,.\label{eq:xieqn}
 \end{eqnarray}
-This formulation holds for any planar boundary between two homogeneous media. The normal component of the wavevector in medium 2 depends on the material dispersion in material $\permittivity_2$.
+By using the equations for the squares of the vectors $\vec{k}_1^2 = \omega^2 \mu_0 \epsilon_1$ and $\vec{k}_2^2 = \omega^2 \mu_0 \epsilon_2$,
+and further inserting the perpendicular and longitudinal components back into \eqref{eq:xieqn}, we arrive at a quadratic equation for $\xi$ which leads to
+\begin{align}
+ \vec{k}_2 &= \vec{k}_1 - \left[\scpm{\vec{k}_1}{\vec{n}} \pm \sqrt{\omega^2 \mu_0 (\epsilon_2 - \epsilon_1) + \scpm{\vec{k}_1}{\vec{n}}^2} \right]\vec{n}\,. 
+\end{align}
+This formulation is a slight generalization of the later used momentum transfer equation (cf. e.g. \eqref{eq:refraction_vector})
+\remark{is it possible to fix the sign in the complex case?}
+and holds for any planar boundary between two homogeneous media. The normal component 
+of the wavevector in medium 2 depends on the material dispersion in material $\permittivity_2$.
 Compared to the law of Snellius, this formulation bears the following advantages:
 \begin{itemize}
  \item It does not require the calculation of angles in 3D space, only scalar products.
@@ -390,7 +398,7 @@ This comes from the Legendre transformation of the Lagrangian
 now parametrized by $z$ as independent variable, $\vec{Q} = (x,y)$ and $\vec{V} = (x'(z), y'(z))$.
 The Legendre transformation involves first an inversion of the relation
 \begin{align}
- \vec{P} &= \frac{\partial \mathcal{L}}{\partial \vec{V}} = n(\vec{R}, z) \frac{\vec{V}}{\sqrt{1 + \vec{V}^2}}\,,
+ \vec{P} &= \frac{\partial \mathcal{L}}{\partial \vec{V}} = n(\vec{Q}, z) \frac{\vec{V}}{\sqrt{1 + \vec{V}^2}}\,,
 \end{align}
 with respect to $\vec{V}$ and afterwards the calculation of
 \begin{align}
