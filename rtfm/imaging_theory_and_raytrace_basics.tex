@@ -191,20 +191,24 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \label{eq:sourcefreemaxwell}
 \end{subequations}
 
+\section{General Derivation of Eikonal Equation}
+With insertion of 
+
+
 \section{Plane Wave Solutions and Dispersion}
-\subsection{The general case}
+\subsection{The general anisotropic homgeneous case}
 We consider a homogeneous material $\permittivity(\Location) = const.$ We apply the Nabla curl operatur on the Maxwell curl equation for the electric field
+($\partial_i \partial_i =: \Delta$ the Laplacian)
 \begin{eqnarray}
   \Nabla \times ( \Nabla \times \Efield ) &=& \Nabla \times ( i \omega \vacuumpermeability \Hfield ) 
   \\
-  \nabla_i \nabla_i \scalarEfield_j - \nabla_i \nabla_j \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
+  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
 \end{eqnarray}
 This is a differential equation with constant coefficients, so we use the ansatz
 \begin{eqnarray}
  \Efield(\Location,\omega) &=& \Efield_0(\omega) \exp(i \Wavevector \Location)
 \end{eqnarray}
 where the $\Efield_0$ contains polarisation, electric field amplitude and harmonic time dependence. We find the eigenvalue equation
-
 \begin{eqnarray}
 \begin{pmatrix}
  \wavenumber_y^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} 
@@ -226,12 +230,17 @@ where the $\Efield_0$ contains polarisation, electric field amplitude and harmon
  \wavenumber_x^2 + \wavenumber_y^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{zz}  
 \end{pmatrix}
 \Efield
-&=& 0
+&=& 0\,,
 \end{eqnarray}
+which can be written in a more condensed form by [setting $\partial_j \to i k_j$]
+\begin{align}
+ \left(-\vec{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_j &= 0 \,.
+\end{align}
+By contracting this equation by $k_i$ the divergence constraint arises trivially.
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield$,
 that is, a propagation wavector is only valid for a certain polarisation.
 
-\subsection{uniaxial anisotropic media}
+\subsection{Uniaxial anisotropic, homogeneous media}
 to do
 
 ordinary mode:
@@ -247,7 +256,7 @@ extraordinary mode:
 $\Efield$ is in one plane with optical crystal axis and $\Wavevector$.
 
 
-\subsection{isotropic media}
+\subsection{Isotropic media}
 
 We use the result for uniaxial anisotropic materials and insert the same value for both ordinary and extraordinary permittivity $\scalarpermittivity_{ord} = \scalarpermittivity_{ex} = \scalarpermittivity$.
 This results in a degenerate solution for both polarisations.
