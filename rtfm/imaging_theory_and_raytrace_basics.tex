@@ -191,8 +191,99 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \label{eq:sourcefreemaxwell}
 \end{subequations}
 
-\section{General Derivation of Eikonal Equation}
-With insertion of 
+\section{Derivation of Eikonal Equation in inhomogenous, anisotropic Media}
+{\color{red}{This section needs heavy checking as I am not sure about some steps!}}
+
+\subsection{Reducing the Maxwell field equations to Eikonal-type equations}
+Starting at the source-free Maxwell equations \eqref{eq:sourcefreemaxwell} 
+in general complex, anisotropic and inhomogenous
+permittivity tensor field $\hat{\epsilon}_{ij}(\vec{r})$.
+We start at the generalization of the Helmholtz wave equation for anisotropic media
+\begin{align}
+ (\delta_{ij} \Delta - \partial_i \partial_j + \omega^2 \mu_0 \permittivity_{ij}) E_j = 0\,,
+\end{align}
+which's derivation only relies on\remark{is that really the case?}
+\begin{itemize}
+ \item no memory effects in $\permittivity_{ij}$ (no time convolution in the material equations)
+ \item monochromaticity (no mixing of different $\omega$ due to material properties)\,.
+\end{itemize}
+By contracting this equation by $\partial_i$ one gets back the divergence equation which is also zero.
+To derive the eikonal equations we make the ansatz
+\begin{align}
+ E_k &= A_k(\vec{r}) \exp[i \psi(\vec{r})]\,,
+\end{align}
+for the $\vec{E}$ field. This is since we cannot assume that in such a complicated wave equations 
+the solutions arise as plane waves with constant amplitude. Insertion of the ansatz gives [omitting the 
+exponential factor and separating by real and imaginary parts]
+\begin{align}
+    & \left[
+     \omega^2 \mu_0\, \permittivity_{k\ell}A_\ell
+    -A_k \partial_i \psi \partial_i \psi
+   +\Delta A_k 
+   +A_\ell \partial_k \psi \partial_\ell \psi
+   -\partial_k \partial_\ell A_\ell
+   \right] \nonumber\\&
+   +i \left[
+    A_k \Delta \psi
+    +2\partial_i \psi \partial_i A_k
+    -A_\ell \partial_k \partial_\ell \psi
+    -\partial_\ell A_\ell \partial_k \psi
+    -\partial_\ell \psi \partial_k A_\ell
+   \right] = 0\,.
+\end{align}
+Neglecting the second derivatives terms gives [proportional to $k^2$]
+\begin{align}
+    & \left[
+    \omega^2 \mu_0\, \permittivity_{k\ell}A_\ell 
+    -A_k \partial_i \psi \partial_i \psi
+   +A_\ell \partial_k \psi \partial_\ell \psi
+   \right] 
+   +i \left[
+    2\partial_i \psi \partial_i A_k
+    -\partial_\ell A_\ell \partial_k \psi
+    -\partial_\ell \psi \partial_k A_\ell
+   \right] = 0\,.\label{eq:protoeikonal}
+\end{align}
+In the usual derivation of the Eikonal equation
+from the Helmholtz wave equation there are only
+two factors appearing in every part of the complex number.
+This comes from the divergence part which was not eliminated, yet.
+Taking $\partial_i D_i = \partial_i (\permittivity_{ij} E_j) = 0$ can be
+reduced to (by using the ansatz above)
+\begin{align}
+ \partial_i (\permittivity_{ij} E_j) = \partial_i (\permittivity_{ij} A_j) \exp(i \psi) + i \permittivity_{ij} A_j \partial_i \psi \exp(i \psi) = 0\,.
+\end{align}
+After omitting the exponential factor we see that from the divergence condition follows that
+\begin{align}
+ \partial_i (\permittivity_{ij} A_j) &= 0\,,\label{eq:divaeps}\\
+ \permittivity_{ij} A_j \partial_i \psi &= 0\,.\label{eq:divapsi}
+\end{align}
+Contracting the real part of \eqref{eq:protoeikonal} by $\partial_k \psi$ leads to the divergence condition \eqref{eq:divapsi}.
+From the real part we could extract an eigen value equation via
+\begin{align}
+ \left[\omega^2 \mu_0 \permittivity_{k\ell} - \delta_{k\ell} (\partial_i \psi)^2 + (\partial_k \psi)(\partial_\ell \psi)\right] A_\ell  &= 0\,.
+\end{align}
+
+% \begin{align}
+%      (\partial_i \psi)(2 \partial_i A_k
+%     -\partial_\ell A_\ell \delta_{ik} 
+%     -\delta_{i\ell} \partial_k A_\ell)
+% \end{align}
+
+
+\subsection{Poynting Theorem}
+From the full system of Maxwell's equations the Poynting vector is still given by
+\begin{align}
+ \vec{S} &= \vec{E} \times \vec{H}\,.
+\end{align}
+Inserting the ansatz from above in the quantities from the source free Maxwell equations we end up with
+\begin{align}
+ S_i &= \frac{1}{\omega \mu_0} A_k [A_k \partial_i \psi - A_i \partial_k \psi] + \frac{i}{\omega \mu_0} A_k [\partial_i A_k - \partial_k A_i]\,.
+\end{align}
+As one can see, the Poyting vector (i.e. the energy transport direction vector is not in same direction as the phase gradient anymore).
+This is a direct consequence from $\vec{\nabla} \vec{E} \ne 0$ but $\vec{\nabla} \vec{D} = 0$ and both of them are related in a non-trivial manner.
+In fact this means $A_i \partial_i \psi \ne 0$ but $\permittivity_{ij} A_i \partial_j \psi = 0$.
+
 
 
 \section{Plane Wave Solutions and Dispersion}
@@ -232,7 +323,7 @@ where the $\Efield_0$ contains polarisation, electric field amplitude and harmon
 \Efield
 &=& 0\,,
 \end{eqnarray}
-which can be written in a more condensed form by [setting $\partial_j \to i k_j$]
+which can be written in a more condensed form by [setting $\partial_j \to i k_j$, notice $\permittivity_{ij}$ constant]
 \begin{align}
  \left(-\vec{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_j &= 0 \,.
 \end{align}
