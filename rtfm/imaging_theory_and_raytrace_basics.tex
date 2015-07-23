@@ -1,5 +1,16 @@
 \documentclass[12pt,a4paper,twoside,openright,BCOR10mm,headsepline,titlepage,abstracton,chapterprefix,final]{scrreprt}
 
+\usepackage{ae}
+\usepackage[ngerman, english]{babel}
+%\usepackage{SIunits}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{setspace}
+
+% load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
 
 \RequirePackage{ifpdf}  % flag for pdf or dvi backend
 \ifpdf
@@ -14,6 +25,7 @@
               pdfpagelayout=TwoColumnRight,%
               pdfpagemode=UseNone,%
               pdfstartview=Fit,%
+	      pdfpagelabels,
               pdftex]{hyperref}
 \else
   \usepackage[dvips]{graphicx}
@@ -21,29 +33,14 @@
 \fi
 %\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
 
-\usepackage{ae}
-\usepackage[ngerman, english]{babel}
-
-%\usepackage{SIunits}
 \newcommand\elementarycharge{\textrm{e}}
 \newcommand\sccm{\textrm{sccm}}
 \newcommand\mbar{\milli\textrm{bar}}
-
-
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{amsfonts}
-\usepackage{xcolor}
-\usepackage{setspace}
 
 %\widowpenalty = 1000
 
 
 \newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
-
-
-
-
 
 
 \newcommand\vacuum{0}
@@ -954,7 +951,7 @@ Collecting all together: The first $t$ value is (via inverting \eqref{eq:geninte
 \end{align}
 The intersection point is given by
 \begin{align}
- \vec{p}_\text{i} &= \begin{pmatrix} x + \sigma d_x \\ y + \sigma d_y \\ -d_1 + \sigma \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.\label{eq:pintersect}
+ \vec{p}_\text{i} &= \begin{pmatrix} x + \sigma d_x \\ y + \sigma d_y \\ -d_1 + \sigma \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.
 \end{align}
 The unit normal vector has to be evaluated and according to \eqref{eq:surfacenormal} given by
 \begin{align}
@@ -1107,7 +1104,7 @@ the optical design calculation. By multiplying the direction vector with the opt
 a so called phase space formulation of the optical ray. In this formulation several theorems from Hamiltonian
 mechanics and phase space theory in general hold. These formulation will be investigated in further subsections.
 
-\subsection{$PQ$-2D-Formalism}
+\subsection{\texorpdfstring{$PQ$}{PQ}-2D-Formalism}
 
 By using the equations of motion \eqref{eq:H2Deom} for appropriate materials one can write down non linear transfers for
 some special materials.
@@ -1214,7 +1211,7 @@ one has to approximate at least to second order
 \end{align}
 
 
-\subsection{$pq$-3D-Formalism}
+\subsection{\texorpdfstring{$pq$}{pq}-3D-Formalism}
 
 The more general consideration of GRIN media in 3D phase space also fits into the formerly given transfer formalisms.
 A ray starts at the point $(x,y,d_x,d_y)$ which means in a certain coordinate system
