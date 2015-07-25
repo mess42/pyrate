@@ -15,7 +15,7 @@ def myPersonalMeritFunctionForTestingPurposes(s):
     :return merit: merit function value (float)
     """
 
-    nray = 10#1E3  # number of rays
+    nray = 1E3  # number of rays
     pupilType= pupil.EntrancePupilDiameter
     pupilSizeParameter = 5.5
     fieldType= field.ObjectHeight

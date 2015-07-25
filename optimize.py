@@ -115,40 +115,41 @@ class ClassWithOptimizableVariables(object):
         #print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
 
 
-def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
+def optimizeNewton1D(s, meritfunction, iterations=1, dx=1e-6):
     """
     1 dimensional Newton optimizer for an optical system.
 
     :param s: initial OpticalSystem object, will be overwritten
     :param meritfunction: pointer on the merit function
     :param iterations: number of iterations (int)
-    :param dxFactor: factor determining an infinitessimal change (float)
+    :param dx: infinitessimal change (float) for derivative
 
     :return s: optimized OpticalSystem object
     """
 
-    if dxFactor <= 1:
-        print "Warning: dxFactor must be larger than 1. Setting value to 1.00001"
-        dxFactor = 1.00001
+    if dx <= 0:
+        dx = 1e-6
 
     optVars = s.getActiveOptimizableVariables()
 
     print [i.name + ": " + str(i.val) + "; " + str(i.status) for i in optVars]
 
     for i in np.arange(iterations):
-        print "Iteration: ", i
-        print [i.name + ": " + str(i.val) + "; " + str(i.status) for i in optVars]
+
+        print "Iteration: ", i, " merit: ", meritfunction(s)
+        #print [i.name + ": " + str(i.val) + "; " + str(i.status) for i in optVars]
+
 
         for v in np.arange(len(optVars)):
             merit0 = meritfunction(s)
             var = optVars[v]
             varvalue0 = var.val
-            varvalue1 = var.val * dxFactor # problematic for zero values!
+            varvalue1 = var.val + dx
             var.val = varvalue1
             merit1 = meritfunction(s)
 
 
-            if (abs(merit1 - merit0) > 1e-16 and abs(varvalue0 - varvalue1) > 1e-16):
+            if (abs(merit1 - merit0) > 1e-16):
                 m = (merit1 - merit0) / (varvalue1 - varvalue0)
                 n = merit0 - m * varvalue0
                 varvalue2 = - n / m  # Newton method for next iteration value
@@ -160,9 +161,11 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dxFactor=1.00001):
             merit2 = meritfunction(s)
 
             guard = 0  # guard element to prevent freezing
-            while merit2 > merit0 and varvalue2 / varvalue0 > dxFactor and guard < 1000:
+            while merit2 > merit0 and varvalue2 - varvalue0 > dx and guard < 1000:
                 varvalue2 = 0.5 * (varvalue2 + varvalue0)
                 var.val = varvalue2
                 merit2 = meritfunction(s)
                 guard += 1
+
+
     return s

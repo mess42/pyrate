@@ -13,6 +13,9 @@ import optimize
 from optical_system import OpticalSystem, Surface
 from ray import RayPath
 
+import pickle
+import optical_system
+
 # definition of optical system
 s = OpticalSystem()
 
@@ -24,7 +27,7 @@ s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884, semidiam=1.3), thickne
 s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0)) # 1.3
 s.insertSurface(5, Surface(surfShape.Conic(semidiam=1.01), thickness=2.0)) # semidiam=1.01 # STOP
 s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, material=material.ConstantIndexGlass(1.5))) # semidiam=1.0
-s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479, semidiam=1.0), thickness=19.0)) # semidiam=1.0
+s.insertSurface(7, Surface(surfShape.Conic(curv=0.1*1/1.479, semidiam=1.0), thickness=19.0)) # semidiam=1.0
 
 # benchmark
 # definition of rays
@@ -74,6 +77,7 @@ s.surfaces[2].setStatus("curvature", True)
 s.surfaces[3].setStatus("curvature", True)
 s.surfaces[4].setStatus("curvature", True)
 s.surfaces[5].setStatus("curvature", True)
+s.surfaces[7].setStatus("curvature", True)
 
 #s.surfaces[1].setStatus("thickness", True)
 #s.surfaces[2].setStatus("thickness", True)
@@ -81,7 +85,13 @@ s.surfaces[5].setStatus("curvature", True)
 #s.surfaces[4].setStatus("thickness", True)
 #s.surfaces[5].setStatus("thickness", True)
 
-s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=10, dxFactor=1.00001)
+s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=100, dx=1e-6)
+
+print "pickle dump"
+
+with open('optical_sys.pkl', 'wb') as output:
+    pickle.dump(s, output, pickle.HIGHEST_PROTOCOL)
+
 
 print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
 
@@ -99,3 +109,6 @@ r2.draw2d(s, ax2, color="blue")
 s.draw2d(ax2, color="red")
 
 plt.show()
+
+
+
