@@ -60,13 +60,13 @@ class CreateSystemTool:
 # do something here...
 
 
-class MyTool2:
-    "My tool2 object"
+class LoadSystemCommand:
+    "Load optical system file"
 
     def GetResources(self):
-        return {"MenuText": "My Command 2",
-                "Accel": "Ctrl+N",
-                "ToolTip": "My extraordinary command2",
+        return {"MenuText": "Load Optical System ...",
+                "Accel": "Ctrl+L",
+                "ToolTip": "Loads an optical system from pickles file",
                 "Pixmap": ":/icons/File_Document-open.svg"
 #                "Pixmap": ":/icons/Part_Point_Parametric.svg" # standard icon aus FreeCAD
 ##                """
@@ -95,14 +95,16 @@ class MyTool2:
                 }
 
     def IsActive(self):
-        if FreeCAD.ActiveDocument == None:
-            return False
-        else:
-            return True
+        return True
 
     def Activated(self):
 #        PyrateInterface.OSinterface.configure_traits()
 #        FreeCAD.Console.PrintMessage(str(PyrateInterface.OSinterface.bla) + "\n")
+
+        if FreeCAD.ActiveDocument == None:
+            # create new document
+            return False
+
 
         fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', '/home')
 
@@ -126,4 +128,4 @@ class MyTool2:
 
 
 FreeCADGui.addCommand('CreateSystemCommand', CreateSystemTool())
-FreeCADGui.addCommand('MyCommand2',MyTool2())
+FreeCADGui.addCommand('LoadSystemCommand',LoadSystemCommand())

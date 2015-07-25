@@ -16,8 +16,8 @@ class PyrateWorkbench ( Workbench ):
 
     def Initialize(self):
         import CreateSystem
-        self.appendToolbar("Pyrate", ["CreateSystemCommand", "MyCommand2"])
-        self.appendMenu("Pyrate", ["CreateSystemCommand", "MyCommand2"])
+        self.appendToolbar("Pyrate", ["CreateSystemCommand", "LoadSystemCommand"])
+        self.appendMenu("Pyrate", ["CreateSystemCommand", "LoadSystemCommand"])
 
         Log ("Loading Create System Module... done\n")
 
