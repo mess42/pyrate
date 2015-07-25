@@ -2,10 +2,13 @@ import FreeCAD,FreeCADGui, Part
 import PartGui # wichtig fuer import von icons falls keine eigenen XPMs verwendet werden
 import Points
 
+import pickle
+
 from traits.api import HasTraits, Str, Int, Float
 import traitsui
 
 from PySide import QtGui, QtCore
+
 
 from numpy import *
 
@@ -64,7 +67,8 @@ class MyTool2:
         return {"MenuText": "My Command 2",
                 "Accel": "Ctrl+N",
                 "ToolTip": "My extraordinary command2",
-                "Pixmap": ":/icons/Part_Point_Parametric.svg" # standard icon aus FreeCAD
+                "Pixmap": ":/icons/File_Document-open.svg"
+#                "Pixmap": ":/icons/Part_Point_Parametric.svg" # standard icon aus FreeCAD
 ##                """
 ##                /* XPM */
 ##                static const char *test_icon2[]={
@@ -97,8 +101,20 @@ class MyTool2:
             return True
 
     def Activated(self):
-        PyrateInterface.OSinterface.configure_traits()
-        FreeCAD.Console.PrintMessage(str(PyrateInterface.OSinterface.bla) + "\n")
+#        PyrateInterface.OSinterface.configure_traits()
+#        FreeCAD.Console.PrintMessage(str(PyrateInterface.OSinterface.bla) + "\n")
+
+        fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', '/home')
+
+
+        if fname == "":
+            return 1
+        else:
+            with open(fname, 'rb') as input:
+                PyrateInterface.OSinterface.os = pickle.load(input)
+            PyrateInterface.OSinterface.createSurfaceViews()
+            PyrateInterface.OSinterface.createRayViews()
+
 
         for i in FreeCAD.ActiveDocument.Objects:
             i.touch()

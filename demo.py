@@ -85,7 +85,7 @@ s.surfaces[7].setStatus("curvature", True)
 #s.surfaces[4].setStatus("thickness", True)
 #s.surfaces[5].setStatus("thickness", True)
 
-s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=100, dx=1e-6)
+s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=1, dx=1e-6)
 
 print "pickle dump"
 
@@ -107,6 +107,12 @@ r2.draw2d(s, ax2, color="blue")
 #r3.draw2d(s, ax2, color="green")
 
 s.draw2d(ax2, color="red")
+
+print "json dump"
+
+import json
+print json.dumps(s)
+
 
 plt.show()
 

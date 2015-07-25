@@ -59,7 +59,7 @@ class OpticalSystemInterface(HasTraits):
         self.os.insertSurface(1, Surface(surfShape.Conic(semidiam=1.1), thickness = 20.0))
         self.os.insertSurface(2, Surface(surfShape.Conic(curv=1./10.,semidiam=2.0), thickness = -1.0, material=mirror.Mirror()))
         self.os.insertSurface(3, Surface(surfShape.Conic(semidiam=1.0), thickness = -30.0))
-        
+
 
     def makeSurfaceFromSag(self, surface, startpoint = [0,0,0], R=50.0, rpoints=10, phipoints=12):
         surPoints = []
@@ -197,9 +197,9 @@ class OpticalSystemInterface(HasTraits):
                                                     nray=numrays, wavelength=wavelengthparam, \
                                                     stopPosition=stopposition)
         #aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=numrays)
-        aimy.setPupilRaster(rasterType= raster.RectGrid, nray=numrays)
+        #aimy.setPupilRaster(rasterType= raster.RectGrid, nray=numrays)
 
-        #aimy.setPupilRaster(rasterType= raster.PoissonDiskSampling, nray=numrays)
+        aimy.setPupilRaster(rasterType= raster.PoissonDiskSampling, nray=numrays)
         initialBundle2 = aimy.getInitialRayBundle(self.os, fieldXY=array(fieldvariable), wavelength=wavelengthparam)
 
         r2 = RayPath(initialBundle2, self.os)
