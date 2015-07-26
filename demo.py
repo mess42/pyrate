@@ -13,6 +13,8 @@ import optimize
 from optical_system import OpticalSystem, Surface
 from ray import RayPath
 
+import plots
+
 import pickle, pickletools
 
 import jsonpickle
@@ -48,7 +50,7 @@ print "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through 
 print "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second"
 
 # plot
-aimy.setPupilRaster(rasterType= raster.MeridionalFan, nray=20)
+aimy.setPupilRaster(rasterType= raster.RectGrid, nray=20)
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 
 r2 = RayPath(initialBundle2, s)
@@ -66,9 +68,11 @@ ax2.axis('equal')
 ax2.set_axis_bgcolor('black')
 
 
-r2.draw2d(s, ax, color="blue")
+#r2.draw2d(s, ax, color="blue")
 #r3.draw2d(s, ax, color="green")
-s.draw2d(ax, color='orange')
+#s.draw2d(ax, color='orange')
+
+plots.drawLayout2d(ax, s, [r2, r3])
 
 
 # optimize
@@ -100,17 +104,22 @@ with open('optical_sys.pkl', 'wb') as output:
 print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
 
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
-
 r2 = RayPath(initialBundle2, s)
-
 initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55)
 r3 = RayPath(initialBundle3, s)
 
 
-r2.draw2d(s, ax2, color="blue")
+#r2.draw2d(s, ax2, color="blue")
 #r3.draw2d(s, ax2, color="green")
 
-s.draw2d(ax2, color="red")
+#s.draw2d(ax2, color="red")
+
+fig15 = plt.figure(15)
+ax3 = fig15.add_subplot(111)
+
+plots.drawLayout2d(ax2, s, [r2, r3])
+plots.drawSpotDiagram(ax3, s, r3, -1)
+
 
 #print "json dump"
 
@@ -124,6 +133,8 @@ s.draw2d(ax2, color="red")
 #s2 = jsonpickle.decode(frozen) # funzt nicht
 #ax2 = fig.add_subplot(313)
 #s2.draw(ax2)
+
+#plots.drawLayout2d(ax, s, [r2, r3])
 
 plt.show()
 
