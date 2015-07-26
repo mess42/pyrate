@@ -67,31 +67,8 @@ class LoadSystemCommand:
         return {"MenuText": "Load Optical System ...",
                 "Accel": "Ctrl+L",
                 "ToolTip": "Loads an optical system from pickles file",
-                "Pixmap": ":/icons/File_Document-open.svg"
-#                "Pixmap": ":/icons/Part_Point_Parametric.svg" # standard icon aus FreeCAD
-##                """
-##                /* XPM */
-##                static const char *test_icon2[]={
-##                "16 16 2 1",
-##                "a c #000000",
-##                ". c None",
-##                "................",
-##                "................",
-##                "..############..",
-##                "..############..",
-##                "..############..",
-##                "......####......",
-##                "......####......",
-##                "......####......",
-##                "......####......",
-##                "......####......",
-##                "......####......",
-##                "......####......",
-##                "......####......",
-##                "......####......",
-##                "................",
-##                "................"};
-##                """
+#                "Pixmap": ":/icons/File_Document-open.svg"
+                "Pixmap": ":/icons/Part_Point_Parametric.svg" # standard icon aus FreeCAD
                 }
 
     def IsActive(self):
@@ -102,8 +79,7 @@ class LoadSystemCommand:
 #        FreeCAD.Console.PrintMessage(str(PyrateInterface.OSinterface.bla) + "\n")
 
         if FreeCAD.ActiveDocument == None:
-            # create new document
-            return False
+            FreeCAD.newDocument()
 
 
         fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', '/home')
