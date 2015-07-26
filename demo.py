@@ -5,7 +5,6 @@ import pupil
 import field
 import raster
 import material
-import mirror
 import aim
 import merit
 import surfShape

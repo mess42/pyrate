@@ -5,7 +5,6 @@ from numpy import *
 
 
 import material
-import mirror
 import surfShape
 import aim
 import field
@@ -13,6 +12,9 @@ import pupil
 import raster
 from ray import RayPath
 from optical_system import OpticalSystem, Surface
+
+import plots
+import matplotlib.pyplot as plt
 
 # freecad modules
 
@@ -56,7 +58,7 @@ class OpticalSystemInterface(HasTraits):
     def dummycreate2(self):
         self.os.surfaces[0].thickness.val = 20.0
         self.os.surfaces[1].shape.sdia.val = 1e10
-        self.os.insertSurface(1, Surface(surfShape.Conic(curv=-1./24.,semidiam=5.0), thickness = -30.0, material=mirror.Mirror()))
+        self.os.insertSurface(1, Surface(surfShape.Conic(curv=-1./24.,semidiam=5.0), thickness = -30.0, material=material.Mirror()))
 
 
     def makeSurfaceFromSag(self, surface, startpoint = [0,0,0], R=50.0, rpoints=10, phipoints=12):
@@ -205,6 +207,13 @@ class OpticalSystemInterface(HasTraits):
         initialBundle3 = aimy.getInitialRayBundle(self.os, fieldXY=array(fieldvariable2), wavelength=wavelengthparam)
         r3 = RayPath(initialBundle3, self.os)
 
+        fig = plt.figure(1)
+        ax = fig.add_subplot(211)
+        ax2 = fig.add_subplot(212)
+
+
+        plots.drawSpotDiagram(ax, self.os, r2, -1)
+        plots.drawSpotDiagram(ax2, self.os, r3, -1)
 
         #self.makeRaysFromRayPath(r2,offset=(0,0,0), color=(0.0, 1.0, 0.0))
         self.makeRaysFromRayPath(r3,offset=(0,0,0), color=(0.0, 1.0, 0.0))
@@ -213,6 +222,7 @@ class OpticalSystemInterface(HasTraits):
             obj.touch()
         doc.recompute()
 
+        plt.show()
 
 
     def returnPrescriptionData(self):
