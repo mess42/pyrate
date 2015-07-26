@@ -64,7 +64,7 @@ class Material(ClassWithOptimizableVariables):
         - paraxial translation through the material
         - paraxial refraction at the rear surface into vacuum
 
-        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ), 
+        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ),
         this method picks the correct paraxial propagators.
 
         :param curvature: front surface (self.) curvature on the optical axis (float)
@@ -83,11 +83,11 @@ class ConstantIndexGlass(Material):
     def __init__(self, n=1.0):
         super(ConstantIndexGlass, self).__init__()
         self.listOfOptimizableVariables = []
-        
+
         self.n = self.createOptimizableVariable("refractive index", value=n, status=False)
-     
+
     def refract(self, raybundle, intersection, normal, previouslyValid):
-        
+
         abs_k1_normal = sum(raybundle.k * normal, axis=0)
         k_perp = raybundle.k - abs_k1_normal * normal
         abs_k2 = self.getIndex(raybundle)
@@ -140,7 +140,7 @@ class ModelGlass(ConstantIndexGlass):
         """
         super(ModelGlass, self).__init__(n0_A_B[0])
         self.listOfOptimizableVariables = []
-        
+
         self.n0 = self.createOptimizableVariable("Conrady n0", value=n0_A_B[0], status=False)
         self.A = self.createOptimizableVariable("Conrady A", value=n0_A_B[1], status=False)
         self.B = self.createOptimizableVariable("Conrady B", value=n0_A_B[2], status=False)
@@ -174,12 +174,12 @@ class ModelGlass(ConstantIndexGlass):
         :param vd: Abbe number with respect to the d-line (float)
         :param PgF: partial dispersion with respect to g- and F-line (float)
         """
-    
+
         nF_minus_nC = (nd - 1) / vd
         B = 0.454670392956 * nF_minus_nC * (PgF - 0.445154791693)
         A = 1.87513751845 * nF_minus_nC - B * 15.2203074842
         n0 = nd - 1.70194862906 * A - 6.43150432188 * B
-    
+
         self.setCoefficients(self,  (n0, A, B))
 
     def calcCoefficientsFrom_nd_vd(self, nd=1.51680, vd=64.17):
@@ -190,7 +190,7 @@ class ModelGlass(ConstantIndexGlass):
         :param vd: Abbe number (float)
         """
 
-        PgF = 0.6438 - 0.001682 * vd     
+        PgF = 0.6438 - 0.001682 * vd
         self.calcCoefficientsFrom_nd_vd_PgF(nd, vd, PgF)
 
     def calcCoefficientsFromSchottCode(self, schottCode=517642):
@@ -210,3 +210,5 @@ class ModelGlass(ConstantIndexGlass):
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
+
+

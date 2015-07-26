@@ -13,7 +13,9 @@ import optimize
 from optical_system import OpticalSystem, Surface
 from ray import RayPath
 
-import pickle
+import pickle, pickletools
+
+import jsonpickle
 import optical_system
 
 # definition of optical system
@@ -55,8 +57,8 @@ initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelen
 r3 = RayPath(initialBundle3, s)
 
 fig = plt.figure(1)
-ax = fig.add_subplot(211)
-ax2 = fig.add_subplot(212)
+ax = fig.add_subplot(311)
+ax2 = fig.add_subplot(312)
 
 ax.axis('equal')
 ax.set_axis_bgcolor('black')
@@ -90,7 +92,9 @@ s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes
 print "pickle dump"
 
 with open('optical_sys.pkl', 'wb') as output:
+    str = pickle.dumps(s)
     pickle.dump(s, output, pickle.HIGHEST_PROTOCOL)
+    #print pickletools.dis(str)
 
 
 print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
@@ -108,11 +112,18 @@ r2.draw2d(s, ax2, color="blue")
 
 s.draw2d(ax2, color="red")
 
-print "json dump"
+#print "json dump"
 
-import json
-print json.dumps(s)
+#import json
+#print json.dumps(s)
 
+#print json.dumps(s, default=lambda o: o.__dict__, sort_keys=True, indent=4) # interesting listing of optical system
+
+#print "jsonpickle dump"
+#frozen = jsonpickle.encode(s)
+#s2 = jsonpickle.decode(frozen) # funzt nicht
+#ax2 = fig.add_subplot(313)
+#s2.draw(ax2)
 
 plt.show()
 
