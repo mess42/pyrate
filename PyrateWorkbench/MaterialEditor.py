@@ -61,7 +61,9 @@ class MaterialEditor(HasStrictTraits):
 
 
 
-    def __init__(self, mattype):
+    def __init__(self, mattypestring):
+
+        mattype = eval("material."+mattypestring)
 
         self.__class__.add_class_trait('_m', Instance(mattype, mattype())) # create class instance with standard constructor
 
@@ -88,7 +90,7 @@ class MaterialEditor(HasStrictTraits):
 
 
 
-#m = MaterialEditor(material.ConstantIndexGlass)
+#m = MaterialEditor("ConstantIndexGlass")
 #mat = m.run()
 #print mat.n.val
 

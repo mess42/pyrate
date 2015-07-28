@@ -27,14 +27,16 @@ import optimize
 
 import MaterialEditor
 
-from traits.api import HasTraits, HasStrictTraits, Instance, Property, List, Float, Str, Int, Button
+from traits.api import HasTraits, HasStrictTraits, Instance, Property, List, Float, Str, Int, Button, Bool
 from traitsui.api import View, HGroup, Item, TabularEditor, TableEditor, spring
 from traitsui.tabular_adapter import TabularAdapter
 from optical_system import OpticalSystem
 
 class ShapeEditor(HasStrictTraits):
 
-    def __init__(self, shtype):
+    def __init__(self, shtypestring):
+
+        shtype = eval("surfShape."+shtypestring) # eval = evil due to unauthorized code execution
 
         self.__class__.add_class_trait('_sh', Instance(shtype, shtype())) # create class instance with standard constructor
 
@@ -73,7 +75,7 @@ class ShapeEditor(HasStrictTraits):
 
 class SurfaceAdapter(TabularAdapter):
 
-    columns = [('No.', 'number'), ('Type', 'surftype'), ('Thickness', 'thickness'), ('Material', 'mattype') ]
+    columns = [('Stop', 'isstop'), ('No.', 'number'), ('Type', 'surftype'), ('Thickness', 'thickness'), ('Material', 'mattype') ]
 
     def get_default_value(self, object, trait):
         return SurfaceData()
@@ -81,9 +83,12 @@ class SurfaceAdapter(TabularAdapter):
 class SurfaceData(HasStrictTraits):
 
     number = Int
+    isstop = Bool
     surftype = Str
     thickness = Float
     mattype = Str
+
+
 
 class OpticalSystemEditor(HasStrictTraits):
 
@@ -93,17 +98,21 @@ class OpticalSystemEditor(HasStrictTraits):
     selectedsurface   = Instance(SurfaceData)
     #increase   = Float
     but_edit_mat = Button('Edit Material')
+    but_add_surf = Button('Insert Surface')
     but_edit_surf = Button('Edit Surface Data')
 
     view = View(
         Item('surfaces',
               show_label = False,
-              editor     = TableEditor(#adapter = SurfaceAdapter(),
+              editor     = TabularEditor(adapter = SurfaceAdapter(),
                                         selected = 'selectedsurface',
-                                        )#auto_update = True)
+                                        auto_update = True)
         ),
         HGroup(
             spring,
+            Item('but_add_surf',
+                 show_label=False,
+                 enabled_when = 'selectedsurface is not None'),
             Item('but_edit_mat',
                   show_label = False,
                   enabled_when = 'selectedsurface is not None'),
@@ -117,9 +126,36 @@ class OpticalSystemEditor(HasStrictTraits):
         resizable = True
     )
 
+
+    def __init__(self):
+        #HasStrictTraits.__init__()
+
+        self.surfaces = [
+                         SurfaceData(number = 0, surftype = 'Conic', thickness = 0.0, mattype = 'ConstantGlass'),
+                         SurfaceData(number = 1, surftype = 'Conic', thickness = 0.0, mattype = 'ConstantGlass')
+                         ]
+
+    def _but_add_surf_changed(self):
+        actualnumber = self.selectedsurface.number
+        self.surfaces.insert(
+                             actualnumber+1,
+                             SurfaceData(
+                                         number = actualnumber+1,
+                                         surftype = 'Conic',
+                                         thickness = 0.0,
+                                         mattype = 'ConstantGlass'
+                                        )
+                            )
+        for sur in self.surfaces[actualnumber+2:]:
+            print sur.number
+            sur.number += 1
+        #self.employee.salary += self.increase
+        self.selectedsurface = None
+
     def _but_edit_mat_changed(self):
         #self.employee.salary += self.increase
         self.selectedsurface = None
+
 
     def _but_edit_surf_changed(self):
         #self.employee.salary += self.increase
@@ -133,8 +169,11 @@ class OpticalSystemEditor(HasStrictTraits):
         self.configure_traits()
         return self._s
 
+#she = ShapeEditor("Conic")
+#she.run()
+
 se = OpticalSystemEditor()
-se.surfaces = [SurfaceData(number = 0, surftype = 'Conic', thickness = 0.0, mattype = 'ConstantGlass')]
+#se.run()
 s = se.run()
 
 
