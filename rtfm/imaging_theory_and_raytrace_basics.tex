@@ -1683,15 +1683,17 @@ of the linear deviation components with respect to the optical axis or the refer
 \begin{align}
  &\Delta \mathcal{T} = \nonumber\\&
  \begin{pmatrix}
-  \partial^q_b A_{ac}|_{0} \qni{c} + A_{ab} |_{0} + \partial^q_b B_{ac} |_{0} \pni{c} + \partial^q_b t_a |_{0} &
-   \partial^p_b A_{ac} |_{0} \qni{c} + \partial^p_b B_{ac} |_0 \pni{c} + B_{ab} |_0 + \partial^p_b t_a |_0 & 0\\
-  \partial^q_b C_{ac}|_{0} \qni{c} + C_{ab} |_{0} + \partial^q_b D_{ac} |_{0} \pni{c} + \partial^q_b \delta_a |_{0} &
-   \partial^p_b C_{ac} |_{0} \qni{c} + \partial^p_b D_{ac} |_0 \pni{c} + D_{ab} |_0 + \partial^p_b \delta_a |_0 & 0\\
+  A_{ab} |_{0}+ \partial^q_b A_{ac}|_{0} \qni{c}  + \partial^q_b B_{ac} |_{0} \pni{c} + \partial^q_b t_a |_{0} &
+   B_{ab} |_0 +  \partial^p_b A_{ac} |_{0} \qni{c} + \partial^p_b B_{ac} |_0 \pni{c} + \partial^p_b t_a |_0 & 0\\
+  C_{ab} |_{0} + \partial^q_b C_{ac}|_{0} \qni{c} + \partial^q_b D_{ac} |_{0} \pni{c} + \partial^q_b \delta_a |_{0} &
+   D_{ab} |_0 + \partial^p_b C_{ac} |_{0} \qni{c} + \partial^p_b D_{ac} |_0 \pni{c} + \partial^p_b \delta_a |_0 & 0\\
   0 & 0 & 0 
  \end{pmatrix}
 \end{align}
 Due to this split one may transform the optical axis in a first step and afterwards calculate the ``paraxial approximation'' of rays which
-only deviate a little from the optical axis. All quantities have to be evaluated at the coordinates of the optical axis.
+only deviate a little from the optical axis. All quantities have to be evaluated at the coordinates of the optical axis. The first terms
+in the transfer matrix are the same as for the optical axis. All other terms (the derivatives) represent the deviations from it.
+For an appropriate 5x5 treatment one has to decompose the matrix components further in a 2+1 manner.
 
 
 \end{document}
