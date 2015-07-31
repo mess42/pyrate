@@ -1626,4 +1626,72 @@ Reflection:
 \end{align}
 The higher order corrections in the taylor expansion give rise to the aberrations.
 
+\subsection{Linearization for non-zero interaction point with optical axis}
+\newcommand{\dqv}{\Delta \vec{q}}
+\newcommand{\dpv}{\Delta \vec{p}}
+
+\newcommand{\dqi}[1]{\Delta q_{#1}}
+\newcommand{\dpi}[1]{\Delta p_{#1}}
+
+
+\newcommand{\qnv}{\vec{q}_0}
+\newcommand{\pnv}{\vec{p}_0}
+
+\newcommand{\qni}[1]{q_{0\,#1}}
+\newcommand{\pni}[1]{p_{0\,#1}}
+Let the optical axis at a certain surface start at $\vec{q}_0$ and $\vec{p}_0$ then (in 3D formalism)
+the matrix deviation from it in linear approximation is given by
+\begin{align}
+  \mathcal{T} &= 
+ \begin{pmatrix}
+  A_{ab}(\qnv + \dqv,\pnv + \dpv) & B_{ab}(\qnv + \dqv,\pnv + \dpv) & t_{a}(\qnv + \dqv,\pnv + \dpv)\\
+  C_{ab}(\qnv + \dqv,\pnv + \dpv) & D_{ab}(\qnv + \dqv,\pnv + \dpv) & \delta_{a}(\qnv + \dqv,\pnv + \dpv)\\
+  0 & 0 & 1 
+ \end{pmatrix}
+\end{align}
+A complete transformation is therefore split up into two parts
+\begin{align}
+ \begin{pmatrix}
+  \qnv^\prime + \dqv^\prime\\
+  \pnv^\prime + \dpv^\prime\\
+  1
+ \end{pmatrix} &=
+  \mathcal{T}_{0} 
+ \begin{pmatrix}
+  \qnv \\
+  \pnv \\
+  1
+ \end{pmatrix} +
+  \Delta \mathcal{T}
+ \begin{pmatrix}
+  \dqv \\
+  \dpv \\
+  1
+ \end{pmatrix}\,.
+\end{align}
+$\mathcal{T}_0$ is depending only on $\qnv$ and $\pnv$. It is obviously given by
+\begin{align}
+ \mathcal{T}_0 &= 
+ \begin{pmatrix}
+  A_{ab}(\qnv,\pnv) & B_{ab}(\qnv,\pnv) & t_{a}(\qnv,\pnv)\\
+  C_{ab}(\qnv,\pnv) & D_{ab}(\qnv,\pnv) & \delta_{a}(\qnv,\pnv)\\
+  0 & 0 & 1 
+ \end{pmatrix}
+\end{align}
+This is the part transforming the optical axis or some kind of reference ray. The second part $\Delta \mathcal{T}$ comes from the transformation
+of the linear deviation components with respect to the optical axis or the reference ray.
+\begin{align}
+ &\Delta \mathcal{T} = \nonumber\\&
+ \begin{pmatrix}
+  \partial^q_b A_{ac}|_{0} \qni{c} + A_{ab} |_{0} + \partial^q_b B_{ac} |_{0} \pni{c} + \partial^q_b t_a |_{0} &
+   \partial^p_b A_{ac} |_{0} \qni{c} + \partial^p_b B_{ac} |_0 \pni{c} + B_{ab} |_0 + \partial^p_b t_a |_0 & 0\\
+  \partial^q_b C_{ac}|_{0} \qni{c} + C_{ab} |_{0} + \partial^q_b D_{ac} |_{0} \pni{c} + \partial^q_b \delta_a |_{0} &
+   \partial^p_b C_{ac} |_{0} \qni{c} + \partial^p_b D_{ac} |_0 \pni{c} + D_{ab} |_0 + \partial^p_b \delta_a |_0 & 0\\
+  0 & 0 & 0 
+ \end{pmatrix}
+\end{align}
+Due to this split one may transform the optical axis in a first step and afterwards calculate the ``paraxial approximation'' of rays which
+only deviate a little from the optical axis. All quantities have to be evaluated at the coordinates of the optical axis.
+
+
 \end{document}
