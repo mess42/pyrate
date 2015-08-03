@@ -28,9 +28,10 @@ import optimize
 import MaterialEditor
 
 from traits.api import HasTraits, HasStrictTraits, Instance, Property, List, Float, Str, Int, Button, Bool
-from traitsui.api import View, HGroup, Item, TabularEditor, TableEditor, spring
+from traitsui.api import View, HGroup, Item, TabularEditor, TableEditor, spring, ValueEditor, InstanceEditor
 from traitsui.tabular_adapter import TabularAdapter
 from optical_system import OpticalSystem
+from traitsui.editors.instance_editor import InstanceEditor
 
 class ShapeEditor(HasStrictTraits):
 
@@ -102,12 +103,14 @@ class OpticalSystemEditor(HasStrictTraits):
     but_edit_surf = Button('Edit Surface Data')
 
     view = View(
-        Item('surfaces',
-              show_label = False,
-              editor     = TabularEditor(adapter = SurfaceAdapter(),
-                                        selected = 'selectedsurface',
-                                        auto_update = True)
-        ),
+        Item('selectedsurface',
+             editor = InstanceEditor(name='surfaces', editable=True, label=str(selectedsurface.number)), style = 'custom'),
+        #Item('surfaces',
+        #      show_label = False,
+        #      editor     = ValueEditor() #TabularEditor(adapter = SurfaceAdapter(),
+        #                   #             selected = 'selectedsurface',
+        #                   #             auto_update = True)
+        #),
         HGroup(
             spring,
             Item('but_add_surf',
