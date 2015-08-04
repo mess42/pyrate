@@ -8,16 +8,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-import material
-import surfShape
-import aim
-import field
-import pupil
-import raster
-import plots
+import core.material
+import core.surfShape
+import core.aim
+import core.field
+import core.pupil
+import core.raster
+import core.plots
 
-from ray import RayPath
-from optical_system import OpticalSystem, Surface
+from core.ray import RayPath
+from core.optical_system import OpticalSystem, Surface
 
 # freecad modules
 

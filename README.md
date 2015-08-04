@@ -9,4 +9,4 @@ FreeCAD workbench
 - copy (or symlink) directory PyrateWorkbench into ~/.FreeCAD/Mod
 - execute ./build_rc in PyrateWorkbench directory
 - choose workbench in FreeCAD
-- at the moment you have to create symlinks of all core .py files in the PyrateWorkbench directory (is there any better solution to this problem?)
+- create "core" symlink via "ln -s ../ core" to base modules of pyrate within PyrateWorkbench directory (is there a better possibility to import core modules in a PEP 8 conform manner?)

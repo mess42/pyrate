@@ -1,4 +1,3 @@
-import pickle
 from PySide import QtGui, QtCore
 
 import FreeCAD
@@ -53,45 +52,8 @@ class CreateSystemTool:
 # do something here...
 
 
-class LoadSystemCommand:
-    "Load optical system file"
-
-    def GetResources(self):
-        return {"MenuText": "Load Optical System ...",
-                "Accel": "Ctrl+L",
-                "ToolTip": "Loads an optical system from pickles file",
-#                "Pixmap": ":/icons/File_Document-open.svg"
-                "Pixmap": ":/icons/Part_Point_Parametric.svg" # standard icon aus FreeCAD
-                }
-
-    def IsActive(self):
-        return True
-
-    def Activated(self):
-        if FreeCAD.ActiveDocument == None:
-            FreeCAD.newDocument()
-
-
-        fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', '/home')
-
-
-        if fname == "":
-            return 1
-        else:
-            with open(fname, 'rb') as input:
-                PyrateInterface.OSinterface.os = pickle.load(input)
-            PyrateInterface.OSinterface.createSurfaceViews()
-            #PyrateInterface.OSinterface.createRayViews()
-
-
-        for i in FreeCAD.ActiveDocument.Objects:
-            i.touch()
-
-        FreeCAD.ActiveDocument.recompute()
-
-
 
 
 
 FreeCADGui.addCommand('CreateSystemCommand', CreateSystemTool())
-FreeCADGui.addCommand('LoadSystemCommand',LoadSystemCommand())
+

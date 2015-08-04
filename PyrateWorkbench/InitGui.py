@@ -5,6 +5,11 @@ import FreeCADGui
 
 import PyrateInterface
 import CreateSystem
+import LoadSystem
+import SaveSystem
+import DeleteRays
+import DeleteSystem
+
 
 
 # access to the resource file
@@ -20,8 +25,9 @@ class PyrateWorkbench ( Workbench ):
         return "Gui::PythonWorkbench"
 
     def Initialize(self):
-        self.appendToolbar("Pyrate", ["CreateSystemCommand", "LoadSystemCommand"])
-        self.appendMenu("Pyrate", ["CreateSystemCommand", "LoadSystemCommand"])
+        self.appendToolbar("Pyrate", ["CreateSystemCommand", "LoadSystemCommand", "SaveSystemCommand"])
+        self.appendMenu("Pyrate Main", ["CreateSystemCommand"])
+        self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"])
 
         Log ("Loading Create System Module... done\n")
 
