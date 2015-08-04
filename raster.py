@@ -118,7 +118,7 @@ class PoissonDiskSampling(RectGrid):
         dx = 1. / nPerDim
 
         obj = pds.Poisson2D(2.0, 2.0, dx, 100) # square [0,1]x[0,1] mean dist= dx, testpoints 30
-	obj.initialize()
+        obj.initialize()
         obj.run()
         sample = obj.returnCompleteSample()
         sample = sample

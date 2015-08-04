@@ -4,9 +4,8 @@ import time
 import math
 
 import numpy as np
-
 import matplotlib.pyplot as plt
-
+from PySide import QtCore, QtGui
 
 import core.material
 import core.surfShape
@@ -25,6 +24,132 @@ import FreeCAD
 import Part
 import Points
 
+class AimDialog(QtGui.QDialog):
+    def __init__(self):
+        super(AimDialog, self).__init__()
+
+        self.pupiltype = ""
+        self.fieldtype = ""
+        self.rastertype = ""
+        self.pupilsize = 0.0
+        self.stopposition = 0
+
+        self.initUI()
+
+    def initUI(self):
+
+        #pupiltype = core.pupil.EntrancePupilDiameter
+        #pupilsize = 2.0
+        #fieldType = core.field.ObjectHeight
+        #rasterType = core.raster.RectGrid
+        #stopPosition = 1
+
+
+        lblpt = QtGui.QLabel("Pupil type", self)
+        lblpt.move(10, 10)
+
+        combopt = QtGui.QComboBox(self)
+        combopt.addItem("EntrancePupilDiameter")
+        combopt.addItem("EntrancePupilRadius")
+        combopt.addItem("StopDiameter")
+        combopt.addItem("StopRadius")
+        combopt.addItem("ExitPupilDiameter")
+        combopt.addItem("ExitPupilRadius")
+        combopt.addItem("InfiniteConjugateImageSpaceFNumber")
+        combopt.addItem("InfiniteConjugateObjectSpaceFNumber")
+        combopt.addItem("WorkingImageSpaceFNumber")
+        combopt.addItem("WorkingObjectSpaceFNumber")
+        combopt.addItem("ObjectSpaceNA")
+        combopt.addItem("ImageSpaceNA")
+        combopt.move(10, 50)
+        combopt.activated[str].connect(self.onActivatedPT)
+
+        lblft = QtGui.QLabel("Field type", self)
+        lblft.move(10, 90)
+        comboft = QtGui.QComboBox(self)
+        comboft.addItem("ObjectHeight")
+        comboft.addItem("ObjectChiefAngle")
+        comboft.addItem("ParaxialImageHeight")
+        comboft.move(10, 130)
+        comboft.activated[str].connect(self.onActivatedFT)
+
+
+        lblrt = QtGui.QLabel("Raster type", self)
+        lblrt.move(10, 170)
+
+
+        combort = QtGui.QComboBox(self)
+        combort.addItem("RectGrid")
+        combort.addItem("HexGrid")
+        combort.addItem("RandomGrid")
+        combort.addItem("PoissonDiskSampling")
+        combort.addItem("MeridionalFan")
+        combort.addItem("SagitalFan")
+        combort.addItem("ChiefAndComa")
+        combort.addItem("Single")
+
+        combort.move(10, 210)
+        combort.activated[str].connect(self.onActivatedRT)
+
+        lblps = QtGui.QLabel("Pupil size [mm]", self)
+        lblps.move(410, 10)
+
+
+        spinboxps = QtGui.QDoubleSpinBox(self)
+        spinboxps.setMinimum(0.0)
+        spinboxps.setMaximum(100.0)
+
+        spinboxps.move(410, 50)
+        spinboxps.valueChanged.connect(self.onChangedPS)
+
+
+        lblst = QtGui.QLabel("Stop position (surface no.)", self)
+        lblst.move(410, 90)
+
+
+        spinboxst = QtGui.QSpinBox(self)
+        spinboxst.setMinimum(0)
+        spinboxst.setMaximum(20)
+
+        spinboxst.move(410, 130)
+
+        okbtn = QtGui.QPushButton("OK",self)
+        okbtn.setAutoDefault(True)
+        okbtn.move(300, 250)
+
+        okbtn.clicked.connect(self.close)
+
+        self.setGeometry(300, 300, 600, 400)
+        self.setWindowTitle('Aim Configuration Dialog')
+        self.show()
+
+    def onActivatedPT(self, text):
+        FreeCAD.Console.PrintMessage(text)
+        self.pupiltype = text
+
+    def onActivatedFT(self, text):
+        FreeCAD.Console.PrintMessage(text)
+        self.fieldtype = text
+
+    def onActivatedRT(self, text):
+        FreeCAD.Console.PrintMessage(text)
+        self.rastertype = text
+
+
+    def onChangedPS(self, val):
+        FreeCAD.Console.PrintMessage(str(val))
+        self.pupilsize = val
+
+    def onChangedST(self, val):
+        FreeCAD.Console.PrintMessage(str(val))
+        self.stopposition = val
+
+
+        #self.lbl.setText(text)
+        #self.lbl.adjustSize()
+
+
+
 
 
 class OpticalSystemInterface(object):
@@ -36,6 +161,11 @@ class OpticalSystemInterface(object):
         self.rayviews = []
         self.intersectptsobs = []
 
+        self.aiminitialized = False
+        self.fieldwaveinitialized = False
+        self.fieldpoints = []
+        self.wavelength = 0.55
+        self.aimfinitestopdata = None
 
         self.os = OpticalSystem()
 
@@ -179,48 +309,101 @@ class OpticalSystemInterface(object):
 
 
 
+    def showAimFiniteSurfaceStopDialog(self):
+
+        pupiltype = core.pupil.EntrancePupilDiameter
+        pupilsize = 2.0
+        fieldType = core.field.ObjectHeight
+        rasterType = core.raster.RectGrid
+        stopPosition = 1
 
 
-    def createRayViews(self):
+        ad = AimDialog()
+        ad.exec_()
+        if ad.pupiltype != "":
+            pupiltype = eval("core.pupil."+ad.pupiltype) # eval is evil but who cares :p
+        if ad.pupilsize != 0.0:
+            pupilsize = ad.pupilsize
+        if ad.fieldtype != "":
+            fieldType = eval("core.field."+ad.fieldtype)
+        if ad.rastertype != "":
+            rasterType = eval("core.raster."+ad.rastertype)
+        if ad.stopposition != 0:
+            stopPosition = ad.stopposition
+
+
+        res = (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
+        self.aimfinitestopdata = res
+        self.aiminitialized = True # has to be performed at least one time
+        return res
+
+    def showFieldWaveLengthDialog(self):
+        fieldvariables = [[0., 0.], [0., 3.0]]
+        wavelength = 0.55
+        res = (fieldvariables, wavelength)
+        self.fieldpoints = fieldvariables
+        self.wavelength = wavelength
+        self.fieldwaveinitialized = True # has to be performed at least one time
+        return res
+
+    def createRayViews(self, numrays):
+
+        if not self.aiminitialized or not self.fieldwaveinitialized:
+            QtGui.QMessageBox.critical(None, "Pyrate", "Either aimy or field/wavelength matrix was not initialized. Please do that!")
+            return
+
 
         doc = FreeCAD.ActiveDocument
 
-        numrays = 100
-        pupilsize = 2.0 # fix to appropriate system pupilsize
-        stopposition = 1 # fix to appropriate system stop position
-        wavelengthparam = 0.55
+        #numrays = 100
+        #pupilsize = 2.0 # fix to appropriate system pupilsize
+        #stopposition = 1 # fix to appropriate system stop position
+        #wavelengthparam = 0.55
 
-        fieldvariable = [0., 0.]
-        fieldvariable2 = [0., 3.0]
+        #fieldvariable = [0., 0.]
+        #fieldvariable2 = [0., 3.0]
+
+        # (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
+
+        (pupiltype, pupilsize, fieldtype, rastertype, stopposition) = self.aimfinitestopdata
 
 
-        aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= core.pupil.EntrancePupilDiameter, \
+        aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
                                                     pupilSizeParameter=pupilsize, \
-                                                    fieldType= core.field.ObjectHeight, \
-                                                    rasterType= core.raster.RectGrid, \
-                                                    nray=numrays, wavelength=wavelengthparam, \
+                                                    fieldType= fieldtype, \
+                                                    rasterType= rastertype, \
+                                                    nray=numrays, wavelength=self.wavelength, \
                                                     stopPosition=stopposition)
+
+        #aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= core.pupil.EntrancePupilDiameter, \
+        #                                            pupilSizeParameter=pupilsize, \
+        #                                            fieldType= core.field.ObjectHeight, \
+        #                                            rasterType= core.raster.RectGrid, \
+        #                                            nray=numrays, wavelength=wavelengthparam, \
+        #                                            stopPosition=stopposition)
         #aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=numrays)
         #aimy.setPupilRaster(rasterType= raster.RectGrid, nray=numrays)
 
-        aimy.setPupilRaster(rasterType= core.raster.PoissonDiskSampling, nray=numrays)
-        initialBundle2 = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fieldvariable), wavelength=wavelengthparam)
+        #aimy.setPupilRaster(rasterType= core.raster.PoissonDiskSampling, nray=numrays)
 
-        r2 = RayPath(initialBundle2, self.os)
-
-        initialBundle3 = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fieldvariable2), wavelength=wavelengthparam)
-        r3 = RayPath(initialBundle3, self.os)
-
-        fig = plt.figure(1)
-        ax = fig.add_subplot(211)
-        ax2 = fig.add_subplot(212)
+        for fp in self.fieldpoints:
+            initialBundle = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fp), wavelength=self.wavelength)
+            rp = RayPath(initialBundle, self.os)
+            self.makeRaysFromRayPath(rp,offset=(0,0,0), color=(np.random.random(), np.random.random(), np.random.random()))
 
 
-        core.plots.drawSpotDiagram(ax, self.os, r2, -1)
-        core.plots.drawSpotDiagram(ax2, self.os, r3, -1)
+#        initialBundle3 = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fieldvariable2), wavelength=wavelengthparam)
+ #       r3 = RayPath(initialBundle3, self.os)
+
+  #      fig = plt.figure(1)
+   #     ax = fig.add_subplot(211)
+    #    ax2 = fig.add_subplot(212)
+
+
+     #   core.plots.drawSpotDiagram(ax, self.os, r2, -1)
+      #  core.plots.drawSpotDiagram(ax2, self.os, r3, -1)
 
         #self.makeRaysFromRayPath(r2,offset=(0,0,0), color=(0.0, 1.0, 0.0))
-        self.makeRaysFromRayPath(r3,offset=(0,0,0), color=(0.0, 1.0, 0.0))
 
         for obj in doc.Objects:
             obj.touch()

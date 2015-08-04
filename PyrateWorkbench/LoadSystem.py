@@ -1,4 +1,5 @@
 import pickle
+import sys
 from PySide import QtGui, QtCore
 
 import FreeCAD
@@ -28,8 +29,7 @@ class LoadSystemCommand:
             FreeCAD.newDocument()
 
 
-        fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', '/home')
-
+        fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', '')
 
         if fname == "":
             return 1

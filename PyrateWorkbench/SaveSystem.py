@@ -27,7 +27,7 @@ class SaveSystemCommand:
             return True
 
     def Activated(self):
-        savedlg = QtGui.QFileDialog(None, 'Save file', '/home')
+        savedlg = QtGui.QFileDialog(None, 'Save file', '')
         savedlg.setFileMode(QtGui.QFileDialog.AnyFile)
         fname, _ = savedlg.getSaveFileName()
 
