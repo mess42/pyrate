@@ -25,9 +25,11 @@ class PyrateWorkbench ( Workbench ):
         return "Gui::PythonWorkbench"
 
     def Initialize(self):
-        self.appendToolbar("Pyrate", ["CreateSystemCommand", "LoadSystemCommand", "SaveSystemCommand"])
-        self.appendMenu("Pyrate Main", ["CreateSystemCommand"])
+        self.appendToolbar("Pyrate", ["CreateSystemCommand", "DeleteSystemCommand", "LoadSystemCommand", "SaveSystemCommand"])
         self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"])
+        self.appendMenu("Pyrate System", ["CreateSystemCommand", "DeleteSystemCommand"])
+        self.appendMenu("Pyrate Field", [""])
+
 
         Log ("Loading Create System Module... done\n")
 

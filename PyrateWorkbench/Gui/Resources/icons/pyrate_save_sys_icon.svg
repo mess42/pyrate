@@ -7,10 +7,34 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    width="210mm"
    height="297mm"
-   id="svg2">
+   id="svg2"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="pyrate_save_sys_icon.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1031"
+     id="namedview8"
+     showgrid="false"
+     inkscape:zoom="0.63429569"
+     inkscape:cx="433.88695"
+     inkscape:cy="490.64389"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
   <defs
      id="defs4" />
   <metadata
@@ -21,22 +45,24 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <text
-     x="58.332417"
-     y="401.24631"
+     x="12.288907"
+     y="346.92474"
      id="text3088"
      xml:space="preserve"
-     style="font-size:40px;font-style:normal;font-weight:normal;line-height:127.99999714%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"><tspan
-       x="58.332417"
-       y="401.24631"
+     style="font-size:63.59286499px;font-style:normal;font-weight:normal;line-height:127.99999714%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     sodipodi:linespacing="128%"
+     transform="scale(0.89803455,1.1135429)"><tspan
+       x="12.288907"
+       y="346.92474"
        id="tspan3090"
-       style="font-size:200px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:127.99999714%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">SAVE</tspan><tspan
-       x="58.332417"
-       y="657.24628"
+       style="font-size:317.96432495px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:127.99999714%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">SAVE</tspan><tspan
+       x="12.288907"
+       y="753.91907"
        id="tspan3092"
-       style="font-size:200px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:127.99999714%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">  SYS</tspan></text>
+       style="font-size:317.96432495px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:127.99999714%;writing-mode:lr-tb;text-anchor:start;font-family:Sans;-inkscape-font-specification:Sans">  SYS</tspan></text>
 </svg>

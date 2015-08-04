@@ -3,6 +3,7 @@
         <file>icons/pyrate_logo_icon.svg</file>
 	<file>icons/pyrate_load_sys_icon.svg</file>
 	<file>icons/pyrate_save_sys_icon.svg</file>
+	<file>icons/pyrate_del_sys_icon.svg</file>
     </qresource>
 </RCC> 
 

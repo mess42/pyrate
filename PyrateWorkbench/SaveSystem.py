@@ -17,8 +17,7 @@ class SaveSystemCommand:
         return {"MenuText": "Save Optical System as pickle ...",
                 "Accel": "",
                 "ToolTip": "Saves an optical system to pickles file",
-#                "Pixmap": ":/icons/File_Document-open.svg"
-                "Pixmap": ":/icons/pyrate_save_sys_icon.svg" # standard icon aus FreeCAD
+                "Pixmap": ":/icons/pyrate_save_sys_icon.svg"
                 }
 
     def IsActive(self):

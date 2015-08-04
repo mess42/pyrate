@@ -17,8 +17,7 @@ class LoadSystemCommand:
         return {"MenuText": "Load Optical System from pickle ...",
                 "Accel": "",
                 "ToolTip": "Loads an optical system from pickles file",
-#                "Pixmap": ":/icons/File_Document-open.svg"
-                "Pixmap": ":/icons/pyrate_load_sys_icon.svg" # standard icon aus FreeCAD
+                "Pixmap": ":/icons/pyrate_load_sys_icon.svg"
                 }
 
     def IsActive(self):
