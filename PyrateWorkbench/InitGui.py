@@ -1,6 +1,11 @@
 # access to global variables for the FreeCAD interface
 
+import FreeCADGui
+
+
 import PyrateInterface
+import CreateSystem
+
 
 # access to the resource file
 import resources_rc
@@ -15,7 +20,6 @@ class PyrateWorkbench ( Workbench ):
         return "Gui::PythonWorkbench"
 
     def Initialize(self):
-        import CreateSystem
         self.appendToolbar("Pyrate", ["CreateSystemCommand", "LoadSystemCommand"])
         self.appendMenu("Pyrate", ["CreateSystemCommand", "LoadSystemCommand"])
 

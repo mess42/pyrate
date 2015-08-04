@@ -1,0 +1,9 @@
+*.pyc
+*.aux
+*.bib
+*.pdf
+*.toc
+*.backup
+*.orig
+*.log
+*.out

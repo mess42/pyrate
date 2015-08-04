@@ -1,7 +1,11 @@
 # standard include
 
 import time
-from numpy import *
+import math
+
+import numpy as np
+
+import matplotlib.pyplot as plt
 
 
 import material
@@ -10,11 +14,10 @@ import aim
 import field
 import pupil
 import raster
+import plots
+
 from ray import RayPath
 from optical_system import OpticalSystem, Surface
-
-import plots
-import matplotlib.pyplot as plt
 
 # freecad modules
 
@@ -22,24 +25,11 @@ import FreeCAD
 import Part
 import Points
 
-# to gain variables with their own supervision
-from traits.api import HasTraits, String, Int, Float
-import traitsui
 
 
-
-
-class OpticalSystemInterface(HasTraits):
-
-    trolo = Float
-    blub = Int
-    bla = String
+class OpticalSystemInterface(object):
 
     def __init__(self):
-        self.trolo = 0.0
-        self.blub = 1
-        self.bla = "Hallo"
-
         self.surfaceviews = []
 
         self.os = OpticalSystem()
@@ -65,9 +55,9 @@ class OpticalSystemInterface(HasTraits):
         surPoints = []
         pts = Points.Points()
         pclpoints = []
-        for r in linspace(0,R,rpoints):
+        for r in np.linspace(0,R,rpoints):
             points = []
-            for a in linspace(0.0, 360.0-360/float(phipoints), phipoints):
+            for a in np.linspace(0.0, 360.0-360/float(phipoints), phipoints):
                 x = r * math.cos(a*math.pi/180.0)# + startpoint[0]
                 y = r * math.sin(a*math.pi/180.0)# + startpoint[1]
                 z = surface.shape.getSag(x, y)# + startpoint[2]
@@ -123,7 +113,7 @@ class OpticalSystemInterface(HasTraits):
 
     def makeRayBundle(self, raybundle, offset):
         raysorigin = raybundle.o
-        nrays = shape(raysorigin)[1]
+        nrays = np.shape(raysorigin)[1]
 
         pp = Points.Points()
         sectionpoints = []
@@ -155,7 +145,7 @@ class OpticalSystemInterface(HasTraits):
         offy = offset[1]
         offz = offset[2]
 
-        for i in arange(Nsurf):
+        for i in np.arange(Nsurf):
             offz += self.os.surfaces[i].getThickness()
             (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
 
@@ -200,11 +190,11 @@ class OpticalSystemInterface(HasTraits):
         #aimy.setPupilRaster(rasterType= raster.RectGrid, nray=numrays)
 
         aimy.setPupilRaster(rasterType= raster.PoissonDiskSampling, nray=numrays)
-        initialBundle2 = aimy.getInitialRayBundle(self.os, fieldXY=array(fieldvariable), wavelength=wavelengthparam)
+        initialBundle2 = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fieldvariable), wavelength=wavelengthparam)
 
         r2 = RayPath(initialBundle2, self.os)
 
-        initialBundle3 = aimy.getInitialRayBundle(self.os, fieldXY=array(fieldvariable2), wavelength=wavelengthparam)
+        initialBundle3 = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fieldvariable2), wavelength=wavelengthparam)
         r3 = RayPath(initialBundle3, self.os)
 
         fig = plt.figure(1)

@@ -1,22 +1,15 @@
-import FreeCAD,FreeCADGui, Part
+import pickle
+from PySide import QtGui, QtCore
+
+import FreeCAD
+import FreeCADGui
+import Part
 import PartGui # wichtig fuer import von icons falls keine eigenen XPMs verwendet werden
 import Points
 
-import pickle
-
-from traits.api import HasTraits, Str, Int, Float
-import traitsui
-
-from PySide import QtGui, QtCore
-
-
-from numpy import *
 
 import PyrateInterface
 
-
-class Ball(HasTraits):
-    radius = Float
 
 class CreateSystemTool:
     "Tool for creating optical system"
@@ -75,9 +68,6 @@ class LoadSystemCommand:
         return True
 
     def Activated(self):
-#        PyrateInterface.OSinterface.configure_traits()
-#        FreeCAD.Console.PrintMessage(str(PyrateInterface.OSinterface.bla) + "\n")
-
         if FreeCAD.ActiveDocument == None:
             FreeCAD.newDocument()
 
@@ -91,7 +81,7 @@ class LoadSystemCommand:
             with open(fname, 'rb') as input:
                 PyrateInterface.OSinterface.os = pickle.load(input)
             PyrateInterface.OSinterface.createSurfaceViews()
-            PyrateInterface.OSinterface.createRayViews()
+            #PyrateInterface.OSinterface.createRayViews()
 
 
         for i in FreeCAD.ActiveDocument.Objects:
