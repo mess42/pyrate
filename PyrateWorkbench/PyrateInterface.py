@@ -392,6 +392,10 @@ class OpticalSystemInterface(object):
             self.makeRaysFromRayPath(rp,offset=(0,0,0), color=(np.random.random(), np.random.random(), np.random.random()))
 
 
+        # todo: spotdiagramm in extra commando
+        # todo: aktualisieren vom 3d layout
+        # todo: so, dass man nach der optimierung gucken kann
+
 #        initialBundle3 = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fieldvariable2), wavelength=wavelengthparam)
  #       r3 = RayPath(initialBundle3, self.os)
 
