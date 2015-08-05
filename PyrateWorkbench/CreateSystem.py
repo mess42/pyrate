@@ -27,11 +27,12 @@ class CreateSystemTool:
             return True
 
     def Activated(self):
-        PyrateInterface.OSinterface.dummycreate2()
+        PyrateInterface.OSinterface.dummycreate()
         PyrateInterface.OSinterface.createSurfaceViews()
         PyrateInterface.OSinterface.showAimFiniteSurfaceStopDialog()
         PyrateInterface.OSinterface.showFieldWaveLengthDialog()
         PyrateInterface.OSinterface.createRayViews(10)
+        PyrateInterface.OSinterface.showSpotDiagrams(100)
         # would be useful if one could center the view on a specific surface
         # how to implement apertures?
         # todo: create view objects for rays and for intersection points

@@ -25,14 +25,14 @@ import Part
 import Points
 
 class AimDialog(QtGui.QDialog):
-    def __init__(self):
+    def __init__(self, pupilsize, stopposition):
         super(AimDialog, self).__init__()
 
         self.pupiltype = ""
         self.fieldtype = ""
         self.rastertype = ""
-        self.pupilsize = 0.0
-        self.stopposition = 0
+        self.pupilsize = pupilsize
+        self.stopposition = stopposition
 
         self.initUI()
 
@@ -48,105 +48,200 @@ class AimDialog(QtGui.QDialog):
         lblpt = QtGui.QLabel("Pupil type", self)
         lblpt.move(10, 10)
 
-        combopt = QtGui.QComboBox(self)
-        combopt.addItem("EntrancePupilDiameter")
-        combopt.addItem("EntrancePupilRadius")
-        combopt.addItem("StopDiameter")
-        combopt.addItem("StopRadius")
-        combopt.addItem("ExitPupilDiameter")
-        combopt.addItem("ExitPupilRadius")
-        combopt.addItem("InfiniteConjugateImageSpaceFNumber")
-        combopt.addItem("InfiniteConjugateObjectSpaceFNumber")
-        combopt.addItem("WorkingImageSpaceFNumber")
-        combopt.addItem("WorkingObjectSpaceFNumber")
-        combopt.addItem("ObjectSpaceNA")
-        combopt.addItem("ImageSpaceNA")
-        combopt.move(10, 50)
-        combopt.activated[str].connect(self.onActivatedPT)
+        self.combopt = QtGui.QComboBox(self)
+        self.combopt.addItem("EntrancePupilDiameter")
+        self.combopt.addItem("EntrancePupilRadius")
+        self.combopt.addItem("StopDiameter")
+        self.combopt.addItem("StopRadius")
+        self.combopt.addItem("ExitPupilDiameter")
+        self.combopt.addItem("ExitPupilRadius")
+        self.combopt.addItem("InfiniteConjugateImageSpaceFNumber")
+        self.combopt.addItem("InfiniteConjugateObjectSpaceFNumber")
+        self.combopt.addItem("WorkingImageSpaceFNumber")
+        self.combopt.addItem("WorkingObjectSpaceFNumber")
+        self.combopt.addItem("ObjectSpaceNA")
+        self.combopt.addItem("ImageSpaceNA")
+        self.combopt.move(10, 50)
+        self.combopt.activated[str].connect(self.onActivatedPT)
 
         lblft = QtGui.QLabel("Field type", self)
         lblft.move(10, 90)
-        comboft = QtGui.QComboBox(self)
-        comboft.addItem("ObjectHeight")
-        comboft.addItem("ObjectChiefAngle")
-        comboft.addItem("ParaxialImageHeight")
-        comboft.move(10, 130)
-        comboft.activated[str].connect(self.onActivatedFT)
+        self.comboft = QtGui.QComboBox(self)
+        self.comboft.addItem("ObjectHeight")
+        self.comboft.addItem("ObjectChiefAngle")
+        self.comboft.addItem("ParaxialImageHeight")
+        self.comboft.move(10, 130)
+        self.comboft.activated[str].connect(self.onActivatedFT)
 
 
         lblrt = QtGui.QLabel("Raster type", self)
         lblrt.move(10, 170)
 
 
-        combort = QtGui.QComboBox(self)
-        combort.addItem("RectGrid")
-        combort.addItem("HexGrid")
-        combort.addItem("RandomGrid")
-        combort.addItem("PoissonDiskSampling")
-        combort.addItem("MeridionalFan")
-        combort.addItem("SagitalFan")
-        combort.addItem("ChiefAndComa")
-        combort.addItem("Single")
+        self.combort = QtGui.QComboBox(self)
+        self.combort.addItem("RectGrid")
+        self.combort.addItem("HexGrid")
+        self.combort.addItem("RandomGrid")
+        self.combort.addItem("PoissonDiskSampling")
+        self.combort.addItem("MeridionalFan")
+        self.combort.addItem("SagitalFan")
+        self.combort.addItem("ChiefAndComa")
+        self.combort.addItem("Single")
 
-        combort.move(10, 210)
-        combort.activated[str].connect(self.onActivatedRT)
+        self.combort.move(10, 210)
+        self.combort.activated[str].connect(self.onActivatedRT)
 
         lblps = QtGui.QLabel("Pupil size [mm]", self)
         lblps.move(410, 10)
 
 
-        spinboxps = QtGui.QDoubleSpinBox(self)
-        spinboxps.setMinimum(0.0)
-        spinboxps.setMaximum(100.0)
+        self.spinboxps = QtGui.QDoubleSpinBox(self)
+        self.spinboxps.setValue(self.pupilsize)
+        self.spinboxps.setMinimum(0.0)
+        self.spinboxps.setMaximum(100.0)
 
-        spinboxps.move(410, 50)
-        spinboxps.valueChanged.connect(self.onChangedPS)
+        self.spinboxps.move(410, 50)
+        self.spinboxps.valueChanged.connect(self.onChangedPS)
 
 
         lblst = QtGui.QLabel("Stop position (surface no.)", self)
         lblst.move(410, 90)
 
 
-        spinboxst = QtGui.QSpinBox(self)
-        spinboxst.setMinimum(0)
-        spinboxst.setMaximum(20)
+        self.spinboxst = QtGui.QSpinBox(self)
+        self.spinboxst.setValue(self.stopposition)
+        self.spinboxst.setMinimum(0)
+        self.spinboxst.setMaximum(20)
 
-        spinboxst.move(410, 130)
+        self.spinboxst.move(410, 130)
 
         okbtn = QtGui.QPushButton("OK",self)
         okbtn.setAutoDefault(True)
         okbtn.move(300, 250)
 
-        okbtn.clicked.connect(self.close)
+        okbtn.clicked.connect(self.onOK)
+
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.CustomizeWindowHint)
+
+        # disable (but not hide) close button
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
 
         self.setGeometry(300, 300, 600, 400)
         self.setWindowTitle('Aim Configuration Dialog')
+
         self.show()
 
+    def onOK(self):
+        self.pupiltype = self.combopt.currentText()
+        self.pupilsize = self.spinboxps.value()
+        self.rastertype = self.combort.currentText()
+        self.fieldtype = self.comboft.currentText()
+        self.stopposition = self.spinboxst.value()
+        self.close()
+
+
     def onActivatedPT(self, text):
-        FreeCAD.Console.PrintMessage(text)
+        #FreeCAD.Console.PrintMessage(text)
         self.pupiltype = text
 
     def onActivatedFT(self, text):
-        FreeCAD.Console.PrintMessage(text)
+        #FreeCAD.Console.PrintMessage(text)
         self.fieldtype = text
 
     def onActivatedRT(self, text):
-        FreeCAD.Console.PrintMessage(text)
+        #FreeCAD.Console.PrintMessage(text)
         self.rastertype = text
 
 
     def onChangedPS(self, val):
-        FreeCAD.Console.PrintMessage(str(val))
+        #FreeCAD.Console.PrintMessage(str(val))
         self.pupilsize = val
 
     def onChangedST(self, val):
-        FreeCAD.Console.PrintMessage(str(val))
+        #FreeCAD.Console.PrintMessage(str(val))
         self.stopposition = val
 
 
         #self.lbl.setText(text)
         #self.lbl.adjustSize()
+
+class FieldDialog(QtGui.QDialog):
+    def __init__(self, fieldpts, wavelength):
+        super(FieldDialog, self).__init__()
+
+        self.fieldpoints = fieldpts
+        self.wavelength = wavelength
+
+        self.initUI()
+
+    def initUI(self):
+
+        lbltable = QtGui.QLabel('Field points', self)
+        lbltable.move(10,10)
+
+        self.tableWidget = QtGui.QTableWidget(self)
+        self.tableWidget.setRowCount(len(self.fieldpoints))
+        self.tableWidget.setColumnCount(2)
+        self.tableWidget.move(10,50)
+        self.tableWidget.setHorizontalHeaderLabels(['fx', 'fy'])
+
+        for index, fp in enumerate(self.fieldpoints):
+            self.tableWidget.setItem(index, 0, QtGui.QTableWidgetItem(str(fp[0])))
+            self.tableWidget.setItem(index, 1, QtGui.QTableWidgetItem(str(fp[1])))
+
+        lblwavelength = QtGui.QLabel('Wavelength [um]', self)
+        lblwavelength.move(10, 310)
+
+        self.spinboxwl = QtGui.QDoubleSpinBox(self)
+        self.spinboxwl.setValue(self.wavelength)
+        self.spinboxwl.move(10, 350)
+
+        okbtn = QtGui.QPushButton('OK', self)
+        okbtn.move(10, 390)
+        okbtn.clicked.connect(self.onOK)
+
+        appendbtn = QtGui.QPushButton('Append', self)
+        appendbtn.move(110, 390)
+        appendbtn.clicked.connect(self.onAppend)
+
+        #fillbtn = QtGui.QPushButton('Fill', self)
+        #fillbtn.move(210, 390)
+        #fillbtn.clicked.connect(self.onFill)
+
+
+
+        self.setGeometry(300, 300, 600, 500)
+        self.setWindowTitle('Field Configuration Dialog')
+        self.show()
+
+    def onFill(self):
+        for r in range(self.tableWidget.rowCount()):
+            for c in range(self.tableWidget.columnCount()):
+                tableitem = self.tableWidget.item(r, c)
+                if tableitem == None:
+                    #newstr = str(-1.0 + 2.0*np.random.random())
+                    #FreeCAD.Console.PrintMessage(newstr)
+                    self.tableWidget.setItem(r, c, QtGui.QTableWidgetItem(str(0.0)))
+
+    def onAppend(self):
+        self.tableWidget.insertRow(self.tableWidget.rowCount())
+
+
+    def onOK(self):
+
+        self.fieldpoints[:] = []
+        for rowindex in range(self.tableWidget.rowCount()):
+            self.fieldpoints.append( \
+                [float(self.tableWidget.item(rowindex, colindex).text()) \
+                 for colindex in range(self.tableWidget.columnCount())
+                ]
+            )
+
+        self.wavelength = self.spinboxwl.value()
+
+
+
+        self.close()
 
 
 
@@ -318,7 +413,7 @@ class OpticalSystemInterface(object):
         stopPosition = 1
 
 
-        ad = AimDialog()
+        ad = AimDialog(pupilsize, stopPosition)
         ad.exec_()
         if ad.pupiltype != "":
             pupiltype = eval("core.pupil."+ad.pupiltype) # eval is evil but who cares :p
@@ -340,11 +435,46 @@ class OpticalSystemInterface(object):
     def showFieldWaveLengthDialog(self):
         fieldvariables = [[0., 0.], [0., 3.0]]
         wavelength = 0.55
+
+        fd = FieldDialog(fieldvariables, wavelength)
+        fd.exec_()
+        fieldvariables = fd.fieldpoints
+        wavelength = fd.wavelength
+
         res = (fieldvariables, wavelength)
         self.fieldpoints = fieldvariables
         self.wavelength = wavelength
         self.fieldwaveinitialized = True # has to be performed at least one time
         return res
+
+    def showSpotDiagrams(self, numrays):
+        # todo: spotdiagramm in extra commando
+        # todo: aktualisieren vom 3d layout
+        # todo: so, dass man nach der optimierung gucken kann
+
+        (pupiltype, pupilsize, fieldtype, rastertype, stopposition) = self.aimfinitestopdata
+
+
+        aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
+                                                    pupilSizeParameter=pupilsize, \
+                                                    fieldType= fieldtype, \
+                                                    rasterType= rastertype, \
+                                                    nray=numrays, wavelength=self.wavelength, \
+                                                    stopPosition=stopposition)
+
+        fig = plt.figure(1)
+
+        numplots = len(self.fieldpoints)
+        for index, fp in enumerate(self.fieldpoints):
+            initialBundle = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fp), wavelength=self.wavelength)
+            rp = RayPath(initialBundle, self.os)
+            ax = fig.add_subplot(numplots, 1, index)
+            ax.axis('equal')
+
+
+            core.plots.drawSpotDiagram(ax, self.os, rp, -1)
+        plt.show()
+
 
     def createRayViews(self, numrays):
 
@@ -392,28 +522,10 @@ class OpticalSystemInterface(object):
             self.makeRaysFromRayPath(rp,offset=(0,0,0), color=(np.random.random(), np.random.random(), np.random.random()))
 
 
-        # todo: spotdiagramm in extra commando
-        # todo: aktualisieren vom 3d layout
-        # todo: so, dass man nach der optimierung gucken kann
-
-#        initialBundle3 = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fieldvariable2), wavelength=wavelengthparam)
- #       r3 = RayPath(initialBundle3, self.os)
-
-  #      fig = plt.figure(1)
-   #     ax = fig.add_subplot(211)
-    #    ax2 = fig.add_subplot(212)
-
-
-     #   core.plots.drawSpotDiagram(ax, self.os, r2, -1)
-      #  core.plots.drawSpotDiagram(ax2, self.os, r3, -1)
-
-        #self.makeRaysFromRayPath(r2,offset=(0,0,0), color=(0.0, 1.0, 0.0))
-
         for obj in doc.Objects:
             obj.touch()
         doc.recompute()
 
-        plt.show()
 
 
     def returnPrescriptionData(self):
