@@ -12,6 +12,7 @@ import DeleteSystem
 import VisualizeSystem
 import FieldOfSystem
 import AnalyseSystem
+import OptimizeSystem
 
 
 
@@ -30,21 +31,30 @@ class PyrateWorkbench ( Workbench ):
     def Initialize(self):
         self.appendToolbar("Pyrate",
                            ["CreateSystemCommand",
+                            "Separator",
                             "DeleteSystemCommand",
+                            "UpdateVisualizationCommand",
+                            "Separator",
                             "LoadSystemCommand",
                             "SaveSystemCommand"])
         self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"])
         self.appendMenu("Pyrate System", ["CreateSystemCommand"])
-        self.appendMenu("Pyrate Visualization", ["ShowSystemCommand",
+        self.appendMenu("Pyrate Visualization", ["UpdateVisualizationCommand"])
+        self.appendMenu(["Pyrate Visualization", "Show ..."],
+                                                ["ShowSystemCommand",
                                                  "ShowSurfacesCommand",
-                                                 "ShowRaysCommand",
-                                                 "DeleteSystemCommand",
+                                                 "ShowRaysCommand"]
+                        )
+        self.appendMenu(["Pyrate Visualization", "Delete ..."],
+                                                ["DeleteSystemCommand",
                                                  "DeleteSurfacesCommand",
-                                                 "DeleteRaysCommand",
-                                                 "UpdateVisualizationCommand"])
+                                                 "DeleteRaysCommand"]
+                        )
+
+
         self.appendMenu("Pyrate Field", ["ShowAimDialogCommand", "ShowFieldDialogCommand"])
         self.appendMenu("Pyrate Analysis", ["ShowSpotDiagramCommand"])
-        self.appendMenu("Pyrate Optimization", [""])
+        self.appendMenu("Pyrate Optimization", ["StartOptimizationCommand"])
 
 
         Log ("Loading Create System Module... done\n")

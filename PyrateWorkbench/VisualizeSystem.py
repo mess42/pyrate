@@ -32,9 +32,9 @@ class ShowSystemCommand:
 
         doc = FreeCAD.ActiveDocument
 
-        PyrateInterface.OSinterface.createSurfaceViews()
+        PyrateInterface.OSinterface.createSurfaceViews(doc)
         # ask for rayviews
-        PyrateInterface.OSinterface.createRayViews(10)
+        PyrateInterface.OSinterface.createRayViews(10, doc)
 
         for i in doc.Objects:
             i.touch()
