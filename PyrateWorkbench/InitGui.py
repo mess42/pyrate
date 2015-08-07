@@ -9,6 +9,9 @@ import LoadSystem
 import SaveSystem
 import DeleteRays
 import DeleteSystem
+import VisualizeSystem
+import FieldOfSystem
+import AnalyseSystem
 
 
 
@@ -25,10 +28,23 @@ class PyrateWorkbench ( Workbench ):
         return "Gui::PythonWorkbench"
 
     def Initialize(self):
-        self.appendToolbar("Pyrate", ["CreateSystemCommand", "DeleteSystemCommand", "LoadSystemCommand", "SaveSystemCommand"])
+        self.appendToolbar("Pyrate",
+                           ["CreateSystemCommand",
+                            "DeleteSystemCommand",
+                            "LoadSystemCommand",
+                            "SaveSystemCommand"])
         self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"])
-        self.appendMenu("Pyrate System", ["CreateSystemCommand", "DeleteSystemCommand"])
-        self.appendMenu("Pyrate Field", [""])
+        self.appendMenu("Pyrate System", ["CreateSystemCommand"])
+        self.appendMenu("Pyrate Visualization", ["ShowSystemCommand",
+                                                 "ShowSurfacesCommand",
+                                                 "ShowRaysCommand",
+                                                 "DeleteSystemCommand",
+                                                 "DeleteSurfacesCommand",
+                                                 "DeleteRaysCommand",
+                                                 "UpdateVisualizationCommand"])
+        self.appendMenu("Pyrate Field", ["ShowAimDialogCommand", "ShowFieldDialogCommand"])
+        self.appendMenu("Pyrate Analysis", ["ShowSpotDiagramCommand"])
+        self.appendMenu("Pyrate Optimization", [""])
 
 
         Log ("Loading Create System Module... done\n")

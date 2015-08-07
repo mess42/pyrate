@@ -16,7 +16,7 @@ class CreateSystemTool:
     def GetResources(self):
         return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
                 "MenuText": "Create optical system ...",
-                "Accel": "Ctrl+M",
+                "Accel": "",
                 "ToolTip": "Opens dialog for system creation"
                 }
 
@@ -27,32 +27,15 @@ class CreateSystemTool:
             return True
 
     def Activated(self):
-        PyrateInterface.OSinterface.dummycreate()
-        PyrateInterface.OSinterface.createSurfaceViews()
+
+        doc = FreeCAD.ActiveDocument
+
+        PyrateInterface.OSinterface.dummycreate() # substitute by system creation dialog
+        PyrateInterface.OSinterface.createSurfaceViews(doc)
         PyrateInterface.OSinterface.showAimFiniteSurfaceStopDialog()
         PyrateInterface.OSinterface.showFieldWaveLengthDialog()
-        PyrateInterface.OSinterface.createRayViews(10)
+        PyrateInterface.OSinterface.createRayViews(doc, 10)
         PyrateInterface.OSinterface.showSpotDiagrams(100)
-        # would be useful if one could center the view on a specific surface
-        # how to implement apertures?
-        # todo: create view objects for rays and for intersection points
-        # draw coordinate frame per default
-        # selection coupling to certain surface
-        # later create system by table and update view per button
-
-#        QtGui.QMessageBox.information(None,"","Houston, we have a problem")
-#        ball = Ball()
-#        ball.configure_traits()
-
-#        pp = Points.Points()
-#        ptslist =[]
-#        for i in range(1000):
-#            r3 = random.randn(3)
-#            r3 = ball.radius * r3/linalg.norm(r3)
-#            ptslist.append(tuple(r3))
-#        pp.addPoints(ptslist)
-#        Points.show(pp)
-# do something here...
 
 
 

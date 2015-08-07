@@ -258,8 +258,10 @@ class OpticalSystemInterface(object):
 
         self.aiminitialized = False
         self.fieldwaveinitialized = False
-        self.fieldpoints = []
+
+        self.fieldpoints = [[0., 0.], [0., 3.0]]
         self.wavelength = 0.55
+
         self.aimfinitestopdata = None
 
         self.os = OpticalSystem()
@@ -307,9 +309,8 @@ class OpticalSystemInterface(object):
         return (surshape, pts)
 
 
-    def createSurfaceViews(self):
+    def createSurfaceViews(self, doc):
         offset = [0, 0, 0]
-        doc = FreeCAD.ActiveDocument
 
         for (index, surf) in enumerate(self.os.surfaces):
             # all accesses to the surface internal variables should be performed by appropriate supervised functions
@@ -433,10 +434,8 @@ class OpticalSystemInterface(object):
         return res
 
     def showFieldWaveLengthDialog(self):
-        fieldvariables = [[0., 0.], [0., 3.0]]
-        wavelength = 0.55
 
-        fd = FieldDialog(fieldvariables, wavelength)
+        fd = FieldDialog(self.fieldpoints, self.wavelength)
         fd.exec_()
         fieldvariables = fd.fieldpoints
         wavelength = fd.wavelength
@@ -476,14 +475,11 @@ class OpticalSystemInterface(object):
         plt.show()
 
 
-    def createRayViews(self, numrays):
+    def createRayViews(self, doc, numrays):
 
         if not self.aiminitialized or not self.fieldwaveinitialized:
             QtGui.QMessageBox.critical(None, "Pyrate", "Either aimy or field/wavelength matrix was not initialized. Please do that!")
             return
-
-
-        doc = FreeCAD.ActiveDocument
 
         #numrays = 100
         #pupilsize = 2.0 # fix to appropriate system pupilsize
@@ -525,6 +521,26 @@ class OpticalSystemInterface(object):
         for obj in doc.Objects:
             obj.touch()
         doc.recompute()
+
+
+    def deleteSurfaces(self, doc):
+        for so in OSinterface.surfaceobs:
+            doc.removeObject(so.Label)
+
+        OSinterface.surfaceobs[:] = []
+        OSinterface.surfaceviews[:] = []
+
+    def deleteRays(self, doc):
+        for ro in OSinterface.rayobs:
+            doc.removeObject(ro.Label)
+
+        for pto in OSinterface.intersectptsobs:
+            doc.removeObject(pto.Label)
+
+        OSinterface.intersectptsobs[:] = [] # empty list
+        OSinterface.rayobs[:] = []
+        OSinterface.rayviews[:] = []
+
 
 
 
