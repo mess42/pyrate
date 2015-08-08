@@ -262,7 +262,7 @@ class OpticalSystemInterface(object):
         self.fieldpoints = [[0., 0.], [0., 3.0]]
         self.wavelength = 0.55
 
-        self.shownumrays = 100
+        self.shownumrays = 10
 
         self.aimfinitestopdata = None
 
@@ -512,7 +512,7 @@ class OpticalSystemInterface(object):
         # (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
 
         (pupiltype, pupilsize, fieldtype, rastertype, stopposition) = self.aimfinitestopdata
-
+        FreeCAD.Console.PrintMessage(str(self.aimfinitestopdata)+"\n")
 
         aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
                                                     pupilSizeParameter=pupilsize, \
@@ -520,6 +520,8 @@ class OpticalSystemInterface(object):
                                                     rasterType= rastertype, \
                                                     nray=numrays, wavelength=self.wavelength, \
                                                     stopPosition=stopposition)
+
+        FreeCAD.Console.PrintMessage(str(aimy.stopDiameter)+"\n")
 
         #aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= core.pupil.EntrancePupilDiameter, \
         #                                            pupilSizeParameter=pupilsize, \
