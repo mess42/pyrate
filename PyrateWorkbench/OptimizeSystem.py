@@ -52,7 +52,7 @@ class StartOptimizationCommand:
         PyrateInterface.OSinterface.deleteRays(doc)
         # abfrage!
         PyrateInterface.OSinterface.createSurfaceViews(doc)
-        PyrateInterface.OSinterface.createRayViews(doc, 10)
+        PyrateInterface.OSinterface.createRayViews(doc, PyrateInterface.OSinterface.shownumrays)
 
 
         for i in doc.Objects:

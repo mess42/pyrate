@@ -34,7 +34,7 @@ class ShowSystemCommand:
 
         PyrateInterface.OSinterface.createSurfaceViews(doc)
         # ask for rayviews
-        PyrateInterface.OSinterface.createRayViews(10, doc)
+        PyrateInterface.OSinterface.createRayViews(PyrateInterface.OSinterface.shownumrays, doc)
 
         for i in doc.Objects:
             i.touch()
@@ -97,7 +97,7 @@ class ShowRaysCommand:
         doc = FreeCAD.ActiveDocument
 
         # abfrage!
-        PyrateInterface.OSinterface.createRayViews(doc, 10)
+        PyrateInterface.OSinterface.createRayViews(doc, PyrateInterface.OSinterface.shownumrays)
 
 
         for i in doc.Objects:
@@ -130,7 +130,7 @@ class UpdateVisualizationCommand:
         PyrateInterface.OSinterface.deleteRays(doc)
         # abfrage!
         PyrateInterface.OSinterface.createSurfaceViews(doc)
-        PyrateInterface.OSinterface.createRayViews(doc, 10)
+        PyrateInterface.OSinterface.createRayViews(doc, PyrateInterface.OSinterface.shownumrays)
 
 
         for i in doc.Objects:

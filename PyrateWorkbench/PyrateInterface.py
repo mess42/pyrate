@@ -262,6 +262,8 @@ class OpticalSystemInterface(object):
         self.fieldpoints = [[0., 0.], [0., 3.0]]
         self.wavelength = 0.55
 
+        self.shownumrays = 100
+
         self.aimfinitestopdata = None
 
         self.os = OpticalSystem()
