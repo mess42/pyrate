@@ -8,33 +8,46 @@ from ray import RayPath
 
 def myPersonalMeritFunctionForTestingPurposes(s):
     """
-    On axis RMS spot size in image plane
+    This is a test Merit function for RMS of a finite corrected 20x microscope objective.
+    The microscope sample is on the object side.
+    Parfocal or tube length are not enforced.
 
     :param s: OpticalSystem object
 
     :return merit: merit function value (float)
     """
-
     nray = 1E3  # number of rays
-    pupilType= pupil.EntrancePupilDiameter
-    pupilSizeParameter = 5.5
-    fieldType= field.ObjectHeight
     rasterType= raster.RectGrid
-    wavelength = 0.55
+
+    pupilType= pupil.ObjectSpaceNA
+    pupilSizeParameter = 0.25
+    wavelengths = [0.48, 0.55, 0.65]
     stopPosition = 5
-    fieldXY = array([0., 0.])
+    mag = 20
+
+    fieldType= field.ObjectHeight
+    fieldpoints = 1./mag * 0.5*array([0., 17.5,25.])
 
     aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType, pupilSizeParameter, fieldType, rasterType, nray, wavelength, stopPosition)
-    initialBundle = aimy.getInitialRayBundle(s, fieldXY, wavelength)
+ 
+    # RMS at all field points
+    merit_squared = 0
+    for wavelength in wavelengths:
+        for y in fieldpoints:
+            initialBundle = aimy.getInitialRayBundle(s, array([0.,y]), wavelength)
+            raypath_on_axis = RayPath(initialBundle, s)
 
-    r = RayPath(initialBundle, s)
+            merit_squared += ( raypath_on_axis.raybundles[-1].getRMSspotSizeCentroid() )**2
 
-#    print " "
-#    print initialBundle.o
+    
+    initialBundle = aimy.getInitialRayBundle(s, array([0.,0.]), wavelengths[1])
 
-#    for (num, i) in enumerate(r.raybundles):
-#        print num, ": "
-#        print i.o
+    # magnification
+    merit_squared += ( s.getParaxialMagnification(initialBundle) - mag ) **2
 
-    merit = r.raybundles[-1].getRMSspotSizeCentroid()
-    return merit
+    # positive thicknesses
+    for i in arange(len(s.getNumberOfSurfaces()):
+        merit_squared += ( int(s.getThickness[i] < 0) )
+
+
+    return merit_squared

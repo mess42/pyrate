@@ -201,6 +201,15 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         self.surfaces[position].setThickness(thickness)
 
+    def getThickness(self, position):
+        """
+        Returns the on-axis thickness of a surface.
+
+        :param position: number of the surface (int)
+        """
+        reurn self.surfaces[position].getThickness()
+
+
     def setMaterial(self, position, materialType):
         """
         Sets the material of a surface.

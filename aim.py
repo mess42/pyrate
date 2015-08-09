@@ -57,7 +57,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         """
         Sets up the private data of this class required to aim rays through the pupil.
 
-        :param pupilType: name of the class in pupil.py that defines the type of pupil (F#, NA, stop dia, ...) (str)
+        :param pupilType: class that defines the type of pupil (F#, NA, stop dia, ...) (PupilType class)
         """
 
         self.pupilSizeCalculatorObject =  pupilType()
@@ -68,7 +68,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         Calculates the stop size required for an optical system and a given pupil size.
         Requires setPupilType() to set up basic pupil data first.
 
-        :param opticalSystem: OpticalSystem object
+        :param opticalSystem: Optical system (OpticalSystem object)
         :param pupilSizeParameter: size parameter of the pupil. Unit depends on pupilType. (float)
         :param stopPosition: surface number of the stop (int)
         :param wavelength: wavelength for pupil size calculation in um (float)
@@ -83,7 +83,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         Once the pupil type and stop size are set up at the primary wavelength, this method 
         is intended to quickly return the marginal ray slope at different wavelengths for the pre-set stop diameter.
 
-        :param opticalSystem: OpticalSystem object
+        :param opticalSystem: Optical system (OpticalSystem object)
 
         :return marginalSlope: slope (dy/dz) of the marginal ray (float)
         """
@@ -95,7 +95,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         """
         Sets up the private data of this class required to aim rays through the pupil.
 
-        :param fieldType: name of the function in field.py that defines the type of field (height, angle, ...) (str)
+        :param fieldType: class that defines the type of field (height, angle, ...) (FieldType class)
         """ 
 
         self.chiefSlopeCalculatorObject = fieldType()
@@ -105,7 +105,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         """
         Sets up the private data of this class required to aim rays through the pupil.
 
-        :param rasterType: name of the function in raster.py that defines the type of pupil raster (grid, fan, random, ...) (str)
+        :param rasterType: class that defines the type of pupil raster (grid, fan, random, ...) (PupilType class)
         :param nray: desired number of rays for the raster (int)
         """
         temp_obj = rasterType()

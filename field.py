@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from numpy import *
 
+# To do: make a parent class FieldType, from which ObjectHeight and so on enherit.
+
 
 class ObjectHeight(object):
     def __init__(self):
@@ -32,6 +34,7 @@ class ObjectHeight(object):
         Calculates the chief ray slope from an object field height.
 
         :param opticalSystem: OpticalSystem object
+        :param stopPosition: index of stop surface (int)
         :param ray: raybundle object
         :param objFieldXY: object field height in x and y direction (1d numpy array of 2 floats)
 
