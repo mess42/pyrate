@@ -90,7 +90,12 @@ s.surfaces[7].setStatus("curvature", True)
 #s.surfaces[4].setStatus("thickness", True)
 #s.surfaces[5].setStatus("thickness", True)
 
-s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=1, dx=1e-6)
+print "aimy,stopDiameter before: ", aimy.stopDiameter
+
+s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=10, dx=1e-6)
+
+print "aimy,stopDiameter after: ", aimy.stopDiameter
+
 
 print "pickle dump"
 
