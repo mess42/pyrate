@@ -3,6 +3,7 @@
 Pyrate - Optical raytracing based on Python
 
 Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
 
 This program is free software; you can redistribute it and/or
@@ -22,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import warnings
-warnings.filterwarnings("error") # is needed such that we can intercept a RuntimeWarning during optimization procedure
+
 
 
 class OptimizableVariable(object):
@@ -129,6 +130,9 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dx=1e-6):
     :return s: optimized OpticalSystem object
     """
 
+    warnings.filterwarnings("error", RuntimeWarning)
+    # is needed such that we can intercept a RuntimeWarning during optimization procedure as an exception
+
     if dx <= 0:
         dx = 1e-6
 
@@ -186,6 +190,7 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dx=1e-6):
 
 
 
+    warnings.filterwarnings("default") # reset warning behavior to default value
 
 
     return s

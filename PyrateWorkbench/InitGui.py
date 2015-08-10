@@ -2,7 +2,6 @@
 
 import FreeCADGui
 
-
 import PyrateInterface
 import CreateSystem
 import LoadSystem
