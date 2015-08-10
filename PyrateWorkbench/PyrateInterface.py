@@ -266,7 +266,7 @@ class OpticalSystemInterface(object):
 
         self.aimfinitestopdata = None
 
-	self.aimy = None
+        self.aimy = None
         self.os = OpticalSystem()
 
     def dummycreate(self): # should only create the demo system, will be removed later
@@ -453,9 +453,9 @@ class OpticalSystemInterface(object):
         self.aimfinitestopdata = res
         self.aiminitialized = True # has to be performed at least one time
 
-	# TODO: nrays changeable (depends on whether spot diagram or graphical 3d representation)
-	# TODO: why does a new calculation of aimy change the stopdiameter after optimization?
-	self.aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
+        # TODO: nrays changeable (depends on whether spot diagram or graphical 3d representation)
+        # TODO: why does a new calculation of aimy change the stopdiameter after optimization?
+        self.aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
                                                     pupilSizeParameter=pupilsize, \
                                                     fieldType= fieldType, \
                                                     rasterType= rasterType, \
@@ -485,7 +485,7 @@ class OpticalSystemInterface(object):
 
         (pupiltype, pupilsize, fieldtype, rastertype, stopposition) = self.aimfinitestopdata
 
-	aimy = self.aimy
+        aimy = self.aimy
         # aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
         #                                             pupilSizeParameter=pupilsize, \
         #                                            fieldType= fieldtype, \
@@ -526,9 +526,9 @@ class OpticalSystemInterface(object):
         (pupiltype, pupilsize, fieldtype, rastertype, stopposition) = self.aimfinitestopdata
         FreeCAD.Console.PrintMessage(str(self.aimfinitestopdata)+"\n")
 
-	# TODO: aimy may not be called all the time due to recalculation of stopdiameter which should be fixed
+        # TODO: aimy may not be called all the time due to recalculation of stopdiameter which should be fixed
 
-	aimy = self.aimy
+        aimy = self.aimy
         #aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
         #                                            pupilSizeParameter=pupilsize, \
         #                                            fieldType= fieldtype, \
