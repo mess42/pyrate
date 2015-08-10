@@ -17,8 +17,8 @@ def mySimpleDumpRMSSpotSizeMeritFunction(s):
     nray = 1e3  # number of rays
     rasterType= raster.RectGrid
 
-    pupilType= pupil.EntrancePupilDiameter
-    pupilSizeParameter = 5.5
+    pupilType= pupil.StopDiameter # EntrancePupilDiameter
+    pupilSizeParameter = 3.0 # 5.5
     wavelength = 0.55
     stopPosition = 5
 

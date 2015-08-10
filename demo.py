@@ -35,8 +35,8 @@ s.insertSurface(7, Surface(surfShape.Conic(curv=0.1*1/1.479, semidiam=1.0), thic
 # benchmark
 # definition of rays
 nray = 1E5 # number of rays
-aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType= pupil.EntrancePupilDiameter,
-                                            pupilSizeParameter=5.5,
+aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType= pupil.StopDiameter,
+                                            pupilSizeParameter=3.0,
                                             fieldType= field.ObjectHeight,
                                             rasterType= raster.RectGrid,
                                             nray=nray, wavelength=0.55, stopPosition=5)
@@ -107,6 +107,7 @@ with open('optical_sys.pkl', 'wb') as output:
 
 print "Optimized merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s)
 
+aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 r2 = RayPath(initialBundle2, s)
 initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55)
