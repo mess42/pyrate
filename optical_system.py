@@ -61,7 +61,7 @@ class Surface(ClassWithOptimizableVariables):
         :return self.material: new Material object
         """
 
-       # conserve the most basic parameters of the shape
+        # conserve the most basic parameters of the shape
         try:
             varsToRemove = self.material.getAllOptimizableVariables()
             for v in varsToRemove:
@@ -207,7 +207,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         :param position: number of the surface (int)
         """
-        reurn self.surfaces[position].getThickness()
+        return self.surfaces[position].getThickness()
 
 
     def setMaterial(self, position, materialType):

@@ -75,7 +75,7 @@ plots.drawLayout2d(ax, s, [r2, r3])
 
 
 # optimize
-print "Initial   merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
+print "Initial   merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s)
 
 # make surface curvatures variable
 s.surfaces[2].setStatus("curvature", True)
@@ -92,7 +92,7 @@ s.surfaces[7].setStatus("curvature", True)
 
 print "aimy,stopDiameter before: ", aimy.stopDiameter
 
-s = optimize.optimizeNewton1D(s, merit.myPersonalMeritFunctionForTestingPurposes, iterations=10, dx=1e-6)
+s = optimize.optimizeNewton1D(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, iterations=3, dx=1e-6)
 
 print "aimy,stopDiameter after: ", aimy.stopDiameter
 
@@ -105,7 +105,7 @@ with open('optical_sys.pkl', 'wb') as output:
     #print pickletools.dis(str)
 
 
-print "Optimized merit function: ", merit.myPersonalMeritFunctionForTestingPurposes(s)
+print "Optimized merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s)
 
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 r2 = RayPath(initialBundle2, s)

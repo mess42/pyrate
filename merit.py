@@ -5,6 +5,41 @@ import raster
 import pupil
 from ray import RayPath
 
+def mySimpleDumpRMSSpotSizeMeritFunction(s):
+    """
+    This is a test Merit function for RMS spot size on axis with modifications implemented suggested by Mo
+
+    :param s: OpticalSystem object
+
+    :return merit: merit function value (float)
+    """
+
+    nray = 1e3  # number of rays
+    rasterType= raster.RectGrid
+
+    pupilType= pupil.EntrancePupilDiameter
+    pupilSizeParameter = 5.5
+    wavelength = 0.55
+    stopPosition = 5
+
+    fieldType= field.ObjectHeight
+    fieldpoints = [0., 0.1]
+
+    aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType, pupilSizeParameter, fieldType, rasterType, nray, wavelength, stopPosition)
+
+
+    # RMS at all field points
+    merit_squared = 0
+
+    for y in fieldpoints:
+        initialBundle = aimy.getInitialRayBundle(s, array([0.,y]), wavelength)
+        raypath_on_axis = RayPath(initialBundle, s)
+
+        merit_squared += ( raypath_on_axis.raybundles[-1].getRMSspotSizeCentroid() )**2
+
+    return merit_squared
+
+
 
 def myPersonalMeritFunctionForTestingPurposes(s):
     """
@@ -28,26 +63,28 @@ def myPersonalMeritFunctionForTestingPurposes(s):
     fieldType= field.ObjectHeight
     fieldpoints = 1./mag * 0.5*array([0., 17.5,25.])
 
-    aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType, pupilSizeParameter, fieldType, rasterType, nray, wavelength, stopPosition)
- 
+    aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType, pupilSizeParameter, fieldType, rasterType, nray, wavelengths[1], stopPosition)
+
+
     # RMS at all field points
     merit_squared = 0
     for wavelength in wavelengths:
         for y in fieldpoints:
+
             initialBundle = aimy.getInitialRayBundle(s, array([0.,y]), wavelength)
             raypath_on_axis = RayPath(initialBundle, s)
 
             merit_squared += ( raypath_on_axis.raybundles[-1].getRMSspotSizeCentroid() )**2
 
-    
+
     initialBundle = aimy.getInitialRayBundle(s, array([0.,0.]), wavelengths[1])
 
     # magnification
     merit_squared += ( s.getParaxialMagnification(initialBundle) - mag ) **2
 
     # positive thicknesses
-    for i in arange(len(s.getNumberOfSurfaces()):
-        merit_squared += ( int(s.getThickness[i] < 0) )
+    for i in arange(s.getNumberOfSurfaces()):
+        merit_squared += ( int(s.getThickness(i) < 0) )
 
 
     return merit_squared

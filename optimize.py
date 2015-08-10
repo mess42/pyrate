@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+import warnings
+warnings.filterwarnings("error") # is needed such that we can intercept a RuntimeWarning during optimization procedure
 
 
 class OptimizableVariable(object):
@@ -141,31 +143,49 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dx=1e-6):
 
 
         for v in np.arange(len(optVars)):
-            merit0 = meritfunction(s)
-            var = optVars[v]
-            varvalue0 = var.val
-            varvalue1 = var.val + dx
-            var.val = varvalue1
-            merit1 = meritfunction(s)
+
+            retry = True
+
+            while retry:
+
+                try: # try block for intercepting RuntimeWarnings during evaluation of merit function
+                    merit0 = meritfunction(s)
+                    var = optVars[v]
+                    varvalue0 = var.val
+                    varvalue1 = var.val + dx*(1.0 - 2.0*np.random.random()) # also allow values in the negative direction
+                    var.val = varvalue1
+
+                    merit1 = meritfunction(s)
 
 
-            if (abs(merit1 - merit0) > 1e-16):
-                m = (merit1 - merit0) / (varvalue1 - varvalue0)
-                n = merit0 - m * varvalue0
-                varvalue2 = - n / m  # Newton method for next iteration value
-                print m, " ", n, " ", varvalue0, " ", varvalue1, " ", varvalue2
-            else:
-                varvalue2 = varvalue1
 
-            var.val = varvalue2
-            merit2 = meritfunction(s)
+                    if (abs(merit1 - merit0) > 1e-16):
+                        m = (merit1 - merit0) / (varvalue1 - varvalue0)
+                        n = merit0 - m * varvalue0
+                        varvalue2 = - n / m  # Newton method for next iteration value
+                        print "m: ", m, " n: ", n, " v0: ", varvalue0, " v1: ", varvalue1, " newv: ", varvalue2
+                    else:
+                        varvalue2 = varvalue1
 
-            guard = 0  # guard element to prevent freezing
-            while merit2 > merit0 and varvalue2 - varvalue0 > dx and guard < 1000:
-                varvalue2 = 0.5 * (varvalue2 + varvalue0)
-                var.val = varvalue2
-                merit2 = meritfunction(s)
-                guard += 1
+                    var.val = varvalue2
+                    merit2 = meritfunction(s)
+
+                    guard = 0  # guard element to prevent freezing
+                    while merit2 > merit0 and varvalue2 - varvalue0 > dx and guard < 1000:
+                        varvalue2 = 0.5 * (varvalue2 + varvalue0)
+                        var.val = varvalue2
+                        merit2 = meritfunction(s)
+                        guard += 1
+
+                    retry = False
+
+                except RuntimeWarning:
+                    print "Runtime waring occured retrying ..."
+                    var.val = varvalue0 # reseting system variable
+                    retry = True
+
+
+
 
 
     return s
