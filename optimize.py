@@ -130,7 +130,7 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dx=1e-6):
     :return s: optimized OpticalSystem object
     """
 
-    warnings.filterwarnings("error", RuntimeWarning)
+    warnings.filterwarnings("error", category=RuntimeWarning)
     # is needed such that we can intercept a RuntimeWarning during optimization procedure as an exception
 
     if dx <= 0:
@@ -149,10 +149,12 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dx=1e-6):
         for v in np.arange(len(optVars)):
 
             retry = True
+            retrycount = 0
 
             while retry:
 
                 try: # try block for intercepting RuntimeWarnings during evaluation of merit function
+                    retrycount += 1
                     merit0 = meritfunction(s)
                     var = optVars[v]
                     varvalue0 = var.val
@@ -186,7 +188,11 @@ def optimizeNewton1D(s, meritfunction, iterations=1, dx=1e-6):
                 except RuntimeWarning:
                     print "Runtime waring occured retrying ..."
                     var.val = varvalue0 # reseting system variable
-                    retry = True
+                    if retrycount < 10: # if it does not work after 10 trys than set variable to standard value and end loop
+                        retry = True
+                    else:
+                        retry = False
+
 
 
 

@@ -5,6 +5,11 @@ import raster
 import pupil
 from ray import RayPath
 
+# TODO: create user def'd merit function file
+# TODO: create optimization dialog for selecting merit function and file
+# TODO: button for edit merit function with either external command or internal editor window
+
+
 def mySimpleDumpRMSSpotSizeMeritFunction(s):
     """
     This is a test Merit function for RMS spot size on axis with modifications implemented suggested by Mo

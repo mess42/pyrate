@@ -25,7 +25,7 @@ import Part
 import Points
 
 class AimDialog(QtGui.QDialog):
-    def __init__(self, pupilsize, stopposition):
+    def __init__(self, pupilsize, stopposition, numrays):
         super(AimDialog, self).__init__()
 
         self.pupiltype = ""
@@ -33,6 +33,7 @@ class AimDialog(QtGui.QDialog):
         self.rastertype = ""
         self.pupilsize = pupilsize
         self.stopposition = stopposition
+        self.numrays = numrays
 
         self.initUI()
 
@@ -91,8 +92,8 @@ class AimDialog(QtGui.QDialog):
         self.combort.move(10, 210)
         self.combort.activated[str].connect(self.onActivatedRT)
 
-        lblps = QtGui.QLabel("Pupil size [mm]", self)
-        lblps.move(410, 10)
+        self.lblps = QtGui.QLabel("PupilSizeParameter: [mm]", self)
+        self.lblps.move(410, 10)
 
 
         self.spinboxps = QtGui.QDoubleSpinBox(self)
@@ -114,6 +115,19 @@ class AimDialog(QtGui.QDialog):
         self.spinboxst.setMaximum(20)
 
         self.spinboxst.move(410, 130)
+
+
+        lblnrays = QtGui.QLabel("Number Rays", self)
+        lblnrays.move(410, 170)
+
+
+        self.spinboxnrays = QtGui.QSpinBox(self)
+        self.spinboxnrays.setValue(self.stopposition)
+        self.spinboxnrays.setMinimum(1)
+        self.spinboxnrays.setMaximum(2000)
+
+        self.spinboxnrays.move(410, 210)
+
 
         okbtn = QtGui.QPushButton("OK",self)
         okbtn.setAutoDefault(True)
@@ -137,10 +151,35 @@ class AimDialog(QtGui.QDialog):
         self.rastertype = self.combort.currentText()
         self.fieldtype = self.comboft.currentText()
         self.stopposition = self.spinboxst.value()
+        self.numrays = self.spinboxnrays.value()
         self.close()
 
 
     def onActivatedPT(self, text):
+        labeltext = "PupilSizeParameter: "
+
+#         self.combopt.addItem("EntrancePupilDiameter")
+#         self.combopt.addItem("EntrancePupilRadius")
+#         self.combopt.addItem("StopDiameter")
+#         self.combopt.addItem("StopRadius")
+#         self.combopt.addItem("ExitPupilDiameter")
+#         self.combopt.addItem("ExitPupilRadius")
+#         self.combopt.addItem("InfiniteConjugateImageSpaceFNumber")
+#         self.combopt.addItem("InfiniteConjugateObjectSpaceFNumber")
+#         self.combopt.addItem("WorkingImageSpaceFNumber")
+#         self.combopt.addItem("WorkingObjectSpaceFNumber")
+#         self.combopt.addItem("ObjectSpaceNA")
+#         self.combopt.addItem("ImageSpaceNA")
+
+
+        if "Diameter" in text or "Radius" in text:
+            labeltext += " [mm]"
+        if "FNumber" in text:
+            labeltext += " F/#"
+        if "NA" in text:
+            labeltext += " NA"
+
+        self.lblps.setText(labeltext)
         #FreeCAD.Console.PrintMessage(text)
         self.pupiltype = text
 
@@ -426,16 +465,28 @@ class OpticalSystemInterface(object):
 
     def showAimFiniteSurfaceStopDialog(self):
 
-        pupiltype = core.pupil.EntrancePupilDiameter
-        pupilsize = 2.0
-        fieldType = core.field.ObjectHeight
-        rasterType = core.raster.RectGrid
-        stopPosition = 1
+        #self.aimfinitestopdata = (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
 
-        # todo: do not reset to default values
+        if self.aimfinitestopdata == None:
+            pupiltype = core.pupil.EntrancePupilDiameter
+            pupilsize = 2.0
+            fieldType = core.field.ObjectHeight
+            rasterType = core.raster.RectGrid
+            stopPosition = 1
+            numrays = 10
+        else:
+            pupiltype = self.aimfinitestopdata[0]
+            pupilsize = self.aimfinitestopdata[1]
+            fieldType = self.aimfinitestopdata[2]
+            rasterType = self.aimfinitestopdata[3]
+            stopPosition = self.aimfinitestopdata[4]
+            numrays = self.shownumrays
 
 
-        ad = AimDialog(pupilsize, stopPosition)
+        # TODO: do not reset to default values
+
+
+        ad = AimDialog(pupilsize, stopPosition, numrays)
         ad.exec_()
         if ad.pupiltype != "":
             pupiltype = eval("core.pupil."+ad.pupiltype) # eval is evil but who cares :p
@@ -448,22 +499,24 @@ class OpticalSystemInterface(object):
         if ad.stopposition != 0:
             stopPosition = ad.stopposition
 
+        self.shownumrays = ad.numrays
 
-        res = (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
-        self.aimfinitestopdata = res
+        self.aimfinitestopdata = (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
         self.aiminitialized = True # has to be performed at least one time
 
+
+
         # TODO: nrays changeable (depends on whether spot diagram or graphical 3d representation)
-        # TODO: why does a new calculation of aimy change the stopdiameter after optimization?
+        # TODO: let this dialog return aimy object
         self.aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
                                                     pupilSizeParameter=pupilsize, \
                                                     fieldType= fieldType, \
                                                     rasterType= rasterType, \
-                                                    nray=10, wavelength=self.wavelength, \
+                                                    nray=self.shownumrays, wavelength=self.wavelength, \
                                                     stopPosition=stopPosition)
 
 
-        return res
+        return self.aimfinitestopdata
 
     def showFieldWaveLengthDialog(self):
 

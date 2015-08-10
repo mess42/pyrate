@@ -92,7 +92,7 @@ class StartOptimizationCommand:
         PyrateInterface.OSinterface.os = \
         core.optimize.optimizeNewton1D(
                                        PyrateInterface.OSinterface.os,
-                                       core.merit.myPersonalMeritFunctionForTestingPurposes, iterations=numsteps, dx=delta
+                                       core.merit.mySimpleDumpRMSSpotSizeMeritFunction, iterations=numsteps, dx=delta
                                        )
         # update
         # TODO: organize in PyrateInterface class
