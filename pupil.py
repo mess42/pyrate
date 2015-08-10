@@ -22,7 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from numpy import *
 
+# TO DO: make a parent class PupilType() from which EntrancePupilDiameter and so on enherit
 # TO DO: correct all of these definitions also for immersion
+
 
 
 class EntrancePupilDiameter(object):
