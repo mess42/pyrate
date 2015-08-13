@@ -20,8 +20,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from numpy import *
+import numpy as np
 from optimize import ClassWithOptimizableVariables
+from aperture import CircularAperture
 
 
 class Shape(ClassWithOptimizableVariables):
@@ -97,12 +98,12 @@ class Conic(Shape):
 
         self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
         self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
-        self.sdia = self.createOptimizableVariable("semi diameter", value=semidiam, status=False)
+        #self.sdia = self.createOptimizableVariable("semi diameter", value=semidiam, status=False)
 
     def getSag(self, x, y):
         rs = x**2 + y**2
         sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rs
-        res =  self.curvature.val * rs / (1 + sqrt(sqrtterm))
+        res =  self.curvature.val * rs / (1 + np.sqrt(sqrtterm))
 
         return res
 
@@ -121,21 +122,23 @@ class Conic(Shape):
 
         square = F**2 + H*G
 
-        t = G / (F + sqrt(square))
+        t = G / (F + np.sqrt(square))
 
         intersection = r0 + raybundle.rayDir * t
 
         # find indices of rays that don't intersect with the sphere
-        validIndices = ((square > 0) * (intersection[0]**2 + intersection[1]**2 <= self.sdia.val**2))
+        validIndices = square > 0
+        #* (intersection[0]**2 + intersection[1]**2 <= 10.0**2))
+        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
         validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal = zeros(shape(r0), dtype=float)
+        normal = np.zeros(np.shape(r0), dtype=float)
         normal[0] = -self.curvature.val * intersection[0]
         normal[1] = -self.curvature.val * intersection[1]
         normal[2] = 1 - self.curvature.val * intersection[2] * (1+self.conic.val)
 
-        absn = sqrt(sum(normal**2, axis=0))
+        absn = np.sqrt(np.sum(normal**2, axis=0))
 
         normal[0] = normal[0] / absn
         normal[1] = normal[1] / absn
@@ -143,11 +146,20 @@ class Conic(Shape):
 
         return intersection, t, normal, validIndices
 
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
-        effdia = self.sdia.val if self.sdia.val < 10.0 else 10.0
-        y = effdia * linspace(-1, 1, vertices)
-        z = self.getSag(0, y)
-        ax.plot(z+offset[1], y+offset[0], color)
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
+        if ap == None:
+            effdia = 10.0
+        else:
+            if ap.getTypicalDimension() <= 1000.0:
+                # TODO: maybe introduce aperture types Object and Image to distuingish from very large normal apertures
+                effdia = ap.getTypicalDimension() #self.sdia.val if self.sdia.val < 10.0 else 10.0
+            else:
+                effdia = 10.0
+        y = effdia * np.linspace(-1, 1, vertices)
+        isyap = np.array(ap.arePointsInAperture(np.zeros_like(y), y))
+        yinap = y[isyap]
+        zinap = self.getSag(0, yinap)
+        ax.plot(zinap+offset[1], yinap+offset[0], color)
 
 
 class Asphere(Shape):
@@ -157,10 +169,3 @@ class Asphere(Shape):
     pass
 
 
-class Aperture(Shape):
-    """
-    Base class representing the aperture of a surface.
-    Subclasses may define the actual shapes (circular,
-    elliptic, rectangular, etc.)
-    """
-    pass

@@ -119,7 +119,7 @@ class ClassWithOptimizableVariables(object):
         #print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
 
 def optimizeSciPyInterface(s, meritfunction, **kwargs):
-    # TODO: does not work properly
+    # TODO: needs heavy testing
     """
     Scipy interface to minimize
 

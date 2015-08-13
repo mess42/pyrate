@@ -9,7 +9,7 @@ def drawLayout2d(ax, s, list_of_raypaths, list_of_raypath_colors = 0):
     map(lambda r: r[0].draw2d(s, ax, color=r[1]), zip(list_of_raypaths, list_of_raypath_colors))
     s.draw2d(ax)
 
-# three spot diagrams: vertex spot diagram, chief ray spot diagram, centroid spot diagram
+# TODO: three spot diagrams: vertex spot diagram, chief ray spot diagram, centroid spot diagram
 
 def drawSpotDiagram(ax, s, raypath, surfaceno):
     # perhaps: raypath should give points at certain surface number back

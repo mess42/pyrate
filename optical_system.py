@@ -3,6 +3,7 @@
 Pyrate - Optical raytracing based on Python
 
 Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
 
 This program is free software; you can redistribute it and/or
@@ -21,9 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import surfShape
-import material
-import pupil
 from material import ConstantIndexGlass
+
+import aperture
+import pupil
+
 #import inspector
 import numpy as np
 from optimize import ClassWithOptimizableVariables
@@ -37,11 +40,13 @@ class Surface(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass()):
+    def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass(), aperture=aperture.BaseAperture()):
         super(Surface, self).__init__()
 
         self.shape = shape
         self.material = material
+        self.aperture = aperture
+
         self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
         self.copyOptimizableVariables(shape)
         self.copyOptimizableVariables(material)
@@ -102,7 +107,7 @@ class Surface(ClassWithOptimizableVariables):
         # conserve the most basic parameters of the shape
         try:
             curv = self.shape.curvature.val
-            semidiam = self.shape.sdia.val
+            #semidiam = self.shape.sdia.val
 
             varsToRemove = self.shape.getAllOptimizableVariables()
             for v in varsToRemove:
@@ -111,14 +116,14 @@ class Surface(ClassWithOptimizableVariables):
         except:
             # self.shape does not exist yet
             curv = 0.0
-            semidiam = 0.0
+            #semidiam = 0.0
 
         # names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
 
         # self.shape = inspector.createObjectFromList(names, classes, shapeName)
         self.shape = shape
         self.shape.curvature.val = curv
-        self.shape.sdia.val = semidiam
+        #self.shape.sdia.val = semidiam
 
 
         # add optimizable variables of new shape
@@ -127,7 +132,7 @@ class Surface(ClassWithOptimizableVariables):
         return self.shape
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
-        self.shape.draw2d(ax, offset, vertices, color)
+        self.shape.draw2d(ax, offset, vertices, color, self.aperture)
 
     def getABCDMatrix(self, nextSurface, ray):
         """
@@ -157,7 +162,8 @@ class OpticalSystem(ClassWithOptimizableVariables):
         self.surfaces = []
         self.insertSurface(0, Surface())  # object
         self.insertSurface(1, Surface())  # image
-        self.surfaces[1].shape.sdia.val = 0.0  # 1E100
+        # in standard initialization the surface use the BaseAperture which is not limited
+        #self.surfaces[1].shape.sdia.val = 0.0  # 1E100
 
     def appendSurface(self, surface):
         """
@@ -315,7 +321,6 @@ class OpticalSystem(ClassWithOptimizableVariables):
         offy = offset[0]
         offz = offset[1]
         for (num, s) in enumerate(self.surfaces):
-            #print num, " ", s.shape.curvature.val, " ", s.shape.conic.val, " ", s.material.n.val
             s.draw2d(ax, offset=(offy, offz), vertices=vertices, color=color)
             offz += s.getThickness()
 

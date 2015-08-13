@@ -219,14 +219,10 @@ class RayPath(object):
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface
         intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])
 
-#        print "=================="
-#        print "== INTERSECTION =="
-#        print intersection
-#        print "== t =="
-#        print t
-#        print "== normal =="
-#        print normal
-#        print "=================="
+        validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1])
+        validIndices[0] = True # hail to the chief ray
+        # finding valid indices due to an aperture is not in responsibility of this the surfShape class anymore
+        # TODO: hopefully this is the correct part of the code to remove rays from the bundle
 
         self.raybundles[-1].t = t
         self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))

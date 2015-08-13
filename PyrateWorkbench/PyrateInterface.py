@@ -344,6 +344,9 @@ class OpticalSystemInterface(object):
 
 
     def makeSurfaceFromSag(self, surface, startpoint = [0,0,0], R=50.0, rpoints=10, phipoints=12):
+
+        # TODO: sdia parameter not valid anymore, change behaviour here, too. depending on the type of aperture
+
         surPoints = []
         pts = Points.Points()
         pclpoints = []
