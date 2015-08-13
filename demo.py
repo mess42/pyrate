@@ -35,8 +35,8 @@ s.insertSurface(7, Surface(surfShape.Conic(curv=0.1*1/1.479, semidiam=1.0), thic
 # benchmark
 # definition of rays
 nray = 1E5 # number of rays
-aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType= pupil.StopDiameter,
-                                            pupilSizeParameter=3.0,
+aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.StopDiameter,
+                                            pupilSizeParameter=0.25,#3.0,
                                             fieldType= field.ObjectHeight,
                                             rasterType= raster.RectGrid,
                                             nray=nray, wavelength=0.55, stopPosition=5)
@@ -92,7 +92,8 @@ s.surfaces[7].setStatus("curvature", True)
 
 print "aimy,stopDiameter before: ", aimy.stopDiameter
 
-s = optimize.optimizeNewton1D(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, iterations=3, dx=1e-6)
+#s = optimize.optimizeNewton1D(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, iterations=1, dx=1e-6)#, method='nelder-mead')
+s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
 
 print "aimy,stopDiameter after: ", aimy.stopDiameter
 

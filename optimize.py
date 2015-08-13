@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+from scipy.optimize import minimize
 import warnings
 
 
@@ -117,6 +118,43 @@ class ClassWithOptimizableVariables(object):
 
         #print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
 
+def optimizeSciPyInterface(s, meritfunction, **kwargs):
+    # TODO: does not work properly
+    """
+    Scipy interface to minimize
+
+    :param s: initial optical system
+    :param meritfunction: pointer to merit function
+    :param kwargs: keyword arguments to minimize from scipy
+
+    :return s: optimized optical system object
+    """
+
+    optVars = s.getActiveOptimizableVariables()
+    x0 = np.array([ov.val for ov in optVars])
+
+    print "Starting values: ", x0
+    print "Options to optimizer: ", kwargs['options']
+
+    def MeritFunctionWrapper(x, *args):
+        s2 = args[0]
+        ovars = s2.getActiveOptimizableVariables()
+        # ask optical reference system for his optimizable variables during every evaluation
+        # TODO: wrapper on optical system level?
+
+        for index, ov in enumerate(ovars):
+            ov.val = x[index]
+        return meritfunction(s2)
+
+    res = minimize(MeritFunctionWrapper, x0, args=(s,), method=kwargs['method'], options=kwargs['options'])
+
+    print "result: ", res
+
+    for index, ov in enumerate(optVars):
+        ov.val = res.x[index]
+
+
+    return s
 
 def optimizeNewton1D(s, meritfunction, iterations=1, dx=1e-6):
     """
