@@ -127,8 +127,7 @@ class Conic(Shape):
         intersection = r0 + raybundle.rayDir * t
 
         # find indices of rays that don't intersect with the sphere
-        validIndices = square > 0
-        #* (intersection[0]**2 + intersection[1]**2 <= 10.0**2))
+        validIndices = (square > 0) #*(intersection[0]**2 + intersection[1]**2 <= 10.0**2))
         # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
         validIndices[0] = True  # hail to the chief
 

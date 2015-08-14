@@ -14,6 +14,7 @@ import core.field
 import core.pupil
 import core.raster
 import core.plots
+import core.aperture
 
 from core.ray import RayPath
 from core.optical_system import OpticalSystem, Surface
@@ -311,7 +312,7 @@ class OpticalSystemInterface(object):
     def dummycreate(self): # should only create the demo system, will be removed later
         self.os = OpticalSystem() # reinit os
         self.os.surfaces[0].thickness.val = 2.0 # it is not good give the object itself a thickness if the user is not aware of that
-        self.os.surfaces[1].shape.sdia.val = 1e10 # radius of image plane may not be zero to be sure to catch all rays
+        #self.os.surfaces[1].shape.sdia.val = 1e10 # radius of image plane may not be zero to be sure to catch all rays
         self.os.insertSurface(1, Surface(core.surfShape.Conic(curv=1/-5.922, semidiam=0.55), thickness=3.0, material=core.material.ConstantIndexGlass(1.7))) # 0.55
         self.os.insertSurface(2, Surface(core.surfShape.Conic(curv=1/-3.160, semidiam=1.0), thickness=5.0)) # 1.0
         self.os.insertSurface(3, Surface(core.surfShape.Conic(curv=1/15.884, semidiam=1.3), thickness=3.0, material=core.material.ConstantIndexGlass(1.7))) # 1.3
@@ -325,21 +326,33 @@ class OpticalSystemInterface(object):
     def dummycreate2(self):
         self.os = OpticalSystem() # reinit os
         self.os.surfaces[0].thickness.val = 20.0
-        self.os.surfaces[1].shape.sdia.val = 1e10
-        self.os.insertSurface(1, Surface(core.surfShape.Conic(curv=-1./24.,semidiam=5.0), thickness = -30.0, material=core.material.Mirror()))
+        #self.os.surfaces[1].shape.sdia.val = 1e10
+        self.os.insertSurface(1,
+                              Surface(core.surfShape.Conic(curv=-1./24.,semidiam=5.0),
+                                      thickness = -30.0,
+                                      material=core.material.Mirror(),
+                                      aperture=core.aperture.CircularAperture(5.0)
+                                      )
+
+                              )
 
 
     def dummycreate3(self): # should only create the demo system, will be removed later
         self.os = OpticalSystem() # reinit os
         self.os.surfaces[0].thickness.val = 2.0 # it is not good give the object itself a thickness if the user is not aware of that
-        self.os.surfaces[1].shape.sdia.val = 1e10 # radius of image plane may not be zero to be sure to catch all rays
-        self.os.insertSurface(1, Surface(core.surfShape.Conic(curv=1/-5.922, semidiam=0.55), thickness=3.0, material=core.material.ConstantIndexGlass(1.7))) # 0.55
-        self.os.insertSurface(2, Surface(core.surfShape.Conic(curv=1/-3.160, semidiam=1.0), thickness=5.0)) # 1.0
-        self.os.insertSurface(3, Surface(core.surfShape.Conic(curv=1/15.884, semidiam=1.3), thickness=3.0, material=core.material.ConstantIndexGlass(1.7))) # 1.3
-        self.os.insertSurface(4, Surface(core.surfShape.Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0)) # 1.3
-        self.os.insertSurface(5, Surface(core.surfShape.Conic(semidiam=1.01), thickness=2.0)) # semidiam=1.01 # STOP
-        self.os.insertSurface(6, Surface(core.surfShape.Conic(curv=1/3.125, semidiam=1.0), thickness=3.0, material=core.material.ConstantIndexGlass(1.5))) # semidiam=1.0
-        self.os.insertSurface(7, Surface(core.surfShape.Conic(curv=0.1*1/1.479, semidiam=1.0), thickness=19.0)) # semidiam=1.0
+        #self.os.surfaces[1].shape.sdia.val = 1e10 # radius of image plane may not be zero to be sure to catch all rays
+        self.os.insertSurface(1, Surface(core.surfShape.Conic(curv=1/-5.922, semidiam=0.55), thickness=3.0,
+                           material=core.material.ConstantIndexGlass(1.7), aperture=core.aperture.CircularAperture(0.55))) # 0.55
+        self.os.insertSurface(2, Surface(core.surfShape.Conic(curv=1/-3.160, semidiam=1.0), thickness=5.0, aperture=core.aperture.CircularAperture(1.0))) # 1.0
+        self.os.insertSurface(3, Surface(core.surfShape.Conic(curv=1/15.884, semidiam=1.3), thickness=3.0,
+                           material=core.material.ConstantIndexGlass(1.7), aperture=core.aperture.CircularAperture(1.3))) # 1.3
+        self.os.insertSurface(4, Surface(core.surfShape.Conic(curv=1/-12.756, semidiam=1.3), thickness=3.0,
+                           aperture=core.aperture.CircularAperture(1.3))) # 1.3
+        self.os.insertSurface(5, Surface(core.surfShape.Conic(semidiam=1.01), thickness=2.0, aperture=core.aperture.CircularAperture(1.01))) # semidiam=1.01 # STOP
+        self.os.insertSurface(6, Surface(core.surfShape.Conic(curv=1/3.125, semidiam=1.0), thickness=3.0,
+                           material=core.material.ConstantIndexGlass(1.5), aperture=core.aperture.CircularAperture(1.0))) # semidiam=1.0
+        self.os.insertSurface(7, Surface(core.surfShape.Conic(curv=0.1*1/1.479, semidiam=1.0), thickness=19.0,
+                           aperture=core.aperture.CircularAperture(1.0))) # semidiam=1.0
 
 
 
@@ -380,8 +393,10 @@ class OpticalSystemInterface(object):
             FCsurfaceobj = doc.addObject("Part::Feature", "Surf_"+str(index))
             FCsurfaceview = FCsurfaceobj.ViewObject
 
-            if surf.shape.sdia.val > 0.5 and surf.shape.sdia.val < 100.0: # boundaries for drawing the surfaces, should be substituted by appropriate drawing conditions
-                (FCsurface, FCptcloud) = self.makeSurfaceFromSag(surf, offset, surf.shape.sdia.val, 10, 36)
+            if surf.aperture.getTypicalDimension() > 0.5 and surf.aperture.getTypicalDimension() < 1000.0:
+                # TODO: boundaries for drawing the surfaces, should be substituted by appropriate drawing conditions
+                # TODO: implement point list returned by aperture property to wireframe at least the aperture
+                (FCsurface, FCptcloud) = self.makeSurfaceFromSag(surf, offset, surf.aperture.getTypicalDimension(), 10, 36)
                 #Points.show(ptcloud)
                 #Part.show(surface)
 

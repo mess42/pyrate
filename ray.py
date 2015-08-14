@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from numpy import *
+import aperture
 
 
 class RayBundle(object):
@@ -217,12 +218,13 @@ class RayPath(object):
         """
 
         self.raybundles[-1].o[2] -= thicknessOfCurrentSurface
-        intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])
+        intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])#, aperture.BaseAperture())
 
         validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1])
         validIndices[0] = True # hail to the chief ray
+
         # finding valid indices due to an aperture is not in responsibility of this the surfShape class anymore
-        # TODO: hopefully this is the correct part of the code to remove rays from the bundle
+        # TODO: needs heavy testing
 
         self.raybundles[-1].t = t
         self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))
