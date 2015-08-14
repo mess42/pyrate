@@ -206,18 +206,19 @@ class RayPath(object):
         N = opticalSystem.getNumberOfSurfaces()
 
         for i in arange(N-1)+1:
-            self.traceToNextSurface(opticalSystem.surfaces[i], opticalSystem.surfaces[i-1].getThickness())
+            self.traceToNextSurface(opticalSystem.surfaces[i-1], opticalSystem.surfaces[i])
 
-    def traceToNextSurface(self, nextSurface, thicknessOfCurrentSurface):
+    def traceToNextSurface(self, actualSurface, nextSurface):
         """
         Private routine that propagates a ray bundle to the next surface.
         Please respect the privacy of this class and call it only from methods inside this class.
 
+        :param actualSurface: (Surface object)
         :param nextSurface: (Surface object)
         :param thicknessOfCurrentSurface: on-axis geometrical distance between current and nextSurface (float)
         """
 
-        self.raybundles[-1].o[2] -= thicknessOfCurrentSurface
+        self.raybundles[-1].o[2] -= actualSurface.getThickness()
         intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])#, aperture.BaseAperture())
 
         validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1])
