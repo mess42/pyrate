@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 from ray import RayBundle
 from optimize import ClassWithOptimizableVariables
+from scipy.weave.size_check import func
 
 
 class Material(ClassWithOptimizableVariables):
@@ -238,5 +239,31 @@ class Mirror(Material):
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
         abcd = dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
+        return abcd
+
+class GrinMaterial(Material):
+    def __init__(self, fun, dfdx, dfdy, dfdz, ds):
+        
+        super(GrinMaterial, self).__init__()
+        self.nfunc = fun
+        self.dfdx = dfdx
+        self.dfdy = dfdy
+        self.dfdz = dfdz
+        
+    
+    def refract(self, raybundle, intersection, normal, previouslyValid):
+        # at entrance in material there is no refraction appearing
+        return RayBundle(intersection, raybundle.k, raybundle.rayID, raybundle.wave)
+
+    def propagate(self, nextSurface, raybundle):
+        startq = raybundle.o
+        startp = raybundle.k
+        
+        
+
+    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
+        n = self.nfunc(ray.o)
+        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
+        abcd = dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
 
