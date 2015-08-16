@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from numpy import *
+import numpy as np
 from ray import RayBundle
 from optimize import ClassWithOptimizableVariables
 from scipy.weave.size_check import func
@@ -89,26 +89,26 @@ class ConstantIndexGlass(Material):
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
 
-        abs_k1_normal = sum(raybundle.k * normal, axis=0)
+        abs_k1_normal = np.sum(raybundle.k * normal, axis=0)
         k_perp = raybundle.k - abs_k1_normal * normal
         abs_k2 = self.getIndex(raybundle)
-        square = abs_k2**2 - sum(k_perp * k_perp, axis=0)
+        square = abs_k2**2 - np.sum(k_perp * k_perp, axis=0)
 
         # make total internal reflection invalid
         valid = previouslyValid * (square > 0)
         valid[0] = True  # hail to the chief
 
-        abs_k2_normal = sqrt(square)
+        abs_k2_normal = np.sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
 
         # return ray with new direction and properties of old ray
         # return only valid rays
-        Nval = sum(valid)
-        orig = zeros((3, Nval), dtype=float)
+        Nval = np.sum(valid)
+        orig = np.zeros((3, Nval), dtype=float)
         orig[0] = intersection[0][valid]
         orig[1] = intersection[1][valid]
         orig[2] = intersection[2][valid]
-        newk = zeros((3, Nval), dtype=float)
+        newk = np.zeros((3, Nval), dtype=float)
         newk[0] = k2[0][valid]
         newk[1] = k2[1][valid]
         newk[2] = k2[2][valid]
@@ -128,8 +128,8 @@ class ConstantIndexGlass(Material):
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
         n = self.getIndex(ray)
-        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
-        abcd = dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
+        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
+        abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
 
 
@@ -217,21 +217,10 @@ class Mirror(Material):
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
 
-        abs_k1_normal = sum(raybundle.k * normal, axis=0)
+        abs_k1_normal = np.sum(raybundle.k * normal, axis=0)
         k_perp = raybundle.k - abs_k1_normal * normal
         k2 = raybundle.k - 2.0*k_perp
 
-        # return ray with new direction and properties of old ray
-        # return only valid rays
-        #Nval = sum(valid)
-        #orig = zeros((3, Nval), dtype=float)
-        #orig[0] = intersection[0][valid]
-        #orig[1] = intersection[1][valid]
-        #orig[2] = intersection[2][valid]
-        #newk = zeros((3, Nval), dtype=float)
-        #newk[0] = k2[0][valid]
-        #newk[1] = k2[1][valid]
-        #newk[2] = k2[2][valid]
         newk = k2
         orig = intersection
 
@@ -262,8 +251,8 @@ class GrinMaterial(Material):
         
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        n = self.nfunc(ray.o)
-        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
-        abcd = dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
+        n = self.nfunc(np.array([0.0,0.0,0.0]))
+        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
+        abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
 

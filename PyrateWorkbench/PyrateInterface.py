@@ -355,6 +355,39 @@ class OpticalSystemInterface(object):
                            aperture=core.aperture.CircularAperture(1.0))) # semidiam=1.0
 
 
+    def dummycreate4(self):
+        self.os = OpticalSystem() # reinit os
+        self.os.surfaces[0].thickness.val = 20.0
+        #self.os.surfaces[1].shape.sdia.val = 1e10
+        
+        def nfun(npa):
+            return (2.0 - npa[0]**2 - npa[1]**2)
+        
+        def ndx(npa):
+            return -2*npa[0]
+
+        def ndy(npa):
+            return -2*npa[0]
+        
+        def ndz(npa):
+            return 0.0
+        
+        self.os.insertSurface(1,
+                              Surface(core.surfShape.Conic(curv=-1./24.,semidiam=5.0),
+                                      thickness = 30.0,
+                                      material=core.material.GrinMaterial(nfun, ndx, ndy, ndz, 0.01),
+                                      aperture=core.aperture.CircularAperture(5.0)
+                                      )
+                              )
+        self.os.insertSurface(2,
+                              Surface(core.surfShape.Conic(curv=1./24.,semidiam=5.0),
+                                      thickness = 10.0,
+                                      aperture=core.aperture.CircularAperture(5.0)
+                                      )
+                              )
+
+
+
 
     def makeSurfaceFromSag(self, surface, startpoint = [0,0,0], R=50.0, rpoints=10, phipoints=12):
 

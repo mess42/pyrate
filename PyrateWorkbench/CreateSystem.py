@@ -30,10 +30,11 @@ class CreateSystemTool:
 
         doc = FreeCAD.ActiveDocument
 
-        PyrateInterface.OSinterface.dummycreate3() # substitute by system creation dialog
+        PyrateInterface.OSinterface.dummycreate4() # substitute by system creation dialog
         # dummycreate() -> lens system
         # dummycreate2() -> mirror system
         # dummycreate3() -> lens system with incorrect curvature in surface7
+        # dummycreate4() -> GRIN medium
         PyrateInterface.OSinterface.createSurfaceViews(doc)
         PyrateInterface.OSinterface.showAimFiniteSurfaceStopDialog()
         PyrateInterface.OSinterface.showFieldWaveLengthDialog()

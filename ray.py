@@ -224,7 +224,7 @@ class RayPath(object):
                                                                                                      nextSurface, 
                                                                                                      self.raybundles[-1]
                                                                                                      )
-            self.raybundles.join(propraybundles)
+            self.raybundles += propraybundles
         else:
             # this if-path is for linear ray transfer between some surfaces
             self.raybundles[-1].o[2] -= actualSurface.getThickness()
