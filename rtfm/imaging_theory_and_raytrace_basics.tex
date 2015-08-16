@@ -217,7 +217,7 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 Starting at the source-free Maxwell equations \eqref{eq:sourcefreemaxwell} 
 in general complex, anisotropic and inhomogenous
 permittivity tensor field $\hat{\epsilon}_{ij}(\vec{r})$.
-We start at the generalization of the Helmholtz wave equation for anisotropic media
+We start at the generalisation of the Helmholtz wave equation for anisotropic media
 \begin{align}
  (\delta_{ij} \Delta - \partial_i \partial_j + \omega^2 \mu_0 \permittivity_{ij}) E_j = 0\,,
 \end{align}
@@ -470,7 +470,7 @@ Compared to the law of Snellius, this formulation bears the following advantages
  \item It does not require the calculation of angles in 3D space, only scalar products.
  \item The incident wavevector can be modelled as a property of the ray. When calculating the refraction, 
        the dispersion relation in material $\permittivity_1$ is not required.
- \item Therefore we need not to implement a different law of refraction for each pair of material classes.
+ \item It is not required to implement a different law of refraction for each pair of material classes interfacing.
  \item In object-oriented programming, we can introduce a class for refraction with objects isolated from adjacent ones.
  \item Unlike in the Snellius law, we can also calculate with complex valued permittivities and anisotropic permittivities.
 \end{itemize}
@@ -515,7 +515,7 @@ Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqr
 and obtain after a (in general numerical) integration a set of values $\vec{r}(s)$ and $\vec{r}'(s)$
 which correspond to the final position and direction of the ray.
 \section{Hamiltonian Formulation}
-There are two distinct parametrizations. The first one parametrizes the theory with respect to the
+There are two distinct parametrisations. The first one parametrizes the theory with respect to the
 arc length $s$ in 3D space where (one possible choice of) the Hamiltonian is given by
 \begin{align}
  H &= \vec{p}^2 - n^2 = 0\,.
@@ -529,7 +529,7 @@ the Hamiltonian becomes clear, since $|\vec{d}| = 1$.) The canonical equations a
  \frac{\text{d}\vec{p}}{\text{d}s} &= -\frac{\partial H}{\partial \vec{q}} = 2 n (\vec{\nabla} n)\,, 
 \end{align}
 \end{subequations}
-The second parametrization is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
+The second parametrisation is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
 given by
 \begin{align}
  H_{\text{2D}} &= -n(\vec{Q}, z)\sqrt{1 - \frac{\vec{P}^2}{n(\vec{Q}, z)^2}}\label{eq:Hamiltonian2D}\,,
@@ -1015,13 +1015,51 @@ Similarly, the exit pupil has a distance $z_{ex}$ from the image and a magnifica
 For telecentric systems, an expression of the pupil rastering in terms of $z_{en}$ or $z_{ex}$ is depreceated. 
 Expressing everything in terms of ABCD matrices, it is often possible to reduce fractions analytically and avoid numerical instabilities.
 
+\section{Wave Aberrations}
+Despite its name suggests this representation of aberrations would be based on wave optics, its calculation is purely geometrical.
+Wave aberrations are strongly related to the optical path difference.
 
+\subsection{Optical path difference}
+In a perfect lens, according to the Fresnel law, all rays from one object point to an image point have the same optical path length. 
+In systems with aberrations, the optical path length is different for rays passing different pupil positions.
+For optical systems built up from isotropic materials, where we can define an index of refraction, the optical path length $S$ is calculated straightforward found as the path-integral of the index over the ray path.
+\begin{eqnarray}
+ S &=& \int n\, ds
+\end{eqnarray}
+For anisotropic media, the time of flight of the ray path may act as a more general measure.
+\begin{eqnarray}
+ S &=& \frac{t}{c_0}
+\end{eqnarray}
+Time of flight means the time needed for information propagation through the system.
+For well behaved materials, the time of flight is the geoemtric path length divided by the group velocity in the ray direction. 
+However, for materials with very special dispersion, like saturable absorbers, the group velocity of a pulse can take values above the vacuum speed of light. 
+In this case, the group velocity is no longer the same as the speed of information through the system.
 
+The optical path difference $OPD$ is the optical path length minus the optical path length of the chief ray in the image plane.
+\begin{eqnarray}
+ OPD(p_x,p_y) &=& S(p_x,p_y) - S(0,0)
+\end{eqnarray}
+For a certain fixed object field point, the optical path difference is often displayed as a function of pupil coordinates $p_x,p_y$.
 
+\subsection{Wave Aberrations}
+To obtain the so called wave aberration, one first calculates the optical path difference from an object point to the image plane.
+Then, a reference sphere is constructed around the intersection of the chief ray with the image plane. 
+The radius of the reference sphere is chosen so that it hits the plane of the paraxially calculated exit pupil position at the same height where the chief ray (of the entrance pupil) hits the exit pupil plane.
+For systems without pupil aberration, the chief ray hits both pupils on the optical axis.
+All rays are then propagated back from the image to the reference sphere, maintaining their directions.
+For image-sided immersion systems, the optical path of that back-propagation is to be performed assuming immersion liquid between image and exit pupil.
 
+To obtain the wave aberrations, the optical path length of this back-propagation is subtracted from the optical path length from object to image.
+Typically the path length of the chief ray is subtracted. 
+For imaging systems, the wave aberrations relative to the chief ray are typically very small, and are often displayed in units of vacuum wavelengths.
 
-
-
+For systems without image-sided immersion or with isotropic immersion media, one can interpret the path differences in the reference sphere as follows:
+In the exit pupil, we use the Huygen principle and assume a set of point-sources, emitting radiation with the retardation of the geometrically calculated wave aberrations.
+In a system without any aberrations, all point-sources are in phase and form a spherical wave segment, converging towards a spot of minimal spatial extent.
+All aberrations cause a perturbation of the spherical wave, and an extended spot.
+Indeed, some commercial raytracing programs have options to perform this Huygens propagation from the exit pupil to the image to obtain point-spread functions obeying both aberration theory and the diffraction limit.
+As a shortcut, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant and Fourier transformed instead of Huygens propagated, leading to faster, but more inaccurate results.
+The tremendous gain in speed is often worth the sacrifice in accuracy in optimisation tasks.
 
 
 
@@ -1250,7 +1288,7 @@ gives a condition to the third component of $\vec{D}$, namely
 \begin{align}
  D_z &= -\sqrt{1 - d_x^2 - d_y^2} \pm \sqrt{1 - (d_x + D_x)^2 - (d_y + D_y)^2}\,.
 \end{align}
-Maybe this extension of the $XYUV$ (non linear) transfer formalism can be useful as a further generalization of
+Maybe this extension of the $XYUV$ (non linear) transfer formalism can be useful as a further generalisation of
 the optical design calculation. By multiplying the direction vector with the optical index one immediately gets
 a so called phase space formulation of the optical ray. In this formulation several theorems from Hamiltonian
 mechanics and phase space theory in general hold. These formulation will be investigated in further subsections.
@@ -1300,7 +1338,7 @@ Notice that due to the non-conservation of the Hamiltonian it will also change a
 
 To get the paraxial approximation we need to expand the terms to linear order in $\vec{P}$ (equivalent to a small angle approximation) and linear order in $\vec{Q}$
 (corresponding to near axis rays). An expansion only in $\vec{Q}$ corresponds to near axis rays with finite angles and an $\vec{P}$-only expansion corresponds to
-small angle with finite field heights. The linearization leads to a matrix formulation of the transfer functions.
+small angle with finite field heights. The linearisation leads to a matrix formulation of the transfer functions.
 
 For the transfer in a homogeneous material one gets
 \begin{align}
@@ -1576,7 +1614,7 @@ The nonlinear transfer functions could also be combined in a matrix manner but
 one has to take care about the right arguments to the components.
 
 
-\subsubsection{Linearization}
+\subsubsection{Linearisation}
 
 For a linearized theory one has to treat the coordinate part ($A$, $B$, $C$, $D$) in a different manner than the absolute part ($\vec{t}$, $\vec{\delta}$).
 The former has to be approximated only to zeroth order since they are multiplied by momenta and coordinates. In contrast the latter one
@@ -1626,7 +1664,7 @@ Reflection:
 \end{align}
 The higher order corrections in the taylor expansion give rise to the aberrations.
 
-\subsection{Linearization for non-zero interaction point with optical axis}
+\subsection{Linearisation for non-zero interaction point with optical axis}
 \newcommand{\dqv}{\Delta \vec{q}}
 \newcommand{\dpv}{\Delta \vec{p}}
 
