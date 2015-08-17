@@ -226,7 +226,7 @@ class Mirror(Material):
         return RayBundle(orig, newk, raybundle.rayID, raybundle.wave)
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
+        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
         return abcd
 
 class GrinMaterial(Material):
@@ -259,11 +259,16 @@ class GrinMaterial(Material):
         # - all valid rays hit nextSurface,
         # - maximal loops (and all rays not at final surface are marked invalid)
 
-        return intersection, t, normal, validindices, []
+        return raybundle.o, t, raybundle.k, validindices, []
+        # intersection, t, normal, validindices, propraybundles
+        # TODO: Raybundles have to strong dependencies from surfaces. For every surface there is exactly one raybundle.
+        # This is not correct for grin media anymore, since a grin medium contains a collection of ray bundles. For every
+        # integration step one raybundle, but the standard raybundles are only defined with respect to their
+        # corresponding surface.
 
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        n = self.nfunc(np.array([0.0,0.0,0.0]))
+        n = self.nfunc(np.array([0,0,0]))
         abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
         abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd

@@ -359,19 +359,19 @@ class OpticalSystemInterface(object):
         self.os = OpticalSystem() # reinit os
         self.os.surfaces[0].thickness.val = 20.0
         #self.os.surfaces[1].shape.sdia.val = 1e10
-        
+
         def nfun(npa):
             return (2.0 - npa[0]**2 - npa[1]**2)
-        
+
         def ndx(npa):
             return -2*npa[0]
 
         def ndy(npa):
             return -2*npa[0]
-        
+
         def ndz(npa):
             return 0.0
-        
+
         self.os.insertSurface(1,
                               Surface(core.surfShape.Conic(curv=-1./24.,semidiam=5.0),
                                       thickness = 30.0,
@@ -485,13 +485,15 @@ class OpticalSystemInterface(object):
 
     def makeRaysFromRayPath(self, raypath, offset, color = (0.5, 0.5, 0.5)):
         doc = FreeCAD.ActiveDocument # in initialisierung auslagern
-        Nsurf = len(raypath.raybundles)
+        Nraybundles = len(raypath.raybundles)
         offx = offset[0]
         offy = offset[1]
         offz = offset[2]
 
-        for i in np.arange(Nsurf):
+        for i in np.arange(Nraybundles):
+            FreeCAD.Console.PrintMessage(str(raypath.raybundles[i].o)+'\n')
             offz += self.os.surfaces[i].getThickness()
+
             (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
 
             FCptsobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_Intersectionpoints")
