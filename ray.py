@@ -24,7 +24,6 @@ from numpy import *
 import aperture
 import material
 
-
 class RayBundle(object):
     def __init__(self, o, k, rayID, wave=0.55, pol=[]):
         """
@@ -218,10 +217,10 @@ class RayPath(object):
         :param actualSurface: (Surface object)
         :param nextSurface: (Surface object)
         """
-        
+
         if isinstance(actualSurface.material, material.GrinMaterial):
-            intersection, t, normal, validindices, propraybundles = actualSurface.material.propagate(
-                                                                                                     nextSurface, 
+            intersection, t, normal, validIndices, propraybundles = actualSurface.material.propagate(
+                                                                                                     nextSurface,
                                                                                                      self.raybundles[-1]
                                                                                                      )
             self.raybundles += propraybundles

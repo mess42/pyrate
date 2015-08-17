@@ -25,7 +25,6 @@ from ray import RayBundle
 from optimize import ClassWithOptimizableVariables
 from scipy.weave.size_check import func
 
-
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
     def refract(self, ray, intersection, normal, validIndices):
@@ -232,14 +231,14 @@ class Mirror(Material):
 
 class GrinMaterial(Material):
     def __init__(self, fun, dfdx, dfdy, dfdz, ds):
-        
+
         super(GrinMaterial, self).__init__()
         self.nfunc = fun
         self.dfdx = dfdx
         self.dfdy = dfdy
         self.dfdz = dfdz
-        
-    
+
+
     def refract(self, raybundle, intersection, normal, previouslyValid):
         # at entrance in material there is no refraction appearing
         return RayBundle(intersection, raybundle.k, raybundle.rayID, raybundle.wave)
@@ -247,8 +246,21 @@ class GrinMaterial(Material):
     def propagate(self, nextSurface, raybundle):
         startq = raybundle.o
         startp = raybundle.k
-        
-        
+
+        intersection = np.zeros_like(startq) # intersection are intersection points of nextsurface
+        validindices = np.ones(np.shape(startq)[1], dtype=bool) # validindices are indices of surviving rays at nextsurface
+
+        t = 1 # t is arc length of last ray
+        normal = np.zeros_like(startq) # normal is array of normal vectors at nextsurface
+        # integrate from startq and startp to finalq and finalp and add in every step a raybundle to the final array
+        # if a ray hits the aperture boundary in x,y mark it as invalid
+        # define end loop conditions:
+        # - maximal arc length,
+        # - all valid rays hit nextSurface,
+        # - maximal loops (and all rays not at final surface are marked invalid)
+
+        return intersection, t, normal, validindices, []
+
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
         n = self.nfunc(np.array([0.0,0.0,0.0]))
