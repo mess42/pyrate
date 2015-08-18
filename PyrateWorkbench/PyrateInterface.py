@@ -360,17 +360,17 @@ class OpticalSystemInterface(object):
         self.os.surfaces[0].thickness.val = 20.0
         #self.os.surfaces[1].shape.sdia.val = 1e10
 
-        def nfun(npa):
-            return (2.0 - npa[0]**2 - npa[1]**2)
+        def nfun(x, y, z):
+            return (2.5 - (x**2 + 100.0*y**4)/10.**2)
 
-        def ndx(npa):
-            return -2*npa[0]
+        def ndx(x, y, z):
+            return -2*x/10.**2
 
-        def ndy(npa):
-            return -2*npa[0]
+        def ndy(x, y, z):
+            return -100.0*4.0*y**3/10.**2
 
-        def ndz(npa):
-            return 0.0
+        def ndz(x, y, z):
+            return np.zeros_like(x)
 
         self.os.insertSurface(1,
                               Surface(core.surfShape.Conic(curv=-1./24.,semidiam=5.0),
@@ -491,10 +491,11 @@ class OpticalSystemInterface(object):
         offz = offset[2]
 
         for i in np.arange(Nraybundles):
-            FreeCAD.Console.PrintMessage(str(raypath.raybundles[i].o)+'\n')
             offz += self.os.surfaces[i].getThickness()
 
             (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
+
+            FreeCAD.Console.PrintMessage(str(intersectionpts)+'\n')
 
             FCptsobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_Intersectionpoints")
             FCptsobj.Points = intersectionpts
@@ -539,7 +540,7 @@ class OpticalSystemInterface(object):
         # TODO: do not reset to default values
 
 
-        ad = AimDialog(pupilsize, stopPosition, numrays)
+        ad = AimDialog(pupilsize, stopPosition, numrays) # TODO: init with aimy object and return aimy object
         ad.exec_()
         if ad.pupiltype != "":
             pupiltype = eval("core.pupil."+ad.pupiltype) # eval is evil but who cares :p

@@ -38,8 +38,8 @@ class CreateSystemTool:
         PyrateInterface.OSinterface.createSurfaceViews(doc)
         PyrateInterface.OSinterface.showAimFiniteSurfaceStopDialog()
         PyrateInterface.OSinterface.showFieldWaveLengthDialog()
-        PyrateInterface.OSinterface.createRayViews(doc, 10)
-        PyrateInterface.OSinterface.showSpotDiagrams(100)
+        PyrateInterface.OSinterface.createRayViews(doc, 50)
+        #PyrateInterface.OSinterface.showSpotDiagrams(100)
 
 
 

@@ -23,7 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from ray import RayBundle
 from optimize import ClassWithOptimizableVariables
-from scipy.weave.size_check import func
+
+import FreeCAD # temp
 
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
@@ -262,7 +263,7 @@ class GrinMaterial(Material):
 
         loopcount = 0
 
-        while path < geompathlength: # criterion z>=d, maxsteps oder x**2 + y**2 >= r
+        while loopcount < 10: #path < geompathlength: # criterion z>=d, maxsteps oder x**2 + y**2 >= r
             loopcount += 1
             lastpos = positions[-1]
             lastvel = velocities[-1]
@@ -275,22 +276,30 @@ class GrinMaterial(Material):
 
                 optin = self.nfunc(newpos2[0], newpos2[1], newpos2[2])
 
+                FreeCAD.Console.PrintMessage("loop, i: "+str(loopcount)+" "+str(i)+"\n")
+                FreeCAD.Console.PrintMessage("optin: "+str(optin)+"\n")
+                FreeCAD.Console.PrintMessage("startq: "+str(startpoint)+"\n")
+                FreeCAD.Console.PrintMessage("newpos: "+str(newpos)+"\n")
+
                 newvel2 = newvel + tau*di[i]*2.0*optin*np.array( \
                  [self.dfdx(newpos2[0], newpos2[1], newpos2[2]),
                   self.dfdy(newpos2[0], newpos2[1], newpos2[2]),
                   self.dfdz(newpos2[0], newpos2[1], newpos2[2])])
 
+                FreeCAD.Console.PrintMessage("newvel2: "+str(newvel)+"\n")
+
+
                 lastpos = newpos2
                 lastvel = newvel2
 
-            path += np.sqrt(((newpos2 - positions[-1])**2).sum())
+            #path += np.sqrt(((newpos2 - positions[-1])**2).sum())
 
             positions.append(newpos2)
             velocities.append(newvel2)
 
             phasespace4d.append(np.array([newpos2[0], newpos2[1], newvel2[0], newvel2[1]]))
 
-            energies.append((newvel2**2).sum() - optin**2)
+            energies.append(np.sum(newvel2**2) - np.sum(optin**2))
 
         return (positions, velocities, energies, phasespace4d)
 
@@ -299,11 +308,16 @@ class GrinMaterial(Material):
         startq = raybundle.o # linewise x, y, z values
         startp = raybundle.k
 
-        intersection = np.zeros_like(startq) # intersection are intersection points of nextsurface
-        validindices = np.ones(np.shape(startq)[1], dtype=bool) # validindices are indices of surviving rays at nextsurface
 
-        t = 1 # t is arc length of last ray
-        normal = np.zeros_like(startq) # normal is array of normal vectors at nextsurface
+        (finalq, finalp, en, ph4d) = self.symplecticintegrator(startq, startp, 0.01, 10.0)
+
+        #intersection = np.zeros_like(startq) # intersection are intersection points of nextsurface
+        #validindices = np.ones(np.shape(startq)[1], dtype=bool) # validindices are indices of surviving rays at nextsurface
+
+        #t = 1 # t is arc length of last ray
+        #normal = np.zeros_like(startq) # normal is array of normal vectors at nextsurface
+        FreeCAD.Console.PrintMessage("ENERGY: "+str(en)+"\n finalq: "+str(finalq)+"\n finalp: "+str(finalp)+"\n")
+
         # integrate from startq and startp to finalq and finalp and add in every step a raybundle to the final array
         # if a ray hits the aperture boundary in x,y mark it as invalid
         # define end loop conditions:
@@ -311,7 +325,9 @@ class GrinMaterial(Material):
         # - all valid rays hit nextSurface,
         # - maximal loops (and all rays not at final surface are marked invalid)
 
-        return raybundle.o, t, raybundle.k, validindices, []
+        intersection, t, normal, validindices = nextSurface.shape.intersect(RayBundle(finalq[-1], finalp[-1], raybundle.rayID, raybundle.wave))
+
+        return intersection, t, normal, validindices, []
         # intersection, t, normal, validindices, propraybundles
         # TODO: Raybundles have to strong dependencies from surfaces. For every surface there is exactly one raybundle.
         # This is not correct for grin media anymore, since a grin medium contains a collection of ray bundles. For every
@@ -320,7 +336,7 @@ class GrinMaterial(Material):
 
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        n = self.nfunc(np.array([0,0,0]))
+        n = self.nfunc(0.,0.,0.)
         abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
         abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
