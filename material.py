@@ -237,14 +237,66 @@ class GrinMaterial(Material):
         self.dfdx = dfdx
         self.dfdy = dfdy
         self.dfdz = dfdz
+        self.ds = ds
 
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
         # at entrance in material there is no refraction appearing
         return RayBundle(intersection, raybundle.k, raybundle.rayID, raybundle.wave)
 
+
+    def symplecticintegrator(self, startpoint, startdir, tau, geompathlength):
+
+
+        ci = [1.0/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),1.0/(2.0*(2.0 - 2.0**(1./3.)))]
+        di = [1.0/(2.0 - 2.0**(1./3.)),(-2.0**(1./3.))/((2.0 - 2.0**(1./3.))),1.0/(2.0 - 2.0**(1./3.)),0.0]
+
+        optindstart = self.nfunc(startpoint[0], startpoint[1], startpoint[2])
+        positions = [1.*startpoint]
+        velocities = [1.*optindstart*startdir]
+
+        energies = []
+        phasespace4d = []
+
+        path = 0.
+
+        loopcount = 0
+
+        while path < geompathlength: # criterion z>=d, maxsteps oder x**2 + y**2 >= r
+            loopcount += 1
+            lastpos = positions[-1]
+            lastvel = velocities[-1]
+
+            for i in range(len(ci)):
+                newpos = lastpos + tau*ci[i]*2.0*lastvel
+                newvel = lastvel
+
+                newpos2 = newpos
+
+                optin = self.nfunc(newpos2[0], newpos2[1], newpos2[2])
+
+                newvel2 = newvel + tau*di[i]*2.0*optin*np.array( \
+                 [self.dfdx(newpos2[0], newpos2[1], newpos2[2]),
+                  self.dfdy(newpos2[0], newpos2[1], newpos2[2]),
+                  self.dfdz(newpos2[0], newpos2[1], newpos2[2])])
+
+                lastpos = newpos2
+                lastvel = newvel2
+
+            path += np.sqrt(((newpos2 - positions[-1])**2).sum())
+
+            positions.append(newpos2)
+            velocities.append(newvel2)
+
+            phasespace4d.append(np.array([newpos2[0], newpos2[1], newvel2[0], newvel2[1]]))
+
+            energies.append((newvel2**2).sum() - optin**2)
+
+        return (positions, velocities, energies, phasespace4d)
+
+
     def propagate(self, nextSurface, raybundle):
-        startq = raybundle.o
+        startq = raybundle.o # linewise x, y, z values
         startp = raybundle.k
 
         intersection = np.zeros_like(startq) # intersection are intersection points of nextsurface
