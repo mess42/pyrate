@@ -495,12 +495,22 @@ class OpticalSystemInterface(object):
 
             (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
 
-            FreeCAD.Console.PrintMessage(str(intersectionpts)+'\n')
+            try:
+                pointsq = self.os.surfaces[i].material.finalq
+                pointstoadd = []
+                for stepsq in pointsq:
+                    map(lambda s: pointstoadd.append((s[0] + offx,s[1] + offy,s[2] + offz)), zip(stepsq[0], stepsq[1], stepsq[2]))
+                intersectionpts.addPoints(pointstoadd)
+
+            except AttributeError:
+                pass
+
+            #FreeCAD.Console.PrintMessage(str(intersectionpts)+'\n')
 
             FCptsobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_Intersectionpoints")
             FCptsobj.Points = intersectionpts
             FCptsview = FCptsobj.ViewObject
-            FCptsview.PointSize = 5.0
+            FCptsview.PointSize = 1.0#5.0
             FCptsview.ShapeColor = (1.0, 1.0, 0.0)
 
             self.intersectptsobs.append(FCptsobj)

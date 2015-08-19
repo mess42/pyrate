@@ -246,13 +246,15 @@ class GrinMaterial(Material):
         return RayBundle(intersection, raybundle.k, raybundle.rayID, raybundle.wave)
 
 
-    def symplecticintegrator(self, startpoint, startdir, tau, geompathlength):
+    def symplecticintegrator(self, startpoint, startdir, tau, maxzval, offz, actualSurface, nextSurface):
 
 
         ci = [1.0/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),1.0/(2.0*(2.0 - 2.0**(1./3.)))]
         di = [1.0/(2.0 - 2.0**(1./3.)),(-2.0**(1./3.))/((2.0 - 2.0**(1./3.))),1.0/(2.0 - 2.0**(1./3.)),0.0]
 
-        optindstart = self.nfunc(startpoint[0], startpoint[1], startpoint[2])
+        startpoint = startpoint
+
+        optindstart = self.nfunc(startpoint[0], startpoint[1], startpoint[2] + offz)
         positions = [1.*startpoint]
         velocities = [1.*optindstart*startdir]
 
@@ -260,10 +262,18 @@ class GrinMaterial(Material):
         phasespace4d = []
 
         path = 0.
+        zchief = -1.
 
         loopcount = 0
 
-        while loopcount < 10: #path < geompathlength: # criterion z>=d, maxsteps oder x**2 + y**2 >= r
+        valid = np.ones_like(startpoint[0], dtype=bool)
+        final = np.zeros_like(startpoint[0], dtype=bool)
+
+        finalq = np.zeros_like(startpoint)
+        finalp = np.zeros_like(startpoint)
+
+
+        while not all(final): #path < geompathlength: # criterion z>=d, maxsteps oder x**2 + y**2 >= r
             loopcount += 1
             lastpos = positions[-1]
             lastvel = velocities[-1]
@@ -274,19 +284,19 @@ class GrinMaterial(Material):
 
                 newpos2 = newpos
 
-                optin = self.nfunc(newpos2[0], newpos2[1], newpos2[2])
+                optin = self.nfunc(newpos2[0], newpos2[1], newpos2[2] + offz)
 
-                FreeCAD.Console.PrintMessage("loop, i: "+str(loopcount)+" "+str(i)+"\n")
-                FreeCAD.Console.PrintMessage("optin: "+str(optin)+"\n")
-                FreeCAD.Console.PrintMessage("startq: "+str(startpoint)+"\n")
-                FreeCAD.Console.PrintMessage("newpos: "+str(newpos)+"\n")
+                #FreeCAD.Console.PrintMessage("loop, i: "+str(loopcount)+" "+str(i)+"\n")
+                #FreeCAD.Console.PrintMessage("optin: "+str(optin)+"\n")
+                #FreeCAD.Console.PrintMessage("startq: "+str(startpoint)+"\n")
+                #FreeCAD.Console.PrintMessage("newpos: "+str(newpos)+"\n")
 
                 newvel2 = newvel + tau*di[i]*2.0*optin*np.array( \
-                 [self.dfdx(newpos2[0], newpos2[1], newpos2[2]),
-                  self.dfdy(newpos2[0], newpos2[1], newpos2[2]),
-                  self.dfdz(newpos2[0], newpos2[1], newpos2[2])])
+                 [self.dfdx(newpos2[0], newpos2[1], newpos2[2] + offz),
+                  self.dfdy(newpos2[0], newpos2[1], newpos2[2] + offz),
+                  self.dfdz(newpos2[0], newpos2[1], newpos2[2] + offz)])
 
-                FreeCAD.Console.PrintMessage("newvel2: "+str(newvel)+"\n")
+                #FreeCAD.Console.PrintMessage("newvel2: "+str(newvel)+"\n")
 
 
                 lastpos = newpos2
@@ -297,26 +307,42 @@ class GrinMaterial(Material):
             positions.append(newpos2)
             velocities.append(newvel2)
 
-            phasespace4d.append(np.array([newpos2[0], newpos2[1], newvel2[0], newvel2[1]]))
+            final = newpos2[2] - nextSurface.shape.getSag(newpos2[0], newpos2[1]) > 0
 
+            # TODO: for final writeout last position for z < f(x,y)
+            # TODO: check for aperture of nextSurface and mark as invalid and final
+            # TODO: if pathlength of a certain ray is too long, mark as invalid and final
+            # TODO: finish while loop if all rays are marked as final, return valid array for further processing
+
+            #zchief = positions[-1][2][0]
+
+
+            # for energy and phase space analysis
+
+            phasespace4d.append(np.array([newpos2[0], newpos2[1], newvel2[0], newvel2[1]]))
             energies.append(np.sum(newvel2**2) - np.sum(optin**2))
 
         return (positions, velocities, energies, phasespace4d)
 
 
-    def propagate(self, nextSurface, raybundle):
+    def propagate(self, actualSurface, nextSurface, raybundle):
         startq = raybundle.o # linewise x, y, z values
         startp = raybundle.k
 
 
-        (finalq, finalp, en, ph4d) = self.symplecticintegrator(startq, startp, 0.01, 10.0)
+        (self.finalq, self.finalp, en, ph4d) = \
+            self.symplecticintegrator(startq, startp, 0.01, 0.0, actualSurface.getThickness(), actualSurface, nextSurface)
+
+        # TODO: z-values are not starting at zero and are therefore not relative to last surface
+        # TODO: starting in intersection points works but not hitting the final surface
+
 
         #intersection = np.zeros_like(startq) # intersection are intersection points of nextsurface
         #validindices = np.ones(np.shape(startq)[1], dtype=bool) # validindices are indices of surviving rays at nextsurface
 
         #t = 1 # t is arc length of last ray
         #normal = np.zeros_like(startq) # normal is array of normal vectors at nextsurface
-        FreeCAD.Console.PrintMessage("ENERGY: "+str(en)+"\n finalq: "+str(finalq)+"\n finalp: "+str(finalp)+"\n")
+        #FreeCAD.Console.PrintMessage("ENERGY: "+str(en)+"\n finalq: "+str(self.finalq)+"\n finalp: "+str(self.finalp)+"\n")
 
         # integrate from startq and startp to finalq and finalp and add in every step a raybundle to the final array
         # if a ray hits the aperture boundary in x,y mark it as invalid
@@ -325,7 +351,10 @@ class GrinMaterial(Material):
         # - all valid rays hit nextSurface,
         # - maximal loops (and all rays not at final surface are marked invalid)
 
-        intersection, t, normal, validindices = nextSurface.shape.intersect(RayBundle(finalq[-1], finalp[-1], raybundle.rayID, raybundle.wave))
+        #
+
+        intersection, t, normal, validindices = \
+        nextSurface.shape.intersect(RayBundle(self.finalq[-1], self.finalp[-1], raybundle.rayID, raybundle.wave))
 
         return intersection, t, normal, validindices, []
         # intersection, t, normal, validindices, propraybundles

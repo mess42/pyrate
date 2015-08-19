@@ -219,11 +219,13 @@ class RayPath(object):
         """
 
         if isinstance(actualSurface.material, material.GrinMaterial):
+            self.raybundles[-1].o[2] -= actualSurface.getThickness()
             intersection, t, normal, validIndices, propraybundles = actualSurface.material.propagate(
+                                                                                                     actualSurface,
                                                                                                      nextSurface,
                                                                                                      self.raybundles[-1]
-                                                                                                     )
-            self.raybundles += propraybundles
+                                                                                                    )
+
         else:
             # this if-path is for linear ray transfer between some surfaces
             self.raybundles[-1].o[2] -= actualSurface.getThickness()
