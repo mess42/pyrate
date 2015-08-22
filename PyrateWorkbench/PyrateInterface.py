@@ -503,21 +503,21 @@ class OpticalSystemInterface(object):
             try:
                 pointsq = self.os.surfaces[i].material.pointstodraw
 
-                FreeCAD.Console.PrintMessage('dims: '+str(np.shape(pointsq)))
+                FreeCAD.Console.PrintMessage('dims: '+str(np.shape(pointsq))+"\n")
 
                 FCptsgrinobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_GrinPoints")
                 tmpppgrin = Points.Points()
 
                 pointstoadd = []
 
-                for stepsq in pointsq:
-                    map(lambda s:
-                        pointstoadd.append(
-                                           (s[0] + offx,s[1] + offy,s[2] + offz)
-                                         ),
-                        zip(stepsq[0], stepsq[1], stepsq[2]))
+                for ind, stepsq in enumerate(pointsq):
+                    #FreeCAD.Console.PrintMessage(str(ind)+": "+str(np.shape(stepsq))+"\n")
+                    ptslice = map(lambda s: (s[0] + offx, s[1] + offy, s[2] + offz), list(stepsq.T))
+                    #FreeCAD.Console.PrintMessage(str(type(ptslice)) + ": " + str(ptslice) + "\n")
+                    tmpppgrin.addPoints(ptslice)
+                    #pointstoadd.append(ptslice)
 
-                tmpppgrin.addPoints(pointstoadd)
+
                 FCptsgrinobj.Points = tmpppgrin
 
                 FCptsgrinview = FCptsgrinobj.ViewObject

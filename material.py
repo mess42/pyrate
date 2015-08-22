@@ -315,13 +315,16 @@ class GrinMaterial(Material):
 
             final = newpos2[2] - nextSurface.shape.getSag(newpos2[0], newpos2[1]) > 0
 
-            FreeCAD.Console.PrintMessage(str(loopcount)+": "+str(updatedpos)+"\n")
+            #FreeCAD.Console.PrintMessage(str(loopcount)+":(1) "+str(updatedpos)+"\n")
 
             updatedpos[:,True - final] = newpos2[:,True - final]
             updatedvel[:,True - final] = newvel2[:,True - final]
 
-            pointstodraw.append(updatedpos)
-            momentatodraw.append(updatedvel)
+            #FreeCAD.Console.PrintMessage(str(loopcount)+":(2) "+str(updatedpos)+"\n")
+            # TODO: hier ist es noch in ordnung
+
+            pointstodraw.append(1.*updatedpos)
+            momentatodraw.append(1.*updatedvel)
 
             # TODO: for final writeout last position for z < f(x,y)
             # TODO: check for aperture of nextSurface and mark as invalid and final
@@ -335,6 +338,14 @@ class GrinMaterial(Material):
 
             phasespace4d.append(np.array([newpos2[0], newpos2[1], newvel2[0], newvel2[1]]))
             energies.append(np.sum(newvel2**2) - np.sum(optin**2))
+
+        # TODO: hier gehts schon in die hose
+        # TODO: somehow the pointstodraw array is overwritten after the integration!
+
+        #for ind, pt in enumerate(pointstodraw):
+        #    FreeCAD.Console.PrintMessage("symint: " + str(ind) + ": " + str(pt)+"\n")
+
+        # TODO: momenta are still not correct
 
         return (positions, velocities, pointstodraw, momentatodraw, energies, phasespace4d)
 
@@ -351,6 +362,9 @@ class GrinMaterial(Material):
                                       actualSurface.getThickness(),
                                       actualSurface,
                                       nextSurface)
+
+        #for ind, pts in enumerate(self.pointstodraw):
+        #    FreeCAD.Console.PrintMessage("prop: " + str(ind) + ": " + str(pts) + "\n")
 
         # TODO: z-values are not starting at zero and are therefore not relative to last surface
         # TODO: starting in intersection points works but not hitting the final surface
