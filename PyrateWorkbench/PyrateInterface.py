@@ -484,6 +484,11 @@ class OpticalSystemInterface(object):
 
 
     def makeRaysFromRayPath(self, raypath, offset, color = (0.5, 0.5, 0.5)):
+        def shift(l, n):
+            return l[n:] + l[:n]
+
+        grincolor = (np.random.random(), np.random.random(), np.random.random())
+
         doc = FreeCAD.ActiveDocument # in initialisierung auslagern
         Nraybundles = len(raypath.raybundles)
         offx = offset[0]
@@ -496,11 +501,29 @@ class OpticalSystemInterface(object):
             (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
 
             try:
-                pointsq = self.os.surfaces[i].material.finalq
+                pointsq = self.os.surfaces[i].material.pointstodraw
+
+                FreeCAD.Console.PrintMessage('dims: '+str(np.shape(pointsq)))
+
+                FCptsgrinobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_GrinPoints")
+                tmpppgrin = Points.Points()
+
                 pointstoadd = []
+
                 for stepsq in pointsq:
-                    map(lambda s: pointstoadd.append((s[0] + offx,s[1] + offy,s[2] + offz)), zip(stepsq[0], stepsq[1], stepsq[2]))
-                intersectionpts.addPoints(pointstoadd)
+                    map(lambda s:
+                        pointstoadd.append(
+                                           (s[0] + offx,s[1] + offy,s[2] + offz)
+                                         ),
+                        zip(stepsq[0], stepsq[1], stepsq[2]))
+
+                tmpppgrin.addPoints(pointstoadd)
+                FCptsgrinobj.Points = tmpppgrin
+
+                FCptsgrinview = FCptsgrinobj.ViewObject
+                FCptsgrinview.PointSize = 1.0#5.0
+                FCptsgrinview.ShapeColor = grincolor
+
 
             except AttributeError:
                 pass
