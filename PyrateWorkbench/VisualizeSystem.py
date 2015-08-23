@@ -139,9 +139,34 @@ class UpdateVisualizationCommand:
         doc.recompute()
 
 
+class ShowSystemDraw2DCommand:
+    "Show optical system in draw2d perspective"
+
+    def GetResources(self):
+        return {"MenuText": "Draw2d perspective",
+                "Accel": "",
+                "ToolTip": "Shows optical system in draw2d representation",
+                "Pixmap": ":/icons/pyrate_del_sys_icon.svg"
+                }
+
+    def IsActive(self):
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            return True
+
+    def Activated(self):
+
+        docview = FreeCADGui.ActiveDocument.ActiveView
+
+        docview.viewLeft()
+        docview.viewRotateRight()
+
+
 
 FreeCADGui.addCommand('ShowRaysCommand',ShowRaysCommand())
 FreeCADGui.addCommand('ShowSystemCommand',ShowSystemCommand())
 FreeCADGui.addCommand('ShowSurfacesCommand',ShowSurfacesCommand())
 FreeCADGui.addCommand('UpdateVisualizationCommand',UpdateVisualizationCommand())
+FreeCADGui.addCommand('ShowSystemDraw2DCommand',ShowSystemDraw2DCommand())
 
