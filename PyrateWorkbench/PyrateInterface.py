@@ -361,13 +361,13 @@ class OpticalSystemInterface(object):
         #self.os.surfaces[1].shape.sdia.val = 1e10
 
         def nfun(x, y, z):
-            return (2.5 - (x**2 + 100.0*y**4)/10.**2)
+            return 0.5*np.exp(-x**2 - 4.*y**2)+1.0#(2.5 - (x**2 + 100.0*y**4)/10.**2)
 
         def ndx(x, y, z):
-            return -2*x/10.**2
+            return -2.*x*0.5*np.exp(-x**2 - 4.*y**2)#-2*x/10.**2
 
         def ndy(x, y, z):
-            return -100.0*4.0*y**3/10.**2
+            return -2.*4.*y*0.5*np.exp(-x**2 - 4.*y**2) #-100.0*4.0*y**3/10.**2
 
         def ndz(x, y, z):
             return np.zeros_like(x)
@@ -487,7 +487,7 @@ class OpticalSystemInterface(object):
         def shift(l, n):
             return l[n:] + l[:n]
 
-        grincolor = (np.random.random(), np.random.random(), np.random.random())
+        #grincolor = (np.random.random(), np.random.random(), np.random.random())
 
         doc = FreeCAD.ActiveDocument # in initialisierung auslagern
         Nraybundles = len(raypath.raybundles)
@@ -508,21 +508,20 @@ class OpticalSystemInterface(object):
                 FCptsgrinobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_GrinPoints")
                 tmpppgrin = Points.Points()
 
-                pointstoadd = []
-
                 for ind, stepsq in enumerate(pointsq):
                     #FreeCAD.Console.PrintMessage(str(ind)+": "+str(np.shape(stepsq))+"\n")
                     ptslice = map(lambda s: (s[0] + offx, s[1] + offy, s[2] + offz), list(stepsq.T))
                     #FreeCAD.Console.PrintMessage(str(type(ptslice)) + ": " + str(ptslice) + "\n")
                     tmpppgrin.addPoints(ptslice)
-                    #pointstoadd.append(ptslice)
 
 
                 FCptsgrinobj.Points = tmpppgrin
 
                 FCptsgrinview = FCptsgrinobj.ViewObject
                 FCptsgrinview.PointSize = 1.0#5.0
-                FCptsgrinview.ShapeColor = grincolor
+                FCptsgrinview.ShapeColor = color
+
+                self.rayobs.append(FCptsgrinobj)
 
 
             except AttributeError:
