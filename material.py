@@ -232,7 +232,6 @@ class Mirror(Material):
 
 class GrinMaterial(Material):
     def __init__(self, fun, dfdx, dfdy, dfdz, ds):
-
         super(GrinMaterial, self).__init__()
         self.nfunc = fun
         self.dfdx = dfdx
@@ -240,13 +239,17 @@ class GrinMaterial(Material):
         self.dfdz = dfdz
         self.ds = ds
 
-
     def refract(self, raybundle, intersection, normal, previouslyValid):
         # at entrance in material there is no refraction appearing
         return RayBundle(intersection, raybundle.k, raybundle.rayID, raybundle.wave)
 
 
+    def inBoundary(self, x, y, z):
+        return x**2 + y**2 <= 1.5**2
+
+
     def symplecticintegrator(self, startpoint, startdir, tau, maxzval, offz, actualSurface, nextSurface):
+
 
 
         ci = [1.0/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),1.0/(2.0*(2.0 - 2.0**(1./3.)))]
@@ -313,7 +316,16 @@ class GrinMaterial(Material):
             positions.append(newpos2)
             velocities.append(newvel2)
 
-            final = newpos2[2] - nextSurface.shape.getSag(newpos2[0], newpos2[1]) > 0
+            valid = (newpos2[2] - actualSurface.shape.getSag(newpos2[0], newpos2[1]) >= 0)
+
+            boundarynothit = np.zeros_like(valid)
+            boundarynothit = self.inBoundary(newpos2[0], newpos2[1], newpos2[2])
+
+            valid[True - boundarynothit] = False
+
+
+            final = (newpos2[2] - nextSurface.shape.getSag(newpos2[0], newpos2[1]) > 0)
+
 
             #FreeCAD.Console.PrintMessage(str(loopcount)+":(1) "+str(updatedpos)+"\n")
 
@@ -344,8 +356,6 @@ class GrinMaterial(Material):
 
         #for ind, pt in enumerate(pointstodraw):
         #    FreeCAD.Console.PrintMessage("symint: " + str(ind) + ": " + str(pt)+"\n")
-
-        # TODO: momenta are still not correct
 
         return (positions, velocities, pointstodraw, momentatodraw, energies, phasespace4d)
 
@@ -387,9 +397,9 @@ class GrinMaterial(Material):
         # original start point self.finalq[-1], self.finalp[-1]
 
         intersection, t, normal, validindices = \
-        nextSurface.shape.intersect(RayBundle(self.pointstodraw[-1], self.momentatodraw[-1], raybundle.rayID, raybundle.wave))
+            nextSurface.shape.intersect(RayBundle(self.pointstodraw[-1], self.momentatodraw[-1], raybundle.rayID, raybundle.wave))
 
-        return intersection, t, normal, validindices, []
+        return intersection, t, normal, validindices
         # intersection, t, normal, validindices, propraybundles
         # TODO: Raybundles have to strong dependencies from surfaces. For every surface there is exactly one raybundle.
         # This is not correct for grin media anymore, since a grin medium contains a collection of ray bundles. For every
