@@ -231,13 +231,14 @@ class Mirror(Material):
         return abcd
 
 class GrinMaterial(Material):
-    def __init__(self, fun, dfdx, dfdy, dfdz, ds):
+    def __init__(self, fun, dfdx, dfdy, dfdz, ds, energyviolation):
         super(GrinMaterial, self).__init__()
         self.nfunc = fun
         self.dfdx = dfdx
         self.dfdy = dfdy
         self.dfdz = dfdz
         self.ds = ds
+        self.energyviolation = energyviolation
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
         # at entrance in material there is no refraction appearing
@@ -275,6 +276,7 @@ class GrinMaterial(Material):
 
         updatedpos = startpoint
         updatedvel = velocities[-1]
+
 
         #updatedpos[2] += offz
 
@@ -316,29 +318,36 @@ class GrinMaterial(Material):
             positions.append(newpos2)
             velocities.append(newvel2)
 
-            valid = (newpos2[2] - actualSurface.shape.getSag(newpos2[0], newpos2[1]) >= 0)
+            # validity and finalization check
 
-            boundarynothit = np.zeros_like(valid)
-            boundarynothit = self.inBoundary(newpos2[0], newpos2[1], newpos2[2])
+            totalenergy = np.sum(newvel2**2) - np.sum(optin**2)
 
-            valid[True - boundarynothit] = False
+            # testing for some critical energyviolation
+            # and invalidate all rays
 
+            if abs(totalenergy) > self.energyviolation:
+                FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
+                FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
+                valid[:] = False
+                #final[:] = True
 
             final = (newpos2[2] - nextSurface.shape.getSag(newpos2[0], newpos2[1]) > 0)
+            # has ray reached next surface? if yes: mark as final
 
+            valid[True - self.inBoundary(newpos2[0], newpos2[1], newpos2[2])] = False
+            # has ray hit boundary? mark as invalid
 
-            #FreeCAD.Console.PrintMessage(str(loopcount)+":(1) "+str(updatedpos)+"\n")
+            final[True - valid] += True
+            # all non valid rays are also final
 
             updatedpos[:,True - final] = newpos2[:,True - final]
             updatedvel[:,True - final] = newvel2[:,True - final]
 
-            #FreeCAD.Console.PrintMessage(str(loopcount)+":(2) "+str(updatedpos)+"\n")
-            # TODO: hier ist es noch in ordnung
-
             pointstodraw.append(1.*updatedpos)
             momentatodraw.append(1.*updatedvel)
 
-            # TODO: for final writeout last position for z < f(x,y)
+            # TODO: somehow invalid rays are activated again
+
             # TODO: check for aperture of nextSurface and mark as invalid and final
             # TODO: if pathlength of a certain ray is too long, mark as invalid and final
             # TODO: finish while loop if all rays are marked as final, return valid array for further processing
@@ -349,7 +358,7 @@ class GrinMaterial(Material):
             # for energy and phase space analysis
 
             phasespace4d.append(np.array([newpos2[0], newpos2[1], newvel2[0], newvel2[1]]))
-            energies.append(np.sum(newvel2**2) - np.sum(optin**2))
+            energies.append(totalenergy)
 
         # TODO: hier gehts schon in die hose
         # TODO: somehow the pointstodraw array is overwritten after the integration!
@@ -367,7 +376,7 @@ class GrinMaterial(Material):
         (self.finalq, self.finalp, self.pointstodraw, self.momentatodraw, en, ph4d) = \
             self.symplecticintegrator(startq,
                                       startp,
-                                      0.01,
+                                      self.ds,
                                       0.0,
                                       actualSurface.getThickness(),
                                       actualSurface,

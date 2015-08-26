@@ -375,7 +375,7 @@ class OpticalSystemInterface(object):
         self.os.insertSurface(1,
                               Surface(core.surfShape.Conic(curv=-1./24.,semidiam=5.0),
                                       thickness = 30.0,
-                                      material=core.material.GrinMaterial(nfun, ndx, ndy, ndz, 0.01),
+                                      material=core.material.GrinMaterial(nfun, ndx, ndy, ndz, 0.05, 1e-3),
                                       aperture=core.aperture.CircularAperture(5.0)
                                       )
                               )
