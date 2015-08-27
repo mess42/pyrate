@@ -24,6 +24,7 @@ from core.optical_system import OpticalSystem, Surface
 import FreeCAD
 import Part
 import Points
+import Draft
 
 class AimDialog(QtGui.QDialog):
     def __init__(self, pupilsize, stopposition, numrays):
@@ -372,10 +373,13 @@ class OpticalSystemInterface(object):
         def ndz(x, y, z):
             return np.zeros_like(x)
 
+        def boundarycheck(x, y, z):
+            return np.ones_like(x, dtype=bool)
+
         self.os.insertSurface(1,
                               Surface(core.surfShape.Conic(curv=-1./24.,semidiam=5.0),
                                       thickness = 30.0,
-                                      material=core.material.GrinMaterial(nfun, ndx, ndy, ndz, 0.05, 1e-3),
+                                      material=core.material.GrinMaterial(nfun, ndx, ndy, ndz, 0.01, 1e-3, boundarycheck),
                                       aperture=core.aperture.CircularAperture(5.0)
                                       )
                               )
@@ -508,9 +512,13 @@ class OpticalSystemInterface(object):
                 FCptsgrinobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_GrinPoints")
                 tmpppgrin = Points.Points()
 
-                for ind, stepsq in enumerate(pointsq):
+
+
+                for stepsq in pointsq:
                     #FreeCAD.Console.PrintMessage(str(ind)+": "+str(np.shape(stepsq))+"\n")
+
                     ptslice = map(lambda s: (s[0] + offx, s[1] + offy, s[2] + offz), list(stepsq.T))
+
                     #FreeCAD.Console.PrintMessage(str(type(ptslice)) + ": " + str(ptslice) + "\n")
                     tmpppgrin.addPoints(ptslice)
 
@@ -532,7 +540,7 @@ class OpticalSystemInterface(object):
             FCptsobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_Intersectionpoints")
             FCptsobj.Points = intersectionpts
             FCptsview = FCptsobj.ViewObject
-            FCptsview.PointSize = 1.0#5.0
+            FCptsview.PointSize = 5.0
             FCptsview.ShapeColor = (1.0, 1.0, 0.0)
 
             self.intersectptsobs.append(FCptsobj)

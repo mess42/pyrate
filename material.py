@@ -231,7 +231,7 @@ class Mirror(Material):
         return abcd
 
 class GrinMaterial(Material):
-    def __init__(self, fun, dfdx, dfdy, dfdz, ds, energyviolation):
+    def __init__(self, fun, dfdx, dfdy, dfdz, ds, energyviolation, bndfunction):
         super(GrinMaterial, self).__init__()
         self.nfunc = fun
         self.dfdx = dfdx
@@ -239,6 +239,7 @@ class GrinMaterial(Material):
         self.dfdz = dfdz
         self.ds = ds
         self.energyviolation = energyviolation
+        self.boundaryfunction = bndfunction
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
         # at entrance in material there is no refraction appearing
@@ -246,7 +247,7 @@ class GrinMaterial(Material):
 
 
     def inBoundary(self, x, y, z):
-        return x**2 + y**2 <= 1.5**2
+        return self.boundaryfunction(x, y, z)
 
 
     def symplecticintegrator(self, startpoint, startdir, tau, maxzval, offz, actualSurface, nextSurface):
@@ -366,14 +367,14 @@ class GrinMaterial(Material):
         #for ind, pt in enumerate(pointstodraw):
         #    FreeCAD.Console.PrintMessage("symint: " + str(ind) + ": " + str(pt)+"\n")
 
-        return (positions, velocities, pointstodraw, momentatodraw, energies, phasespace4d)
+        return (positions, velocities, pointstodraw, momentatodraw, energies, phasespace4d, valid)
 
 
     def propagate(self, actualSurface, nextSurface, raybundle):
         startq = raybundle.o # linewise x, y, z values
         startp = raybundle.k
 
-        (self.finalq, self.finalp, self.pointstodraw, self.momentatodraw, en, ph4d) = \
+        (self.finalq, self.finalp, self.pointstodraw, self.momentatodraw, en, ph4d, validindices) = \
             self.symplecticintegrator(startq,
                                       startp,
                                       self.ds,
@@ -405,8 +406,10 @@ class GrinMaterial(Material):
 
         # original start point self.finalq[-1], self.finalp[-1]
 
-        intersection, t, normal, validindices = \
+        intersection, t, normal, validindicesrefract = \
             nextSurface.shape.intersect(RayBundle(self.pointstodraw[-1], self.momentatodraw[-1], raybundle.rayID, raybundle.wave))
+
+        validindices *= validindicesrefract
 
         return intersection, t, normal, validindices
         # intersection, t, normal, validindices, propraybundles
