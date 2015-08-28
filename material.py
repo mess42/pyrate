@@ -327,10 +327,12 @@ class GrinMaterial(Material):
             # and invalidate all rays
 
             if abs(totalenergy) > self.energyviolation:
-                FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
-                FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
-                valid[:] = False
-                #final[:] = True
+                #FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
+                #FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
+                print 'WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n'
+                print 'Please reduce integration step size.\n'
+                valid[:] = False # all rays with energy violation are not useful due to integration errors
+                # TODO: report to user via some kind of fancy interface
 
             final = (newpos2[2] - nextSurface.shape.getSag(newpos2[0], newpos2[1]) > 0)
             # has ray reached next surface? if yes: mark as final
@@ -347,14 +349,7 @@ class GrinMaterial(Material):
             pointstodraw.append(1.*updatedpos)
             momentatodraw.append(1.*updatedvel)
 
-            # TODO: somehow invalid rays are activated again
-
-            # TODO: check for aperture of nextSurface and mark as invalid and final
             # TODO: if pathlength of a certain ray is too long, mark as invalid and final
-            # TODO: finish while loop if all rays are marked as final, return valid array for further processing
-
-            #zchief = positions[-1][2][0]
-
 
             # for energy and phase space analysis
 

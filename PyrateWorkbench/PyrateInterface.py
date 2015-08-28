@@ -2,6 +2,7 @@
 
 import time
 import math
+import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -284,13 +285,20 @@ class FieldDialog(QtGui.QDialog):
 
         self.close()
 
-
+class FreeCADOutputStream(object):
+    def write(self, txt):
+        FreeCAD.Console.PrintMessage(txt)
 
 
 
 class OpticalSystemInterface(object):
 
     def __init__(self):
+        self.outputstream = FreeCADOutputStream()
+        self.stdout_backup = sys.stdout
+        sys.stdout = self.outputstream
+
+
         self.surfaceviews = []
         self.surfaceobs = []
         self.rayobs = []
@@ -309,6 +317,9 @@ class OpticalSystemInterface(object):
 
         self.aimy = None
         self.os = OpticalSystem()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        sys.stdout = self.stdout_backup
 
     def dummycreate(self): # should only create the demo system, will be removed later
         self.os = OpticalSystem() # reinit os
@@ -671,7 +682,7 @@ class OpticalSystemInterface(object):
         # (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
 
         (pupiltype, pupilsize, fieldtype, rastertype, stopposition) = self.aimfinitestopdata
-        FreeCAD.Console.PrintMessage(str(self.aimfinitestopdata)+"\n")
+        print str(self.aimfinitestopdata)
 
         # TODO: aimy may not be called all the time due to recalculation of stopdiameter which should be fixed
 
@@ -683,7 +694,7 @@ class OpticalSystemInterface(object):
         #                                            nray=numrays, wavelength=self.wavelength, \
         #                                            stopPosition=stopposition)
 
-        FreeCAD.Console.PrintMessage(str(aimy.stopDiameter)+"\n")
+        print str(aimy.stopDiameter)
 
         #aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= core.pupil.EntrancePupilDiameter, \
         #                                            pupilSizeParameter=pupilsize, \
