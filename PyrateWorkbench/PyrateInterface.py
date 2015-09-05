@@ -2,6 +2,7 @@
 
 import time
 import math
+import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,6 +25,7 @@ from core.optical_system import OpticalSystem, Surface
 import FreeCAD
 import Part
 import Points
+import Draft
 
 class AimDialog(QtGui.QDialog):
     def __init__(self, pupilsize, stopposition, numrays):
@@ -283,13 +285,20 @@ class FieldDialog(QtGui.QDialog):
 
         self.close()
 
-
+class FreeCADOutputStream(object):
+    def write(self, txt):
+        FreeCAD.Console.PrintMessage(txt)
 
 
 
 class OpticalSystemInterface(object):
 
     def __init__(self):
+        self.outputstream = FreeCADOutputStream()
+        self.stdout_backup = sys.stdout
+        sys.stdout = self.outputstream
+
+
         self.surfaceviews = []
         self.surfaceobs = []
         self.rayobs = []
@@ -308,6 +317,9 @@ class OpticalSystemInterface(object):
 
         self.aimy = None
         self.os = OpticalSystem()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        sys.stdout = self.stdout_backup
 
     def dummycreate(self): # should only create the demo system, will be removed later
         self.os = OpticalSystem() # reinit os
@@ -353,6 +365,42 @@ class OpticalSystemInterface(object):
                            material=core.material.ConstantIndexGlass(1.5), aperture=core.aperture.CircularAperture(1.0))) # semidiam=1.0
         self.os.insertSurface(7, Surface(core.surfShape.Conic(curv=0.1*1/1.479, semidiam=1.0), thickness=19.0,
                            aperture=core.aperture.CircularAperture(1.0))) # semidiam=1.0
+
+
+    def dummycreate4(self):
+        self.os = OpticalSystem() # reinit os
+        self.os.surfaces[0].thickness.val = 20.0
+        #self.os.surfaces[1].shape.sdia.val = 1e10
+
+        def nfun(x, y, z):
+            return 0.5*np.exp(-x**2 - 4.*y**2)+1.0#(2.5 - (x**2 + 100.0*y**4)/10.**2)
+
+        def ndx(x, y, z):
+            return -2.*x*0.5*np.exp(-x**2 - 4.*y**2)#-2*x/10.**2
+
+        def ndy(x, y, z):
+            return -2.*4.*y*0.5*np.exp(-x**2 - 4.*y**2) #-100.0*4.0*y**3/10.**2
+
+        def ndz(x, y, z):
+            return np.zeros_like(x)
+
+        def boundarycheck(x, y, z):
+            return np.ones_like(x, dtype=bool)
+
+        self.os.insertSurface(1,
+                              Surface(core.surfShape.Conic(curv=-1./24.,semidiam=5.0),
+                                      thickness = 30.0,
+                                      material=core.material.GrinMaterial(nfun, ndx, ndy, ndz, 0.01, 1e-3, boundarycheck),
+                                      aperture=core.aperture.CircularAperture(5.0)
+                                      )
+                              )
+        self.os.insertSurface(2,
+                              Surface(core.surfShape.Conic(curv=1./24.,semidiam=5.0),
+                                      thickness = 10.0,
+                                      aperture=core.aperture.CircularAperture(5.0)
+                                      )
+                              )
+
 
 
 
@@ -451,15 +499,54 @@ class OpticalSystemInterface(object):
 
 
     def makeRaysFromRayPath(self, raypath, offset, color = (0.5, 0.5, 0.5)):
+        def shift(l, n):
+            return l[n:] + l[:n]
+
+        #grincolor = (np.random.random(), np.random.random(), np.random.random())
+
         doc = FreeCAD.ActiveDocument # in initialisierung auslagern
-        Nsurf = len(raypath.raybundles)
+        Nraybundles = len(raypath.raybundles)
         offx = offset[0]
         offy = offset[1]
         offz = offset[2]
 
-        for i in np.arange(Nsurf):
+        for i in np.arange(Nraybundles):
             offz += self.os.surfaces[i].getThickness()
+
             (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
+
+            try:
+                pointsq = self.os.surfaces[i].material.pointstodraw
+
+                FreeCAD.Console.PrintMessage('dims: '+str(np.shape(pointsq))+"\n")
+
+                FCptsgrinobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_GrinPoints")
+                tmpppgrin = Points.Points()
+
+
+
+                for stepsq in pointsq:
+                    #FreeCAD.Console.PrintMessage(str(ind)+": "+str(np.shape(stepsq))+"\n")
+
+                    ptslice = map(lambda s: (s[0] + offx, s[1] + offy, s[2] + offz), list(stepsq.T))
+
+                    #FreeCAD.Console.PrintMessage(str(type(ptslice)) + ": " + str(ptslice) + "\n")
+                    tmpppgrin.addPoints(ptslice)
+
+
+                FCptsgrinobj.Points = tmpppgrin
+
+                FCptsgrinview = FCptsgrinobj.ViewObject
+                FCptsgrinview.PointSize = 1.0#5.0
+                FCptsgrinview.ShapeColor = color
+
+                self.rayobs.append(FCptsgrinobj)
+
+
+            except AttributeError:
+                pass
+
+            #FreeCAD.Console.PrintMessage(str(intersectionpts)+'\n')
 
             FCptsobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_Intersectionpoints")
             FCptsobj.Points = intersectionpts
@@ -504,7 +591,7 @@ class OpticalSystemInterface(object):
         # TODO: do not reset to default values
 
 
-        ad = AimDialog(pupilsize, stopPosition, numrays)
+        ad = AimDialog(pupilsize, stopPosition, numrays) # TODO: init with aimy object and return aimy object
         ad.exec_()
         if ad.pupiltype != "":
             pupiltype = eval("core.pupil."+ad.pupiltype) # eval is evil but who cares :p
@@ -595,7 +682,7 @@ class OpticalSystemInterface(object):
         # (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
 
         (pupiltype, pupilsize, fieldtype, rastertype, stopposition) = self.aimfinitestopdata
-        FreeCAD.Console.PrintMessage(str(self.aimfinitestopdata)+"\n")
+        print str(self.aimfinitestopdata)
 
         # TODO: aimy may not be called all the time due to recalculation of stopdiameter which should be fixed
 
@@ -607,7 +694,7 @@ class OpticalSystemInterface(object):
         #                                            nray=numrays, wavelength=self.wavelength, \
         #                                            stopPosition=stopposition)
 
-        FreeCAD.Console.PrintMessage(str(aimy.stopDiameter)+"\n")
+        print str(aimy.stopDiameter)
 
         #aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= core.pupil.EntrancePupilDiameter, \
         #                                            pupilSizeParameter=pupilsize, \

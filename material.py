@@ -20,11 +20,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from numpy import *
+import numpy as np
 from ray import RayBundle
 from optimize import ClassWithOptimizableVariables
-from scipy.weave.size_check import func
 
+import FreeCAD # temp
 
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
@@ -89,26 +89,26 @@ class ConstantIndexGlass(Material):
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
 
-        abs_k1_normal = sum(raybundle.k * normal, axis=0)
+        abs_k1_normal = np.sum(raybundle.k * normal, axis=0)
         k_perp = raybundle.k - abs_k1_normal * normal
         abs_k2 = self.getIndex(raybundle)
-        square = abs_k2**2 - sum(k_perp * k_perp, axis=0)
+        square = abs_k2**2 - np.sum(k_perp * k_perp, axis=0)
 
         # make total internal reflection invalid
         valid = previouslyValid * (square > 0)
         valid[0] = True  # hail to the chief
 
-        abs_k2_normal = sqrt(square)
+        abs_k2_normal = np.sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
 
         # return ray with new direction and properties of old ray
         # return only valid rays
-        Nval = sum(valid)
-        orig = zeros((3, Nval), dtype=float)
+        Nval = np.sum(valid)
+        orig = np.zeros((3, Nval), dtype=float)
         orig[0] = intersection[0][valid]
         orig[1] = intersection[1][valid]
         orig[2] = intersection[2][valid]
-        newk = zeros((3, Nval), dtype=float)
+        newk = np.zeros((3, Nval), dtype=float)
         newk[0] = k2[0][valid]
         newk[1] = k2[1][valid]
         newk[2] = k2[2][valid]
@@ -128,8 +128,8 @@ class ConstantIndexGlass(Material):
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
         n = self.getIndex(ray)
-        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
-        abcd = dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
+        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
+        abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
 
 
@@ -217,53 +217,206 @@ class Mirror(Material):
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
 
-        abs_k1_normal = sum(raybundle.k * normal, axis=0)
+        abs_k1_normal = np.sum(raybundle.k * normal, axis=0)
         k_perp = raybundle.k - abs_k1_normal * normal
         k2 = raybundle.k - 2.0*k_perp
 
-        # return ray with new direction and properties of old ray
-        # return only valid rays
-        #Nval = sum(valid)
-        #orig = zeros((3, Nval), dtype=float)
-        #orig[0] = intersection[0][valid]
-        #orig[1] = intersection[1][valid]
-        #orig[2] = intersection[2][valid]
-        #newk = zeros((3, Nval), dtype=float)
-        #newk[0] = k2[0][valid]
-        #newk[1] = k2[1][valid]
-        #newk[2] = k2[2][valid]
         newk = k2
         orig = intersection
 
         return RayBundle(orig, newk, raybundle.rayID, raybundle.wave)
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
+        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
         return abcd
 
 class GrinMaterial(Material):
-    def __init__(self, fun, dfdx, dfdy, dfdz, ds):
-        
+    def __init__(self, fun, dfdx, dfdy, dfdz, ds, energyviolation, bndfunction):
         super(GrinMaterial, self).__init__()
         self.nfunc = fun
         self.dfdx = dfdx
         self.dfdy = dfdy
         self.dfdz = dfdz
-        
-    
+        self.ds = ds
+        self.energyviolation = energyviolation
+        self.boundaryfunction = bndfunction
+
     def refract(self, raybundle, intersection, normal, previouslyValid):
         # at entrance in material there is no refraction appearing
         return RayBundle(intersection, raybundle.k, raybundle.rayID, raybundle.wave)
 
-    def propagate(self, nextSurface, raybundle):
-        startq = raybundle.o
+
+    def inBoundary(self, x, y, z):
+        return self.boundaryfunction(x, y, z)
+
+
+    def symplecticintegrator(self, startpoint, startdir, tau, maxzval, offz, actualSurface, nextSurface):
+
+
+
+        ci = [1.0/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),1.0/(2.0*(2.0 - 2.0**(1./3.)))]
+        di = [1.0/(2.0 - 2.0**(1./3.)),(-2.0**(1./3.))/((2.0 - 2.0**(1./3.))),1.0/(2.0 - 2.0**(1./3.)),0.0]
+
+
+        optindstart = self.nfunc(startpoint[0], startpoint[1], startpoint[2] + offz)
+        positions = [1.*startpoint]
+        velocities = [1.*optindstart*startdir]
+
+        energies = []
+        phasespace4d = []
+
+        path = 0.
+
+        loopcount = 0
+
+        valid = np.ones_like(startpoint[0], dtype=bool)
+        final = np.zeros_like(startpoint[0], dtype=bool)
+
+        pointstodraw = []
+        momentatodraw = []
+
+        updatedpos = startpoint
+        updatedvel = velocities[-1]
+
+
+        #updatedpos[2] += offz
+
+        while not all(final): #path < geompathlength: # criterion z>=d, maxsteps oder x**2 + y**2 >= r
+            loopcount += 1
+            lastpos = positions[-1]
+            lastvel = velocities[-1]
+
+
+            #updatedpos = lastpos
+            #updatedpos[:, True - final] = lastpos[:, True - final]
+
+            for i in range(len(ci)):
+                newpos = lastpos + tau*ci[i]*2.0*lastvel
+                newvel = lastvel
+
+                newpos2 = newpos
+
+                optin = self.nfunc(newpos2[0], newpos2[1], newpos2[2] + offz)
+
+                #FreeCAD.Console.PrintMessage("loop, i: "+str(loopcount)+" "+str(i)+"\n")
+                #FreeCAD.Console.PrintMessage("optin: "+str(optin)+"\n")
+                #FreeCAD.Console.PrintMessage("startq: "+str(startpoint)+"\n")
+                #FreeCAD.Console.PrintMessage("newpos: "+str(newpos)+"\n")
+
+                newvel2 = newvel + tau*di[i]*2.0*optin*np.array( \
+                 [self.dfdx(newpos2[0], newpos2[1], newpos2[2] + offz),
+                  self.dfdy(newpos2[0], newpos2[1], newpos2[2] + offz),
+                  self.dfdz(newpos2[0], newpos2[1], newpos2[2] + offz)])
+
+                #FreeCAD.Console.PrintMessage("newvel2: "+str(newvel)+"\n")
+
+
+                lastpos = newpos2
+                lastvel = newvel2
+
+            #path += np.sqrt(((newpos2 - positions[-1])**2).sum())
+
+            positions.append(newpos2)
+            velocities.append(newvel2)
+
+            # validity and finalization check
+
+            totalenergy = np.sum(newvel2**2) - np.sum(optin**2)
+
+            # testing for some critical energyviolation
+            # and invalidate all rays
+
+            if abs(totalenergy) > self.energyviolation:
+                #FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
+                #FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
+                print 'WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n'
+                print 'Please reduce integration step size.\n'
+                valid[:] = False # all rays with energy violation are not useful due to integration errors
+                # TODO: report to user via some kind of fancy interface
+
+            final = (newpos2[2] - nextSurface.shape.getSag(newpos2[0], newpos2[1]) > 0)
+            # has ray reached next surface? if yes: mark as final
+
+            valid[True - self.inBoundary(newpos2[0], newpos2[1], newpos2[2])] = False
+            # has ray hit boundary? mark as invalid
+
+            final[True - valid] += True
+            # all non valid rays are also final
+
+            updatedpos[:,True - final] = newpos2[:,True - final]
+            updatedvel[:,True - final] = newvel2[:,True - final]
+
+            pointstodraw.append(1.*updatedpos)
+            momentatodraw.append(1.*updatedvel)
+
+            # TODO: if pathlength of a certain ray is too long, mark as invalid and final
+
+            # for energy and phase space analysis
+
+            phasespace4d.append(np.array([newpos2[0], newpos2[1], newvel2[0], newvel2[1]]))
+            energies.append(totalenergy)
+
+        # TODO: hier gehts schon in die hose
+        # TODO: somehow the pointstodraw array is overwritten after the integration!
+
+        #for ind, pt in enumerate(pointstodraw):
+        #    FreeCAD.Console.PrintMessage("symint: " + str(ind) + ": " + str(pt)+"\n")
+
+        return (positions, velocities, pointstodraw, momentatodraw, energies, phasespace4d, valid)
+
+
+    def propagate(self, actualSurface, nextSurface, raybundle):
+        startq = raybundle.o # linewise x, y, z values
         startp = raybundle.k
-        
-        
+
+        (self.finalq, self.finalp, self.pointstodraw, self.momentatodraw, en, ph4d, validindices) = \
+            self.symplecticintegrator(startq,
+                                      startp,
+                                      self.ds,
+                                      0.0,
+                                      actualSurface.getThickness(),
+                                      actualSurface,
+                                      nextSurface)
+
+        #for ind, pts in enumerate(self.pointstodraw):
+        #    FreeCAD.Console.PrintMessage("prop: " + str(ind) + ": " + str(pts) + "\n")
+
+        # TODO: z-values are not starting at zero and are therefore not relative to last surface
+        # TODO: starting in intersection points works but not hitting the final surface
+
+
+        #intersection = np.zeros_like(startq) # intersection are intersection points of nextsurface
+        #validindices = np.ones(np.shape(startq)[1], dtype=bool) # validindices are indices of surviving rays at nextsurface
+
+        #t = 1 # t is arc length of last ray
+        #normal = np.zeros_like(startq) # normal is array of normal vectors at nextsurface
+        #FreeCAD.Console.PrintMessage("ENERGY: "+str(en)+"\n finalq: "+str(self.finalq)+"\n finalp: "+str(self.finalp)+"\n")
+
+        # integrate from startq and startp to finalq and finalp and add in every step a raybundle to the final array
+        # if a ray hits the aperture boundary in x,y mark it as invalid
+        # define end loop conditions:
+        # - maximal arc length,
+        # - all valid rays hit nextSurface,
+        # - maximal loops (and all rays not at final surface are marked invalid)
+
+        # original start point self.finalq[-1], self.finalp[-1]
+
+        intersection, t, normal, validindicesrefract = \
+            nextSurface.shape.intersect(RayBundle(self.pointstodraw[-1], self.momentatodraw[-1], raybundle.rayID, raybundle.wave))
+
+        validindices *= validindicesrefract
+
+        return intersection, t, normal, validindices
+        # intersection, t, normal, validindices, propraybundles
+        # TODO: Raybundles have to strong dependencies from surfaces. For every surface there is exactly one raybundle.
+        # This is not correct for grin media anymore, since a grin medium contains a collection of ray bundles. For every
+        # integration step one raybundle, but the standard raybundles are only defined with respect to their
+        # corresponding surface.
+
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        n = self.nfunc(ray.o)
-        abcd = dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
-        abcd = dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
+        n = self.nfunc(0.,0.,0.)
+        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
+        abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
 

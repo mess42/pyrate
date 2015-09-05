@@ -39,6 +39,7 @@ class PyrateWorkbench ( Workbench ):
         self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"])
         self.appendMenu("Pyrate System", ["CreateSystemCommand"])
         self.appendMenu("Pyrate Visualization", ["UpdateVisualizationCommand"])
+        self.appendMenu("Pyrate Visualization", ["ShowSystemDraw2DCommand"])
         self.appendMenu(["Pyrate Visualization", "Show ..."],
                                                 ["ShowSystemCommand",
                                                  "ShowSurfacesCommand",

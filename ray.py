@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 import aperture
 import material
-
+import material
 
 class RayBundle(object):
     def __init__(self, o, k, rayID, wave=0.55, pol=[]):
@@ -218,25 +218,29 @@ class RayPath(object):
         :param actualSurface: (Surface object)
         :param nextSurface: (Surface object)
         """
-        
+        self.raybundles[-1].o[2] -= actualSurface.getThickness()
+
         if isinstance(actualSurface.material, material.GrinMaterial):
-            intersection, t, normal, validindices, propraybundles = actualSurface.material.propagate(
-                                                                                                     nextSurface, 
-                                                                                                     self.raybundles[-1]
-                                                                                                     )
-            self.raybundles.join(propraybundles)
+            intersection, t, normal, validIndices = actualSurface.material.propagate(
+                                                                                     actualSurface,
+                                                                                     nextSurface,
+                                                                                     self.raybundles[-1]
+                                                                                    )
+
         else:
             # this if-path is for linear ray transfer between some surfaces
-            self.raybundles[-1].o[2] -= actualSurface.getThickness()
-            intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])#, aperture.BaseAperture())
 
-            validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1])
-            validIndices[0] = True # hail to the chief ray
+            intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])#, aperture.BaseAperture())
 
             # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
             # TODO: needs heavy testing
 
             self.raybundles[-1].t = t
+
+
+        validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
+        validIndices[0] = True # hail to the chief ray
+
         self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))
 
     def draw2d(self, opticalsystem, ax, offset=(0, 0), color="blue"):
