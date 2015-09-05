@@ -103,9 +103,9 @@ class Conic(Shape):
     def getSag(self, x, y):
         rs = x**2 + y**2
         sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rs
-        res =  self.curvature.val * rs / (1 + np.sqrt(sqrtterm))
+        sag =  self.curvature.val * rs / (1 + np.sqrt(sqrtterm))
 
-        return res
+        return sag
 
     def getCentralCurvature(self):
         # Conic curvature on axis is only influenced by spherical curvature term
@@ -159,6 +159,67 @@ class Conic(Shape):
         yinap = y[isyap]
         zinap = self.getSag(0, yinap)
         ax.plot(zinap+offset[1], yinap+offset[0], color)
+
+class Cylinder(Conic):
+    def __init__(self, curv=0.0, cc=0.0, semidiam=0.0):
+        """
+        Create cylindric conic section surface.
+
+        :param curv: Curvature of the surface (float).
+        :param cc: Conic constant (float).
+        :param semidiam: Semi-diameter of the surface (float).
+
+        -1 < cc < 0 oblate ellipsoid
+             cc = 0 sphere
+         0 < cc < 1 prolate ellipsoid
+             cc = 1 paraboloid
+             cc > 1 hyperboloid
+        """
+        super(Cylinder, self).__init__()
+
+        self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
+        self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
+        #self.sdia = self.createOptimizableVariable("semi diameter", value=semidiam, status=False)
+
+    def getSag(self, x, y):
+        rs = y**2
+        sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rs
+        sag =  self.curvature.val * rs / (1 + np.sqrt(sqrtterm))
+
+        return sag
+
+    def intersect(self, raybundle):
+        rayDir = raybundle.rayDir
+
+        r0 = raybundle.o
+
+        F = rayDir[2] - self.curvature.val * ( rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val))
+        G = self.curvature.val * ( r0[1]**2 + r0[2]**2 * (1+self.conic.val)) - 2 * r0[2]
+        H = - self.curvature.val - self.conic.val * self.curvature.val * rayDir[2]**2
+
+        square = F**2 + H*G
+
+        t = G / (F + np.sqrt(square))
+
+        intersection = r0 + raybundle.rayDir * t
+
+        # find indices of rays that don't intersect with the sphere
+        validIndices = (square > 0) #*(intersection[0]**2 + intersection[1]**2 <= 10.0**2))
+        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
+        validIndices[0] = True  # hail to the chief
+
+        # Normal
+        normal = np.zeros(np.shape(r0), dtype=float)
+        normal[0] = 0
+        normal[1] = -self.curvature.val * intersection[1]
+        normal[2] = 1 - self.curvature.val * intersection[2] * (1+self.conic.val)
+
+        absn = np.sqrt(np.sum(normal**2, axis=0))
+
+        normal[1] = normal[1] / absn
+        normal[2] = normal[2] / absn
+
+        return intersection, t, normal, validIndices
 
 
 class Asphere(Shape):
