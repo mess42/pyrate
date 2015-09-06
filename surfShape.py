@@ -214,15 +214,13 @@ class Cylinder(Conic):
 
     def getSag(self, x, y):
         """
-        Return the sag of the surface mesured from the optical axis vertex.
+        Return the sag of the surface measured from the optical axis vertex.
 
         :param x: x coordinate on the surface (float or 1d numpy array of floats)
         :param y: y coordinate on the surface (float or 1d numpy array of floats)
 
         :return sag: (float or 1d numpy array of floats)
         """
-
-        return self.conic_function( rsquared = y**2 )
 
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
