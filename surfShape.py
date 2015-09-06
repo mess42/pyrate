@@ -82,33 +82,74 @@ class Shape(ClassWithOptimizableVariables):
 class Conic(Shape):
     def __init__(self, curv=0.0, cc=0.0, semidiam=0.0):
         """
-        Create rotationally symmetric conic section surface.
+        Create rotationally symmetric surface
+        with a conic cross section in the meridional plane.
 
         :param curv: Curvature of the surface (float).
         :param cc: Conic constant (float).
         :param semidiam: Semi-diameter of the surface (float).
 
-        -1 < cc < 0 oblate ellipsoid
+        -1 < cc < 0 oblate rotational ellipsoid
              cc = 0 sphere
-         0 < cc < 1 prolate ellipsoid
-             cc = 1 paraboloid
-             cc > 1 hyperboloid
+         0 < cc < 1 prolate rotational ellipsoid
+             cc = 1 rotational paraboloid
+             cc > 1 rotational hyperboloid
         """
         super(Conic, self).__init__()
 
         self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
         self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
-        #self.sdia = self.createOptimizableVariable("semi diameter", value=semidiam, status=False)
 
     def getSag(self, x, y):
-        rs = x**2 + y**2
-        sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rs
-        sag =  self.curvature.val * rs / (1 + np.sqrt(sqrtterm))
+        """
+        Return the sag of the surface mesured from the optical axis vertex.
 
-        return sag
+        :param x: x coordinate on the surface (float or 1d numpy array of floats)
+        :param y: y coordinate on the surface (float or 1d numpy array of floats)
+
+        :return sag: (float or 1d numpy array of floats)
+        """
+
+        return self.conic_function( rsquared = x**2 + y**2 )
+
+    def conic_function(self, rsquared):
+        """
+        conic section function
+
+        :param rsquared: distance from the optical axis (float or 1d numpy array of floats)
+
+        :return z: sag (float or 1d numpy array of floats)
+        """
+        sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rsquared
+        z =  self.curvature.val * rsquared / (1 + np.sqrt(sqrtterm))
+
+        return z
+
+    def conic_normal(self, x,y,z):
+        """
+        normal on a rotational symmetric conic section.
+        
+        :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
+        :param y: y coordinates on the conic surface (float or 1d numpy array of floats)
+        :param z: z coordinates on the conic surface (float or 1d numpy array of floats)
+
+        :return normal: normal vectors ( 2d 3xN numpy array of floats )
+        """
+        normal = np.zeros((3,len(x)), dtype=float)
+        normal[0] = -self.curvature.val * x
+        normal[1] = -self.curvature.val * y
+        normal[2] = 1 - self.curvature.val * z * (1+self.conic.val)
+
+        absn = np.sqrt(np.sum(normal**2, axis=0))
+
+        normal[0] = normal[0] / absn
+        normal[1] = normal[1] / absn
+        normal[2] = normal[2] / absn
+
+        return normal
+
 
     def getCentralCurvature(self):
-        # Conic curvature on axis is only influenced by spherical curvature term
         return self.curvature.val
 
     def intersect(self, raybundle):
@@ -132,16 +173,7 @@ class Conic(Shape):
         validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal = np.zeros(np.shape(r0), dtype=float)
-        normal[0] = -self.curvature.val * intersection[0]
-        normal[1] = -self.curvature.val * intersection[1]
-        normal[2] = 1 - self.curvature.val * intersection[2] * (1+self.conic.val)
-
-        absn = np.sqrt(np.sum(normal**2, axis=0))
-
-        normal[0] = normal[0] / absn
-        normal[1] = normal[1] / absn
-        normal[2] = normal[2] / absn
+        normal = self.conic_normal( intersection[0], intersection[1], intersection[2] )
 
         return intersection, t, normal, validIndices
 
@@ -179,14 +211,18 @@ class Cylinder(Conic):
 
         self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
         self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
-        #self.sdia = self.createOptimizableVariable("semi diameter", value=semidiam, status=False)
 
     def getSag(self, x, y):
-        rs = y**2
-        sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rs
-        sag =  self.curvature.val * rs / (1 + np.sqrt(sqrtterm))
+        """
+        Return the sag of the surface mesured from the optical axis vertex.
 
-        return sag
+        :param x: x coordinate on the surface (float or 1d numpy array of floats)
+        :param y: y coordinate on the surface (float or 1d numpy array of floats)
+
+        :return sag: (float or 1d numpy array of floats)
+        """
+
+        return self.conic_function( rsquared = y**2 )
 
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
@@ -209,15 +245,7 @@ class Cylinder(Conic):
         validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal = np.zeros(np.shape(r0), dtype=float)
-        normal[0] = 0
-        normal[1] = -self.curvature.val * intersection[1]
-        normal[2] = 1 - self.curvature.val * intersection[2] * (1+self.conic.val)
-
-        absn = np.sqrt(np.sum(normal**2, axis=0))
-
-        normal[1] = normal[1] / absn
-        normal[2] = normal[2] / absn
+        normal = self.conic_normal( 0, intersection[1], intersection[2] )
 
         return intersection, t, normal, validIndices
 

@@ -24,7 +24,7 @@ import numpy as np
 from ray import RayBundle
 from optimize import ClassWithOptimizableVariables
 
-import FreeCAD # temp
+# import FreeCAD
 
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
