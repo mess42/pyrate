@@ -103,10 +103,8 @@ class Conic(Shape):
     def getSag(self, x, y):
         """
         Return the sag of the surface mesured from the optical axis vertex.
-
         :param x: x coordinate on the surface (float or 1d numpy array of floats)
         :param y: y coordinate on the surface (float or 1d numpy array of floats)
-
         :return sag: (float or 1d numpy array of floats)
         """
 
@@ -115,9 +113,7 @@ class Conic(Shape):
     def conic_function(self, rsquared):
         """
         conic section function
-
         :param rsquared: distance from the optical axis (float or 1d numpy array of floats)
-
         :return z: sag (float or 1d numpy array of floats)
         """
         sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rsquared
@@ -125,20 +121,20 @@ class Conic(Shape):
 
         return z
 
-    def conic_normal(self, x,y,z):
+    def conic_normal(self, x,y,z, curv, cc):
         """
         normal on a rotational symmetric conic section.
-        
         :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
         :param y: y coordinates on the conic surface (float or 1d numpy array of floats)
         :param z: z coordinates on the conic surface (float or 1d numpy array of floats)
-
+        :param curv: curvature (float)
+        :param cc: conic constant (float)
         :return normal: normal vectors ( 2d 3xN numpy array of floats )
         """
         normal = np.zeros((3,len(x)), dtype=float)
-        normal[0] = -self.curvature.val * x
-        normal[1] = -self.curvature.val * y
-        normal[2] = 1 - self.curvature.val * z * (1+self.conic.val)
+        normal[0] = -curv * x
+        normal[1] = -curv * y
+        normal[2] = 1 - curv * z * ( 1 + cc )
 
         absn = np.sqrt(np.sum(normal**2, axis=0))
 
@@ -173,7 +169,7 @@ class Conic(Shape):
         validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal = self.conic_normal( intersection[0], intersection[1], intersection[2] )
+        normal = self.conic_normal( intersection[0], intersection[1], intersection[2], self.curvature.val, self.conic.val )
 
         return intersection, t, normal, validIndices
 
@@ -201,11 +197,11 @@ class Cylinder(Conic):
         :param cc: Conic constant (float).
         :param semidiam: Semi-diameter of the surface (float).
 
-        -1 < cc < 0 oblate ellipsoid
+        -1 < cc < 0 oblate elliptic
              cc = 0 sphere
-         0 < cc < 1 prolate ellipsoid
-             cc = 1 paraboloid
-             cc > 1 hyperboloid
+         0 < cc < 1 prolate elliptic
+             cc = 1 parabolic
+             cc > 1 hyperbolic
         """
         super(Cylinder, self).__init__()
 
@@ -243,7 +239,7 @@ class Cylinder(Conic):
         validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal = self.conic_normal( 0, intersection[1], intersection[2] )
+        normal = self.conic_normal( 0, intersection[1], intersection[2], self.curvature.val, self.conic.val )
 
         return intersection, t, normal, validIndices
 
