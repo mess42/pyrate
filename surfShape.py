@@ -80,15 +80,14 @@ class Shape(ClassWithOptimizableVariables):
 
 
 class Conic(Shape):
-    def __init__(self, curv=0.0, cc=0.0, semidiam=0.0):
+    def __init__(self, curv=0.0, cc=0.0):
         """
         Create rotationally symmetric surface
         with a conic cross section in the meridional plane.
 
         :param curv: Curvature of the surface (float).
         :param cc: Conic constant (float).
-        :param semidiam: Semi-diameter of the surface (float).
-
+ 
         -1 < cc < 0 oblate rotational ellipsoid
              cc = 0 sphere
          0 < cc < 1 prolate rotational ellipsoid
@@ -189,13 +188,12 @@ class Conic(Shape):
         ax.plot(zinap+offset[1], yinap+offset[0], color)
 
 class Cylinder(Conic):
-    def __init__(self, curv=0.0, cc=0.0, semidiam=0.0):
+    def __init__(self, curv=0.0, cc=0.0):
         """
         Create cylindric conic section surface.
 
         :param curv: Curvature of the surface (float).
         :param cc: Conic constant (float).
-        :param semidiam: Semi-diameter of the surface (float).
 
         -1 < cc < 0 oblate elliptic
              cc = 0 sphere
