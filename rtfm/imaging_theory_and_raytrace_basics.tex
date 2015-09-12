@@ -51,7 +51,7 @@
 
 \newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
 
-\newcommand\Vector[1]{{\bf {#1}}}
+\newcommand\Vector[1]{{\mathbf{#1}}}
 
 \newcommand\vacuum{0}
 
@@ -625,32 +625,58 @@ and is solved by
 \end{align}
 With appropriate initial conditions this could be used as a check for the integrator code later.
 
-\section{Anisotropic Media}
+\section{Anisotropic inhomogenous Media}
 The isotropic Fermat's principle -- which tells us to minimize the functional \eqref{eq:fermatiso} -- is by far not the end of the
 story. There are media in which the propagation of light depends on the direction of the light rays. This implies that the
-optical index is direction dependent:
+optical index is direction dependent (dot means derivative with respect to $s$):
 \begin{align}
- L &= \int_{s_1}^{s_2} n(\Vector{r}(s), \Vector{r}'(s)) |\text{d}\Vector{s}|\,.\label{eq:fermataniso}
+ L &= \int_{s_1}^{s_2} n(\Vector{r}(s), \dot{\Vector{r}}(s)) |\text{d}\Vector{s}|\,.\label{eq:fermataniso}
 \end{align}
-For a so called quadrupole material where the refraction index only depends on velocities to second order,
-we have (Einstein summation convention!)
+For a so called quadrupole material where the refraction index only depends on velocities to second order (Einstein summation convention!)
 \begin{align}
-  L &= \int_{s_1}^{s_2} \sqrt{g_{ij}(\Vector{r}(s)) \frac{\text{d}r^i}{\text{d}s} \frac{\text{d}r^j}{\text{d}s}} \text{d}s\,.\label{eq:fermataniso2}
+  n(\Vector{r}, \Vector{r}') &\approx n_{(0)}(\Vector{r}) + n_{(2)\,ij}(\Vector{r}) \dot{x}^i \dot{x}^j\,,
 \end{align}
-For $g_{ij} = n^2(\Vector{r}) \delta_{ij}$ we get the isotropic case back.
-The tensor field $g_{ij}$ is the Riemann metric. Following the derivations of geodesic equations in general relativity,
-we get the following differential equation
+we have 
 \begin{align}
- \frac{\text{d}^2 r^k}{\text{d}s^2} + \Gamma^k_{ij} \frac{\text{d}r^i}{\text{d}s} \frac{\text{d}r^j}{\text{d}s} &= 0\,,
+  L &= \int_{s_1}^{s_2} \left[n_{(0)} + n_{(2)\,ij} \dot{x}^i \dot{x}^j \right] \sqrt{\dot{\Vector{r}}^2} \text{d}s\,.\label{eq:fermataniso2}
 \end{align}
-where the $\Gamma^k_{ij}$ are the so-called Christoffel symbols which are derived from the gradients of the metric, namely
+We call $n_{(0)}$ the monopole part and $n_{(2)}$ the quadrupole part. The quadrupole part is traceless and symmetric, and therefore 
+hast only 5 degrees of freedom. We assume that the quadrupole part is much smaller in magnitude than the monopole part. The Lagrangian is given by
 \begin{align}
- \Gamma^k_{ij} &= \frac{1}{2} g^{k\ell} \left(\partial_i g_{\ell j} + \partial_j g_{i \ell} - \partial_\ell g_{ij}\right)\,.
+  \mathcal{L} &= n_{(0)} \sqrt{\dot{\Vector{r}}^2} + n_{(2)\,ij} \dot{x}^i \dot{x}^j \sqrt{\dot{\Vector{r}}^2}\,,
 \end{align}
-Here $g^{ij}$ is the inverse of $g_{ij}$ such that $g^{ik} g_{kj} = \delta_{ij}$.
-Between general relativity and this optics formulation the most import difference is that the metric $g_{ij}$ is no dynamical
-object. It is an external model which has to be derived from other considerations and it does not come from first principles in
-electrodynamic field theory.
+and therefore the generalized forces and the canonical momenta are given by
+\begin{align}
+  \frac{\partial \mathcal{L}}{\partial x^k} &= \frac{\partial n_{(0)}}{\partial x^k} \sqrt{\dot{\Vector{r}}^2} 
++ \frac{\partial n_{(2)\,ij}}{\partial x^k} \dot{x}^i \dot{x}^j \sqrt{\dot{\Vector{r}}^2}
+\end{align}
+and
+\begin{align}
+ \frac{\partial \mathcal{L}}{\partial \dot{x}^k} &= \frac{n_{(0)} \dot{x}^k}{\sqrt{\dot{\Vector{r}}^2}}
++ 2\,n_{(2)\,kj} \dot{x}^j \sqrt{\dot{\Vector{r}}^2}
+\end{align}
+respectively. Notice the factor two comes from the symmetry property of the quadrupole part. Notice also that the square root is
+one for the path length derivative but we need it to obtain an appropriate Lagrangian. After setting the square root to one and writing down
+the Lagrangian equations of motion we obtain
+\begin{align}
+  \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \dot{x}^k} &= \frac{\partial \mathcal{L}}{\partial x^k}\,,\nonumber\\
+  (n_{(0)} \delta_{kj} + 2 n_{(2)\,kj}) \ddot{x}^j + (n_{(0),\ell} \delta_{kj} + 2 n_{(2)\,kj,\ell}) \dot{x}^\ell \dot{x}^j &= 
+  (n_{(0)\,,k} \delta_{ij} + n_{(2)\,ij,k}) \dot{x}^i \dot{x}^j 
+\end{align}
+% For $g_{ij} = n^2(\Vector{r}) \delta_{ij}$ we get the isotropic case back.
+% The tensor field $g_{ij}$ is the Riemann metric. Following the derivations of geodesic equations in general relativity,
+% we get the following differential equation
+% \begin{align}
+%  \frac{\text{d}^2 r^k}{\text{d}s^2} + \Gamma^k_{ij} \frac{\text{d}r^i}{\text{d}s} \frac{\text{d}r^j}{\text{d}s} &= 0\,,
+% \end{align}
+% where the $\Gamma^k_{ij}$ are the so-called Christoffel symbols which are derived from the gradients of the metric, namely
+% \begin{align}
+%  \Gamma^k_{ij} &= \frac{1}{2} g^{k\ell} \left(\partial_i g_{\ell j} + \partial_j g_{i \ell} - \partial_\ell g_{ij}\right)\,.
+% \end{align}
+% Here $g^{ij}$ is the inverse of $g_{ij}$ such that $g^{ik} g_{kj} = \delta_{ij}$.
+% Between general relativity and this optics formulation the most import difference is that the metric $g_{ij}$ is no dynamical
+% object. It is an external model which has to be derived from other considerations and it does not come from first principles in
+% electrodynamic field theory.
 \remark{Make more clear! See e.g. A.~L.~Rivera, K.~B.~Wolf, S.~Chumakov, ``Hamiltonian foundation of geometrical anisotropic optics'', JOSA~A~{\bf 12} (1995)}
 \remark{It would be very nice if we could implement this at least for a second rank tensor dependency of the optical index!}
 
