@@ -51,10 +51,7 @@
 
 \newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
 
-
-
-
-
+\newcommand\Vector[1]{{\bf {#1}}}
 
 \newcommand\vacuum{0}
 
@@ -66,7 +63,6 @@
 \newcommand\vacuumWavenumber{\wavenumber_{\vacuum}}
 \newcommand\Wavevector{\Vector{\wavenumber}}
 
-\newcommand\Vector[1]{\vec{#1}}
 \newcommand\Nabla{\Vector{\nabla}}
 \newcommand\Laplace{\Delta}
 \newcommand\timederivative[1]{\dot{{#1}}}
@@ -216,7 +212,7 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \subsection{Reducing the Maxwell field equations to Eikonal-type equations}
 Starting at the source-free Maxwell equations \eqref{eq:sourcefreemaxwell} 
 in general complex, anisotropic and inhomogenous
-permittivity tensor field $\hat{\epsilon}_{ij}(\vec{r})$.
+permittivity tensor field $\hat{\epsilon}_{ij}(\Vector{r})$.
 We start at the generalisation of the Helmholtz wave equation for anisotropic media
 \begin{align}
  (\delta_{ij} \Delta - \partial_i \partial_j + \omega^2 \mu_0 \permittivity_{ij}) E_j = 0\,,
@@ -229,9 +225,9 @@ which's derivation only relies on\remark{is that really the case?}
 By contracting this equation by $\partial_i$ one gets back the divergence equation which is also zero.
 To derive the eikonal equations we make the ansatz
 \begin{align}
- E_k &= A_k(\vec{r}) \exp[i \psi(\vec{r})]\,,
+ E_k &= A_k(\Vector{r}) \exp[i \psi(\Vector{r})]\,,
 \end{align}
-for the $\vec{E}$ field. This is since we cannot assume that in such a complicated wave equations 
+for the $\Vector{E}$ field. This is since we cannot assume that in such a complicated wave equations 
 the solutions arise as plane waves with constant amplitude. Insertion of the ansatz gives [omitting the 
 exponential factor and separating by real and imaginary parts]
 \begin{align}
@@ -290,7 +286,7 @@ From the real part we could extract an eigen value equation via
 % \end{align}
 The last two terms together are a projector perpendicular to $\partial_k \psi$. They are coming from
 the Laplacian in the Helmholtz wave equation and the corresponding divergence term. In the plane wave limes (later)
-they become the direction $\vec{k}$ vectors of the plane wave and therefore are responsible for the transverse
+they become the direction $\Vector{k}$ vectors of the plane wave and therefore are responsible for the transverse
 property of the waves. In an anisotropic, inhomogenous material the situation is not that easy anymore.
 
 Eq. \eqref{eq:anisoeikonal} could be solved by using
@@ -313,7 +309,7 @@ Further notice that the $\psi$ derivative cancels out because the determinant on
 
 For the isotropic equation
 \begin{align}
- \omega^2 \mu_0 \permittivity(\vec{x}) - (\psi_{,k})^2&= 0\,,
+ \omega^2 \mu_0 \permittivity(\Vector{x}) - (\psi_{,k})^2&= 0\,,
 \end{align}
 the ODE system degenerates to
 \begin{align}
@@ -326,14 +322,14 @@ the ODE system degenerates to
 \subsection{Poynting Theorem}
 From the full system of Maxwell's equations the Poynting vector is still given by\remark{is this correct? $H$ or $H^\ast$?}
 \begin{align}
- \vec{S} &= \vec{E} \times \vec{H}^\ast\,.
+ \Vector{S} &= \Vector{E} \times \Vector{H}^\ast\,.
 \end{align}
 Inserting the ansatz from above in the quantities from the source free Maxwell equations we end up with
 \begin{align}
  S_i &= \frac{1}{\omega \mu_0} A_k [A_k \partial_i \psi - A_i \partial_k \psi] + \frac{i}{\omega \mu_0} A_k [\partial_i A_k - \partial_k A_i]\,.
 \end{align}
 As one can see, the Poyting vector (i.e. the energy transport direction vector is not in same direction as the phase gradient anymore).
-This is a direct consequence from $\vec{\nabla} \vec{E} \ne 0$ but $\vec{\nabla} \vec{D} = 0$ and both of them are related in a non-trivial manner.
+This is a direct consequence from $\Vector{\nabla} \Vector{E} \ne 0$ but $\Vector{\nabla} \Vector{D} = 0$ and both of them are related in a non-trivial manner.
 In fact this means $A_i \partial_i \psi \ne 0$ but $\permittivity_{ij} A_i \partial_j \psi = 0$.
 
 
@@ -353,7 +349,7 @@ This is a differential equation with constant coefficients, so we use the ansatz
 \end{eqnarray}
 where the $\Efield_0$ contains polarisation, electric field amplitude and harmonic time dependence. We find the eigenvalue equation [setting $\partial_j \to i k_j$, notice $\permittivity_{ij}$ constant]
 \begin{align}
- \left(-\vec{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_{j\,0} &= 0 \,.
+ \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_{j\,0} &= 0 \,.
 \end{align}
 or more explicit
 \begin{eqnarray}
@@ -421,10 +417,10 @@ The choice of the root does not change anything in optics based on the Maxwell e
 Considering two media $\permittivity_1$ and $\permittivity_2$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
 \begin{subequations}
 \begin{eqnarray}
- ( \Dfield_2 - \Dfield_1 ) \vec{n} &=& 0 \\
- ( \Bfield_2 - \Bfield_1 ) \vec{n} &=& 0 \\
- \vec{n} \times ( \Efield_2 - \Efield_1 ) &=& 0 \\
- \vec{n} \times ( \Hfield_2 - \Hfield_1 ) &=& 0 
+ ( \Dfield_2 - \Dfield_1 ) \Vector{n} &=& 0 \\
+ ( \Bfield_2 - \Bfield_1 ) \Vector{n} &=& 0 \\
+ \Vector{n} \times ( \Efield_2 - \Efield_1 ) &=& 0 \\
+ \Vector{n} \times ( \Hfield_2 - \Hfield_1 ) &=& 0 
 \end{eqnarray}
 \label{eq:boundary_conditions} 
 \end{subequations}
@@ -440,7 +436,7 @@ We consider a plane wave incident on a planar boundary between two homogeneous m
 The incident plane wave projects a grating on the boundary plane. $\Dfield_1$ and $\Efield_1$ on the boundary in medium $\permittivity_1$ are modulated with the in-plane component of the wavevector. 
 \begin{eqnarray}
  \Dfield_1, \Efield_1 &\propto& \exp( i \Wavevector_{1\parallel} \Location)|_{boundary} \\
- \Wavevector_{1\perp} &=& ( \Wavevector_1 \vec{n} ) \vec{n} \\
+ \Wavevector_{1\perp} &=& ( \Wavevector_1 \Vector{n} ) \Vector{n} \\
  \Wavevector_{1\parallel} &=& \Wavevector_1 - \Wavevector_{1\perp}
 \end{eqnarray}
 From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_1$ and $\Efield_1$, also the fields $\Dfield_2$ and $\Efield_2$ in medium 2 are to be modulated by the same in-plane wavevector component.
@@ -456,14 +452,14 @@ Our formulation of the law of refraction is
 \begin{eqnarray}
  \Efield_1(\Location) &=& \Efield_{01} \exp(i \Wavevector_1 \Location) \\
  \Efield_2(\Location) &=& \Efield_{02} \exp(i \Wavevector_2 \Location) \\
- \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \vec{n}\,.\label{eq:xieqn}
+ \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \Vector{n}\,.\label{eq:xieqn}
 \end{eqnarray}
-and holds for any planar boundary between two homogeneous media. $\vec{k}_2$ consists of the
+and holds for any planar boundary between two homogeneous media. $\Vector{k}_2$ consists of the
 conserved in-plane component and the out-of-plane component $\xi$. The explicit form of the normal component $\xi$ depends on
 the material dispersion in material $\permittivity_2$. For the special case of isotropic media, e.g.,
 we find 
 \begin{align}
- \xi(\vec{k}_{1\,\parallel},\permittivity_2) &= \sqrt{\omega^2 \mu_0 \epsilon_2 - \vec{k}_{1\,\parallel}^2}\,.
+ \xi(\Vector{k}_{1\,\parallel},\permittivity_2) &= \sqrt{\omega^2 \mu_0 \epsilon_2 - \Vector{k}_{1\,\parallel}^2}\,.
 \end{align}
 Compared to the law of Snellius, this formulation bears the following advantages:
 \begin{itemize}
@@ -482,22 +478,22 @@ This calculation can, for certain types of anisotropic materials, be time consum
 \section{General Considerations}
 From Fermat's principle the optical path length functional is given by,
 \begin{align}
- L &= \int_{s_1}^{s_2} \underbrace{n(\vec{r}(s)) |\vec{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.\label{eq:fermatiso}
+ L &= \int_{s_1}^{s_2} \underbrace{n(\Vector{r}(s)) |\Vector{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.\label{eq:fermatiso}
 \end{align}
 with the corresponding ``Lagrangian'' $\mathcal{L}$.
-Notice $s$ is the arc length and therefore the derivative $\vec{r}'(s)$ is a unit vector. (For the Euler Lagrange
+Notice $s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
 equations we may not set it to $1$ at the moment.)
 Euler-Lagrange-Equations are given by
 \begin{align}
- \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= \frac{\partial \mathcal{L}}{\partial \vec{r}}\,.
+ \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \Vector{r}'} &= \frac{\partial \mathcal{L}}{\partial \Vector{r}}\,.
 \end{align}
 The sloppy notation with vector derivatives means a differentiation by components.
 \begin{align}
- \frac{\partial \mathcal{L}}{\partial \vec{r}'} &= n(\vec{r}(s)) \frac{\vec{r}'(s)}{|\vec{r}'(s)|} \stackrel{|\vec{r}'(s)|=1}{=} n(\vec{r}(s))\vec{r}'(s)\,.
+ \frac{\partial \mathcal{L}}{\partial \Vector{r}'} &= n(\Vector{r}(s)) \frac{\Vector{r}'(s)}{|\Vector{r}'(s)|} \stackrel{|\Vector{r}'(s)|=1}{=} n(\Vector{r}(s))\Vector{r}'(s)\,.
 \end{align}
 Therefore the appropriate differential equation (the so-called equation of motion, EOM) is given by
 \begin{align}
- \frac{\text{d}}{\text{d}s} \left(n(\vec{r}(s)) \frac{\text{d}\vec{r}}{\text{d}s}\right) &= (\vec{\nabla} n)(\vec{r}(s)) \label{eq:ODEGRIN}\,.
+ \frac{\text{d}}{\text{d}s} \left(n(\Vector{r}(s)) \frac{\text{d}\Vector{r}}{\text{d}s}\right) &= (\Vector{\nabla} n)(\Vector{r}(s)) \label{eq:ODEGRIN}\,.
 \end{align}
 (Notice: For a piecewise homogeneous medium the ODE system reduces to a system of algebraic equations 
 [btw. this corresponds to a reduction of the
@@ -506,61 +502,61 @@ For our later raytracing the initial conditions are given by:
 \begin{subequations}
 \label{eq:ODEGRINic}
 \begin{align}
- \vec{r}(s=0) &= (x,y,z)\,,\\
- \vec{r}'(s=0) &= (d_x, d_y, \sqrt{1-d_x^2-d_y^2})\,,
+ \Vector{r}(s=0) &= (x,y,z)\,,\\
+ \Vector{r}'(s=0) &= (d_x, d_y, \sqrt{1-d_x^2-d_y^2})\,,
 \end{align}
 \end{subequations}
-where $\vec{d}$ is the direction unit vector of some certain ray and $(x,y,z)$ is the starting position.
+where $\Vector{d}$ is the direction unit vector of some certain ray and $(x,y,z)$ is the starting position.
 Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqref{eq:ODEGRINic}
-and obtain after a (in general numerical) integration a set of values $\vec{r}(s)$ and $\vec{r}'(s)$
+and obtain after a (in general numerical) integration a set of values $\Vector{r}(s)$ and $\Vector{r}'(s)$
 which correspond to the final position and direction of the ray.
 \section{Hamiltonian Formulation}
 There are two distinct parametrisations. The first one parametrizes the theory with respect to the
 arc length $s$ in 3D space where (one possible choice of) the Hamiltonian is given by
 \begin{align}
- H &= \vec{p}^2 - n^2 = 0\,.
+ H &= \Vector{p}^2 - n^2 = 0\,.
 \end{align}
-The canonical momentum $\vec{p}$ is given by $\vec{p} = n \vec{d}$. (From this consideration the constraint on
-the Hamiltonian becomes clear, since $|\vec{d}| = 1$.) The canonical equations are given by
+The canonical momentum $\Vector{p}$ is given by $\Vector{p} = n \Vector{d}$. (From this consideration the constraint on
+the Hamiltonian becomes clear, since $|\Vector{d}| = 1$.) The canonical equations are given by
 \begin{subequations}
 \label{eq:H3Deom}
 \begin{align}
- \frac{\text{d}\vec{q}}{\text{d}s} &= \frac{\partial H}{\partial \vec{p}} = 2 \vec{p}\,,\\
- \frac{\text{d}\vec{p}}{\text{d}s} &= -\frac{\partial H}{\partial \vec{q}} = 2 n (\vec{\nabla} n)\,, 
+ \frac{\text{d}\Vector{q}}{\text{d}s} &= \frac{\partial H}{\partial \Vector{p}} = 2 \Vector{p}\,,\\
+ \frac{\text{d}\Vector{p}}{\text{d}s} &= -\frac{\partial H}{\partial \Vector{q}} = 2 n (\Vector{\nabla} n)\,, 
 \end{align}
 \end{subequations}
 The second parametrisation is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
 given by
 \begin{align}
- H_{\text{2D}} &= -n(\vec{Q}, z)\sqrt{1 - \frac{\vec{P}^2}{n(\vec{Q}, z)^2}}\label{eq:Hamiltonian2D}\,,
+ H_{\text{2D}} &= -n(\Vector{Q}, z)\sqrt{1 - \frac{\Vector{P}^2}{n(\Vector{Q}, z)^2}}\label{eq:Hamiltonian2D}\,,
 \end{align}
 and is equal to the negative component of the 3D momentum.
 This comes from the Legendre transformation of the Lagrangian
 \begin{align}
- \mathcal{L} &= n(\vec{Q}, z) \sqrt{1 + V^2}\,,
+ \mathcal{L} &= n(\Vector{Q}, z) \sqrt{1 + V^2}\,,
 \end{align}
-now parametrized by $z$ as independent variable, $\vec{Q} = (x,y)$ and $\vec{V} = (x'(z), y'(z))$.
+now parametrized by $z$ as independent variable, $\Vector{Q} = (x,y)$ and $\Vector{V} = (x'(z), y'(z))$.
 The Legendre transformation involves first an inversion of the relation
 \begin{align}
- \vec{P} &= \frac{\partial \mathcal{L}}{\partial \vec{V}} = n(\vec{Q}, z) \frac{\vec{V}}{\sqrt{1 + \vec{V}^2}}\,,
+ \Vector{P} &= \frac{\partial \mathcal{L}}{\partial \Vector{V}} = n(\Vector{Q}, z) \frac{\Vector{V}}{\sqrt{1 + \Vector{V}^2}}\,,
 \end{align}
-with respect to $\vec{V}$ and afterwards the calculation of
+with respect to $\Vector{V}$ and afterwards the calculation of
 \begin{align}
- H_{\text{2D}}(\vec{Q}, \vec{P},z) &= \scpm{\vec{P}}{\vec{V}(\vec{P})} - \mathcal{L}(\vec{Q}, z, \vec{P})\,,
+ H_{\text{2D}}(\Vector{Q}, \Vector{P},z) &= \scpm{\Vector{P}}{\Vector{V}(\Vector{P})} - \mathcal{L}(\Vector{Q}, z, \Vector{P})\,,
 \end{align}
 which leads to \eqref{eq:Hamiltonian2D}. The equations of motion due to the canonical formalism 
-are therefore given by [remember $\vec{Q} = (x,y)$, $\vec{P} = n (d_x, d_y)$]
+are therefore given by [remember $\Vector{Q} = (x,y)$, $\Vector{P} = n (d_x, d_y)$]
 \begin{subequations}
 \label{eq:H2Deom}
 \begin{align}
- \frac{\text{d}\vec{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \vec{P}} = \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,,\\
- \frac{\text{d}\vec{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \vec{Q}} = \frac{\vec{\nabla}_{\vec{Q}} n}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.    
+ \frac{\text{d}\Vector{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \Vector{P}} = \frac{\Vector{P}}{n \sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,,\\
+ \frac{\text{d}\Vector{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \Vector{Q}} = \frac{\Vector{\nabla}_{\Vector{Q}} n}{\sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,.    
 \end{align}
 \end{subequations}
-Notice that $n = n(\vec{Q}, z)$ in general, so the Hamiltonian depends explicitly on the independent variable.
+Notice that $n = n(\Vector{Q}, z)$ in general, so the Hamiltonian depends explicitly on the independent variable.
 Therefore for $z$ dependent $n$ the Hamiltonian is no conserved quantity anymore and
 \begin{align}
- \frac{\partial H_{\text{2D}}}{\partial z} &= -\frac{\frac{\partial n}{\partial z}}{\sqrt{1 - \frac{\vec{P}^2}{n^2}}}\,.
+ \frac{\partial H_{\text{2D}}}{\partial z} &= -\frac{\frac{\partial n}{\partial z}}{\sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,.
 \end{align}
 (For constant $n$ this formulation is very similar to the Hamiltonian formulation of a 
 massive particle in special relativity with imaginary linear momentum.
@@ -573,23 +569,23 @@ due to its symmetry preserving phase space integration structure. For the detail
 literature. A symplectic integrator for a separable Hamiltonian is given by the following scheme with time step $h$:
 \begin{align}
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
+  \Vector{q} \\
+  \Vector{p}
  \end{pmatrix} \mapsto
  \begin{pmatrix}
-  \vec{q} + c_i h \frac{\partial T}{\partial \vec{p}} \\
-  \vec{p}
+  \Vector{q} + c_i h \frac{\partial T}{\partial \Vector{p}} \\
+  \Vector{p}
  \end{pmatrix}
 \end{align}
 and succesively
 \begin{align}
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
+  \Vector{q} \\
+  \Vector{p}
  \end{pmatrix} \mapsto
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p} - d_i h \frac{\partial U}{\partial \vec{q}}
+  \Vector{q} \\
+  \Vector{p} - d_i h \frac{\partial U}{\partial \Vector{q}}
  \end{pmatrix}\,.
 \end{align}
 For a fourth order scheme $i=1\dots4$ and the coefficients are given by
@@ -604,7 +600,7 @@ These can be implemented, e.g., by an extension of the phase space where
 the time is an additional canonical coordinate. The extension is achieved by
 a so-called Sundman transformation (which is in fact a Poincar{\'e} transformation)
 of the ``time'' coordinate
-$\text{d}s/\text{d}\sigma = g(\vec{q}, \vec{p})$.
+$\text{d}s/\text{d}\sigma = g(\Vector{q}, \Vector{p})$.
 By using a special form of this transformation $g$ the new Hamiltonian is separable and we
 may use a symplectic scheme like the one mentioned above to integrate the new formulation.
 
@@ -612,20 +608,20 @@ may use a symplectic scheme like the one mentioned above to integrate the new fo
 
 For a special form of the refractive index, e.g.,
 \begin{align}
- n(\vec{q}) &= \sqrt{1 - \frac{1}{4} \alpha^2 \vec{q}^2}\,,
+ n(\Vector{q}) &= \sqrt{1 - \frac{1}{4} \alpha^2 \Vector{q}^2}\,,
 \end{align}
 the equations of motion are given by
 \begin{align}
- \frac{\text{d}\vec{q}}{\text{d}s} &=  2 \vec{p}\,,\\
- \frac{\text{d}\vec{p}}{\text{d}s} &= \vec{\nabla}(n^2) = -\frac{1}{2}\alpha^2 \vec{q}\,. 
+ \frac{\text{d}\Vector{q}}{\text{d}s} &=  2 \Vector{p}\,,\\
+ \frac{\text{d}\Vector{p}}{\text{d}s} &= \Vector{\nabla}(n^2) = -\frac{1}{2}\alpha^2 \Vector{q}\,. 
 \end{align}
-The resulting ODE for $\vec{q}$ is given by
+The resulting ODE for $\Vector{q}$ is given by
 \begin{align}
- \frac{\text{d}^2\vec{q}}{\text{d}s^2} &= -\alpha^2 \vec{q}\,,
+ \frac{\text{d}^2\Vector{q}}{\text{d}s^2} &= -\alpha^2 \Vector{q}\,,
 \end{align}
 and is solved by
 \begin{align}
- \vec{q} &= \vec{C}_1 \cos(\alpha s) + \vec{C}_2 \sin(\alpha s)\,.
+ \Vector{q} &= \Vector{C}_1 \cos(\alpha s) + \Vector{C}_2 \sin(\alpha s)\,.
 \end{align}
 With appropriate initial conditions this could be used as a check for the integrator code later.
 
@@ -634,14 +630,14 @@ The isotropic Fermat's principle -- which tells us to minimize the functional \e
 story. There are media in which the propagation of light depends on the direction of the light rays. This implies that the
 optical index is direction dependent:
 \begin{align}
- L &= \int_{s_1}^{s_2} n(\vec{r}(s), \vec{r}'(s)) |\text{d}\vec{s}|\,.\label{eq:fermataniso}
+ L &= \int_{s_1}^{s_2} n(\Vector{r}(s), \Vector{r}'(s)) |\text{d}\Vector{s}|\,.\label{eq:fermataniso}
 \end{align}
 For a so called quadrupole material where the refraction index only depends on velocities to second order,
 we have (Einstein summation convention!)
 \begin{align}
-  L &= \int_{s_1}^{s_2} \sqrt{g_{ij}(\vec{r}(s)) \frac{\text{d}r^i}{\text{d}s} \frac{\text{d}r^j}{\text{d}s}} \text{d}s\,.\label{eq:fermataniso2}
+  L &= \int_{s_1}^{s_2} \sqrt{g_{ij}(\Vector{r}(s)) \frac{\text{d}r^i}{\text{d}s} \frac{\text{d}r^j}{\text{d}s}} \text{d}s\,.\label{eq:fermataniso2}
 \end{align}
-For $g_{ij} = n^2(\vec{r}) \delta_{ij}$ we get the isotropic case back.
+For $g_{ij} = n^2(\Vector{r}) \delta_{ij}$ we get the isotropic case back.
 The tensor field $g_{ij}$ is the Riemann metric. Following the derivations of geodesic equations in general relativity,
 we get the following differential equation
 \begin{align}
@@ -694,7 +690,7 @@ In fact the word ``biconic" is misleading because it suggests that
 it is a surface of second degree which is wrong. \eqref{eq:implicitbiconic}
 shows clearly that it is a surface of degree four.}
 
-Let us first assume that $\vec{r} = \vec{r}_0 + t \vec{d}$ is the insertion of the ray into
+Let us first assume that $\Vector{r} = \Vector{r}_0 + t \Vector{d}$ is the insertion of the ray into
 \eqref{eq:implicitbiconic}. Then $a(x(t), y(t)) =: Q_2(t)$ and $b(x(t), y(t)) =: Q_1(t)$ become quadratic polynomials 
 in $t$. Further $z(t) =: L(t)$ becomes linear in $t$. Therefore this leads to
 \begin{align}
@@ -822,10 +818,10 @@ given in sphere section the solution is
 \subsection{Spheres}
 We consider a ray and a Sphere that intersects the optical axis in the origin
 \begin{eqnarray}
- \Location &=& \Location_0 + \vec{d} t \label{eq:ray}\,,\\
+ \Location &=& \Location_0 + \Vector{d} t \label{eq:ray}\,,\\
  \left| \Location - \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2\,, \label{eq:sphereeq}
 \end{eqnarray}
-$\Location_0$ is the ray start point, $\vec{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
+$\Location_0$ is the ray start point, $\Vector{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
 The standard manner to derive the solution would be to insert the ray equation \eqref{eq:ray} into
 \eqref{eq:sphereeq} and calculate the solutions for $t$ from the arising quadratic equation. This leads to a numerically unstable solution
 for large radii $R$.
@@ -833,7 +829,7 @@ A solution numerically stable for the case of a planar surface $R \rightarrow \i
 \begin{subequations}
 \label{eq:spheresolution}
 \begin{eqnarray}
-   F &=& d_z - \rho \scpm{\vec{d}}{\Location_0}\,, \\
+   F &=& d_z - \rho \scpm{\Vector{d}}{\Location_0}\,, \\
    G &=& \rho |\Location_0|^2 - 2 z_0\,, \\
    H &=& - \rho\,, \\
    t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,, \label{eq:tsolsphere}
@@ -866,7 +862,7 @@ sag equation is not well suited to calculate the intersection points. Therefore 
 useful to go back to \eqref{eq:quadraticimplicit} and insert the ray \eqref{eq:ray}
 into it in an invariant manner which leads to
 \begin{equation}
- t^2 - 2 t \underbrace{\left(\frac{d_z}{\rho} - \scpm{\Location_0}{\vec{d}}\right)}_{F'} 
+ t^2 - 2 t \underbrace{\left(\frac{d_z}{\rho} - \scpm{\Location_0}{\Vector{d}}\right)}_{F'} 
     - \underbrace{\left(\frac{2 z_0}{\rho} - |\Location_0|^2\right)}_{H' G'} = 0\,,\label{eq:teqsphere}
 \end{equation}
 where $H' = -1$ and $G' = |\Location_0|^2 - \tfrac{2 z_0}{\rho}$.
@@ -1076,25 +1072,25 @@ to simplify and unify ray tracing. The transfer formalisms should have the follo
 \end{itemize}
 
 \remark{It would be cool to only stich these transfer functions together like in the ABCD formalism;
-this means in particular, that a ray just should move by $(\vec{X}_f, \vec{d}_f) = F_n (F_{n-1}( \dots F_2 (F_1(\vec{X}_i, \vec{d}_i))))$ where
+this means in particular, that a ray just should move by $(\Vector{X}_f, \Vector{d}_f) = F_n (F_{n-1}( \dots F_2 (F_1(\Vector{X}_i, \Vector{d}_i))))$ where
 the $F_k$ are functions discussed in the following subsections.}
 
 \subsection{Nonlinear XYUV formalism}
 According to {{\tt \url{http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf}}}
-we will call the incident vector $\vec{i}$ the reflected one $\vec{r}$ and the refracted one $\vec{t}$.
-From reflection law we get the following ($\vec{n}$ is pointing into medium $n_1$ and the incidence vector is pointing from $n_1$ to $n_2$)
+we will call the incident vector $\Vector{i}$ the reflected one $\Vector{r}$ and the refracted one $\Vector{t}$.
+From reflection law we get the following ($\Vector{n}$ is pointing into medium $n_1$ and the incidence vector is pointing from $n_1$ to $n_2$)
 \begin{align}
- \vec{r} &= \vec{i} - 2 \scpm{\vec{i}}{\vec{n}} \vec{n}\,.\label{eq:reflection_vector}
+ \Vector{r} &= \Vector{i} - 2 \scpm{\Vector{i}}{\Vector{n}} \Vector{n}\,.\label{eq:reflection_vector}
 \end{align}
 From refraction we get\remark{I know that is not as elegant as the former 
 solution by considering the field components at material boundaries :-)}
 \begin{align}
- \vec{t} &= \frac{n_1}{n_2} \vec{i} 
- - \left[\frac{n_1}{n_2} \scpm{\vec{i}}{\vec{n}} 
-      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{i}}{\vec{n}}}^2)}\right] \vec{n}\,.\label{eq:refraction_vector}
+ \Vector{t} &= \frac{n_1}{n_2} \Vector{i} 
+ - \left[\frac{n_1}{n_2} \scpm{\Vector{i}}{\Vector{n}} 
+      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\Vector{i}}{\Vector{n}}}^2)}\right] \Vector{n}\,.\label{eq:refraction_vector}
 \end{align}
-Let us now consider the optical axis $\vec{e}_z$ and some starting point of the ray at distance $d_1$ at the left hand side
-of the optical surface $F(x, y)$, $(x,y,-d_1)$. The direction vector is given by $\vec{d} = (d_x, d_y, \sqrt{1 - d_x^2 - d_y^2})$.
+Let us now consider the optical axis $\Vector{e}_z$ and some starting point of the ray at distance $d_1$ at the left hand side
+of the optical surface $F(x, y)$, $(x,y,-d_1)$. The direction vector is given by $\Vector{d} = (d_x, d_y, \sqrt{1 - d_x^2 - d_y^2})$.
 The components of the direction vector are equivalent to some aiming angles. For our convenience we take our
 four variables $(x, y, d_x, d_y)$ as free starting parameters and try to calculate the new parameters at distance $d_2$ behind the
 optical surface $F(x, y)$, $(x', y', {d_x}', {d_y}')$, via some nonlinear transform $(x', y', {d_x}', {d_y}') = T(x, y, d_x, d_y)$,
@@ -1110,18 +1106,18 @@ of this equation $t_\text{intersect} = \sigma(x, y, d_x, d_y)$. (Notice that the
 is in general nonlinear in its arguments, even for the simplest case of a sphere.) Then by using the 
 sigma notation the intersection point is also given by a nonlinear vector entity:
 \begin{align}
- \vec{p}_\text{i} &= \begin{pmatrix} x + \sigma(x,y,d_x,d_y) d_x \\ y + \sigma(x,y,d_x,d_y) d_y \\ -d_1 + \sigma(x,y,d_x,d_y) \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.\label{eq:pintersect}
+ \Vector{p}_\text{i} &= \begin{pmatrix} x + \sigma(x,y,d_x,d_y) d_x \\ y + \sigma(x,y,d_x,d_y) d_y \\ -d_1 + \sigma(x,y,d_x,d_y) \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.\label{eq:pintersect}
 \end{align}
 The vector perpendicular on the surface pointing in direction of medium $n_1$ (left hand side, negative $z$ direction) is given
 by
 \begin{align}
- \vec{n}(x, y) &= 
-  \frac{1}{\sqrt{1 + (\vec{\nabla}_{x,y} F)^2}} 
+ \Vector{n}(x, y) &= 
+  \frac{1}{\sqrt{1 + (\Vector{\nabla}_{x,y} F)^2}} 
   \begin{pmatrix} \frac{\partial F}{\partial y} \\ \frac{\partial F}{\partial y} \\ -1 \end{pmatrix}\,.\label{eq:surfacenormal}
 \end{align}
-This vector has to be evaluated at $\vec{p}_\text{i}$ to get the appropriate results for
+This vector has to be evaluated at $\Vector{p}_\text{i}$ to get the appropriate results for
 the transmission and reflection direction. Now we may use \eqref{eq:refraction_vector} or \eqref{eq:reflection_vector}
-and \eqref{eq:surfacenormal} evaluated at \eqref{eq:pintersect} to calculate the direction vector $\vec{d}'(p_{\text{i} x}, p_{\text{i} y})$.
+and \eqref{eq:surfacenormal} evaluated at \eqref{eq:pintersect} to calculate the direction vector $\Vector{d}'(p_{\text{i} x}, p_{\text{i} y})$.
 To calculate $x'$ and $y'$ we have to calculate another ray which starts at $p_\text{intersect}$ and ends at the
 distance $d_2$ from the plane. Therefore $p_{\text{i}\,z} + t_\text{new} \sqrt{1 - {d'}_x^2 - {d'}_y^2} = d_2$ and so
 \begin{align}
@@ -1140,17 +1136,17 @@ Collecting all together: The first $t$ value is (via inverting \eqref{eq:geninte
 \end{align}
 The intersection point is given by
 \begin{align}
- \vec{p}_\text{i} &= \begin{pmatrix} x + \sigma d_x \\ y + \sigma d_y \\ -d_1 + \sigma \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.
+ \Vector{p}_\text{i} &= \begin{pmatrix} x + \sigma d_x \\ y + \sigma d_y \\ -d_1 + \sigma \sqrt{1 - d_x^2 - d_y^2} \end{pmatrix}\,.
 \end{align}
 The unit normal vector has to be evaluated and according to \eqref{eq:surfacenormal} given by
 \begin{align}
- \vec{N} &:= \vec{n}(p_{\text{i}x}, p_{\text{j}y})\,.\label{eq:surfacenormal2}
+ \Vector{N} &:= \Vector{n}(p_{\text{i}x}, p_{\text{j}y})\,.\label{eq:surfacenormal2}
 \end{align}
 For a refractive problem the new direction vector is derived from \eqref{eq:refraction_vector} and therefore
 \begin{align}
- \vec{d}' &= \frac{n_1}{n_2} \vec{d} 
- - \left[\frac{n_1}{n_2} \scpm{\vec{d}}{\vec{N}} 
-      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\vec{d}}{\vec{N}}}^2)}\right] \vec{N}\,.\label{eq:newdirection}
+ \Vector{d}' &= \frac{n_1}{n_2} \Vector{d} 
+ - \left[\frac{n_1}{n_2} \scpm{\Vector{d}}{\Vector{N}} 
+      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\Vector{d}}{\Vector{N}}}^2)}\right] \Vector{N}\,.\label{eq:newdirection}
 \end{align}
 and for the final coordinates after inserting the intersection point coordinates
 \begin{subequations}
@@ -1227,7 +1223,7 @@ Thus the linear approximation relies on the following points:
  \item Approximation of $\sigma$ by distance $d_1$ to surface 
  \item Linear approximation of normal vector of surface [this implies approximation of surface by local curvature at $x=y=0$]
  \item At least for the $ABCD$ formalism: rotationally symmetric surface
- \item Properties of surface enter the calculation only via $\sigma$ and $\vec{N}$: the linear dependence of $\rho$ comes from $\vec{N}$
+ \item Properties of surface enter the calculation only via $\sigma$ and $\Vector{N}$: the linear dependence of $\rho$ comes from $\Vector{N}$
 \end{itemize}
 \remark{Is it possible by comparison of fully nonlinear transfer formalism and linear approximation, i.e. $ABCD$ formalism, to obtain the
 aberrations?}
@@ -1238,26 +1234,26 @@ There is a further coordinate $c$ introduced such that $\bar{x} = x/c, \bar{y} =
 are the homogeneous coordinates and $\bar{x}$ and $\bar{y}$ are the view coordinates. Then general transformations have the following block
 structure
 \begin{align}
- \begin{pmatrix} \vec{r}' \\ c' \end{pmatrix} &= 
+ \begin{pmatrix} \Vector{r}' \\ c' \end{pmatrix} &= 
  \begin{pmatrix}
-  R & \vec{t} \\
+  R & \Vector{t} \\
   0 & 1
  \end{pmatrix}
  \begin{pmatrix}
-  \vec{r} \\ 
+  \Vector{r} \\ 
   c
  \end{pmatrix}\,.
 \end{align}
 Therefore
 \begin{align}
- \vec{r}' &= R \vec{r} + c \vec{t}\,,\label{eq:homotransform}\\
+ \Vector{r}' &= R \Vector{r} + c \Vector{t}\,,\label{eq:homotransform}\\
  c' &= c
 \end{align}
-Usually one sets the $c$ equal to one and therefore $\vec{r}'$ contains
+Usually one sets the $c$ equal to one and therefore $\Vector{r}'$ contains
 the transformed coordinates already. As one can see in \eqref{eq:homotransform}
-$\vec{r}'$ is also translated.
+$\Vector{r}'$ is also translated.
 
-In the $XYUV$ formalism $\vec{r}$ and $\vec{r}'$ are given by $(x,y,d_x,d_y)$ and $(x',y',{d'}_x,{d'}_y)$
+In the $XYUV$ formalism $\Vector{r}$ and $\Vector{r}'$ are given by $(x,y,d_x,d_y)$ and $(x',y',{d'}_x,{d'}_y)$
 respectively. To get a feeling for the transformation of the homogeneous coordinates we consider only
 a translation
 \begin{align}
@@ -1282,9 +1278,9 @@ Therefore we get
 which corresponds to a absolute change in intersection points and ray direction.
 Notice that the new direction vector also has to be a unit vector such that
 \begin{align}
- \underbrace{{\vec{d}}^{\prime 2}}_{=1} &= \underbrace{\vec{d}^2}_{=1} + 2 \scpm{\vec{d}}{\vec{D}} + \vec{D}^2\,,
+ \underbrace{{\Vector{d}}^{\prime 2}}_{=1} &= \underbrace{\Vector{d}^2}_{=1} + 2 \scpm{\Vector{d}}{\Vector{D}} + \Vector{D}^2\,,
 \end{align}
-gives a condition to the third component of $\vec{D}$, namely
+gives a condition to the third component of $\Vector{D}$, namely
 \begin{align}
  D_z &= -\sqrt{1 - d_x^2 - d_y^2} \pm \sqrt{1 - (d_x + D_x)^2 - (d_y + D_y)^2}\,.
 \end{align}
@@ -1303,73 +1299,73 @@ some special materials.
 Transfer through homogeneous material:
 \begin{align}
  \begin{pmatrix}
-  \vec{Q} \\
-  \vec{P}
+  \Vector{Q} \\
+  \Vector{P}
  \end{pmatrix} &\mapsto
  \begin{pmatrix}
-  \vec{Q} + (z' -z) \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}} \\
-  \vec{P}
+  \Vector{Q} + (z' -z) \frac{\Vector{P}}{n \sqrt{1 - \frac{\Vector{P}^2}{n^2}}} \\
+  \Vector{P}
  \end{pmatrix}\,.
 \end{align}
 Here $H_{\text{2D}}$ stays constant because the 3D momentum is conserved.
-According to Ibn-Sal-Snell's law the coordinate change at surface on surface $z = f(x,y)$ at $(\vec{Q} , f(\vec{Q}))$ is given by
+According to Ibn-Sal-Snell's law the coordinate change at surface on surface $z = f(x,y)$ at $(\Vector{Q} , f(\Vector{Q}))$ is given by
 \begin{align}
  &\begin{pmatrix}
-  \vec{Q} \\
-  \vec{P}
+  \Vector{Q} \\
+  \Vector{P}
  \end{pmatrix} \mapsto\nonumber\\&
  \begin{pmatrix}
-  \vec{Q} \\
-  \vec{P} - \left[\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q}) H + \sqrt{n_2^2 - n_1^2 + [\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q})H]^2}\right] \vec{N}(\vec{Q})
+  \Vector{Q} \\
+  \Vector{P} - \left[\scpm{\Vector{P}}{\Vector{N}(\Vector{Q})} + Z(\Vector{Q}) H + \sqrt{n_2^2 - n_1^2 + [\scpm{\Vector{P}}{\Vector{N}(\Vector{Q})} + Z(\Vector{Q})H]^2}\right] \Vector{N}(\Vector{Q})
  \end{pmatrix}\,,
 \end{align}
-where $H = -n_1 \sqrt{1 - \vec{P}^2/n^2}$, 
-$\vec{N}(\vec{Q}) = (\text{grad} f)(\vec{Q})/\sqrt{1 + (\text{grad} f)^2(\vec{Q})}$, 
-$Z(\vec{Q}) = 1/\sqrt{1 + (\text{grad} f)^2(\vec{Q})}$.
+where $H = -n_1 \sqrt{1 - \Vector{P}^2/n^2}$, 
+$\Vector{N}(\Vector{Q}) = (\text{grad} f)(\Vector{Q})/\sqrt{1 + (\text{grad} f)^2(\Vector{Q})}$, 
+$Z(\Vector{Q}) = 1/\sqrt{1 + (\text{grad} f)^2(\Vector{Q})}$.
 For a complete optical system one has to perform this transformations in a succesive manner on the starting configuration of the ray.
 Notice that due to the non-conservation of the Hamiltonian it will also change at the boundary between two layers in the following manner
 \begin{align}
- H &\mapsto H + \left[\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q}) H + \sqrt{n_2^2 - n_1^2 + [\scpm{\vec{P}}{\vec{N}(\vec{Q})} + Z(\vec{Q})H]^2}\right] Z(\vec{Q})\,.
+ H &\mapsto H + \left[\scpm{\Vector{P}}{\Vector{N}(\Vector{Q})} + Z(\Vector{Q}) H + \sqrt{n_2^2 - n_1^2 + [\scpm{\Vector{P}}{\Vector{N}(\Vector{Q})} + Z(\Vector{Q})H]^2}\right] Z(\Vector{Q})\,.
 \end{align}
 
 
 
 \subsubsection{Linear transfer formalism}
 
-To get the paraxial approximation we need to expand the terms to linear order in $\vec{P}$ (equivalent to a small angle approximation) and linear order in $\vec{Q}$
-(corresponding to near axis rays). An expansion only in $\vec{Q}$ corresponds to near axis rays with finite angles and an $\vec{P}$-only expansion corresponds to
+To get the paraxial approximation we need to expand the terms to linear order in $\Vector{P}$ (equivalent to a small angle approximation) and linear order in $\Vector{Q}$
+(corresponding to near axis rays). An expansion only in $\Vector{Q}$ corresponds to near axis rays with finite angles and an $\Vector{P}$-only expansion corresponds to
 small angle with finite field heights. The linearisation leads to a matrix formulation of the transfer functions.
 
 For the transfer in a homogeneous material one gets
 \begin{align}
  \begin{pmatrix}
-  \vec{Q} \\
-  \vec{P}
+  \Vector{Q} \\
+  \Vector{P}
  \end{pmatrix} &\stackrel{\text{linear}}{\mapsto}
  \begin{pmatrix}
-  \vec{Q} + (z' -z) \frac{\vec{P}}{n} \\
-  \vec{P}
+  \Vector{Q} + (z' -z) \frac{\Vector{P}}{n} \\
+  \Vector{P}
  \end{pmatrix} =
  \begin{pmatrix}
   1 & \frac{z' - z}{n} \\
   0 & 1
  \end{pmatrix}
  \begin{pmatrix}
-  \vec{Q} \\
-  \vec{P}
+  \Vector{Q} \\
+  \Vector{P}
  \end{pmatrix} 
 \,.
 \end{align}
-For the refraction between two homogeneous materials $n_1$ and $n_2$ we get (Assume that the surface at $\vec{Q}=0$ is not tilted and the surface
+For the refraction between two homogeneous materials $n_1$ and $n_2$ we get (Assume that the surface at $\Vector{Q}=0$ is not tilted and the surface
 itself is a biconic with the two local curvatures in the respective coordinate directions $c_x$, $c_y$.)
 \begin{align}
  \begin{pmatrix}
-  \vec{Q} \\
-  \vec{P}
+  \Vector{Q} \\
+  \Vector{P}
  \end{pmatrix} &\stackrel{\text{linear}}{\mapsto}
  \begin{pmatrix}
-  \vec{Q} \\
-  \vec{P} + (n_1 - n_2) \begin{pmatrix} c_x & 0 \\ 0 & c_y \end{pmatrix}  \vec{Q}
+  \Vector{Q} \\
+  \Vector{P} + (n_1 - n_2) \begin{pmatrix} c_x & 0 \\ 0 & c_y \end{pmatrix}  \Vector{Q}
  \end{pmatrix} =
  \begin{pmatrix}
   1 & 0 & 0 & 0 \\
@@ -1378,12 +1374,12 @@ itself is a biconic with the two local curvatures in the respective coordinate d
   0 & (n_1 - n_2)c_y & 0 & 1  
  \end{pmatrix}
  \begin{pmatrix}
-  \vec{Q} \\
-  \vec{P}
+  \Vector{Q} \\
+  \Vector{P}
  \end{pmatrix} 
 \,.
 \end{align}
-Also the Hamitonian changes. This change is to first order in $\vec{Q}$ and $\vec{P}$ trivially
+Also the Hamitonian changes. This change is to first order in $\Vector{Q}$ and $\Vector{P}$ trivially
 be given by
 \begin{align}
  H_\text{2D} & \stackrel{\text{linear}}{\mapsto} -n_1 + (n_2 - n_1)\,.
@@ -1415,62 +1411,62 @@ equal zero.
 Transfer through homogeneous medium to arc length $s$
 \begin{align}
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
+  \Vector{q} \\
+  \Vector{p}
  \end{pmatrix} &\mapsto
  \begin{pmatrix}
-  \vec{q} + s \frac{\vec{p}}{n} \\
-  \vec{p}
+  \Vector{q} + s \frac{\Vector{p}}{n} \\
+  \Vector{p}
  \end{pmatrix}\,.
 \end{align}
 Notice that this transformation is not nonlinear.
 Refraction at optical surface $f(x,y)$.
 \begin{align}
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
+  \Vector{q} \\
+  \Vector{p}
  \end{pmatrix} &\mapsto
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p} - \left[\scpm{\vec{p}}{\vec{n}(\vec{q})} + \sqrt{n_2^2 - n_1^2 + \scpm{\vec{p}}{\vec{n}(\vec{q})}^2}\right] \vec{n}(\vec{q})
+  \Vector{q} \\
+  \Vector{p} - \left[\scpm{\Vector{p}}{\Vector{n}(\Vector{q})} + \sqrt{n_2^2 - n_1^2 + \scpm{\Vector{p}}{\Vector{n}(\Vector{q})}^2}\right] \Vector{n}(\Vector{q})
  \end{pmatrix}\,.
 \end{align}
-Notice that the Hamiltonian $H_\text{3D} = \vec{p}^2 - n^2 = 0$ is conserved.
+Notice that the Hamiltonian $H_\text{3D} = \Vector{p}^2 - n^2 = 0$ is conserved.
 GRIN-Medium:
 \begin{align}
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
+  \Vector{q} \\
+  \Vector{p}
  \end{pmatrix} &\stackrel{\text{ODE solver}}{\mapsto}
  \begin{pmatrix}
-  \vec{q}(s) \\
-  \vec{p}(s)
+  \Vector{q}(s) \\
+  \Vector{p}(s)
  \end{pmatrix}\,.
 \end{align}
 
 
 \subsubsection{Linearized transfer}
-Only for refraction (this time also with tilted surface, where $\vec{n}_0 = \vec{n}(0)$ is the surface tilt vector):
+Only for refraction (this time also with tilted surface, where $\Vector{n}_0 = \Vector{n}(0)$ is the surface tilt vector):
 \begin{align}
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
+  \Vector{q} \\
+  \Vector{p}
  \end{pmatrix} &\stackrel{\text{linear}}{\mapsto}
  \begin{pmatrix}
-  \vec{q} \\
-  -\sqrt{n_2^2 - n_1^2} \vec{n}_0 + \vec{p} - \scpm{\vec{p}}{\vec{n}_0} \vec{n}_0 - \sqrt{n_2^2 - n_1^2} [\scpm{\vec{q}}{\vec{\nabla}} \vec{n}]_0
+  \Vector{q} \\
+  -\sqrt{n_2^2 - n_1^2} \Vector{n}_0 + \Vector{p} - \scpm{\Vector{p}}{\Vector{n}_0} \Vector{n}_0 - \sqrt{n_2^2 - n_1^2} [\scpm{\Vector{q}}{\Vector{\nabla}} \Vector{n}]_0
  \end{pmatrix}\nonumber\\&=
  \begin{pmatrix}
   1 & 0\\
-  -\sqrt{n_2^2-n_1^2} (\vec{\nabla} \otimes \vec{n})_0 & 1 - \vec{n}_0 \otimes \vec{n}_0
+  -\sqrt{n_2^2-n_1^2} (\Vector{\nabla} \otimes \Vector{n})_0 & 1 - \Vector{n}_0 \otimes \Vector{n}_0
  \end{pmatrix}
  \begin{pmatrix}
-  \vec{q} \\
-  \vec{p}
+  \Vector{q} \\
+  \Vector{p}
  \end{pmatrix} -
  \begin{pmatrix}
   0 \\
-  \sqrt{n_2^2-n_1^2} \vec{n}_0
+  \sqrt{n_2^2-n_1^2} \Vector{n}_0
  \end{pmatrix}
 \,.
 \end{align}
@@ -1481,32 +1477,32 @@ The absolute term which arises due to surface tilt may be absorbed into a homoge
 We will start at a nonlinear homogeneous matrix transfer function of 3D variables and try to implement the formalisms discussed above
 \begin{align}
  \begin{pmatrix}
-  \vec{q}\,{}'\\
-  \vec{p}\,{}'\\
+  \Vector{q}\,{}'\\
+  \Vector{p}\,{}'\\
   1
  \end{pmatrix}
  &=
  \underbrace{\begin{pmatrix}
-  A(\vec{q},\vec{p}) & B(\vec{q},\vec{p}) & \vec{t}(\vec{q},\vec{p})\\
-  C(\vec{q},\vec{p}) & D(\vec{q},\vec{p}) & \vec{\delta}(\vec{q},\vec{p})\\
+  A(\Vector{q},\Vector{p}) & B(\Vector{q},\Vector{p}) & \Vector{t}(\Vector{q},\Vector{p})\\
+  C(\Vector{q},\Vector{p}) & D(\Vector{q},\Vector{p}) & \Vector{\delta}(\Vector{q},\Vector{p})\\
   0 & 0 & 1 
  \end{pmatrix}}_\mathcal{T}
  \begin{pmatrix}
-  \vec{q}\\
-  \vec{p}\\
+  \Vector{q}\\
+  \Vector{p}\\
   1
  \end{pmatrix}\,.
 \end{align}
 As already discussed above this homogeneous transformation is able to include rotation and translation of the optical axis (aka coordinate breaks) 
-in a unified manner. Due to the nonlinearity the formulation of the transfer matrix is not unique. Notice that the components of $\vec{p}$ and $\vec{p}\,{}'$
+in a unified manner. Due to the nonlinearity the formulation of the transfer matrix is not unique. Notice that the components of $\Vector{p}$ and $\Vector{p}\,{}'$
 are not fully independent from each other. For unification with 2D formalism we split up the canonical coordinates and momenta into 2D and 3-components, i.e.
-$\vec{q} = (\vec{Q}, z) = (Q_\alpha, z)$ where indices from the beginning of the greek alphabet are running over $1,2$. Now we also use Einstein summation
-convention. Therefore the equation $\vec{q}\,{}' = A \vec{q}$ is $(2+1)$ decomposed like the following
+$\Vector{q} = (\Vector{Q}, z) = (Q_\alpha, z)$ where indices from the beginning of the greek alphabet are running over $1,2$. Now we also use Einstein summation
+convention. Therefore the equation $\Vector{q}\,{}' = A \Vector{q}$ is $(2+1)$ decomposed like the following
 \begin{align}
  Q^\prime_\alpha &= A_{\alpha\beta} Q_\beta + A_{\alpha 3} z\,,\\
  z^\prime &= A_{3 \beta} Q_\beta + A_{33} z\,.
 \end{align}
-For the readers convenience we omit the $(\vec{q},\vec{p})$ dependency of the sub matrices and vectors in the large transfer matrix.
+For the readers convenience we omit the $(\Vector{q},\Vector{p})$ dependency of the sub matrices and vectors in the large transfer matrix.
 In its full form the transfer reads (notice $H$ and $H'$ are the respective 2D Hamiltonians corresponding to the negative 3-component of the 2D momentum)
 \begin{subequations}
 \label{eq:transfermatrixeqns}
@@ -1523,17 +1519,17 @@ like a box where you put in $Q_\alpha, P_\alpha, z$ and after the propagation to
 For transfer through material with constant optical index $n$ we have
 \begin{align}
  \begin{pmatrix}
-  \vec{Q} \\
-  \vec{P}
+  \Vector{Q} \\
+  \Vector{P}
  \end{pmatrix} &\mapsto
  \begin{pmatrix}
-  \vec{Q} + (z' -z) \frac{\vec{P}}{n \sqrt{1 - \frac{\vec{P}^2}{n^2}}} \\
-  \vec{P}
+  \Vector{Q} + (z' -z) \frac{\Vector{P}}{n \sqrt{1 - \frac{\Vector{P}^2}{n^2}}} \\
+  \Vector{P}
  \end{pmatrix}\,.
 \end{align}
 So \eqref{eq:transfermatrixeqns} gives
 \begin{align}
- A_{\alpha\beta} &= \delta_{\alpha\beta}\,,\quad A_{\alpha 3} = 0\,,\quad B_{\alpha\beta} = \frac{L}{\sqrt{n^2 - \vec{P}^2}} \delta_{\alpha\beta}\,,\quad B_{\alpha3} = 0\,,\quad t_\alpha = 0 \\
+ A_{\alpha\beta} &= \delta_{\alpha\beta}\,,\quad A_{\alpha 3} = 0\,,\quad B_{\alpha\beta} = \frac{L}{\sqrt{n^2 - \Vector{P}^2}} \delta_{\alpha\beta}\,,\quad B_{\alpha3} = 0\,,\quad t_\alpha = 0 \\
  A_{3\beta} &= 0\,,\quad A_{33} = 1\,,\quad B_{3\beta} = 0\,,\quad B_{33} = 0\,,\quad t_3 = L\,,\\
  D_{\alpha\beta} &= \delta_{\alpha\beta}\,,\quad D_{33} = 1\,,
 \end{align}
@@ -1541,7 +1537,7 @@ all other zero. Therefore\remark{check!}
 \begin{align}
  \mathcal{T}_n &=
  \begin{pmatrix}
-  \delta_{\alpha\beta} & 0 &  \frac{L}{\sqrt{n^2 - \vec{P}^2}} \delta_{\alpha\beta} & 0 & 0\\
+  \delta_{\alpha\beta} & 0 &  \frac{L}{\sqrt{n^2 - \Vector{P}^2}} \delta_{\alpha\beta} & 0 & 0\\
    0                   & 1 & 0 & 0 & L\\
    0                   & 0 & \delta_{\alpha\beta} & 0 & 0\\
    0                   & 0 & 0 & 1 & 0 \\
@@ -1554,8 +1550,8 @@ For refraction\remark{check!}
  \begin{pmatrix}
   \delta_{\alpha\beta} & 0 &  0 & 0 & 0\\
    0                   & 1 & 0 & 0 & 0\\
-   0                   & 0 & \delta_{\alpha\beta} & Z(\vec{Q}) N_\alpha & -\biggl[\scpm{\vec{P}}{\vec{N}} - \sqrt{n_2^2 - n_1^2 + (\scpm{\vec{P}}{\vec{N}} + Z(\vec{Q}) H)^2}\biggr] N_\alpha \\
-   0                   & 0 & 0 & 1 + Z(\vec{Q})^2 & -\biggl[\scpm{\vec{P}}{\vec{N}} - \sqrt{n_2^2 - n_1^2 + (\scpm{\vec{P}}{\vec{N}} + Z(\vec{Q}) H)^2}\biggr] Z(\vec{Q}) \\
+   0                   & 0 & \delta_{\alpha\beta} & Z(\Vector{Q}) N_\alpha & -\biggl[\scpm{\Vector{P}}{\Vector{N}} - \sqrt{n_2^2 - n_1^2 + (\scpm{\Vector{P}}{\Vector{N}} + Z(\Vector{Q}) H)^2}\biggr] N_\alpha \\
+   0                   & 0 & 0 & 1 + Z(\Vector{Q})^2 & -\biggl[\scpm{\Vector{P}}{\Vector{N}} - \sqrt{n_2^2 - n_1^2 + (\scpm{\Vector{P}}{\Vector{N}} + Z(\Vector{Q}) H)^2}\biggr] Z(\Vector{Q}) \\
    0 & 0 & 0 & 0 & 1
  \end{pmatrix}
 \end{align}
@@ -1565,8 +1561,8 @@ For reflection\remark{check!}
  \begin{pmatrix}
   \delta_{\alpha\beta} & 0 &  0 & 0 & 0\\
    0                   & 1 & 0 & 0 & 0\\
-   0                   & 0 & \delta_{\alpha\beta} & 2 Z(\vec{Q}) N_\alpha(\vec{Q}) & -2 \scpm{\vec{P}}{\vec{N}} N_\alpha(\vec{Q}) \\
-   0                   & 0 & 0 & 1 - 2 Z(\vec{Q})^2 & 2 \scpm{\vec{P}}{\vec{N}} Z(\vec{Q}) \\
+   0                   & 0 & \delta_{\alpha\beta} & 2 Z(\Vector{Q}) N_\alpha(\Vector{Q}) & -2 \scpm{\Vector{P}}{\Vector{N}} N_\alpha(\Vector{Q}) \\
+   0                   & 0 & 0 & 1 - 2 Z(\Vector{Q})^2 & 2 \scpm{\Vector{P}}{\Vector{N}} Z(\Vector{Q}) \\
    0 & 0 & 0 & 0 & 1
  \end{pmatrix}
 \end{align}
@@ -1616,14 +1612,14 @@ one has to take care about the right arguments to the components.
 
 \subsubsection{Linearisation}
 
-For a linearized theory one has to treat the coordinate part ($A$, $B$, $C$, $D$) in a different manner than the absolute part ($\vec{t}$, $\vec{\delta}$).
+For a linearized theory one has to treat the coordinate part ($A$, $B$, $C$, $D$) in a different manner than the absolute part ($\Vector{t}$, $\Vector{\delta}$).
 The former has to be approximated only to zeroth order since they are multiplied by momenta and coordinates. In contrast the latter one
 has to be approximated at first order to generate missing linear terms. Therefore the structure of the linearized theory can still change, but
 at least there is a unique formalism to derive the paraxial approximation.
 \begin{align}
   \mathcal{T} &= \begin{pmatrix}
-  A_{ab}(\vec{q},\vec{p}) & B_{ab}(\vec{q},\vec{p}) & t_{a}(\vec{q},\vec{p})\\
-  C_{ab}(\vec{q},\vec{p}) & D_{ab}(\vec{q},\vec{p}) & \delta_{a}(\vec{q},\vec{p})\\
+  A_{ab}(\Vector{q},\Vector{p}) & B_{ab}(\Vector{q},\Vector{p}) & t_{a}(\Vector{q},\Vector{p})\\
+  C_{ab}(\Vector{q},\Vector{p}) & D_{ab}(\Vector{q},\Vector{p}) & \delta_{a}(\Vector{q},\Vector{p})\\
   0 & 0 & 1 
  \end{pmatrix}
  \approx \nonumber\\&
@@ -1665,19 +1661,19 @@ Reflection:
 The higher order corrections in the taylor expansion give rise to the aberrations.
 
 \subsection{Linearisation for non-zero interaction point with optical axis}
-\newcommand{\dqv}{\Delta \vec{q}}
-\newcommand{\dpv}{\Delta \vec{p}}
+\newcommand{\dqv}{\Delta \Vector{q}}
+\newcommand{\dpv}{\Delta \Vector{p}}
 
 \newcommand{\dqi}[1]{\Delta q_{#1}}
 \newcommand{\dpi}[1]{\Delta p_{#1}}
 
 
-\newcommand{\qnv}{\vec{q}_0}
-\newcommand{\pnv}{\vec{p}_0}
+\newcommand{\qnv}{\Vector{q}_0}
+\newcommand{\pnv}{\Vector{p}_0}
 
 \newcommand{\qni}[1]{q_{0\,#1}}
 \newcommand{\pni}[1]{p_{0\,#1}}
-Let the optical axis at a certain surface start at $\vec{q}_0$ and $\vec{p}_0$ then (in 3D formalism)
+Let the optical axis at a certain surface start at $\Vector{q}_0$ and $\Vector{p}_0$ then (in 3D formalism)
 the matrix deviation from it in linear approximation is given by
 \begin{align}
   \mathcal{T} &= 
