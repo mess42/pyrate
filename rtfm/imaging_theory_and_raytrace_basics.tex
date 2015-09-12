@@ -663,17 +663,24 @@ the Lagrangian equations of motion we obtain
   (n_{(0)} \delta_{kj} + 2 n_{(2)\,kj}) \ddot{x}^j + (n_{(0),\ell} \delta_{kj} + 2 n_{(2)\,kj,\ell}) \dot{x}^\ell \dot{x}^j &= 
   (n_{(0)\,,k} \delta_{ij} + n_{(2)\,ij,k}) \dot{x}^i \dot{x}^j 
 \end{align}
-% For $g_{ij} = n^2(\Vector{r}) \delta_{ij}$ we get the isotropic case back.
-% The tensor field $g_{ij}$ is the Riemann metric. Following the derivations of geodesic equations in general relativity,
-% we get the following differential equation
-% \begin{align}
-%  \frac{\text{d}^2 r^k}{\text{d}s^2} + \Gamma^k_{ij} \frac{\text{d}r^i}{\text{d}s} \frac{\text{d}r^j}{\text{d}s} &= 0\,,
-% \end{align}
-% where the $\Gamma^k_{ij}$ are the so-called Christoffel symbols which are derived from the gradients of the metric, namely
-% \begin{align}
-%  \Gamma^k_{ij} &= \frac{1}{2} g^{k\ell} \left(\partial_i g_{\ell j} + \partial_j g_{i \ell} - \partial_\ell g_{ij}\right)\,.
-% \end{align}
-% Here $g^{ij}$ is the inverse of $g_{ij}$ such that $g^{ik} g_{kj} = \delta_{ij}$.
+Simplifying gives
+\begin{align}
+ (n_{(0)} \delta_{kj} + 2 n_{(2)\,kj}) \ddot{x}^j + (n_{(0),i} \delta_{kj} - n_{(0)\,,k} \delta_{ij} + n_{(2)\,kj,i} + n_{(2)\,ik,j} - n_{(2)\,ij,k}) \dot{x}^i \dot{x}^j &=0\,. 
+\end{align}
+This can be rewritten in a very convenient form of a geodesic equation
+\begin{align}
+ \ddot{x}^k + \Gamma^k_{ij} \dot{x}^i \dot{x}^j &= 0\,,
+\end{align}
+where the $\Gamma^k_{ij}$ are the so-called Christoffel symbols which are derived from the gradients of the metric, namely
+\begin{align}
+ \Gamma^k_{ij} &= \frac{1}{2} g^{k\ell} \left(\partial_i g_{\ell j} + \partial_j g_{i \ell} - \partial_\ell g_{ij}\right)\,.
+\end{align}
+Here $g^{ij}$ is the inverse of $g_{ij}$ such that $g^{ik} g_{kj} = \delta_{ij}$. The metric $g_{ij}$ is given by
+\begin{align}
+ g_{ij} &= 
+\end{align}
+\remark{check carefully}
+\remark{canonical}
 % Between general relativity and this optics formulation the most import difference is that the metric $g_{ij}$ is no dynamical
 % object. It is an external model which has to be derived from other considerations and it does not come from first principles in
 % electrodynamic field theory.
