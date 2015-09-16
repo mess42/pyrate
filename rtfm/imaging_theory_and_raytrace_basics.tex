@@ -1049,7 +1049,7 @@ Despite its name suggests this representation of aberrations would be based on w
 Wave aberrations are strongly related to the optical path difference.
 
 \subsection{Optical path difference}
-In a perfect lens, according to the Fresnel law, all rays from one object point to an image point have the same optical path length. 
+In a perfect lens, according to the Fermat law, all rays from one object point to an image point have the same optical path length. 
 In systems with aberrations, the optical path length is different for rays passing different pupil positions.
 For optical systems built up from isotropic materials, where we can define an index of refraction, the optical path length $S$ is calculated straightforward found as the path-integral of the index over the ray path.
 \begin{eqnarray}
@@ -1072,24 +1072,33 @@ For a certain fixed object field point, the optical path difference is often dis
 
 \subsection{Wave Aberrations}
 To obtain the so called wave aberration, one first calculates the optical path difference from an object point to the image plane.
-Then, a reference sphere is constructed around the intersection of the chief ray with the image plane. 
-The radius of the reference sphere is chosen so that it hits the plane of the paraxially calculated exit pupil position at the same height where the chief ray (of the entrance pupil) hits the exit pupil plane.
-For systems without pupil aberration, the chief ray hits both pupils on the optical axis.
+Then, a reference sphere is constructed, centered at the intersection of the chief ray with the image plane.
+The radius of the reference sphere is chosen so that it hits the plane of the paraxially calculated exit pupil position on the optical axis, together with the chief ray.
 All rays are then propagated back from the image to the reference sphere, maintaining their directions.
-For image-sided immersion systems, the optical path of that back-propagation is to be performed assuming immersion liquid between image and exit pupil.
+
+For systems with image-sided anisotropic immersion, a perfect lens with zero optical path differences from the object to the image plane would accumulate different path lengths when propagating back to the reference sphere.
+Therefore, we perform the back-propagation in vacuum.
 
 To obtain the wave aberrations, the optical path length of this back-propagation is subtracted from the optical path length from object to image.
-Typically the path length of the chief ray is subtracted. 
+Typically the path length of the chief ray is subtracted, referencing the optical path lengths to the chief ray. 
 For imaging systems, the wave aberrations relative to the chief ray are typically very small, and are often displayed in units of vacuum wavelengths.
 
-For systems without image-sided immersion or with isotropic immersion media, one can interpret the path differences in the reference sphere as follows:
+One can interpret the path differences in the reference sphere as follows:
 In the exit pupil, we use the Huygen principle and assume a set of point-sources, emitting radiation with the retardation of the geometrically calculated wave aberrations.
 In a system without any aberrations, all point-sources are in phase and form a spherical wave segment, converging towards a spot of minimal spatial extent.
 All aberrations cause a perturbation of the spherical wave, and an extended spot.
 Indeed, some commercial raytracing programs have options to perform this Huygens propagation from the exit pupil to the image to obtain point-spread functions obeying both aberration theory and the diffraction limit.
-As a shortcut, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant and Fourier transformed instead of Huygens propagated, leading to faster, but more inaccurate results.
-The tremendous gain in speed is often worth the sacrifice in accuracy in optimisation tasks.
+As a shortcut, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant and Fourier transformed instead of Huygens propagated.
+Entrance pupil coordinates and exit pupil coordinates, normalized with the pupil diameters, are assumed to be identical for faster processing.
+The tremendous gain in speed is often worth the sacrifice in accuracy in optimisation tasks to get close to a diffraction limited system.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\columnwidth]{waveaberrations}\\
+  \caption{a) In a perfect system, according to the Fermat principle, all rays have the same time of flight from the object to the image. b) In a real system, wave aberrations occur. A line of constant time of flight is displayed in magenta.
+  Wave aberrations are the optical path differences corresponding to the difference in time of flight when hitting the exit pupil reference sphere.}
+  \label{fig:waveaberrations}
+\end{figure}
 
 
 \chapter{Appendix}

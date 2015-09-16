@@ -157,13 +157,17 @@ class OpticalSystem(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self):
+    def __init__(self, objectDistance = 0.0):
+        """
+        Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
+
+        :param objectDistance: Distance (on axis thickness) from the object to the first surface.
+        """
         super(OpticalSystem, self).__init__()
         self.surfaces = []
-        self.insertSurface(0, Surface())  # object
+        self.insertSurface(0, Surface( thickness = objectDistance ))  # object
         self.insertSurface(1, Surface())  # image
         # in standard initialization the surface use the BaseAperture which is not limited
-        #self.surfaces[1].shape.sdia.val = 0.0  # 1E100
 
     def appendSurface(self, surface):
         """

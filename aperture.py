@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 
+# TODO: method headers
+
 class BaseAperture(object):
     # for optimizable aperture it would be good to derive from optimizable class, but I think
     # apertures will be inserted after optimization
@@ -32,12 +34,13 @@ class BaseAperture(object):
     Base class representing the aperture of a surface.
     Subclasses may define the actual shapes (circular,
     elliptic, rectangular, etc.)
+
+    The base class does not limit the beam diameter.
     """
     def __init__(self, tx=0.0, ty=0.0):
         self.typicaldimension = 1e10
         self.tx = tx
         self.ty = ty
-
 
     def getTypicalDimension(self):
         return self.typicaldimension
