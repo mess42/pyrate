@@ -849,6 +849,8 @@ given in sphere section the solution is
 
 
 \subsection{Spheres}
+\label{subsection:spheres}
+
 We consider a ray and a Sphere that intersects the optical axis in the origin
 \begin{eqnarray}
  \Location &=& \Location_0 + \Vector{d} t \label{eq:ray}\,,\\
@@ -1103,6 +1105,42 @@ In the final optimisation step, it may be worth using the more accurate method.
   Wave aberrations are the optical path differences corresponding to the difference in time of flight when hitting the exit pupil reference sphere.}
   \label{fig:waveaberrations}
 \end{figure}
+
+\subsection{Calculation of wave aberrations}
+TODO: this only works for on axis field points !!!
+
+Assume we know the position $x_{im}, y_{im}$ and direction $\Vector{d}$ of a set of rays in the image plane and their geometric path length from the object to the image.
+To obtain the wave aberrations, we intersect the rays with the spherical exit pupil.
+The task is similar to the intersections performed throughout the raytracing, see section \ref{subsection:spheres}.
+We center our coordinate system around the chief ray image position.
+
+\begin{eqnarray}
+ \Location &=& \begin{pmatrix} x_0 \\ y_0 \\ 0 \end{pmatrix} + \Vector{d} t \\
+ \Location^2 &=& R^2
+\end{eqnarray}
+with
+ \begin{eqnarray}
+ \begin{pmatrix} x_0 \\ y_0 \end{pmatrix} &=& \begin{pmatrix} x_{im} \\ y_{im} \end{pmatrix} - \begin{pmatrix} x_{chief,im} \\ y_{chief,im} \end{pmatrix} \\
+ z_{im} &=& 0 \\
+ | \Vector{d} | &=& 1
+\end{eqnarray}
+Here, $R$ is the distance between exit pupil and image, and $t$ is the geometric path length of the back-propagation.
+
+We find
+\begin{eqnarray}
+ R^2 &=&  t^2 + 2 (d_x x_0 + d_y y_0) t + x_0^2 + y_0^2 \\
+ t_{1,2} &=& - (d_x x_0 + d_y y_0) \pm \sqrt{ (d_x x_0 + d_y y_0)^2 - (x_0^2 + y_0^2) + R^2 }
+\end{eqnarray}
+
+We assume that the macroscopic distance between image and exit pupil $R^2$ term under the root is much larger than the microscopic aberrations and use a Taylor expansion
+\begin{eqnarray}
+ t_{1,2} &\approx& R - (d_x x_0 + d_y y_0) \pm 
+ \left[ 
+   \frac{1}{2R} \delta - \frac{1}{8R^3} \delta^2
+ \right]
+ \\
+ \delta &=& (d_x x_0 + d_y y_0)^2 - x_0^2 - y_0^2
+\end{eqnarray}
 
 
 
