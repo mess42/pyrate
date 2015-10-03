@@ -1049,7 +1049,7 @@ Despite its name suggests this representation of aberrations would be based on w
 Wave aberrations are strongly related to the optical path difference.
 
 \subsection{Optical path difference}
-In a perfect lens, according to the Fermat law, all rays from one object point to an image point have the same optical path length. 
+In a perfect lens (made of an isoropic, lossless material), according to the Fermat law, all rays from one object point to an image point have the same optical path length. 
 In systems with aberrations, the optical path length is different for rays passing different pupil positions.
 For optical systems built up from isotropic materials, where we can define an index of refraction, the optical path length $S$ is calculated straightforward found as the path-integral of the index over the ray path.
 \begin{eqnarray}
@@ -1060,9 +1060,11 @@ For anisotropic media, the time of flight of the ray path may act as a more gene
  S &=& \frac{t}{c_0}
 \end{eqnarray}
 Time of flight means the time needed for information propagation through the system.
-For well behaved materials, the time of flight is the geoemtric path length divided by the group velocity in the ray direction. 
+For well behaved materials, the time of flight is the geometric path length divided by the group velocity in the ray direction. 
 However, for materials with very special dispersion, like saturable absorbers, the group velocity of a pulse can take values above the vacuum speed of light. 
 In this case, the group velocity is no longer the same as the speed of information through the system.
+Note that for anisotropic or lossy materials, the Fermat law no longer holds, and the optical path difference is no more synonomous to aberrations.
+In this case, the interpretation becomes more complex.
 
 The optical path difference $OPD$ is the optical path length minus the optical path length of the chief ray in the image plane.
 \begin{eqnarray}
@@ -1075,22 +1077,24 @@ To obtain the so called wave aberration, one first calculates the optical path d
 Then, a reference sphere is constructed, centered at the intersection of the chief ray with the image plane.
 The radius of the reference sphere is chosen so that it hits the plane of the paraxially calculated exit pupil position on the optical axis, together with the chief ray.
 All rays are then propagated back from the image to the reference sphere, maintaining their directions.
-
-For systems with image-sided anisotropic immersion, a perfect lens with zero optical path differences from the object to the image plane would accumulate different path lengths when propagating back to the reference sphere.
-Therefore, we perform the back-propagation in vacuum.
+The back-propagation is to be performed with the dispersion of the last material before the image, even though this back-propagation length may be larger than the thickness of the last material.
 
 To obtain the wave aberrations, the optical path length of this back-propagation is subtracted from the optical path length from object to image.
-Typically the path length of the chief ray is subtracted, referencing the optical path lengths to the chief ray. 
+Typically, the path length of the chief ray is subtracted, referencing the optical path lengths to the chief ray. 
 For imaging systems, the wave aberrations relative to the chief ray are typically very small, and are often displayed in units of vacuum wavelengths.
 
-One can interpret the path differences in the reference sphere as follows:
-In the exit pupil, we use the Huygen principle and assume a set of point-sources, emitting radiation with the retardation of the geometrically calculated wave aberrations.
-In a system without any aberrations, all point-sources are in phase and form a spherical wave segment, converging towards a spot of minimal spatial extent.
-All aberrations cause a perturbation of the spherical wave, and an extended spot.
-Indeed, some commercial raytracing programs have options to perform this Huygens propagation from the exit pupil to the image to obtain point-spread functions obeying both aberration theory and the diffraction limit.
-As a shortcut, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant and Fourier transformed instead of Huygens propagated.
+Using the Huygens principle, the field in the exit pupil can be interpreted as a set of point sources radiation in the image direction, forming a wavefront in the image identical to that of the rays traced.
+The Huygens propagation can be performed numerically exact in wave optics, resulting in a diffraction-limited spot. 
+The retardation of each point-source, however, is calculated in geometric optics.
+In a system without any aberrations made of isotropic materials, all point-sources are in phase and form a spherical wave segment, converging towards a spot of minimal spatial extent.
+All aberrations cause a perturbation of the spherical wave, and an extended spot size.
+The accurracy of the result compared to full physical wave-optical calculations of the whole system is often astonishing. 
+
+Indeed, some commercial raytracing programs have options to perform this Huygens propagation from the exit pupil to the image to obtain a diffraction-limited point-spread function.
+As a shortcut, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant. Exit pupil and image are assumed Fourier-conjugate, allowing the use of Fast Fourier methods.
 Entrance pupil coordinates and exit pupil coordinates, normalized with the pupil diameters, are assumed to be identical for faster processing.
 The tremendous gain in speed is often worth the sacrifice in accuracy in optimisation tasks to get close to a diffraction limited system.
+In the final optimisation step, it may be worth using the more accurate method.
 
 \begin{figure}
   \centering
@@ -1099,6 +1103,10 @@ The tremendous gain in speed is often worth the sacrifice in accuracy in optimis
   Wave aberrations are the optical path differences corresponding to the difference in time of flight when hitting the exit pupil reference sphere.}
   \label{fig:waveaberrations}
 \end{figure}
+
+
+
+
 
 
 \chapter{Appendix}
