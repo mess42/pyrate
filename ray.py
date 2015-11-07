@@ -58,6 +58,8 @@ class RayBundle(object):
         """
         Calculates the unit direction vector of a ray from its wavevector.
         """
+        #TODO: so far, this formula works for lossless isotropic media only
+
         rayDir = 1. * k  # copy k, dont just create a pointer
         absk = sqrt(sum(rayDir**2, axis=0))
         rayDir[0] = rayDir[0] / absk

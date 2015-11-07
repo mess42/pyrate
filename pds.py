@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import math
 import numpy as np
 
+# TODO: Method headers, Comments
+
 class Poisson2D:
     '''Slow implementation of poisson disk sampling. Notices for at 
        least 2D there are more sophisticated and a lot faster codes available.'''
