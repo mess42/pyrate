@@ -185,6 +185,8 @@ if __name__ == "__main__":
     p.setvalue("glass5") # TODO: assignment operator overloading
     q.setvalue("glass6") # TODO: should behave different for Variable or Solve
     print r.evaluate()
+    r.parameters["function"] = lambda x, y: x*3 + y*4
+    print r.evaluate()
 
     cl = ClassWithOptimizableVariables()
     cl.addVariable("var1", p)
