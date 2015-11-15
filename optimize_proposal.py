@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+from scipy.optimize import minimize
+
 
 class OptimizableVariable(object):
     """
@@ -167,8 +169,20 @@ class ClassWithOptimizableVariables(object):
         """
         return filter(lambda x: x.status, self.getAllVariables())
 
+    def getActiveVariablesIsWriteable(self):
+        """
+        Returns a np.array of bools which is True for a variable and False for a solve or pickup,
+        since they cannot be modified. The length of this vector is the same as for getActiveVariables()
+        """
+        return np.array(filter(lambda x: x.var_type == "variable", self.getActiveVariables()))
+
+
     def getActiveValues(self):
         return np.array([a.evaluate() for a in self.getActiveVariables()])
+
+    def setActiveValues(self, x):
+        for i, var in enumerate(self.getActiveVariables()):
+            var.setvalue(x[i])
 
     def setStatus(self, name, var_status=True):
         self.dict_variables[name].status = var_status
@@ -186,6 +200,43 @@ class ExampleSuperClass(ClassWithOptimizableVariables):
         self.addVariable("blubberdieblub", OptimizableVariable(False, "Variable", value=10.0))
 
 
+class ExampleOS(ClassWithOptimizableVariables):
+    def __init__(self):
+        super(ExampleOS, self).__init__()
+        self.addVariable("X", OptimizableVariable(True, "Variable", value=10.0))
+        self.addVariable("Y", OptimizableVariable(True, "Variable", value=20.0))
+        self.addVariable("Z",
+                         OptimizableVariable(True, "Solve",
+                                             function=lambda x, y: x**2 + y**2,
+                                             args=(self.dict_variables["X"], self.dict_variables["Y"])))
+
+
+def testmerit(s):
+    return s.dict_variables["X"].evaluate()**2 \
+        + s.dict_variables["Y"].evaluate()**2 \
+        + s.dict_variables["Z"].evaluate()**2
+
+
+def MeritFunctionWrapperScipy(x, s, meritfunction):
+    """
+    Merit function wrapper for scipy optimize. Notice that x and length of active values must have the same size
+    """
+    s.setActiveValues(x)
+
+    return meritfunction(s)
+
+def optimizeNewton1D(s, meritfunction, dx, iterations=1):
+    pass
+
+def optimizeSciPyInterface(s, meritfunction, **kwargs):
+    x0 = s.getActiveValues()
+    res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction), method=kwargs["method"])
+    print res
+    s.setActiveValues(res.x)
+    return s
+
+def optimizeSciPyNelderMead(s, meritfunction, **kwargs):
+    return optimizeSciPyInterface(s, meritfunction, method="Nelder-Mead")
 
 
 if __name__ == "__main__":
@@ -234,5 +285,12 @@ if __name__ == "__main__":
     print cl2.getAllVariables()
     print cl2.getAllValues()
 
+    os = ExampleOS()
+    print os.dict_variables["X"]
+    print os.dict_variables["Y"]
 
+    optimizeSciPyNelderMead(os, testmerit)
+    print os.dict_variables["X"]
+    print os.dict_variables["Y"]
+    print os.dict_variables["Z"].evaluate()
 
