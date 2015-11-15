@@ -26,24 +26,28 @@ from aperture import CircularAperture
 s = OpticalSystem(objectDistance = 2.0)
 
 s.insertSurface(1, Surface(surfShape.Conic(curv=1/-5.922), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(0.55))) 
-s.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160), thickness=5.0, aperture=CircularAperture(1.0))) 
+                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(0.55)))
+s.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160), thickness=5.0, aperture=CircularAperture(1.0)))
 s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(1.3))) 
+                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(1.3)))
 s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756), thickness=3.0,
-                           aperture=CircularAperture(1.3))) 
+                           aperture=CircularAperture(1.3)))
 s.insertSurface(5, Surface(surfShape.Conic(), thickness=2.0, aperture=CircularAperture(1.01))) # Stop Surface
 s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.5), aperture=CircularAperture(1.0))) 
+                           material=material.ConstantIndexGlass(1.5), aperture=CircularAperture(1.0)))
 s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479), thickness=19.0,
-                           aperture=CircularAperture(1.0))) 
+                           aperture=CircularAperture(1.0)))
 
 print "pickle dump"
+picklestr = pickle.dumps(s)
+pickletools.dis(picklestr)
+
 
 with open('optical_sys.pkl', 'wb') as output:
-    str = pickle.dumps(s)
     pickle.dump(s, output, pickle.HIGHEST_PROTOCOL)
-    #print pickletools.dis(str)
 
-
+# print introspection variables
+for (s_dict_keys, s_dict_items) in s.__dict__.iteritems():
+    print s_dict_keys, " ", s_dict_items
+print s.__getstate__()
 
