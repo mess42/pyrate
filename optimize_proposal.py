@@ -52,7 +52,9 @@ class OptimizableVariable(object):
         'solve'        function=f, args=(other_optvar1, other_optvar2, ...)
         'pickup'        function=f, args=(other_externalvar/value, ...)
 
-        Notice: f must take exactly as many arguments as args=... long is.
+        Notice: f must take exactly as many arguments as args=... long is. The only constraint on f is
+        that it has to convert the variables into some final float variable. If this is not the case some
+        low-level optimizer might break down.
 
 
         """
