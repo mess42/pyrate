@@ -113,12 +113,19 @@ class OptimizableVariable(object):
 
 class ClassWithOptimizableVariables(object):
     """
-    Implementation with dictionary.
+    Implementation of some class with optimizable variables with the help of a dictionary.
+    This class is also able to collect the variables and their values from its subclasses per recursion.
     """
     def __init__(self):
+        """
+        Initialize with empty dict.
+        """
         self.dict_variables = {}
 
     def addVariable(self, name, var):
+        """
+        Add some variable into dict.
+        """
         self.dict_variables[name] = var
 
     def getAllVariables(self):
