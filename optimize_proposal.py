@@ -36,12 +36,20 @@ class OptimizableVariable(object):
         status=False means no updating during optimization run
         kwargs depend on type
         "Variable" is value=value
-        "Solve" gets function=f, args=tupleof optimizablevariables
+        "Solve" gets function=f, args=tuple of optimizablevariables
+        "Pickup" gets function=f, args=tuple of external standard variables (or values)
         """
-        # TODO: pickup gets function=f, args=tupleofexternal variables
         self.__var_type = variable_type.lower()
         self.status = variable_status
         self.parameters = kwargs
+
+        # TODO: status variable for "solve" and "pickup"
+        # TODO: either status variable is important or not
+        # TODO: most simple solution -> ignore status variable for "solve" and "pickup"
+        # TODO: more complex solution -> use status variable to update initial_value and return its value
+        # in evaluate()
+
+        self.initial_value = self.evaluate()
 
     @property
     def var_type(self):
@@ -55,17 +63,33 @@ class OptimizableVariable(object):
         if self.var_type == "variable":
             self.parameters["value"] = value
 
+    def eval_variable(self):
+        # if type = variable then give only access to value
+        return self.parameters["value"]
+
+    def eval_solve(self):
+        # if type = variable then pack all arguments into one tuple
+        # and put it into the userdefined function
+        # evaluate the result
+        arguments_for_function_eval = (argfunc.evaluate() for argfunc in self.parameters["args"])
+        return self.parameters["function"](*arguments_for_function_eval)
+
+    def eval_pickup(self):
+        # same as for solve except that there are no further OptimizableVariables to be considered
+        return self.parameters["function"](*self.parameters["args"])
+
+
+
     def evaluate(self):
         # notice: evaluation code is not limited to floats
-        if self.var_type == "variable":
-            # if type = variable then give only access to value
-            return self.parameters["value"]
-        elif self.var_type == "solve":
-            # if type = variable then pack all arguments into one tuple
-            # and put it into the userdefined function
-            # evaluate the result
-            arguments_for_function_eval = (argfunc.evaluate() for argfunc in self.parameters["args"])
-            return self.parameters["function"](*arguments_for_function_eval)
+        # do not use if-else construct because for many cases dict lookup is faster
+        evaldict = {
+                    "variable" : self.eval_variable,
+                    "solve" : self.eval_solve,
+                    "pickup" : self.eval_pickup
+                    }
+
+        return evaldict[self.var_type]()
 
 class ClassWithOptimizableVariables(object):
     """
@@ -82,9 +106,9 @@ class ClassWithOptimizableVariables(object):
         Conversion of dict into list of Variables. These are only references to the objects in dict.
         Therefore all changes to them directly affects the dictionary in the class.
         """
-        # TODO: if there are sub classes which are inherited from ClassWith... append their getAllVariables()
-        # TODO: since these are also containing references to the objects in their respective dicts there should
-        # TODO: not be any problem that there are copies created
+        # if there are sub classes which are inherited from ClassWith... append their getAllVariables()
+        # since these are also containing references to the objects in their respective dicts there should
+        # not be any problem that there are copies created
 
         lst_of_vars = self.dict_variables.values()
         lst_of_attributes_which_are_class_with_opt_vars = filter(lambda x: isinstance(x, ClassWithOptimizableVariables), self.__dict__.values())
@@ -142,12 +166,15 @@ if __name__ == "__main__":
     p = OptimizableVariable(False, "Variable", value="glass1")
     q = OptimizableVariable(True, "Variable", value="glass2")
     r = OptimizableVariable(False, "Solve", function=f, args=(p, q))
+    s = OptimizableVariable(False, "Pickup", function=f, args=(1.0, 6.0))
     print p.__dict__
     print p.evaluate()
     print q.__dict__
     print q.evaluate()
     print r.__dict__
     print r.evaluate()
+    print s.__dict__
+    print s.evaluate()
     p.setvalue("glass5") # TODO: assignment operator overloading
     q.setvalue("glass6") # TODO: should behave different for Variable or Solve
     print r.evaluate()
