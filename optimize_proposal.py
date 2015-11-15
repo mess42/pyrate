@@ -51,6 +51,9 @@ class OptimizableVariable(object):
 
         self.initial_value = self.evaluate()
 
+    def __str__(self, *args, **kwargs):
+        return "OptVar('" + self.var_type + "') = " + str(self.parameters)
+
     @property
     def var_type(self):
         return self.__var_type.lower()
@@ -167,12 +170,16 @@ if __name__ == "__main__":
     q = OptimizableVariable(True, "Variable", value="glass2")
     r = OptimizableVariable(False, "Solve", function=f, args=(p, q))
     s = OptimizableVariable(False, "Pickup", function=f, args=(1.0, 6.0))
+    print p
     print p.__dict__
     print p.evaluate()
+    print q
     print q.__dict__
     print q.evaluate()
+    print r
     print r.__dict__
     print r.evaluate()
+    print s
     print s.__dict__
     print s.evaluate()
     p.setvalue("glass5") # TODO: assignment operator overloading
