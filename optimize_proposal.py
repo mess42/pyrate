@@ -120,6 +120,18 @@ class ClassWithOptimizableVariables(object):
     def setStatus(self, name, var_status=True):
         self.dict_variables[name].status = var_status
 
+class ExampleSubClass(ClassWithOptimizableVariables):
+    def __init__(self):
+        self.a = 10.
+
+class ExampleSuperClass(ClassWithOptimizableVariables):
+    def __init__(self):
+        super(ExampleSuperClass, self).__init__()
+        self.b = 20.
+        self.c = ClassWithOptimizableVariables()
+        self.c.addVariable("blubberbla", OptimizableVariable(False, "Variable", value=5.0))
+        self.addVariable("blubberdieblub", OptimizableVariable(False, "Variable", value=10.0))
+
 
 
 
@@ -155,11 +167,9 @@ if __name__ == "__main__":
     print cl.getAllValues()
     print cl.getActiveValues()
 
-    class inh(ClassWithOptimizableVariables):
-        pass
-
-    cl2 = inh()
+    cl2 = ExampleSuperClass()
     print cl2.__dict__
+    print cl2.getAllVariables()
     print cl2.getAllValues()
 
 
