@@ -25,7 +25,8 @@ import numpy as np
 
 class OptimizableVariable(object):
     """
-    Class that contains a float. Used to get a pointer on a variable.
+    Class that contains an optimizable variable. Used to get a pointer on a variable.
+    The value is not constrained to float. Also other dependent variables are possible to define.
     """
     def __init__(self, variable_status=False, variable_type="Variable", **kwargs):
         """
@@ -38,6 +39,22 @@ class OptimizableVariable(object):
         "Variable" is value=value
         "Solve" gets function=f, args=tuple of optimizablevariables
         "Pickup" gets function=f, args=tuple of external standard variables (or values)
+
+        :param variable_status (bool): should variable optimized during optimization run?
+        :param variable_type (string): which kind of variable do we have? valid choices are: 'variable', 'solve', 'pickup'
+
+        :param kwargs (keyword arguments): used to fill up parameters dictionary for variable.
+
+        kwargs:
+
+        type:        kwargs:
+        'variable'    value=1.0, or value='hello'
+        'solve'        function=f, args=(other_optvar1, other_optvar2, ...)
+        'pickup'        function=f, args=(other_externalvar/value, ...)
+
+        Notice: f must take exactly as many arguments as args=... long is.
+
+
         """
         self.__var_type = variable_type.lower()
         self.status = variable_status
