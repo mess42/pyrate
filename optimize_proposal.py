@@ -178,68 +178,106 @@ class ClassWithOptimizableVariables(object):
 
 
     def getActiveValues(self):
+        """
+        Function to get all values into one large np.array.
+        """
         return np.array([a.evaluate() for a in self.getActiveVariables()])
 
     def setActiveValues(self, x):
+        """
+        Function to set all values of active variables to the values in the large np.array x.
+        """
         for i, var in enumerate(self.getActiveVariables()):
             var.setvalue(x[i])
 
+    def getActiveVariableValues(self):
+        """
+        Function to get all values from active variables into one large np.array.
+        """
+        return np.array([a.evaluate() for a in self.getActiveVariablesIsWriteable()])
+
+    def setActiveVariableValues(self, x):
+        """
+        Function to set all values of active variables to the values in the large np.array x.
+        """
+        for i, var in enumerate(self.getActiveVariablesIsWriteable()):
+            var.setvalue(x[i])
+
+
     def setStatus(self, name, var_status=True):
+        """
+        Change status of certain variables.
+        """
         self.dict_variables[name].status = var_status
 
-class ExampleSubClass(ClassWithOptimizableVariables):
-    def __init__(self):
-        self.a = 10.
+def MeritFunctionWrapperScipy(x, s, meritfunction):
+    """
+    Merit function wrapper for scipy optimize. Notice that x and length of active values must have the same size
 
-class ExampleSuperClass(ClassWithOptimizableVariables):
-    def __init__(self):
-        super(ExampleSuperClass, self).__init__()
-        self.b = 20.
-        self.c = ClassWithOptimizableVariables()
-        self.c.addVariable("blubberbla", OptimizableVariable(False, "Variable", value=5.0))
-        self.addVariable("blubberdieblub", OptimizableVariable(False, "Variable", value=10.0))
+    :param x (np.array): active variable values
+    :param s (ClassWithOptimizableVariables): system to be optimized
+    :param meritfunction (function): meritfunction depending on s
+
+    :return value of the merit function
+    """
+    s.setActiveVariableValues(x)
+
+    return meritfunction(s)
+
+def optimizeNewton1D(s, meritfunction, dx, iterations=1):
+    """
+    Optimization function: Newton1D
+    """
+    pass
+
+def optimizeSciPyInterface(s, meritfunction, **kwargs):
+    """
+    Optimization function: Scipy.optimize wrapper
+    """
+    x0 = s.getActiveVariableValues()
+    res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction), method=kwargs["method"])
+    print res
+    s.setActiveVariableValues(res.x)
+    return s
+
+def optimizeSciPyNelderMead(s, meritfunction, **kwargs):
+    """
+    Optimization function: direct access to Nelder-Mead algorithm in Scipy.
+    """
+    return optimizeSciPyInterface(s, meritfunction, method="Nelder-Mead")
 
 
-class ExampleOS(ClassWithOptimizableVariables):
-    def __init__(self):
-        super(ExampleOS, self).__init__()
-        self.addVariable("X", OptimizableVariable(True, "Variable", value=10.0))
-        self.addVariable("Y", OptimizableVariable(True, "Variable", value=20.0))
-        self.addVariable("Z",
+if __name__ == "__main__":
+    class ExampleSubClass(ClassWithOptimizableVariables):
+        def __init__(self):
+            self.a = 10.
+
+    class ExampleSuperClass(ClassWithOptimizableVariables):
+        def __init__(self):
+            super(ExampleSuperClass, self).__init__()
+            self.b = 20.
+            self.c = ClassWithOptimizableVariables()
+            self.c.addVariable("blubberbla", OptimizableVariable(False, "Variable", value=5.0))
+            self.addVariable("blubberdieblub", OptimizableVariable(False, "Variable", value=10.0))
+
+
+    class ExampleOS(ClassWithOptimizableVariables):
+        def __init__(self):
+            super(ExampleOS, self).__init__()
+            self.addVariable("X", OptimizableVariable(True, "Variable", value=10.0))
+            self.addVariable("Y", OptimizableVariable(True, "Variable", value=20.0))
+            self.addVariable("Z",
                          OptimizableVariable(True, "Solve",
                                              function=lambda x, y: x**2 + y**2,
                                              args=(self.dict_variables["X"], self.dict_variables["Y"])))
 
 
-def testmerit(s):
-    return s.dict_variables["X"].evaluate()**2 \
-        + s.dict_variables["Y"].evaluate()**2 \
-        + s.dict_variables["Z"].evaluate()**2
+    def testmerit(s):
+        return s.dict_variables["X"].evaluate()**2 \
+            + s.dict_variables["Y"].evaluate()**2 \
+            + s.dict_variables["Z"].evaluate()**2
 
 
-def MeritFunctionWrapperScipy(x, s, meritfunction):
-    """
-    Merit function wrapper for scipy optimize. Notice that x and length of active values must have the same size
-    """
-    s.setActiveValues(x)
-
-    return meritfunction(s)
-
-def optimizeNewton1D(s, meritfunction, dx, iterations=1):
-    pass
-
-def optimizeSciPyInterface(s, meritfunction, **kwargs):
-    x0 = s.getActiveValues()
-    res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction), method=kwargs["method"])
-    print res
-    s.setActiveValues(res.x)
-    return s
-
-def optimizeSciPyNelderMead(s, meritfunction, **kwargs):
-    return optimizeSciPyInterface(s, meritfunction, method="Nelder-Mead")
-
-
-if __name__ == "__main__":
     def f(p, q):
         return p + q
 
