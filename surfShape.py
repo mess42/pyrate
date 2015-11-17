@@ -21,8 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-from optimize import ClassWithOptimizableVariables
+from optimize_proposal import ClassWithOptimizableVariables
 from aperture import CircularAperture
+from optimize_proposal import OptimizableVariable
 
 
 class Shape(ClassWithOptimizableVariables):
@@ -87,7 +88,7 @@ class Conic(Shape):
 
         :param curv: Curvature of the surface (float).
         :param cc: Conic constant (float).
- 
+
         -1 < cc < 0 oblate rotational ellipsoid
              cc = 0 sphere
          0 < cc < 1 prolate rotational ellipsoid
@@ -96,8 +97,10 @@ class Conic(Shape):
         """
         super(Conic, self).__init__()
 
-        self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
-        self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
+        self.curvature = OptimizableVariable(False, "Variable", value=curv)
+        self.addVariable("curvature", self.curvature) #self.createOptimizableVariable("curvature", value=curv, status=False)
+        self.conic = OptimizableVariable(False, "Variable", value=cc)
+        self.addVariable("conic constant", self.conic) #self.createOptimizableVariable("conic constant", value=cc, status=False)
 
     def getSag(self, x, y):
         """
@@ -115,8 +118,8 @@ class Conic(Shape):
         :param rsquared: distance from the optical axis (float or 1d numpy array of floats)
         :return z: sag (float or 1d numpy array of floats)
         """
-        sqrtterm = 1 - (1+self.conic.val) * self.curvature.val**2 * rsquared
-        z =  self.curvature.val * rsquared / (1 + np.sqrt(sqrtterm))
+        sqrtterm = 1 - (1+self.conic.evaluate()) * self.curvature.evaluate()**2 * rsquared
+        z =  self.curvature.evaluate() * rsquared / (1 + np.sqrt(sqrtterm))
 
         return z
 
@@ -145,16 +148,16 @@ class Conic(Shape):
 
 
     def getCentralCurvature(self):
-        return self.curvature.val
+        return self.curvature.evaluate()
 
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
 
         r0 = raybundle.o
 
-        F = rayDir[2] - self.curvature.val * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val))
-        G = self.curvature.val * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.val)) - 2 * r0[2]
-        H = - self.curvature.val - self.conic.val * self.curvature.val * rayDir[2]**2
+        F = rayDir[2] - self.curvature.evaluate() * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.evaluate()))
+        G = self.curvature.evaluate() * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.evaluate())) - 2 * r0[2]
+        H = - self.curvature.evaluate() - self.conic.evaluate() * self.curvature.evaluate() * rayDir[2]**2
 
         square = F**2 + H*G
 
@@ -168,7 +171,7 @@ class Conic(Shape):
         validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal = self.conic_normal( intersection[0], intersection[1], intersection[2], self.curvature.val, self.conic.val )
+        normal = self.conic_normal( intersection[0], intersection[1], intersection[2], self.curvature.evaluate(), self.conic.evaluate() )
 
         return intersection, t, normal, validIndices
 

@@ -8,7 +8,7 @@ import material
 import aim
 import merit
 import surfShape
-import optimize
+import optimize_proposal
 from optical_system import OpticalSystem, Surface
 from ray import RayPath
 
@@ -24,17 +24,17 @@ from aperture import CircularAperture
 s = OpticalSystem(objectDistance = 2.0)
 
 s.insertSurface(1, Surface(surfShape.Conic(curv=1/-5.922), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(0.55))) 
-s.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160), thickness=5.0, aperture=CircularAperture(1.0))) 
+                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(0.55)))
+s.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160), thickness=5.0, aperture=CircularAperture(1.0)))
 s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(1.3))) 
+                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(1.3)))
 s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756), thickness=3.0,
-                           aperture=CircularAperture(1.3))) 
+                           aperture=CircularAperture(1.3)))
 s.insertSurface(5, Surface(surfShape.Conic(), thickness=2.0, aperture=CircularAperture(1.01))) # Stop Surface
 s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.5), aperture=CircularAperture(1.0))) 
+                           material=material.ConstantIndexGlass(1.5), aperture=CircularAperture(1.0)))
 s.insertSurface(7, Surface(surfShape.Conic(curv = 0.1 * 1/1.479), thickness=19.0,
-                           aperture=CircularAperture(1.0))) 
+                           aperture=CircularAperture(1.0)))
 # curvature of surface 7 is chosen 0.1 of the optimal value to kick the system
 
 
@@ -69,17 +69,16 @@ plots.drawLayout2d(ax, s, [r2, r3])
 print "Initial   merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s)
 
 # make surface curvatures variable
-s.surfaces[2].setStatus("curvature", True)
-s.surfaces[3].setStatus("curvature", True)
-s.surfaces[4].setStatus("curvature", True)
-s.surfaces[5].setStatus("curvature", True)
-s.surfaces[7].setStatus("curvature", True)
-
+s.surfaces[2].shape.setStatus("curvature", True)
+s.surfaces[3].shape.setStatus("curvature", True)
+s.surfaces[4].shape.setStatus("curvature", True)
+s.surfaces[5].shape.setStatus("curvature", True)
+s.surfaces[7].shape.setStatus("curvature", True)
 
 
 print "aimy,stopDiameter before: ", aimy.stopDiameter
 
-s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
+s = optimize_proposal.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
 
 print "aimy,stopDiameter after: ", aimy.stopDiameter
 

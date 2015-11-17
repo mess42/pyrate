@@ -29,7 +29,8 @@ import pupil
 
 #import inspector
 import numpy as np
-from optimize import ClassWithOptimizableVariables
+from optimize_proposal import ClassWithOptimizableVariables
+from optimize_proposal import OptimizableVariable
 
 
 class Surface(ClassWithOptimizableVariables):
@@ -47,15 +48,19 @@ class Surface(ClassWithOptimizableVariables):
         self.material = material
         self.aperture = aperture
 
-        self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
-        self.copyOptimizableVariables(shape)
-        self.copyOptimizableVariables(material)
+        #self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
+        #self.copyOptimizableVariables(shape)
+        #self.copyOptimizableVariables(material)
+
+        #self.thickness =
+        self.addVariable("thickness", OptimizableVariable(False, "Variable", value=thickness))
+        # TODO: new style code
 
     def setThickness(self, thickness):
-        self.thickness.val = thickness
+        self.dict_variables["thickness"].setvalue(thickness)
 
     def getThickness(self):
-        return self.thickness.val
+        return self.dict_variables["thickness"].evaluate()
 
     def setMaterial(self, materialType):
         """
@@ -67,6 +72,9 @@ class Surface(ClassWithOptimizableVariables):
         """
 
         # conserve the most basic parameters of the shape
+        # TODO: should not be necessary anymore the old material will be overwritten and
+        # the new materials dict will be appended to the variables list as necessary
+        """
         try:
             varsToRemove = self.material.getAllOptimizableVariables()
             for v in varsToRemove:
@@ -83,7 +91,7 @@ class Surface(ClassWithOptimizableVariables):
         self.listOfOptimizableVariables += self.material.getAllOptimizableVariables()
 
         print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
-
+        """
 
         return self.material
 
@@ -105,6 +113,7 @@ class Surface(ClassWithOptimizableVariables):
         """
 
         # conserve the most basic parameters of the shape
+        """
         try:
             curv = self.shape.curvature.val
             #semidiam = self.shape.sdia.val
@@ -121,13 +130,19 @@ class Surface(ClassWithOptimizableVariables):
         # names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
 
         # self.shape = inspector.createObjectFromList(names, classes, shapeName)
+        """
         self.shape = shape
-        self.shape.curvature.val = curv
+        # OLD
+        #self.shape.curvature.val = curv
+
+
         #self.shape.sdia.val = semidiam
 
 
         # add optimizable variables of new shape
-        self.listOfOptimizableVariables += self.shape.getAllOptimizableVariables()
+
+        # OLD
+        #self.listOfOptimizableVariables += self.shape.getAllOptimizableVariables()
 
         return self.shape
 
@@ -150,7 +165,7 @@ class Surface(ClassWithOptimizableVariables):
         """
         curvature = self.shape.getCentralCurvature()
         nextCurvature = nextSurface.shape.getCentralCurvature()
-        return self.material.getABCDMatrix(curvature, self.thickness.val, nextCurvature, ray)
+        return self.material.getABCDMatrix(curvature, self.getThickness(), nextCurvature, ray)
 
 
 class OpticalSystem(ClassWithOptimizableVariables):

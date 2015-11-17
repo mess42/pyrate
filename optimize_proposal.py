@@ -143,6 +143,9 @@ class ClassWithOptimizableVariables(object):
 
         lst_of_vars = self.dict_variables.values()
         lst_of_attributes_which_are_class_with_opt_vars = filter(lambda x: isinstance(x, ClassWithOptimizableVariables), self.__dict__.values())
+        for list_vars in filter(lambda x: isinstance(x, list) or isinstance(x, tuple), self.__dict__.values()):
+            for a in list_vars:
+                lst_of_vars.extend(a.getAllVariables())
 
         for a in lst_of_attributes_which_are_class_with_opt_vars:
             lst_of_vars.extend(a.getAllVariables())

@@ -248,6 +248,6 @@ class RayPath(object):
         offy = offset[0]
         offz = offset[1]
         for i in arange(Nsurf):
-            offz += opticalsystem.surfaces[i].thickness.val
+            offz += opticalsystem.surfaces[i].getThickness()
             self.raybundles[i].draw2d(ax, offset=(offy, offz), color=color)
 
