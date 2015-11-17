@@ -22,23 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-import time
 import pickle, pickletools
 
-
-import core.pupil as pupil
-import core.field as field
-import core.raster as raster
-import core.material as material
-import core.aim as aim
-import core.merit as merit
-import core.surfShape as surfShape
-import core.optimize as optimize
+from core import material
+from core import surfShape
 from core.optical_system import OpticalSystem, Surface
-from core.ray import RayPath
-import core.plots as plots
+
 from core.aperture import CircularAperture
 
 # definition of optical system

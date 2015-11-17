@@ -5,8 +5,8 @@ import PartGui
 import Points
 
 
-import core.merit
-import core.optimize
+from core import merit
+from core import optimize
 
 import PyrateInterface
 from PySide import QtGui
@@ -90,9 +90,9 @@ class StartOptimizationCommand:
         # optimization
 
         PyrateInterface.OSinterface.os = \
-        core.optimize.optimizeNewton1D(
+        optimize.optimizeNewton1D(
                                        PyrateInterface.OSinterface.os,
-                                       core.merit.mySimpleDumpRMSSpotSizeMeritFunction, iterations=numsteps, dx=delta
+                                       merit.mySimpleDumpRMSSpotSizeMeritFunction, iterations=numsteps, dx=delta
                                        )
         # update
         # TODO: organize in PyrateInterface class

@@ -27,16 +27,16 @@ import matplotlib.pyplot as plt
 import time
 
 
-import core.pupil as pupil
-import core.field as field
-import core.raster as raster
-import core.material as material
-import core.aim as aim
-import core.surfShape as surfShape
+from core import pupil
+from core import field
+from core import raster
+from core import material
+from core import aim
+from core import surfShape
 from core.optical_system import OpticalSystem, Surface
 from core.ray import RayPath
 
-import core.plots as plots
+from core import plots
 from core.aperture import CircularAperture
 
 # definition of optical system

@@ -1,22 +1,34 @@
 # access to global variables for the FreeCAD interface
 
 import FreeCADGui
+import FreeCAD
 
-import PyrateInterface
-import CreateSystem
-import LoadSystem
-import SaveSystem
-import DeleteRays
-import DeleteSystem
-import VisualizeSystem
-import FieldOfSystem
-import AnalyseSystem
-import OptimizeSystem
+from PyrateWorkbench import PyrateInterface
+from PyrateWorkbench import CreateSystem
+from PyrateWorkbench import LoadSystem
+from PyrateWorkbench import SaveSystem
+from PyrateWorkbench import DeleteRays
+from PyrateWorkbench import DeleteSystem
+from PyrateWorkbench import VisualizeSystem
+from PyrateWorkbench import FieldOfSystem
+from PyrateWorkbench import AnalyseSystem
+from PyrateWorkbench import OptimizeSystem
+
+#import PyrateWorkbench.PyrateInterface
+#import PyrateWorkbench.CreateSystem
+#import PyrateWorkbench.LoadSystem
+#import PyrateWorkbench.SaveSystem
+#import PyrateWorkbench.DeleteRays
+#import PyrateWorkbench.DeleteSystem
+#import PyrateWorkbench.VisualizeSystem
+#import PyrateWorkbench.FieldOfSystem
+#import PyrateWorkbench.AnalyseSystem
+#import PyrateWorkbench.OptimizeSystem
 
 
 
 # access to the resource file
-import resources_rc
+from PyrateWorkbench import resources_rc
 
 class PyrateWorkbench ( Workbench ):
     "Pyrate workbench object"
