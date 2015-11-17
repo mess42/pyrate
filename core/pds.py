@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 
 def decorator_timer(f):
@@ -264,3 +265,16 @@ class Poisson2D:
 
     def returnCompleteSample(self):
         return np.array(self.samplelist)
+
+
+if __name__ == "__main__":
+    bla = Poisson2D(1.0, 1.0, 0.01, 30)
+    bla.initialize()
+
+    bla.run()
+    completesample = np.transpose(bla.returnCompleteSample())
+    #blub = bla.chooseNewpointAroundRefpointList((10.,10.), 10000).transpose()
+    #print(str(blub))
+    plt.scatter(*completesample)
+    plt.show()
+

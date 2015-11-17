@@ -22,11 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 from ray import RayBundle
-from optimize import ClassWithOptimizableVariables
+import optimize
 
 # import FreeCAD
 
-class Material(ClassWithOptimizableVariables):
+class Material(optimize.ClassWithOptimizableVariables):
     """Abstract base class for materials."""
     def refract(self, ray, intersection, normal, validIndices):
         """
@@ -85,7 +85,8 @@ class ConstantIndexGlass(Material):
         super(ConstantIndexGlass, self).__init__()
         self.listOfOptimizableVariables = []
 
-        self.n = self.createOptimizableVariable("refractive index", value=n, status=False)
+        self.n = optimize.OptimizableVariable(False, value=n)
+        self.addVariable("refractive index", self.n)
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
 
@@ -124,7 +125,7 @@ class ConstantIndexGlass(Material):
         self.n.val = n
 
     def getIndex(self, ray):
-        return self.n.val
+        return self.n.evaluate()
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
         n = self.getIndex(ray)

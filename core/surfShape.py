@@ -3,6 +3,7 @@
 Pyrate - Optical raytracing based on Python
 
 Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
 
 This program is free software; you can redistribute it and/or
@@ -21,9 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-from optimize_proposal import ClassWithOptimizableVariables
+from optimize import ClassWithOptimizableVariables
 from aperture import CircularAperture
-from optimize_proposal import OptimizableVariable
+from optimize import OptimizableVariable
 
 
 class Shape(ClassWithOptimizableVariables):

@@ -1,24 +1,45 @@
+#!/usr/bin/env/python
+"""
+Pyrate - Optical raytracing based on Python
+
+Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and Johannes Hartung j.hartung@gmx.net
+               and    Uwe Lippmann  uwe.lippmann@web.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import pupil
-import field
-import raster
-import material
-import aim
-import merit
-import surfShape
-import optimize_proposal
-from optical_system import OpticalSystem, Surface
-from ray import RayPath
-
-import plots
-
 import pickle, pickletools
 
+import core.pupil as pupil
+import core.field as field
+import core.raster as raster
+import core.material as material
+import core.aim as aim
+import core.merit as merit
+import core.surfShape as surfShape
+import core.optimize
+from core.optical_system import OpticalSystem, Surface
+from core.ray import RayPath
 
-import optical_system
-from aperture import CircularAperture
+import core.plots as plots
+from core.aperture import CircularAperture
 
 # definition of optical system
 s = OpticalSystem(objectDistance = 2.0)
@@ -78,7 +99,7 @@ s.surfaces[7].shape.setStatus("curvature", True)
 
 print "aimy,stopDiameter before: ", aimy.stopDiameter
 
-s = optimize_proposal.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
+s = core.optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
 
 print "aimy,stopDiameter after: ", aimy.stopDiameter
 

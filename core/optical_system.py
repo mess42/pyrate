@@ -29,8 +29,8 @@ import pupil
 
 #import inspector
 import numpy as np
-from optimize_proposal import ClassWithOptimizableVariables
-from optimize_proposal import OptimizableVariable
+from optimize import ClassWithOptimizableVariables
+from optimize import OptimizableVariable
 
 
 class Surface(ClassWithOptimizableVariables):
