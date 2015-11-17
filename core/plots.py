@@ -3,13 +3,17 @@ import ray
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+# TODO: Method headers, Comments
+# TODO: three spot diagrams: vertex spot diagram, chief ray spot diagram, centroid spot diagram
+
+
 def drawLayout2d(ax, s, list_of_raypaths, list_of_raypath_colors = 0):
     if list_of_raypath_colors == 0:
         list_of_raypath_colors = map(lambda e: 'blue', range(len(list_of_raypaths)))
     map(lambda r: r[0].draw2d(s, ax, color=r[1]), zip(list_of_raypaths, list_of_raypath_colors))
     s.draw2d(ax)
 
-# TODO: three spot diagrams: vertex spot diagram, chief ray spot diagram, centroid spot diagram
 
 def drawSpotDiagram(ax, s, raypath, surfaceno):
     # perhaps: raypath should give points at certain surface number back

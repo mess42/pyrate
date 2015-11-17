@@ -57,6 +57,8 @@ def decorator_timer(f):
 
 
 
+# TODO: Method headers, Comments
+
 class Poisson2D:
     """
     Slow implementation of Poisson disk sampling. Works for 2D.
