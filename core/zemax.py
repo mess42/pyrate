@@ -25,10 +25,10 @@ import codecs
 if __name__ == "__main__":
     fh = codecs.open(r"../lenssystem.ZMX", "r")
     textlines = []
-    with codecs.open(r"../lenssystem.ZMX", "r", "Unicode") as fh:
+    with codecs.open(r"../lenssystem.ZMX", "r", "utf-16") as fh:
         textlines = list(fh)
 
     print textlines
 
     for lin in textlines:
-        print lin
+        print lin.rstrip()
