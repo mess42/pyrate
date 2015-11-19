@@ -23,18 +23,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import codecs
 import re
 
+class ParseZMX(object):
+    def __init__(self, filename):
+        self.__textlines = []
+        with codecs.open(filename, "r", "utf-16") as fh:
+            self.__textlines = list(fh)
+        self.__full_textlines = "".join(self.__textlines)
+
+    def returnBlockStrings(self):
+        return re.split("\r\n(?=\S)", self.__full_textlines)
+        # match if look-ahead gives non-whitespace after line break
+
+    def returnBlockKeyword(self, blk):
+        return re.findall("^\w+(?=\s+)", blk)[0]
+
+
+
+
+
 if __name__ == "__main__":
-    textlines = []
-    with codecs.open(r"../lenssystem.ZMX", "r", "utf-16") as fh:
-        textlines = list(fh)
 
-    full_textlines = "".join(textlines)
+    p = ParseZMX(r"../lenssystem.ZMX")
 
-    textblocks = re.split("\r\n(?=\S)", full_textlines)
-    # match if look-ahead gives non-whitespace after line break
+    bs = p.returnBlockStrings()
 
-    for blk in textblocks:
-        print "-----------------"
+    print bs
+
+    for blk in bs:
+        print p.returnBlockKeyword(blk)
+
+    surfbs = filter(lambda x: p.returnBlockKeyword(x) == "SURF", bs)
+
+    for blk in surfbs:
         print blk
 
 
