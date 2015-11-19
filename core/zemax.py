@@ -21,14 +21,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import codecs
+import re
 
 if __name__ == "__main__":
-    fh = codecs.open(r"../lenssystem.ZMX", "r")
     textlines = []
     with codecs.open(r"../lenssystem.ZMX", "r", "utf-16") as fh:
         textlines = list(fh)
 
-    print textlines
+    full_textlines = "".join(textlines)
 
-    for lin in textlines:
-        print lin.rstrip()
+    textblocks = re.split("\r\n(?=\S)", full_textlines)
+    # match if look-ahead gives non-whitespace after line break
+
+    for blk in textblocks:
+        print "-----------------"
+        print blk
+
+
+    #for lin in textlines:
+    #    print lin.rstrip()
