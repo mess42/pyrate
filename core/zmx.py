@@ -24,6 +24,19 @@ import codecs
 import re
 
 class ParseZMX(object):
+
+    """
+    COORDBRK
+    parm1: decx
+    parm2: decy
+    parm3: rx
+    parm4: ry
+    parm5: rz
+    parm6: order 0: heisst 1. decx, 2. decy, 3. rx, 4. ry, 5. rz
+            order 1: heisst 1. rz 2. ry 3. rz, 4. decy, 5. decx
+    disz: thickness (where does this appear in the transform? step 0?)
+    """
+
     def __init__(self, filename):
         self.__textlines = []
         with codecs.open(filename, "r", "utf-16") as fh:
@@ -55,7 +68,9 @@ if __name__ == "__main__":
     surfbs = filter(lambda x: p.returnBlockKeyword(x) == "SURF", bs)
 
     for blk in surfbs:
+        print "----"
         print blk
+
 
 
     #for lin in textlines:
