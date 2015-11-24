@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import codecs
 import re
+from asyncore import read
 
 class ParseZMX(object):
 
@@ -39,9 +40,14 @@ class ParseZMX(object):
 
     def __init__(self, filename):
         self.__textlines = []
+        self.loadFile(filename)
+
+    def loadFile(self, filename):
+        self.__textlines = []
         with codecs.open(filename, "r", "utf-16") as fh:
             self.__textlines = list(fh)
         self.__full_textlines = "".join(self.__textlines)
+
 
     def returnBlockStrings(self):
         return re.split("\r\n(?=\S)", self.__full_textlines)
@@ -50,6 +56,32 @@ class ParseZMX(object):
     def returnBlockKeyword(self, blk):
         return re.findall("^\w+(?=\s+)", blk)[0]
 
+    def readArgsForKeyword(self, linestr, keywordstr, *args):
+        stringargs = linestr.split()
+        restargs = stringargs[1:]
+        res = []
+        if stringargs[0] == keywordstr:
+            # continue interpreting
+            if len(stringargs)-1 >= len(args):
+                # continue interpreting
+                for (ind, a) in enumerate(args):
+                    res.append(a(restargs[ind]))
+                return res
+            else:
+                return None
+        else:
+            return None
+
+        return None
+
+    def readSurfBlock(self, surfblk):
+        res = []
+        # res = [surfnum, stop, type, parms, disz]
+
+        blocklines = [x.lstrip() for x in surfblk.split("\r\n")]
+
+
+        return blocklines
 
 
 
@@ -69,7 +101,8 @@ if __name__ == "__main__":
 
     for blk in surfbs:
         print "----"
-        print blk
+        surflines = p.readSurfBlock(blk)
+        print filter(lambda x: x != None, [p.readArgsForKeyword(lin, "SURF", int) for lin in surflines])
 
 
 
