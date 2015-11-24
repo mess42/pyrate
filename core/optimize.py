@@ -34,16 +34,16 @@ class OptimizableVariable(object):
         """
         Name is gone since it's only needed for reference. Therefore the former listOfOptimizableVariables
         will be a dictionary. type may contain a string e.g.
-        "Variable", "Solve", "Pickup", "...",
+        "Variable", "Pickup", "External", "...",
         status=True means updating during optimization run
         status=False means no updating during optimization run
         kwargs depend on type
         "Variable" is value=value
-        "Solve" gets function=f, args=tuple of optimizablevariables
-        "Pickup" gets function=f, args=tuple of external standard variables (or values)
+        "Pickup" gets function=f, args=tuple of optimizablevariables
+        "External" gets function=f, args=tuple of external standard variables (or values)
 
         :param variable_status (bool): should variable optimized during optimization run?
-        :param variable_type (string): which kind of variable do we have? valid choices are: 'variable', 'solve', 'pickup'
+        :param variable_type (string): which kind of variable do we have? valid choices are: 'variable', 'pickup', 'external'
 
         :param kwargs (keyword arguments): used to fill up parameters dictionary for variable.
 
@@ -51,8 +51,8 @@ class OptimizableVariable(object):
 
         type:        kwargs:
         'variable'    value=1.0, or value='hello'
-        'solve'        function=f, args=(other_optvar1, other_optvar2, ...)
-        'pickup'        function=f, args=(other_externalvar/value, ...)
+        'pickup'        function=f, args=(other_optvar1, other_optvar2, ...)
+        'external'        function=f, args=(other_externalvar/value, ...)
 
         Notice: f must take exactly as many arguments as args=... long is. The only constraint on f is
         that it has to convert the variables into some final float variable. If this is not the case some
@@ -64,9 +64,9 @@ class OptimizableVariable(object):
         self.status = variable_status
         self.parameters = kwargs
 
-        # TODO: status variable for "solve" and "pickup"
+        # TODO: status variable for "pickup" and "external"
         # TODO: either status variable is important or not
-        # TODO: most simple solution -> ignore status variable for "solve" and "pickup"
+        # TODO: most simple solution -> ignore status variable for "pickup" and "external"
         # TODO: more complex solution -> use status variable to update initial_value and return its value
         # in evaluate()
 
@@ -91,14 +91,14 @@ class OptimizableVariable(object):
         # if type = variable then give only access to value
         return self.parameters["value"]
 
-    def eval_solve(self):
+    def eval_pickup(self):
         # if type = variable then pack all arguments into one tuple
         # and put it into the userdefined function
         # evaluate the result
         arguments_for_function_eval = (argfunc.evaluate() for argfunc in self.parameters["args"])
         return self.parameters["function"](*arguments_for_function_eval)
 
-    def eval_pickup(self):
+    def eval_external(self):
         # same as for solve except that there are no further OptimizableVariables to be considered
         return self.parameters["function"](*self.parameters["args"])
 
@@ -109,8 +109,8 @@ class OptimizableVariable(object):
         # do not use if-else construct because for many cases dict lookup is faster
         evaldict = {
                     "variable" : self.eval_variable,
-                    "solve" : self.eval_solve,
-                    "pickup" : self.eval_pickup
+                    "pickup" : self.eval_pickup,
+                    "external" : self.eval_external
                     }
 
         return evaldict[self.var_type]()
@@ -174,7 +174,7 @@ class ClassWithOptimizableVariables(object):
 
     def getActiveVariablesIsWriteable(self):
         """
-        Returns a np.array of bools which is True for a variable and False for a solve or pickup,
+        Returns a np.array of bools which is True for a variable and False for a pickup or external,
         since they cannot be modified. The length of this vector is the same as for getActiveVariables()
         """
         return np.array(filter(lambda x: x.var_type == "variable", self.getActiveVariables()))
@@ -270,7 +270,7 @@ if __name__ == "__main__":
             self.addVariable("X", OptimizableVariable(True, "Variable", value=10.0))
             self.addVariable("Y", OptimizableVariable(True, "Variable", value=20.0))
             self.addVariable("Z",
-                         OptimizableVariable(True, "Solve",
+                         OptimizableVariable(True, "Pickup",
                                              function=lambda x, y: x**2 + y**2,
                                              args=(self.dict_variables["X"], self.dict_variables["Y"])))
 
@@ -286,8 +286,8 @@ if __name__ == "__main__":
 
     p = OptimizableVariable(False, "Variable", value="glass1")
     q = OptimizableVariable(True, "Variable", value="glass2")
-    r = OptimizableVariable(False, "Solve", function=f, args=(p, q))
-    s = OptimizableVariable(False, "Pickup", function=f, args=(1.0, 6.0))
+    r = OptimizableVariable(False, "Pickup", function=f, args=(p, q))
+    s = OptimizableVariable(False, "External", function=f, args=(1.0, 6.0))
     print p
     print p.__dict__
     print p.evaluate()
