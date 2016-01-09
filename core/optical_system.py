@@ -290,6 +290,8 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         return abcd
 
+
+
     def getParaxialPupil(self, stopPosition, ray):
         """
         Returns the paraxially calculated pupil positions.

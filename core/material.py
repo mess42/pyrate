@@ -76,6 +76,28 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
+    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
+        """
+        Returns an XYUV1 (5x5) matrix of the current surface.
+        The matrix is set up in geometric convention for (y, dy/dz) vectors.
+
+        The matrix contains:
+        - paraxial refraction from vacuum through the front surface
+        - paraxial translation through the material
+        - paraxial refraction at the rear surface into vacuum
+
+        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ),
+        this method picks the correct paraxial propagators.
+
+        :param curvature: front surface (self.) curvature on the optical axis (float)
+        :param thickness: material thickness on axis (float)
+        :param nextCurvature: rear surface curvature on the optical axis (float)
+        :param ray: ray bundle to obtain wavelength (RayBundle object)
+        :return xyuv1: XYUV1 matrix (2d numpy 5x5 matrix of float)
+        """
+        raise NotImplementedError()
+
+
 
 class ConstantIndexGlass(Material):
     """
@@ -132,6 +154,34 @@ class ConstantIndexGlass(Material):
         abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
         abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
+
+    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
+        n = self.getIndex(ray)
+        xyuv1 = np.dot([
+                       [1, 0, thickness, 0, 0],
+                       [0, 1, 0, thickness, 0],
+                       [0, 0, 1, 0, 0],
+                       [0, 0, 0, 1, 0],
+                       [0, 0, 0, 0, 1]
+                       ],
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [(1./n-1)*curvature, 0, 1./n, 0, 0],
+                       [0, (1./n-1)*curvature, 0, 1./n, 0],
+                       [0,0,0,0,1]
+                       ]
+                      )  # translation * front
+        xyuv1 = np.dot(
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [(n-1)*nextCurvature, 0, n, 0, 0],
+                       [0, (n-1)*nextCurvature, 0, n, 0],
+                       [0,0,0,0,1]
+                       ], xyuv1)                      # rear * abcd
+        return xyuv1
+
 
 
 class ModelGlass(ConstantIndexGlass):
@@ -230,6 +280,25 @@ class Mirror(Material):
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
         abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
         return abcd
+
+    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
+        abcd = np.dot([
+                       [1, 0, thickness, 0, 0],
+                       [0, 1, 0, thickness, 0],
+                       [0, 0, 1, 0, 0],
+                       [0, 0, 0, 1, 0],
+                       [0, 0, 0, 0, 1]
+                      ],
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [-2.0*curvature, 0, 1., 0, 0],
+                       [0, -2.0*curvature, 0., 1., 0],
+                       [0, 0, 0, 0, 1]
+                      ]
+                      )  # translation * mirror
+        return abcd
+
 
 class GrinMaterial(Material):
     def __init__(self, fun, dfdx, dfdy, dfdz, ds, energyviolation, bndfunction):
@@ -421,6 +490,34 @@ class GrinMaterial(Material):
         abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
 
+    def getXYUVMatrix(self, curvature, thickness, nextCurvature, ray):
+        n = self.nfunc(0.,0.,0.)
+        xyuv1 = np.dot([
+                       [1, 0, thickness, 0, 0],
+                       [0, 1, 0, thickness, 0],
+                       [0, 0, 1, 0, 0],
+                       [0, 0, 0, 1, 0],
+                       [0, 0, 0, 0, 1]
+                       ],
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [(1./n-1)*curvature, 0, 1./n, 0, 0],
+                       [0, (1./n-1)*curvature, 0, 1./n, 0],
+                       [0,0,0,0,1]
+                       ]
+                      )  # translation * front
+        xyuv1 = np.dot(
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [(n-1)*nextCurvature, 0, n, 0, 0],
+                       [0, (n-1)*nextCurvature, 0, n, 0],
+                       [0,0,0,0,1]
+                       ], xyuv1)                      # rear * abcd
+        return xyuv1
+
+
 class Tilt(Material):
     """
     Implements single decenter coordinate break. Shifts the optical axis.
@@ -433,6 +530,10 @@ class Tilt(Material):
 
         self.angle = optimize.OptimizableVariable(True, "Variable", value=angle)
         self.addVariable("angle", self.angle)
+
+        self.returnRotationMatrix(axis, self.angle.evaluate())
+
+    def returnRotationMatrix(self, axis, x):
         axis = axis.upper()
         axis = ord(axis) - ord('X')
 
@@ -450,7 +551,6 @@ class Tilt(Material):
         else:
             raise Exception("axis name out of bounds ('X', 'Y', 'Z' are allowed)")
 
-        self.axis = axis
 
     def refract(self, raybundle, intersection, normal, validIndices):
         """
@@ -495,4 +595,19 @@ class Tilt(Material):
         """
 
         return np.array([[1., 0.], [0., 1.]])
+
+
+    def getXYUVMatrix(self, curvature, thickness, nextCurvature, ray): # TODO: weitermachen
+        (axisnum, rotmatrix) = self.returnRotationMatrix(self.angle.evaluate())
+        n = self.nfunc(0.,0.,0.)
+
+
+        xyuv1 = np.array([
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [0, 0, 1, 0, 0],
+                       [0, 0, 0, 1, 0],
+                       [0, 0, 0, 0, 1]
+                       ])
+        return xyuv1
 
