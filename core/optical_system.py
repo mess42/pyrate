@@ -336,6 +336,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         print abcd
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
+
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         offy = offset[0]
         offz = offset[1]

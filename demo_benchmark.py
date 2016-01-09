@@ -50,7 +50,7 @@ s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884), thickness=3.0,
 s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756), thickness=3.0,
                            aperture=CircularAperture(1.3)))
 
-s.insertSurface(5, Surface(surfShape.Decenter(dx=0., dy=3.0)))
+s.insertSurface(5, Surface(surfShape.Decenter(dx = 0., dy = 1.), material=material.Tilt(angle=20.*np.pi/180.0, axis='X')))
 
 s.insertSurface(6, Surface(surfShape.Conic(), thickness=2.0, aperture=CircularAperture(1.01))) # Stop Surface
 s.insertSurface(7, Surface(surfShape.Conic(curv=1/3.125), thickness=3.0,

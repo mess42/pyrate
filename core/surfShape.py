@@ -256,6 +256,9 @@ class Asphere(Shape):
 class Decenter(Shape):
     """
     Implements single decenter coordinate break. Shifts the optical axis.
+    Notice that Decenter shifts the ray position relative to the incoming ray positions
+    (active transformation) due to calculation time issues.
+
     """
     def __init__(self, dx = 0., dy = 0.):
 
@@ -327,5 +330,7 @@ class Decenter(Shape):
         To do: find fancy rendering package
         """
         raise NotImplementedError()
+
+
 
 

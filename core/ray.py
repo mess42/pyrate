@@ -30,8 +30,8 @@ class RayBundle(object):
         """
         Class representing a bundle of rays.
 
-        :param o:     Origin of the rays.   (2d numpy 3xN array of float)
-        :param k:     Wavevectors of the rays, normalized by 2pi/lambda.
+        :param o:     Origin of the rays. Relative to the optical axis  (2d numpy 3xN array of float)
+        :param k:     Wavevectors of the rays, normalized by 2pi/lambda. Oriented relative to the optical axis.
                       (2d numpy 3xN array of float)
                       For media obeying the Snell law, the length of each vector
                       is the  refractive index of the current medium.
