@@ -25,6 +25,7 @@ import numpy as np
 from optimize import ClassWithOptimizableVariables
 from aperture import CircularAperture
 from optimize import OptimizableVariable
+from numpy import dtype
 
 
 class Shape(ClassWithOptimizableVariables):
@@ -64,7 +65,7 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
         """
         Plots the surface in a matplotlib figure.
         :param ax: matplotlib subplot handle
@@ -251,5 +252,80 @@ class Asphere(Shape):
     to do: polynomial asphere as base class for sophisticated surface descriptions
     """
     pass
+
+class Decenter(Shape):
+    """
+    Implements single decenter coordinate break. Shifts the optical axis.
+    """
+    def __init__(self, dx = 0., dy = 0.):
+
+        super(Decenter, self).__init__()
+
+        self.dx = OptimizableVariable(True, "Variable", value=dx)
+        self.addVariable("dx", self.dx) #self.createOptimizableVariable("curvature", value=curv, status=False)
+        self.dy = OptimizableVariable(True, "Variable", value=dy)
+        self.addVariable("dy", self.dy) #self.createOptimizableVariable("conic constant", value=cc, status=False)
+
+
+
+
+    def intersect(self, raybundle):
+        """
+        Intersection routine returning intersection point
+        with ray and normal vector of the surface.
+        :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
+        :return t: geometrical path length to the next surface (1d numpy array of float)
+        :return normal: surface normal vectors (2d numpy 3xN array of float)
+        :return validIndices: whether indices hit the surface (1d numpy array of bool)
+        """
+        rayDir = raybundle.rayDir
+
+        numrays = len(rayDir[0])
+
+        r0 = raybundle.o
+
+        t = np.zeros(numrays, dtype=float)
+
+        intersection = r0 + np.array([[self.dx.evaluate(), self.dy.evaluate(), 0]]).T
+
+        validIndices = np.ones(numrays, dtype=bool)
+
+        # Normal
+        normal = rayDir
+
+        return intersection, t, normal, validIndices
+
+    def getSag(self, x, y):
+        """
+        Returns the sag of the surface for given coordinates - mostly used
+        for plotting purposes.
+        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :return z: sag (list or numpy 1d array of float)
+        """
+        raise np.zeros_like(x)
+
+    def getCentralCurvature(self):
+        """
+        Returns the curvature ( inverse local radius ) on the optical axis.
+        :return curv: (float)
+        """
+        return 0.0
+
+    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
+        """
+        Plots the surface in a matplotlib figure.
+        :param ax: matplotlib subplot handle
+        :param offset: y and z offset (list or 1d numpy array of 2 floats)
+        :param vertices: number of points the polygon representation of the surface contains (int)
+        :param color: surface draw color (str)
+        """
+        pass
+
+    def draw3d(self, offset=(0, 0, 0), tilt=(0, 0, 0), color="grey"):
+        """
+        To do: find fancy rendering package
+        """
+        raise NotImplementedError()
 
 
