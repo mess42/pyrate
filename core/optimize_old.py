@@ -65,24 +65,30 @@ class ClassWithOptimizableVariables(object):
         return newvar
 
     def getAllOptimizableVariables(self):
+        # TODO: one does not need any getter if variable is still public
         #print "getAllOptVariables: ", [i.name for i in self.listOfOptimizableVariables]
         return self.listOfOptimizableVariables
 
     def getAllOptimizableValues(self):
+        # TODO: here it is useful to return a numpy array to get fast access to those elements
         return [a.val for a in self.getAllOptimizableVariables()]
 
     def getAllOptimiziableStates(self):
+        # TODO: here it is also useful to return numpy array because states is useful for later indexing
         return [a.status for a in self.getAllOptimizableVariables()]
 
     def getActiveOptimizableVariables(self):
+        # TODO: if the former methods have the proposed logic the np.array() statements could be neglected
         ind = np.array(self.getAllOptimiziableStates())
         return np.array(self.getAllOptimizableVariables())[ind]
 
     def getActiveOptimizableValues(self):
+        # TODO: if the former methods have the proposed logic the np.array() statements could be neglected
         ind = np.array(self.getAllOptimiziableStates())
         return np.array(self.getAllOptimizableValues())[ind]
 
     def setStatus(self, name, status=True):
+        # TODO: for this method a dict would be better
         N = len(self.listOfOptimizableVariables)
 
         names = []
@@ -100,7 +106,7 @@ class ClassWithOptimizableVariables(object):
     def copyOptimizableVariables(self, otherClassWithOptVars):
         """ Helper function due to non optimal communication of optvars between surface, material and shape
             should be removed later """
-
+        # TODO: copy from objects in __dict__ which are inherited from ClassWithOptimizableVariables
         try:
             varsToRemove = otherClassWithOptVars.getAllOptimizableVariables()
             #print "other listofoptvars: ", [i.name for i in varsToRemove]

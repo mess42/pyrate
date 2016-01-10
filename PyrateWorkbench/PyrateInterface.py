@@ -1,3 +1,27 @@
+#!/usr/bin/env/python
+"""
+Pyrate - Optical raytracing based on Python
+
+Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and Johannes Hartung j.hartung@gmx.net
+               and    Uwe Lippmann  uwe.lippmann@web.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
+
+
 # standard include
 
 import time
@@ -8,14 +32,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PySide import QtCore, QtGui
 
-import core.material
-import core.surfShape
-import core.aim
-import core.field
-import core.pupil
-import core.raster
-import core.plots
-import core.aperture
+# TODO: did not understand this import directives
+# TODO: is it because the main directory of our pyrate is the relative module import path?
+
+from core import material
+from core import surfShape
+from core import aim
+from core import field
+from core import pupil
+from core import raster
+from core import plots
+from core import aperture
 
 from core.ray import RayPath
 from core.optical_system import OpticalSystem, Surface
@@ -322,54 +349,50 @@ class OpticalSystemInterface(object):
         sys.stdout = self.stdout_backup
 
     def dummycreate(self): # should only create the demo system, will be removed later
-        self.os = OpticalSystem() # reinit os
-        self.os.surfaces[0].thickness.val = 2.0 # it is not good give the object itself a thickness if the user is not aware of that
+        self.os = OpticalSystem(objectDistance=2.0) # reinit os
         #self.os.surfaces[1].shape.sdia.val = 1e10 # radius of image plane may not be zero to be sure to catch all rays
-        self.os.insertSurface(1, Surface(core.surfShape.Conic(curv=1/-5.922), thickness=3.0, material=core.material.ConstantIndexGlass(1.7))) # 0.55
-        self.os.insertSurface(2, Surface(core.surfShape.Conic(curv=1/-3.160), thickness=5.0)) # 1.0
-        self.os.insertSurface(3, Surface(core.surfShape.Conic(curv=1/15.884), thickness=3.0, material=core.material.ConstantIndexGlass(1.7))) # 1.3
-        self.os.insertSurface(4, Surface(core.surfShape.Conic(curv=1/-12.756), thickness=3.0)) # 1.3
-        self.os.insertSurface(5, Surface(core.surfShape.Conic(), thickness=2.0)) # semidiam=1.01 # STOP
-        self.os.insertSurface(6, Surface(core.surfShape.Conic(curv=1/3.125), thickness=3.0, material=core.material.ConstantIndexGlass(1.5))) # semidiam=1.0
-        self.os.insertSurface(7, Surface(core.surfShape.Conic(curv=1/1.479), thickness=19.0)) # semidiam=1.0
+        self.os.insertSurface(1, Surface(surfShape.Conic(curv=1/-5.922), thickness=3.0, material=material.ConstantIndexGlass(1.7))) # 0.55
+        self.os.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160), thickness=5.0)) # 1.0
+        self.os.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884), thickness=3.0, material=material.ConstantIndexGlass(1.7))) # 1.3
+        self.os.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756), thickness=3.0)) # 1.3
+        self.os.insertSurface(5, Surface(surfShape.Conic(), thickness=2.0)) # semidiam=1.01 # STOP
+        self.os.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125), thickness=3.0, material=material.ConstantIndexGlass(1.5))) # semidiam=1.0
+        self.os.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479), thickness=19.0)) # semidiam=1.0
 
 
 
     def dummycreate2(self):
-        self.os = OpticalSystem() # reinit os
-        self.os.surfaces[0].thickness.val = 20.0
+        self.os = OpticalSystem(objectDistance=20.0) # reinit os
         #self.os.surfaces[1].shape.sdia.val = 1e10
         self.os.insertSurface(1,
-                              Surface(core.surfShape.Conic(curv=-1./24.),
+                              Surface(surfShape.Conic(curv=-1./24.),
                                       thickness = -30.0,
-                                      material=core.material.Mirror(),
-                                      aperture=core.aperture.CircularAperture(5.0)
+                                      material=material.Mirror(),
+                                      aperture=aperture.CircularAperture(5.0)
                                       )
 
                               )
 
 
     def dummycreate3(self): # should only create the demo system, will be removed later
-        self.os = OpticalSystem() # reinit os
-        self.os.surfaces[0].thickness.val = 2.0 # it is not good give the object itself a thickness if the user is not aware of that
+        self.os = OpticalSystem(objectDistance=2.0) # reinit os
         #self.os.surfaces[1].shape.sdia.val = 1e10 # radius of image plane may not be zero to be sure to catch all rays
-        self.os.insertSurface(1, Surface(core.surfShape.Conic(curv=1/-5.922), thickness=3.0,
-                           material=core.material.ConstantIndexGlass(1.7), aperture=core.aperture.CircularAperture(0.55))) # 0.55
-        self.os.insertSurface(2, Surface(core.surfShape.Conic(curv=1/-3.160), thickness=5.0, aperture=core.aperture.CircularAperture(1.0))) # 1.0
-        self.os.insertSurface(3, Surface(core.surfShape.Conic(curv=1/15.884), thickness=3.0,
-                           material=core.material.ConstantIndexGlass(1.7), aperture=core.aperture.CircularAperture(1.3))) # 1.3
-        self.os.insertSurface(4, Surface(core.surfShape.Conic(curv=1/-12.756), thickness=3.0,
-                           aperture=core.aperture.CircularAperture(1.3))) # 1.3
-        self.os.insertSurface(5, Surface(core.surfShape.Conic(), thickness=2.0, aperture=core.aperture.CircularAperture(1.01))) # semidiam=1.01 # STOP
-        self.os.insertSurface(6, Surface(core.surfShape.Conic(curv=1/3.125), thickness=3.0,
-                           material=core.material.ConstantIndexGlass(1.5), aperture=core.aperture.CircularAperture(1.0))) # semidiam=1.0
-        self.os.insertSurface(7, Surface(core.surfShape.Conic(curv=0.1*1/1.479), thickness=19.0,
-                           aperture=core.aperture.CircularAperture(1.0))) # semidiam=1.0
+        self.os.insertSurface(1, Surface(surfShape.Conic(curv=1/-5.922), thickness=3.0,
+                           material=material.ConstantIndexGlass(1.7), aperture=aperture.CircularAperture(0.55))) # 0.55
+        self.os.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160), thickness=5.0, aperture=aperture.CircularAperture(1.0))) # 1.0
+        self.os.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884), thickness=3.0,
+                           material=material.ConstantIndexGlass(1.7), aperture=aperture.CircularAperture(1.3))) # 1.3
+        self.os.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756), thickness=3.0,
+                           aperture=aperture.CircularAperture(1.3))) # 1.3
+        self.os.insertSurface(5, Surface(surfShape.Conic(), thickness=2.0, aperture=aperture.CircularAperture(1.01))) # semidiam=1.01 # STOP
+        self.os.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125), thickness=3.0,
+                           material=material.ConstantIndexGlass(1.5), aperture=aperture.CircularAperture(1.0))) # semidiam=1.0
+        self.os.insertSurface(7, Surface(surfShape.Conic(curv=0.1*1/1.479), thickness=19.0,
+                           aperture=aperture.CircularAperture(1.0))) # semidiam=1.0
 
 
     def dummycreate4(self):
-        self.os = OpticalSystem() # reinit os
-        self.os.surfaces[0].thickness.val = 20.0
+        self.os = OpticalSystem(objectDistance=20.0) # reinit os
         #self.os.surfaces[1].shape.sdia.val = 1e10
 
         def nfun(x, y, z):
@@ -388,16 +411,16 @@ class OpticalSystemInterface(object):
             return np.ones_like(x, dtype=bool)
 
         self.os.insertSurface(1,
-                              Surface(core.surfShape.Conic(curv=-1./24.),
+                              Surface(surfShape.Conic(curv=-1./24.),
                                       thickness = 30.0,
-                                      material=core.material.GrinMaterial(nfun, ndx, ndy, ndz, 0.01, 1e-3, boundarycheck),
-                                      aperture=core.aperture.CircularAperture(5.0)
+                                      material=material.GrinMaterial(nfun, ndx, ndy, ndz, 0.01, 1e-3, boundarycheck),
+                                      aperture=aperture.CircularAperture(5.0)
                                       )
                               )
         self.os.insertSurface(2,
-                              Surface(core.surfShape.Conic(curv=1./24.),
+                              Surface(surfShape.Conic(curv=1./24.),
                                       thickness = 10.0,
-                                      aperture=core.aperture.CircularAperture(5.0)
+                                      aperture=aperture.CircularAperture(5.0)
                                       )
                               )
 
@@ -573,10 +596,10 @@ class OpticalSystemInterface(object):
         #self.aimfinitestopdata = (pupiltype, pupilsize, fieldType, rasterType, stopPosition)
 
         if self.aimfinitestopdata == None:
-            pupiltype = core.pupil.EntrancePupilDiameter
+            pupiltype = pupil.EntrancePupilDiameter
             pupilsize = 2.0
-            fieldType = core.field.ObjectHeight
-            rasterType = core.raster.RectGrid
+            fieldType = field.ObjectHeight
+            rasterType = raster.RectGrid
             stopPosition = 1
             numrays = 10
         else:
@@ -594,13 +617,13 @@ class OpticalSystemInterface(object):
         ad = AimDialog(pupilsize, stopPosition, numrays) # TODO: init with aimy object and return aimy object
         ad.exec_()
         if ad.pupiltype != "":
-            pupiltype = eval("core.pupil."+ad.pupiltype) # eval is evil but who cares :p
+            pupiltype = eval("pupil."+ad.pupiltype) # eval is evil but who cares :p
         if ad.pupilsize != 0.0:
             pupilsize = ad.pupilsize
         if ad.fieldtype != "":
-            fieldType = eval("core.field."+ad.fieldtype)
+            fieldType = eval("field."+ad.fieldtype)
         if ad.rastertype != "":
-            rasterType = eval("core.raster."+ad.rastertype)
+            rasterType = eval("raster."+ad.rastertype)
         if ad.stopposition != 0:
             stopPosition = ad.stopposition
 
@@ -613,7 +636,7 @@ class OpticalSystemInterface(object):
 
         # TODO: nrays changeable (depends on whether spot diagram or graphical 3d representation)
         # TODO: let this dialog return aimy object
-        self.aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
+        self.aimy = aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
                                                     pupilSizeParameter=pupilsize, \
                                                     fieldType= fieldType, \
                                                     rasterType= rasterType, \
@@ -644,7 +667,7 @@ class OpticalSystemInterface(object):
         (pupiltype, pupilsize, fieldtype, rastertype, stopposition) = self.aimfinitestopdata
 
         aimy = self.aimy
-        # aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
+        # aimy = aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
         #                                             pupilSizeParameter=pupilsize, \
         #                                            fieldType= fieldtype, \
         #                                            rasterType= rastertype, \
@@ -661,7 +684,7 @@ class OpticalSystemInterface(object):
             ax.axis('equal')
 
 
-            core.plots.drawSpotDiagram(ax, self.os, rp, -1)
+            plots.drawSpotDiagram(ax, self.os, rp, -1)
         plt.show()
 
 
@@ -687,7 +710,7 @@ class OpticalSystemInterface(object):
         # TODO: aimy may not be called all the time due to recalculation of stopdiameter which should be fixed
 
         aimy = self.aimy
-        #aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
+        #aimy = aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupiltype, \
         #                                            pupilSizeParameter=pupilsize, \
         #                                            fieldType= fieldtype, \
         #                                            rasterType= rastertype, \
@@ -696,16 +719,16 @@ class OpticalSystemInterface(object):
 
         print str(aimy.stopDiameter)
 
-        #aimy = core.aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= core.pupil.EntrancePupilDiameter, \
+        #aimy = aim.aimFiniteByMakingASurfaceTheStop(self.os, pupilType= pupil.EntrancePupilDiameter, \
         #                                            pupilSizeParameter=pupilsize, \
-        #                                            fieldType= core.field.ObjectHeight, \
-        #                                            rasterType= core.raster.RectGrid, \
+        #                                            fieldType= field.ObjectHeight, \
+        #                                            rasterType= raster.RectGrid, \
         #                                            nray=numrays, wavelength=wavelengthparam, \
         #                                            stopPosition=stopposition)
         #aimy.setPupilRaster(rasterType= raster.ChiefAndComa, nray=numrays)
         #aimy.setPupilRaster(rasterType= raster.RectGrid, nray=numrays)
 
-        #aimy.setPupilRaster(rasterType= core.raster.PoissonDiskSampling, nray=numrays)
+        #aimy.setPupilRaster(rasterType= raster.PoissonDiskSampling, nray=numrays)
 
         for fp in self.fieldpoints:
             initialBundle = aimy.getInitialRayBundle(self.os, fieldXY=np.array(fp), wavelength=self.wavelength)

@@ -43,12 +43,38 @@ class BaseAperture(object):
         self.ty = ty
 
     def getTypicalDimension(self):
+        """
+        Returns typical dimension of aperture
+
+        :return self.typicaldimension: float
+        """
+
         return self.typicaldimension
 
     def arePointsInAperture(self, x, y):
+        """
+
+        Returns of points given by numpy arrays x, y are within aperture
+
+        :param x: x location of points in local coordinate system (1d numpy array of n floats)
+        :param y: y location of points in local coordinate system (1d numpy array of n floats)
+
+        :return True (1d numpy array of n bools)
+        """
+
+
         return np.ones_like(x, dtype=bool) # return true always
 
     def getBooleanFunction(self):
+        """
+
+        Returns boolean function of aperture
+
+        :return anonymous function for 2 arguments x, y
+
+        """
+
+
         return (lambda x, y: True)
 
 

@@ -22,17 +22,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 from ray import RayBundle
-from optimize import ClassWithOptimizableVariables
+import optimize
 
 # import FreeCAD
 
-class Material(ClassWithOptimizableVariables):
+class Material(optimize.ClassWithOptimizableVariables):
     """Abstract base class for materials."""
-    def refract(self, ray, intersection, normal, validIndices):
+    def refract(self, raybundle, intersection, normal, validIndices):
         """
         Class describing the interaction of the ray at the surface based on the material.
 
-        :param ray: Incoming ray ( RayBundle object )
+        :param raybundle: Incoming raybundle ( RayBundle object )
         :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
         :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
         :param validIndices: whether the rays did hit the shape correctly (1d numpy array of bool)
@@ -76,6 +76,28 @@ class Material(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
+    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
+        """
+        Returns an XYUV1 (5x5) matrix of the current surface.
+        The matrix is set up in geometric convention for (y, dy/dz) vectors.
+
+        The matrix contains:
+        - paraxial refraction from vacuum through the front surface
+        - paraxial translation through the material
+        - paraxial refraction at the rear surface into vacuum
+
+        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ),
+        this method picks the correct paraxial propagators.
+
+        :param curvature: front surface (self.) curvature on the optical axis (float)
+        :param thickness: material thickness on axis (float)
+        :param nextCurvature: rear surface curvature on the optical axis (float)
+        :param ray: ray bundle to obtain wavelength (RayBundle object)
+        :return xyuv1: XYUV1 matrix (2d numpy 5x5 matrix of float)
+        """
+        raise NotImplementedError()
+
+
 
 class ConstantIndexGlass(Material):
     """
@@ -85,7 +107,8 @@ class ConstantIndexGlass(Material):
         super(ConstantIndexGlass, self).__init__()
         self.listOfOptimizableVariables = []
 
-        self.n = self.createOptimizableVariable("refractive index", value=n, status=False)
+        self.n = optimize.OptimizableVariable(False, value=n)
+        self.addVariable("refractive index", self.n)
 
     def refract(self, raybundle, intersection, normal, previouslyValid):
 
@@ -124,13 +147,41 @@ class ConstantIndexGlass(Material):
         self.n.val = n
 
     def getIndex(self, ray):
-        return self.n.val
+        return self.n.evaluate()
 
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
         n = self.getIndex(ray)
         abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
         abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
+
+    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
+        n = self.getIndex(ray)
+        xyuv1 = np.dot([
+                       [1, 0, thickness, 0, 0],
+                       [0, 1, 0, thickness, 0],
+                       [0, 0, 1, 0, 0],
+                       [0, 0, 0, 1, 0],
+                       [0, 0, 0, 0, 1]
+                       ],
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [(1./n-1)*curvature, 0, 1./n, 0, 0],
+                       [0, (1./n-1)*curvature, 0, 1./n, 0],
+                       [0,0,0,0,1]
+                       ]
+                      )  # translation * front
+        xyuv1 = np.dot(
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [(n-1)*nextCurvature, 0, n, 0, 0],
+                       [0, (n-1)*nextCurvature, 0, n, 0],
+                       [0,0,0,0,1]
+                       ], xyuv1)                      # rear * abcd
+        return xyuv1
+
 
 
 class ModelGlass(ConstantIndexGlass):
@@ -229,6 +280,25 @@ class Mirror(Material):
     def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
         abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
         return abcd
+
+    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
+        abcd = np.dot([
+                       [1, 0, thickness, 0, 0],
+                       [0, 1, 0, thickness, 0],
+                       [0, 0, 1, 0, 0],
+                       [0, 0, 0, 1, 0],
+                       [0, 0, 0, 0, 1]
+                      ],
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [-2.0*curvature, 0, 1., 0, 0],
+                       [0, -2.0*curvature, 0., 1., 0],
+                       [0, 0, 0, 0, 1]
+                      ]
+                      )  # translation * mirror
+        return abcd
+
 
 class GrinMaterial(Material):
     def __init__(self, fun, dfdx, dfdy, dfdz, ds, energyviolation, bndfunction):
@@ -419,4 +489,125 @@ class GrinMaterial(Material):
         abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
         abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
         return abcd
+
+    def getXYUVMatrix(self, curvature, thickness, nextCurvature, ray):
+        n = self.nfunc(0.,0.,0.)
+        xyuv1 = np.dot([
+                       [1, 0, thickness, 0, 0],
+                       [0, 1, 0, thickness, 0],
+                       [0, 0, 1, 0, 0],
+                       [0, 0, 0, 1, 0],
+                       [0, 0, 0, 0, 1]
+                       ],
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [(1./n-1)*curvature, 0, 1./n, 0, 0],
+                       [0, (1./n-1)*curvature, 0, 1./n, 0],
+                       [0,0,0,0,1]
+                       ]
+                      )  # translation * front
+        xyuv1 = np.dot(
+                      [
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [(n-1)*nextCurvature, 0, n, 0, 0],
+                       [0, (n-1)*nextCurvature, 0, n, 0],
+                       [0,0,0,0,1]
+                       ], xyuv1)                      # rear * abcd
+        return xyuv1
+
+
+class Tilt(Material):
+    """
+    Implements single decenter coordinate break. Shifts the optical axis.
+    Notice that Tilt tilts the ray directions relative to the incoming ray directions (active transformation)
+    due to calculation time issues.
+    """
+    def __init__(self, angle=0., axis='X'):
+
+        super(Tilt, self).__init__()
+
+        self.angle = optimize.OptimizableVariable(True, "Variable", value=angle)
+        self.addVariable("angle", self.angle)
+
+        self.returnRotationMatrix(axis, self.angle.evaluate())
+
+    def returnRotationMatrix(self, axis, x):
+        axis = axis.upper()
+        axis = ord(axis) - ord('X')
+
+        rotfuncx = lambda x: np.array([[1, 0, 0], [0, np.cos(x), -np.sin(x)], [0, np.sin(x), np.cos(x)]])
+        rotfuncy = lambda x: np.array([[np.cos(x), 0, np.sin(x)], [0, 1, 0], [-np.sin(x), 0, np.cos(x)]])
+        rotfuncz = lambda x: np.array([[np.cos(x), -np.sin(x), 0], [np.sin(x), np.cos(x), 0], [0, 0, 1]])
+
+
+        if axis == 0:
+            self.rotfunc = rotfuncx
+        elif axis == 1:
+            self.rotfunc = rotfuncy
+        elif axis == 2:
+            self.rotfunc = rotfuncz
+        else:
+            raise Exception("axis name out of bounds ('X', 'Y', 'Z' are allowed)")
+
+
+    def refract(self, raybundle, intersection, normal, validIndices):
+        """
+        Class describing the interaction of the ray at the surface based on the material.
+
+        :param raybundle: Incoming raybundle ( RayBundle object )
+        :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
+        :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
+        :param validIndices: whether the rays did hit the shape correctly (1d numpy array of bool)
+
+        :return newray: rays after surface interaction ( RayBundle object )
+        """
+
+        rotmatrix = self.rotfunc(self.angle.evaluate())
+
+        k2 = np.dot(rotmatrix, raybundle.k)
+
+
+        # make total internal reflection invalid
+        valid = validIndices
+
+        return RayBundle(intersection, k2, raybundle.rayID[valid], raybundle.wave)
+
+    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
+        """
+        Returns an ABCD matrix of the current surface.
+        The matrix is set up in geometric convention for (y, dy/dz) vectors.
+
+        The matrix contains:
+        - paraxial refraction from vacuum through the front surface
+        - paraxial translation through the material
+        - paraxial refraction at the rear surface into vacuum
+
+        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ),
+        this method picks the correct paraxial propagators.
+
+        :param curvature: front surface (self.) curvature on the optical axis (float)
+        :param thickness: material thickness on axis (float)
+        :param nextCurvature: rear surface curvature on the optical axis (float)
+        :param ray: ray bundle to obtain wavelength (RayBundle object)
+        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
+        """
+
+        return np.array([[1., 0.], [0., 1.]])
+
+
+    def getXYUVMatrix(self, curvature, thickness, nextCurvature, ray): # TODO: weitermachen
+        (axisnum, rotmatrix) = self.returnRotationMatrix(self.angle.evaluate())
+        n = self.nfunc(0.,0.,0.)
+
+
+        xyuv1 = np.array([
+                       [1, 0, 0, 0, 0],
+                       [0, 1, 0, 0, 0],
+                       [0, 0, 1, 0, 0],
+                       [0, 0, 0, 1, 0],
+                       [0, 0, 0, 0, 1]
+                       ])
+        return xyuv1
 

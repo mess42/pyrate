@@ -1,22 +1,58 @@
+#!/usr/bin/env/python
+"""
+Pyrate - Optical raytracing based on Python
+
+Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and Johannes Hartung j.hartung@gmx.net
+               and    Uwe Lippmann  uwe.lippmann@web.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
+
+
 # access to global variables for the FreeCAD interface
 
 import FreeCADGui
+import FreeCAD
 
-import PyrateInterface
-import CreateSystem
-import LoadSystem
-import SaveSystem
-import DeleteRays
-import DeleteSystem
-import VisualizeSystem
-import FieldOfSystem
-import AnalyseSystem
-import OptimizeSystem
+from PyrateWorkbench import PyrateInterface
+from PyrateWorkbench import CreateSystem
+from PyrateWorkbench import LoadSystem
+from PyrateWorkbench import SaveSystem
+from PyrateWorkbench import DeleteRays
+from PyrateWorkbench import DeleteSystem
+from PyrateWorkbench import VisualizeSystem
+from PyrateWorkbench import FieldOfSystem
+from PyrateWorkbench import AnalyseSystem
+from PyrateWorkbench import OptimizeSystem
+
+#import PyrateWorkbench.PyrateInterface
+#import PyrateWorkbench.CreateSystem
+#import PyrateWorkbench.LoadSystem
+#import PyrateWorkbench.SaveSystem
+#import PyrateWorkbench.DeleteRays
+#import PyrateWorkbench.DeleteSystem
+#import PyrateWorkbench.VisualizeSystem
+#import PyrateWorkbench.FieldOfSystem
+#import PyrateWorkbench.AnalyseSystem
+#import PyrateWorkbench.OptimizeSystem
 
 
 
 # access to the resource file
-import resources_rc
+from PyrateWorkbench import resources_rc
 
 class PyrateWorkbench ( Workbench ):
     "Pyrate workbench object"
