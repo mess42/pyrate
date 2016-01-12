@@ -137,7 +137,7 @@
 
 
 \chapter{Optics from Maxwell Equations}
-\section{The Source Free Maxwell Equations}
+\section{Maxwell Equations}
 The content of this chapter is well known from textbooks \cite{Jackson}. Still, we repeat some of the equations to have a consistent nomeclature throughout this manual and the pyrate program
 as well as a gain in clarity which aproximations are made.
 We start from the Maxwell equations in SI units
@@ -157,15 +157,66 @@ with the constitutive equations
   \currentdensity &=& \conductivity \Efield						\label{eq:ConstitutiveSigma}
 \end{eqnarray}
 \end{subequations}
-and the continuity equation
+and the continuity equation, that follows directly from the Maxwell equations.
 \begin{eqnarray}
   \Nabla \currentdensity + \timederivative{\chargedensity} &=& 0		\label{eq:continuity}
 \end{eqnarray}
 All quantities are real valued.
 All material properties are described by unit bearing quantities, i.e., they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. $\permittivity$ and $\permeability$ are the electric and magnetic permittivity, respectively, and $\conductivity$ the conductivity. 
 
-We consider the strictly monochromatic case and introduce complex valued fields with the phase representing temporal retardation $\Efield,\Dfield,\Hfield,\Bfield \propto \exp(-i \omega t)$ for electrodynamic scenarios only, $\omega \neq 0$. 
-Further we assume all materials are non-magnetic at the optical frequency $\omega$, that is $\permeability(\omega) = \vacuumpermeability$. 
+\section{Energy Conservation}
+We assume the strictly monochromatic case $\Efield,\Dfield,\Hfield,\Bfield, \currentdensity \propto \sin(\omega t + \varphi_0)$ for electrodynamic scenarios only, $\omega \neq 0$.
+We focus on the term
+\begin{eqnarray}
+   \Nabla ( \Efield \times \Hfield )
+\end{eqnarray}
+we apply the product rule for derivatives and rewrite the triple products, leading to
+\begin{eqnarray}
+   \Nabla ( \Efield \times \Hfield ) &=& \Hfield ( \Nabla \times \Efield ) - \Efield ( \Nabla \times \Hfield ) \\
+   &=& - \Hfield \timederivative{\Bfield} - \Efield  \timederivative{\Dfield} - \Efield \currentdensity
+\end{eqnarray}
+
+We consider
+\begin{eqnarray}
+ \partial_t (\Efield \Dfield) &=& \Efield  \timederivative{\Dfield} +  \timederivative{\Efield} \Dfield \\
+                              &=& \Efield ( \permittivity + \permittivity^T ) \timederivative{\Efield} 
+\end{eqnarray}
+In the monochromatic case, as assumed above, we can commutate $\partial_t$ and $\permittivity$.
+We split up the permittivity into its symmetric and antisymmetric part $\permittivity =  \permittivity^S +  \permittivity^{AS}$ with
+$(\permittivity^S)^T = \permittivity^S$ and $(\permittivity^{AS})^T = - \permittivity^{AS}$. 
+
+\begin{eqnarray}
+ \partial_t (\Efield \Dfield)                                                                  &=& 2 \Efield \permittivity^S \timederivative{\Efield} \\
+ \frac{1}{2} \partial_t (\Efield \Dfield)+ \Efield \permittivity^{AS} \timederivative{\Efield} &=&   \Efield  \permittivity \timederivative{\Efield} \\
+ \frac{1}{2} \partial_t (\Efield \Dfield)                                                      &=&   \Efield  \permittivity \timederivative{\Efield}
+\end{eqnarray}
+
+We derive an analogous equation for the magnetic field and insert both
+
+\begin{eqnarray}
+   \Nabla ( \Efield \times \Hfield ) + \frac{1}{2} \partial_t (\Hfield \Bfield) + \frac{1}{2} \partial_t (\Efield \Dfield) + \Efield \currentdensity &=& 0
+\end{eqnarray}
+
+leading to a continuity equation. 
+We associate $\Efield \currentdensity$ with ohmic losses, that is, the volume density of energy losses from optical energy into other forms, for example heat.
+Thus, the equation is a continuity equation of energy.
+$\frac{1}{2} \Hfield \Bfield + \frac{1}{2} \Efield \Dfield$ is the energy density stored in a system, 
+and $\Efield \times \Hfield$, which we call Poynting vector $\Vector{S}$, is the areal density of energy flow. 
+This equation holds for the real valued Maxwell equations with linear constitutive equations, time harmonic and real valued fields, real valued permeabilities, permittivities and conductivities.
+
+\section{Source-Free Maxwell Equations in Non-Magnetic Materials}
+\label{sec:sourcefreemaxwell}
+For ease of calculation, we introduce complex valued time harmonic dependence.
+\begin{eqnarray}
+ \Vector{F}(\Vector{r},t) &=& \Vector{F}_0(\Vector{r}) \exp(-i \omega t)
+\end{eqnarray}
+with $\Vector{F} \in \{ \Efield, \Dfield, \Hfield, \Bfield, \currentdensity \}$.
+Complex valued amplitudes $\Vector{F}_0$ express magnitude and phase retardation of the fields.
+All equations linear in $\Efield,\Dfield,\Hfield,\Bfield$ remain valid also for the newly introduced complex valued fields.
+Care has to be taken with quadratic equations, containing terms like for example $\Efield \times \Hfield$, $\Hfield \Bfield$, or $\Efield \Dfield$,
+as the square of a complex number differs from that of a real one.
+
+We assume all materials are non-magnetic at the optical frequency $\omega$, that is $\permeability(\omega) = \vacuumpermeability$. 
 Effects like the Magneto-Optical Kerr Effect (MOKE) stem from the deflection of oscillating electrons in a static (DC) magnetic field and are typically modeled by off-diagonal elements in the permittivity tensor, not the permeability.
 \begin{subequations}
 \begin{eqnarray}
@@ -193,7 +244,7 @@ In the Maxwell equations, we substitute the $\Dfield$-field by our newly defined
 With the conductivity equation \ref{eq:ConstitutiveSigma} and the continuity equation \ref{eq:continuity}, we find the so called source-free Maxwell equations
 \begin{subequations}
 \begin{eqnarray}
-  \Nabla \Dfield_{new} &=& 0 					\\
+  \Nabla \Dfield_{new} &=& 0 					\label{eq:divDsourcefree}\\
   \Nabla \times \Efield &=& i \omega \vacuumpermeability \Hfield	\\
   \Nabla \Hfield &=& 0  					\\
   \Nabla \times \Hfield &=& - i \omega \Dfield_{new}  		
@@ -211,6 +262,32 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \end{eqnarray}
 \label{eq:sourcefreemaxwell}
 \end{subequations}
+
+\section{Poynting Vector}
+The Poynting vector is the areal density of energy flow. 
+We want the Poynting vector to be real and stay numerically identical to the quantity derived above for the real valued Maxwell equations.
+
+\begin{eqnarray}
+ \Vector{S} &=& \Re \Efield \times \Re \Hfield \\
+            &=& \frac{1}{2} \Re ( \Efield \times \Hfield + \overline{\Efield} \times \Hfield ) \\
+            &=& \frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) ) + \frac{1}{2} \Re ( \overline{\Efield}_0 \times \Hfield_0 )
+\end{eqnarray}
+The fast oscillation of the Poynting vector at $2 \omega$ is not directly measurable at optical frequencies, only its time average $<\Vector{S}>$.
+
+\begin{eqnarray}
+ < \Vector{S} >   &=& \frac{\omega}{2\pi} \int_{0}^{2\pi / \omega} dt \, \Vector{S} \\
+ < \Vector{S} >   &=& \frac{1}{2} \Re ( \overline{\Efield} \times \Hfield ) \\
+ < \Vector{S} >   &=& \frac{1}{2} \Re \left( \overline{\Efield} \times \frac{\Nabla \times \Efield}{i \omega \vacuumpermeability} \right) \\
+ < \Vector{S} >_j &=&  \Re \frac{ \overline{\scalarEfield}_i \partial_j \scalarEfield_i - \overline{\scalarEfield}_j \partial_i \scalarEfield_i }{2 i \omega \vacuumpermeability}
+\end{eqnarray}
+
+In media with isotropic (scalar) permittivity, $\partial_i \scalarEfield_i = 0$ in accordance with equation \ref{eq:divDsourcefree}.
+For plane waves in isotropic media, the Poynting vector becomes 
+\begin{eqnarray}
+ <\Vector{S}> = \frac{ |\Efield|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector
+\end{eqnarray}
+In general, the direction of the Poynting vector is a weighted sum of the directions of $\Wavevector$ and $\Efield$.
+
 
 \section{Derivation of Eikonal Equation in inhomogenous, anisotropic Media}
 {\color{red}{This section needs heavy checking as I am not sure about some steps!}}
@@ -323,22 +400,6 @@ the ODE system degenerates to
  \frac{\text{d}\psi}{\text{d}s} &= -2 (\psi_{,i})^2\,,\\
  \frac{\text{d}x_i}{\text{d}s} &= -2 \psi_{,i}\,. 
 \end{align}
-
-
-\subsection{Poynting Theorem}
-From the full system of Maxwell's equations the Poynting vector is still given by\remark{is this correct? $H$ or $H^\ast$?}
-\begin{align}
- \Vector{S} &= \Vector{E} \times \Vector{H}^\ast\,.
-\end{align}
-Inserting the ansatz from above in the quantities from the source free Maxwell equations we end up with
-\begin{align}
- S_i &= \frac{1}{\omega \mu_0} A_k [A_k \partial_i \psi - A_i \partial_k \psi] + \frac{i}{\omega \mu_0} A_k [\partial_i A_k - \partial_k A_i]\,.
-\end{align}
-As one can see, the Poyting vector (i.e. the energy transport direction vector is not in same direction as the phase gradient anymore).
-This is a direct consequence from $\Vector{\nabla} \Vector{E} \ne 0$ but $\Vector{\nabla} \Vector{D} = 0$ and both of them are related in a non-trivial manner.
-In fact this means $A_i \partial_i \psi \ne 0$ but $\permittivity_{ij} A_i \partial_j \psi = 0$.
-
-
 
 \section{Plane Wave Solutions and Dispersion}
 \subsection{The general anisotropic homgeneous case}
@@ -488,12 +549,10 @@ However, the optical designer has to check for each calculation whether the ray 
 
 \section{Direction of the ray}
 We assign a unit direction vector $\Vector{d}$ to each ray.
-
-In the special case of homogeneous, isotropic, lossless media and real valued wavevectors, the direction unit vector points in the same direction as the wavevector.
+The direction unit vector points in the direction of the time averaged Poynting vector.
 \begin{eqnarray}
- \Vector{d} &=& \frac{\Wavevector}{|\wavenumber|}
+ \Vector{d} &=& \frac{<\Vector{S}>}{|<\Vector{S}>|}
 \end{eqnarray}
-\remark{to do: all other cases; in general, d is NOT the direction of the Poynting vector}
 
 \section{Optical path length}
 We define the optical path length as the time of travel of a near-monochromatic wavepacket times the vacuum speed of light.
