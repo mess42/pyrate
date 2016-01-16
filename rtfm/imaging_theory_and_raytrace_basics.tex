@@ -451,7 +451,6 @@ Often, these materials have a crystalline structure with a degenerate rectangula
 and a strongly deviating unit vector in the orthogonal direction. 
 
 Without loss of generality, we choose our coordinate system so that the extraordinary direction is aligned with the cartesian $z$ axis.
-Later we generalize for arbitrary coordinate systems. In this set of coordinate systems, the permittivity tensor is diagonal
 \begin{eqnarray}
  \permittivity &=&
  \begin{pmatrix}
@@ -518,19 +517,25 @@ We find the following eigenvalues and eigenvectors:
 \subsubsection{ordinary mode}
 
 \begin{eqnarray}
- \wavenumber^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity_{ord} 
+ \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity_{ord} 
  \\
  \Efield &\propto& \Vector{e}_y
 \end{eqnarray}
+For the ordinary mode, $\Wavevector$ and $\Efield$ are orthogonal, so the Poynting vector points in the direction of $\Wavevector$.
+\begin{eqnarray}
+ <\Vector{S}> = \frac{ |\Efield|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector
+\end{eqnarray}
+
 
 \subsubsection{extraordinary mode}
 \begin{eqnarray}
-  \frac{\wavenumber_{x}^2 }{\scalarpermittivity_{eo} } + \frac{\wavenumber_{z}^2 }{\scalarpermittivity_{ord} } &=& \omega^2 \vacuumpermeability
+  \frac{\wavenumber_{x}^2 }{\scalarpermittivity_{eo} } + \frac{\wavenumber_{z}^2 }{\scalarpermittivity_{ord} } &=& \omega^2 \vacuumpermeability 
+  \label{eq:uniaxialAnisotropicDispersion}
   \\
   \scalarEfield_x \scalarpermittivity_{ord} \wavenumber_x &=& -  \scalarEfield_z \scalarpermittivity_{eo} \wavenumber_z 
 \end{eqnarray}
 
-%to do: $y \rightarrow \Wavevector \times \Vector{e}_{eo}$, $z \rightarrow \Vector{e}_{eo}, $x \propto $ \Wavevector - (\Wavevector \Vector{e}_{eo}) \Vector{e}_{eo}}
+% to do: Poynting vector
 
 
 
@@ -593,31 +598,73 @@ From the boundary conditions \ref{eq:boundary_conditions} we conclude that with 
 The in-plane wave vector component is conserved.
 From angular spectrum representation we conclude that the field in medium 2 is also a single plane wave. 
 
-\subsection{Results and Discussion}
+\subsection{The Law of Refraction}
 Our formulation of the law of refraction is
 \begin{eqnarray}
  \Efield_1(\Location) &=& \Efield_{01} \exp(i \Wavevector_1 \Location) \\
  \Efield_2(\Location) &=& \Efield_{02} \exp(i \Wavevector_2 \Location) \\
  \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \Vector{n}\,.\label{eq:xieqn}
 \end{eqnarray}
-and holds for any planar boundary between two homogeneous media. $\Vector{k}_2$ consists of the
-conserved in-plane component and the out-of-plane component $\xi$. The explicit form of the normal component $\xi$ depends on
-the material dispersion in material $\permittivity_2$. For the special case of isotropic media, e.g.,
-we find 
-\begin{align}
- \xi(\Vector{k}_{1\,\parallel},\permittivity_2) &= \sqrt{\omega^2 \mu_0 \epsilon_2 - \Vector{k}_{1\,\parallel}^2}\,.
-\end{align}
+and holds for any planar boundary between two homogeneous media. 
+$\Vector{k}_2$ consists of the conserved in-plane component $\wavenumber_{1\parallel}$ and the out-of-plane component $\xi$. 
+The explicit form of the normal component $\xi$ depends on the material dispersion in material $\permittivity_2$. 
+
+
 Compared to the law of Snellius, this formulation bears the following advantages:
 \begin{itemize}
  \item It does not require the calculation of angles in 3D space, only scalar products.
  \item The incident wavevector can be modelled as a property of the ray. When calculating the refraction, 
        the dispersion relation in material $\permittivity_1$ is not required.
- \item It is not required to implement a different law of refraction for each pair of material classes interfacing.
- \item In object-oriented programming, we can introduce a class for refraction with objects isolated from adjacent ones.
+ \item The direction after the refraction can thus be expressed as a function of incident wave and the dispersion of material 2.
+ \item In object-oriented programming, we can introduce a class for refraction that is a property of surface 2.
+       The refraction method takes the incident rays as arguments and requires no further information from surface 1.
+ \item It is not required to implement a different law of refraction for each \emph{pair} of material classes interfacing 
+       (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...).
  \item Unlike in the Snellius law, we can also calculate with complex valued permittivities and anisotropic permittivities.
 \end{itemize}
 The formulation does not actually solve the problem of refraction, but just forward it to the problem of finding a solution $\xi$ of the material dispersion. 
 This calculation can, for certain types of anisotropic materials, be time consuming.
+
+\subsubsection{isotropic media}
+\begin{align}
+ \xi = \sqrt{\omega^2 \mu_0 \epsilon_2 - \Wavevector_{1\,\parallel}^2}
+\end{align}
+
+where $\Wavevector_{1\,\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself.
+For lossy materials, it may be complex valued.
+
+
+\subsubsection{uniaxial anisotropic}
+The ordinary mode behaves like the isotropic solution.
+The material dispersion of the extraordinary mode, equation \ref{eq:uniaxialAnisotropicDispersion}, is
+
+\begin{eqnarray}
+ \Wavevector^2 \scalarpermittivity_{ord} 
+ + \wavenumber_{z}^2 (\scalarpermittivity_{eo} - \scalarpermittivity_{ord})
+ &=& \omega^2 \vacuumpermeability \scalarpermittivity_{ord} \scalarpermittivity_{eo} 
+ \\
+ (\Wavevector_{1\,\parallel}^2 + \xi^2) \scalarpermittivity_{ord} 
+ + (\Wavevector_{1\,\parallel} \Vector{e}_{eo} + \xi \Vector{n}\Vector{e}_{eo})^2 (\scalarpermittivity_{eo} - \scalarpermittivity_{ord})
+ &=& \omega^2 \vacuumpermeability \scalarpermittivity_{ord} \scalarpermittivity_{eo}  
+\end{eqnarray}
+This is a quadratic equation in $\xi$.
+\begin{eqnarray}
+ a \xi^2 + b \xi + c &=& 0
+ \\
+ a &=& \scalarpermittivity_{ord} + (\scalarpermittivity_{eo} - \scalarpermittivity_{ord}) (\Vector{n}\Vector{e}_{eo})^2
+ \nonumber 
+ \\
+ b &=& 2 (\scalarpermittivity_{eo} - \scalarpermittivity_{ord}) (\Wavevector_{1\,\parallel} \Vector{e}_{eo}) (\Vector{n}\Vector{e}_{eo})
+ \nonumber 
+ \\
+ c &=& \Wavevector_{1\,\parallel}^2 \scalarpermittivity_{ord} + (\scalarpermittivity_{eo} - \scalarpermittivity_{ord}) (\Wavevector_{1\,\parallel} \Vector{e}_{eo})^2 
+       - \omega^2 \vacuumpermeability \scalarpermittivity_{ord} \scalarpermittivity_{eo} 
+ \nonumber
+\end{eqnarray}
+
+
+
+
 
 \chapter{Geometrical Optics}
 In geometrical optics, we assume that radiation is propagated in rays, that are thin, collimated beams. 
