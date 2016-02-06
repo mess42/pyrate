@@ -143,31 +143,37 @@
 
 \chapter{Optics from Maxwell Equations}
 \section{Maxwell Equations}
-The content of this chapter is well known from textbooks \cite{Jackson}. Still, we repeat some of the equations to have a consistent nomeclature throughout this manual and the pyrate program
-as well as a gain in clarity which aproximations are made.
+The content of this chapter is well known from textbooks \cite{Jackson}. Still, we repeat some of the equations to have a consistent 
+nomenclature throughout this manual and the pyrate program as well as a gain in clarity which aproximations are made.
 We start from the Maxwell equations in SI units
 \begin{subequations}\label{eq:Maxwell}
 \begin{eqnarray}
-  \Nabla \Dfield &=& \chargedensity 							\label{eq:MaxwellNablaD}\\
-  \Nabla \times \Efield &=& - \timederivative{\Bfield}  					\label{eq:MaxwellNablaCrossE}\\
-  \Nabla \Bfield &=& 0  									\label{eq:MaxwellNablaB}\\
-  \Nabla \times \Hfield &=& \timederivative{\Dfield} + \currentdensity  		\label{eq:MaxwellNablaCrossH}
+  \Nabla \Dfield &=& \chargedensity\,, 							\label{eq:MaxwellNablaD}\\
+  \Nabla \times \Hfield -\timederivative{\Dfield} &=&  \currentdensity\,,  		\label{eq:MaxwellNablaCrossH} \\
+  \Nabla \Bfield &=& 0\,,  									\label{eq:MaxwellNablaB} \\
+  \Nabla \times \Efield + \timederivative{\Bfield} &=& 0\,,   					\label{eq:MaxwellNablaCrossE}
 \end{eqnarray}
 \end{subequations}
 with the constitutive equations
 \begin{subequations}\label{eq:Material}
 \begin{eqnarray}
-  \Dfield &=& \permittivity \Efield 								\label{eq:ConstitutiveEpsilon}\\
-  \Bfield &=& \permeability \Hfield 								\label{eq:ConstitutiveMu}\\
-  \currentdensity &=& \conductivity \Efield						\label{eq:ConstitutiveSigma}
+  \Dfield &=& \permittivity \Efield\,, 								\label{eq:ConstitutiveEpsilon}\\
+  \Bfield &=& \permeability \Hfield\,, 								\label{eq:ConstitutiveMu}\\
+  \currentdensity &=& \conductivity \Efield\,,						\label{eq:ConstitutiveSigma}
 \end{eqnarray}
 \end{subequations}
 and the continuity equation, that follows directly from the Maxwell equations.
 \begin{eqnarray}
   \Nabla \currentdensity + \timederivative{\chargedensity} &=& 0		\label{eq:continuity}
 \end{eqnarray}
-All quantities are real valued.
-All material properties are described by unit bearing quantities, i.e., they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. $\permittivity$ and $\permeability$ are the electric and magnetic permittivity, respectively, and $\conductivity$ the conductivity. 
+All quantities are real valued. All material properties are described by unit bearing quantities, i.e., 
+they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. 
+$\permittivity$ and $\permeability$ are the electric and magnetic permittivity, respectively, and $\conductivity$ the conductivity. 
+
+Notice that the Maxwell equations at this level can be paired up into source and source-free equations. Every of these sub equations
+splits up into a divergence and a curl equation emerging from the spatial and time components of the Faraday tensor. Due to the
+invariance of the Maxwell equations under Lorentz transformations they fit into a spacetime tensor scheme nicely. Throughout this manual
+we will nevertheless concentrate on the splitted 3+1 vector representation of the theory of the electromagnetic field.
 
 \section{Energy Conservation}
 We assume the strictly monochromatic case $\Efield,\Dfield,\Hfield,\Bfield, \currentdensity \propto \sin(\omega t + \varphi_0)$ for electrodynamic scenarios only, $\omega \neq 0$.
