@@ -111,6 +111,8 @@
 \newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
 
 \newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
+\newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
+
 
 \newif\ifdraft
 \draftfalse % \drafttrue
@@ -142,7 +144,7 @@
 
 
 \chapter{Optics from Maxwell Equations}
-\section{Maxwell Equations}
+\section{Maxwell Equations\chk{JH}}
 The content of this chapter is well known from textbooks \cite{Jackson}. Still, we repeat some of the equations to have a consistent 
 nomenclature throughout this manual and the pyrate program as well as a gain in clarity which aproximations are made.
 We start from the Maxwell equations in SI units
@@ -274,7 +276,7 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \label{eq:sourcefreemaxwell}
 \end{subequations}
 
-\section{Poynting Vector}
+\section{Poynting Vector\chk{JH}}
 The Poynting vector is the a real density of energy flow. 
 We want the Poynting vector to be real and stay numerically identical to the quantity derived above for the real valued Maxwell equations.
 
@@ -435,7 +437,7 @@ the ODE system degenerates to
 \end{align}
 
 \section{Plane Wave Solutions and Dispersion}
-\subsection{The general anisotropic homgeneous case}
+\subsection{The general anisotropic homgeneous case\chk{JH}}
 We consider a homogeneous material $\permittivity(\Location) = const.$ We apply the Nabla curl operatur on the Maxwell curl equation for the electric field
 ($\partial_i \partial_i =: \Delta$ the Laplacian)
 \begin{eqnarray}
@@ -479,7 +481,7 @@ By contracting this equation by $k_i$ the divergence constraint arises trivially
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield$,
 that is, a propagation wavector is only valid for a certain polarisation.
 
-\subsection{Uniaxial anisotropic, homogeneous media}
+\subsection{Uniaxial anisotropic, homogeneous media\chk{JH}}
 Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
 and a degenerate permittivity along the other two directions in space.
 The direction along which the extraordinary permittivity occurs is often called \emph{optical axis}. 
@@ -592,7 +594,7 @@ Poynting vector coincide in their direction.
 \remark{Later we have to relate these results to the general ray direction}
 \remark{Arguments to be checked, in particular for complex valued wave vectors}
 
-\subsection{Isotropic media}
+\subsection{Isotropic media\chk{JH}}
 
 We use the result for uniaxial anisotropic materials and insert the same value for both ordinary and extraordinary permittivity $\scalarpermittivity_{\ordi} = \scalarpermittivity_{\eo} = \scalarpermittivity$.
 This results in a degenerate solution for both polarisations,
