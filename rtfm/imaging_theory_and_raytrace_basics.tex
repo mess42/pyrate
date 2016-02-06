@@ -105,6 +105,9 @@
 \newcommand\chargedensity{\rho}
 \newcommand\PoyntingVector{\Vector{S}}
 
+\newcommand\ordi{\text{ord}}
+\newcommand\eo{\text{eo}}
+
 \newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
 
 \newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
@@ -297,16 +300,20 @@ and finally via the BAC-CAB formula for the components of the time averaged Poyn
 Notice that the last term which contains the divergence of $\Efield$ vanishes in vacuum or isotropic, homogenious media.
 In general, the direction of the Poynting vector is a weighted sum of the directions of $\Wavevector$ and $\Efield$. This can be seen from
 a plane wave insertion for $\Efield$. Since we already neglected the time dependend term (see \eqref{eq:SconjEH}, notice time average) it is sufficient to
-set $\Efield = \Vector{A} \exp(i \scpm{\Vector{k}}{\Vector{x}})$ and therefore $\overline{\Efield} = \Vector{A} \exp(-i \scpm{\Vector{k}}{\Vector{x}})$.
+set $\Efield = \Vector{A} \exp(i \scpm{\Vector{k}}{\Location})$ and therefore $\overline{\Efield} = \Vector{A} \exp(-i \scpm{\Vector{k}}{\Location})$.
 Therefore
 \begin{eqnarray}
   \partial_j E_i &=& i\,k_j E_i\,,
 \end{eqnarray}
 and so
 \begin{eqnarray}
- \timeavg{\Vector{S}}_j &=&  \frac{1}{2 \omega \vacuumpermeability}( \overline{\scalarEfield}_i \scalarEfield_i \delta_{j\ell}  - \overline{\scalarEfield}_j \scalarEfield_\ell ) k_\ell\,.
+ \timeavg{\Vector{S}}_j &=&  
+    \Re\frac{1}{2 \omega \vacuumpermeability}( 
+	\overline{\scalarEfield}_i \scalarEfield_i \delta_{j\ell}  
+	- \overline{\scalarEfield}_j \scalarEfield_\ell 
+      ) k_\ell\,.\label{eq:poyntingvector}
 \end{eqnarray}
-This expression is real (if the amplitudes $\Vector{A}$ are real) and shows that due to the last term the Poynting vector not necessarily points into direction of the wave propagtion.
+This expression is real (if the amplitudes $\Vector{A}$ and wave vectors $\Vector{k}$ are real) and shows that due to the last term the Poynting vector not necessarily points into direction of the wave propagtion.
 
 
 \section{Derivation of Eikonal Equation in inhomogenous, anisotropic Media}
@@ -479,9 +486,9 @@ Without loss of generality, we choose our coordinate system so that the extraord
 \begin{eqnarray}
  \permittivity &=&
  \begin{pmatrix}
-  \scalarpermittivity_{ord}  & 0 & 0 \\
-  0 & \scalarpermittivity_{ord}  & 0 \\
-  0 & 0 & \scalarpermittivity_{eo}   \\
+  \scalarpermittivity_{\ordi}  & 0 & 0 \\
+  0 & \scalarpermittivity_{\ordi}  & 0 \\
+  0 & 0 & \scalarpermittivity_{\eo}   \\
  \end{pmatrix}
 \end{eqnarray}
 
@@ -490,7 +497,7 @@ The eigenvalue equation \ref{eq:generalDispersionEigenEquation} simplifies to
 
 \begin{eqnarray}
 \begin{pmatrix}
- \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{ord} 
+ \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} 
  &
  0
  &
@@ -498,7 +505,7 @@ The eigenvalue equation \ref{eq:generalDispersionEigenEquation} simplifies to
  \\
  0
  &
- \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{ord} 
+ \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} 
  &
  0 
  \\
@@ -506,76 +513,91 @@ The eigenvalue equation \ref{eq:generalDispersionEigenEquation} simplifies to
  &
  0 
  &
- \wavenumber_x^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{eo}  
+ \wavenumber_x^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\eo}  
 \end{pmatrix}
 \Efield_0
 &=& 0
 \end{eqnarray}
 
-The equation system splits up into a coupled system of $\Efield_x$ and $\Efield_z$ , and an independent equation for $\Efield_y$.
+The equation system splits up into a coupled system of $\scalarEfield_x$ and $\scalarEfield_z$ , and an independent equation for $\scalarEfield_y$
+\remark{does this mean that in the ordinary case only $\scalarEfield_y \ne 0$, $\scalarEfield_{x,z} = 0$ and in extra ordinary case $\scalarEfield_{x,z} \ne 0$, but $\scalarEfield_y = 0$?}
 
 \begin{align}
-&
 \begin{pmatrix}
- \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{ord} 
+ \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} 
  &
  - \wavenumber_x \wavenumber_z 
  \\
  - \wavenumber_x \wavenumber_z 
  &
- \wavenumber_x^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{eo}  
+ \wavenumber_x^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\eo}  
 \end{pmatrix} 
-&
 \begin{pmatrix}
- \Efield_x 
+ \scalarEfield_x 
  \\
- \Efield_z
+ \scalarEfield_z
 \end{pmatrix}
-&=& 0
+&= 0
 \\
-&\begin{pmatrix} \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{ord} \end{pmatrix} &\begin{pmatrix}\Efield_y\end{pmatrix} &=& 0
+\begin{pmatrix} \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \end{pmatrix} \scalarEfield_y &= 0\,.
 \end{align}
-
-We call the solutions of the equation for $\Efield_y$ ordinary mode, and of the coupled system extraordinary mode.
+We call the solutions of the equation for $\scalarEfield_y$ ordinary mode, and of the coupled system extraordinary mode.
 We find the following eigenvalues and eigenvectors:
-
-\subsubsection{ordinary mode}
+\subsubsection{Ordinary mode (ord)}
 
 \begin{eqnarray}
- \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity_{ord} 
+ \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} 
  \\
  \Efield &\propto& \Vector{e}_y
 \end{eqnarray}
-For the ordinary mode, $\Wavevector$ and $\Efield$ are orthogonal, so the Poynting vector points in the direction of $\Wavevector$.
+For the ordinary mode, $\Wavevector$ and $\Efield$ are orthogonal, so the Poynting vector points in the direction of $\Wavevector$,
 \begin{eqnarray}
- <\Vector{S}> = \frac{ |\Efield|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector
+ \timeavg{\Vector{S}}_\ordi = \frac{ |\scalarEfield_y|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector\,.
 \end{eqnarray}
 
 
-\subsubsection{extraordinary mode}
+\subsubsection{Extraordinary mode (eo)}
 \begin{eqnarray}
-  \frac{\wavenumber_{x}^2 }{\scalarpermittivity_{eo} } + \frac{\wavenumber_{z}^2 }{\scalarpermittivity_{ord} } &=& \omega^2 \vacuumpermeability 
+  \frac{\wavenumber_{x}^2 }{\scalarpermittivity_{\eo} } + \frac{\wavenumber_{z}^2 }{\scalarpermittivity_{\ordi} } &=& \omega^2 \vacuumpermeability 
   \label{eq:uniaxialAnisotropicDispersion}
   \\
-  \scalarEfield_x \scalarpermittivity_{ord} \wavenumber_x &=& -  \scalarEfield_z \scalarpermittivity_{eo} \wavenumber_z 
+  \scalarEfield_x \scalarpermittivity_{\ordi} \wavenumber_x &=& -  \scalarEfield_z \scalarpermittivity_{\eo} \wavenumber_z \label{eq:divDuniaxial}
 \end{eqnarray}
-
-% to do: Poynting vector
-
-
+The Poynting vector from \eqref{eq:poyntingvector} is given by
+\begin{eqnarray}
+ \timeavg{\Vector{S}}_j &=&  \Re\frac{1}{2 \omega \vacuumpermeability}\left[ (|\scalarEfield_x|^2 + |\scalarEfield_z|^2) \delta_{j\ell}  - \overline{\scalarEfield}_j \scalarEfield_\ell \right] k_\ell\,.
+\end{eqnarray}
+With \eqref{eq:divDuniaxial} we may derive an expression for the divergence appearing in the second term by inserting an ``intelligent zero''
+\begin{eqnarray}
+ 0 &=& \scalarEfield_x \wavenumber_x + \frac{\scalarpermittivity_{\ordi}}{\scalarpermittivity_\eo} \scalarEfield_z \wavenumber_z\,,\nonumber\\
+&\Rightarrow& \scalarEfield_x \wavenumber_x + \scalarEfield_z \wavenumber_z = \scalarEfield_z \wavenumber_z \left(1 - \frac{\scalarpermittivity_{\ordi}}{\scalarpermittivity_\eo}\right)\,. \label{eq:divEviolation}
+\end{eqnarray}
+Therefore the Poynting vector consists of two terms like in the general case
+\begin{eqnarray}
+  \timeavg{\Vector{S}}_\eo = \frac{ 1 }{ 2\omega\vacuumpermeability } \Re 
+  \left[
+      (|\scalarEfield_x|^2 + |\scalarEfield_z|^2)\Wavevector
+      - \left(1 - \frac{\scalarpermittivity_{\ordi}}{\scalarpermittivity_\eo}\right)\scalarEfield_z \wavenumber_z \overline{\Efield}
+  \right]\,.
+\end{eqnarray}
+The $\overline{\Efield}$ on the right hand side has of course no $y$-component. The same is true for the wave vector.
+In the case where the two values of the permittivity are degenerate we arrive at the isotropic case and the two cases for the
+Poynting vector coincide in their direction.
+\remark{Later we have to relate these results to the general ray direction}
+\remark{Arguments to be checked, in particular for complex valued wave vectors}
 
 \subsection{Isotropic media}
 
-We use the result for uniaxial anisotropic materials and insert the same value for both ordinary and extraordinary permittivity $\scalarpermittivity_{ord} = \scalarpermittivity_{ex} = \scalarpermittivity$.
-This results in a degenerate solution for both polarisations.
+We use the result for uniaxial anisotropic materials and insert the same value for both ordinary and extraordinary permittivity $\scalarpermittivity_{\ordi} = \scalarpermittivity_{\eo} = \scalarpermittivity$.
+This results in a degenerate solution for both polarisations,
 \begin{eqnarray}
- \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity \\
- \Wavevector \Efield &=& 0
+ \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity\,, \\
+ \scpm{\Wavevector}{\Efield} &=& 0\,.
 \end{eqnarray}
 where $\Wavevector^2$ is not the absolute square, but the scalar product of the wavevector with itself.
 For plane waves in isotropic media, the Poynting vector becomes 
 \begin{eqnarray}
- <\Vector{S}> = \frac{ |\Efield|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector
+ \timeavg{\Vector{S}}_\text{iso} = \frac{ |\Efield|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector
 \end{eqnarray}
 
 We introduce the refractive index $n$ as
@@ -664,26 +686,26 @@ The ordinary mode behaves like the isotropic solution.
 The material dispersion of the extraordinary mode, equation \ref{eq:uniaxialAnisotropicDispersion}, is
 
 \begin{eqnarray}
- \Wavevector^2 \scalarpermittivity_{ord} 
- + \wavenumber_{z}^2 (\scalarpermittivity_{eo} - \scalarpermittivity_{ord})
- &=& \omega^2 \vacuumpermeability \scalarpermittivity_{ord} \scalarpermittivity_{eo} 
+ \Wavevector^2 \scalarpermittivity_{\ordi} 
+ + \wavenumber_{z}^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
+ &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
  \\
- (\Wavevector_{1\,\parallel}^2 + \xi^2) \scalarpermittivity_{ord} 
- + (\Wavevector_{1\,\parallel} \Vector{e}_{eo} + \xi \Vector{n}\Vector{e}_{eo})^2 (\scalarpermittivity_{eo} - \scalarpermittivity_{ord})
- &=& \omega^2 \vacuumpermeability \scalarpermittivity_{ord} \scalarpermittivity_{eo}  
+ (\Wavevector_{1\,\parallel}^2 + \xi^2) \scalarpermittivity_{\ordi} 
+ + (\Wavevector_{1\,\parallel} \Vector{e}_{\eo} + \xi \Vector{n}\Vector{e}_{\eo})^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
+ &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo}  
 \end{eqnarray}
 This is a quadratic equation in $\xi$.
 \begin{eqnarray}
  a \xi^2 + b \xi + c &=& 0
  \\
- a &=& \scalarpermittivity_{ord} + (\scalarpermittivity_{eo} - \scalarpermittivity_{ord}) (\Vector{n}\Vector{e}_{eo})^2
+ a &=& \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Vector{n}\Vector{e}_{\eo})^2
  \nonumber 
  \\
- b &=& 2 (\scalarpermittivity_{eo} - \scalarpermittivity_{ord}) (\Wavevector_{1\,\parallel} \Vector{e}_{eo}) (\Vector{n}\Vector{e}_{eo})
+ b &=& 2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo}) (\Vector{n}\Vector{e}_{\eo})
  \nonumber 
  \\
- c &=& \Wavevector_{1\,\parallel}^2 \scalarpermittivity_{ord} + (\scalarpermittivity_{eo} - \scalarpermittivity_{ord}) (\Wavevector_{1\,\parallel} \Vector{e}_{eo})^2 
-       - \omega^2 \vacuumpermeability \scalarpermittivity_{ord} \scalarpermittivity_{eo} 
+ c &=& \Wavevector_{1\,\parallel}^2 \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo})^2 
+       - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
  \nonumber
 \end{eqnarray}
 
@@ -694,9 +716,11 @@ This is a quadratic equation in $\xi$.
 \chapter{Geometrical Optics}
 In geometrical optics, we assume that radiation is propagated in rays, that are thin, collimated beams. 
 We assume that the rims of these beams are negligible compared to the central area. 
-Further we assume that all rays are much smaller than the characteristic length of surface curvatures and all surfaces are locally approximated planar on the cross-section area of a ray.
+Further we assume that all rays are much smaller than the characteristic length of surface curvatures and 
+all surfaces are locally approximated planar on the cross-section area of a ray.
 That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
-Even in cases where the assumptions are not completely fulfilled, its accuracy compared to experiments is astonishing and lead to the great success of technical optics.
+Even in cases where the assumptions are not completely fulfilled, its accuracy compared to experiments is 
+astonishing and lead to the great success of technical optics.
 However, the optical designer has to check for each calculation whether the ray approximation is justified.
 
 \section{Direction of the ray}
@@ -709,7 +733,8 @@ The direction unit vector points in the direction of the time averaged Poynting 
 \section{Optical path length}
 We define the optical path length as the time of travel of a near-monochromatic wavepacket times the vacuum speed of light.
 
-In the special case of homogeneous, lossless media and no dispersion, the optical path length is equal to the geometrical path length times the refractive index.
+In the special case of homogeneous, lossless media and no dispersion, the optical path length is equal to the geometrical 
+path length times the refractive index.
 \begin{eqnarray}
  n(\Location,\omega,\Wavevector) &=& const
 \end{eqnarray}
