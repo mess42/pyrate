@@ -105,6 +105,8 @@
 \newcommand\chargedensity{\rho}
 \newcommand\PoyntingVector{\Vector{S}}
 
+\newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
+
 \newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
 
 \newif\ifdraft
@@ -264,24 +266,47 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \end{subequations}
 
 \section{Poynting Vector}
-The Poynting vector is the areal density of energy flow. 
+The Poynting vector is the a real density of energy flow. 
 We want the Poynting vector to be real and stay numerically identical to the quantity derived above for the real valued Maxwell equations.
 
 \begin{eqnarray}
- \Vector{S} &=& \Re \Efield \times \Re \Hfield \\
-            &=& \frac{1}{2} \Re ( \Efield \times \Hfield + \overline{\Efield} \times \Hfield ) \\
-            &=& \frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) ) + \frac{1}{2} \Re ( \overline{\Efield}_0 \times \Hfield_0 )
+ \Vector{S} &=& \Re \Efield \times \Re \Hfield \nonumber \\
+            &=& \frac{1}{2} \Re ( \Efield \times \Hfield + \overline{\Efield} \times \Hfield ) \nonumber \\
+            &=& \underbrace{\frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) )}_{\approx0} 
+	      + \frac{1}{2} \Re ( \overline{\Efield}_0 \times \Hfield_0 ) \label{eq:SconjEH}\,,
 \end{eqnarray}
-The fast oscillation of the Poynting vector at $2 \omega$ is not directly measurable at optical frequencies, only its time average $<\Vector{S}>$.
-
+for the decomposition $\Efield = \Efield_0 \exp(-i\omega t)$ and $\Hfield = \Hfield_0 \exp(-i\omega t)$.
+\remark{OK, but: the phase information is located at $\Efield_0$ and $\Hfield_0$? I mean it is not relevant for the time average, but electric and magnetic field have
+not the same phase in general?}The fast oscillation of the Poynting vector at $2 \omega$ is not directly measurable at optical frequencies, only its time average $\timeavg{\Vector{S}}$,
+where the mentioned time average is defined by
 \begin{eqnarray}
- < \Vector{S} >   &=& \frac{\omega}{2\pi} \int_{0}^{2\pi / \omega} dt \, \Vector{S} \\
- < \Vector{S} >   &=& \frac{1}{2} \Re ( \overline{\Efield} \times \Hfield ) \\
- < \Vector{S} >   &=& \frac{1}{2} \Re \left( \overline{\Efield} \times \frac{\Nabla \times \Efield}{i \omega \vacuumpermeability} \right) \\
- < \Vector{S} >_j &=&  \Re \frac{ \overline{\scalarEfield}_i \partial_j \scalarEfield_i - \overline{\scalarEfield}_j \partial_i \scalarEfield_i }{2 i \omega \vacuumpermeability}
+ \timeavg{\Vector{S}}  &=& \frac{\omega}{2\pi} \int_{0}^{2\pi / \omega} dt \, \Vector{S} \label{eq:timeaverageS}\,.
 \end{eqnarray}
-
-In general, the direction of the Poynting vector is a weighted sum of the directions of $\Wavevector$ and $\Efield$.
+From \eqref{eq:SconjEH} and \eqref{eq:timeaverageS} we get
+\begin{eqnarray}
+  \timeavg{\Vector{S}}   &=& \frac{1}{2} \Re ( \overline{\Efield} \times \Hfield )\,.
+\end{eqnarray}
+This leads after inserting the time evolution from the Maxwell equations to
+\begin{eqnarray}
+ \timeavg{\Vector{S}}   &=& \frac{1}{2} \Re \left( \overline{\Efield} \times \frac{\Nabla \times \Efield}{i \omega \vacuumpermeability} \right) \\
+\end{eqnarray}
+and finally via the BAC-CAB formula for the components of the time averaged Poynting vector to
+\begin{eqnarray}
+  \timeavg{\Vector{S}}_j &=&  \Re \frac{ \overline{\scalarEfield}_i \partial_j \scalarEfield_i - \overline{\scalarEfield}_j \partial_i \scalarEfield_i }{2 i \omega \vacuumpermeability}
+\end{eqnarray}
+Notice that the last term which contains the divergence of $\Efield$ vanishes in vacuum or isotropic, homogenious media.
+In general, the direction of the Poynting vector is a weighted sum of the directions of $\Wavevector$ and $\Efield$. This can be seen from
+a plane wave insertion for $\Efield$. Since we already neglected the time dependend term (see \eqref{eq:SconjEH}, notice time average) it is sufficient to
+set $\Efield = \Vector{A} \exp(i \scpm{\Vector{k}}{\Vector{x}})$ and therefore $\overline{\Efield} = \Vector{A} \exp(-i \scpm{\Vector{k}}{\Vector{x}})$.
+Therefore
+\begin{eqnarray}
+  \partial_j E_i &=& i\,k_j E_i\,,
+\end{eqnarray}
+and so
+\begin{eqnarray}
+ \timeavg{\Vector{S}}_j &=&  \frac{1}{2 \omega \vacuumpermeability}( \overline{\scalarEfield}_i k_j  - \overline{\scalarEfield}_j k_i )\scalarEfield_i\,.
+\end{eqnarray}
+This expression is real (if the amplitudes $\Vector{A}$ are real) and shows that due to the last term the Poynting vector not necessarily points into direction of the wave propagtion.
 
 
 \section{Derivation of Eikonal Equation in inhomogenous, anisotropic Media}
