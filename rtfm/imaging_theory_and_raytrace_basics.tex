@@ -275,7 +275,7 @@ We want the Poynting vector to be real and stay numerically identical to the qua
 \begin{eqnarray}
  \Vector{S} &=& \Re \Efield \times \Re \Hfield \nonumber \\
             &=& \frac{1}{2} \Re ( \Efield \times \Hfield + \overline{\Efield} \times \Hfield ) \nonumber \\
-            &=& \underbrace{\frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) )}_{\approx0} 
+            &=& \frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) )
 	      + \frac{1}{2} \Re ( \overline{\Efield}_0 \times \Hfield_0 ) \label{eq:SconjEH}\,,
 \end{eqnarray}
 for the decomposition $\Efield = \Efield_0 \exp(-i\omega t)$ and $\Hfield = \Hfield_0 \exp(-i\omega t)$.
@@ -283,11 +283,11 @@ for the decomposition $\Efield = \Efield_0 \exp(-i\omega t)$ and $\Hfield = \Hfi
 not the same phase in general?}The fast oscillation of the Poynting vector at $2 \omega$ is not directly measurable at optical frequencies, only its time average $\timeavg{\Vector{S}}$,
 where the mentioned time average is defined by
 \begin{eqnarray}
- \timeavg{\Vector{S}}  &=& \frac{\omega}{2\pi} \int_{0}^{2\pi / \omega} dt \, \Vector{S} \label{eq:timeaverageS}\,.
+ \timeavg{\Vector{S}}  &:=& \frac{\omega}{2\pi} \int_{0}^{2\pi / \omega} dt \, \Vector{S} \label{eq:timeaverageS}\,.
 \end{eqnarray}
 From \eqref{eq:SconjEH} and \eqref{eq:timeaverageS} we get
 \begin{eqnarray}
-  \timeavg{\Vector{S}}   &=& \frac{1}{2} \Re ( \overline{\Efield} \times \Hfield )\,.
+  \timeavg{\Vector{S}}   &=& \underbrace{\left\langle \frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) )\right\rangle}_{\approx0} + \frac{1}{2} \Re ( \overline{\Efield} \times \Hfield )\,.
 \end{eqnarray}
 This leads after inserting the time evolution from the Maxwell equations to
 \begin{eqnarray}
