@@ -560,7 +560,7 @@ We find the following eigenvalues and eigenvectors:
 \end{eqnarray}
 For the ordinary mode, $\Wavevector$ and $\Efield$ are orthogonal, so the Poynting vector points in the direction of $\Wavevector$,
 \begin{eqnarray}
- \timeavg{\Vector{S}}_\ordi = \frac{ |\scalarEfield_y|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector\,.
+ \timeavg{\Vector{S}}_\ordi = \frac{ |\scalarEfield_y|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector\,.\label{eq:Suniaxialordi}
 \end{eqnarray}
 
 
@@ -586,16 +586,16 @@ Therefore the Poynting vector consists of two terms like in the general case
   \left[
       (|\scalarEfield_x|^2 + |\scalarEfield_z|^2)\Wavevector
       - \left(1 - \frac{\scalarpermittivity_{\ordi}}{\scalarpermittivity_\eo}\right)\scalarEfield_z \wavenumber_z \overline{\Efield}
-  \right]\,.
+  \right]\,.\label{eq:Suniaxialeo}
 \end{eqnarray}
 The $\overline{\Efield}$ on the right hand side has of course no $y$-component. The same is true for the wave vector.
 In the case where the two values of the permittivity are degenerate we arrive at the isotropic case and the two cases for the
 Poynting vector coincide in their direction.
 \remark{Later we have to relate these results to the general ray direction}
 \remark{Arguments to be checked, in particular for complex valued wave vectors}
-
+\remark{Compare following expression with general vector expression above \eqref{eq:Suniaxialordi} and \eqref{eq:Suniaxialeo}}
 \begin{eqnarray}
- < \Vector{S} > 
+ \timeavg{\Vector{S}}
  &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
    \begin{pmatrix}
      \wavenumber_x (\overline{\scalarEfield_x} \scalarEfield_x + \overline{\scalarEfield_z} \scalarEfield_z) - \overline{\scalarEfield_x} (\wavenumber_x \scalarEfield_x + \wavenumber_z \scalarEfield_z )
@@ -616,9 +616,9 @@ Poynting vector coincide in their direction.
    \end{pmatrix}
   \\
  &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
-   \left( \frac{\wavenumber_x \scalarEfield_z \overline{\scalarEfield_z}}{\scalarpermittivity_{ord}} + \frac{\wavenumber_z \scalarEfield_x \overline{\scalarEfield_x}}{\scalarpermittivity_{eo}} \right)
+   \left( \frac{\wavenumber_x \scalarEfield_z \overline{\scalarEfield_z}}{\scalarpermittivity_{\ordi}} + \frac{\wavenumber_z \scalarEfield_x \overline{\scalarEfield_x}}{\scalarpermittivity_{\eo}} \right)
    \begin{pmatrix}
-     \scalarpermittivity_{ord} \wavenumber_x 
+     \scalarpermittivity_{\ordi} \wavenumber_x 
      \\
      0
      \\
@@ -627,19 +627,21 @@ Poynting vector coincide in their direction.
 \end{eqnarray}
 The direction of the Poynting vector is
 \begin{eqnarray}
- < \Vector{S} > 
+ \timeavg{\Vector{S}}
  &\propto&
    \begin{pmatrix}
-     \scalarpermittivity_{ord} \wavenumber_x 
+     \scalarpermittivity_{\ordi} \wavenumber_x 
      \\
      0
      \\
-     \scalarpermittivity_{eo} \wavenumber_z 
+     \scalarpermittivity_{\eo} \wavenumber_z 
    \end{pmatrix}
    =
-   \Wavevector \scalarpermittivity_{ord} + (\scalarpermittivity_{eo} - \scalarpermittivity_{ord}) (\Wavevector \Vector{e}_{eo}) \Vector{e}_{eo}
+   \Wavevector \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector \Vector{e}_{\eo}) \Vector{e}_{\eo}
 \end{eqnarray}
 Note that the complex valued prefactor influences the real part of the above term.
+
+\subsection{Isotropic media\chk{JH}}
 
 We use the result for uniaxial anisotropic materials and insert the same value for both ordinary and extraordinary permittivity $\scalarpermittivity_{\ordi} = \scalarpermittivity_{\eo} = \scalarpermittivity$.
 This results in a degenerate solution for both polarisations,
@@ -782,7 +784,7 @@ However, the optical designer has to check for each calculation whether the ray 
 We assign a unit direction vector $\Vector{d}$ to each ray.
 The direction unit vector points in the direction of the time averaged Poynting vector.
 \begin{eqnarray}
- \Vector{d} &=& \frac{<\Vector{S}>}{|<\Vector{S}>|}
+ \Vector{d} &=& \frac{\timeavg{\Vector{S}}}{|\timeavg{\Vector{S}}|}
 \end{eqnarray}
 
 \section{Optical path length}
