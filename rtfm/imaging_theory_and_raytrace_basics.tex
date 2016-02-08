@@ -485,7 +485,7 @@ that is, a propagation wavector is only valid for a certain polarisation.
 Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
 and a degenerate permittivity along the other two directions in space.
 The direction along which the extraordinary permittivity occurs is often called \emph{optical axis}. 
-In this manual, we prefer \emph{extraordinary direction}, to avoid confusion with the symmetry axis of radially symmetric lens systems in technical optics.
+In this manual, we use the term \emph{extraordinary direction} $\Vector{e}_{eo}$, to avoid confusion with the symmetry axis of radially symmetric lens systems in technical optics.
 
 Often, these materials have a crystalline structure with a degenerate rectangular or hexagonal plane in the unit cell, 
 and a strongly deviating unit vector in the orthogonal direction. 
@@ -594,7 +594,52 @@ Poynting vector coincide in their direction.
 \remark{Later we have to relate these results to the general ray direction}
 \remark{Arguments to be checked, in particular for complex valued wave vectors}
 
-\subsection{Isotropic media\chk{JH}}
+\begin{eqnarray}
+ < \Vector{S} > 
+ &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
+   \begin{pmatrix}
+     \wavenumber_x (\overline{\scalarEfield_x} \scalarEfield_x + \overline{\scalarEfield_z} \scalarEfield_z) - \overline{\scalarEfield_x} (\wavenumber_x \scalarEfield_x + \wavenumber_z \scalarEfield_z )
+     \\
+     0
+     \\
+     \wavenumber_z (\overline{\scalarEfield_x} \scalarEfield_x + \overline{\scalarEfield_z} \scalarEfield_z) - \overline{\scalarEfield_z} (\wavenumber_x \scalarEfield_x + \wavenumber_z \scalarEfield_z )     
+   \end{pmatrix}
+  \\
+ &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
+   ( \wavenumber_x \overline{\scalarEfield_z} - \wavenumber_z \overline{\scalarEfield_x})
+   \begin{pmatrix}
+     \scalarEfield_z 
+     \\
+     0
+     \\
+     - \scalarEfield_x 
+   \end{pmatrix}
+  \\
+ &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
+   \left( \frac{\wavenumber_x \scalarEfield_z \overline{\scalarEfield_z}}{\scalarpermittivity_{ord}} + \frac{\wavenumber_z \scalarEfield_x \overline{\scalarEfield_x}}{\scalarpermittivity_{eo}} \right)
+   \begin{pmatrix}
+     \scalarpermittivity_{ord} \wavenumber_x 
+     \\
+     0
+     \\
+     \scalarpermittivity_{eo} \wavenumber_z 
+   \end{pmatrix}
+\end{eqnarray}
+The direction of the Poynting vector is
+\begin{eqnarray}
+ < \Vector{S} > 
+ &\propto&
+   \begin{pmatrix}
+     \scalarpermittivity_{ord} \wavenumber_x 
+     \\
+     0
+     \\
+     \scalarpermittivity_{eo} \wavenumber_z 
+   \end{pmatrix}
+   =
+   \Wavevector \scalarpermittivity_{ord} + (\scalarpermittivity_{eo} - \scalarpermittivity_{ord}) (\Wavevector \Vector{e}_{eo}) \Vector{e}_{eo}
+\end{eqnarray}
+Note that the complex valued prefactor influences the real part of the above term.
 
 We use the result for uniaxial anisotropic materials and insert the same value for both ordinary and extraordinary permittivity $\scalarpermittivity_{\ordi} = \scalarpermittivity_{\eo} = \scalarpermittivity$.
 This results in a degenerate solution for both polarisations,
@@ -630,6 +675,7 @@ Considering two media $\permittivity_1$ and $\permittivity_2$, we find the follo
 \end{eqnarray}
 \label{eq:boundary_conditions} 
 \end{subequations}
+where $\Vector{n}$ is the surface normal unit vector.
 These relations hold for a step-interface between two homogeneous media. 
 In mesoscopically inhomogenous media like  diffractive optical elements and metamaterials, 
 the boundary conditions hold at each interface between homogeneous materials of the mesoscopic sub-structure.
@@ -645,6 +691,7 @@ The incident plane wave projects a grating on the boundary plane. $\Dfield_1$ an
  \Wavevector_{1\perp} &=& ( \Wavevector_1 \Vector{n} ) \Vector{n} \\
  \Wavevector_{1\parallel} &=& \Wavevector_1 - \Wavevector_{1\perp}
 \end{eqnarray}
+where $\Vector{n}$ is the surface normal unit vector.
 From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_1$ and $\Efield_1$, also the fields $\Dfield_2$ and $\Efield_2$ in medium 2 are to be modulated by the same in-plane wavevector component.
 \begin{eqnarray}
   \Dfield_2, \Efield_2 &\propto& \exp( i \Wavevector_{2\parallel} \Location)|_{boundary} \\
