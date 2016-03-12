@@ -1477,38 +1477,6 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
 
 \chapter{Appendix}
 
-\section{Issues}
-
-\begin{enumerate}
- \item minor: use private variables {\tt \underline{\;}\,\underline{\;}variable} and {\tt @property} and {\tt @variable.setter} getter and setter decorators to
-      achieve a controled access to private variables but access them in a manner one would do for public variables (i.e. {\tt object.variable})
- \item Check for algorithms and formulas which are only valid in rotational symmetric systems
- \item Check for algorithms that are valid without immersion
- \item Optical system has to calculate absolute positions of its surfaces (including tilt) referenced to a given coordinate system.
- \item Optical system has to calculate relative coordinate transforms (translation, rotation) between certain elements
- \item Calculate coordinate transforms from ABCD/XYUV1 formalism
- \item Calculate XYUV1 matrices as generalization of ABCD
- \item Use some pilot ray (in optical axis system) for calculating (exact) intersection points at each surface, calculate local curvature at intersection point
-      and calculate focal power in $x, y$. Calculate also tilt (and maybe decenter) of pilot ray at each surface. Combine both results as a matrix product in a resulting
-      XYUV1 matrix
- \item Consider whether XYUV1 matrices should be 4x4, 5x5, 6x6, or 7x7.
- \item Raybundle.o array is referenced relative to the next surface vertex $\Rightarrow$ counter intuitive!
- \item Use absolute coordinates for 2D and 3D drawing procedures
- \item every class one file
- \item Plots of typical rayfans, wave aberration, Seidel coefficients, aberration plots vs pupil or field coordinates, PSF, image simulation, MTF, OTF
- \item ZMX import
- \item ZMX export
- \item GRIN (propagate function also for other materials)
- \item anisotropic media (uniaxial, biaxial)
- \item Pupil aiming for infinite object/image distance
- \item issue: getAllOptimizableVariables in opticalsystem?
- \item long term goal: investigate class structure to be simplified by design concepts of gang of four (Gamma, Helm, Johnson, Vlissides)
- \item long term goal: interface for freecad (systematically implement functionality)
- \item long term goal: Optimization: discrete for glass types, genetic/evolutionary algorithms
- \item long term goal: Image System data base and paraxial layout wizard
- \item long term goal: polarization
- \item long term goal: Fresnel coefficients, generalized for anisotropic media
-\end{enumerate}
 
 \section{Suggestions for linear and nonlinear transfer formalisms}
 The following section shows some suggestions for linear and non-linear transfer formalisms
