@@ -58,10 +58,11 @@ def effl_pt(r, alpha, phi):
         return math.sqrt(x)
 
     return np.array([
+        -((Power(1 - Power(alpha,2) + Power(alpha,2)*Power(cp,2),2)*r)/(-1 + Power(alpha,2)*Power(sp,2) +
+        alpha*cp*Sqrt(1 - Power(alpha,2)*Power(sp,2)))),
         -((alpha*Power(1 - Power(alpha,2) + Power(alpha,2)*Power(cp,2),1.5)*r*sp)/(-1 + Power(alpha,2)*Power(sp,2) +
         alpha*cp*Sqrt(1 - Power(alpha,2)*Power(sp,2))))
-                    ,-((Power(1 - Power(alpha,2) + Power(alpha,2)*Power(cp,2),2)*r)/(-1 + Power(alpha,2)*Power(sp,2) +
-        alpha*cp*Sqrt(1 - Power(alpha,2)*Power(sp,2))))]
+                    ]
     )
 
 # definition of optical system
@@ -78,7 +79,7 @@ ax.axis('equal')
 ax.set_axis_bgcolor('black')
 
 
-phirange = np.linspace(0.0, 1.5, 5)
+phirange = np.linspace(0.0, 1.0, 5)
 
 phirange_anal = list(np.linspace(0.0, 1.5, 100))
 
@@ -99,7 +100,7 @@ for (ind, phiangle) in enumerate(phirange):
 for (ind, blub) in enumerate(phirange_anal):
     effls[ind] = effl_pt(3.0, 1/1.7, blub)
 
-ax.plot(effls[:, 1], effls[:, 0], color='r')
+ax.plot(effls[:, 0], effls[:, 1], color='r')
 
 print(effl_pt(3.0, 1/1.7, 1.0))
 
