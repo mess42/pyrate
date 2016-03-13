@@ -1505,7 +1505,7 @@ solution by considering the field components at material boundaries :-)}
 \begin{align}
  \Vector{t} &= \frac{n_1}{n_2} \Vector{i} 
  - \left[\frac{n_1}{n_2} \scpm{\Vector{i}}{\Vector{n}} 
-      + \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\Vector{i}}{\Vector{n}}}^2)}\right] \Vector{n}\,.\label{eq:refraction_vector}
+      - \sqrt{1 - \left(\frac{n_1}{n_2}\right)^2 (1 - {\scpm{\Vector{i}}{\Vector{n}}}^2)}\right] \Vector{n}\,.\label{eq:refraction_vector}
 \end{align}
 Let us now consider the optical axis $\Vector{e}_z$ and some starting point of the ray at distance $d_1$ at the left hand side
 of the optical surface $F(x, y)$, $(x,y,-d_1)$. The direction vector is given by $\Vector{d} = (d_x, d_y, \sqrt{1 - d_x^2 - d_y^2})$.
@@ -2146,6 +2146,22 @@ Due to this split one may transform the optical axis in a first step and afterwa
 only deviate a little from the optical axis. All quantities have to be evaluated at the coordinates of the optical axis. The first terms
 in the transfer matrix are the same as for the optical axis. All other terms (the derivatives) represent the deviations from it.
 For an appropriate 5x5 treatment one has to decompose the matrix components further in a 2+1 manner.
+\section{New coordinate convention with pilot ray}
+\begin{enumerate}
+ \item Defining optical surfaces in the usual manner (this means starting from object via thicknesses and coordinate breaks)
+ \item Starting pilot ray at object position $(0, 0)$ direction $(0, 0, 1)$ (default values) at primary wavelength with real raytracing routine
+ \item Intersection point between surface and pilot ray in correspoding surface coordinate system
+ \item Ask surface for local Hessian matrix (to obtain local curvature)
+\end{enumerate}
+For a spherical surface between media $n_1$ and $n_2$ where $\alpha = n_1/n_2$ we consider a ray bundle
+of finite incident angle $\phi$.
+The local effective focal length is given by
+\begin{align}
+ EFFL &= R \sqrt{\frac{\left(1- \alpha ^2 \sin ^2(\phi )\right)^3}{\left(\alpha ^2 \sin ^2(\phi )+\alpha \cos (\phi ) \sqrt{1-\alpha ^2 \sin ^2(\phi )}-1\right)^2}}\,.
+\end{align}
+A comment: The curvature radius $R$ is given by the local curvature of a general surface and $\cos(\phi) = \scpm{\Vector{i}}{\Vector{n}}$
+where $\Vector{n}$ is the local normal unit vector and $\Vector{i}$ is the local incident vector (oriented towards the surface).
+
 
 
 \end{document}
