@@ -780,9 +780,52 @@ Even in cases where the assumptions are not completely fulfilled, its accuracy c
 astonishing and lead to the great success of technical optics.
 However, the optical designer has to check for each calculation whether the ray approximation is justified.
 
+\section{Definitions}
+
+We choose a cartesian coordinate system and call the z-axis our \emph{optical axis}. 
+In rotationally symmetric optical systems, this is usually the axis of symmetry.
+
+For imaging systems, we consider an object plane and a image plane with our optical system in between. 
+The optical system shall focus all rays originating from a certain point in the object plane into a point or small spot in the image plane.
+We call the points in the object and image plane field points.
+
+\begin{figure}
+  \centering
+   \includegraphics[width=0.5\columnwidth]{pupil}
+  \caption{a) In an imaging system without vignetting, the stop acts as aperture for rays from all field points. The rays displayed are on-axis ray (blue), marginal rays (violet), chief ray (red), and coma rays (orange).
+  b) In this system, the lens creates a virtual image of the stop, the pupil (green).
+  c) The imaging relation between pupil and stop causes rays aimed at the pupil border to be refracted onto the stop border.
+  }
+  \label{fig:pupil}
+\end{figure}
+
+
+The optical system is capable of transmitting only a certain angular spectrum of the light emitted by each object field point.
+Imaging systems have a stop which limits the amount of transmitted light.
+The stop can be, for example, a lens edge or a metal ring aperture.
+In many systems, the clear apertures of all optical elements but the stop are large enough not to obstruct the ray bundles.
+If this is not the case, we call the additional clipping \emph{vignetting}.
+
+The rays emitted by the central (on-axis) field point that hit the border of the stop are called \emph{marginal rays}.
+The rays emitted by any non-zero field point that hit the border of the stop are called \emph{coma rays}.
+The ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
+Often, the chief ray is approximated to be the central ray in the ray bundle emitted by a field point.
+
+We divide the optical systems into two groups -- elements in front of and behind the stop. 
+We consider both groups of optical elements as systems imaging the stop.
+We call the image of the stop created ba the object sided elements \emph{entrance pupil}, and the image creted by the image sided elements \emph{exit pupil}.
+
+Rays in the object and rays in the entrance pupil need to pass the same group of optical elements in order to reach the stop. 
+We can regard the propagation of rays from the object to the stop as a free space propagation from the object to the entrance pupil and a subsequent imaging into the stop.
+In close analogy, we can image rays from the stop to the exit pupil and perform a free-space propagation from the exit pupil to the image.
+This property is often used to determine the marginal and coma angles: 
+aiming from the object into the entrance pupil by free-space propagation is much easier than tracing rays from the object to the stop.
+Care has to be taken if the front lens group imaging the stop to the pupil suffers from aberrations such as distortion.
+
+
 \section{Direction of the ray}
 We assign a unit direction vector $\Vector{d}$ to each ray.
-The direction unit vector points in the direction of the time averaged Poynting vector.
+The direction vector points in the direction of the time averaged Poynting vector.
 \begin{eqnarray}
  \Vector{d} &=& \frac{\timeavg{\Vector{S}}}{|\timeavg{\Vector{S}}|}
 \end{eqnarray}
@@ -1013,7 +1056,7 @@ Here $g^{ij}$ is the inverse of $g_{ij}$ such that $g^{ik} g_{kj} = \delta_{ij}$
 
 \chapter{Raytracing}
 
-Classical raytracing consists of the following steps: The ray is considered a straight in 3D space. First its intersection point with the next surface is calculated. 
+Classical raytracing through a set of homogeneous media consists of the following steps: The ray is considered a straight in 3D space. First its intersection point with the next surface is calculated. 
 Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
 
 \section{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
@@ -1426,7 +1469,7 @@ In the final optimisation step, it may be worth using the more accurate Huygens 
 
 \begin{figure}
   \centering
-  %\includegraphics[width=0.5\columnwidth]{waveaberrations}\\ % waveaberrations file missing in tree!
+   \includegraphics[width=0.5\columnwidth]{waveaberrations}
   \caption{a) In a perfect system, according to the Fermat principle, all rays have the same time of flight from the object to the image. b) In a real system, wave aberrations occur. A line of constant time of flight is displayed in magenta.
   Wave aberrations are the optical path differences corresponding to the difference in time of flight when hitting the exit pupil reference sphere.}
   \label{fig:waveaberrations}
