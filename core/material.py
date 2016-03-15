@@ -520,7 +520,7 @@ class GrinMaterial(Material):
 
 class Tilt(Material):
     """
-    Implements single decenter coordinate break. Shifts the optical axis.
+    Implements single decenter coordinate break. Rotates the optical axis.
     Notice that Tilt tilts the ray directions relative to the incoming ray directions (active transformation)
     due to calculation time issues.
     """
@@ -531,25 +531,27 @@ class Tilt(Material):
         self.angle = optimize.OptimizableVariable(True, "Variable", value=angle)
         self.addVariable("angle", self.angle)
 
-        self.returnRotationMatrix(axis, self.angle.evaluate())
+        self.setRotationMatrix(axis)
 
-    def returnRotationMatrix(self, axis, x):
+    def setRotationMatrix(self, axis):
+        """
+        Sets the private function self.rotfunc()
+
+        :param axis: Axis of roration name. Valid options are 'X','Y','Z'. (str)
+        """
+
+        # transform axis string to axis number
         axis = axis.upper()
         axis = ord(axis) - ord('X')
 
+        # matrices for rotation along X,Y,Z
         rotfuncx = lambda x: np.array([[1, 0, 0], [0, np.cos(x), -np.sin(x)], [0, np.sin(x), np.cos(x)]])
         rotfuncy = lambda x: np.array([[np.cos(x), 0, np.sin(x)], [0, 1, 0], [-np.sin(x), 0, np.cos(x)]])
         rotfuncz = lambda x: np.array([[np.cos(x), -np.sin(x), 0], [np.sin(x), np.cos(x), 0], [0, 0, 1]])
 
+        rotfunctions = [ rotfuncx, rotfuncy, rotfuncz ]
 
-        if axis == 0:
-            self.rotfunc = rotfuncx
-        elif axis == 1:
-            self.rotfunc = rotfuncy
-        elif axis == 2:
-            self.rotfunc = rotfuncz
-        else:
-            raise Exception("axis name out of bounds ('X', 'Y', 'Z' are allowed)")
+        self.rotfunc = rotfunctions[axis]
 
 
     def refract(self, raybundle, intersection, normal, validIndices):

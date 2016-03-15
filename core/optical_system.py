@@ -164,25 +164,33 @@ class Surface(ClassWithOptimizableVariables):
         :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
         """
         curvature = self.shape.getCentralCurvature()
+        # TODO: improvement, call shape.getHessian() to obtain curvature components at intersection point
         nextCurvature = nextSurface.shape.getCentralCurvature()
         return self.material.getABCDMatrix(curvature, self.getThickness(), nextCurvature, ray)
+        # TODO:
 
 
 class OpticalSystem(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, objectDistance = 0.0):
+    def __init__(self, objectDistance = 0.0, primaryWavelength = 550e-6):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
-        :param objectDistance: Distance (on axis thickness) from the object to the first surface.
+        :param objectDistance: Distance (on axis thickness) from the object to the first surface in mm (float).
+        :param primaryWavelength: Primary Wavelength of optical system in mm (float).
+
+
         """
         super(OpticalSystem, self).__init__()
         self.surfaces = []
         self.insertSurface(0, Surface( thickness = objectDistance ))  # object
         self.insertSurface(1, Surface())  # image
         # in standard initialization the surface use the BaseAperture which is not limited
+
+        self.primaryWavelength = primaryWavelength
+
 
     def appendSurface(self, surface):
         """
