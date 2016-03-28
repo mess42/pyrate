@@ -1,0 +1,252 @@
+\documentclass[12pt,a4paper,twoside,openright,BCOR10mm,headsepline,titlepage,abstracton,chapterprefix,final]{scrreprt}
+
+\usepackage{ae}
+\usepackage[ngerman, english]{babel}
+%\usepackage{SIunits}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{setspace}
+
+% load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
+
+\RequirePackage{ifpdf}  % flag for pdf or dvi backend
+\ifpdf
+  \usepackage[pdftex]{graphicx}
+  \usepackage[pdftitle={RTFM on Imaging Theory and Basics of Optical Raytracing},%
+              pdfsubject={},%
+              pdfauthor={M. Esslinger, J. Hartung, U. Lippmann},%
+              pdfkeywords={},%
+              bookmarks=true,%
+%              colorlinks=true,%
+              urlcolor=blue,%
+              pdfpagelayout=TwoColumnRight,%
+              pdfpagemode=UseNone,%
+              pdfstartview=Fit,%
+	      pdfpagelabels,
+              pdftex]{hyperref}
+\else
+  \usepackage[dvips]{graphicx}
+  \usepackage[colorlinks=false,dvips]{hyperref}
+\fi
+%\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
+
+\usepackage{ae}
+%\usepackage[ngerman, english]{babel}
+
+%\usepackage{SIunits}
+\newcommand\elementarycharge{\textrm{e}}
+\newcommand\sccm{\textrm{sccm}}
+\newcommand\mbar{\milli\textrm{bar}}
+
+
+\usepackage{amsmath}
+%\usepackage{amssymb}
+\usepackage{setspace}
+
+%\widowpenalty = 1000
+
+
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
+
+\newcommand\Vector[1]{{\mathbf{#1}}}
+
+\newcommand\vacuum{0}
+
+\newcommand\location{r}
+\newcommand\Location{\Vector{r}}
+
+
+\newcommand\wavenumber{k}
+\newcommand\vacuumWavenumber{\wavenumber_{\vacuum}}
+\newcommand\Wavevector{\Vector{\wavenumber}}
+
+\newcommand\Nabla{\Vector{\nabla}}
+\newcommand\Laplace{\Delta}
+\newcommand\timederivative[1]{\dot{{#1}}}
+\newcommand\Tensor[1]{\hat{#1}}
+\newcommand\conjugate[1]{\overline{#1}}
+\newcommand\transpose[1]{#1^{T}}
+\newcommand\Norm[1]{\left| #1 \right|}
+\newcommand{\ket}[1]{\left\vert{#1}\right\rangle}
+\newcommand{\bra}[1]{\left\langle{#1}\right\vert}
+\newcommand{\braket}[2]{\left\langle{#1}\vert{#2}\right\rangle}
+\newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
+
+\newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
+
+\newcommand\Greenfunction{\Tensor{G}}
+
+\newcommand\scalarEfield{E}
+\newcommand\scalarBfield{B}
+\newcommand\scalarHfield{H}
+\newcommand\scalarDfield{D}
+\newcommand\scalarTipfield{T}
+\newcommand\scalarSamplefield{S}
+\newcommand\scalarDipolarmoment{p}
+\newcommand\Efield{\Vector{\scalarEfield}}
+\newcommand\Bfield{\Vector{\scalarBfield}}
+\newcommand\Hfield{\Vector{\scalarHfield}}
+\newcommand\Dfield{\Vector{\scalarDfield}}
+\newcommand\Dipolarmoment{\Vector{\scalarDipolarmoment}}
+
+\newcommand\permeability{\Tensor{\mu}}
+\newcommand\vacuumpermeability{\mu_{\vacuum}}
+\newcommand\permittivity{\Tensor{\epsilon}}
+\newcommand\generalPermittivity{\Tensor{\tilde\epsilon}}
+\newcommand\vacuumpermittivity{\epsilon_{\vacuum}}
+\newcommand\scalarpermittivity{\epsilon}
+\newcommand\conductivity{\Tensor{\sigma}}
+\newcommand\susceptibility{\Tensor{\chi}}
+\newcommand\currentdensity{\Vector{j}}
+\newcommand\Current{\Vector{I}}
+\newcommand\chargedensity{\rho}
+\newcommand\PoyntingVector{\Vector{S}}
+
+\newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
+
+\newif\ifdraft
+\draftfalse % \drafttrue
+
+
+
+
+\begin{document}
+
+\section{Pilot Ray Concept}
+
+\subsection{Motivation}
+
+In systems like Offner systems or off-axis parabolic mirrors, the zero-field chief ray is no more aligned with the axis of symmetry of the surfaces.
+In these systems, first order properties may differ from those obtained from the central curvature on the axis of symmetry of each surface.
+For example, when hitting a decentered spherical lens, the spherical aberration of the non-decentered lens translates into a different focal point of rays close to the zero-field chief ray.
+In other systems, like freeshape Schiefspiegler telescopes, there is no axis of symmetry at all.
+
+We want to find a description for the first order properties of optical systems that can describe rotationally symmetric and non-symmetric systems with a single formalism.
+Our ansatz is to perform real ray tracing on a zero-field chief ray and describe an infinitessimal area aroud it by a Taylor expansion around the real ray intersection points.
+From this Taylor expansion, we derive first order properties, like focal length, magnification and pupil positions.
+These properties are used to aim all other rays into the pupil.
+
+We call the zero-field chief ray \emph{pilot ray}.
+This pilot ray takes the role of the optical axis in rotationally symmetric systems. 
+By choosing the term pilot ray, we want to emphasize that we mean neither a mechanical axis of symmetry of individual lens elements nor the extraordinary axis in anisotropic crystals.
+Desired pilot starting point and direction must be specified by the optical designer.
+In most systems, the intial pilot ray direction is along the $z$ axis. 
+An exception is found, for example, in Scheimpflug systems,
+
+The concept is a parabasal (paraxial) approximation around a non-paraxial pilot ray.
+
+\subsection{Near-Pilot Rays}
+
+We consider near-pilot rays, that have an intersection point and a wavevector close to the pilot ray.
+
+\begin{tabular}{ l | l | l }
+		    & pilot ray & near-pilot ray \\
+& & \\ \hline & & \\
+intersection point  & $\Vector{r}$ & $\tilde{\Vector{r}} = \Vector{r} + \Delta\Vector{r}$ \\
+wavevector          & $\Wavevector$ & $\tilde{\Wavevector} = \Wavevector + \Delta\Wavevector$ \\
+surface normal      & $\Vector{n} = \Vector{n}(\Vector{r})$ & $\tilde{\Vector{n}}(\tilde{\Vector{r}}) = \Vector{n} + \Delta\Vector{n}$ \\
+& & \\ \hline & & \\
+out-of-plane wavevector component &  $\Wavevector_{\perp} = (\Wavevector \Vector{n})\Vector{n}$ & $\tilde{\Wavevector}_{\perp} = (\tilde{\Wavevector} \tilde{\Vector{n}})\tilde{\Vector{n}}$ \\
+in-plane wavevector component     &  $\Wavevector_{\parallel} = \Wavevector - \Wavevector_{\perp}$ & $\tilde{\Wavevector}_{\parallel} = \tilde{\Wavevector} - \tilde{\Wavevector}_{\perp}$ \\
+& & \\ \hline & & \\
+wavevector after refraction       &  $\Wavevector_2 = \Wavevector_{\parallel} + \xi \Vector{n}$ & $\tilde{\Wavevector}_2 = \tilde{\Wavevector}_{\parallel} + \tilde{\xi} \tilde{\Vector{n}}$
+\end{tabular}
+\\[2ex]
+The refraction conserves the in-plane wavevector component. 
+The out-of-plane or normal wavevector component $\xi, \tilde{\xi}$ after the refraction depends on the material permittivity and the in-plane component.
+
+We are interested in the change of the refracted wavevector $\Delta\Wavevector_2 = \tilde{\Wavevector}_2 - \Wavevector_2$ induced by $\Delta\Vector{r}$ and $\Delta\Wavevector$.
+
+\begin{eqnarray}
+ \Delta\Wavevector_2 &=& \tilde{\Wavevector}_2 - \Wavevector_2 \\
+ &=& ( \tilde{\Wavevector}_{\parallel} - \Wavevector_{\parallel} ) + ( \tilde{\xi} \tilde{\Vector{n}} - \xi \Vector{n} ) \\
+% &=& ( \tilde{\Wavevector} - \Wavevector)  - (\tilde{\Wavevector}_{\perp} - \Wavevector_{\perp}) + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
+% &=& \Delta\Wavevector - (\tilde{\Wavevector}_{\perp} - \Wavevector_{\perp}) + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
+% &=& \Delta\Wavevector - ((\tilde{\Wavevector} \tilde{\Vector{n}})\tilde{\Vector{n}} - (\Wavevector \Vector{n})\Vector{n}) + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
+% &=& \Delta\Wavevector - 
+% \left(
+%   (\tilde{\Wavevector} \tilde{\Vector{n}})\Vector{n}+(\tilde{\Wavevector} \tilde{\Vector{n}})\Delta\Vector{n} - (\Wavevector \Vector{n})\Vector{n}
+% \right) 
+% + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
+% &=& \Delta\Wavevector - 
+% \left(
+%   (\tilde{\Wavevector} (\Vector{n} + \Delta\Vector{n}) )\Vector{n}+(\tilde{\Wavevector} (\Vector{n} + \Delta\Vector{n}) )\Delta\Vector{n} - (\Wavevector \Vector{n})\Vector{n}
+% \right) 
+% + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
+% &=& \Delta\Wavevector - 
+% \left(
+%   (\tilde{\Wavevector} \Vector{n} )\Vector{n} + (\tilde{\Wavevector} \Delta\Vector{n} )\Vector{n} + (\tilde{\Wavevector} \Vector{n} )\Delta\Vector{n} + (\tilde{\Wavevector} \Delta\Vector{n} )\Delta\Vector{n} - (\Wavevector \Vector{n})\Vector{n}
+% \right) 
+% + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
+% &=& \Delta\Wavevector - 
+% \left(
+%   (\Delta\Wavevector \Vector{n} )\Vector{n} + (\tilde{\Wavevector} \Delta\Vector{n} )\Vector{n} + (\tilde{\Wavevector} \Vector{n} )\Delta\Vector{n} + (\tilde{\Wavevector} \Delta\Vector{n} )\Delta\Vector{n}
+% \right) 
+% + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
+ &=& \Delta\Wavevector - 
+ \bigg(
+   (\Delta\Wavevector \Vector{n} )\Vector{n} 
+   + (\Wavevector \Delta\Vector{n} )\Vector{n}  + (\Delta\Wavevector \Delta\Vector{n} )\Vector{n} 
+   + (\Wavevector \Vector{n} )\Delta\Vector{n}  + 
+  \nonumber \\ &&
+   + (\Delta\Wavevector \Vector{n} )\Delta\Vector{n} 
+   + (\Wavevector \Delta\Vector{n} )\Delta\Vector{n}
+   + (\Delta\Wavevector \Delta\Vector{n} )\Delta\Vector{n}
+ \bigg) 
+ + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n}
+\end{eqnarray}
+We are insterested in the limit $\Delta\Wavevector, \Delta\Vector{r} \rightarrow 0$. We approximate $\Delta\Vector{n}$ in first order
+\begin{eqnarray}
+ \Delta n_i \approx \left. \frac{\partial n_i}{\partial r_j} \right|_{\Vector{r}} \Delta r_j
+\end{eqnarray}
+to be proportional to $\Delta\Vector{r}$. 
+We neglect all higher order terms $\Delta\Wavevector^2$ and $\Delta\Vector{r}^2$.
+Like the ABCD-matrix formalism, 
+\begin{eqnarray}
+ y_2 &=& A y_1 + B y^\prime_1 \\
+ y^\prime_2 &=& C y_1 + D y^\prime_1
+\end{eqnarray}
+we also neglect cross-terms $\Delta\Wavevector\Delta\Vector{r}$. 
+This leaves the lowest order terms
+\begin{eqnarray}
+% \Delta\Wavevector_2 &\approx& 
+%   \Delta\Wavevector 
+%   - (\Delta\Wavevector \Vector{n} )\Vector{n} 
+%   - (\Wavevector \Delta\Vector{n} )\Vector{n} 
+%   - (\Wavevector \Vector{n} )\Delta\Vector{n}   
+%   + ( \tilde{\xi} - \xi ) \Vector{n} 
+%   + \tilde{\xi} \Delta\Vector{n} 
+% \\
+ \Delta \wavenumber_{2,i} &\approx& 
+   \left( \delta_{ij}  - n_i n_j \right) \Delta\wavenumber_j
+   +
+   \left(
+     - \wavenumber_j  n_i 
+     - \wavenumber_m n_m \delta_{ij}  
+     + \xi \delta_{ij}
+   \right) \Delta n_j
+   + ( n_i ) \Delta\xi 
+\end{eqnarray}
+The explicit form of $\Delta\xi = \tilde{\xi} - \xi$ can be found once the material dispersion is specified.
+
+\subsection{Isotropic Media}
+We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
+\begin{eqnarray}
+ \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\
+ \Delta \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \tilde{\Wavevector}_{\parallel} \cdot \tilde{\Wavevector}_{\parallel}} - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
+ \tilde{\Wavevector}_{\parallel} &\approx& \Wavevector_\parallel + \Delta\Wavevector - (\Delta\Wavevector \Vector{n})\Vector{n} - (\Wavevector\Vector{n})\Delta\Vector{n} - (\Wavevector \Delta\Vector{n})\Vector{n} \\
+ \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} + \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i \\
+ \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} 
+   &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} + 
+     2 \wavenumber_{\parallel,i} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
+ \\
+ \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} +  2 \mu \\
+ \sqrt{x- \mu} &\approx& \sqrt{x} + \left. \frac{\partial \sqrt{x-\mu}}{\partial \mu} \right|_{0} \mu = \sqrt{x} - \frac{\mu}{2 \sqrt{x}} \\
+ \Delta \xi &\approx& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel} - 2 \mu } - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
+\end{eqnarray}
+
+
+\end{document}
