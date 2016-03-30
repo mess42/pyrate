@@ -172,7 +172,7 @@ All quantities are real valued. All material properties are described by unit be
 they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. 
 $\permittivity$ and $\permeability$ are the electric and magnetic permittivity, respectively, and $\conductivity$ the conductivity. 
 
-Notice that the Maxwell equations at this level can be paired up into source and source-free equations. Every of these sub equations
+The Maxwell equations at this level can be paired up into source and source-free equations. Every of these sub equations
 splits up into a divergence and a curl equation emerging from the spatial and time components of the Faraday tensor. Due to the
 invariance of the Maxwell equations under Lorentz transformations they fit into a spacetime tensor scheme nicely. Throughout this manual
 we will nevertheless concentrate on the splitted 3+1 vector representation of the theory of the electromagnetic field.
@@ -246,7 +246,7 @@ We introduce a \emph{new} permittivity
 \begin{eqnarray}
   \permittivity_{new} = \permittivity - \frac{\conductivity}{i \omega}
 \end{eqnarray}
-Note that this newly defined permittivity is complex valued, where the imaginary part denotes electric conductivity and thus ohmic losses.
+This newly defined permittivity is complex valued, where the imaginary part denotes electric conductivity and thus ohmic losses.
 We introduce a corresponding \emph{new} $\Dfield$-field
 \begin{eqnarray}
   \Dfield_{new} &=& \permittivity_{new} \Efield \\
@@ -268,10 +268,10 @@ The equations are nearly symmetric in $\Dfield$ and $\Hfield$.
 From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_{new}$ without explicitly writing the index \emph{new} (call us lazy, we don't care).
 \begin{subequations}
 \begin{eqnarray}
-  \Nabla \Dfield &=& 0 					\\
-  \Nabla \times \Efield &=& i \omega \vacuumpermeability \Hfield	\\
-  \Nabla \Hfield &=& 0  					\\
-  \Nabla \times \Hfield &=& - i \omega \Dfield  		
+  \Nabla \Dfield &=& 0 					 	 \label{eq:sourcefreemaxwell_divD} \\
+  \Nabla \times \Efield &=& i \omega \vacuumpermeability \Hfield \label{eq:sourcefreemaxwell_rotE}	\\
+  \Nabla \Bfield &=& 0  					 \label{eq:sourcefreemaxwell_divB} \\
+  \Nabla \times \Hfield &=& - i \omega \Dfield  		 \label{eq:sourcefreemaxwell_rotH}
 \end{eqnarray}
 \label{eq:sourcefreemaxwell}
 \end{subequations}
@@ -287,9 +287,7 @@ We want the Poynting vector to be real and stay numerically identical to the qua
 	      + \frac{1}{2} \Re ( \overline{\Efield}_0 \times \Hfield_0 ) \label{eq:SconjEH}\,,
 \end{eqnarray}
 for the decomposition $\Efield = \Efield_0 \exp(-i\omega t)$ and $\Hfield = \Hfield_0 \exp(-i\omega t)$.
-\remark{OK, but: the phase information is located at $\Efield_0$ and $\Hfield_0$? I mean it is not relevant for the time average, but electric and magnetic field have
-not the same phase in general?}The fast oscillation of the Poynting vector at $2 \omega$ is not directly measurable at optical frequencies, only its time average $\timeavg{\Vector{S}}$,
-where the mentioned time average is defined by
+The fast oscillation of the Poynting vector at $2 \omega$ is not directly measurable at optical frequencies, only its time average $\timeavg{\Vector{S}}$,
 \begin{eqnarray}
  \timeavg{\Vector{S}}  &:=& \frac{\omega}{2\pi} \int_{0}^{2\pi / \omega} dt \, \Vector{S} \label{eq:timeaverageS}\,.
 \end{eqnarray}
@@ -297,15 +295,15 @@ From \eqref{eq:SconjEH} and \eqref{eq:timeaverageS} we get
 \begin{eqnarray}
   \timeavg{\Vector{S}}   &=& \underbrace{\left\langle \frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) )\right\rangle}_{\approx0} + \frac{1}{2} \Re ( \overline{\Efield} \times \Hfield )\,.
 \end{eqnarray}
-This leads after inserting the time evolution from the Maxwell equations to
+We insert Maxwell equation \eqref{eq:sourcefreemaxwell_rotE} and obtain
 \begin{eqnarray}
  \timeavg{\Vector{S}}   &=& \frac{1}{2} \Re \left( \overline{\Efield} \times \frac{\Nabla \times \Efield}{i \omega \vacuumpermeability} \right) \\
 \end{eqnarray}
-and finally via the BAC-CAB formula for the components of the time averaged Poynting vector to
+and via the Gra\ss mann identity formula for the components of the time averaged Poynting vector to
 \begin{eqnarray}
   \timeavg{\Vector{S}}_j &=&  \Re \frac{ \overline{\scalarEfield}_i \partial_j \scalarEfield_i - \overline{\scalarEfield}_j \partial_i \scalarEfield_i }{2 i \omega \vacuumpermeability}
 \end{eqnarray}
-Notice that the last term which contains the divergence of $\Efield$ vanishes in vacuum or isotropic, homogenious media.
+The last term which contains the divergence of $\Efield$ vanishes in vacuum or isotropic, homogenious media.
 In general, the direction of the Poynting vector is a weighted sum of the directions of $\Wavevector$ and $\Efield$. This can be seen from
 a plane wave insertion for $\Efield$. Since we already neglected the time dependend term (see \eqref{eq:SconjEH}, notice time average) it is sufficient to
 set $\Efield = \Vector{A} \exp(i \scpm{\Vector{k}}{\Location})$ and therefore $\overline{\Efield} = \Vector{A} \exp(-i \scpm{\Vector{k}}{\Location})$.
@@ -422,8 +420,8 @@ This equation is numerically tractable with the method of characteristics (treat
  \frac{\text{d}\psi}{\text{d}s} &= \frac{\partial F}{\partial \psi_{,i}} \psi_{,i}\,,\\
  \frac{\text{d}x_i}{\text{d}s} &= \frac{\partial F}{\partial \psi_{,i}}\,,\quad \text{(Assumption to remove 2nd derivatives!)}\,. 
 \end{align}
-Notice that the partial derivative for $x$ means no chain rule for $\psi$ and $\psi_{,i}$, due to the independency of $x$ from these two other variables.
-Further notice that the $\psi$ derivative cancels out because the determinant only depends on gradients of $\psi$.
+The partial derivative for $x$ means no chain rule for $\psi$ and $\psi_{,i}$, due to the independency of $x$ from these two other variables.
+The $\psi$ derivative cancels out because the determinant only depends on gradients of $\psi$.
 
 For the isotropic equation
 \begin{align}
@@ -639,7 +637,7 @@ The direction of the Poynting vector is
    =
    \Wavevector \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector \Vector{e}_{\eo}) \Vector{e}_{\eo}
 \end{eqnarray}
-Note that the complex valued prefactor influences the real part of the above term.
+The complex valued prefactor influences the real part of the above term.
 
 \subsection{Isotropic media\chk{JH}}
 
@@ -780,9 +778,51 @@ Even in cases where the assumptions are not completely fulfilled, its accuracy c
 astonishing and lead to the great success of technical optics.
 However, the optical designer has to check for each calculation whether the ray approximation is justified.
 
+\section{Definitions}
+
+We choose a cartesian coordinate system and call the z-axis our \emph{optical axis}. 
+In rotationally symmetric optical systems, this is usually the axis of symmetry.
+
+For imaging systems, we consider an object plane and a image plane with our optical system in between. 
+The optical system shall focus all rays originating from a certain point in the object plane into a point or small spot in the image plane.
+We call the points in the object and image plane field points.
+
+\begin{figure}
+  \centering
+   \includegraphics[width=0.5\columnwidth]{pupil}
+  \caption{a) In an imaging system without vignetting, the stop acts as aperture for rays from all field points. The rays displayed are on-axis ray (blue), marginal rays (violet), chief ray (red), and coma rays (orange).
+  b) In this system, the lens creates a virtual image of the stop, the pupil (green).
+  c) The imaging relation between pupil and stop causes rays aimed at the pupil border to be refracted onto the stop border.
+  }
+  \label{fig:pupil}
+\end{figure}
+
+
+The optical system is capable of transmitting only a certain angular spectrum of the light emitted by each object field point.
+We call the component which limits the amount of transmitted light for the on-axis field point \emph{stop}.
+The stop can be, for example, the clear aperture of a finite sized lens or a metal ring aperture.
+If at field points far from the axis also other elements start to clip rays, we call this additional clipping \emph{vignetting}.
+
+The rays emitted by the central (on-axis) field point that hit the border of the stop are called \emph{marginal rays}.
+The rays emitted by any non-zero field point that hit the border of the stop are called \emph{coma rays}.
+The ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
+Often, the chief ray is approximated to be the central ray in the ray bundle emitted by a field point.
+
+We divide the optical systems into two groups -- elements in front of and behind the stop. 
+We consider both groups of optical elements as systems imaging the stop.
+We call the image of the stop created ba the object sided elements \emph{entrance pupil}, and the image creted by the image sided elements \emph{exit pupil}.
+
+Rays in the object and rays in the entrance pupil need to pass the same group of optical elements in order to reach the stop. 
+We can regard the propagation of rays from the object to the stop as a free space propagation from the object to the entrance pupil and a subsequent imaging into the stop.
+In close analogy, we can image rays from the stop to the exit pupil and perform a free-space propagation from the exit pupil to the image.
+This property is often used to determine the marginal and coma angles: 
+aiming from the object into the entrance pupil by free-space propagation is much easier than tracing rays from the object to the stop.
+Care has to be taken if the front lens group imaging the stop to the pupil suffers from aberrations such as distortion.
+
+
 \section{Direction of the ray}
 We assign a unit direction vector $\Vector{d}$ to each ray.
-The direction unit vector points in the direction of the time averaged Poynting vector.
+The direction vector points in the direction of the time averaged Poynting vector.
 \begin{eqnarray}
  \Vector{d} &=& \frac{\timeavg{\Vector{S}}}{|\timeavg{\Vector{S}}|}
 \end{eqnarray}
@@ -798,13 +838,13 @@ path length times the refractive index.
 \remark{to do: all other cases; restriction to linear optics}
 
 
-\section{General Considerations}
+\section{Lagrange and Hamilton formalism}
 In the special case of materials that can be described by an isotropic, real valued refractive index, the optical path length functional is given according to the Fermat principle,
 \begin{align}
  L &= \int_{s_1}^{s_2} \underbrace{n(\Vector{r}(s)) |\Vector{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.\label{eq:fermatiso}
 \end{align}
 with the corresponding ``Lagrangian'' $\mathcal{L}$.
-Notice $s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
+$s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
 equations we may not set it to $1$ at the moment.)
 Euler-Lagrange-Equations are given by
 \begin{align}
@@ -818,7 +858,7 @@ Therefore the appropriate differential equation (the so-called equation of motio
 \begin{align}
  \frac{\text{d}}{\text{d}s} \left(n(\Vector{r}(s)) \frac{\text{d}\Vector{r}}{\text{d}s}\right) &= (\Vector{\nabla} n)(\Vector{r}(s)) \label{eq:ODEGRIN}\,.
 \end{align}
-(Notice: For a piecewise homogeneous medium the ODE system reduces to a system of algebraic equations 
+( For a piecewise homogeneous medium the ODE system reduces to a system of algebraic equations 
 [btw. this corresponds to a reduction of the
 first variation of the integral to a first derivative of the corresponding sum].) 
 For our later raytracing the initial conditions are given by:
@@ -876,7 +916,7 @@ are therefore given by [remember $\Vector{Q} = (x,y)$, $\Vector{P} = n (d_x, d_y
  \frac{\text{d}\Vector{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \Vector{Q}} = \frac{\Vector{\nabla}_{\Vector{Q}} n}{\sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,.    
 \end{align}
 \end{subequations}
-Notice that $n = n(\Vector{Q}, z)$ in general, so the Hamiltonian depends explicitly on the independent variable.
+In general $n = n(\Vector{Q}, z)$ holds, so the Hamiltonian depends explicitly on the independent variable.
 Therefore for $z$ dependent $n$ the Hamiltonian is no conserved quantity anymore and
 \begin{align}
  \frac{\partial H_{\text{2D}}}{\partial z} &= -\frac{\frac{\partial n}{\partial z}}{\sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,.
@@ -978,7 +1018,7 @@ and
  \frac{\partial \mathcal{L}}{\partial \dot{x}^k} &= \frac{n_{(0)} \dot{x}^k}{\sqrt{\dot{\Vector{r}}^2}}
 + 2\,n_{(2)\,kj} \dot{x}^j \sqrt{\dot{\Vector{r}}^2}
 \end{align}
-respectively. Notice the factor two comes from the symmetry property of the quadrupole part. Notice also that the square root is
+respectively. The factor two originates in the symmetry property of the quadrupole part. The square root is
 one for the path length derivative but we need it to obtain an appropriate Lagrangian. After setting the square root to one and writing down
 the Lagrangian equations of motion we obtain
 \begin{align}
@@ -1013,7 +1053,9 @@ Here $g^{ij}$ is the inverse of $g_{ij}$ such that $g^{ik} g_{kj} = \delta_{ij}$
 
 \chapter{Raytracing}
 
-Classical raytracing consists of the following steps: The ray is considered a straight in 3D space. First its intersection point with the next surface is calculated. 
+Classical raytracing through stepwise homogeneous media consists of the following steps: 
+The ray is considered a straight in 3D space. 
+First its intersection point with the next surface is calculated geometrically. 
 Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
 
 \section{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
@@ -1315,25 +1357,24 @@ to do
 \remark{I would suggest to implement a few standard forms and to combine them by a linear combination operator. This makes the search for optimizable
 variables more difficult.}
 
-\section{Ray Aiming and Pupil Rastering}
-Assume we have an optical system and we want to create some rays to be traced through the system. 
-In classical raytracing, one determines the position of a field point and casts a bundle of rays from this field point towards the entrance pupil of the optical system, filling the pupil with a certain pattern.
-One is interested in a description that is numerically stable for telecentric systems and infinite conjugate systems.
-The problem can be split up into two separate ones: assigning every ray an origin position and a direction.
+
+
+\section{Ray Aiming}
+The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
+Often, the desired size of the pupil is not given explicitly, but the optical designer wants to specify a f-number or a numerical aperture.
+This section deals with the conversion between different pupil and field descriptions and how to find suitable starting positions and directions of rays in the object plane.
+If possible, we prefer a description that is numerically stable for telecentric systems and infinite conjugate systems.
 
 \subsection{Ray origin for finite conjugate objects}
 For finite conjugate objects, the object plane is part of the optical system. Rays from one field point originate from the same point in the object plane.
 
-to do: paraxial image height definition
-
-to do: angle definition
-
+to do
 
 \subsection{Ray origin for infinite conjugate objects}
 to do
 
-\subsection{Pupil aiming}
-We assume a plane pupil at finite or infinite distance. We want to cast rays from the ray origin positions so that they hit certain coordinates in the pupil plane. 
+\subsection{Ray directions}
+We want to cast rays from the ray origin positions so that they hit certain coordinates in the pupil plane. 
 The na\"{\i}ve ansatz to subtract the ray origin from the desired pupil coordinate to obtain the ray direction will likely fail numerically for telecentric systems.
 Therefrore, we derive the marginal ray slope and the chief ray slope from the first order properties of the system and base the ray directions on these two quantities.
 %
@@ -1342,7 +1383,8 @@ Therefrore, we derive the marginal ray slope and the chief ray slope from the fi
   \left. \frac{\partial y}{\partial z}\right|_{ray} &=& \left. \frac{\partial y}{\partial z}\right|_{chief} + \left. \frac{\partial y}{\partial z}\right|_{marginal} \cdot y_{pup}
 \end{eqnarray}
 where $x_{pup}, y_{pup} \in [-1,1]$ are pupil coordinates normalized to the pupil radius. 
-Note that a equidistant mesh of pupil coordinates will not result in a constant ray density per solid angle for high-NA systems.
+An equidistant mesh of pupil coordinates will may result in a constant ray density per solid angle, especially for high-NA systems or systems with large field angles.
+A non-equidistant sampling grid limits the validity of fast-Fourier based calculation methods.
 
 \subsubsection{Paraxial pupil aiming}
 In paraxial pupil aiming, the optical system is represented by ABCD-Matrices and the marginal slope is calculated paraxially.
@@ -1377,7 +1419,7 @@ Despite its name suggests this representation of aberrations would be based on w
 Wave aberrations are strongly related to the optical path difference.
 
 \subsection{Optical path difference}
-In a perfect lens (made of an isoropic, lossless material), according to the Fermat law, all rays from one object point to an image point have the same optical path length. 
+In a perfect lens (made of isotropic, lossless materials), all rays from one object point to an image point have the same optical path length, according to the law of Fermat. 
 In systems with aberrations, the optical path length from object to image is different for rays passing different pupil positions.
 For optical systems built up from isotropic materials, where we can define an index of refraction, the optical path length $S$ is calculated straightforward found as the path-integral of the index over the ray path.
 \begin{eqnarray}
@@ -1390,43 +1432,47 @@ The optical path difference $OPD$ is the optical path length minus the optical p
 \end{eqnarray}
 For a certain fixed object field point, the optical path difference is often displayed as a function of pupil coordinates $p_x,p_y$.
 
-Note that for anisotropic or lossy materials, the Fermat law no longer holds, and a finite optical path difference from object to image is no more synonomous to aberrations.
+For anisotropic or lossy materials, the Fermat law no longer holds, and a finite optical path difference from object to image is no more synonomous to aberrations.
 In this case, the interpretation becomes more complex.
 
 \subsection{Wave Aberrations}
 To obtain the so called wave aberration, one first calculates the optical path difference from an object point to the image plane.
 Then, a reference surface is constructed. 
 Each point of the reference surface shall have the same optical path length to the chief ray image point.
-The value of the optical path length is chosen so that the surface intersects the optical axis at the exit pupil position together with the chief ray.
 For isotropic media, the reference surface becomes a sphere.
+The radius of the sphere is chosen so that the surface intersects the optical axis at the exit pupil position, together with the chief ray.
 
-All rays are then propagated back from the image to the reference surface, maintaining their directions.
-The back-propagation is to be performed with the dispersion of the last material before the image, even though this back-propagation length may be larger than the thickness of the last material.
+All rays are then propagated backwards from the image to the reference surface.
+The back-propagation is performed with the dispersion of the last material before the image, 
+for example the image sided immersion liquid or the glass of a field lens glued onto the detector.
+If there is an air gap between last lens and detector, the air dispersion is to be used.
+In many cases, the back-propagation length is larger than the backfocal length of the system.
 
-To obtain the wave aberrations, the optical path length of this back-propagation is subtracted from the optical path length from object to image.
-Typically, the path length of the chief ray is subtracted, referencing the optical path lengths to the chief ray. 
+The wave aberrations are the optical path differences from object to exit pupil, 
+that is the optical difference from object to image minus the path difference of the back-propagation.
+By definition, the wave aberration of the chief ray is zero.
+Typically, wave aberrations are displayed as a map over the two-dimensional exit pupil coordinates.
 For imaging systems, the wave aberrations relative to the chief ray are typically very small, and are often displayed in units of vacuum wavelengths.
 
 Using the Huygens principle, the field in the exit pupil can be interpreted as a set of point sources, radiating in the image direction. 
 They form an Eikonal wavefront identical to that of the rays traced from object to image.
-
 In technical optics, at this point often wave and ray optics are intermixed:
-From the exit pupil to the image, a Huygens propagation is performed numerically exact in wave optics, resulting in a diffraction-limited spot. 
-The retardation of each point-source, however, is calculated in geometric optics.
+From the exit pupil to the image, a Huygens propagation is performed numerically exact in wave optics, resulting in a spot that cannot surpass the diffraction limit. 
+The retardation of each point-source, however, is calculated using geometrical optics.
 In a system without any aberrations made of isotropic materials, all point-sources are in phase and form a spherical wave segment, converging towards a spot of minimal spatial extent.
 All aberrations cause a perturbation of the spherical wave, and an extended spot size.
 The accurracy of the result compared to full physical wave-optical calculations of the point-spread function of the whole system is often astonishing. 
 
-As a shortcut, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant. 
-The ray coordinates in entrance and exit pupil are assumed to be identical modulo a global factor of the ratio of both pupil radii.
+To reduce calculation times, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant. 
+The normalized ray coordinates in entrance and exit pupil are assumed to be identical.
 A rectangular raster in the entrance pupil will thus result in a rectangular raster in the exit pupil.
-Exit pupil and image are assumed Fourier-conjugate, allowing the use of Fast Fourier methods.
+Exit pupil and image are assumed Fourier-conjugate, allowing the use of fast Fourier methods.
 The tremendous gain in speed is often worth the sacrifice in accuracy in optimisation tasks to get close to a diffraction limited system.
 In the final optimisation step, it may be worth using the more accurate Huygens propagation method.
 
 \begin{figure}
   \centering
-  %\includegraphics[width=0.5\columnwidth]{waveaberrations}\\ % waveaberrations file missing in tree!
+   \includegraphics[width=0.5\columnwidth]{waveaberrations}
   \caption{a) In a perfect system, according to the Fermat principle, all rays have the same time of flight from the object to the image. b) In a real system, wave aberrations occur. A line of constant time of flight is displayed in magenta.
   Wave aberrations are the optical path differences corresponding to the difference in time of flight when hitting the exit pupil reference sphere.}
   \label{fig:waveaberrations}
@@ -1520,7 +1566,7 @@ By using the formulas from \ref{subsec:intersectionformulas} it is possible to i
 \end{align}
 for $t$ either analytically or numerically. The equation tells
 us where the ray started at $x, y$, $z = -d_1$ intersects the surface $F(x, y)$. Let the solution
-of this equation $t_\text{intersect} = \sigma(x, y, d_x, d_y)$. (Notice that the function $\sigma$
+of this equation $t_\text{intersect} = \sigma(x, y, d_x, d_y)$. (The function $\sigma$
 is in general nonlinear in its arguments, even for the simplest case of a sphere.) Then by using the 
 sigma notation the intersection point is also given by a nonlinear vector entity:
 \begin{align}
@@ -1576,7 +1622,7 @@ and for the final coordinates after inserting the intersection point coordinates
 \end{subequations}
 Eqns. \eqref{eq:newdirection} and \eqref{eq:newposition} together with \eqref{eq:surfacenormal2}, \eqref{eq:surfacenormal},
 \eqref{eq:pintersect} and \eqref{eq:sigmasol} give the final nonlinear transformation for a refractive optical surface between
-two materials with constant optical indices. Notice that $\sigma$ depends on the starting variables, too.  
+two materials with constant optical indices. $\sigma$ depends on the starting variables, too.  
 For, e.g., a conic section it is given by (see \eqref{eq:intersectionconicsection})
 \begin{align}
  \sigma_{\text{conic section}} &= \frac{G}{ F + \sqrt{F^2 + H G} }\,,
@@ -1694,7 +1740,7 @@ Therefore we get
 \end{align}
 \end{subequations}
 which corresponds to a absolute change in intersection points and ray direction.
-Notice that the new direction vector also has to be a unit vector such that
+The new direction vector also has to be a unit vector such that
 \begin{align}
  \underbrace{{\Vector{d}}^{\prime 2}}_{=1} &= \underbrace{\Vector{d}^2}_{=1} + 2 \scpm{\Vector{d}}{\Vector{D}} + \Vector{D}^2\,,
 \end{align}
@@ -1741,7 +1787,7 @@ where $H = -n_1 \sqrt{1 - \Vector{P}^2/n^2}$,
 $\Vector{N}(\Vector{Q}) = (\text{grad} f)(\Vector{Q})/\sqrt{1 + (\text{grad} f)^2(\Vector{Q})}$, 
 $Z(\Vector{Q}) = 1/\sqrt{1 + (\text{grad} f)^2(\Vector{Q})}$.
 For a complete optical system one has to perform this transformations in a succesive manner on the starting configuration of the ray.
-Notice that due to the non-conservation of the Hamiltonian it will also change at the boundary between two layers in the following manner
+Due to the non-conservation of the Hamiltonian it will also change at the boundary between two layers in the following manner
 \begin{align}
  H &\mapsto H + \left[\scpm{\Vector{P}}{\Vector{N}(\Vector{Q})} + Z(\Vector{Q}) H + \sqrt{n_2^2 - n_1^2 + [\scpm{\Vector{P}}{\Vector{N}(\Vector{Q})} + Z(\Vector{Q})H]^2}\right] Z(\Vector{Q})\,.
 \end{align}
@@ -1837,7 +1883,7 @@ Transfer through homogeneous medium to arc length $s$
   \Vector{p}
  \end{pmatrix}\,.
 \end{align}
-Notice that this transformation is not nonlinear.
+This transformation is linear.
 Refraction at optical surface $f(x,y)$.
 \begin{align}
  \begin{pmatrix}
@@ -1849,7 +1895,7 @@ Refraction at optical surface $f(x,y)$.
   \Vector{p} - \left[\scpm{\Vector{p}}{\Vector{n}(\Vector{q})} + \sqrt{n_2^2 - n_1^2 + \scpm{\Vector{p}}{\Vector{n}(\Vector{q})}^2}\right] \Vector{n}(\Vector{q})
  \end{pmatrix}\,.
 \end{align}
-Notice that the Hamiltonian $H_\text{3D} = \Vector{p}^2 - n^2 = 0$ is conserved.
+The Hamiltonian $H_\text{3D} = \Vector{p}^2 - n^2 = 0$ is conserved.
 GRIN-Medium:
 \begin{align}
  \begin{pmatrix}
@@ -1912,7 +1958,7 @@ We will start at a nonlinear homogeneous matrix transfer function of 3D variable
  \end{pmatrix}\,.
 \end{align}
 As already discussed above this homogeneous transformation is able to include rotation and translation of the optical axis (aka coordinate breaks) 
-in a unified manner. Due to the nonlinearity the formulation of the transfer matrix is not unique. Notice that the components of $\Vector{p}$ and $\Vector{p}\,{}'$
+in a unified manner. Due to the nonlinearity the formulation of the transfer matrix is not unique. The components of $\Vector{p}$ and $\Vector{p}\,{}'$
 are not fully independent from each other. For unification with 2D formalism we split up the canonical coordinates and momenta into 2D and 3-components, i.e.
 $\Vector{q} = (\Vector{Q}, z) = (Q_\alpha, z)$ where indices from the beginning of the greek alphabet are running over $1,2$. Now we also use Einstein summation
 convention. Therefore the equation $\Vector{q}\,{}' = A \Vector{q}$ is $(2+1)$ decomposed like the following
@@ -1921,7 +1967,7 @@ convention. Therefore the equation $\Vector{q}\,{}' = A \Vector{q}$ is $(2+1)$ d
  z^\prime &= A_{3 \beta} Q_\beta + A_{33} z\,.
 \end{align}
 For the readers convenience we omit the $(\Vector{q},\Vector{p})$ dependency of the sub matrices and vectors in the large transfer matrix.
-In its full form the transfer reads (notice $H$ and $H'$ are the respective 2D Hamiltonians corresponding to the negative 3-component of the 2D momentum)
+In its full form the transfer reads ( $H$ and $H'$ are the respective 2D Hamiltonians corresponding to the negative 3-component of the 2D momentum)
 \begin{subequations}
 \label{eq:transfermatrixeqns}
 \begin{align}
@@ -1931,7 +1977,7 @@ In its full form the transfer reads (notice $H$ and $H'$ are the respective 2D H
  H' &= -C_{3\beta} Q_\beta - C_{33} z - D_{3\beta} P_\beta + D_{33} H - \delta_3\,,
 \end{align}
 \end{subequations}
-Notice that the transfer function in this form is only valid for non-GRIN media. I would suggest to treat the transfer function of a GRIN medium
+The transfer function in this form is only valid for non-GRIN media. I would suggest to treat the transfer function of a GRIN medium
 like a box where you put in $Q_\alpha, P_\alpha, z$ and after the propagation to $z'$ it spits out the primed coordinates.
 \subsubsection{Transfer matrix functions}
 For transfer through material with constant optical index $n$ we have
@@ -1984,7 +2030,7 @@ For reflection\remark{check!}
    0 & 0 & 0 & 0 & 1
  \end{pmatrix}
 \end{align}
-Notice that for a proper treatment of refraction or reflection at a curved surface one has to start a ray in the reference plane of the 
+For a proper treatment of refraction or reflection at a curved surface one has to start a ray in the reference plane of the 
 optical surface and propagate up to the surface. The intersection calculation is not trivial and only for special cases
 available in closed form. After this intersection calculation one may calculate the normal vector at the intersection point
 and refract the ray.
@@ -2052,7 +2098,7 @@ at least there is a unique formalism to derive the paraxial approximation.
   0 & 0 & 1 
  \end{pmatrix}
 \end{align}
-After a ($2+1$) decomposition it is clear how to transform the 2D components of momentum and coordinates. (Notice
+After a ($2+1$) decomposition it is clear how to transform the 2D components of momentum and coordinates. (
 as mentioned earlier for the Hamiltonian, i.e. the negative 3-component of the momentum, it is not sufficient
 to approximate to first order to generate the appropriate equations of motion. This means the $C_3$ and $D_3$ components
 have to approximated at least to first order and the $\delta_3$ component up to second order.) Simple propagation in 2D is already linear.
