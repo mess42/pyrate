@@ -119,26 +119,22 @@
 
 \subsection{Motivation}
 
-In systems like Offner systems or off-axis parabolic mirrors, the zero-field chief ray is no more aligned with the axis of symmetry of the surfaces.
-In these systems, first order properties may differ from those obtained from the central curvature on the axis of symmetry of each surface.
-For example, when hitting a decentered spherical lens, the spherical aberration of the non-decentered lens translates into a different focal point of rays close to the zero-field chief ray.
+In systems like Offner systems or off-axis parabolic mirrors, the center-of-field chief ray is no more aligned with the axis of rotational symmetry of the surfaces.
+In these systems, it is no longer sufficient to obtain first order properties from the central curvature on the axis of symmetry of each surface.
 In other systems, like freeshape Schiefspiegler telescopes, there is no axis of symmetry at all.
 
-We want to find a description for the first order properties of optical systems that can describe rotationally symmetric and non-symmetric systems with a single formalism.
-Our ansatz is to perform real ray tracing on a zero-field chief ray and describe an infinitessimal area aroud it by a Taylor expansion around the real ray intersection points.
-From this Taylor expansion, we derive first order properties, like focal length, magnification and pupil positions.
-These properties are used to aim all other rays into the pupil.
-
-We call the zero-field chief ray \emph{pilot ray}.
+In this section, we develop a description for the first order properties of optical systems that can describe rotationally symmetric and non-symmetric systems with a single formalism.
+It is a formalism for rays close to the center-of-field chief ray, which we call \emph{pilot ray} in the following.
 This pilot ray takes the role of the optical axis in rotationally symmetric systems. 
 By choosing the term pilot ray, we want to emphasize that we mean neither a mechanical axis of symmetry of individual lens elements nor the extraordinary axis in anisotropic crystals.
-Desired pilot starting point and direction must be specified by the optical designer.
 In most systems, the intial pilot ray direction is along the $z$ axis. 
 An exception is found, for example, in Scheimpflug systems,
 
-The concept is a parabasal (paraxial) approximation around a non-paraxial pilot ray.
-
 \subsection{Near-Pilot Rays}
+Our ansatz is to perform a real ray trace on the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
+From this Taylor expansion, we derive first order properties, like focal length, magnification and pupil positions.
+These properties are used to aim all other rays into the pupil.
+The concept is a parabasal (paraxial) approximation around a non-paraxial pilot ray.
 
 We consider near-pilot rays, that have an intersection point and a wavevector close to the pilot ray.
 
@@ -146,7 +142,7 @@ We consider near-pilot rays, that have an intersection point and a wavevector cl
 		    & pilot ray & near-pilot ray \\
 & & \\ \hline & & \\
 intersection point  & $\Vector{r}$ & $\tilde{\Vector{r}} = \Vector{r} + \Delta\Vector{r}$ \\
-wavevector          & $\Wavevector$ & $\tilde{\Wavevector} = \Wavevector + \Delta\Wavevector$ \\
+initial wavevector  & $\Wavevector$ & $\tilde{\Wavevector} = \Wavevector + \Delta\Wavevector$ \\
 surface normal      & $\Vector{n} = \Vector{n}(\Vector{r})$ & $\tilde{\Vector{n}}(\tilde{\Vector{r}}) = \Vector{n} + \Delta\Vector{n}$ \\
 & & \\ \hline & & \\
 out-of-plane wavevector component &  $\Wavevector_{\perp} = (\Wavevector \Vector{n})\Vector{n}$ & $\tilde{\Wavevector}_{\perp} = (\tilde{\Wavevector} \tilde{\Vector{n}})\tilde{\Vector{n}}$ \\
@@ -244,8 +240,9 @@ We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
      2 \wavenumber_{\parallel,i} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
  \\
  \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} +  2 \mu \\
- \sqrt{x- \mu} &\approx& \sqrt{x} + \left. \frac{\partial \sqrt{x-\mu}}{\partial \mu} \right|_{0} \mu = \sqrt{x} - \frac{\mu}{2 \sqrt{x}} \\
+ \sqrt{x- 2 \mu} &\approx& \sqrt{x} + \left. \frac{\partial \sqrt{x-2\mu}}{\partial \mu} \right|_{0} \mu = \sqrt{x} - \frac{\mu}{\sqrt{x}} \\
  \Delta \xi &\approx& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel} - 2 \mu } - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
+ \Delta \xi &\approx& - \frac{\wavenumber_{\parallel,i}}{\xi} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
 \end{eqnarray}
 
 
