@@ -144,7 +144,7 @@
 
 
 \chapter{Optics from Maxwell Equations}
-\section{Maxwell Equations\chk{JH}}
+\section{Maxwell Equations}
 The content of this chapter is well known from textbooks \cite{Jackson}. Still, we repeat some of the equations to have a consistent 
 nomenclature throughout this manual and the pyrate program as well as a gain in clarity which aproximations are made.
 We start from the Maxwell equations in SI units
@@ -271,7 +271,7 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \label{eq:sourcefreemaxwell}
 \end{subequations}
 
-\section{Poynting Vector\chk{JH}}
+\section{Poynting Vector}
 The Poynting vector is the a real density of energy flow. 
 We want the Poynting vector to be real and stay numerically identical to the quantity derived above for the real valued Maxwell equations.
 
@@ -319,7 +319,7 @@ This expression is real (if the amplitudes $\Vector{A}$ and wave vectors $\Vecto
 
 
 \section{Plane Wave Solutions and Dispersion}
-\subsection{The general anisotropic homgeneous case\chk{JH}}
+\subsection{The general anisotropic homgeneous case}
 We consider a homogeneous material $\permittivity(\Location) = const.$ We apply the Nabla curl operatur on the Maxwell curl equation for the electric field
 ($\partial_i \partial_i =: \Delta$ the Laplacian)
 \begin{eqnarray}
@@ -363,7 +363,7 @@ By contracting this equation by $k_i$ the divergence constraint arises trivially
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield$,
 that is, a propagation wavector is only valid for a certain polarisation.
 
-\subsection{Uniaxial anisotropic, homogeneous media\chk{JH}}
+\subsection{Uniaxial anisotropic, homogeneous media}
 Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
 and a degenerate permittivity along the other two directions in space.
 The direction along which the extraordinary permittivity occurs is often called \emph{optical axis}. 
@@ -410,7 +410,6 @@ The eigenvalue equation \ref{eq:generalDispersionEigenEquation} simplifies to
 \end{eqnarray}
 
 The equation system splits up into a coupled system of $\scalarEfield_x$ and $\scalarEfield_z$ , and an independent equation for $\scalarEfield_y$
-\remark{does this mean that in the ordinary case only $\scalarEfield_y \ne 0$, $\scalarEfield_{x,z} = 0$ and in extra ordinary case $\scalarEfield_{x,z} \ne 0$, but $\scalarEfield_y = 0$?}
 
 \begin{align}
 \begin{pmatrix}
@@ -473,9 +472,7 @@ Therefore the Poynting vector consists of two terms like in the general case
 The $\overline{\Efield}$ on the right hand side has of course no $y$-component. The same is true for the wave vector.
 In the case where the two values of the permittivity are degenerate we arrive at the isotropic case and the two cases for the
 Poynting vector coincide in their direction.
-\remark{Later we have to relate these results to the general ray direction}
 \remark{Arguments to be checked, in particular for complex valued wave vectors}
-\remark{Compare following expression with general vector expression above \eqref{eq:Suniaxialordi} and \eqref{eq:Suniaxialeo}}
 \begin{eqnarray}
  \timeavg{\Vector{S}}
  &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
@@ -523,7 +520,7 @@ The direction of the Poynting vector is
 \end{eqnarray}
 The complex valued prefactor influences the real part of the above term.
 
-\subsection{Isotropic media\chk{JH}}
+\subsection{Isotropic media}
 
 We use the result for uniaxial anisotropic materials and insert the same value for both ordinary and extraordinary permittivity $\scalarpermittivity_{\ordi} = \scalarpermittivity_{\eo} = \scalarpermittivity$.
 This results in a degenerate solution for both polarisations,
@@ -714,15 +711,6 @@ The direction vector points in the direction of the time averaged Poynting vecto
 \section{Optical path length}
 We define the optical path length as the time of travel of a near-monochromatic wavepacket times the vacuum speed of light.
 
-In the special case of homogeneous, lossless media and no dispersion, the optical path length is equal to the geometrical 
-path length times the refractive index.
-\begin{eqnarray}
- n(\Location,\omega,\Wavevector) &=& const
-\end{eqnarray}
-\remark{to do: all other cases; restriction to linear optics}
-
-
-\section{Lagrange and Hamilton formalism}
 In the special case of materials that can be described by an isotropic, real valued refractive index, the optical path length functional is given according to the Fermat principle,
 \begin{align}
  L &= \int_{s_1}^{s_2} \underbrace{n(\Vector{r}(s)) |\Vector{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.\label{eq:fermatiso}
@@ -730,6 +718,11 @@ In the special case of materials that can be described by an isotropic, real val
 with the corresponding ``Lagrangian'' $\mathcal{L}$.
 $s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
 equations we may not set it to $1$ at the moment.)
+
+\remark{to do: all other cases; restriction to linear optics}
+
+
+\section{Lagrange and Hamilton formalism}
 Euler-Lagrange-Equations are given by
 \begin{align}
  \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \Vector{r}'} &= \frac{\partial \mathcal{L}}{\partial \Vector{r}}\,.
@@ -1222,14 +1215,10 @@ Wave aberrations are strongly related to the optical path difference.
 \subsection{Optical path difference}
 In a perfect lens (made of isotropic, lossless materials), all rays from one object point to an image point have the same optical path length, according to the law of Fermat. 
 In systems with aberrations, the optical path length from object to image is different for rays passing different pupil positions.
-For optical systems built up from isotropic materials, where we can define an index of refraction, the optical path length $S$ is calculated straightforward found as the path-integral of the index over the ray path.
-\begin{eqnarray}
- S &=& \int n\, ds
-\end{eqnarray}
 
 The optical path difference $OPD$ is the optical path length minus the optical path length of the chief ray.
 \begin{eqnarray}
- OPD(p_x,p_y) &=& S(p_x,p_y) - S(0,0)
+ OPD(p_x,p_y) &=& L(p_x,p_y) - L(0,0)
 \end{eqnarray}
 For a certain fixed object field point, the optical path difference is often displayed as a function of pupil coordinates $p_x,p_y$.
 
@@ -1280,7 +1269,7 @@ In the final optimisation step, it may be worth using the more accurate Huygens 
 \end{figure}
 
 \subsection{Calculation of wave aberrations}
-TODO: this only works for on axis field points !!!
+\remark{this only works for on axis field points}
 
 Assume we know the position $x_{im}, y_{im}$ and direction $\Vector{d}$ of a set of rays in the image plane and their geometric path length from the object to the image.
 To obtain the wave aberrations, we intersect the rays with the spherical exit pupil.
