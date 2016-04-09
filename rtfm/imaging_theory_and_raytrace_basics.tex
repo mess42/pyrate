@@ -872,7 +872,7 @@ where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \
 Inserting the ray straight equation \eqref{eq:ray}, this leads to a polynomial of fourth order.
 
 \begin{eqnarray}
- \Location &=& \Location_0 + \Vector{d} t \label{eq:ray}\,,\\
+ \Location &=& \Location_0 + \Vector{d} t \label{eq:ray}
 \end{eqnarray}
 $\Location_0$ is the ray start point, $\Vector{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
 
@@ -1008,6 +1008,18 @@ After insertion of \eqref{eq:ray}, the solution is given by
    t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,.
 \end{eqnarray}
 \end{subequations}
+
+The unit surface normal of such a conic section pointing in forward (positive $z$) direction is \remark{to do: simplify and display more beautifully}
+\begin{eqnarray}
+n[0] = - \frac{\rho x}{absn} \\
+n[1] = - \frac{\rho y}{absn} \\
+n[2] = \frac{1 - \rho ( 1 + c ) z}{absn}
+\end{eqnarray}
+with
+\begin{eqnarray}
+ absn &=& \sqrt{ \rho^2 x^2 + \rho^2 y^2 + \left( 1 - \rho ( 1 + c ) z \right)^2} 
+\end{eqnarray}
+
 
 
 
