@@ -114,11 +114,6 @@
 \newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
 
 
-\newif\ifdraft
-\draftfalse % \drafttrue
-
-
-
 
 \begin{document}
 
@@ -879,101 +874,6 @@ $\Location_0$ is the ray start point, $\Vector{d}$ the ray direction unit vector
 The fourth order equation can be solved either analytically or numerically.
 Physically valid solutions must be real valued.
 
-\ifdraft
-Such equations are in principle analytically solvable. But on the one hand it is very complicated and on the other hand 
-it is not known whether there exists such a user-friendly numerically stable form of $t$ like in the former cases.\footnote{
-In fact the word ``biconic" is misleading because it suggests that
-it is a surface of second degree which is wrong. \eqref{eq:implicitbiconic}
-shows clearly that it is a surface of degree four.}
-
-Let us first assume that $\Vector{r} = \Vector{r}_0 + t \Vector{d}$ is the insertion of the ray into
-\eqref{eq:implicitbiconic}. Then $a(x(t), y(t)) =: Q_2(t)$ and $b(x(t), y(t)) =: Q_1(t)$ become quadratic polynomials 
-in $t$. Further $z(t) =: L(t)$ becomes linear in $t$. Therefore this leads to
-\begin{align}
- (Q_2(t) - 1) \underbrace{L^2(t)}_{\ge0} + \underbrace{(L(t) - Q_1(t))^2}_{\ge0} &= 0\,.\label{eq:biconict}
-\end{align}
-From \eqref{eq:biconic} and \eqref{eq:implicitbiconic} it follows that $1 - Q_2(t) \ge 0$ such that the
-prefactor in \eqref{eq:biconict} is non-positive. Therefore the intersection equations lead to a real
-fourth order polynomial which has to be solved. The quadratic polynomial $Q_2(t) - 1$ can be factorized
-\begin{align}
- Q_2(t) - 1 &= A_2 (t - t_{Q21})(t - t_{Q22}) \le 0\,,
-\end{align}
-where $A_2 = (1 + c_x) \rho_x^2 d_x^2 + (1 + c_y) \rho_y^2 d_y^2$. If $A_2 > 0$ then at least one zero must exist and
-$t \in [t_{Q21}, t_{Q22}]$. If $A_2 = 0$ then $Q_2(t)$ is not quadratic anymore. If $A_2 < 0$ then in 
-\begin{align}
- Q_2(t) - 1 &= A_2 \left(\left(t-\frac{t_{Q21} + t_{Q22}}{2}\right)^2 - \frac{1}{4}(t_{Q21} - t_{Q22})^2\right)\,,
-\end{align}
-the expression in brackets has to be positive or zero. This is only true if the zeros are either the same or they are complex, because
-for $t_{Q21/2} = \tau \pm i \sigma$ this expression becomes
-\begin{align}
- Q_2(t) - 1 &= A_2 \left(\left(t-\tau\right)^2 + \frac{1}{2}\sigma^2\right)<0\,,
-\end{align}
-for real $t$. However the final equation is given by
-\begin{align}
- a t^4 + b t^3 + c t^2 + d t + e &= 0\,,
-\end{align}
-where\remark{Simplify coefficients!}
-\begin{subequations}
- \begin{align}
-  a &= c_{x}^{2} d_{x}^{4} + 2 \, c_{x} c_{y} d_{x}^{2} d_{y}^{2} + c_{y}^{2} d_{y}^{4} \nonumber\\&
-       + {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x}^{2} d_{z}^{2} + {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y}^{2} d_{z}^{2}\,,\\
-  b &= 4 \, c_{x}^{2} d_{x}^{3} x_{0} + 4 \, c_{x} c_{y} d_{x} d_{y}^{2} x_{0} + 4 \, c_{x} c_{y} d_{x}^{2} d_{y} y_{0} + 4 \, c_{y}^{2} d_{y}^{3} y_{0}\nonumber\\&
-       + 2 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x} d_{z}^{2} x_{0} + 2 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y} d_{z}^{2} y_{0}\nonumber\\&
-       + 2 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x}^{2} d_{z} z_{0} + 2 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y}^{2} d_{z} z_{0}\nonumber\\&
-       - 2 \, c_{x} d_{x}^{2} d_{z} - 2 \, c_{y} d_{y}^{2} d_{z}\,,\\
-  c &= 6 \, c_{x}^{2} d_{x}^{2} x_{0}^{2} + 2 \, c_{x} c_{y} d_{y}^{2} x_{0}^{2} + 8 \, c_{x} c_{y} d_{x} d_{y} x_{0} y_{0} + 2 \, c_{x} c_{y} d_{x}^{2} y_{0}^{2}\nonumber\\&
-     + 6 \, c_{y}^{2} d_{y}^{2} y_{0}^{2} + {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{z}^{2} x_{0}^{2} + {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{z}^{2} y_{0}^{2}\nonumber\\&
-     + 4 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x} d_{z} x_{0} z_{0} + 4 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y} d_{z} y_{0} z_{0}\nonumber\\&
-     + {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x}^{2} z_{0}^{2} + {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y}^{2} z_{0}^{2}\nonumber\\&
-     - 4 \, c_{x} d_{x} d_{z} x_{0} - 4 \, c_{y} d_{y} d_{z} y_{0} - 2 \, c_{x} d_{x}^{2} z_{0} - 2 \, c_{y} d_{y}^{2} z_{0}\,,\\
-  d &= 4 \, c_{x}^{2} d_{x} x_{0}^{3} + 4 \, c_{x} c_{y} d_{y} x_{0}^{2} y_{0}\nonumber\\&
-     + 4 \, c_{x} c_{y} d_{x} x_{0} y_{0}^{2} + 4 \, c_{y}^{2} d_{y} y_{0}^{3}\nonumber\\&
-     + 2 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{z} x_{0}^{2} z_{0} + 2 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{z} y_{0}^{2} z_{0} 
-     + 2 \, {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} d_{x} x_{0} z_{0}^{2} + 2 \, {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} d_{y} y_{0} z_{0}^{2}\nonumber\\&
-     - 2 \, c_{x} d_{z} x_{0}^{2} - 2 \, c_{y} d_{z} y_{0}^{2} - 4 \, c_{x} d_{x} x_{0} z_{0} - 4 \, c_{y} d_{y} y_{0} z_{0}\,,\\
-  e &= c_{x}^{2} x_{0}^{4} + 2 \, c_{x} c_{y} x_{0}^{2} y_{0}^{2} + c_{y}^{2} y_{0}^{4} + {\left(c_{x}^{2} k_{x} + c_{x}^{2}\right)} x_{0}^{2} z_{0}^{2}\nonumber\\&
-    + {\left(c_{y}^{2} k_{y} + c_{y}^{2}\right)} y_{0}^{2} z_{0}^{2} - 2 \, c_{x} x_{0}^{2} z_{0} - 2 \, c_{y} y_{0}^{2} z_{0}\,.
- \end{align}
-\end{subequations}
-Then we may consider the nature of the zeros (see Wiki) by considering the following combinations, namely
-the discriminant $\Delta$, the quadratic coefficient of the depressed quartic $P$, the linear coefficient of
-the depressed quartic $Q$, $\Delta_0$ which is zero if the quartic has a triple root and $D$ which is zero
-if the quartic has two double roots:
-\begin{subequations}
- \begin{align}
-  \Delta &= 256 a^3 e^3 - 192 a^2 b d e^2 - 128 a^2 c^2 e^2 + 144 a^2 c d^2 e - 27 a^2 d^4 \nonumber\\ 
-&+ 144 a b^2 c e^2 - 6 a b^2 d^2 e - 80 a b c^2 d e + 18 a b c d^3 + 16 a c^4 e \nonumber\\
-&- 4 a c^3 d^2 - 27 b^4 e^2 + 18 b^3 c d e - 4 b^3 d^3 - 4 b^2 c^3 e + b^2 c^2 d^2\,,\\
-   P &= 8ac - 3b^2\,,\\
-   Q &= b^3+8da^2-4abc\,,\\
-   \Delta_0 &= c^2 - 3bd + 12ae\,,\\
-   D &= 64 a^3 e - 16 a^2 c^2 + 16 a b^2 c - 16 a^2 bd - 3 b^4\,.
- \end{align}
-\end{subequations}
-
-\begin{itemize}
-\item If $\Delta < 0$  then the equation has two real roots and two complex conjugate roots.
-\item If $\Delta > 0$  then the equation's four roots are either all real or all complex.
-\begin{itemize}
-\item If $P < 0$ and $D < 0$ then all four roots are real and distinct.
-\item If $P > 0$ or $D > 0$ then there are two pairs of complex conjugate roots.
-\end{itemize}
-\item If $\Delta = 0$  then either the polynomial has a multiple root, 
-  or it is the square of a quadratic polynomial. Here are the different cases that can occur:
-  \begin{itemize}
-\item If $P < 0$ and $D < 0$ and $\Delta_0\ne0$, there is a real double root and two real simple roots.
-\item If $D > 0$ or ($P > 0$ and ($D \ne 0$ or $Q \ne 0$)), there is a real double root and two complex conjugate roots.
-\item If $\Delta_0 = 0$ and $D \ne 0$, there is a triple root and a simple root, all real.
-\item If $D = 0$, then:
-  \begin{itemize}
-\item If $P < 0$, there are two real double roots.
-\item If $P > 0$ and $Q = 0$, there are two complex conjugate double roots.
-\item If $ \Delta_0  = 0$, all four roots are equal to $-\frac{b}{4a}$
-  \end{itemize}
-  \end{itemize}
-\end{itemize}
-Some of the discussed cases show that the ray misses the surfaces.
-\fi
 
 \subsection{Conics}
 Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
@@ -1046,59 +946,6 @@ A solution numerically stable for the case of a planar surface $R \rightarrow \i
 where $\rho = 1 / R$ is the surface curvature. 
 The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
 Otherwise, the ray misses the sphere.
-
-\ifdraft
-The derivation of the former equations \eqref{eq:spheresolution} is not straight forward. Therefore we provide them for the reader in a stepwise manner.
-If one rewrites the equation \eqref{eq:sphereeq} into components one gets
-\begin{equation}
- z^2 - 2 z R = x^2 + y^2 \label{eq:quadraticimplicit}\,.
-\end{equation}
-This equation can be easily inverted for $z$ giving
-\begin{equation}
- z = R \left(1\pm\sqrt{1 - \rho^2 (x^2 + y^2)}\right)\label{eq:solquadratic}\,,
-\end{equation}
-which is not the well-known form of the equation, yet.
-The condition $z=0$ for $x=y=0$ fixes the solution branch to the one 
-with the minus sign. Further the well-known form arises by multiplying 
-$(1+ \sqrt{\dots})/(1+\sqrt{\dots})$ at the left hand side
-of \eqref{eq:solquadratic} and expanding the numerator, which leads to
-\begin{equation}
- z = \frac{\rho (x^2 + y^2)}{1 + \sqrt{1 - \rho^2 (x^2 + y^2)}} \label{eq:finalsagsphere}\,.
-\end{equation}
-Due to the former choice of the correct solution branch there are no
-singularities occuring at $x=y=0$. Form \eqref{eq:finalsagsphere} of the 
-sag equation is not well suited to calculate the intersection points. Therefore it is 
-useful to go back to \eqref{eq:quadraticimplicit} and insert the ray \eqref{eq:ray}
-into it in an invariant manner which leads to
-\begin{equation}
- t^2 - 2 t \underbrace{\left(\frac{d_z}{\rho} - \scpm{\Location_0}{\Vector{d}}\right)}_{F'} 
-    - \underbrace{\left(\frac{2 z_0}{\rho} - |\Location_0|^2\right)}_{H' G'} = 0\,,\label{eq:teqsphere}
-\end{equation}
-where $H' = -1$ and $G' = |\Location_0|^2 - \tfrac{2 z_0}{\rho}$.
-Solving this simple quadratic equation one gets
-\begin{align}
- t &= F' \pm \sqrt{{F'}^2 + H' G'}\,.
-\end{align}
-Here the solution has still not the form \eqref{eq:tsolsphere} such that
-we also multiply the left hand side by $(F' \mp \sqrt{\dots})/(F' \mp \sqrt{\dots})$.
-Therefore we get
-\begin{align}
- t &= \frac{\overbrace{-H'}^{=1} G'}{F' \mp \sqrt{{F'}^2 + H' G'}} = \frac{G'}{F' \mp \sqrt{{F'}^2 + H' G'}}\label{eq:tpresolutionsphere}\,.
-\end{align}
-To avoid singularities the plus branch of the solution is chosen and therefore the
-form of the solution above turns into the one with the minus. Otherwise the $t$ would be
-$t>0$ always. $F'$, $G'$ and $F$, $G$ can be converted into one another by
-\begin{subequations}
-\label{eq:fghscaling}
-\begin{eqnarray}
- F &=& \rho F'\,,\\
- G &=& \rho G'\,,\\
- H &=& \rho H'\,.
-\end{eqnarray}
-\end{subequations}
-An inspection of \eqref{eq:tpresolutionsphere} shows that it is invariant under scaling transformations \eqref{eq:fghscaling}
-and therefore we may omit the primes and get \eqref{eq:tsolsphere}.
-\fi
 
 \subsection{Conical Acylinder}
 A conical acylinder is the special case $\rho_x=0, c_x=0$ of a biconic. It contains cylindric and simple acylindric lenses like elliptical, parabolic and hyperbolic acylindric lenses.
