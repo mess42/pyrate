@@ -1,0 +1,198 @@
+\documentclass[12pt,a4paper,twoside,openright,BCOR10mm,headsepline,titlepage,abstracton,chapterprefix,final]{scrreprt}
+
+\usepackage{ae}
+\usepackage[ngerman, english]{babel}
+%\usepackage{SIunits}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{setspace}
+
+% load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
+
+\RequirePackage{ifpdf}  % flag for pdf or dvi backend
+\ifpdf
+  \usepackage[pdftex]{graphicx}
+  \usepackage[pdftitle={RTFM on Imaging Theory and Basics of Optical Raytracing},%
+              pdfsubject={},%
+              pdfauthor={M. Esslinger, J. Hartung, U. Lippmann},%
+              pdfkeywords={},%
+              bookmarks=true,%
+%              colorlinks=true,%
+              urlcolor=blue,%
+              pdfpagelayout=TwoColumnRight,%
+              pdfpagemode=UseNone,%
+              pdfstartview=Fit,%
+	      pdfpagelabels,
+              pdftex]{hyperref}
+\else
+  \usepackage[dvips]{graphicx}
+  \usepackage[colorlinks=false,dvips]{hyperref}
+\fi
+%\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
+
+\usepackage{ae}
+%\usepackage[ngerman, english]{babel}
+
+%\usepackage{SIunits}
+\newcommand\elementarycharge{\textrm{e}}
+\newcommand\sccm{\textrm{sccm}}
+\newcommand\mbar{\milli\textrm{bar}}
+
+
+\usepackage{amsmath}
+%\usepackage{amssymb}
+\usepackage{setspace}
+
+%\widowpenalty = 1000
+
+
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
+
+\newcommand\Vector[1]{{\mathbf{#1}}}
+
+\newcommand\vacuum{0}
+
+\newcommand\location{r}
+\newcommand\Location{\Vector{r}}
+
+
+\newcommand\wavenumber{k}
+\newcommand\vacuumWavenumber{\wavenumber_{\vacuum}}
+\newcommand\Wavevector{\Vector{\wavenumber}}
+
+\newcommand\Nabla{\Vector{\nabla}}
+\newcommand\Laplace{\Delta}
+\newcommand\timederivative[1]{\dot{{#1}}}
+\newcommand\Tensor[1]{\hat{#1}}
+\newcommand\conjugate[1]{\overline{#1}}
+\newcommand\transpose[1]{#1^{T}}
+\newcommand\Norm[1]{\left| #1 \right|}
+\newcommand{\ket}[1]{\left\vert{#1}\right\rangle}
+\newcommand{\bra}[1]{\left\langle{#1}\right\vert}
+\newcommand{\braket}[2]{\left\langle{#1}\vert{#2}\right\rangle}
+\newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
+
+\newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
+
+\newcommand\Greenfunction{\Tensor{G}}
+
+\newcommand\scalarEfield{E}
+\newcommand\scalarBfield{B}
+\newcommand\scalarHfield{H}
+\newcommand\scalarDfield{D}
+\newcommand\scalarTipfield{T}
+\newcommand\scalarSamplefield{S}
+\newcommand\scalarDipolarmoment{p}
+\newcommand\Efield{\Vector{\scalarEfield}}
+\newcommand\Bfield{\Vector{\scalarBfield}}
+\newcommand\Hfield{\Vector{\scalarHfield}}
+\newcommand\Dfield{\Vector{\scalarDfield}}
+\newcommand\Dipolarmoment{\Vector{\scalarDipolarmoment}}
+
+\newcommand\permeability{\Tensor{\mu}}
+\newcommand\vacuumpermeability{\mu_{\vacuum}}
+\newcommand\permittivity{\Tensor{\epsilon}}
+\newcommand\generalPermittivity{\Tensor{\tilde\epsilon}}
+\newcommand\vacuumpermittivity{\epsilon_{\vacuum}}
+\newcommand\scalarpermittivity{\epsilon}
+\newcommand\conductivity{\Tensor{\sigma}}
+\newcommand\susceptibility{\Tensor{\chi}}
+\newcommand\currentdensity{\Vector{j}}
+\newcommand\Current{\Vector{I}}
+\newcommand\chargedensity{\rho}
+\newcommand\PoyntingVector{\Vector{S}}
+
+\newcommand\ordi{\text{ord}}
+\newcommand\eo{\text{eo}}
+
+\newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
+
+\newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
+\newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
+
+
+
+\begin{document}
+
+
+\subsection{Conics}
+Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
+The word ``conic" is short for conic section. This refers to these figures as the
+intersections of a plane with a cone.
+In the vertex form their surface sag $z$ can be described by
+\begin{eqnarray}
+ z =  \frac
+ { \rho ( x^2 + y^2 ) }
+ { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }\,,
+\end{eqnarray}
+where $c$ is the conic constant. Depending on this parameter, the conic is a
+\begin{eqnarray*}
+-1 < c < 0 && \textrm{oblate ellipsoid} \\
+     c = 0 && \textrm{sphere} \\
+ 0 < c < 1 && \textrm{prolate ellipsoid} \\
+     c = 1 && \textrm{paraboloid} \\
+     c > 1 && \textrm{hyperboloid}
+\end{eqnarray*}
+For an explicit solution of the intersection parameter $t$,
+one can use the implicit form of the surface equation
+\begin{align}
+ \rho (1 + c) z^2 - 2 z + \rho (x^2 + y^2) &=0\,.
+\end{align}
+After insertion of \eqref{eq:ray}, the solution is given by
+\begin{subequations}
+\label{eq:intersectionconicsection}
+\begin{eqnarray}
+   F &=& d_z - \rho \left( d_x x_0 + d_y y_0 + d_z z_0 (1+c) \right)\,, \\
+   G &=& \rho (x_0^2 + y_0^2 + z_0^2 (1+c)) - 2 z_0\,, \\
+   H &=& - \rho ( 1 + c \, d_z^2 )\,, \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,.
+\end{eqnarray}
+\end{subequations}
+
+The unit surface normal of such a conic section pointing in forward (positive $z$) direction is \remark{to do: simplify and display more beautifully}
+\begin{eqnarray}
+n[0] = - \frac{\rho x}{absn} \\
+n[1] = - \frac{\rho y}{absn} \\
+n[2] = \frac{1 - \rho ( 1 + c ) z}{absn}
+\end{eqnarray}
+with
+\begin{align}
+ absn &=& \sqrt{ \rho^2 x^2 + \rho^2 y^2 + \left( 1 - \rho ( 1 + c ) z \right)^2} \\
+ absn &=& \sqrt{ \rho^2 x^2 + \rho^2 y^2 + \left( 1 - 2 \rho ( 1 + c ) z + \rho^2 ( 1 + c )^2 z^2\right)} \\
+ absn &=& \sqrt{ \rho^2 x^2 + \rho^2 y^2 + 1 - 2 \rho ( 1 + c ) z + \rho^2 ( 1 + c )^2 z^2 }
+\end{align}
+
+\begin{align}
+ \rho (1 + c) z^2 - 2 z + \rho (x^2 + y^2) &=& 0 \\
+ \rho (1 + c) z^2  &=&  2 z - \rho (x^2 + y^2) \\
+ \rho^2 (1 + c)^2 z^2  &=&  \rho ( 1+c) \left( 2 z - \rho (x^2 + y^2) \right) \\
+ \rho^2 (1 + c)^2 z^2  &=&  \rho ( 1+c)  2 z - \rho^2 ( 1+c) (x^2 + y^2)   \\
+\end{align}
+
+\begin{align}
+ absn &=& \sqrt{ \rho^2 x^2 + \rho^2 y^2 + 1 - 2 \rho ( 1 + c ) z + \left( \rho ( 1+c)  2 z - \rho^2 ( 1+c) (x^2 + y^2) \right) } \\
+ absn &=& \sqrt{ \rho^2 x^2 + \rho^2 y^2 + 1 - 2 \rho ( 1 + c ) z + \rho ( 1+c)  2 z - \rho^2 ( 1+c) (x^2 + y^2) } \\
+ absn &=& \sqrt{ \rho^2 x^2 + \rho^2 y^2 + 1 - \rho^2 ( 1+c) (x^2 + y^2) }
+\end{align}
+
+\begin{align}
+ absn &=& \sqrt{ 1 + \rho^2 x^2 + \rho^2 y^2  - \rho^2 ( 1+c) (x^2 + y^2) } \\
+ absn &=& \sqrt{ 1 - c (x^2 + y^2) }
+\end{align}
+
+
+\begin{eqnarray}
+\Vector{n} &=& - \frac{1}{\sqrt{ 1 - c (x^2 + y^2)}} 
+  \begin{pmatrix}
+   \rho x \\
+   \rho y \\
+   \rho ( 1 + c ) z - 1
+  \end{pmatrix}
+\end{eqnarray}
+
+
+
+\end{document}

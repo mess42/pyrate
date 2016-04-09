@@ -909,15 +909,14 @@ After insertion of \eqref{eq:ray}, the solution is given by
 \end{eqnarray}
 \end{subequations}
 
-The unit surface normal of such a conic section pointing in forward (positive $z$) direction is \remark{to do: simplify and display more beautifully}
+The unit surface normal of such a conic section pointing in forward (positive $z$) direction is
 \begin{eqnarray}
-n[0] = - \frac{\rho x}{absn} \\
-n[1] = - \frac{\rho y}{absn} \\
-n[2] = \frac{1 - \rho ( 1 + c ) z}{absn}
-\end{eqnarray}
-with
-\begin{eqnarray}
- absn &=& \sqrt{ \rho^2 x^2 + \rho^2 y^2 + \left( 1 - \rho ( 1 + c ) z \right)^2} 
+\Vector{n} &=& - \frac{1}{\sqrt{ 1 - c (x^2 + y^2)}} 
+  \begin{pmatrix}
+   \rho x \\
+   \rho y \\
+   \rho ( 1 + c ) z - 1
+  \end{pmatrix}
 \end{eqnarray}
 
 
