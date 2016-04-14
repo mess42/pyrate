@@ -233,17 +233,22 @@ We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
 \begin{eqnarray}
  \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\
  \Delta \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \tilde{\Wavevector}_{\parallel} \cdot \tilde{\Wavevector}_{\parallel}} - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
- \tilde{\Wavevector}_{\parallel} &\approx& \Wavevector_\parallel + \Delta\Wavevector - (\Delta\Wavevector \Vector{n})\Vector{n} - (\Wavevector\Vector{n})\Delta\Vector{n} - (\Wavevector \Delta\Vector{n})\Vector{n} \\
- \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} + \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i \\
- \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} 
-   &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} + 
-     2 \wavenumber_{\parallel,i} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
- \\
- \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} +  2 \mu \\
- \sqrt{x- 2 \mu} &\approx& \sqrt{x} + \left. \frac{\partial \sqrt{x-2\mu}}{\partial \mu} \right|_{0} \mu = \sqrt{x} - \frac{\mu}{\sqrt{x}} \\
- \Delta \xi &\approx& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel} - 2 \mu } - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
+% \tilde{\Wavevector}_{\parallel} &\approx& \Wavevector_\parallel + \Delta\Wavevector - (\Delta\Wavevector \Vector{n})\Vector{n} - (\Wavevector\Vector{n})\Delta\Vector{n} - (\Wavevector \Delta\Vector{n})\Vector{n} \\
+% \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} + \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i \\
+% \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} 
+%   &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} + 
+%     2 \wavenumber_{\parallel,i} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
+% \\
+% \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} +  2 \mu \\
+% \sqrt{x- 2 \mu} &\approx& \sqrt{x} + \left. \frac{\partial \sqrt{x-2\mu}}{\partial \mu} \right|_{0} \mu = \sqrt{x} - \frac{\mu}{\sqrt{x}} \\
+% \Delta \xi &\approx& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel} - 2 \mu } - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
+% \Delta \xi &\approx& - \frac{\mu}{\xi} \\
  \Delta \xi &\approx& - \frac{\wavenumber_{\parallel,i}}{\xi} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
 \end{eqnarray}
+
+\subsection{Conic interfaces}
+
+
 
 
 \end{document}
