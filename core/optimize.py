@@ -239,7 +239,7 @@ def optimizeSciPyInterface(s, meritfunction, **kwargs):
     """
     x0 = s.getActiveVariableValues()
     res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction), method=kwargs["method"])
-    print res
+    #print( res )
     s.setActiveVariableValues(res.x)
     return s
 
@@ -263,7 +263,7 @@ if __name__ == "__main__":
             self.c.addVariable("blubberbla", OptimizableVariable(False, "Variable", value=5.0))
             self.addVariable("blubberdieblub", OptimizableVariable(False, "Variable", value=10.0))
 
-
+"""
     class ExampleOS(ClassWithOptimizableVariables):
         def __init__(self):
             super(ExampleOS, self).__init__()
@@ -334,4 +334,4 @@ if __name__ == "__main__":
     print os.dict_variables["X"]
     print os.dict_variables["Y"]
     print os.dict_variables["Z"].evaluate()
-
+"""

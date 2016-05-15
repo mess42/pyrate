@@ -258,7 +258,7 @@ class ModelGlass(ConstantIndexGlass):
             nd = 1 + 0.001 * first3digits
             vd = 0.1 * last3digits
         else:
-            print "Warning: Schott Code must be a 6 digit positive integer number. Substituting invalid number with N-BK7."
+            print( "Warning: Schott Code must be a 6 digit positive integer number. Substituting invalid number with N-BK7." )
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
@@ -399,8 +399,8 @@ class GrinMaterial(Material):
             if abs(totalenergy) > self.energyviolation:
                 #FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
                 #FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
-                print 'WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n'
-                print 'Please reduce integration step size.\n'
+                print( 'WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n' )
+                print( 'Please reduce integration step size.\n' )
                 valid[:] = False # all rays with energy violation are not useful due to integration errors
                 # TODO: report to user via some kind of fancy interface
 

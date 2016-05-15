@@ -27,7 +27,6 @@ from material import ConstantIndexGlass
 import aperture
 import pupil
 
-#import inspector
 import numpy as np
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
@@ -84,13 +83,13 @@ class Surface(ClassWithOptimizableVariables):
 
         self.material = materialType()
 
-        print "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
-        print "material listofoptvars: ", [i.name for i in self.material.getAllOptimizableVariables()]
+        print( "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables] )
+        print( "material listofoptvars: ", [i.name for i in self.material.getAllOptimizableVariables()] )
 
         # add optimizable variables of new shape
         self.listOfOptimizableVariables += self.material.getAllOptimizableVariables()
 
-        print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+        print( "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables] )
         """
 
         return self.material
@@ -343,7 +342,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         :return pmag: real space paraxial magnification (float)
         """
         abcd = self.getABCDMatrix(ray)
-        print abcd
+        #print( abcd )
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
 
