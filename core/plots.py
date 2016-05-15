@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import optical_system
 import ray
 import numpy as np

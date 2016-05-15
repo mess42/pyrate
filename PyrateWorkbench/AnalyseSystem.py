@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import FreeCAD
 import FreeCADGui
 import Part
