@@ -214,10 +214,12 @@ For ease of calculation, we introduce complex valued time harmonic dependence.
  \Vector{F}(\Vector{r},t) &=& \Vector{F}_0(\Vector{r}) \exp(-i \omega t)
 \end{eqnarray}
 with $\Vector{F} \in \{ \Efield, \Dfield, \Hfield, \Bfield, \currentdensity \}$.
+We associate the real part of $F$ with physically measureable quantities. 
+Via the time harmonic factor $\exp(-i \omega t)$, the imaginary part of the fields will become real at other instances in time.
 Complex valued amplitudes $\Vector{F}_0$ express magnitude and phase retardation of the fields.
 All equations linear in $\Efield,\Dfield,\Hfield,\Bfield$ remain valid also for the newly introduced complex valued fields.
 Care has to be taken with quadratic equations, containing terms like for example $\Efield \times \Hfield$, $\Hfield \Bfield$, or $\Efield \Dfield$,
-as the square of a complex number differs from that of a real one.
+as the (measurable) real part of the square of a complex number differs from that of a real one (e.g. it may become negative).
 
 We assume all materials are non-magnetic at the optical frequency $\omega$, that is $\permeability(\omega) = \vacuumpermeability$. 
 Effects like the Magneto-Optical Kerr Effect (MOKE) stem from the deflection of oscillating electrons in a static (DC) magnetic field and are typically modeled by off-diagonal elements in the permittivity tensor, not the permeability.
@@ -230,7 +232,7 @@ Effects like the Magneto-Optical Kerr Effect (MOKE) stem from the deflection of 
 \end{eqnarray}
 \end{subequations}
 
-The physically measurable fields are $\Efield$ and $\Bfield$. All other fields are fictional fields introduced in the Maxwell model for ease of calculation.
+The physically measurable fields are $\Efield$ and $\Bfield$, defined by forces on test charges. All other fields are fictional fields introduced in the Maxwell model for ease of calculation.
 To obtain the so-called source-free Maxwell equations, we replace some of them by newly defined quantities.
 We introduce a \emph{new} permittivity
 \begin{eqnarray}
@@ -294,23 +296,19 @@ and via the Gra\ss mann identity
   \timeavg{\Vector{S}}_j &=&  \Re \frac{ \overline{\scalarEfield}_i \partial_j \scalarEfield_i - \overline{\scalarEfield}_j \partial_i \scalarEfield_i }{2 i \omega \vacuumpermeability}
 \end{eqnarray}
 The last term which contains the divergence of $\Efield$ vanishes in vacuum or isotropic, homogenious media.
-In general, the direction of the Poynting vector is a weighted sum of the directions of $\Wavevector$ and $\Efield$. This can be seen from
-a plane wave insertion for $\Efield$. Since we already neglected the time dependend term (see \eqref{eq:SconjEH}, notice time average) it is sufficient to
-set $\Efield = \Vector{A} \exp(i \scpm{\Vector{k}}{\Location})$ and therefore $\overline{\Efield} = \Vector{A} \exp(-i \scpm{\Vector{k}}{\Location})$.
-Therefore
+Assuming a plane wave expansion of $\Efield = \Vector{A} \exp(i \scpm{\Vector{k}}{\Location})$, we find
 \begin{eqnarray}
   \partial_j E_i &=& i\,k_j E_i\,,
 \end{eqnarray}
-and so
+and
 \begin{eqnarray}
  \timeavg{\Vector{S}}_j &=&  
-    \Re\frac{1}{2 \omega \vacuumpermeability}( 
+    \frac{1}{2 \omega \vacuumpermeability}\Re( 
 	\overline{\scalarEfield}_i \scalarEfield_i \delta_{j\ell}  
 	- \overline{\scalarEfield}_j \scalarEfield_\ell 
       ) k_\ell\,.\label{eq:poyntingvector}
 \end{eqnarray}
-This expression is real (if the amplitudes $\Vector{A}$ and wave vectors $\Vector{k}$ are real) and shows that due to the last term the Poynting vector not necessarily points into direction of the wave propagtion.
-
+In general, the direction of the Poynting vector is a weighted sum of the directions of $\Wavevector$ and $\Efield$.
 
 
 \section{Plane Wave Solutions and Dispersion}
@@ -352,10 +350,10 @@ or more explicit
  \wavenumber_x^2 + \wavenumber_y^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{zz}  
 \end{pmatrix}
 \Efield_0
-&=& 0\,, \label{eq:generalDispersionEigenEquation}
+&=& 0 \label{eq:generalDispersionEigenEquation}
 \end{eqnarray}
-By contracting this equation by $k_i$ the divergence constraint arises trivially.
-In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield$,
+In the following, we search for nontrivial solutions $\Efield_0$ for special cases of $\permittivity$.
+In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
 that is, a propagation wavector is only valid for a certain polarisation.
 
 \subsection{Uniaxial anisotropic, homogeneous media}
@@ -425,9 +423,16 @@ The equation system splits up into a coupled system of $\scalarEfield_x$ and $\s
 \\
 \begin{pmatrix} \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \end{pmatrix} \scalarEfield_y &= 0\,.
 \end{align}
+
 We call the solutions of the equation for $\scalarEfield_y$ ordinary mode, and of the coupled system extraordinary mode.
 We find the following eigenvalues and eigenvectors:
 \subsubsection{Ordinary mode (ord)}
+
+If the wavevector fulfills the equation
+\begin{eqnarray}
+  \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} &=& 0 
+\end{eqnarray}
+We have a nontrivial solution for the electric field in $y$-direction.
 
 \begin{eqnarray}
  \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} 
@@ -600,7 +605,7 @@ Compared to the law of Snellius, this formulation bears the following advantages
        (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...).
  \item Unlike in the Snellius law, we can also calculate with complex valued permittivities and anisotropic permittivities.
 \end{itemize}
-The formulation does not actually solve the problem of refraction, but just forward it to the problem of finding a solution $\xi$ of the material dispersion. 
+The formulation does not actually solve the problem of refraction, but just forwards it to the problem of finding a solution $\xi$ of the material dispersion. 
 This calculation can, for certain types of anisotropic materials, be time consuming.
 
 \subsubsection{isotropic media}
@@ -609,7 +614,7 @@ This calculation can, for certain types of anisotropic materials, be time consum
 \end{align}
 
 where $\Wavevector_{1\,\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself.
-For lossy materials, it may be complex valued.
+It is not the absolute of the wavevector component and may be complex valued for lossy materials.
 
 
 \subsubsection{uniaxial anisotropic}
@@ -686,7 +691,7 @@ Often, the chief ray is approximated to be the central ray in the ray bundle emi
 
 We divide the optical systems into two groups -- elements in front of and behind the stop. 
 We consider both groups of optical elements as systems imaging the stop.
-We call the image of the stop created ba the object sided elements \emph{entrance pupil}, and the image creted by the image sided elements \emph{exit pupil}.
+We call the image of the stop created by the object sided elements \emph{entrance pupil}, and the image created by the image sided elements \emph{exit pupil}.
 
 Rays in the object and rays in the entrance pupil need to pass the same group of optical elements in order to reach the stop. 
 We can regard the propagation of rays from the object to the stop as a free space propagation from the object to the entrance pupil and a subsequent imaging into the stop.
