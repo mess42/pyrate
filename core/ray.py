@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from numpy import *
-import aperture
-import material
+from core import aperture
+from core import material
 
 class RayBundle(object):
     def __init__(self, o, k, rayID, wave=0.55, pol=[]):

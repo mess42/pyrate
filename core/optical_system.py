@@ -21,16 +21,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import surfShape
-from material import ConstantIndexGlass
-
-import aperture
-import pupil
+from core import surfShape
+from core.material import ConstantIndexGlass
+from core import aperture
+from core import pupil
+from core.optimize import ClassWithOptimizableVariables
+from core.optimize import OptimizableVariable
 
 import numpy as np
-from optimize import ClassWithOptimizableVariables
-from optimize import OptimizableVariable
-
 
 class Surface(ClassWithOptimizableVariables):
     """

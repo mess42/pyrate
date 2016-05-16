@@ -48,7 +48,7 @@ s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125), thickness=3.0,
 s.insertSurface(7, Surface(surfShape.Conic(curv=1/1.479), thickness=19.0,
                            aperture=CircularAperture(1.0)))
 
-print "pickle dump"
+print( "pickle dump" )
 picklestr = pickle.dumps(s)
 pickletools.dis(picklestr)
 
@@ -58,5 +58,5 @@ with open('optical_sys.pkl', 'wb') as output:
 
 # print introspection variables
 for (s_dict_keys, s_dict_items) in s.__dict__.iteritems():
-    print s_dict_keys, " ", s_dict_items
+    print( s_dict_keys, " ", s_dict_items )
 

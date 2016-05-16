@@ -22,9 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-from optimize import ClassWithOptimizableVariables
-from aperture import CircularAperture
-from optimize import OptimizableVariable
+from core.optimize import ClassWithOptimizableVariables
+from core.aperture import CircularAperture
+from core.optimize import OptimizableVariable
 from numpy import dtype
 
 
