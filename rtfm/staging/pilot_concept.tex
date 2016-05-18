@@ -248,6 +248,24 @@ We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
 
 \subsection{Conic interfaces}
 
+We represent the change of the intersection location $\Delta\Vector{r}$ as function of 2 independent variables $\Delta x$ and $\Delta y$.
+\begin{eqnarray}
+ \Delta\Vector{r} &=&
+ \begin{pmatrix}
+  \Delta x \\ \Delta y \\ z(x+\Delta x,y+\Delta y) - z(x,y)
+ \end{pmatrix}
+\end{eqnarray}
+
+\begin{eqnarray}
+ \frac{\partial \Vector{n}}{\partial x} &=& \frac{\partial}{\partial x} \left(
+- \frac{1}{\sqrt{ 1 - c (x^2 + y^2)}} 
+  \begin{pmatrix}
+   \rho x \\
+   \rho y \\
+   \rho ( 1 + c ) z(x,y) - 1
+  \end{pmatrix}
+ \right)
+\end{eqnarray}
 
 
 

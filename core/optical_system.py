@@ -1,4 +1,4 @@
-#!/usr/bin/env/python
+#!/usr/bin/python3
 """
 Pyrate - Optical raytracing based on Python
 
@@ -21,17 +21,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import surfShape
-from material import ConstantIndexGlass
+from core import surfShape
+from core.material import ConstantIndexGlass
+from core import aperture
+from core import pupil
+from core.optimize import ClassWithOptimizableVariables
+from core.optimize import OptimizableVariable
 
-import aperture
-import pupil
-
-#import inspector
 import numpy as np
-from optimize import ClassWithOptimizableVariables
-from optimize import OptimizableVariable
-
 
 class Surface(ClassWithOptimizableVariables):
     """
@@ -84,13 +81,13 @@ class Surface(ClassWithOptimizableVariables):
 
         self.material = materialType()
 
-        print "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
-        print "material listofoptvars: ", [i.name for i in self.material.getAllOptimizableVariables()]
+        print( "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables] )
+        print( "material listofoptvars: ", [i.name for i in self.material.getAllOptimizableVariables()] )
 
         # add optimizable variables of new shape
         self.listOfOptimizableVariables += self.material.getAllOptimizableVariables()
 
-        print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
+        print( "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables] )
         """
 
         return self.material
@@ -343,7 +340,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         :return pmag: real space paraxial magnification (float)
         """
         abcd = self.getABCDMatrix(ray)
-        print abcd
+        #print( abcd )
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
 

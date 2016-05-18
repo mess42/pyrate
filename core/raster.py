@@ -1,4 +1,4 @@
-#!/usr/bin/env/python
+#!/usr/bin/python3
 """
 Pyrate - Optical raytracing based on Python
 
@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 from numpy.random import *
 
-import pds
+from core import pds
 
 class RectGrid(object):
     def __init__(self):

@@ -1,4 +1,4 @@
-#!/usr/bin/env/python
+#!/usr/bin/python3
 """
 Pyrate - Optical raytracing based on Python
 
@@ -280,7 +280,7 @@ class WorkingImageSpaceFNumber(EntrancePupilDiameter):
         Di = abcd_stop_im[1, 1]
         Bo = abcd_obj_stop[0, 1]
         ms = .5 * Bi / ((Ai*Di-Bi*Ci)*Bo*fnumber)
-        print "Warning: calculated values with this method in pupil.py do not coincide with Zemax results. There might be a bug."
+        print( "Warning: calculated values with this method in pupil.py do not coincide with Zemax results. There might be a bug." )
         stopDia = Bi / ((Ai*Di-Bi*Ci)*fnumber)
         return ms, stopDia
 
@@ -310,7 +310,7 @@ class WorkingObjectSpaceFNumber(EntrancePupilDiameter):
         :return StopDia: stop diameter (float)
         """
         ms = 0.5 / fnumber
-        print "Warning: calculated values with this method in pupil.py do not coincide with Zemax results. There might be a bug."
+        print( "Warning: calculated values with this method in pupil.py do not coincide with Zemax results. There might be a bug." )
         zen, magen, zex, magex, abcd_obj_stop, abcd_stop_im = opticalSystem.getParaxialPupil(stopPosition, ray)
         Bo = abcd_obj_stop[0, 1]
         stopDia = Bo / fnumber
