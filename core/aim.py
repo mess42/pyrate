@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env/python
 """
 Pyrate - Optical raytracing based on Python
 
@@ -20,10 +20,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from core import pupil
-from core import field
-from core import raster
-from core.ray import RayBundle
+import pupil
+import field
+import raster
+from ray import RayBundle
 from numpy import *
 
 

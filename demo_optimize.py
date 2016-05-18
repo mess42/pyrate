@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env/python
 """
 Pyrate - Optical raytracing based on Python
 
@@ -85,7 +85,7 @@ plots.drawLayout2d(ax, s, [r2, r3])
 
 
 # optimize
-print( "Initial   merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s) )
+print "Initial   merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s)
 
 # make surface curvatures variable
 s.surfaces[2].shape.setStatus("curvature", True)
@@ -95,13 +95,13 @@ s.surfaces[5].shape.setStatus("curvature", True)
 s.surfaces[7].shape.setStatus("curvature", True)
 
 
-print( "aimy,stopDiameter before: ", aimy.stopDiameter )
+print "aimy,stopDiameter before: ", aimy.stopDiameter
 
 s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
 
-print( "aimy,stopDiameter after: ", aimy.stopDiameter )
+print "aimy,stopDiameter after: ", aimy.stopDiameter
 
-print( "Optimized merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s) )
+print "Optimized merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s)
 
 aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)

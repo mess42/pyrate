@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env/python
 """
 Pyrate - Optical raytracing based on Python
 
@@ -22,11 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from numpy import *
-from core import aim
-from core import field
-from core import raster
-from core import pupil
-from core.ray import RayPath
+import aim
+import field
+import raster
+import pupil
+from ray import RayPath
 
 # TODO: create user def'd merit function file
 # TODO: create optimization dialog for selecting merit function and file

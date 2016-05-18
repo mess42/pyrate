@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env/python
 """
 Pyrate - Optical raytracing based on Python
 
@@ -82,8 +82,8 @@ nray = len(initialBundle.o[0, :])
 
 t0 = time.clock()
 r = RayPath(initialBundle, s)
-print( "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through ", len(s.surfaces) - 1, " surfaces." )
-print( "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second" )
+print "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through ", len(s.surfaces) - 1, " surfaces."
+print "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second"
 
 # plot
 aimy.setPupilRaster(rasterType= raster.RectGrid, nray=20)

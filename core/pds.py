@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env/python
 """
 Pyrate - Optical raytracing based on Python
 
@@ -84,9 +84,9 @@ class Poisson2D:
         self.activelist = []
         self.samplelist = []
 
-        print( "w: ", self.w, " h: ", self.h )
-        print( "gridsize: ", self.gridcellsize )
-        print( "r: ", self.radius )
+        print "w: ", self.w, " h: ", self.h
+        print "gridsize: ", self.gridcellsize
+        print "r: ", self.radius
 
 
     def createGrid(self):
@@ -103,7 +103,7 @@ class Poisson2D:
         Initialize and put first sampling point into grid and sampling lists.
         """
         self.createGrid()
-        print( "max grid: ", self.maxgx, " ", self.maxgy )
+        print "max grid: ", self.maxgx, " ", self.maxgy
         self.addsample((np.random.random()*self.w, np.random.random()*self.h))
 
     def addsample(self, sample):
@@ -197,7 +197,7 @@ class Poisson2D:
         if self.activelist:
             ind = np.random.randint(len(self.activelist))
             alind = self.activelist[ind]
-            #print( "choose random: ", ind )
+            #print "choose random: ", ind
             return (ind, self.samplelist[alind])
 
     def checkPointsNearby(self, pt):
@@ -205,17 +205,17 @@ class Poisson2D:
 
         checkgridpoints = self.checkNearbyGridPoints(newgridpoint)
 
-        #print( "chpts near: ", checkgridpoints )
+        #print "chpts near: ", checkgridpoints
 
         indices = np.array(map(lambda e: int(self.grid[e]), checkgridpoints))
 
-        #print( "chpts near: ",pt, "inds: ", indices )
+        #print "chpts near: ",pt, "inds: ", indices
 
         allvalidindices = list(indices[indices != -1])
         if not allvalidindices:
             return False
 
-        #print( "chpts near: ",pt, "valinds: ", allvalidindices )
+        #print "chpts near: ",pt, "valinds: ", allvalidindices
 
         pointsinrange = map(lambda ind: self.samplelist[ind], allvalidindices)
         somethinginrange = map(lambda p: ((np.array(pt) - np.array(p))**2).sum() < self.radius**2, pointsinrange)
@@ -257,7 +257,7 @@ class Poisson2D:
         while self.activelist:
             loopcount += 1
             if loopcount % 100 == 0:
-                print( "loop#",loopcount," len active list: ", len(self.activelist) )
+                print "loop#",loopcount," len active list: ", len(self.activelist)
             #self.gridstages.append(1*self.grid) # copy
             self.onestep()
 
