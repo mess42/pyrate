@@ -708,30 +708,31 @@ The direction vector points in the direction of the time averaged Poynting vecto
  \Vector{d} &=& \frac{\timeavg{\Vector{S}}}{|\timeavg{\Vector{S}}|}
 \end{eqnarray}
 
-\section{Surface Normal}
-Assume the surface of a material boundary is given in the form
-\begin{eqnarray}
- z &=& z(x,y)
-\end{eqnarray}
-Two (infinitessimal) local in-plane vectors are 
-\begin{eqnarray}
-d\Vector{e}_1 = \begin{pmatrix}
-                 dx \\ 0 \\ \frac{\partial z}{\partial x} dx
-                \end{pmatrix}
-\\
-d\Vector{e}_2 = \begin{pmatrix}
-                 0 \\ dy \\ \frac{\partial z}{\partial y} dy
-                \end{pmatrix}
-\end{eqnarray}
-We normalize these local vectors and form the surface normal, perpendicular to both
-\begin{eqnarray}
- \Vector{n} &=& \Vector{e}_1 \times \Vector{e}_2 \\
- &=& 
-   \frac{1}{\sqrt{ 1 + \left( \frac{\partial z}{\partial x} \right)^2 + \left( \frac{\partial z}{\partial y} \right)^2 }}
-   \begin{pmatrix}
-    - \frac{\partial z}{\partial x} \\ - \frac{\partial z}{\partial y} \\ 1
-   \end{pmatrix}
-\end{eqnarray}
++\section{Surface Normal}
++Assume the surface of a material boundary is given in the form
++\begin{eqnarray}
++ z &=& z(x,y)
++\end{eqnarray}
++Two (infinitessimal) local in-plane vectors are 
++\begin{eqnarray}
++d\Vector{e}_1 = \begin{pmatrix}
++                 dx \\ 0 \\ \frac{\partial z}{\partial x} dx
++                \end{pmatrix}
++\\
++d\Vector{e}_2 = \begin{pmatrix}
++                 0 \\ dy \\ \frac{\partial z}{\partial y} dy
++                \end{pmatrix}
++\end{eqnarray}
++We normalize these local vectors and form the surface normal, perpendicular to both
++\begin{eqnarray}
++ \Vector{n} &=& \Vector{e}_1 \times \Vector{e}_2 \\
++ &=& 
++   \frac{1}{\sqrt{ 1 + \left( \frac{\partial z}{\partial x} \right)^2 + \left( \frac{\partial z}{\partial y} \right)^2 }}
++   \begin{pmatrix}
++    - \frac{\partial z}{\partial x} \\ - \frac{\partial z}{\partial y} \\ 1
++   \end{pmatrix}
++\end{eqnarray}
++
 
 \section{Optical path length}
 We define the optical path length as the time of travel of a near-monochromatic wavepacket times the vacuum speed of light.
