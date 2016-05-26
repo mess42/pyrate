@@ -1,7 +1,5 @@
-#!/usr/bin/python3
-from core import optical_system
-from core import ray
-
+import optical_system
+import ray
 import numpy as np
 import matplotlib.pyplot as plt
 
