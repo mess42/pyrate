@@ -878,6 +878,7 @@ The ray is considered a straight in 3D space.
 First its intersection point with the next surface is calculated geometrically. 
 Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
 
+
 \section{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
 
 \subsection{Biconics}
@@ -888,23 +889,100 @@ The explicit surface sag formula is given by
  z &= \frac{\rho_x x^2 + \rho_y y^2}{1 + \sqrt{1 - (1+c_x) \rho_x^2 x^2 - (1+c_y) \rho_y^2 y^2}} \label{eq:biconic}\,.
 \end{align}
 The variables are $\rho_x = 1/R_x$ the $x$ curvature, $\rho_y = 1/R_y$ the $y$ curvature, $c_x$ the conic constant in $x$ direction,
-and $c_y$ the conic constant in $y$ direction respectively. 
+and $c_y$ the conic constant in $y$ direction, respectively. 
 
-An invariant or implicit form of \eqref{eq:biconic} is given by
+Depending on the conic constant, the biconic $x$ and $y$ cross sections are a
+\begin{eqnarray*}
+-1 < c < 0 && \textrm{oblate ellipse} \\
+     c = 0 && \textrm{sphere} \\
+ 0 < c < 1 && \textrm{prolate ellipse} \\
+     c = 1 && \textrm{parabola} \\
+     c > 1 && \textrm{hyperbola}
+\end{eqnarray*}
+
+
+An invariant or implicit form of the biconic sag equation \eqref{eq:biconic} is given by
 \begin{align}
  (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,\label{eq:implicitbiconic}
+ \label{eq:biconicImplicitSag}
 \end{align}
 where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \rho_x x^2 + \rho_y y^2$. 
-Inserting the ray straight equation \eqref{eq:ray}, this leads to a polynomial of fourth order.
-
+Next we consider the ray straight equation
 \begin{eqnarray}
  \Location &=& \Location_0 + \Vector{d} t \label{eq:ray}
 \end{eqnarray}
 $\Location_0$ is the ray start point, $\Vector{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
 
+Inserting the straight equation leads to a polynomial of fourth order in $t$.
 The fourth order equation can be solved either analytically or numerically.
-Physically valid solutions must be real valued.
+The one physically valid solution must be real valued.
 
+\subsection{Simplified Biconic}
+We assume a Biconic sag equation \eqref{eq:biconic} in which not all parameters are independent, but the x and y conic constants are linked via
+\begin{eqnarray}
+ (1 + c_x) \rho_x = (1 + c_y) \rho_y
+\end{eqnarray}
+We abbreviate this term as $\kappa = (1 + c_x) \rho_x$.
+The coeffcients $a$ and $b$ in the implicit for of the sag equation \ref{eq:biconicImplicitSag} are no longer independent.
+\begin{eqnarray}
+ a(x,y) &=& \kappa b(x,y) 
+\end{eqnarray}
+
+We factor out the invariant sag equation \ref{eq:biconicImplicitSag}
+
+\begin{eqnarray}
+ %(a(x,y) - 1) z^2 + (z - b(x,y))^2 &=& 0 \\
+ %(a - 1) z^2 + (z - b)^2 &=& 0 \\ 
+ %a z^2 - z^2 + z^2 - 2 z b + b^2 &=& 0 \\ 
+ (\kappa b) z^2 - 2 z b + b^2 &=& 0 
+\end{eqnarray}
+and divide this equation by $b$. Care has to be taken for the special case $b=0$. The division reduces the equation from a fourth to second order equation in $(x,y,z)$.
+\begin{eqnarray}
+ \kappa z^2 - 2 z + b &=& 0
+\end{eqnarray}
+Inserting the straight equation yields
+\begin{eqnarray}
+ %(1 + c_x) \rho_x z^2 - 2 z + \rho_x x^2 + \rho_y y^2 &=& 0 \\
+ %\kappa z^2 - 2 z + \rho_x x^2 + \rho_y y^2 &=& 0 \\
+ %\kappa (z_0+d_z t)^2 - 2 (z_0+d_z t) + \rho_x (x_0+d_x t)^2 + \rho_y (y_0+d_y t)^2 &=& 0 \\
+ %\kappa ( z_0^2 + 2 z_0 d_z t + d_z^2 t^2 ) - 2 z_0 - 2 d_z t + \rho_x (x_0^2 +2 x_0 d_x t + d_x^2 t^2) + \rho_y (y_0^2 + 2 y_0 d_y t + d_y^2 t^2) &=& 0 \\
+ %\kappa z_0^2 + 2 \kappa z_0 d_z t + \kappa d_z^2 t^2 - 2 z_0 - 2 d_z t + \rho_x x_0^2 + 2 \rho_x x_0 d_x t + \rho_x d_x^2 t^2 + \rho_y y_0^2 + 2 \rho_y y_0 d_y t + \rho_y d_y^2 t^2 &=& 0 \\
+ %\left(   \kappa d_z^2 + \rho_x d_x^2 + \rho_y d_y^2   \right) t^2
+ %  + 2 \left(  \kappa z_0 d_z - d_z  + \rho_x x_0 d_x + \rho_y y_0 d_y \right) t
+ %  + \left( \kappa z_0^2 - 2 z_0 + \rho_x x_0^2 + \rho_y y_0^2 \right) 
+ %  &=& 0 \\
+ %\left(   \rho_x d_x^2 + \rho_y d_y^2 + \kappa d_z^2   \right) &t^2& \nonumber \\
+ %  + 2 \left(  \rho_x x_0 d_x + \rho_y y_0 d_y + ( \kappa z_0 - 1 ) d_z  \right) &t& \nonumber \\
+ %  + \left( \rho_x x_0^2 + \rho_y y_0^2 + \kappa z_0^2 - 2 z_0  \right) &&
+ %= 0 \\
+ H t^2 + 2 F t - G &&
+ = 0
+\end{eqnarray}
+with
+\begin{subequations}
+\begin{eqnarray}
+   F &=& d_z - \left(  \rho_x x_0 d_x + \rho_y y_0 d_y + \kappa z_0 d_z  \right)\,, \\
+   G &=& \rho_x x_0^2 + \rho_y y_0^2 + \kappa z_0^2 - 2 z_0 \,, \\
+   H &=& - \left(   \rho_x d_x^2 + \rho_y d_y^2 + \kappa d_z^2   \right)
+\end{eqnarray}
+\end{subequations}
+
+The solution is easily found as
+\begin{eqnarray}
+  t &=& - \frac{F}{H} + \sqrt{\frac{F^2}{H^2} + \frac{G}{H}}
+\end{eqnarray}
+The solution in its present form is numerically instable for plane and weakly curved surfaces $\lim H \rightarrow 0$.
+We multiply the solution with 1
+\begin{eqnarray}
+  t &=&  \left( \sqrt{\frac{F^2}{H^2} + \frac{G}{H}} - \frac{F}{H} \right) \frac{\sqrt{\frac{F^2}{H^2} + \frac{G}{H}} + \frac{F}{H}}{\sqrt{\frac{F^2}{H^2} + \frac{G}{H}} + \frac{F}{H}} \\
+  t &=&  \frac{ \bigg( \sqrt{\frac{F^2}{H^2} + \frac{G}{H}} \bigg)^2 - \bigg( \frac{F}{H} \bigg)^2 }{\sqrt{\frac{F^2}{H^2} + \frac{G}{H}} + \frac{F}{H}} \\
+  t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+
+This formulation of the solution is stable for weakly bent surfaces $\rho_x, \rho_y \rightarrow 0$ and also for $b \rightarrow 0$.
+
+The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
+Otherwise, the ray misses the surface.
 
 \subsection{Conics}
 Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
@@ -916,14 +994,7 @@ In the vertex form their surface sag $z$ can be described by
  { \rho ( x^2 + y^2 ) }
  { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }\,,
 \end{eqnarray}
-where $c$ is the conic constant. Depending on this parameter, the conic is a
-\begin{eqnarray*}
--1 < c < 0 && \textrm{oblate ellipsoid} \\
-     c = 0 && \textrm{sphere} \\
- 0 < c < 1 && \textrm{prolate ellipsoid} \\
-     c = 1 && \textrm{paraboloid} \\
-     c > 1 && \textrm{hyperboloid}
-\end{eqnarray*}
+where $c$ is the conic constant. 
 For an explicit solution of the intersection parameter $t$,
 one can use the implicit form of the surface equation
 \begin{align}
@@ -960,10 +1031,7 @@ We consider a ray and a Sphere that intersects the optical axis in the origin
 \begin{eqnarray}
  \left| \Location - \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2\,, \label{eq:sphereeq}
 \end{eqnarray}
-The standard manner to derive the solution would be to insert the ray equation \eqref{eq:ray} into
-\eqref{eq:sphereeq} and calculate the solutions for $t$ from the arising quadratic equation. This leads to a numerically unstable solution
-for large radii $R$.
-A solution numerically stable for the case of a planar surface $R \rightarrow \infty$ is:
+The sphere is a special case of a conic.
 \begin{subequations}
 \label{eq:spheresolution}
 \begin{eqnarray}
@@ -974,22 +1042,9 @@ A solution numerically stable for the case of a planar surface $R \rightarrow \i
 \end{eqnarray}
 \end{subequations}
 where $\rho = 1 / R$ is the surface curvature. 
-The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
-Otherwise, the ray misses the sphere.
-
-The unit surface normal of the sphere pointing in forward (positive $z$) direction is
-\begin{eqnarray}
-\Vector{n} &=& -  
-  \begin{pmatrix}
-   \rho x \\
-   \rho y \\
-   \rho z - 1
-  \end{pmatrix}
-\end{eqnarray}
-
 
 \subsection{Conical Acylinder}
-A conical acylinder is the special case $\rho_x=0, c_x=0$ of a biconic. It contains cylindric and simple acylindric lenses like elliptical, parabolic and hyperbolic acylindric lenses.
+A conical acylinder is the special case $\rho_x=0$ of a biconic. It contains cylindric and simple acylindric lenses like elliptical, parabolic and hyperbolic acylindric lenses.
 Without loss of generality, we choose our coordinate system so that the curvature in x-direction vanishes.
 This effectively reduces the problem of an intersection in three-dimensional space to a two-dimensional one.
 
@@ -1032,10 +1087,8 @@ The appropriate equation to find the intersection point is given by [completing 
 \begin{align}
  \left(z - A(x^2 + y^2) - \frac{1}{\rho(1+c)}\right)^2 - \frac{1}{\rho^2 (1+c)^2} \left(1 -(1+c)\rho^2 (x^2 + y^2) \right) &= 0\,.
 \end{align}
-The first term is strictly positve, the second is always negative if the ray should hit the asphere. For the calculation
-of the intersection point one has to insert the ray parameters for $x, y, z$ and calculate the intersection parameter $t$.
-In the present case this is only possible numerically. 
-
+In general, a solution can only be found numerically. 
+Typical approaches in optical ray tracing use iterative algorithms.
 
 \subsection{Strong Forbes Asphere}
 to do
@@ -1050,6 +1103,7 @@ to do
 \subsection{Linear Combinations}
 \remark{I would suggest to implement a few standard forms and to combine them by a linear combination operator. This makes the search for optimizable
 variables more difficult.}
+
 
 
 
