@@ -9,6 +9,7 @@
 \usepackage{amsfonts}
 \usepackage{xcolor}
 \usepackage{setspace}
+\usepackage{dsfont}
 
 % load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
 
@@ -227,6 +228,40 @@ This leaves the lowest order terms
    + ( n_i ) \Delta\xi 
 \end{eqnarray}
 The explicit form of $\Delta\xi = \tilde{\xi} - \xi$ can be found once the material dispersion is specified.
+
+\subsection{Free Space Propagation}
+For simplicity let's assume that the pilot ray starts at $\Vector{r}_a$ with direction vector (normalized wave vector) $\Vector{d}_a$.
+The pilot ray ends at $\Vector{r}_{a+1}$ with direction $\Vector{d}_{a+1}$. For free space (or near vacuum) propagation the ray direction
+stays unchanged and the pilot ray is given by (connection $\Vector{d}$ and $\Vector{k}$ to be calculated; $a$ and $a+1$ are the respective surface indices)
+\begin{eqnarray}
+ \Vector{r}_{a+1} &=& \Vector{r}_a + |\Vector{r}_{a+1} - \Vector{r}_{a}| \Vector{d}_a\,.
+\end{eqnarray}
+By performing the $\Delta$ operation on this expression we get a linear expression for the propagation of the parabasal ray.
+\begin{eqnarray}
+ \Delta \Vector{r}_{a+1} &=& \Delta \Vector{r}_a + \Delta |\Vector{r}_{a+1} - \Vector{r}_{a}| \Vector{d}_a + |\Vector{r}_{a+1} - \Vector{r}_{a}| \Delta \Vector{d}_a\,.
+\end{eqnarray}
+It is worth to mention that
+\begin{eqnarray}
+ \Delta |\Vector{r}_{a+1} - \Vector{r}_{a}| &=& - \Vector{d}_a \Delta \Vector{r}_a\,.
+\end{eqnarray}
+All together one obtains 
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{a+1} \\
+  \Delta \Vector{d}_{a+1}
+ \end{pmatrix}
+  &=
+ \begin{pmatrix}
+    \mathds{1} - \Vector{d}_a \otimes \Vector{d}_a & |\Vector{r}_{a+1} - \Vector{r}_{a}|\mathds{1} \\
+    0 & \mathds{1}				
+ \end{pmatrix}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{a} \\
+  \Delta \Vector{d}_{a}
+ \end{pmatrix}\,.
+\end{eqnarray}
+
+As one can see there are only quantities of the pilot ray in the matrix appearing (as starting point, end point, initial direction).
 
 \subsection{Isotropic Media}
 We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
