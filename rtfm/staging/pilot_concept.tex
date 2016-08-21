@@ -225,14 +225,43 @@ This leaves the lowest order terms
      - \wavenumber_m n_m \delta_{ij}  
      + \xi \delta_{ij}
    \right) \Delta n_j
-   + ( n_i ) \Delta\xi 
+   + n_i \Delta\xi 
 \end{eqnarray}
 The explicit form of $\Delta\xi = \tilde{\xi} - \xi$ can be found once the material dispersion is specified.
+One can even more simplify this equation by assuming an explicit $\Vector{r}$, an explicit $\Vector{k}$, and an implicit $\Vector{r}$ dependence in terms
+of the surface normal vector $\Vector{n}$ of $\xi$. Therefore 
+$\Delta \xi = \left(\partial_k \xi + \frac{\partial \xi}{\partial n_j} \partial_k n_j\right) \Delta r_k + \tfrac{\partial \xi}{\partial k_i} \Delta k_i$. 
+Further it is possible to express the $\Vector{n}$ derivatives in terms of $\Delta \Vector{r}$ by describing the surface via
+a scalar function $F(\Vector{r}) = 0$. This leads by using
+\begin{eqnarray}
+ n_i &=& \frac{\partial_i F}{\sqrt{(\partial_k F)(\partial_k F)}}\,,
+\end{eqnarray}
+to
+\remark{In terms of effective local curvature radii?}
+\begin{eqnarray}
+  \partial_j n_i &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - \frac{\partial_i F \partial_\ell F}{(\partial_k F)(\partial_k F)}\right)\,,\\
+    &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - n_\ell n_i\right)\,.
+\end{eqnarray}
+Hence by introducing $a$ and $a+1$ as the respective surface indices we may obtain a matrix formulation for the different delta parts
+\begin{eqnarray}
+ \Delta r_{a+1\,i} &=& \Delta r_{a\,i}\,,\\
+ \Delta \wavenumber_{a+1\,i} &=& 
+   \left( \delta_{ij}  - n_i n_j + n_i \frac{\partial \xi}{\partial \wavenumber_{a\,j}}\right) \Delta\wavenumber_{a\,j} \nonumber\\
+   &+&
+   \left[
+      \left(
+     - \wavenumber_{a\,j}  n_i 
+     - \wavenumber_{a\,m} n_m \delta_{ij}  
+     + \xi \delta_{ij}
+     + n_i \frac{\partial \xi}{\partial n_j}
+    \right) \partial_\ell n_j + \partial_\ell \xi\right]\Delta r_{a\,\ell}\,.
+\end{eqnarray}
+
 
 \subsection{Free Space Propagation}
 For simplicity let's assume that the pilot ray starts at $\Vector{r}_a$ with direction vector (normalized wave vector) $\Vector{d}_a$.
 The pilot ray ends at $\Vector{r}_{a+1}$ with direction $\Vector{d}_{a+1}$. For free space (or near vacuum) propagation the ray direction
-stays unchanged and the pilot ray is given by (connection $\Vector{d}$ and $\Vector{k}$ to be calculated; $a$ and $a+1$ are the respective surface indices)
+stays unchanged and the pilot ray is given by (connection $\Vector{d}$ and $\Vector{k}$ to be calculated)
 \begin{eqnarray}
  \Vector{r}_{a+1} &=& \Vector{r}_a + |\Vector{r}_{a+1} - \Vector{r}_{a}| \Vector{d}_a\,.
 \end{eqnarray}
