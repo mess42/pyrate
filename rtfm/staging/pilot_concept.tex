@@ -295,8 +295,9 @@ As one can see there are only quantities of the pilot ray in the matrix appearin
 \subsection{Isotropic Media}
 We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
 \begin{eqnarray}
- \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\
- \Delta \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \tilde{\Wavevector}_{\parallel} \cdot \tilde{\Wavevector}_{\parallel}} - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
+ \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \nonumber\\
+      &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - (\Vector{k} - \scpm{\Vector{k}}{\Vector{n}}\Vector{n}) \cdot (\Vector{k} - \scpm{\Vector{k}}{\Vector{n}}\Vector{n})}\\
+ %\Delta \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \tilde{\Wavevector}_{\parallel} \cdot \tilde{\Wavevector}_{\parallel}} - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
 % \tilde{\Wavevector}_{\parallel} &\approx& \Wavevector_\parallel + \Delta\Wavevector - (\Delta\Wavevector \Vector{n})\Vector{n} - (\Wavevector\Vector{n})\Delta\Vector{n} - (\Wavevector \Delta\Vector{n})\Vector{n} \\
 % \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} + \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i \\
 % \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} 
@@ -307,8 +308,15 @@ We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
 % \sqrt{x- 2 \mu} &\approx& \sqrt{x} + \left. \frac{\partial \sqrt{x-2\mu}}{\partial \mu} \right|_{0} \mu = \sqrt{x} - \frac{\mu}{\sqrt{x}} \\
 % \Delta \xi &\approx& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel} - 2 \mu } - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
 % \Delta \xi &\approx& - \frac{\mu}{\xi} \\
- \Delta \xi &\approx& - \frac{\wavenumber_{\parallel,i}}{\xi} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
+ %\Delta \xi &\approx& - \frac{\wavenumber_{\parallel,i}}{\xi} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
 \end{eqnarray}
+The partial derivatives which are necessary to compute the matrix elements are given by\remark{to be checked!}
+\begin{eqnarray}
+ \partial_k \xi &=& 0\,,\\
+ \frac{\partial \xi}{\partial k_i} &=& -\frac{k_i - (k_\ell n_\ell) n_i}{\xi}\,,\\
+ \frac{\partial \xi}{\partial n_i} &=& \frac{(k_m n_m) (k_i - (n_m k_m) n_i)}{\xi}\,.
+\end{eqnarray}
+
 
 \subsection{Conic interfaces}
 
