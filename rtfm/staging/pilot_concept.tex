@@ -341,7 +341,51 @@ Normal vector (where $x$, $y$ and $z$ live in the vertex coordinate system)
    \rho ( 1 + c ) z(x,y) - 1
   \end{pmatrix}\,.
 \end{eqnarray}
-To use equation \eqref{eq:nderivative} we have to calculate the Hessian $\partial_i \partial_j F$ of the conic interface 
+To use equation \eqref{eq:nderivative} we have to calculate the Hessian $\partial_i \partial_j F$ of the conic interface.
+This can be done by using the implicit form of a conic section (the factor $\tfrac{1}{2}$ was added to remove the factors of two after
+differentiation)
+\begin{eqnarray}
+ F(\Vector{r}) &=& \frac{1}{2}\rho (1+c) z^2 - z + \frac{1}{2} \rho(x^2 + y^2) = 0\,.
+\end{eqnarray}
+The partial derivatives are given by
+\begin{eqnarray}
+ \frac{\partial F}{\partial x} &=& \rho x\,,\\
+ \frac{\partial F}{\partial y} &=& \rho y\,,\\
+ \frac{\partial F}{\partial z} &=& \rho (1+c) z - 1\,,
+\end{eqnarray}
+and
+\begin{eqnarray}
+ \frac{\partial^2 F}{\partial x^2} &=& \rho\,, \quad\frac{\partial^2 F}{\partial x \partial y} = 0\,,\\
+ \frac{\partial^2 F}{\partial y^2} &=& \rho\,, \quad\frac{\partial^2 F}{\partial y \partial z} = 0\,,\\
+ \frac{\partial^2 F}{\partial z^2} &=& \rho (1+c)\,, \quad\frac{\partial^2 F}{\partial z \partial x} = 0\,,
+\end{eqnarray}
+Therefore the matrix of the normal vector derivatives is given by
+\begin{eqnarray}
+ (\partial_i n_j) &=& \frac{1}{\sqrt{ 1 - c \rho^2 (x^2 + y^2)}}
+\begin{pmatrix}
+  \rho & 0 & 0 \\
+  0 & \rho & 0 \\
+  0 & 0 & \rho(1+c)
+\end{pmatrix}\cdot\nonumber\\
+&&
+\biggl[
+\begin{pmatrix}
+ 1 & 0 & 0 \\
+ 0 & 1 & 0 \\
+ 0 & 0 & 1
+\end{pmatrix}\nonumber\\
+&&\quad
+- \frac{1}{1 - c \rho^2 (x^2 + y^2)}\times\nonumber\\
+&&\quad\quad
+\begin{pmatrix}
+ \rho^2 x^2 & \rho^2 x y & \rho x (\rho (1+c) z - 1) \\
+ \rho^2 y x & \rho^2 y^2 & \rho y (\rho (1+c) z - 1) \\
+ \rho x (\rho (1+c) z - 1) & \rho y (\rho (1+c) z - 1) & 1-\rho^2 (1+c) (x^2+y^2)%\rho^2 (1+c)^2 z^2 - 2 \rho (1+c) z + 1
+\end{pmatrix}
+\biggr]
+\end{eqnarray}
+
+
 % \begin{eqnarray}
 %  \frac{\partial \Vector{n}}{\partial x} &=& \frac{\partial}{\partial x} \left(
 % - \frac{1}{\sqrt{ 1 - c (x^2 + y^2)}} 
