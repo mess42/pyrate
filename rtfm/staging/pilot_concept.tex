@@ -240,7 +240,7 @@ to
 \remark{In terms of effective local curvature radii?}
 \begin{eqnarray}
   \partial_j n_i &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - \frac{\partial_i F \partial_\ell F}{(\partial_k F)(\partial_k F)}\right)\,,\\
-    &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - n_\ell n_i\right)\,.
+    &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - n_\ell n_i\right)\,.\label{eq:nderivative}
 \end{eqnarray}
 Hence by introducing $a$ and $a+1$ as the respective surface indices we may obtain a matrix formulation for the different delta parts
 \begin{eqnarray}
@@ -321,23 +321,37 @@ The partial derivatives which are necessary to compute the matrix elements are g
 \subsection{Conic interfaces}
 
 We represent the change of the intersection location $\Delta\Vector{r}$ as function of 2 independent variables $\Delta x$ and $\Delta y$.
+Although this difference is not changed by an optical interface.
 \begin{eqnarray}
  \Delta\Vector{r} &=&
  \begin{pmatrix}
   \Delta x \\ \Delta y \\ z(x+\Delta x,y+\Delta y) - z(x,y)
  \end{pmatrix}
+ \approx 
+ \begin{pmatrix}
+  \Delta x \\ \Delta y \\ \frac{\partial z}{\partial x} \Delta x + \frac{\partial z}{\partial y} \Delta y
+ \end{pmatrix}
 \end{eqnarray}
-
+Normal vector (where $x$, $y$ and $z$ live in the vertex coordinate system)
 \begin{eqnarray}
- \frac{\partial \Vector{n}}{\partial x} &=& \frac{\partial}{\partial x} \left(
-- \frac{1}{\sqrt{ 1 - c (x^2 + y^2)}} 
+ \Vector{n} &=&- \frac{1}{\sqrt{ 1 - c \rho^2 (x^2 + y^2)}} 
   \begin{pmatrix}
    \rho x \\
    \rho y \\
    \rho ( 1 + c ) z(x,y) - 1
-  \end{pmatrix}
- \right)
+  \end{pmatrix}\,.
 \end{eqnarray}
+To use equation \eqref{eq:nderivative} we have to calculate the Hessian $\partial_i \partial_j F$ of the conic interface 
+% \begin{eqnarray}
+%  \frac{\partial \Vector{n}}{\partial x} &=& \frac{\partial}{\partial x} \left(
+% - \frac{1}{\sqrt{ 1 - c (x^2 + y^2)}} 
+%   \begin{pmatrix}
+%    \rho x \\
+%    \rho y \\
+%    \rho ( 1 + c ) z(x,y) - 1
+%   \end{pmatrix}
+%  \right)
+% \end{eqnarray}
 
 
 
