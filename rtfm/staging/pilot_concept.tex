@@ -9,6 +9,7 @@
 \usepackage{amsfonts}
 \usepackage{xcolor}
 \usepackage{setspace}
+\usepackage{dsfont}
 
 % load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
 
@@ -224,15 +225,79 @@ This leaves the lowest order terms
      - \wavenumber_m n_m \delta_{ij}  
      + \xi \delta_{ij}
    \right) \Delta n_j
-   + ( n_i ) \Delta\xi 
+   + n_i \Delta\xi 
 \end{eqnarray}
 The explicit form of $\Delta\xi = \tilde{\xi} - \xi$ can be found once the material dispersion is specified.
+One can even more simplify this equation by assuming an explicit $\Vector{r}$, an explicit $\Vector{k}$, and an implicit $\Vector{r}$ dependence in terms
+of the surface normal vector $\Vector{n}$ of $\xi$. Therefore 
+$\Delta \xi = \left(\partial_k \xi + \frac{\partial \xi}{\partial n_j} \partial_k n_j\right) \Delta r_k + \tfrac{\partial \xi}{\partial k_i} \Delta k_i$. 
+Further it is possible to express the $\Vector{n}$ derivatives in terms of $\Delta \Vector{r}$ by describing the surface via
+a scalar function $F(\Vector{r}) = 0$. This leads by using
+\begin{eqnarray}
+ n_i &=& \frac{\partial_i F}{\sqrt{(\partial_k F)(\partial_k F)}}\,,
+\end{eqnarray}
+to
+\remark{In terms of effective local curvature radii?}
+\begin{eqnarray}
+  \partial_j n_i &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - \frac{\partial_i F \partial_\ell F}{(\partial_k F)(\partial_k F)}\right)\,,\\
+    &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - n_\ell n_i\right)\,.\label{eq:nderivative}
+\end{eqnarray}
+Hence by introducing $a$ and $a+1$ as the respective surface indices we may obtain a matrix formulation for the different delta parts
+\begin{eqnarray}
+ \Delta r_{a+1\,i} &=& \Delta r_{a\,i}\,,\\
+ \Delta \wavenumber_{a+1\,i} &=& 
+   \left( \delta_{ij}  - n_i n_j + n_i \frac{\partial \xi}{\partial \wavenumber_{a\,j}}\right) \Delta\wavenumber_{a\,j} \nonumber\\
+   &+&
+   \left[
+      \left(
+     - \wavenumber_{a\,j}  n_i 
+     - \wavenumber_{a\,m} n_m \delta_{ij}  
+     + \xi \delta_{ij}
+     + n_i \frac{\partial \xi}{\partial n_j}
+    \right) \partial_\ell n_j + \partial_\ell \xi\right]\Delta r_{a\,\ell}\,.
+\end{eqnarray}
+
+
+\subsection{Free Space Propagation}
+For simplicity let's assume that the pilot ray starts at $\Vector{r}_a$ with direction vector (normalized wave vector) $\Vector{d}_a$.
+The pilot ray ends at $\Vector{r}_{a+1}$ with direction $\Vector{d}_{a+1}$. For free space (or near vacuum) propagation the ray direction
+stays unchanged and the pilot ray is given by (connection $\Vector{d}$ and $\Vector{k}$ to be calculated)
+\begin{eqnarray}
+ \Vector{r}_{a+1} &=& \Vector{r}_a + |\Vector{r}_{a+1} - \Vector{r}_{a}| \Vector{d}_a\,.
+\end{eqnarray}
+By performing the $\Delta$ operation on this expression we get a linear expression for the propagation of the parabasal ray.
+\begin{eqnarray}
+ \Delta \Vector{r}_{a+1} &=& \Delta \Vector{r}_a + \Delta |\Vector{r}_{a+1} - \Vector{r}_{a}| \Vector{d}_a + |\Vector{r}_{a+1} - \Vector{r}_{a}| \Delta \Vector{d}_a\,.
+\end{eqnarray}
+It is worth to mention that
+\begin{eqnarray}
+ \Delta |\Vector{r}_{a+1} - \Vector{r}_{a}| &=& - \Vector{d}_a \Delta \Vector{r}_a\,.
+\end{eqnarray}
+All together one obtains 
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{a+1} \\
+  \Delta \Vector{d}_{a+1}
+ \end{pmatrix}
+  &=
+ \begin{pmatrix}
+    \mathds{1} - \Vector{d}_a \otimes \Vector{d}_a & |\Vector{r}_{a+1} - \Vector{r}_{a}|\mathds{1} \\
+    0 & \mathds{1}				
+ \end{pmatrix}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{a} \\
+  \Delta \Vector{d}_{a}
+ \end{pmatrix}\,.
+\end{eqnarray}
+
+As one can see there are only quantities of the pilot ray in the matrix appearing (as starting point, end point, initial direction).
 
 \subsection{Isotropic Media}
 We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
 \begin{eqnarray}
- \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\
- \Delta \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \tilde{\Wavevector}_{\parallel} \cdot \tilde{\Wavevector}_{\parallel}} - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
+ \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \nonumber\\
+      &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - (\Vector{k} - \scpm{\Vector{k}}{\Vector{n}}\Vector{n}) \cdot (\Vector{k} - \scpm{\Vector{k}}{\Vector{n}}\Vector{n})}\\
+ %\Delta \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \tilde{\Wavevector}_{\parallel} \cdot \tilde{\Wavevector}_{\parallel}} - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
 % \tilde{\Wavevector}_{\parallel} &\approx& \Wavevector_\parallel + \Delta\Wavevector - (\Delta\Wavevector \Vector{n})\Vector{n} - (\Wavevector\Vector{n})\Delta\Vector{n} - (\Wavevector \Delta\Vector{n})\Vector{n} \\
 % \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} + \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i \\
 % \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} 
@@ -243,29 +308,94 @@ We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
 % \sqrt{x- 2 \mu} &\approx& \sqrt{x} + \left. \frac{\partial \sqrt{x-2\mu}}{\partial \mu} \right|_{0} \mu = \sqrt{x} - \frac{\mu}{\sqrt{x}} \\
 % \Delta \xi &\approx& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel} - 2 \mu } - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
 % \Delta \xi &\approx& - \frac{\mu}{\xi} \\
- \Delta \xi &\approx& - \frac{\wavenumber_{\parallel,i}}{\xi} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
+ %\Delta \xi &\approx& - \frac{\wavenumber_{\parallel,i}}{\xi} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
 \end{eqnarray}
+The partial derivatives which are necessary to compute the matrix elements are given by\remark{to be checked!}
+\begin{eqnarray}
+ \partial_k \xi &=& 0\,,\\
+ \frac{\partial \xi}{\partial k_i} &=& -\frac{k_i - (k_\ell n_\ell) n_i}{\xi}\,,\\
+ \frac{\partial \xi}{\partial n_i} &=& \frac{(k_m n_m) (k_i - (n_m k_m) n_i)}{\xi}\,.
+\end{eqnarray}
+
 
 \subsection{Conic interfaces}
 
 We represent the change of the intersection location $\Delta\Vector{r}$ as function of 2 independent variables $\Delta x$ and $\Delta y$.
+Although this difference is not changed by an optical interface.
 \begin{eqnarray}
  \Delta\Vector{r} &=&
  \begin{pmatrix}
   \Delta x \\ \Delta y \\ z(x+\Delta x,y+\Delta y) - z(x,y)
  \end{pmatrix}
+ \approx 
+ \begin{pmatrix}
+  \Delta x \\ \Delta y \\ \frac{\partial z}{\partial x} \Delta x + \frac{\partial z}{\partial y} \Delta y
+ \end{pmatrix}
 \end{eqnarray}
-
+Normal vector (where $x$, $y$ and $z$ live in the vertex coordinate system)
 \begin{eqnarray}
- \frac{\partial \Vector{n}}{\partial x} &=& \frac{\partial}{\partial x} \left(
-- \frac{1}{\sqrt{ 1 - c (x^2 + y^2)}} 
+ \Vector{n} &=&- \frac{1}{\sqrt{ 1 - c \rho^2 (x^2 + y^2)}} 
   \begin{pmatrix}
    \rho x \\
    \rho y \\
    \rho ( 1 + c ) z(x,y) - 1
-  \end{pmatrix}
- \right)
+  \end{pmatrix}\,.
 \end{eqnarray}
+To use equation \eqref{eq:nderivative} we have to calculate the Hessian $\partial_i \partial_j F$ of the conic interface.
+This can be done by using the implicit form of a conic section (the factor $\tfrac{1}{2}$ was added to remove the factors of two after
+differentiation)
+\begin{eqnarray}
+ F(\Vector{r}) &=& \frac{1}{2}\rho (1+c) z^2 - z + \frac{1}{2} \rho(x^2 + y^2) = 0\,.
+\end{eqnarray}
+The partial derivatives are given by
+\begin{eqnarray}
+ \frac{\partial F}{\partial x} &=& \rho x\,,\\
+ \frac{\partial F}{\partial y} &=& \rho y\,,\\
+ \frac{\partial F}{\partial z} &=& \rho (1+c) z - 1\,,
+\end{eqnarray}
+and
+\begin{eqnarray}
+ \frac{\partial^2 F}{\partial x^2} &=& \rho\,, \quad\frac{\partial^2 F}{\partial x \partial y} = 0\,,\\
+ \frac{\partial^2 F}{\partial y^2} &=& \rho\,, \quad\frac{\partial^2 F}{\partial y \partial z} = 0\,,\\
+ \frac{\partial^2 F}{\partial z^2} &=& \rho (1+c)\,, \quad\frac{\partial^2 F}{\partial z \partial x} = 0\,,
+\end{eqnarray}
+Therefore the matrix of the normal vector derivatives is given by
+\begin{eqnarray}
+ (\partial_i n_j) &=& \frac{1}{\sqrt{ 1 - c \rho^2 (x^2 + y^2)}}
+\begin{pmatrix}
+  \rho & 0 & 0 \\
+  0 & \rho & 0 \\
+  0 & 0 & \rho(1+c)
+\end{pmatrix}\cdot\nonumber\\
+&&
+\biggl[
+\begin{pmatrix}
+ 1 & 0 & 0 \\
+ 0 & 1 & 0 \\
+ 0 & 0 & 1
+\end{pmatrix}\nonumber\\
+&&\quad
+- \frac{1}{1 - c \rho^2 (x^2 + y^2)}\times\nonumber\\
+&&\quad\quad
+\begin{pmatrix}
+ \rho^2 x^2 & \rho^2 x y & \rho x (\rho (1+c) z - 1) \\
+ \rho^2 y x & \rho^2 y^2 & \rho y (\rho (1+c) z - 1) \\
+ \rho x (\rho (1+c) z - 1) & \rho y (\rho (1+c) z - 1) & 1-\rho^2 (1+c) (x^2+y^2)%\rho^2 (1+c)^2 z^2 - 2 \rho (1+c) z + 1
+\end{pmatrix}
+\biggr]
+\end{eqnarray}
+
+
+% \begin{eqnarray}
+%  \frac{\partial \Vector{n}}{\partial x} &=& \frac{\partial}{\partial x} \left(
+% - \frac{1}{\sqrt{ 1 - c (x^2 + y^2)}} 
+%   \begin{pmatrix}
+%    \rho x \\
+%    \rho y \\
+%    \rho ( 1 + c ) z(x,y) - 1
+%   \end{pmatrix}
+%  \right)
+% \end{eqnarray}
 
 
 
