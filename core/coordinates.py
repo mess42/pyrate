@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 
+#TODO: want to have some aiming function aimAt(ref), aimAt(globalcoords)?
+
 class LocalCoordinates(object):
     def __init__(self, ref=None, thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0):
         self.thickness = thickness
@@ -46,6 +48,8 @@ class LocalCoordinates(object):
         self.localbasis = np.lib.eye(3)
     
     def rodrigues(self, angle, a):
+        ''' returns numpy matrix from Rodrigues formula. Notice different sign
+        in comparison to formula at wikipedia in mat'''
         mat = np.array([[0, a[2], -a[1]], [-a[2], 0, a[0]], [a[1], -a[0], 0]])
         return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
     
