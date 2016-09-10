@@ -78,14 +78,14 @@ class LocalCoordinates(object):
                 self.reference.globalcoordinates + \
                 self.reference.localdecenter + \
                 self.reference.thickness*(self.reference.localbasis.T)[2];
-                # erst decenter dann rotieren dann thickness
+                # first decenter then rotation afterwards thickness
             else:
                 self.globalcoordinates = \
                 self.reference.globalcoordinates + \
                 self.reference.thickness*(self.reference.localbasis.T)[2] + \
                 self.reference.localdecenter;
                 
-                # erst rotieren dann decenter dann thickness
+                # first rotation then decenter afterwards thickness
         else:
             self.localbasis = self.localrotation
                 
