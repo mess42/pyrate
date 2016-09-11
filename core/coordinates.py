@@ -52,9 +52,8 @@ class LocalCoordinates(object):
 
             
     def rodrigues(self, angle, a):
-        ''' returns numpy matrix from Rodrigues formula. Notice different sign
-        in comparison to formula at wikipedia in mat'''
-        mat = np.array([[0, a[2], -a[1]], [-a[2], 0, a[0]], [a[1], -a[0], 0]])
+        ''' returns numpy matrix from Rodrigues formula.'''
+        mat = np.array([[0, -a[2], a[1]], [a[2], 0, -a[0]], [-a[1], a[0], 0]])
         return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
     
     def calculate(self):
@@ -66,11 +65,16 @@ class LocalCoordinates(object):
         # 1 thickness angle1
         # 2 thickness angle2       
         
+        # notice negative signs for angles to make sure that for tiltx>0 the
+        # optical points in positive y-direction although the x-axis of the
+        # local coordinate system points INTO the screen
+        # This leads also to a clocking in the mathematical negative direction
+        
         self.localdecenter = np.array([self.decx, self.decy, 0])
         if self.order == 0:
-            self.localrotation = np.dot(self.rodrigues(self.tiltz, [0, 0, 1]), np.dot(self.rodrigues(self.tilty, [0, 1, 0]), self.rodrigues(self.tiltx, [1, 0, 0])))
+            self.localrotation = np.dot(self.rodrigues(-self.tiltz, [0, 0, 1]), np.dot(-self.rodrigues(self.tilty, [0, 1, 0]), self.rodrigues(-self.tiltx, [1, 0, 0])))
         else:
-            self.localrotation = np.dot(self.rodrigues(self.tiltx, [1, 0, 0]), np.dot(self.rodrigues(self.tilty, [0, 1, 0]), self.rodrigues(self.tiltz, [0, 0, 1])))
+            self.localrotation = np.dot(self.rodrigues(-self.tiltx, [1, 0, 0]), np.dot(-self.rodrigues(self.tilty, [0, 1, 0]), self.rodrigues(-self.tiltz, [0, 0, 1])))
             
 
     def update(self):
