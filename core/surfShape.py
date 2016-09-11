@@ -65,7 +65,7 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
-    def getNormal(self, x,y,z):
+    def getNormal(self, x, y):
         """
         Returns the normal of the surface.
         :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
@@ -73,6 +73,16 @@ class Shape(ClassWithOptimizableVariables):
         :return n: normal (2d numpy 3xN array of float)
         """
         raise NotImplementedError()
+        
+    def getHessian(self, x, y):
+        """
+        Returns the local Hessian of the surface to obtain local curvature related quantities.
+        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :return n: normal (2d numpy 3xN array of float)
+        """
+        raise NotImplementedError()
+        
         
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
@@ -159,6 +169,30 @@ class Conic(Shape):
         normal[2] = normal[2] / absn
 
         return normal
+        
+    def getHessian(self, x, y):
+        """
+        Returns the local Hessian of a conic section (in vertex coordinates).
+        :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
+        :param y: y coordinates on the conic surface (float or 1d numpy array of floats)
+        :return normal: Hessian in vectorial form (h_xx, h_yy, h_zz,
+        h_xy, h_yz, h_zx) ( 2d 6xN numpy array of floats )
+        """
+        # For the Hessian of a conic section there are no z values needed
+        
+
+        curv = self.curvature.evaluate()
+        cc = self.conic.evaluate()
+
+        hessian = np.zeros((6,len(x)), dtype=float)
+        hessian[0] = curv #xx
+        hessian[1] = curv #yy 
+        hessian[2] = curv * ( 1 + cc ) #zz
+        hessian[3] = 0. #xy
+        hessian[4] = 0. #yz
+        hessian[5] = 0. #zx
+
+        return hessian        
 
 
     def getCentralCurvature(self):
