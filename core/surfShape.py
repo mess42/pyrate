@@ -65,6 +65,16 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
+    def getNormal(self, x,y,z):
+        """
+        Returns the normal of the surface.
+        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :return n: normal (2d numpy 3xN array of float)
+        """
+        raise NotImplementedError()
+        
+
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
         """
         Plots the surface in a matplotlib figure.
@@ -125,16 +135,18 @@ class Conic(Shape):
 
         return z
 
-    def conic_normal(self, x,y,z, curv, cc):
+    def getNormal(self, x,y):
         """
         normal on a rotational symmetric conic section.
         :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
         :param y: y coordinates on the conic surface (float or 1d numpy array of floats)
-        :param z: z coordinates on the conic surface (float or 1d numpy array of floats)
-        :param curv: curvature (float)
-        :param cc: conic constant (float)
         :return normal: normal vectors ( 2d 3xN numpy array of floats )
         """
+        z = self.getSag(self, x, y)
+
+        curv = self.curvature.evaluate()
+        cc = self.conic.evaluate()
+
         normal = np.zeros((3,len(x)), dtype=float)
         normal[0] = -curv * x
         normal[1] = -curv * y
@@ -173,7 +185,7 @@ class Conic(Shape):
         validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal = self.conic_normal( intersection[0], intersection[1], intersection[2], self.curvature.evaluate(), self.conic.evaluate() )
+        normal = self.getNormal( intersection[0], intersection[1] )
 
         return intersection, t, normal, validIndices
 
@@ -211,15 +223,15 @@ class Cylinder(Conic):
         self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
         self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
 
-    def getSag(self, x, y):
+     def getSag(self, x, y):
         """
-        Return the sag of the surface measured from the optical axis vertex.
-
+        Return the sag of the surface mesured from the optical axis vertex.
         :param x: x coordinate on the surface (float or 1d numpy array of floats)
         :param y: y coordinate on the surface (float or 1d numpy array of floats)
-
         :return sag: (float or 1d numpy array of floats)
         """
+
+        return self.conic_function( rsquared = y**2 )
 
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
@@ -242,7 +254,7 @@ class Cylinder(Conic):
         validIndices[0] = True  # hail to the chief
 
         # Normal
-        normal = self.conic_normal( 0, intersection[1], intersection[2], self.curvature.val, self.conic.val )
+        normal = self.getNormal( 0, intersection[1] )
 
         return intersection, t, normal, validIndices
 
@@ -307,6 +319,31 @@ class Decenter(Shape):
         :return z: sag (list or numpy 1d array of float)
         """
         raise np.zeros_like(x)
+
+    def getNormal(self, x,y):
+        """
+        normal on a rotational symmetric conic section.
+        :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
+        :param y: y coordinates on the conic surface (float or 1d numpy array of floats)
+        :return normal: normal vectors ( 2d 3xN numpy array of floats )
+        """
+        z = self.getSag(self, x, y)
+
+        curv = self.curvature.evaluate()
+        cc = self.conic.evaluate()
+
+        normal = np.zeros((3,len(y)), dtype=float)
+        #normal[0] = 0
+        normal[1] = -curv * y
+        normal[2] = 1 - curv * z * ( 1 + cc )
+
+        absn = np.sqrt(np.sum(normal**2, axis=0))
+
+        normal[0] = normal[0] / absn
+        normal[1] = normal[1] / absn
+        normal[2] = normal[2] / absn
+
+        return normal
 
     def getCentralCurvature(self):
         """
