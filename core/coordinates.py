@@ -32,8 +32,9 @@ from optimize import ClassWithOptimizableVariables, OptimizableVariable
 #TODO: want to have some aiming function aimAt(ref), aimAt(globalcoords)?
 #TODO: inherit from ClassWithOptimizableVariables
 
-class LocalCoordinates(object):
+class LocalCoordinates(ClassWithOptimizableVariables):
     def __init__(self, ref=None, thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0):
+        super(LocalCoordinates, self).__init__()        
         self.thickness = thickness
         self.decx = OptimizableVariable(variable_status=False, variable_type='Variable', value=decx)
         self.decy = OptimizableVariable(variable_status=False, variable_type='Variable', value=decy)
