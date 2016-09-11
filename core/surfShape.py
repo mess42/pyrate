@@ -142,7 +142,7 @@ class Conic(Shape):
         :param y: y coordinates on the conic surface (float or 1d numpy array of floats)
         :return normal: normal vectors ( 2d 3xN numpy array of floats )
         """
-        z = self.getSag(self, x, y)
+        z = self.getSag(x, y)
 
         curv = self.curvature.evaluate()
         cc = self.conic.evaluate()
@@ -223,7 +223,7 @@ class Cylinder(Conic):
         self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
         self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
 
-     def getSag(self, x, y):
+    def getSag(self, x, y):
         """
         Return the sag of the surface mesured from the optical axis vertex.
         :param x: x coordinate on the surface (float or 1d numpy array of floats)
