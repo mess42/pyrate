@@ -29,6 +29,7 @@ import numpy as np
 import math
 
 #TODO: want to have some aiming function aimAt(ref), aimAt(globalcoords)?
+#TODO: inherit from ClassWithOptimizableVariables
 
 class LocalCoordinates(object):
     def __init__(self, ref=None, thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0):
@@ -46,7 +47,10 @@ class LocalCoordinates(object):
         self.localdecenter = np.array([0, 0, 0])
         self.localrotation = np.lib.eye(3)
         self.localbasis = np.lib.eye(3)
-    
+
+        self.update() # initial update
+
+            
     def rodrigues(self, angle, a):
         ''' returns numpy matrix from Rodrigues formula. Notice different sign
         in comparison to formula at wikipedia in mat'''
@@ -124,7 +128,6 @@ if __name__ == "__main__":
     surfcb5 = LocalCoordinates(ref=surfcb45, decy=-5.0, tiltx=-1.0, order=1)
     surfcb6 = LocalCoordinates(ref=surfcb5, thickness=-20.0)
     surfcb7 = LocalCoordinates(ref=surfcb6)
-    surfcb7.update()
     print("surfcb2")
     print(str(surfcb2))
     print("surfcb7 == surfcb2")
@@ -138,8 +141,7 @@ if __name__ == "__main__":
     surfneck3 = LocalCoordinates(ref=surfneck2, thickness=40.0, tiltx=2./5.*math.pi)
     surfneck4 = LocalCoordinates(ref=surfneck3, thickness=40.0, tiltx=2./5.*math.pi)
     surfneck5 = LocalCoordinates(ref=surfneck4, thickness=40.0, tiltx=2./5.*math.pi)
-    surfneck6 = LocalCoordinates(ref=surfneck4, thickness=40.0, tiltx=2./5.*math.pi)
-    surfneck6.update()
+    surfneck6 = LocalCoordinates(ref=surfneck5, thickness=40.0, tiltx=2./5.*math.pi)
     print("regular N polygon: start == end!")
     print(str(origin))    
     print(str(surfneck1))    
@@ -147,4 +149,4 @@ if __name__ == "__main__":
     print(str(surfneck3))    
     print(str(surfneck4))    
     print(str(surfneck5))        
-    #print(str(surfneck6))        
+    print(str(surfneck6))        
