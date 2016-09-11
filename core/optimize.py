@@ -114,7 +114,7 @@ class OptimizableVariable(object):
                     }
 
         return evaldict[self.var_type]()
-
+        
 class ClassWithOptimizableVariables(object):
     """
     Implementation of some class with optimizable variables with the help of a dictionary.
@@ -288,15 +288,19 @@ if __name__ == "__main__":
     q = OptimizableVariable(True, "Variable", value="glass2")
     r = OptimizableVariable(False, "Pickup", function=f, args=(p, q))
     s = OptimizableVariable(False, "External", function=f, args=(1.0, 6.0))
+    print("print p variable")
     print p
     print p.__dict__
     print p.evaluate()
+    print("print q variable")
     print q
     print q.__dict__
     print q.evaluate()
+    print("print r variable")
     print r
     print r.__dict__
     print r.evaluate()
+    print("print s variable")
     print s
     print s.__dict__
     print s.evaluate()

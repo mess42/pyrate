@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
+from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
 #TODO: want to have some aiming function aimAt(ref), aimAt(globalcoords)?
 #TODO: inherit from ClassWithOptimizableVariables
@@ -34,11 +35,11 @@ import math
 class LocalCoordinates(object):
     def __init__(self, ref=None, thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0):
         self.thickness = thickness
-        self.decx = decx
-        self.decy = decy
-        self.tiltx = tiltx
-        self.tilty = tilty
-        self.tiltz = tiltz
+        self.decx = OptimizableVariable(variable_status=False, variable_type='Variable', value=decx)
+        self.decy = OptimizableVariable(variable_status=False, variable_type='Variable', value=decy)
+        self.tiltx = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltx)
+        self.tilty = OptimizableVariable(variable_status=False, variable_type='Variable', value=tilty)
+        self.tiltz = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltz)
         self.order = order
         
         self.reference = ref # None means reference to global coordinate system        
@@ -70,11 +71,17 @@ class LocalCoordinates(object):
         # local coordinate system points INTO the screen
         # This leads also to a clocking in the mathematical negative direction
         
-        self.localdecenter = np.array([self.decx, self.decy, 0])
+        tiltx = self.tiltx.evaluate()
+        tilty = self.tilty.evaluate()
+        tiltz = self.tiltz.evaluate()
+        decx = self.decx.evaluate()
+        decy = self.decy.evaluate()        
+        
+        self.localdecenter = np.array([decx, decy, 0])
         if self.order == 0:
-            self.localrotation = np.dot(self.rodrigues(-self.tiltz, [0, 0, 1]), np.dot(-self.rodrigues(self.tilty, [0, 1, 0]), self.rodrigues(-self.tiltx, [1, 0, 0])))
+            self.localrotation = np.dot(self.rodrigues(-tiltz, [0, 0, 1]), np.dot(self.rodrigues(-tilty, [0, 1, 0]), self.rodrigues(-tiltx, [1, 0, 0])))
         else:
-            self.localrotation = np.dot(self.rodrigues(-self.tiltx, [1, 0, 0]), np.dot(-self.rodrigues(self.tilty, [0, 1, 0]), self.rodrigues(-self.tiltz, [0, 0, 1])))
+            self.localrotation = np.dot(self.rodrigues(-tiltx, [1, 0, 0]), np.dot(self.rodrigues(-tilty, [0, 1, 0]), self.rodrigues(-tiltz, [0, 0, 1])))
             
 
     def update(self):
