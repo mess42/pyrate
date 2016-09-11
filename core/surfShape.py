@@ -28,6 +28,12 @@ from optimize import OptimizableVariable
 from numpy import dtype
 
 
+# TODO: all get functions of Shape are performed in the local basis system
+# the raytrace should take place in the global coordinate system
+# therefore we need a transformation between local and global.
+# Which class should take care about it?
+
+
 class Shape(ClassWithOptimizableVariables):
     def __init__(self):
         """
@@ -76,10 +82,10 @@ class Shape(ClassWithOptimizableVariables):
         
     def getHessian(self, x, y):
         """
-        Returns the local Hessian of the surface to obtain local curvature related quantities.
+        Returns the local Hessian (as 6D vector) of the surface to obtain local curvature related quantities.
         :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
         :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :return n: normal (2d numpy 3xN array of float)
+        :return n: normal (2d numpy 6xN array of float)
         """
         raise NotImplementedError()
         
