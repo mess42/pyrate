@@ -206,6 +206,9 @@ class Conic(Shape):
         rayDir = raybundle.rayDir
 
         r0 = raybundle.o
+        # r0 is raybundle.o in the local coordinate system
+        # rayDir = raybundle.rayDir in the local coordinate system
+        # raybundle itself lives in the global coordinate system
 
         F = rayDir[2] - self.curvature.evaluate() * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.evaluate()))
         G = self.curvature.evaluate() * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.evaluate())) - 2 * r0[2]
