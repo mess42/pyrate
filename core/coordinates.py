@@ -30,12 +30,11 @@ import math
 from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
 #TODO: want to have some aiming function aimAt(ref), aimAt(globalcoords)?
-#TODO: inherit from ClassWithOptimizableVariables
 
 class LocalCoordinates(ClassWithOptimizableVariables):
     def __init__(self, ref=None, thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0):
         super(LocalCoordinates, self).__init__()        
-        self.thickness = thickness
+        self.thickness = OptimizableVariable(variable_status=False, variable_type='Variable', value=thickness)
         self.decx = OptimizableVariable(variable_status=False, variable_type='Variable', value=decx)
         self.decy = OptimizableVariable(variable_status=False, variable_type='Variable', value=decy)
         self.tiltx = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltx)
@@ -55,7 +54,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             
     def rodrigues(self, angle, a):
         ''' returns numpy matrix from Rodrigues formula.'''
-        mat = np.array([[0, -a[2], a[1]], [a[2], 0, -a[0]], [-a[1], a[0], 0]])
+        mat = np.array(\
+            [[    0, -a[2],  a[1]],\
+             [ a[2],     0, -a[0]],\
+             [-a[1],  a[0],    0]]\
+             )
         return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
     
     def calculate(self):
@@ -97,12 +100,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                 self.globalcoordinates = \
                 self.reference.globalcoordinates + \
                 self.reference.localdecenter + \
-                self.reference.thickness*(self.reference.localbasis.T)[2];
+                self.reference.thickness.evaluate()*(self.reference.localbasis.T)[2];
                 # first decenter then rotation afterwards thickness
             else:
                 self.globalcoordinates = \
                 self.reference.globalcoordinates + \
-                self.reference.thickness*(self.reference.localbasis.T)[2] + \
+                self.reference.thickness.evaluate()*(self.reference.localbasis.T)[2] + \
                 self.reference.localdecenter;
                 
                 # first rotation then decenter afterwards thickness

@@ -23,9 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 from optimize import ClassWithOptimizableVariables
-from aperture import CircularAperture
 from optimize import OptimizableVariable
-from numpy import dtype
 
 
 # TODO: all get functions of Shape are performed in the local basis system
@@ -191,12 +189,12 @@ class Conic(Shape):
         cc = self.conic.evaluate()
 
         hessian = np.zeros((6,len(x)), dtype=float)
-        hessian[0] = curv #xx
-        hessian[1] = curv #yy 
-        hessian[2] = curv * ( 1 + cc ) #zz
-        hessian[3] = 0. #xy
-        hessian[4] = 0. #yz
-        hessian[5] = 0. #zx
+        hessian[0] = curv*np.ones_like(x) #xx
+        hessian[1] = curv*np.ones_like(x) #yy 
+        hessian[2] = curv * ( 1 + cc )*np.ones_like(x) #zz
+        hessian[3] = np.zeros_like(x) #xy
+        hessian[4] = np.zeros_like(x) #yz
+        hessian[5] = np.zeros_like(x) #zx
 
         return hessian        
 
