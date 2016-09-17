@@ -42,13 +42,21 @@ class Surface(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass(), aperture=aperture.BaseAperture()):
+    def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass(), aperture=aperture.BaseAperture(), **kwargs):
         super(Surface, self).__init__()
 
         self.shape = shape
         self.material = material
         self.aperture = aperture
-        self.localcoordinates = coordinates.LocalCoordinates(ref=None, thickness=thickness)
+        
+        decx = kwargs.get("decx", 0.0)
+        decy = kwargs.get("decy", 0.0)
+        tiltx = kwargs.get("tiltx", 0.0)
+        tilty = kwargs.get("tilty", 0.0)
+        tiltz = kwargs.get("tiltz", 0.0)
+        
+        
+        self.localcoordinates = coordinates.LocalCoordinates(ref=None, thickness=thickness, decx=decx, decy=decy, tiltx=tiltx, tilty=tilty, tiltz=tiltz)
         # TODO: ref=None is wrong here; thickness refers always to a thickness counted from a reference
         # TODO: change interface such that a local coordinate system gets called in __init__
 
@@ -221,6 +229,8 @@ class OpticalSystem(ClassWithOptimizableVariables):
            Surface that is currently at this position
            and all following surface indices are incremented.
         """
+        if self.surfaces != []:        
+            surface.localcoordinates.reference = self.surfaces[position-1].localcoordinates
         self.surfaces.insert(position, surface)
 
     def removeSurface(self, position):

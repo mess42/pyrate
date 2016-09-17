@@ -42,7 +42,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         self.tiltz = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltz)
         self.order = order
         
-        self.reference = ref # None means reference to global coordinate system        
+        self.__reference = ref # None means reference to global coordinate system        
     
         self.globalcoordinates = np.array([0, 0, 0])
         self.localdecenter = np.array([0, 0, 0])
@@ -51,6 +51,14 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
         self.update() # initial update
 
+    def getReference(self):
+        return self.__reference
+        
+    def setReference(self, ref):
+        self.__reference = ref
+        self.update()
+
+    reference = property(getReference, setReference)
             
     def rodrigues(self, angle, a):
         ''' returns numpy matrix from Rodrigues formula.'''
@@ -111,7 +119,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                 # first rotation then decenter afterwards thickness
         else:
             self.localbasis = self.localrotation
-                
+            
 
     def __str__(self):
         s = '''
@@ -164,4 +172,14 @@ if __name__ == "__main__":
     print(str(surfneck3))    
     print(str(surfneck4))    
     print(str(surfneck5))        
-    print(str(surfneck6))        
+    print(str(surfneck6))
+    '''testcase3: check post init setting of reference'''
+    surf1 = LocalCoordinates(ref=None, thickness=40.0)
+    surf2 = LocalCoordinates(ref=surf1, thickness=80.0)        
+    surf3 = LocalCoordinates(ref=surf1, thickness=80.0)        
+    print(str(surf1))
+    print(str(surf2))
+    print(str(surf3))
+    surf3.reference = surf2
+    print(str(surf3))
+    
