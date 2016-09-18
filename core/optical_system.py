@@ -231,6 +231,10 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         if self.surfaces != []:        
             surface.localcoordinates.reference = self.surfaces[position-1].localcoordinates
+            if position < len(self.surfaces):            
+                self.surfaces[position].localcoordinates.reference = surface.localcoordinates
+        # realloc of the local coordinates references
+        # find some useful data structure which supercedes this construction
         self.surfaces.insert(position, surface)
 
     def removeSurface(self, position):
