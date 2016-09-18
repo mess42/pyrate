@@ -409,6 +409,38 @@ class Decenter(Shape):
         """
         raise NotImplementedError()
 
+class ImplicitShape(Shape):
+    def __init__(self, F, gradF, hessH, paramlist=[], eps=1e-6, iterations=10):
+        """
+        Implicit defined surface of the form F(x, y, z, params) = 0
+        :param F: implicit function in x, y, z, paramslst
+        :param gradF: closed form gradient in x, y, z, paramslst
+        :param hessH: closed form Hessian in x, y, z, paramslst
+        :param paramlist: real valued parameters of the functions
+        :param eps: convergence parameter
+        :param iterations: convergence parameter
+        """
 
+        super(ImplicitShape, self).__init__()
+        
+        self.params = [OptimizableVariable(False, "Variable", value=value) for value in paramlist]
+        self.eps = eps
+        self.iterations = iterations
+        self.F = F # implicit function in x, y, z, paramslst
+        self.gradF = gradF # closed form gradient in x, y, z, paramslst
+        self.hessF = hessF # closed form Hessian in x, y, z, paramslst
+        
+    def implicitsolver(self, F, x, y, paramslst):
+        # F(x, y, z) = F(x, y, z0) + DFz(x, y, z0) (z - z0) = 0
+        # => z = z0 -F(x, y, z0)/DFz(x, y, z0)
+        return np.zeros_like(x)
 
-
+    def getSag(self, x, y):
+        paramvals = [p.evaluate() for p in self.params]
+        return self.implicitsolver(F, x, y, paramvals)
+        
+    def getNormals(self, x, y):
+        return np.zeros((3, len(x)))
+        
+    def getHessian(self, x, y):
+        return np.zeros((6, len(x)))
