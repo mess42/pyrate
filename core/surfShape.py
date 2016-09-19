@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
-
+from scipy.optimize import fsolve
 
 # TODO: all get functions of Shape are performed in the local basis system
 # the raytrace should take place in the global coordinate system
@@ -410,7 +410,7 @@ class Decenter(Shape):
         raise NotImplementedError()
 
 class ImplicitShape(Shape):
-    def __init__(self, F, gradF, hessH, paramlist=[], eps=1e-6, iterations=10):
+    def __init__(self, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10):
         """
         Implicit defined surface of the form F(x, y, z, params) = 0
         :param F: implicit function in x, y, z, paramslst
@@ -430,17 +430,112 @@ class ImplicitShape(Shape):
         self.gradF = gradF # closed form gradient in x, y, z, paramslst
         self.hessF = hessF # closed form Hessian in x, y, z, paramslst
         
-    def implicitsolver(self, F, x, y, paramslst):
+    def implicitsolver(self, F, x, y, paramlst, *finalargs):
+        def Fwrapper(zp, xp, yp, pl):
+            return F(xp, yp, zp, pl)
         # F(x, y, z) = F(x, y, z0) + DFz(x, y, z0) (z - z0) = 0
         # => z = z0 -F(x, y, z0)/DFz(x, y, z0)
-        return np.zeros_like(x)
+        zstart = 20.0*np.random.normal(0.0, 1.0, size=x.shape)
+        
+        # TODO: how to find an adequate starting point for numerical solution?
+        # (without performing too much calculations)        
+        
+        (res, info, ier, msg) = fsolve(Fwrapper, x0=zstart, args=(x, y, paramlst), xtol=self.eps, full_output=True, *finalargs)
+        print("ier %d msg %s" % (ier, msg))
+        print(info)
+        return res
+        
 
     def getSag(self, x, y):
         paramvals = [p.evaluate() for p in self.params]
-        return self.implicitsolver(F, x, y, paramvals)
+        return self.implicitsolver(self.F, x, y, paramvals)
         
-    def getNormals(self, x, y):
-        return np.zeros((3, len(x)))
+    def getNormal(self, x, y):
+        result = np.zeros((3, len(x)))
+        paramvals = [p.evaluate() for p in self.params]
+        z = self.getSag(x, y)
+        gradient = self.gradF(x, y, z, paramvals)
+        absgradient = np.sqrt(np.sum(gradient**2, axis=0))
+        result = gradient/absgradient
+        return result
         
     def getHessian(self, x, y):
-        return np.zeros((6, len(x)))
+        paramvals = [p.evaluate() for p in self.params]
+        z = self.getSag(x, y)
+        return self.hessF(x, y, z, paramvals)
+        
+    # TODO: this could be speed up by updating a class internal z array
+    # which could be done by using an internal update procedure and using
+    # this z array by the get-functions
+        
+    def intersect(self, raybundle):
+        paramvals = [p.evaluate() for p in self.params]
+
+        rayDir = raybundle.rayDir
+
+        r0 = raybundle.o        
+
+        t = np.zeros_like(r0[0])
+
+        def Fwrapper(t, r0, rayDir, paramslist):
+            return self.F(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1], r0[2] + t*rayDir[2], paramslist)
+
+
+        t = fsolve(Fwrapper, t, args=(r0, rayDir, paramvals))
+
+        intersection = r0 + raybundle.rayDir * t
+
+        validIndices = np.ones_like(r0[0], dtype=bool) 
+        validIndices[0] = True  # hail to the chief
+
+        # Normal
+        normal = self.getNormal( intersection[0], intersection[1] )
+
+        return intersection, t, normal, validIndices
+
+
+        
+if __name__ == "__main__":
+    def testf(x, y, z, l):
+        return x**3 - y**2*x**6 + z**5
+        
+    def testfddz(x, y, z, l):
+        return 5.*z**4
+    
+    def testfgrad(x, y, z, l):
+        result = np.zeros((3, len(x)))
+        result[0] = 3.*x**2 - 6.*y**2*x**5
+        result[1] = - 2.*y*x**6
+        result[2] = 5.*z**4
+        return result
+        
+    def testfhess(x, y, z, l):
+        result = np.zeros((6, len(x)))
+        
+        result[0] = 6.*x - 30.*y**2*x**4
+        result[1] = -2.*x**6
+        result[2] = 20.*z**3
+        result[3] = -12.*y*x**5
+        result[4] = np.zeros_like(x)
+        result[5] = np.zeros_like(x)
+        
+        return result
+        
+        
+    imsh = ImplicitShape(testf, testfgrad, testfhess, paramlist=[], eps=1e-6, iterations=10)
+    
+    x = np.array([1,2,3])
+    y = np.array([4,5,6])
+    z = imsh.implicitsolver(testf, x, y, [])
+    
+    print("xyz")
+    print(x)
+    print(y)
+    print(z)
+    print("testf")
+    print(testf(x, y, z, []))
+    print(testfgrad(x, y, z, []))
+    print(testfhess(x, y, z, []))
+    print(imsh.getNormal(x, y))
+
+        
