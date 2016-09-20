@@ -300,12 +300,6 @@ class Cylinder(Conic):
         return intersection, t, normal, validIndices
 
 
-class Asphere(Shape):
-    """
-    to do: polynomial asphere as base class for sophisticated surface descriptions
-    """
-    pass
-
 class Decenter(Shape):
     """
     Implements single decenter coordinate break. Shifts the optical axis.
@@ -409,10 +403,75 @@ class Decenter(Shape):
         """
         raise NotImplementedError()
 
+class ExplicitShape(Shape):
+    def __init__(self, f, gradf, hessf, paramlist=[], eps=1e-6, iterations=10):
+        super(ExplicitShape, self).__init__()
+        """
+        Explicitly defined surface of the form z = f(x, y, params)
+        :param F: implicit function in x, y, z, paramslst
+        :param gradF: closed form gradient in x, y, z, paramslst
+        :param hessH: closed form Hessian in x, y, z, paramslst
+        :param paramlist: real valued parameters of the functions
+        :param eps: convergence parameter
+        :param iterations: convergence parameter
+        """
+        
+        
+        self.params = [OptimizableVariable(False, "Variable", value=value) for value in paramlist]
+        self.eps = eps
+        self.iterations = iterations
+        self.f = f # explicit function in x, y, paramslst
+        self.gradf = gradf # closed form gradient in x, y, z, paramslst
+        self.hessf = hessf # closed form Hessian in x, y, z, paramslst
+
+    def getParams(self):
+        return [p.evaluate() for p in self.params]        
+
+    def getSag(self, x, y):
+        return self.f(x, y, self.getParams())
+        
+    def getNormal(self, x, y):
+        result = np.zeros((3, len(x)))
+        z = self.getSag(x, y)
+        gradient = self.gradf(x, y, z, self.getParams())
+        absgradient = np.sqrt(np.sum(gradient**2, axis=0))
+        result = gradient/absgradient
+        return result
+        
+    def getHessian(self, x, y):
+        z = self.getSag(x, y)
+        return self.hessF(x, y, z, self.getParams())
+
+    def intersect(self, raybundle):
+        rayDir = raybundle.rayDir
+
+        r0 = raybundle.o        
+
+        t = np.zeros_like(r0[0])
+
+        def Fwrapper(t, r0, rayDir, paramslist):
+            return r0[2] + t*rayDir[2] - self.f(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1], paramslist)
+
+
+        t = fsolve(Fwrapper, t, args=(r0, rayDir, self.getParams()))
+
+        intersection = r0 + raybundle.rayDir * t
+
+        validIndices = np.ones_like(r0[0], dtype=bool) 
+        validIndices[0] = True  # hail to the chief
+
+        # Normal
+        normal = self.getNormal( intersection[0], intersection[1] )
+
+        return intersection, t, normal, validIndices
+
+
+
+
 class ImplicitShape(Shape):
     def __init__(self, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10):
         """
-        Implicit defined surface of the form F(x, y, z, params) = 0
+        Implicitly defined surface of the form F(x, y, z, params) = 0
         :param F: implicit function in x, y, z, paramslst
         :param gradF: closed form gradient in x, y, z, paramslst
         :param hessH: closed form Hessian in x, y, z, paramslst
@@ -429,6 +488,9 @@ class ImplicitShape(Shape):
         self.F = F # implicit function in x, y, z, paramslst
         self.gradF = gradF # closed form gradient in x, y, z, paramslst
         self.hessF = hessF # closed form Hessian in x, y, z, paramslst
+        
+    def getParams(self):
+        return [p.evaluate() for p in self.params]        
         
     def implicitsolver(self, F, x, y, paramlst, *finalargs):
         def Fwrapper(zp, xp, yp, pl):
@@ -447,8 +509,7 @@ class ImplicitShape(Shape):
         
 
     def getSag(self, x, y):
-        paramvals = [p.evaluate() for p in self.params]
-        return self.implicitsolver(self.F, x, y, paramvals)
+        return self.implicitsolver(self.F, x, y, self.getParams())
         
     def getNormal(self, x, y):
         result = np.zeros((3, len(x)))
@@ -481,7 +542,7 @@ class ImplicitShape(Shape):
             return self.F(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1], r0[2] + t*rayDir[2], paramslist)
 
 
-        t = fsolve(Fwrapper, t, args=(r0, rayDir, paramvals))
+        t = fsolve(Fwrapper, t, args=(r0, rayDir, paramvals), xtol=self.eps)
 
         intersection = r0 + raybundle.rayDir * t
 
@@ -492,6 +553,25 @@ class ImplicitShape(Shape):
         normal = self.getNormal( intersection[0], intersection[1] )
 
         return intersection, t, normal, validIndices
+
+
+class Asphere(ExplicitShape):
+    """
+    Polynomial asphere as base class for sophisticated surface descriptions
+    """
+    def __init__(self, curv=0, cc=0, acoeffs=[]):
+        def af(x, y, l):
+            return l[0]*(x**2 + y**2)/(1 + np.sqrt(1 - l[0]**2*(1+l[1])*(x**2 + y**2)))
+        def gradaf(x, y, z, l):
+            return np.zeros_like((3, len(x)))
+        def hessaf(x, y, z, l):
+            return np.zeros_like((6, len(x)))
+  
+        super(Asphere, self).__init__(af, gradaf, hessaf, paramlist=([curv, cc]+acoeffs), eps=1e-6, iterations=10)
+    
+    # TODO: missing aspheric corrections
+    # TODO: missing Hessian and gradient
+    
 
 
         
@@ -522,20 +602,64 @@ if __name__ == "__main__":
         return result
         
         
+    def testf2(x, y, l):
+        return x**2 + y**2
+    
+    def testf2grad(x, y, z, l):
+        result = np.zeros((3, len(x)))
+        result[0] = -2.*x
+        result[1] = -2.*y
+        result[2] = np.ones_like(x)
+        return result
+        
+    def testf2hess(x, y, z, l):
+        result = np.zeros((6, len(x)))
+        
+        result[0] = -2.*np.ones_like(x)
+        result[1] = -2.*np.ones_like(x)
+        result[2] = np.zeros_like(x)
+        result[3] = np.zeros_like(x)
+        result[4] = np.zeros_like(x)
+        result[5] = np.zeros_like(x)
+        return result        
+        
+        
     imsh = ImplicitShape(testf, testfgrad, testfhess, paramlist=[], eps=1e-6, iterations=10)
+    exsh = ExplicitShape(testf2, testf2grad, testf2hess, paramlist=[], eps=1e-6, iterations=10)    
+    
+    ash = Asphere(1./10., -1.,[0.1, 0.2])
+
+    
+    
     
     x = np.array([1,2,3])
     y = np.array([4,5,6])
-    z = imsh.implicitsolver(testf, x, y, [])
+    z1 = imsh.implicitsolver(testf, x, y, [])
+    z2 = exsh.getSag(x, y)
+    z3 = ash.getSag(x, y)
     
     print("xyz")
     print(x)
     print(y)
-    print(z)
-    print("testf")
-    print(testf(x, y, z, []))
-    print(testfgrad(x, y, z, []))
-    print(testfhess(x, y, z, []))
-    print(imsh.getNormal(x, y))
+    print(z1)
+    print(z2)
+    print(z3)
+    #print("testf")
+    #print(testf(x, y, z, []))
+    #print(testfgrad(x, y, z, []))
+    #print(testfhess(x, y, z, []))
+    #print(imsh.getNormal(x, y))
 
+    class rayfaksim(object):
+        def __init__(self):
+            self.o = np.random.rand(3, 10)
+            self.o[2] = np.zeros_like(self.o[0])
+            self.rayDir = np.zeros((3, 10))
+            self.rayDir[2] = np.ones_like(self.rayDir[0])
         
+    ray = rayfaksim()
+        
+    (intersection, t, normal, valid) = exsh.intersect(ray)
+    print(ray.o)
+    print(ray.rayDir)
+    print(t)
