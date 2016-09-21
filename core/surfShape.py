@@ -403,37 +403,35 @@ class Decenter(Shape):
         """
         raise NotImplementedError()
 
-class ExplicitShape(Shape):
-    def __init__(self, f, gradf, hessf, paramlist=[], eps=1e-6, iterations=10):
-        super(ExplicitShape, self).__init__()
+class FreeShape(Shape):
+    def __init__(self, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10):
         """
-        Explicitly defined surface of the form z = f(x, y, params)
-        :param F: implicit function in x, y, z, paramslst
+        Freeshape surface defined by abstract function F (either implicitly
+        or explicitly) and its x, y, z derivatives
+        :param F: explicit or implicit function in x, y (or z), paramslst
         :param gradF: closed form gradient in x, y, z, paramslst
         :param hessH: closed form Hessian in x, y, z, paramslst
         :param paramlist: real valued parameters of the functions
         :param eps: convergence parameter
         :param iterations: convergence parameter
         """
-        
+
+        super(FreeShape, self).__init__()
         
         self.params = [OptimizableVariable(False, "Variable", value=value) for value in paramlist]
         self.eps = eps
         self.iterations = iterations
-        self.f = f # explicit function in x, y, paramslst
-        self.gradf = gradf # closed form gradient in x, y, z, paramslst
-        self.hessf = hessf # closed form Hessian in x, y, z, paramslst
-
+        self.F = F # implicit function in x, y, z, paramslst
+        self.gradF = gradF # closed form gradient in x, y, z, paramslst
+        self.hessF = hessF # closed form Hessian in x, y, z, paramslst
+        
     def getParams(self):
         return [p.evaluate() for p in self.params]        
-
-    def getSag(self, x, y):
-        return self.f(x, y, self.getParams())
         
     def getNormal(self, x, y):
         result = np.zeros((3, len(x)))
         z = self.getSag(x, y)
-        gradient = self.gradf(x, y, z, self.getParams())
+        gradient = self.gradF(x, y, z, self.getParams())
         absgradient = np.sqrt(np.sum(gradient**2, axis=0))
         result = gradient/absgradient
         return result
@@ -441,7 +439,27 @@ class ExplicitShape(Shape):
     def getHessian(self, x, y):
         z = self.getSag(x, y)
         return self.hessF(x, y, z, self.getParams())
+        
+    # TODO: this could be speed up by updating a class internal z array
+    # which could be done by using an internal update procedure and using
+    # this z array by the get-functions
 
+
+class ExplicitShape(FreeShape):
+    """
+        Explicitly defined surface of the form z = f(x, y, params)
+        :param F: implicit function in x, y, z, paramslst
+        :param gradF: closed form gradient in x, y, z, paramslst
+        :param hessH: closed form Hessian in x, y, z, paramslst
+        :param paramlist: real valued parameters of the functions
+        :param eps: convergence parameter
+        :param iterations: convergence parameter
+    """
+        
+       
+    def getSag(self, x, y):
+        return self.F(x, y, self.getParams())
+        
     def intersect(self, raybundle):
         rayDir = raybundle.rayDir
 
@@ -450,7 +468,7 @@ class ExplicitShape(Shape):
         t = np.zeros_like(r0[0])
 
         def Fwrapper(t, r0, rayDir, paramslist):
-            return r0[2] + t*rayDir[2] - self.f(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1], paramslist)
+            return r0[2] + t*rayDir[2] - self.F(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1], paramslist)
 
 
         t = fsolve(Fwrapper, t, args=(r0, rayDir, self.getParams()))
@@ -466,32 +484,8 @@ class ExplicitShape(Shape):
         return intersection, t, normal, validIndices
 
 
+class ImplicitShape(FreeShape):
 
-
-class ImplicitShape(Shape):
-    def __init__(self, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10):
-        """
-        Implicitly defined surface of the form F(x, y, z, params) = 0
-        :param F: implicit function in x, y, z, paramslst
-        :param gradF: closed form gradient in x, y, z, paramslst
-        :param hessH: closed form Hessian in x, y, z, paramslst
-        :param paramlist: real valued parameters of the functions
-        :param eps: convergence parameter
-        :param iterations: convergence parameter
-        """
-
-        super(ImplicitShape, self).__init__()
-        
-        self.params = [OptimizableVariable(False, "Variable", value=value) for value in paramlist]
-        self.eps = eps
-        self.iterations = iterations
-        self.F = F # implicit function in x, y, z, paramslst
-        self.gradF = gradF # closed form gradient in x, y, z, paramslst
-        self.hessF = hessF # closed form Hessian in x, y, z, paramslst
-        
-    def getParams(self):
-        return [p.evaluate() for p in self.params]        
-        
     def implicitsolver(self, F, x, y, paramlst, *finalargs):
         def Fwrapper(zp, xp, yp, pl):
             return F(xp, yp, zp, pl)
@@ -510,27 +504,10 @@ class ImplicitShape(Shape):
 
     def getSag(self, x, y):
         return self.implicitsolver(self.F, x, y, self.getParams())
-        
-    def getNormal(self, x, y):
-        result = np.zeros((3, len(x)))
-        paramvals = [p.evaluate() for p in self.params]
-        z = self.getSag(x, y)
-        gradient = self.gradF(x, y, z, paramvals)
-        absgradient = np.sqrt(np.sum(gradient**2, axis=0))
-        result = gradient/absgradient
-        return result
-        
-    def getHessian(self, x, y):
-        paramvals = [p.evaluate() for p in self.params]
-        z = self.getSag(x, y)
-        return self.hessF(x, y, z, paramvals)
-        
-    # TODO: this could be speed up by updating a class internal z array
-    # which could be done by using an internal update procedure and using
-    # this z array by the get-functions
+
         
     def intersect(self, raybundle):
-        paramvals = [p.evaluate() for p in self.params]
+        paramvals = self.getParams()
 
         rayDir = raybundle.rayDir
 
@@ -560,16 +537,25 @@ class Asphere(ExplicitShape):
     Polynomial asphere as base class for sophisticated surface descriptions
     """
     def __init__(self, curv=0, cc=0, acoeffs=[]):
+        
+        
         def af(x, y, l):
-            return l[0]*(x**2 + y**2)/(1 + np.sqrt(1 - l[0]**2*(1+l[1])*(x**2 + y**2)))
-        def gradaf(x, y, z, l):
+            curv = l[0]
+            cc = l[1]
+            res = curv*(x**2 + y**2)/(1 + np.sqrt(1 - curv**2*(1+cc)*(x**2 + y**2)))
+            if len(l) > 2:
+                acoeffs = l[2:]
+                for (n, an) in enumerate(acoeffs):
+                    res += an*(x**2 + y**2)**(2*n+2)
+            return res
+            
+        def gradaf(x, y, z, l): # gradient for implicit function z - af(x, y) = 0
             return np.zeros_like((3, len(x)))
         def hessaf(x, y, z, l):
             return np.zeros_like((6, len(x)))
   
         super(Asphere, self).__init__(af, gradaf, hessaf, paramlist=([curv, cc]+acoeffs), eps=1e-6, iterations=10)
     
-    # TODO: missing aspheric corrections
     # TODO: missing Hessian and gradient
     
 
