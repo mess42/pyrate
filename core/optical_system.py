@@ -73,12 +73,12 @@ class Surface(ClassWithOptimizableVariables):
     # superceded by self.localcoordinates.globalcoordinates and
     # self.localcoordinates.localbasissystem
     def setThickness(self, thickness):
-        self.dict_variables["thickness"].setvalue(thickness)
+        #self.dict_variables["thickness"].setvalue(thickness)
         self.localcoordinates.dict_variables["thickness"].setvalue(thickness)
 
     def getThickness(self):
-        # return self.localcoordinates.dict_variables["thickness"].evaluate()
-        return self.dict_variables["thickness"].evaluate()
+        return self.localcoordinates.dict_variables["thickness"].evaluate()
+        #return self.dict_variables["thickness"].evaluate()
         
 
     def setMaterial(self, materialType):
@@ -233,8 +233,8 @@ class OpticalSystem(ClassWithOptimizableVariables):
             surface.localcoordinates.reference = self.surfaces[position-1].localcoordinates
             if position < len(self.surfaces):            
                 self.surfaces[position].localcoordinates.reference = surface.localcoordinates
-        # realloc of the local coordinates references
-        # find some useful data structure which supercedes this construction
+        # TODO: realloc of the local coordinates references
+        # TODO: find some useful data structure which supercedes this construction
         self.surfaces.insert(position, surface)
 
     def removeSurface(self, position):
