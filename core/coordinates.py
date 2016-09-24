@@ -40,6 +40,16 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         self.tiltx = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltx)
         self.tilty = OptimizableVariable(variable_status=False, variable_type='Variable', value=tilty)
         self.tiltz = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltz)
+        
+
+        self.addVariable("thickness", self.thickness)
+        self.addVariable("decx", self.decx)
+        self.addVariable("decy", self.decy)
+        self.addVariable("tiltx", self.tiltx)
+        self.addVariable("tilty", self.tilty)
+        self.addVariable("tiltz", self.tiltz)
+        
+        
         self.order = order
         
         self.__reference = ref # None means reference to global coordinate system        
