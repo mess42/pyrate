@@ -26,6 +26,7 @@ from material import ConstantIndexGlass
 
 import aperture
 import pupil
+import coordinates
 
 #import inspector
 import numpy as np
@@ -41,12 +42,23 @@ class Surface(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass(), aperture=aperture.BaseAperture()):
+    def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass(), aperture=aperture.BaseAperture(), **kwargs):
         super(Surface, self).__init__()
 
         self.shape = shape
         self.material = material
         self.aperture = aperture
+        
+        decx = kwargs.get("decx", 0.0)
+        decy = kwargs.get("decy", 0.0)
+        tiltx = kwargs.get("tiltx", 0.0)
+        tilty = kwargs.get("tilty", 0.0)
+        tiltz = kwargs.get("tiltz", 0.0)
+        
+        
+        self.localcoordinates = coordinates.LocalCoordinates(ref=None, thickness=thickness, decx=decx, decy=decy, tiltx=tiltx, tilty=tilty, tiltz=tiltz)
+        # TODO: ref=None is wrong here; thickness refers always to a thickness counted from a reference
+        # TODO: change interface such that a local coordinate system gets called in __init__
 
         #self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
         #self.copyOptimizableVariables(shape)
@@ -56,11 +68,18 @@ class Surface(ClassWithOptimizableVariables):
         self.addVariable("thickness", OptimizableVariable(False, "Variable", value=thickness))
         # TODO: new style code
 
+
+    # TODO: these functions will be obsolete, since the thickness parameters is
+    # superceded by self.localcoordinates.globalcoordinates and
+    # self.localcoordinates.localbasissystem
     def setThickness(self, thickness):
-        self.dict_variables["thickness"].setvalue(thickness)
+        #self.dict_variables["thickness"].setvalue(thickness)
+        self.localcoordinates.dict_variables["thickness"].setvalue(thickness)
 
     def getThickness(self):
-        return self.dict_variables["thickness"].evaluate()
+        return self.localcoordinates.dict_variables["thickness"].evaluate()
+        #return self.dict_variables["thickness"].evaluate()
+        
 
     def setMaterial(self, materialType):
         """
@@ -210,6 +229,12 @@ class OpticalSystem(ClassWithOptimizableVariables):
            Surface that is currently at this position
            and all following surface indices are incremented.
         """
+        if self.surfaces != []:        
+            surface.localcoordinates.reference = self.surfaces[position-1].localcoordinates
+            if position < len(self.surfaces):            
+                self.surfaces[position].localcoordinates.reference = surface.localcoordinates
+        # TODO: realloc of the local coordinates references
+        # TODO: find some useful data structure which supercedes this construction
         self.surfaces.insert(position, surface)
 
     def removeSurface(self, position):

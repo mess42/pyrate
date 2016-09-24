@@ -83,6 +83,10 @@ class OptimizableVariable(object):
     def var_type(self, variable_type="Variable"):
         self.__var_type = variable_type.lower()
 
+    def changetype(self, vtype, **kwargs):
+        self.var_type = vtype
+        self.parameters = kwargs
+
     def setvalue(self, value):
         if self.var_type == "variable":
             self.parameters["value"] = value
@@ -92,7 +96,7 @@ class OptimizableVariable(object):
         return self.parameters["value"]
 
     def eval_pickup(self):
-        # if type = variable then pack all arguments into one tuple
+        # if type = pickup then pack all arguments into one tuple
         # and put it into the userdefined function
         # evaluate the result
         arguments_for_function_eval = (argfunc.evaluate() for argfunc in self.parameters["args"])
@@ -114,7 +118,7 @@ class OptimizableVariable(object):
                     }
 
         return evaldict[self.var_type]()
-
+        
 class ClassWithOptimizableVariables(object):
     """
     Implementation of some class with optimizable variables with the help of a dictionary.
@@ -288,15 +292,19 @@ if __name__ == "__main__":
     q = OptimizableVariable(True, "Variable", value="glass2")
     r = OptimizableVariable(False, "Pickup", function=f, args=(p, q))
     s = OptimizableVariable(False, "External", function=f, args=(1.0, 6.0))
+    print("print p variable")
     print p
     print p.__dict__
     print p.evaluate()
+    print("print q variable")
     print q
     print q.__dict__
     print q.evaluate()
+    print("print r variable")
     print r
     print r.__dict__
     print r.evaluate()
+    print("print s variable")
     print s
     print s.__dict__
     print s.evaluate()

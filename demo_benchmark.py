@@ -104,5 +104,7 @@ plots.drawLayout2d(ax, s, [pilotpath])
 
 plt.show()
 
-
+for (i, sur) in enumerate(s.surfaces):
+    print("surface %d" % i)
+    print(str(sur.localcoordinates))
 
