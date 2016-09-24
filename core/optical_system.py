@@ -233,7 +233,6 @@ class OpticalSystem(ClassWithOptimizableVariables):
             surface.localcoordinates.reference = self.surfaces[position-1].localcoordinates
             if position < len(self.surfaces):            
                 self.surfaces[position].localcoordinates.reference = surface.localcoordinates
-        # TODO: realloc of the local coordinates references
         # TODO: find some useful data structure which supercedes this construction
         self.surfaces.insert(position, surface)
 
@@ -243,6 +242,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         :param position: number of the surface to remove (int)
         """
+        # TODO: update of local coordinate references missing
         self.surfaces.pop(position)
 
     def getNumberOfSurfaces(self):
