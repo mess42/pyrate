@@ -31,9 +31,18 @@ from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
 #TODO: want to have some aiming function aimAt(ref), aimAt(globalcoords)?
 
+
+# TODO: to avoid circle references: please add addChild function
+# TODO: how to arange names that dict has unique identifier and name is still
+# changeable? mydict[new_key] = mydict.pop(old_key)
+
+
 class LocalCoordinates(ClassWithOptimizableVariables):
-    def __init__(self, ref=None, thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0):
+    def __init__(self, ref=None, name="", thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0):
         super(LocalCoordinates, self).__init__()        
+        
+        self.name = name # read only
+        
         self.thickness = OptimizableVariable(variable_status=False, variable_type='Variable', value=thickness)
         self.decx = OptimizableVariable(variable_status=False, variable_type='Variable', value=decx)
         self.decy = OptimizableVariable(variable_status=False, variable_type='Variable', value=decy)
@@ -52,7 +61,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
         self.order = order
         
-        self.__reference = ref # None means reference to global coordinate system        
+        self.__reference = ref # None means reference to global coordinate system 
+        self.__forwardreferences = [] # children
     
         self.globalcoordinates = np.array([0, 0, 0])
         self.localdecenter = np.array([0, 0, 0])
@@ -66,10 +76,16 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
     def setReference(self, ref):
         self.__reference = ref
+        #ref.forwardreferences.append(self) # TODO: how to implement forward references?
         self.update()
+        
+        # TODO: flag for not changing anything in system due to changing reference
 
     reference = property(getReference, setReference)
-            
+
+    def addChild(self, name="", thickness=0.0, decx=0., decy=0., tiltx=0., tilty=0., tiltz=0.):
+        self.__forwardreferences.append(LocalCoordinates(ref=self, name=name, thickness=thickness, decx=decx, decy=decy, tiltx=tiltx, tilty=tilty, tiltz=tiltz))
+
     def rodrigues(self, angle, a):
         ''' returns numpy matrix from Rodrigues formula.'''
         mat = np.array(\
@@ -125,10 +141,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                 self.reference.globalcoordinates + \
                 self.reference.thickness.evaluate()*(self.reference.localbasis.T)[2] + \
                 self.reference.localdecenter;
-                
                 # first rotation then decenter afterwards thickness
         else:
             self.localbasis = self.localrotation
+        for lc in self.__forwardreferences:
+            lc.update()
             
 
     def __str__(self):

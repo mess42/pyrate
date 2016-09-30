@@ -33,6 +33,8 @@ import numpy as np
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 
+import uuid
+
 
 class Surface(ClassWithOptimizableVariables):
     """
@@ -203,6 +205,13 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         """
         super(OpticalSystem, self).__init__()
+        
+        self.localcoordinates = {}
+        self.localcoordinates["global"] = coordinates.LocalCoordinates()
+        
+        self.lcfocus = "global"
+
+        
         self.surfaces = []
         self.insertSurface(0, Surface( thickness = objectDistance ))  # object
         self.insertSurface(1, Surface())  # image
@@ -212,14 +221,26 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         self.observers = {} # observers which will we informed upon change of OS
 
+    def addLocalCoordinateSystem(self, name="", refname="", thickness=0., decx=0., decy=0., tx=0., ty=0., tz=0.):
+        if name == "":
+            name = str(uuid.uuid1())
+        print(name)
+        if not self.localcoordinates.has_key(refname):
+            refname = self.lcfocus
+            
+        self.localcoordinates[name] = coordinates.LocalCoordinates(self.localcoordinates[refname], thickness=thickness, decx=decx, decy=decy, tiltx=tx, tilty=ty, tiltz=tz)
+        self.lcfocus = name
+        
+
+
     def addObserver(self, name, observer):
         self.observers[name] = observer
     
     def returnObserver(self, name):
-        return observers[name]
+        return self.observers[name]
         
     def removeObserver(self, name):
-        return observers.pop(name)
+        return self.observers.pop(name)
         
     def informObservers(self):
         for o in self.observers:
@@ -416,3 +437,14 @@ class OpticalSystem(ClassWithOptimizableVariables):
         for sur in self.surfaces:
             varsToReturn += sur.getAllOptimizableVariables()
         return varsToReturn
+
+
+if __name__ == "__main__":
+    os = OpticalSystem()
+    os.addLocalCoordinateSystem(thickness=10.0)
+    os.addLocalCoordinateSystem(thickness=20.0)
+    os.addLocalCoordinateSystem(thickness=30.0)
+    os.addLocalCoordinateSystem(thickness=40.0)
+    
+    for i in os.localcoordinates.values():
+        print(i)
