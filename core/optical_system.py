@@ -26,7 +26,7 @@ from material import ConstantIndexGlass
 
 import aperture
 import pupil
-import coordinates
+from coordinates import LocalCoordinates
 
 #import inspector
 import numpy as np
@@ -44,75 +44,39 @@ class Surface(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, shape=surfShape.Conic(), thickness=0.0, material=ConstantIndexGlass(), aperture=aperture.BaseAperture(), **kwargs):
+    def __init__(self, lc, shape=surfShape.Conic(), material=ConstantIndexGlass(), aperture=aperture.BaseAperture(), **kwargs):
         super(Surface, self).__init__()
 
         self.shape = shape
         self.material = material
         self.aperture = aperture
-        
-        decx = kwargs.get("decx", 0.0)
-        decy = kwargs.get("decy", 0.0)
-        tiltx = kwargs.get("tiltx", 0.0)
-        tilty = kwargs.get("tilty", 0.0)
-        tiltz = kwargs.get("tiltz", 0.0)
-        
-        
-        self.localcoordinates = coordinates.LocalCoordinates(ref=None, thickness=thickness, decx=decx, decy=decy, tiltx=tiltx, tilty=tilty, tiltz=tiltz)
-        # TODO: ref=None is wrong here; thickness refers always to a thickness counted from a reference
-        # TODO: change interface such that a local coordinate system gets called in __init__
+        self.lc = lc # reference to local coordinate system tree
 
-        #self.thickness = self.createOptimizableVariable("thickness", value=thickness, status=False)
-        #self.copyOptimizableVariables(shape)
-        #self.copyOptimizableVariables(material)
-
-        #self.thickness =
-        self.addVariable("thickness", OptimizableVariable(False, "Variable", value=thickness))
-        # TODO: new style code
-
-
+    
     # TODO: these functions will be obsolete, since the thickness parameters is
     # superceded by self.localcoordinates.globalcoordinates and
     # self.localcoordinates.localbasissystem
     def setThickness(self, thickness):
         #self.dict_variables["thickness"].setvalue(thickness)
-        self.localcoordinates.dict_variables["thickness"].setvalue(thickness)
+        self.lc.dict_variables["decz"].setvalue(thickness)
 
     def getThickness(self):
-        return self.localcoordinates.dict_variables["thickness"].evaluate()
+        return self.lc.dict_variables["decz"].evaluate()
         #return self.dict_variables["thickness"].evaluate()
         
 
-    def setMaterial(self, materialType):
+    def setMaterial(self, material):
         """
         Sets the material object self.mater
 
-        :param materialType: name of the material dispersion formula (str)
+        :param material: (object)
 
         :return self.material: new Material object
         """
 
-        # conserve the most basic parameters of the shape
-        # TODO: should not be necessary anymore the old material will be overwritten and
-        # the new materials dict will be appended to the variables list as necessary
-        """
-        try:
-            varsToRemove = self.material.getAllOptimizableVariables()
-            for v in varsToRemove:
-                self.listOfOptimizableVariables.remove(v)
-        except:
-            pass
+        # TODO: conserve most basic material properties
 
-        self.material = materialType()
-
-        print "orig listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
-        print "material listofoptvars: ", [i.name for i in self.material.getAllOptimizableVariables()]
-
-        # add optimizable variables of new shape
-        self.listOfOptimizableVariables += self.material.getAllOptimizableVariables()
-
-        print "new listofoptvars: ", [i.name for i in self.listOfOptimizableVariables]
-        """
+        self.material = material
 
         return self.material
 
@@ -133,37 +97,9 @@ class Surface(ClassWithOptimizableVariables):
         :return self.shape: new Shape object
         """
 
-        # conserve the most basic parameters of the shape
-        """
-        try:
-            curv = self.shape.curvature.val
-            #semidiam = self.shape.sdia.val
+        # TODO: conserve the most basic parameters of the shape
 
-            varsToRemove = self.shape.getAllOptimizableVariables()
-            for v in varsToRemove:
-                self.listOfOptimizableVariables.remove(v)
-
-        except:
-            # self.shape does not exist yet
-            curv = 0.0
-            #semidiam = 0.0
-
-        # names, classes = inspector.getListOfClasses(surfShape, "<class \'shape.", "<class \'shape.Shape\'>")
-
-        # self.shape = inspector.createObjectFromList(names, classes, shapeName)
-        """
         self.shape = shape
-        # OLD
-        #self.shape.curvature.val = curv
-
-
-        #self.shape.sdia.val = semidiam
-
-
-        # add optimizable variables of new shape
-
-        # OLD
-        #self.listOfOptimizableVariables += self.shape.getAllOptimizableVariables()
 
         return self.shape
 
@@ -195,7 +131,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, objectDistance = 0.0, primaryWavelength = 550e-6):
+    def __init__(self, objectLC = LocalCoordinates(name="object"), primaryWavelength = 550e-6):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -206,14 +142,19 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         super(OpticalSystem, self).__init__()
         
-        self.globalcoordinatesystem = coordinates.LocalCoordinates(name="global")
-        
+        self.globalcoordinatesystem = LocalCoordinates(name="global")
         self.lcfocus = "global"
+        
+        self.objectlc = self.addLocalCoordinateSystem(objectLC)
+        self.imagelc = self.addLocalCoordinateSystem(LocalCoordinates(name="image"))
+
+        self.lcfocus = "object"
+        
 
         
         self.surfaces = []
-        self.insertSurface(0, Surface( thickness = objectDistance ))  # object
-        self.insertSurface(1, Surface())  # image
+        self.insertSurface(0, Surface(self.objectlc))  # object
+        self.insertSurface(1, Surface(self.imagelc))  # image
         # in standard initialization the surface use the BaseAperture which is not limited
 
         self.primaryWavelength = primaryWavelength
@@ -281,11 +222,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
            Surface that is currently at this position
            and all following surface indices are incremented.
         """
-        if self.surfaces != []:        
-            surface.localcoordinates.reference = self.surfaces[position-1].localcoordinates
-            if position < len(self.surfaces):            
-                self.surfaces[position].localcoordinates.reference = surface.localcoordinates
-        # TODO: find some useful data structure which supercedes this construction
+
         self.surfaces.insert(position, surface)
 
     def removeSurface(self, position):
