@@ -220,18 +220,23 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         self.observers = {} # observers which will we informed upon change of OS
 
-    def addLocalCoordinateSystem(self, name="", refname=""):
+    def addLocalCoordinateSystem(self, tmplc, refname=""):
         allnames = self.globalcoordinatesystem.returnConnectedNames()
+       
         if refname == "":
             refname = self.lcfocus
-        if name in allnames:
-            name = ""
+        if tmplc.name in allnames:
+            # TODO: throw exception
+            tmplc.name = ""
+            
         if refname not in allnames:
             refname = self.globalcoordinates.name
         
+        self.globalcoordinatesystem.addChildToReference(refname, tmplc)
             
-        self.localcoordinates[name] = coordinates.LocalCoordinates(self.localcoordinates[refname], thickness=thickness, decx=decx, decy=decy, tiltx=tx, tilty=ty, tiltz=tz)
-        self.lcfocus = name
+        self.lcfocus = tmplc.name
+        
+        return tmplc
         
 
 
@@ -443,10 +448,12 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
 if __name__ == "__main__":
     os = OpticalSystem()
-    os.addLocalCoordinateSystem(thickness=10.0)
-    os.addLocalCoordinateSystem(thickness=20.0)
-    os.addLocalCoordinateSystem(thickness=30.0)
-    os.addLocalCoordinateSystem(thickness=40.0)
+    lc1 = os.addLocalCoordinateSystem(coordinates.LocalCoordinates(decz=10.0))
+    os.addLocalCoordinateSystem(coordinates.LocalCoordinates(decz=20.0))
+    os.addLocalCoordinateSystem(coordinates.LocalCoordinates(decz=30.0))
+    os.addLocalCoordinateSystem(coordinates.LocalCoordinates(decz=40.0))
     
-    for i in os.localcoordinates.values():
-        print(i)
+    os.addLocalCoordinateSystem(coordinates.LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
+    
+    print(os.globalcoordinatesystem.pprint())
+        

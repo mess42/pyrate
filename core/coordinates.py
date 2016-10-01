@@ -56,7 +56,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         if name == "":
             name = str(uuid.uuid1())
         
-        self.name = name # read only
+        self.setName(name)
         
         
 
@@ -88,6 +88,17 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         self.localbasis = np.lib.eye(3)
 
         self.update() # initial update
+
+    def setName(self, name):
+        if name == "":
+            name = str(uuid.uuid1())
+        self.__name = name
+        
+    def getName(self):
+        return self.__name
+        
+    name = property(getName, setName)
+
 
     def addChild(self, tmplc):        
         tmplc.parent = self
