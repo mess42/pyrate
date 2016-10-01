@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
+import uuid
+
 from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
 #TODO: want to have some aiming function aimAt(ref), aimAt(globalcoords)?
@@ -36,24 +38,40 @@ from optimize import ClassWithOptimizableVariables, OptimizableVariable
 # TODO: how to arange names that dict has unique identifier and name is still
 # changeable? mydict[new_key] = mydict.pop(old_key)
 
-
 class LocalCoordinates(ClassWithOptimizableVariables):
-    def __init__(self, ref=None, name="", thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0):
+    def __init__(self, name="", **kwargs):
+        '''
+        @param: name -- string for identification
+        @param: kwargs -- keyword args: decz, decx, decy, tiltx, tilty, tiltz, order        
+        
+        '''
         super(LocalCoordinates, self).__init__()        
+
+        #thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0        
+        
+        (decz, decx, decy, tiltx, tilty, tiltz, order) = \
+        (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "order"])
+        
+        
+        if name == "":
+            name = str(uuid.uuid1())
         
         self.name = name # read only
         
-        self.thickness = OptimizableVariable(variable_status=False, variable_type='Variable', value=thickness)
+        
+
         self.decx = OptimizableVariable(variable_status=False, variable_type='Variable', value=decx)
         self.decy = OptimizableVariable(variable_status=False, variable_type='Variable', value=decy)
+        self.decz = OptimizableVariable(variable_status=False, variable_type='Variable', value=decz)
         self.tiltx = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltx)
         self.tilty = OptimizableVariable(variable_status=False, variable_type='Variable', value=tilty)
         self.tiltz = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltz)
         
 
-        self.addVariable("thickness", self.thickness)
+
         self.addVariable("decx", self.decx)
         self.addVariable("decy", self.decy)
+        self.addVariable("decz", self.decz)
         self.addVariable("tiltx", self.tiltx)
         self.addVariable("tilty", self.tilty)
         self.addVariable("tiltz", self.tiltz)
@@ -61,8 +79,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
         self.order = order
         
-        self.__reference = ref # None means reference to global coordinate system 
-        self.__forwardreferences = [] # children
+        self.parent = None # None means reference to global coordinate system 
+        self.__children = [] # children
     
         self.globalcoordinates = np.array([0, 0, 0])
         self.localdecenter = np.array([0, 0, 0])
@@ -71,20 +89,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
         self.update() # initial update
 
-    def getReference(self):
-        return self.__reference
-        
-    def setReference(self, ref):
-        self.__reference = ref
-        #ref.forwardreferences.append(self) # TODO: how to implement forward references?
-        self.update()
-        
-        # TODO: flag for not changing anything in system due to changing reference
-
-    reference = property(getReference, setReference)
-
-    def addChild(self, name="", thickness=0.0, decx=0., decy=0., tiltx=0., tilty=0., tiltz=0.):
-        self.__forwardreferences.append(LocalCoordinates(ref=self, name=name, thickness=thickness, decx=decx, decy=decy, tiltx=tiltx, tilty=tilty, tiltz=tiltz))
+    def addChild(self, tmplc):        
+        tmplc.parent = self
+        tmplc.update()
+        self.__children.append(tmplc)
+        return tmplc
 
     def rodrigues(self, angle, a):
         ''' returns numpy matrix from Rodrigues formula.'''
@@ -114,54 +123,51 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         tiltz = self.tiltz.evaluate()
         decx = self.decx.evaluate()
         decy = self.decy.evaluate()        
+        decz = self.decz.evaluate()
         
-        self.localdecenter = np.array([decx, decy, 0])
+        self.localdecenter = np.array([decx, decy, decz])
         if self.order == 0:
-            self.localrotation = np.dot(self.rodrigues(-tiltz, [0, 0, 1]), np.dot(self.rodrigues(-tilty, [0, 1, 0]), self.rodrigues(-tiltx, [1, 0, 0])))
+            self.localrotation = np.dot(self.rodrigues(tiltz, [0, 0, 1]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltx, [1, 0, 0])))
         else:
-            self.localrotation = np.dot(self.rodrigues(-tiltx, [1, 0, 0]), np.dot(self.rodrigues(-tilty, [0, 1, 0]), self.rodrigues(-tiltz, [0, 0, 1])))
+            self.localrotation = np.dot(self.rodrigues(tiltx, [1, 0, 0]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltz, [0, 0, 1])))
             
 
     def update(self):
-        ''' runs through all references specified and sums up 
-            coordinates and local rotations to get appropriate global coordinate
+        ''' 
+        runs through all references specified and sums up 
+        coordinates and local rotations to get appropriate global coordinate
         '''
         self.calculate()
-        if self.reference != None:
-            self.reference.update()
-            self.localbasis = np.dot(self.localrotation, self.reference.localbasis)
-            if self.order == 0:
-                self.globalcoordinates = \
-                self.reference.globalcoordinates + \
-                self.reference.localdecenter + \
-                self.reference.thickness.evaluate()*(self.reference.localbasis.T)[2];
-                # first decenter then rotation afterwards thickness
-            else:
-                self.globalcoordinates = \
-                self.reference.globalcoordinates + \
-                self.reference.thickness.evaluate()*(self.reference.localbasis.T)[2] + \
-                self.reference.localdecenter;
-                # first rotation then decenter afterwards thickness
+
+        parentcoordinates = np.array([0, 0, 0])
+        parentbasis = np.lib.eye(3)
+
+        if self.parent != None:        
+            parentcoordinates = self.parent.globalcoordinates
+            parentbasis = self.parent.localbasis
+        
+        self.localbasis = np.dot(self.localrotation, parentbasis)
+        if self.order == 0:
+            # first decenter then rotation, afterwards thickness
+            self.globalcoordinates = \
+            parentcoordinates + \
+            np.dot(parentbasis.T, self.localdecenter)
         else:
-            self.localbasis = self.localrotation
-        for lc in self.__forwardreferences:
-            lc.update()
-            
+            # first rotation then decenter, afterwards thickness
+            self.globalcoordinates = \
+            parentcoordinates + \
+            np.dot(self.localbasis.T, self.localdecenter)
+
+           
 
     def __str__(self):
-        s = '''
-order %d
-global coordinates: %s
-local decenter: %s
-local rotation:
-%s
-local basis system:
-%s
-''' % (self.order, \
+        s = 'name %s\norder %d\nglobal coordinates: %s\nld: %s\nlr: %s\nlb: %s\nchildren %s'\
+        % (self.name, self.order, \
         self.globalcoordinates, \
         self.localdecenter, \
         self.localrotation, \
-        self.localbasis)
+        self.localbasis, \
+        [i.name for i in self.__children])
         return s
     
     
@@ -169,44 +175,23 @@ origin = LocalCoordinates()
 
 if __name__ == "__main__":
     '''testcase1: undo coordinate break'''
-    surfcb1 = LocalCoordinates(ref=origin, thickness=40.0)
-    surfcb2 = LocalCoordinates(ref=surfcb1, thickness=20.0)
-    surfcb3 = LocalCoordinates(ref=surfcb2, decy=5.0, tiltx=1.0, order=0)
-    surfcb35 = LocalCoordinates(ref=surfcb3, thickness=-20.0)
-    surfcb4 = LocalCoordinates(ref=surfcb35)
-    surfcb45 = LocalCoordinates(ref=surfcb4, thickness=+20.0)
-    surfcb5 = LocalCoordinates(ref=surfcb45, decy=-5.0, tiltx=-1.0, order=1)
-    surfcb6 = LocalCoordinates(ref=surfcb5, thickness=-20.0)
-    surfcb7 = LocalCoordinates(ref=surfcb6)
-    print("surfcb2")
-    print(str(surfcb2))
-    print("surfcb7 == surfcb2")
-    print(str(surfcb7))
-    print("surfcb4")
-    print(str(surfcb4))
-    '''testcase2: regular N polygon in  
-    in yz plane with N=5. thickness=40, angle=180-108 = 72 deg = 2/5 pi'''    
-    surfneck1 = LocalCoordinates(ref=origin, thickness=40.0, tiltx=2./5.*math.pi)
-    surfneck2 = LocalCoordinates(ref=surfneck1, thickness=40.0, tiltx=2./5.*math.pi)
-    surfneck3 = LocalCoordinates(ref=surfneck2, thickness=40.0, tiltx=2./5.*math.pi)
-    surfneck4 = LocalCoordinates(ref=surfneck3, thickness=40.0, tiltx=2./5.*math.pi)
-    surfneck5 = LocalCoordinates(ref=surfneck4, thickness=40.0, tiltx=2./5.*math.pi)
-    surfneck6 = LocalCoordinates(ref=surfneck5, thickness=40.0, tiltx=2./5.*math.pi)
-    print("regular N polygon: start == end!")
-    print(str(origin))    
-    print(str(surfneck1))    
-    print(str(surfneck2))    
-    print(str(surfneck3))    
-    print(str(surfneck4))    
-    print(str(surfneck5))        
-    print(str(surfneck6))
-    '''testcase3: check post init setting of reference'''
-    surf1 = LocalCoordinates(ref=None, thickness=40.0)
-    surf2 = LocalCoordinates(ref=surf1, thickness=80.0)        
-    surf3 = LocalCoordinates(ref=surf1, thickness=80.0)        
-    print(str(surf1))
-    print(str(surf2))
-    print(str(surf3))
-    surf3.reference = surf2
-    print(str(surf3))
+    surfcb1 = LocalCoordinates(name="1", decz=40.0)
+    surfcb2 = surfcb1.addChild(LocalCoordinates(name="2", decz=20.0))
+    surfcb3 = surfcb2.addChild(LocalCoordinates(name="3", decy=15.0, tiltx=40.0*math.pi/180.0, order=1))
+    surfcb35 = surfcb3.addChild(LocalCoordinates(name="35", decz=-20.0))
+    surfcb4 = surfcb35.addChild(LocalCoordinates(name="4"))
+    surfcb45 = surfcb4.addChild(LocalCoordinates(name="45", decz=+20.0))
+    surfcb5 = surfcb45.addChild(LocalCoordinates(name="5", decy=-15.0, tiltx=-40.0*math.pi/180.0, order=0))
+    surfcb6 = surfcb5.addChild(LocalCoordinates(name="6", decz=-20.0))
+    surfcb7 = surfcb6.addChild(LocalCoordinates(name="7"))
     
+    print(str(surfcb1))
+    print(str(surfcb2))
+    print(str(surfcb3))
+    print(str(surfcb35))
+    print(str(surfcb4))
+    print(str(surfcb45))
+    print(str(surfcb5))
+    print(str(surfcb6))
+    print(str(surfcb7))
+
