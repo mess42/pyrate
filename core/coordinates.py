@@ -94,6 +94,15 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         tmplc.update()
         self.__children.append(tmplc)
         return tmplc
+        
+    def addChildToReference(self, refname, tmplc):
+        if self.name == refname:
+            self.addChild(tmplc)
+        else:
+            for x in self.__children:
+                x.addChildToReference(refname, tmplc)
+        return tmplc
+    
 
     def rodrigues(self, angle, a):
         ''' returns numpy matrix from Rodrigues formula.'''
@@ -158,7 +167,19 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             parentcoordinates + \
             np.dot(self.localbasis.T, self.localdecenter)
 
-           
+    def returnConnectedNames(self):
+        lst = [self.name]
+        for ch in self.__children:
+            lst = lst + ch.returnConnectedNames()
+        return lst
+        
+    def pprint(self, n=0):
+        s = n*"    " + self.name + " (" + str(self.globalcoordinates) + ")\n"
+        for x in self.__children:
+            s += x.pprint(n+1)
+            
+        return s
+        
 
     def __str__(self):
         s = 'name %s\norder %d\nglobal coordinates: %s\nld: %s\nlr: %s\nlb: %s\nchildren %s'\
@@ -185,6 +206,9 @@ if __name__ == "__main__":
     surfcb6 = surfcb5.addChild(LocalCoordinates(name="6", decz=-20.0))
     surfcb7 = surfcb6.addChild(LocalCoordinates(name="7"))
     
+    surfcb8 = surfcb3.addChild(LocalCoordinates(name="8", decx=5.555, decy=3.333))    
+    surfcb9 = surfcb3.addChild(LocalCoordinates(name="9", decx=-5.555, decy=-3.333))    
+    
     print(str(surfcb1))
     print(str(surfcb2))
     print(str(surfcb3))
@@ -194,4 +218,6 @@ if __name__ == "__main__":
     print(str(surfcb5))
     print(str(surfcb6))
     print(str(surfcb7))
-
+    
+    print(surfcb1.returnConnectedNames())
+    print(surfcb1.pprint())

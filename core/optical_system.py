@@ -206,8 +206,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         """
         super(OpticalSystem, self).__init__()
         
-        self.localcoordinates = {}
-        self.localcoordinates["global"] = coordinates.LocalCoordinates()
+        self.globalcoordinatesystem = coordinates.LocalCoordinates(name="global")
         
         self.lcfocus = "global"
 
@@ -221,12 +220,15 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         self.observers = {} # observers which will we informed upon change of OS
 
-    def addLocalCoordinateSystem(self, name="", refname="", thickness=0., decx=0., decy=0., tx=0., ty=0., tz=0.):
-        if name == "":
-            name = str(uuid.uuid1())
-        print(name)
-        if not self.localcoordinates.has_key(refname):
+    def addLocalCoordinateSystem(self, name="", refname=""):
+        allnames = self.globalcoordinatesystem.returnConnectedNames()
+        if refname == "":
             refname = self.lcfocus
+        if name in allnames:
+            name = ""
+        if refname not in allnames:
+            refname = self.globalcoordinates.name
+        
             
         self.localcoordinates[name] = coordinates.LocalCoordinates(self.localcoordinates[refname], thickness=thickness, decx=decx, decy=decy, tiltx=tx, tilty=ty, tiltz=tz)
         self.lcfocus = name
