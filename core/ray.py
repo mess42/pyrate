@@ -222,6 +222,9 @@ class RayPath(object):
         # TODO: maybe obsolete and superceded by actualSurface.localcoordinates
         self.raybundles[-1].o[2] -= actualSurface.getThickness()
 
+        
+
+
         if isinstance(actualSurface.material, material.GrinMaterial):
             intersection, t, normal, validIndices = actualSurface.material.propagate(
                                                                                      actualSurface,

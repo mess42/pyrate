@@ -50,7 +50,7 @@ lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
 lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=3.0))
 lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=19.0))
-#lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf8", decz=5.0))
+lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf8", decz=0.0))
 #lc9 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf9", decz=5.0))
 
 s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
@@ -70,6 +70,8 @@ s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
                            material=material.ConstantIndexGlass(1.5), aperture=CircularAperture(1.0)))
 s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=1/1.479), #thickness=19.0,
                            aperture=CircularAperture(1.0)))
+
+s.insertSurface(8, Surface(lc8)) # image
 
 # TODO: image reference umbiegen
 

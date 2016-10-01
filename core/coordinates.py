@@ -178,6 +178,18 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             parentcoordinates + \
             np.dot(self.localbasis.T, self.localdecenter)
 
+    def returnLocalToGlobalPoints(self, pts):
+        """
+        @param: pts (3xN numpy array)
+        
+        @return: globalpts (3xN numpy array)
+        """
+
+        globalpts = pts + self.globalcoordinates
+        
+        # TODO: loc to glob for pts and directions
+        
+
     def returnConnectedNames(self):
         lst = [self.name]
         for ch in self.__children:

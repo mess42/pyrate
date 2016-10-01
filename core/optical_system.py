@@ -56,13 +56,15 @@ class Surface(ClassWithOptimizableVariables):
     # TODO: these functions will be obsolete, since the thickness parameters is
     # superceded by self.localcoordinates.globalcoordinates and
     # self.localcoordinates.localbasissystem
-    def setThickness(self, thickness):
-        #self.dict_variables["thickness"].setvalue(thickness)
-        self.lc.dict_variables["decz"].setvalue(thickness)
-
-    def getThickness(self):
-        return self.lc.dict_variables["decz"].evaluate()
-        #return self.dict_variables["thickness"].evaluate()
+#    def setThickness(self, thickness):
+#        print("setthickness")        
+#        #self.dict_variables["thickness"].setvalue(thickness)
+#        self.lc.dict_variables["decz"].setvalue(thickness)
+#
+#    def getThickness(self):
+#        print("getthickness")
+#        return self.lc.dict_variables["decz"].evaluate()
+#        #return self.dict_variables["thickness"].evaluate()
         
 
     def setMaterial(self, material):
@@ -146,15 +148,12 @@ class OpticalSystem(ClassWithOptimizableVariables):
         self.lcfocus = "global"
         
         self.objectlc = self.addLocalCoordinateSystem(objectLC)
-        self.imagelc = self.addLocalCoordinateSystem(LocalCoordinates(name="image"))
-
         self.lcfocus = "object"
         
 
         
         self.surfaces = []
         self.insertSurface(0, Surface(self.objectlc))  # object
-        self.insertSurface(1, Surface(self.imagelc))  # image
         # in standard initialization the surface use the BaseAperture which is not limited
 
         self.primaryWavelength = primaryWavelength
