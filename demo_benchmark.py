@@ -83,7 +83,7 @@ s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=1/1.479), #thickness=19.0,
 
 
 s.insertSurface(8, Surface(lc8)) # image
-s.insertSurface(9, Surface(lc8))
+
 
 # benchmark
 
