@@ -231,19 +231,9 @@ class Conic(Shape):
         return intersection, t, normal, validIndices
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
-        if ap == None:
-            effdia = 10.0
-        else:
-            if ap.getTypicalDimension() <= 1000.0:
-                # TODO: maybe introduce aperture types Object and Image to distuingish from very large normal apertures
-                effdia = ap.getTypicalDimension() #self.sdia.val if self.sdia.val < 10.0 else 10.0
-            else:
-                effdia = 10.0
-        y = effdia * np.linspace(-1, 1, vertices)
-        isyap = np.array(ap.arePointsInAperture(np.zeros_like(y), y))
-        yinap = y[isyap]
-        zinap = self.getSag(0, yinap)
-        ax.plot(zinap+offset[1], yinap+offset[0], color)
+        # this function will be removed soon
+        # drawing responsibility is at Surface class
+        pass
 
 class Cylinder(Conic):
     def __init__(self, curv=0.0, cc=0.0):

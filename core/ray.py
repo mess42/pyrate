@@ -187,12 +187,13 @@ class RayBundle(object):
         """
         return self.getRMSangluarSize(self.getChiefDirection())
 
-    def draw2d(self, ax, offset=(0, 0), color="blue"):
+    def draw2d(self, ax, color="blue"):
+        # o and k in global coordinates
         nrays = shape(self.o)[1]
         for i in arange(nrays):
             y = array([self.o[1, i], self.o[1, i] + self.t[i] * self.rayDir[1, i]])
             z = array([self.o[2, i], self.o[2, i] + self.t[i] * self.rayDir[2, i]])
-            ax.plot(z+offset[1], y+offset[0], color)
+            ax.plot(z, y, color)
 
 
 class RayPath(object):
@@ -220,39 +221,31 @@ class RayPath(object):
         :param nextSurface: (Surface object)
         """
         # TODO: maybe obsolete and superceded by actualSurface.localcoordinates
-        self.raybundles[-1].o[2] -= actualSurface.getThickness()
+        #self.raybundles[-1].o[2] -= actualSurface.getThickness()
 
         
 
 
         if isinstance(actualSurface.material, material.GrinMaterial):
-            intersection, t, normal, validIndices = actualSurface.material.propagate(
-                                                                                     actualSurface,
-                                                                                     nextSurface,
-                                                                                     self.raybundles[-1]
-                                                                                    )
+            intersection, t, normal, validIndices = \
+                actualSurface.material.propagate(actualSurface, \
+                                                nextSurface, \
+                                                self.raybundles[-1])
 
         else:
             # this if-path is for linear ray transfer between some surfaces
-
-            intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])#, aperture.BaseAperture())
-
-            # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
-            # TODO: needs heavy testing
+            intersection, t, normal, validIndices = \
+                actualSurface.material.propagate(actualSurface, \
+                                                nextSurface, \
+                                                self.raybundles[-1])
 
             self.raybundles[-1].t = t
 
 
-        validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
-        validIndices[0] = True # hail to the chief ray
-
         self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))
 
-    def draw2d(self, opticalsystem, ax, offset=(0, 0), color="blue"):
+    def draw2d(self, opticalsystem, ax, color="blue"):
         Nsurf = len(self.raybundles)
-        offy = offset[0]
-        offz = offset[1]
         for i in arange(Nsurf):
-            offz += opticalsystem.surfaces[i].getThickness()
-            self.raybundles[i].draw2d(ax, offset=(offy, offz), color=color)
+            self.raybundles[i].draw2d(ax, color=color)
 

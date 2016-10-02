@@ -96,6 +96,9 @@ class Material(optimize.ClassWithOptimizableVariables):
         :return xyuv1: XYUV1 matrix (2d numpy 5x5 matrix of float)
         """
         raise NotImplementedError()
+        
+    def propagate(self, actualSurface, nextSurface, raybundle):
+        raise NotImplementedError()
 
 
 
@@ -137,6 +140,32 @@ class ConstantIndexGlass(Material):
         newk[2] = k2[2][valid]
 
         return RayBundle(orig, newk, raybundle.rayID[valid], raybundle.wave)
+
+    def propagate(self, actualSurface, nextSurface, raybundle):
+
+        localo = nextSurface.lc.returnGlobalToLocalPoints(raybundle.o)
+        localk = nextSurface.lc.returnGlobalToLocalDirections(raybundle.k)                
+        #locald = nextSurface.lc.returnGlobalToLocalDirs(raybundle.d)                
+        
+        intersection, t, normal, validIndices = nextSurface.shape.intersect(RayBundle(localo, localk, raybundle.rayID, raybundle.wave))
+
+        validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
+        validIndices[0] = True # hail to the chief ray
+
+
+        
+        globalintersection = nextSurface.lc.returnLocalToGlobalPoints(intersection)
+        globalnormal = nextSurface.lc.returnLocalToGlobalDirections(normal)
+        
+        
+
+        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
+        # TODO: needs heavy testing
+
+        #raybundle.t = t
+        return (globalintersection, t, globalnormal, validIndices)
+            
+
 
     def setCoefficients(self, n):
         """
@@ -517,99 +546,4 @@ class GrinMaterial(Material):
                        ], xyuv1)                      # rear * abcd
         return xyuv1
 
-
-class Tilt(Material):
-    """
-    Implements single decenter coordinate break. Rotates the optical axis.
-    Notice that Tilt tilts the ray directions relative to the incoming ray directions (active transformation)
-    due to calculation time issues.
-    """
-    def __init__(self, angle=0., axis='X'):
-
-        super(Tilt, self).__init__()
-
-        self.angle = optimize.OptimizableVariable(True, "Variable", value=angle)
-        self.addVariable("angle", self.angle)
-
-        self.setRotationMatrix(axis)
-
-    def setRotationMatrix(self, axis):
-        """
-        Sets the private function self.rotfunc()
-
-        :param axis: Axis of roration name. Valid options are 'X','Y','Z'. (str)
-        """
-
-        # transform axis string to axis number
-        axis = axis.upper()
-        axis = ord(axis) - ord('X')
-
-        # matrices for rotation along X,Y,Z
-        rotfuncx = lambda x: np.array([[1, 0, 0], [0, np.cos(x), -np.sin(x)], [0, np.sin(x), np.cos(x)]])
-        rotfuncy = lambda x: np.array([[np.cos(x), 0, np.sin(x)], [0, 1, 0], [-np.sin(x), 0, np.cos(x)]])
-        rotfuncz = lambda x: np.array([[np.cos(x), -np.sin(x), 0], [np.sin(x), np.cos(x), 0], [0, 0, 1]])
-
-        rotfunctions = [ rotfuncx, rotfuncy, rotfuncz ]
-
-        self.rotfunc = rotfunctions[axis]
-
-
-    def refract(self, raybundle, intersection, normal, validIndices):
-        """
-        Class describing the interaction of the ray at the surface based on the material.
-
-        :param raybundle: Incoming raybundle ( RayBundle object )
-        :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
-        :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
-        :param validIndices: whether the rays did hit the shape correctly (1d numpy array of bool)
-
-        :return newray: rays after surface interaction ( RayBundle object )
-        """
-
-        rotmatrix = self.rotfunc(self.angle.evaluate())
-
-        k2 = np.dot(rotmatrix, raybundle.k)
-
-
-        # make total internal reflection invalid
-        valid = validIndices
-
-        return RayBundle(intersection, k2, raybundle.rayID[valid], raybundle.wave)
-
-    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        """
-        Returns an ABCD matrix of the current surface.
-        The matrix is set up in geometric convention for (y, dy/dz) vectors.
-
-        The matrix contains:
-        - paraxial refraction from vacuum through the front surface
-        - paraxial translation through the material
-        - paraxial refraction at the rear surface into vacuum
-
-        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ),
-        this method picks the correct paraxial propagators.
-
-        :param curvature: front surface (self.) curvature on the optical axis (float)
-        :param thickness: material thickness on axis (float)
-        :param nextCurvature: rear surface curvature on the optical axis (float)
-        :param ray: ray bundle to obtain wavelength (RayBundle object)
-        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
-        """
-
-        return np.array([[1., 0.], [0., 1.]])
-
-
-    def getXYUVMatrix(self, curvature, thickness, nextCurvature, ray): # TODO: weitermachen
-        (axisnum, rotmatrix) = self.returnRotationMatrix(self.angle.evaluate())
-        n = self.nfunc(0.,0.,0.)
-
-
-        xyuv1 = np.array([
-                       [1, 0, 0, 0, 0],
-                       [0, 1, 0, 0, 0],
-                       [0, 0, 1, 0, 0],
-                       [0, 0, 0, 1, 0],
-                       [0, 0, 0, 0, 1]
-                       ])
-        return xyuv1
 

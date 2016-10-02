@@ -48,17 +48,22 @@ lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
 lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0))
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
-lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=3.0))
-lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=19.0))
-lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf8", decz=0.0))
-#lc9 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf9", decz=5.0))
+lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
+lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0))
+lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0))
+
 
 s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(0.55)))
+                           material=material.ConstantIndexGlass(1.7), 
+                            aperture=CircularAperture(0.55)))
+
 s.insertSurface(2, Surface(lc2, surfShape.Conic(curv=1/-3.160), # thickness=5.0, 
                            aperture=CircularAperture(1.0)))
+
 s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(1.3)))
+                           material=material.ConstantIndexGlass(1.7), 
+                            aperture=CircularAperture(1.3)))
+
 s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
                            aperture=CircularAperture(1.3)))
 
@@ -66,14 +71,17 @@ s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
 
 s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
                            aperture=CircularAperture(1.01))) # Stop Surface
+
 s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
-                           material=material.ConstantIndexGlass(1.5), aperture=CircularAperture(1.0)))
+                           material=material.ConstantIndexGlass(1.5), 
+                            aperture=CircularAperture(1.0)))
+
 s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=1/1.479), #thickness=19.0,
                            aperture=CircularAperture(1.0)))
 
-s.insertSurface(8, Surface(lc8)) # image
 
-# TODO: image reference umbiegen
+s.insertSurface(8, Surface(lc8)) # image
+s.insertSurface(9, Surface(lc8))
 
 # benchmark
 
@@ -117,7 +125,8 @@ ax = fig.add_subplot(111)
 ax.axis('equal')
 ax.set_axis_bgcolor('black')
 
-plots.drawLayout2d(ax, s, [pilotpath])
+#plots.drawLayout2d(ax, s, [pilotpath])
+plots.drawLayout2d(ax, s, [r2])
 
 plt.show()
 

@@ -56,15 +56,11 @@ class Surface(ClassWithOptimizableVariables):
     # TODO: these functions will be obsolete, since the thickness parameters is
     # superceded by self.localcoordinates.globalcoordinates and
     # self.localcoordinates.localbasissystem
-#    def setThickness(self, thickness):
-#        print("setthickness")        
-#        #self.dict_variables["thickness"].setvalue(thickness)
-#        self.lc.dict_variables["decz"].setvalue(thickness)
-#
-#    def getThickness(self):
-#        print("getthickness")
-#        return self.lc.dict_variables["decz"].evaluate()
-#        #return self.dict_variables["thickness"].evaluate()
+    def setThickness(self, thickness):
+        self.lc.dict_variables["decz"].setvalue(thickness)
+
+    def getThickness(self):
+        return self.lc.dict_variables["decz"].evaluate()
         
 
     def setMaterial(self, material):
@@ -106,7 +102,42 @@ class Surface(ClassWithOptimizableVariables):
         return self.shape
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
-        self.shape.draw2d(ax, offset, vertices, color, self.aperture)
+        sizelimit = 1000.0
+        failsafevalue = 10.0        
+        if self.aperture == None:
+            effsemidia = failsafevalue
+        else:
+            if self.aperture.getTypicalDimension() <= sizelimit:
+                # TODO: maybe introduce aperture types Object and Image to distuingish from very large normal apertures
+                effsemidia = self.aperture.getTypicalDimension() #self.sdia.val if self.sdia.val < 10.0 else 10.0
+            else:
+                effsemidia = failsafevalue
+        
+        xl = effsemidia * np.linspace(-1, 1, num=vertices)
+        yl = effsemidia * np.linspace(-1, 1, num=vertices)
+        
+        X, Y = np.meshgrid(xl, yl)
+        x = X.flatten()
+        y = Y.flatten()
+        
+        isinap = np.array(self.aperture.arePointsInAperture(x, y))
+        xinap = x[isinap]        
+        yinap = y[isinap]
+        
+        
+        zinap = self.shape.getSag(xinap, yinap)
+        
+        localpts = np.row_stack((xinap, yinap, zinap))
+        globalpts = self.lc.returnLocalToGlobalPoints(localpts)
+
+        
+
+        
+        #ax.plot(zinap+offset[1], yinap+offset[0], color)
+        ax.plot(globalpts[2], globalpts[1], color)
+        
+        
+        #self.shape.draw2d(ax, offset, vertices, color, self.aperture)
 
     def getABCDMatrix(self, nextSurface, ray):
         """
@@ -211,7 +242,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
            Surface that is currently at this position
            and all following surface indices are incremented.
         """
-        self.surfaces.insert(len(self.surfaces)-1, surface)
+        self.surfaces.insert(len(self.surfaces), surface)
 
     def insertSurface(self, position, surface):
         """
@@ -360,12 +391,10 @@ class OpticalSystem(ClassWithOptimizableVariables):
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
 
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
-        offy = offset[0]
-        offz = offset[1]
+    def draw2d(self, ax, vertices=100, color="grey"):
         for (num, s) in enumerate(self.surfaces):
-            s.draw2d(ax, offset=(offy, offz), vertices=vertices, color=color)
-            offz += s.getThickness()
+            s.draw2d(ax, vertices=vertices, color=color)
+            
 
 
     def createOptimizableVariable(self, name, value=0.0, status=False):

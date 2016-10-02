@@ -116,7 +116,14 @@ class LocalCoordinates(ClassWithOptimizableVariables):
     
 
     def rodrigues(self, angle, a):
-        ''' returns numpy matrix from Rodrigues formula.'''
+        ''' 
+        returns numpy matrix from Rodrigues formula.
+        
+        @param: (float) angle in radians
+        @param: (numpy (3x1)) axis of rotation (unit vector)
+        
+        @return: (numpy (3x3)) matrix of rotation
+        '''
         mat = np.array(\
             [[    0, -a[2],  a[1]],\
              [ a[2],     0, -a[0]],\
@@ -155,7 +162,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
     def update(self):
         ''' 
         runs through all references specified and sums up 
-        coordinates and local rotations to get appropriate global coordinate
+        coordinates and local rotations to get appropriate 
+        global coordinate
         '''
         self.calculate()
 
@@ -178,16 +186,41 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             parentcoordinates + \
             np.dot(self.localbasis.T, self.localdecenter)
 
-    def returnLocalToGlobalPoints(self, pts):
+    def returnLocalToGlobalPoints(self, localpts):
         """
-        @param: pts (3xN numpy array)
-        
+        @param: localpts (3xN numpy array)
         @return: globalpts (3xN numpy array)
         """
+        transformedlocalpts = np.dot(self.localbasis, localpts)
+        # construction to use broadcasting        
+        globalpts = (transformedlocalpts.T + self.globalcoordinates).T
+        return globalpts
 
-        globalpts = pts + self.globalcoordinates
+    def returnLocalToGlobalDirections(self, localdirs):
+        """
+        @param: localdirs (3xN numpy array)
+        @return: globaldirs (3xN numpy array)
+        """
+        return np.dot(self.localbasis, localdirs)
+
+    def returnGlobalToLocalPoints(self, globalpts):
+        """
+        @param: globalpts (3xN numpy array)
+        @return: localpts (3xN numpy array)
+        """
+        translatedglobalpts = (globalpts.T - self.globalcoordinates).T
+        # construction to use broadcasting
+        localpts = np.dot(self.localbasis.T, translatedglobalpts)        
+        return localpts
+
+    def returnGlobalToLocalDirections(self, globaldirs):
+        """
+        @param: globaldirs (3xN numpy array)
+        @return: localdirs (3xN numpy array)
+        """
         
-        # TODO: loc to glob for pts and directions
+        localpts = np.dot(self.localbasis.T, globaldirs)        
+        return localpts
         
 
     def returnConnectedNames(self):
@@ -221,11 +254,11 @@ if __name__ == "__main__":
     '''testcase1: undo coordinate break'''
     surfcb1 = LocalCoordinates(name="1", decz=40.0)
     surfcb2 = surfcb1.addChild(LocalCoordinates(name="2", decz=20.0))
-    surfcb3 = surfcb2.addChild(LocalCoordinates(name="3", decy=15.0, tiltx=40.0*math.pi/180.0, order=1))
+    surfcb3 = surfcb2.addChild(LocalCoordinates(name="3", decy=15.0, tiltx=10.0*math.pi/180.0, order=0))
     surfcb35 = surfcb3.addChild(LocalCoordinates(name="35", decz=-20.0))
     surfcb4 = surfcb35.addChild(LocalCoordinates(name="4"))
     surfcb45 = surfcb4.addChild(LocalCoordinates(name="45", decz=+20.0))
-    surfcb5 = surfcb45.addChild(LocalCoordinates(name="5", decy=-15.0, tiltx=-40.0*math.pi/180.0, order=0))
+    surfcb5 = surfcb45.addChild(LocalCoordinates(name="5", decy=-15.0, tiltx=-10.0*math.pi/180.0, order=1))
     surfcb6 = surfcb5.addChild(LocalCoordinates(name="6", decz=-20.0))
     surfcb7 = surfcb6.addChild(LocalCoordinates(name="7"))
     
@@ -244,3 +277,9 @@ if __name__ == "__main__":
     
     print(surfcb1.returnConnectedNames())
     print(surfcb1.pprint())
+
+    o = np.random.random((3,5))
+    print("ORIGINAL")
+    print(o)
+    print("TRANSFORMED")    
+    print(surfcb4.returnGlobalToLocalPoints(surfcb4.returnLocalToGlobalPoints(o)))
