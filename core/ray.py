@@ -214,33 +214,18 @@ class RayPath(object):
     def traceToNextSurface(self, actualSurface, nextSurface):
         """
         Private routine that propagates a ray bundle to the next surface.
-        Thickness can be extracted from actualSurface.
+        Should call material.propagator from actualSurface.
         Please respect the privacy of this class and call it only from methods inside this class.
+        intersection and normal are calculated in global coordinates.
 
         :param actualSurface: (Surface object)
         :param nextSurface: (Surface object)
         """
-        # TODO: maybe obsolete and superceded by actualSurface.localcoordinates
-        #self.raybundles[-1].o[2] -= actualSurface.getThickness()
 
-        
-
-
-        if isinstance(actualSurface.material, material.GrinMaterial):
-            intersection, t, normal, validIndices = \
+        intersection, t, normal, validIndices = \
                 actualSurface.material.propagate(actualSurface, \
                                                 nextSurface, \
                                                 self.raybundles[-1])
-
-        else:
-            # this if-path is for linear ray transfer between some surfaces
-            intersection, t, normal, validIndices = \
-                actualSurface.material.propagate(actualSurface, \
-                                                nextSurface, \
-                                                self.raybundles[-1])
-
-            self.raybundles[-1].t = t
-
 
         self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))
 

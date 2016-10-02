@@ -149,6 +149,8 @@ class ConstantIndexGlass(Material):
         
         intersection, t, normal, validIndices = nextSurface.shape.intersect(RayBundle(localo, localk, raybundle.rayID, raybundle.wave))
 
+        raybundle.t = t
+
         validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
         validIndices[0] = True # hail to the chief ray
 
