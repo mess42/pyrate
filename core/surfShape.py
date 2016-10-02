@@ -26,12 +26,6 @@ from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 from scipy.optimize import fsolve
 
-# TODO: all get functions of Shape are performed in the local basis system
-# the raytrace should take place in the global coordinate system
-# therefore we need a transformation between local and global.
-# Which class should take care about it?
-
-
 class Shape(ClassWithOptimizableVariables):
     def __init__(self):
         """
@@ -203,7 +197,7 @@ class Conic(Shape):
         return self.curvature.evaluate()
 
     def intersect(self, raybundle):
-        rayDir = raybundle.rayDir
+        rayDir = raybundle.d
 
         r0 = raybundle.o
         # r0 is raybundle.o in the local coordinate system
@@ -218,7 +212,7 @@ class Conic(Shape):
 
         t = G / (F + np.sqrt(square))
 
-        intersection = r0 + raybundle.rayDir * t
+        intersection = r0 + rayDir * t
 
         # find indices of rays that don't intersect with the sphere
         validIndices = (square > 0) #*(intersection[0]**2 + intersection[1]**2 <= 10.0**2))

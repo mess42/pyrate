@@ -179,12 +179,14 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             # first decenter then rotation, afterwards thickness
             self.globalcoordinates = \
             parentcoordinates + \
-            np.dot(parentbasis.T, self.localdecenter)
+            np.dot(parentbasis, self.localdecenter)
+            # TODO: removed .T on parentbasis to obtain correct behavior; examine!
         else:
             # first rotation then decenter, afterwards thickness
             self.globalcoordinates = \
             parentcoordinates + \
-            np.dot(self.localbasis.T, self.localdecenter)
+            np.dot(self.localbasis, self.localdecenter)
+            # TODO: removed .T on localbasis to obtain correct behavior; examine!
 
     def returnLocalToGlobalPoints(self, localpts):
         """

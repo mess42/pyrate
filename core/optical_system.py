@@ -130,7 +130,9 @@ class Surface(ClassWithOptimizableVariables):
         localpts = np.row_stack((xinap, yinap, zinap))
         globalpts = self.lc.returnLocalToGlobalPoints(localpts)
 
-        
+        inYZplane = np.abs(xinap) < 2*effsemidia/vertices
+
+        globalpts = globalpts[:, inYZplane]
 
         
         #ax.plot(zinap+offset[1], yinap+offset[0], color)
@@ -413,12 +415,12 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
 if __name__ == "__main__":
     os = OpticalSystem()
-    lc1 = os.addLocalCoordinateSystem(coordinates.LocalCoordinates(decz=10.0))
-    os.addLocalCoordinateSystem(coordinates.LocalCoordinates(decz=20.0))
-    os.addLocalCoordinateSystem(coordinates.LocalCoordinates(decz=30.0))
-    os.addLocalCoordinateSystem(coordinates.LocalCoordinates(decz=40.0))
+    lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0))
+    os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0))
+    os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0))
+    os.addLocalCoordinateSystem(LocalCoordinates(decz=40.0))
     
-    os.addLocalCoordinateSystem(coordinates.LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
+    os.addLocalCoordinateSystem(LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
     
     print(os.globalcoordinatesystem.pprint())
         

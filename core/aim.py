@@ -74,7 +74,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         :param wavelength: wavelength for pupil size calculation in um (float)
         """
         self.stopPosition = stopPosition
-        dummyRay = RayBundle(zeros((3, 1)), ones((3, 1)), [0], wavelength)
+        dummyRay = RayBundle(zeros((3, 1)), ones((3, 1)), opticalSystem.surfaces[0].material, [0], wavelength)
         temp_ms, self.stopDiameter = self.pupilSizeCalculatorObject.get_marginalSlope(opticalSystem, self.stopPosition, dummyRay, pupilSizeParameter)
 
     def getMarginalSlope(self, opticalSystem, ray):
@@ -122,7 +122,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         TO DO: At the moment, this function fails to produce correct values for immersion (marginalslope and absk need to be corrected)
         """
         # dummy ray that carries the wavelength information
-        ray = RayBundle(zeros((3, 1)), ones((3, 1)), [0], wavelength)
+        ray = RayBundle(zeros((3, 1)), ones((3, 1)), opticalSystem.surfaces[0].material, [0], wavelength)
 
         marginalslope = self.getMarginalSlope(opticalSystem, wavelength)
         chiefslopeXY  = self.chiefSlopeCalculatorObject.getChiefSlope(opticalSystem, self.stopPosition, ray, fieldXY)
@@ -146,5 +146,5 @@ class aimFiniteByMakingASurfaceTheStop(object):
         o[0, :] = originXY[0]
         o[1, :] = originXY[1]
 
-        raybundle = RayBundle(o, k, arange(nray), wavelength, pol=[])
+        raybundle = RayBundle(o, k, opticalSystem.surfaces[0].material, arange(nray), wavelength, pol=[])
         return raybundle

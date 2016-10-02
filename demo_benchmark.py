@@ -40,12 +40,14 @@ from core import plots
 from core.aperture import CircularAperture
 from core.coordinates import LocalCoordinates
 
+import math
+
 # definition of optical system
 s = OpticalSystem() # objectDistance = 2.0
 
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0))
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0))
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
 lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
@@ -90,7 +92,7 @@ s.insertSurface(9, Surface(lc8))
 pts = np.array([[0,0, 0], [0.1, 0.2, 0.3], [0, 0, 0]])
 dirs = np.array([[0,0, 0], [0, 0, 0], [1, 1, 1]])
 
-pilotbundle = RayBundle(pts, dirs, np.array([0, 1, 2]), wave=0.55, pol=[])
+pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=0.55, pol=[])
 pilotpath = RayPath(pilotbundle, s)
 
 print([blub.o for blub in pilotpath.raybundles])
@@ -111,7 +113,7 @@ print "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through 
 print "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second"
 
 # plot
-aimy.setPupilRaster(rasterType= raster.RectGrid, nray=20)
+aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
 
 initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 r2 = RayPath(initialBundle2, s)
