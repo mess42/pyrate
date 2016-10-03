@@ -136,7 +136,46 @@ class ClassWithOptimizableVariables(object):
         """
         self.dict_variables[name] = var
 
+
+                
     def getAllVariables(self):
+
+        def addOptimizableVariablesToList(var, listOfOptVars = [], idlist=[]):
+            """
+            Accumulates optimizable variables in var and its linked objects.
+            Ignores ring-links and double links.       
+            
+            @param var: object to evaluate (object)
+            @param listOfOptVars: optimizable variables found so far (list of objects)
+            @param idlist: ids of objects already evaluated (list of int)
+            """ 
+            
+            if id(var) not in idlist:
+                idlist.append(id(var))
+    
+                if isinstance(var, ClassWithOptimizableVariables):
+                    for v in var.__dict__.values():
+                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist) 
+                elif isinstance(var, dict):
+                    for v in var.values():
+                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist)                        
+    
+                elif isinstance(var, list) or isinstance(var, tuple):
+                    for v in var:
+                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist)
+    
+                elif isinstance(var, OptimizableVariable):
+                    listOfOptVars.append(var)
+    
+            return listOfOptVars, idlist
+
+
+
+        (lst, idlist) = addOptimizableVariablesToList(self)
+        return lst
+
+
+    def getAllVariablesOld(self):
         """
         Conversion of dict into list of Variables. These are only references to the objects in dict.
         Therefore all changes to them directly affects the dictionary in the class.
@@ -146,10 +185,18 @@ class ClassWithOptimizableVariables(object):
         # not be any problem that there are copies created
 
         lst_of_vars = self.dict_variables.values()
-        lst_of_attributes_which_are_class_with_opt_vars = filter(lambda x: isinstance(x, ClassWithOptimizableVariables), self.__dict__.values())
-        for list_vars in filter(lambda x: isinstance(x, list) or isinstance(x, tuple), self.__dict__.values()):
+        lst_of_attributes_which_are_class_with_opt_vars = \
+            filter(lambda x: isinstance(x, ClassWithOptimizableVariables), \
+                self.__dict__.values())
+
+        #id vergleich!
+
+        for list_vars in \
+            filter(lambda x: isinstance(x, list) or isinstance(x, tuple), \
+                self.__dict__.values()):
             for a in list_vars:
-                lst_of_vars.extend(a.getAllVariables())
+                if isinstance(a, ClassWithOptimizableVariables):
+                    lst_of_vars.extend(a.getAllVariables())
 
         for a in lst_of_attributes_which_are_class_with_opt_vars:
             lst_of_vars.extend(a.getAllVariables())
@@ -217,7 +264,7 @@ class ClassWithOptimizableVariables(object):
         """
         self.dict_variables[name].status = var_status
 
-def MeritFunctionWrapperScipy(x, s, meritfunction):
+def MeritFunctionWrapperScipy(x, s, meritfunction, func):
     """
     Merit function wrapper for scipy optimize. Notice that x and length of active values must have the same size
 
@@ -228,6 +275,7 @@ def MeritFunctionWrapperScipy(x, s, meritfunction):
     :return value of the merit function
     """
     s.setActiveVariableValues(x)
+    func(s)
 
     return meritfunction(s)
 
@@ -242,7 +290,8 @@ def optimizeSciPyInterface(s, meritfunction, **kwargs):
     Optimization function: Scipy.optimize wrapper
     """
     x0 = s.getActiveVariableValues()
-    res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction), method=kwargs["method"])
+    print(x0)
+    res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction, kwargs["function"]), method=kwargs["method"])
     print res
     s.setActiveVariableValues(res.x)
     return s
@@ -251,7 +300,7 @@ def optimizeSciPyNelderMead(s, meritfunction, **kwargs):
     """
     Optimization function: direct access to Nelder-Mead algorithm in Scipy.
     """
-    return optimizeSciPyInterface(s, meritfunction, method="Nelder-Mead")
+    return optimizeSciPyInterface(s, meritfunction, method="Nelder-Mead", function=kwargs["function"])
 
 
 if __name__ == "__main__":
@@ -342,4 +391,11 @@ if __name__ == "__main__":
     print os.dict_variables["X"]
     print os.dict_variables["Y"]
     print os.dict_variables["Z"].evaluate()
+    
+    print("NEW IT FUNCTION1")
+    print([v.evaluate() for v in os.getAllVariablesNew()])
+    print("NEW IT FUNCTION2")
+    print([v.evaluate() for v in cl.getAllVariablesNew()])
+    print("NEW IT FUNCTION3")
+    print([v.evaluate() for v in cl2.getAllVariablesNew()])
 

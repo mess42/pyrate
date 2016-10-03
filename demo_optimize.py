@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 from core import pupil
 from core import field
@@ -38,23 +39,50 @@ from core.ray import RayPath
 
 from core import plots
 from core.aperture import CircularAperture
+from core.coordinates import LocalCoordinates
 
 # definition of optical system
-s = OpticalSystem(objectDistance = 2.0)
+s = OpticalSystem() # objectDistance = 2.0
 
-s.insertSurface(1, Surface(surfShape.Conic(curv=1/-5.922), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(0.55)))
-s.insertSurface(2, Surface(surfShape.Conic(curv=1/-3.160), thickness=5.0, aperture=CircularAperture(1.0)))
-s.insertSurface(3, Surface(surfShape.Conic(curv=1/15.884), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(1.3)))
-s.insertSurface(4, Surface(surfShape.Conic(curv=1/-12.756), thickness=3.0,
-                           aperture=CircularAperture(1.3)))
-s.insertSurface(5, Surface(surfShape.Conic(), thickness=2.0, aperture=CircularAperture(1.01))) # Stop Surface
-s.insertSurface(6, Surface(surfShape.Conic(curv=1/3.125), thickness=3.0,
-                           material=material.ConstantIndexGlass(1.5), aperture=CircularAperture(1.0)))
-s.insertSurface(7, Surface(surfShape.Conic(curv = 0.1 * 1/1.479), thickness=19.0,
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=2.5*math.pi/180.0))
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
+lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
+lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
+lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0))
+lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0))
+
+
+s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
+                           material=material.ConstantIndexGlass(1.7), 
+                            aperture=CircularAperture(0.55)))
+
+s.insertSurface(2, Surface(lc2, surfShape.Conic(curv=1/-3.160), # thickness=5.0, 
                            aperture=CircularAperture(1.0)))
-# curvature of surface 7 is chosen 0.1 of the optimal value to kick the system
+
+s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
+                           material=material.ConstantIndexGlass(1.7), 
+                            aperture=CircularAperture(1.3)))
+
+s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
+                           aperture=CircularAperture(1.3)))
+
+#s.insertSurface(5, Surface(surfShape.Decenter(dx = 0., dy = 1.), material=material.Tilt(angle=20.*np.pi/180.0, axis='X')))
+
+s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
+                           aperture=CircularAperture(1.01))) # Stop Surface
+
+s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
+                           material=material.ConstantIndexGlass(1.5), 
+                            aperture=CircularAperture(1.0)))
+
+s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=0.1*1/1.479), #thickness=19.0,
+                           aperture=CircularAperture(1.0)))
+
+
+s.insertSurface(8, Surface(lc8)) # image
+
 
 
 
@@ -88,16 +116,30 @@ plots.drawLayout2d(ax, s, [r2, r3])
 print "Initial   merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s)
 
 # make surface curvatures variable
-s.surfaces[2].shape.setStatus("curvature", True)
-s.surfaces[3].shape.setStatus("curvature", True)
-s.surfaces[4].shape.setStatus("curvature", True)
-s.surfaces[5].shape.setStatus("curvature", True)
-s.surfaces[7].shape.setStatus("curvature", True)
+#s.surfaces[2].shape.setStatus("curvature", True)
+#s.surfaces[3].shape.setStatus("curvature", True)
+#s.surfaces[4].shape.setStatus("curvature", True)
+#s.surfaces[5].shape.setStatus("curvature", True)
+#s.surfaces[7].shape.setStatus("curvature", True)
+
+
+s.surfaces[2].shape.curvature.status=(True)
+s.surfaces[3].shape.curvature.status=(True)
+s.surfaces[4].shape.curvature.status=(True)
+s.surfaces[5].shape.curvature.status=(True)
+s.surfaces[7].shape.curvature.status=(True)
+s.surfaces[3].lc.tiltx.status=True
 
 
 print "aimy,stopDiameter before: ", aimy.stopDiameter
 
-s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
+def osnone(s):
+    pass
+
+def osupdate(s):
+    s.globalcoordinatesystem.update()
+
+s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', function=osupdate, options={'xtol': 1e-8, 'disp': True})
 
 print "aimy,stopDiameter after: ", aimy.stopDiameter
 

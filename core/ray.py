@@ -25,46 +25,31 @@ import aperture
 import material
 
 class RayBundle(object):
-    def __init__(self, o, k, rayID, wave=0.55, pol=[]):
+    def __init__(self, o, d, mat, rayID, wave=0.55, pol=[]):
         """
         Class representing a bundle of rays.
 
-        :param o:     Origin of the rays. Relative to the optical axis  (2d numpy 3xN array of float)
-        :param k:     Wavevectors of the rays, normalized by 2pi/lambda. Oriented relative to the optical axis.
-                      (2d numpy 3xN array of float)
-                      For media obeying the Snell law, the length of each vector
-                      is the  refractive index of the current medium.
+        :param o:     Origin of the rays.  (2d numpy 3xN array of float)
+        :param d:     Direction of the rays, normalized. (2d numpy 3xN array of float)
+                      Direction of energy transport.
         :param rayID: Set an ID number for each ray in the bundle (1d numpy array of int)
                       (for example, the ray index at surface 0)
         :param wave:  Wavelength of the radiation in micrometers. (float)
         :param pol:   Polarization state of the rays. (2d numpy 2xN array of complex); not implemented yet
 
-        to do: implement polarization
-        to do: implement reflection / transmission coefficients
-               coherent (Jones formalism) or incoherent (Mueller/Stokes formalism) ?
-               the difference is, that Jones allows for description of phases of the coherent, fully polarized beam
-               and Mueller allows for describing intensity transmission of partially polarized beams
         """
+        # TODO: implement polarization
+        # TODO: implement reflection / transmission coefficients
+        #       coherent (Jones formalism) or incoherent (Mueller/Stokes formalism) ?
+        #       the difference is, that Jones allows for description of phases of the coherent, fully polarized beam
+        #       and Mueller allows for describing intensity transmission of partially polarized beams
         self.o = o
-        self.k = k
+        self.d = d
+        self.k = mat.returnDtoK(d, wave)
         self.rayID = rayID
-        self.setRayDir(k)
         self.t = zeros(shape(o)[1])  # Geometrical path length to the ray final position.
         self.wave = wave
         self.pol = pol
-
-    def setRayDir(self, k):
-        """
-        Calculates the unit direction vector of a ray from its wavevector.
-        """
-        #TODO: so far, this formula works for lossless isotropic media only
-
-        rayDir = 1. * k  # copy k, dont just create a pointer
-        absk = sqrt(sum(rayDir**2, axis=0))
-        rayDir[0] = rayDir[0] / absk
-        rayDir[1] = rayDir[1] / absk
-        rayDir[2] = rayDir[2] / absk
-        self.rayDir = rayDir
 
     def getCentroidPos(self):
         """
@@ -187,12 +172,13 @@ class RayBundle(object):
         """
         return self.getRMSangluarSize(self.getChiefDirection())
 
-    def draw2d(self, ax, offset=(0, 0), color="blue"):
+    def draw2d(self, ax, color="blue"):
+        # o and k in global coordinates
         nrays = shape(self.o)[1]
         for i in arange(nrays):
-            y = array([self.o[1, i], self.o[1, i] + self.t[i] * self.rayDir[1, i]])
-            z = array([self.o[2, i], self.o[2, i] + self.t[i] * self.rayDir[2, i]])
-            ax.plot(z+offset[1], y+offset[0], color)
+            y = array([self.o[1, i], self.o[1, i] + self.t[i] * self.d[1, i]])
+            z = array([self.o[2, i], self.o[2, i] + self.t[i] * self.d[2, i]])
+            ax.plot(z, y, color)
 
 
 class RayPath(object):
@@ -213,43 +199,23 @@ class RayPath(object):
     def traceToNextSurface(self, actualSurface, nextSurface):
         """
         Private routine that propagates a ray bundle to the next surface.
-        Thickness can be extracted from actualSurface.
+        Should call material.propagator from actualSurface.
         Please respect the privacy of this class and call it only from methods inside this class.
+        intersection and normal are calculated in global coordinates.
 
         :param actualSurface: (Surface object)
         :param nextSurface: (Surface object)
         """
-        # TODO: maybe obsolete and superceded by actualSurface.localcoordinates
-        self.raybundles[-1].o[2] -= actualSurface.getThickness()
 
-        if isinstance(actualSurface.material, material.GrinMaterial):
-            intersection, t, normal, validIndices = actualSurface.material.propagate(
-                                                                                     actualSurface,
-                                                                                     nextSurface,
-                                                                                     self.raybundles[-1]
-                                                                                    )
+        intersection, t, normal, validIndices = \
+                actualSurface.material.propagate(actualSurface, \
+                                                nextSurface, \
+                                                self.raybundles[-1])
 
-        else:
-            # this if-path is for linear ray transfer between some surfaces
+        self.raybundles.append(nextSurface.material.refract(actualSurface.material, self.raybundles[-1], intersection, normal, validIndices))
 
-            intersection, t, normal, validIndices = nextSurface.shape.intersect(self.raybundles[-1])#, aperture.BaseAperture())
-
-            # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
-            # TODO: needs heavy testing
-
-            self.raybundles[-1].t = t
-
-
-        validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
-        validIndices[0] = True # hail to the chief ray
-
-        self.raybundles.append(nextSurface.material.refract(self.raybundles[-1], intersection, normal, validIndices))
-
-    def draw2d(self, opticalsystem, ax, offset=(0, 0), color="blue"):
+    def draw2d(self, opticalsystem, ax, color="blue"):
         Nsurf = len(self.raybundles)
-        offy = offset[0]
-        offz = offset[1]
         for i in arange(Nsurf):
-            offz += opticalsystem.surfaces[i].getThickness()
-            self.raybundles[i].draw2d(ax, offset=(offy, offz), color=color)
+            self.raybundles[i].draw2d(ax, color=color)
 

@@ -26,12 +26,6 @@ from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 from scipy.optimize import fsolve
 
-# TODO: all get functions of Shape are performed in the local basis system
-# the raytrace should take place in the global coordinate system
-# therefore we need a transformation between local and global.
-# Which class should take care about it?
-
-
 class Shape(ClassWithOptimizableVariables):
     def __init__(self):
         """
@@ -203,7 +197,7 @@ class Conic(Shape):
         return self.curvature.evaluate()
 
     def intersect(self, raybundle):
-        rayDir = raybundle.rayDir
+        rayDir = raybundle.d
 
         r0 = raybundle.o
         # r0 is raybundle.o in the local coordinate system
@@ -218,7 +212,7 @@ class Conic(Shape):
 
         t = G / (F + np.sqrt(square))
 
-        intersection = r0 + raybundle.rayDir * t
+        intersection = r0 + rayDir * t
 
         # find indices of rays that don't intersect with the sphere
         validIndices = (square > 0) #*(intersection[0]**2 + intersection[1]**2 <= 10.0**2))
@@ -231,19 +225,9 @@ class Conic(Shape):
         return intersection, t, normal, validIndices
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
-        if ap == None:
-            effdia = 10.0
-        else:
-            if ap.getTypicalDimension() <= 1000.0:
-                # TODO: maybe introduce aperture types Object and Image to distuingish from very large normal apertures
-                effdia = ap.getTypicalDimension() #self.sdia.val if self.sdia.val < 10.0 else 10.0
-            else:
-                effdia = 10.0
-        y = effdia * np.linspace(-1, 1, vertices)
-        isyap = np.array(ap.arePointsInAperture(np.zeros_like(y), y))
-        yinap = y[isyap]
-        zinap = self.getSag(0, yinap)
-        ax.plot(zinap+offset[1], yinap+offset[0], color)
+        # this function will be removed soon
+        # drawing responsibility is at Surface class
+        pass
 
 class Cylinder(Conic):
     def __init__(self, curv=0.0, cc=0.0):
@@ -298,110 +282,6 @@ class Cylinder(Conic):
         normal = self.getNormal( 0, intersection[1] )
 
         return intersection, t, normal, validIndices
-
-
-class Decenter(Shape):
-    """
-    Implements single decenter coordinate break. Shifts the optical axis.
-    Notice that Decenter shifts the ray position relative to the incoming ray positions
-    (active transformation) due to calculation time issues.
-
-    """
-    def __init__(self, dx = 0., dy = 0.):
-
-        super(Decenter, self).__init__()
-
-        self.dx = OptimizableVariable(True, "Variable", value=dx)
-        self.addVariable("dx", self.dx) #self.createOptimizableVariable("curvature", value=curv, status=False)
-        self.dy = OptimizableVariable(True, "Variable", value=dy)
-        self.addVariable("dy", self.dy) #self.createOptimizableVariable("conic constant", value=cc, status=False)
-
-
-
-
-    def intersect(self, raybundle):
-        """
-        Intersection routine returning intersection point
-        with ray and normal vector of the surface.
-        :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
-        :return t: geometrical path length to the next surface (1d numpy array of float)
-        :return normal: surface normal vectors (2d numpy 3xN array of float)
-        :return validIndices: whether indices hit the surface (1d numpy array of bool)
-        """
-        rayDir = raybundle.rayDir
-
-        numrays = len(rayDir[0])
-
-        r0 = raybundle.o
-
-        t = np.zeros(numrays, dtype=float)
-
-        intersection = r0 + np.array([[self.dx.evaluate(), self.dy.evaluate(), 0]]).T
-
-        validIndices = np.ones(numrays, dtype=bool)
-
-        # Normal
-        normal = rayDir
-
-        return intersection, t, normal, validIndices
-
-    def getSag(self, x, y):
-        """
-        Returns the sag of the surface for given coordinates - mostly used
-        for plotting purposes.
-        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :return z: sag (list or numpy 1d array of float)
-        """
-        raise np.zeros_like(x)
-
-    def getNormal(self, x, y):
-        """
-        normal on a rotational symmetric conic section.
-        :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
-        :param y: y coordinates on the conic surface (float or 1d numpy array of floats)
-        :return normal: normal vectors ( 2d 3xN numpy array of floats )
-        """
-        z = self.getSag(self, x, y)
-
-        curv = self.curvature.evaluate()
-        cc = self.conic.evaluate()
-
-        normal = np.zeros((3,len(y)), dtype=float)
-        #normal[0] = 0
-        normal[1] = -curv * y
-        normal[2] = 1 - curv * z * ( 1 + cc )
-
-        absn = np.sqrt(np.sum(normal**2, axis=0))
-
-        normal[0] = normal[0] / absn
-        normal[1] = normal[1] / absn
-        normal[2] = normal[2] / absn
-
-        return normal
-
-    def getCentralCurvature(self):
-        """
-        Returns the curvature ( inverse local radius ) on the optical axis.
-        :return curv: (float)
-        """
-        return 0.0
-
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
-        """
-        Plots the surface in a matplotlib figure.
-        :param ax: matplotlib subplot handle
-        :param offset: y and z offset (list or 1d numpy array of 2 floats)
-        :param vertices: number of points the polygon representation of the surface contains (int)
-        :param color: surface draw color (str)
-        """
-        pass
-
-    def draw3d(self, offset=(0, 0, 0), tilt=(0, 0, 0), color="grey"):
-        """
-        To do: find fancy rendering package
-        """
-        raise NotImplementedError()
 
 class FreeShape(Shape):
     def __init__(self, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10):

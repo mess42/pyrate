@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+import math
 from ray import RayBundle
 import optimize
 
@@ -28,7 +29,7 @@ import optimize
 
 class Material(optimize.ClassWithOptimizableVariables):
     """Abstract base class for materials."""
-    def refract(self, raybundle, intersection, normal, validIndices):
+    def refract(self, previousmaterial, raybundle, intersection, normal, validIndices):
         """
         Class describing the interaction of the ray at the surface based on the material.
 
@@ -39,6 +40,12 @@ class Material(optimize.ClassWithOptimizableVariables):
 
         :return newray: rays after surface interaction ( RayBundle object )
         """
+        raise NotImplementedError()
+        
+    def returnDtoK(self, d, wavelength=550e-6):
+        raise NotImplementedError()
+    
+    def returnKtoD(self, k):
         raise NotImplementedError()
 
     def setCoefficients(self, coefficients):
@@ -96,6 +103,9 @@ class Material(optimize.ClassWithOptimizableVariables):
         :return xyuv1: XYUV1 matrix (2d numpy 5x5 matrix of float)
         """
         raise NotImplementedError()
+        
+    def propagate(self, actualSurface, nextSurface, raybundle):
+        raise NotImplementedError()
 
 
 
@@ -110,11 +120,13 @@ class ConstantIndexGlass(Material):
         self.n = optimize.OptimizableVariable(False, value=n)
         self.addVariable("refractive index", self.n)
 
-    def refract(self, raybundle, intersection, normal, previouslyValid):
+    def refract(self, previousmaterial, raybundle, intersection, normal, previouslyValid):
 
-        abs_k1_normal = np.sum(raybundle.k * normal, axis=0)
-        k_perp = raybundle.k - abs_k1_normal * normal
-        abs_k2 = self.getIndex(raybundle)
+        k1 = previousmaterial.returnDtoK(raybundle.d, raybundle.wave)
+
+        abs_k1_normal = np.sum(k1 * normal, axis=0)
+        k_perp = k1 - abs_k1_normal * normal
+        abs_k2 = 2*math.pi/raybundle.wave*self.getIndex(raybundle)
         square = abs_k2**2 - np.sum(k_perp * k_perp, axis=0)
 
         # make total internal reflection invalid
@@ -127,16 +139,60 @@ class ConstantIndexGlass(Material):
         # return ray with new direction and properties of old ray
         # return only valid rays
         Nval = np.sum(valid)
-        orig = np.zeros((3, Nval), dtype=float)
-        orig[0] = intersection[0][valid]
-        orig[1] = intersection[1][valid]
-        orig[2] = intersection[2][valid]
-        newk = np.zeros((3, Nval), dtype=float)
-        newk[0] = k2[0][valid]
-        newk[1] = k2[1][valid]
-        newk[2] = k2[2][valid]
+        #orig = np.zeros((3, Nval), dtype=float)
+        #orig[0] = intersection[0][valid]
+        #orig[1] = intersection[1][valid]
+        #orig[2] = intersection[2][valid]
+        orig = intersection[:, valid]        
+        
+        #newk = np.zeros((3, Nval), dtype=float)
+        #newk[0] = k2[0][valid]
+        #newk[1] = k2[1][valid]
+        #newk[2] = k2[2][valid]
+        newk = k2[:, valid]
 
-        return RayBundle(orig, newk, raybundle.rayID[valid], raybundle.wave)
+        d2 = self.returnKtoD(newk)
+
+        return RayBundle(orig, d2, self, raybundle.rayID[valid], raybundle.wave)
+
+    def returnDtoK(self, d, wavelength=550e-6):
+        k = d
+        absk = np.sqrt(np.sum(k**2, axis=0))
+        return 2.0*math.pi/wavelength*self.n.evaluate()*k/absk
+    
+    def returnKtoD(self, k):
+        d = np.real(k)
+        absd = np.sqrt(np.sum(d**2, axis=0))
+        return d/absd
+
+    def propagate(self, actualSurface, nextSurface, raybundle):
+
+        localo = nextSurface.lc.returnGlobalToLocalPoints(raybundle.o)
+        locald = nextSurface.lc.returnGlobalToLocalDirections(raybundle.d)                
+        
+        intersection, t, normal, validIndices = \
+            nextSurface.shape.intersect(RayBundle(localo, locald, actualSurface.material, raybundle.rayID, raybundle.wave))
+        # use Poynting direction to calculate rays
+
+        raybundle.t = t
+
+        validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
+        validIndices[0] = True # hail to the chief ray
+
+
+        
+        globalintersection = nextSurface.lc.returnLocalToGlobalPoints(intersection)
+        globalnormal = nextSurface.lc.returnLocalToGlobalDirections(normal)
+        
+        
+
+        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
+        # TODO: needs heavy testing
+
+        #raybundle.t = t
+        return (globalintersection, t, globalnormal, validIndices)
+            
+
 
     def setCoefficients(self, n):
         """
@@ -517,99 +573,4 @@ class GrinMaterial(Material):
                        ], xyuv1)                      # rear * abcd
         return xyuv1
 
-
-class Tilt(Material):
-    """
-    Implements single decenter coordinate break. Rotates the optical axis.
-    Notice that Tilt tilts the ray directions relative to the incoming ray directions (active transformation)
-    due to calculation time issues.
-    """
-    def __init__(self, angle=0., axis='X'):
-
-        super(Tilt, self).__init__()
-
-        self.angle = optimize.OptimizableVariable(True, "Variable", value=angle)
-        self.addVariable("angle", self.angle)
-
-        self.setRotationMatrix(axis)
-
-    def setRotationMatrix(self, axis):
-        """
-        Sets the private function self.rotfunc()
-
-        :param axis: Axis of roration name. Valid options are 'X','Y','Z'. (str)
-        """
-
-        # transform axis string to axis number
-        axis = axis.upper()
-        axis = ord(axis) - ord('X')
-
-        # matrices for rotation along X,Y,Z
-        rotfuncx = lambda x: np.array([[1, 0, 0], [0, np.cos(x), -np.sin(x)], [0, np.sin(x), np.cos(x)]])
-        rotfuncy = lambda x: np.array([[np.cos(x), 0, np.sin(x)], [0, 1, 0], [-np.sin(x), 0, np.cos(x)]])
-        rotfuncz = lambda x: np.array([[np.cos(x), -np.sin(x), 0], [np.sin(x), np.cos(x), 0], [0, 0, 1]])
-
-        rotfunctions = [ rotfuncx, rotfuncy, rotfuncz ]
-
-        self.rotfunc = rotfunctions[axis]
-
-
-    def refract(self, raybundle, intersection, normal, validIndices):
-        """
-        Class describing the interaction of the ray at the surface based on the material.
-
-        :param raybundle: Incoming raybundle ( RayBundle object )
-        :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
-        :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
-        :param validIndices: whether the rays did hit the shape correctly (1d numpy array of bool)
-
-        :return newray: rays after surface interaction ( RayBundle object )
-        """
-
-        rotmatrix = self.rotfunc(self.angle.evaluate())
-
-        k2 = np.dot(rotmatrix, raybundle.k)
-
-
-        # make total internal reflection invalid
-        valid = validIndices
-
-        return RayBundle(intersection, k2, raybundle.rayID[valid], raybundle.wave)
-
-    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        """
-        Returns an ABCD matrix of the current surface.
-        The matrix is set up in geometric convention for (y, dy/dz) vectors.
-
-        The matrix contains:
-        - paraxial refraction from vacuum through the front surface
-        - paraxial translation through the material
-        - paraxial refraction at the rear surface into vacuum
-
-        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ),
-        this method picks the correct paraxial propagators.
-
-        :param curvature: front surface (self.) curvature on the optical axis (float)
-        :param thickness: material thickness on axis (float)
-        :param nextCurvature: rear surface curvature on the optical axis (float)
-        :param ray: ray bundle to obtain wavelength (RayBundle object)
-        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
-        """
-
-        return np.array([[1., 0.], [0., 1.]])
-
-
-    def getXYUVMatrix(self, curvature, thickness, nextCurvature, ray): # TODO: weitermachen
-        (axisnum, rotmatrix) = self.returnRotationMatrix(self.angle.evaluate())
-        n = self.nfunc(0.,0.,0.)
-
-
-        xyuv1 = np.array([
-                       [1, 0, 0, 0, 0],
-                       [0, 1, 0, 0, 0],
-                       [0, 0, 1, 0, 0],
-                       [0, 0, 0, 1, 0],
-                       [0, 0, 0, 0, 1]
-                       ])
-        return xyuv1
 
