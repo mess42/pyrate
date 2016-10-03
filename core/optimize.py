@@ -136,17 +136,46 @@ class ClassWithOptimizableVariables(object):
         """
         self.dict_variables[name] = var
 
-    """
-    def addOptimizableVariablesToList(self, var, idlist=[]):
-        tmp = []
-        if id(var) not in idlist:
-            if isinstance(var, ClassWithOptimizableVariables):
-                for v in var.__dict__.values():
-                    idlist += id(v)
-                    tmp += var.addOptimizableVariablesToList(v, idlist)
-    """ 
 
+                
     def getAllVariables(self):
+
+        def addOptimizableVariablesToList(var, listOfOptVars = [], idlist=[]):
+            """
+            Accumulates optimizable variables in var and its linked objects.
+            Ignores ring-links and double links.       
+            
+            @param var: object to evaluate (object)
+            @param listOfOptVars: optimizable variables found so far (list of objects)
+            @param idlist: ids of objects already evaluated (list of int)
+            """ 
+            
+            if id(var) not in idlist:
+                idlist.append(id(var))
+    
+                if isinstance(var, ClassWithOptimizableVariables):
+                    for v in var.__dict__.values():
+                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist) 
+                elif isinstance(var, dict):
+                    for v in var.values():
+                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist)                        
+    
+                elif isinstance(var, list) or isinstance(var, tuple):
+                    for v in var:
+                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist)
+    
+                elif isinstance(var, OptimizableVariable):
+                    listOfOptVars.append(var)
+    
+            return listOfOptVars, idlist
+
+
+
+        (lst, idlist) = addOptimizableVariablesToList(self)
+        return lst
+
+
+    def getAllVariablesOld(self):
         """
         Conversion of dict into list of Variables. These are only references to the objects in dict.
         Therefore all changes to them directly affects the dictionary in the class.
@@ -361,6 +390,11 @@ if __name__ == "__main__":
     print os.dict_variables["X"]
     print os.dict_variables["Y"]
     print os.dict_variables["Z"].evaluate()
-
-
+    
+    print("NEW IT FUNCTION1")
+    print([v.evaluate() for v in os.getAllVariablesNew()])
+    print("NEW IT FUNCTION2")
+    print([v.evaluate() for v in cl.getAllVariablesNew()])
+    print("NEW IT FUNCTION3")
+    print([v.evaluate() for v in cl2.getAllVariablesNew()])
 
