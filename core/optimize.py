@@ -264,7 +264,7 @@ class ClassWithOptimizableVariables(object):
         """
         self.dict_variables[name].status = var_status
 
-def MeritFunctionWrapperScipy(x, s, meritfunction):
+def MeritFunctionWrapperScipy(x, s, meritfunction, func):
     """
     Merit function wrapper for scipy optimize. Notice that x and length of active values must have the same size
 
@@ -275,6 +275,7 @@ def MeritFunctionWrapperScipy(x, s, meritfunction):
     :return value of the merit function
     """
     s.setActiveVariableValues(x)
+    func(s)
 
     return meritfunction(s)
 
@@ -290,7 +291,7 @@ def optimizeSciPyInterface(s, meritfunction, **kwargs):
     """
     x0 = s.getActiveVariableValues()
     print(x0)
-    res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction), method=kwargs["method"])
+    res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction, kwargs["function"]), method=kwargs["method"])
     print res
     s.setActiveVariableValues(res.x)
     return s
@@ -299,7 +300,7 @@ def optimizeSciPyNelderMead(s, meritfunction, **kwargs):
     """
     Optimization function: direct access to Nelder-Mead algorithm in Scipy.
     """
-    return optimizeSciPyInterface(s, meritfunction, method="Nelder-Mead")
+    return optimizeSciPyInterface(s, meritfunction, method="Nelder-Mead", function=kwargs["function"])
 
 
 if __name__ == "__main__":

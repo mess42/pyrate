@@ -46,7 +46,7 @@ s = OpticalSystem() # objectDistance = 2.0
 
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0))
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=2.5*math.pi/180.0))
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
 lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
@@ -123,16 +123,23 @@ print "Initial   merit function: ", merit.mySimpleDumpRMSSpotSizeMeritFunction(s
 #s.surfaces[7].shape.setStatus("curvature", True)
 
 
-s.surfaces[2].shape.curvature.status=True
+s.surfaces[2].shape.curvature.status=(True)
 s.surfaces[3].shape.curvature.status=(True)
 s.surfaces[4].shape.curvature.status=(True)
 s.surfaces[5].shape.curvature.status=(True)
 s.surfaces[7].shape.curvature.status=(True)
+s.surfaces[3].lc.tiltx.status=True
 
 
 print "aimy,stopDiameter before: ", aimy.stopDiameter
 
-s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
+def osnone(s):
+    pass
+
+def osupdate(s):
+    s.globalcoordinatesystem.update()
+
+s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', function=osupdate, options={'xtol': 1e-8, 'disp': True})
 
 print "aimy,stopDiameter after: ", aimy.stopDiameter
 

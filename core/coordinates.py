@@ -187,6 +187,9 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             parentcoordinates + \
             np.dot(self.localbasis, self.localdecenter)
             # TODO: removed .T on localbasis to obtain correct behavior; examine!
+            
+        for ch in self.__children:
+            ch.update()
 
     def returnLocalToGlobalPoints(self, localpts):
         """
