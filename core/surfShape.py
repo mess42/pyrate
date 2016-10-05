@@ -319,6 +319,9 @@ class FreeShape(Shape):
     def getHessian(self, x, y):
         z = self.getSag(x, y)
         return self.hessF(x, y, z)
+        
+    # TODO: implement the most general expression for central curvature
+    # (differs for different directions)
 
     # TODO: this could be speed up by updating a class internal z array
     # which could be done by using an internal update procedure and using
@@ -341,7 +344,7 @@ class ExplicitShape(FreeShape):
         return self.F(x, y)
 
     def intersect(self, raybundle):
-        rayDir = raybundle.rayDir
+        rayDir = raybundle.d
 
         r0 = raybundle.o
 
@@ -353,7 +356,7 @@ class ExplicitShape(FreeShape):
 
         t = fsolve(Fwrapper, t, args=(r0, rayDir))
 
-        intersection = r0 + raybundle.rayDir * t
+        intersection = r0 + rayDir * t
 
         validIndices = np.ones_like(r0[0], dtype=bool)
         validIndices[0] = True  # hail to the chief
@@ -397,7 +400,7 @@ class ImplicitShape(FreeShape):
 
     def intersect(self, raybundle):
 
-        rayDir = raybundle.rayDir
+        rayDir = raybundle.d
 
         r0 = raybundle.o
 
@@ -409,7 +412,7 @@ class ImplicitShape(FreeShape):
 
         t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.eps)
 
-        intersection = r0 + raybundle.rayDir * t
+        intersection = r0 + rayDir * t
 
         validIndices = np.ones_like(r0[0], dtype=bool)
         validIndices[0] = True  # hail to the chief
@@ -424,21 +427,46 @@ class Asphere(ExplicitShape):
     """
     Polynomial asphere as base class for sophisticated surface descriptions
     """
+
+
     def __init__(self, curv=0, cc=0, acoeffs=[]):
 
         self.numcoefficients = len(acoeffs)
         initacoeffs = [("A"+str(2*i+2), val) for (i, val) in enumerate(acoeffs)]
 
+        def sqrtfun(r2):
+            (curv, cc, acoeffs) = self.getAsphereParameters()
+            return np.sqrt(1 - curv**2*(1+cc)*r2)
+            
+
+
+
         def af(x, y):
             (curv, cc, acoeffs) = self.getAsphereParameters()
             
-            res = curv*(x**2 + y**2)/(1 + np.sqrt(1 - curv**2*(1+cc)*(x**2 + y**2)))
+            r2 = x**2 + y**2            
+            
+            res = curv*r2/(1 + sqrtfun(r2))
             for (n, an) in enumerate(acoeffs):
-                res += an*(x**2 + y**2)**(2*n+2)
+                res += an*r2**(2*n+2)
             return res
 
         def gradaf(x, y, z): # gradient for implicit function z - af(x, y) = 0
-            res = np.zeros_like((3, len(x)))
+            res = np.zeros((3, len(x)))
+            (curv, cc, acoeffs) = self.getAsphereParameters()
+            
+            r2 = x**2 + y**2
+            sq = sqrtfun(r2)            
+            
+
+            res[2] = np.ones_like(x) # z-component always 1
+            res[0] = curv*x/sq
+            res[1] = curv*y/sq
+            
+            for (n, an) in enumerate(acoeffs):          
+                res[0] += -2.*x*(n+1)*an*r2**(2*n)
+                res[1] += -2.*y*(n+1)*an*r2**(2*n)
+            
             return res
 
         def hessaf(x, y, z):
@@ -452,7 +480,8 @@ class Asphere(ExplicitShape):
                 self.dict_variables["cc"].evaluate(), \
                 [self.dict_variables["A"+str(2*i+2)].evaluate() for i in range(self.numcoefficients)])
         
-        
+    def getCentralCurvature(self):
+        return self.dict_variables["curv"].evaluate()
 
     # TODO: missing Hessian and gradient
 

@@ -68,8 +68,6 @@ s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
 s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
                            aperture=CircularAperture(1.3)))
 
-#s.insertSurface(5, Surface(surfShape.Decenter(dx = 0., dy = 1.), material=material.Tilt(angle=20.*np.pi/180.0, axis='X')))
-
 s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
                            aperture=CircularAperture(1.01))) # Stop Surface
 
@@ -154,8 +152,11 @@ r3 = RayPath(initialBundle3, s)
 fig15 = plt.figure(15)
 ax3 = fig15.add_subplot(111)
 
+plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 plots.drawLayout2d(ax2, s, [r2, r3])
+plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 plots.drawSpotDiagram(ax3, s, r3, -1)
+plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 
 plt.show()
 
