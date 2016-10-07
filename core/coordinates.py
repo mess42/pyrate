@@ -169,7 +169,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         ''' 
         R = Rz(thetaz) Ry(thetay) Rx(thetax). 
         According to www.geometrictools.com/Documentation/EulerAngles.pdf
-        section 2.1. October 2016.
+        section 2.6. October 2016.
         '''
         thetax = thetay = thetaz = 0
         
@@ -259,12 +259,13 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             
     def aimAt(self, anotherlc, update=False):
         rotationtransform = np.zeros((3, 3))
-        direction = anotherlc.globalcoordinates - self.globalcoordinates
-        direction = np.dot(self.localbasis, direction)
+        direction = self.returnGlobalToLocalPoints(anotherlc.globalcoordinates)
+        print(direction)
         dist = np.linalg.norm(direction)
         direction = direction/dist
+        print(direction)
         up = self.localbasis[:, 1] # y-axis
-        print(np.linalg.norm(up))
+
         col1 = np.cross(up, direction)
         col1 = col1/np.linalg.norm(col1)
         col0 = np.cross(col1, direction)
@@ -274,7 +275,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         rotationtransform[:, 1] = col1
         rotationtransform[:, 2] = direction
         print(self.localbasis)
-        self.localbasis = np.dot(rotationtransform, self.localbasis)
+        self.localbasis = np.dot(rotationtransform.T, self.localbasis)
         print(self.localbasis)
         if update:
             self.update()
@@ -360,6 +361,8 @@ if __name__ == "__main__":
     surfcb9 = surfcb3.addChild(LocalCoordinates(name="9", decx=-5.555, decy=-3.333, tiltz=-1.0, tiltx=-1.0))    
     
     printouttestcase1 = False
+    printouttestcase2 = True
+    printouttestcase3 = True
     
     if printouttestcase1:
         print(str(surfcb1))
@@ -386,15 +389,17 @@ if __name__ == "__main__":
     order = random.randint(0, 1)
     surfrt1 = surfrt0.addChild(LocalCoordinates("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, order=order))
     (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, order)
-    print("diffs: %f %f %f" % (tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
+    if printouttestcase2:    
+        print("diffs: %f %f %f" % (tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
     '''testcase3: aimAt function'''
     surfaa0 = LocalCoordinates("aa0")    
     surfaa1 = surfaa0.addChild(LocalCoordinates("aa1", decz=20, tiltx=10*math.pi/180.0))
     surfaa2 = surfaa1.addChild(LocalCoordinates("aa2", decz=20))
-    surfaa3 = surfaa2.addChild(LocalCoordinates("aa3"))
-    print(surfaa0.pprint())
-    print(str(surfaa1))
-    print(str(surfaa2))
-    surfaa3.aimAt(surfaa0)
-    print(str(surfaa3))
+    surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))#-39.84778792366982))
+    if printouttestcase3:    
+        print(surfaa0.pprint())
+        print(str(surfaa1))
+        print(str(surfaa2))
+        surfaa3.aimAt(surfaa0)
+        print(str(surfaa3))
     
