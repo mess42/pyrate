@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
+import random
 import uuid
 
 from optimize import ClassWithOptimizableVariables, OptimizableVariable
@@ -379,7 +380,14 @@ if __name__ == "__main__":
         print(o)
         print("TRANSFORMED")    
         print(surfcb4.returnGlobalToLocalPoints(surfcb4.returnLocalToGlobalPoints(o)))
-    '''testcase2: aimAt function'''
+    '''testcase2: convert rotation matrix to tilt'''
+    surfrt0 = LocalCoordinates("rt0")
+    (tiltx, tilty, tiltz) = (random.random()*2*math.pi - math.pi for i in range(3))
+    order = random.randint(0, 1)
+    surfrt1 = surfrt0.addChild(LocalCoordinates("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, order=order))
+    (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, order)
+    print("diffs: %f %f %f" % (tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
+    '''testcase3: aimAt function'''
     surfaa0 = LocalCoordinates("aa0")    
     surfaa1 = surfaa0.addChild(LocalCoordinates("aa1", decz=20, tiltx=10*math.pi/180.0))
     surfaa2 = surfaa1.addChild(LocalCoordinates("aa2", decz=20))
@@ -389,5 +397,4 @@ if __name__ == "__main__":
     print(str(surfaa2))
     surfaa3.aimAt(surfaa0)
     print(str(surfaa3))
-    print(list([i*180./math.pi for i in surfaa1.calculateTiltFromMatrix(surfaa1.localrotation)]))
     
