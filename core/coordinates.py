@@ -264,15 +264,15 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         dist = np.linalg.norm(direction)
         direction = direction/dist
         print(direction)
-        up = self.localbasis[:, 1] # y-axis
+        up = np.array([0, 1, 0]) # y-axis
 
         col1 = np.cross(up, direction)
         col1 = col1/np.linalg.norm(col1)
         col0 = np.cross(col1, direction)
         col0 = col0/np.linalg.norm(col0)
         
-        rotationtransform[:, 0] = col0
-        rotationtransform[:, 1] = col1
+        rotationtransform[:, 0] = col1
+        rotationtransform[:, 1] = col0
         rotationtransform[:, 2] = direction
         print(self.localbasis)
         self.localbasis = np.dot(rotationtransform.T, self.localbasis)
@@ -396,10 +396,13 @@ if __name__ == "__main__":
     surfaa1 = surfaa0.addChild(LocalCoordinates("aa1", decz=20, tiltx=10*math.pi/180.0))
     surfaa2 = surfaa1.addChild(LocalCoordinates("aa2", decz=20))
     surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))#-39.84778792366982))
+    surfaa4 = surfaa3.addChild(LocalCoordinates("aa3", decz=-39.84778792366982))
+    # TODO: why not updated to new basis?
+    
     if printouttestcase3:    
         print(surfaa0.pprint())
         print(str(surfaa1))
         print(str(surfaa2))
-        surfaa3.aimAt(surfaa0)
-        print(str(surfaa3))
+        surfaa3.aimAt(surfaa0, update=True)
+        print(str(surfaa4))
     
