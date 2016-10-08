@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
+import random
 import uuid
 
 from optimize import ClassWithOptimizableVariables, OptimizableVariable
@@ -131,6 +132,75 @@ class LocalCoordinates(ClassWithOptimizableVariables):
              )
         return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
     
+    def calculateMatrixFromTilt(self, tiltx, tilty, tiltz, order=0):
+        if order == 0:
+            res = np.dot(self.rodrigues(tiltz, [0, 0, 1]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltx, [1, 0, 0])))
+        else:
+            res = np.dot(self.rodrigues(tiltx, [1, 0, 0]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltz, [0, 0, 1])))
+        return res
+        
+    def FactorMatrixXYZ(self, mat):
+        ''' 
+        R = Rx(thetax) Ry(thetay) Rz(thetaz). 
+        According to www.geometrictools.com/Documentation/EulerAngles.pdf
+        section 2.1. October 2016.
+        '''
+        thetax = thetay = thetaz = 0
+        
+        if mat[0, 2] < 1:
+            if mat[0, 2] > -1:
+                thetay = math.asin(mat[0, 2])
+                thetax = math.atan2(-mat[1, 2], mat[2, 2])
+                thetaz = math.atan2(-mat[0, 1], mat[0, 0])
+            else:
+                thetay = -math.pi/2
+                thetax = -math.atan2(mat[1, 0], mat[1, 1])
+                thetaz = 0.
+        else:
+            thetay = math.pi/2
+            thetax = math.atan2(mat[1, 0], mat[1, 1])
+            thetaz = 0.
+        
+        return (thetax, thetay, thetaz)
+                
+            
+    
+    def FactorMatrixZYX(self, mat):
+        ''' 
+        R = Rz(thetaz) Ry(thetay) Rx(thetax). 
+        According to www.geometrictools.com/Documentation/EulerAngles.pdf
+        section 2.6. October 2016.
+        '''
+        thetax = thetay = thetaz = 0
+        
+        if mat[2, 0] < 1:
+            if mat[2, 0] > -1:
+                thetay = math.asin(-mat[2, 0])
+                thetaz = math.atan2(mat[1, 0], mat[0, 0])
+                thetax = math.atan2(mat[2, 1], mat[2, 2])
+            else:
+                thetay = math.pi/2
+                thetaz = -math.atan2(-mat[1, 2], mat[1, 1])
+                thetax = 0.
+        else:
+            thetay = -math.pi/2
+            thetaz = math.atan2(-mat[1, 2], mat[1, 1])
+            thetax = 0.
+        
+        return (thetax, thetay, thetaz)
+
+        
+    
+    def calculateTiltFromMatrix(self, mat, order=0):
+        res = (0., 0., 0.)
+        if order==0:
+            res = self.FactorMatrixZYX(mat)
+        else:
+            res = self.FactorMatrixXYZ(mat)
+        return res
+            
+            
+    
     def calculate(self):
         
         # order=0: decx, decy, tiltx, tilty, tiltz
@@ -153,11 +223,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         decz = self.decz.evaluate()
         
         self.localdecenter = np.array([decx, decy, decz])
-        if self.order == 0:
-            self.localrotation = np.dot(self.rodrigues(tiltz, [0, 0, 1]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltx, [1, 0, 0])))
-        else:
-            self.localrotation = np.dot(self.rodrigues(tiltx, [1, 0, 0]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltz, [0, 0, 1])))
-            
+        self.localrotation = self.calculateMatrixFromTilt(tiltx, tilty, tiltz, self.order)
 
     def update(self):
         ''' 
@@ -190,6 +256,38 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             
         for ch in self.__children:
             ch.update()
+            
+    def aimAt(self, anotherlc, update=False):
+        print("AIM START")
+        rotationtransform = np.zeros((3, 3))
+        direction = self.returnGlobalToLocalPoints(anotherlc.globalcoordinates)
+        print(direction)
+        dist = np.linalg.norm(direction)
+        direction = direction/dist
+        print(direction)
+        up = np.array([0, 1, 0]) # y-axis
+
+        col1 = np.cross(up, direction)
+        col1 = col1/np.linalg.norm(col1)
+        col0 = np.cross(col1, direction)
+        col0 = col0/np.linalg.norm(col0)
+        
+        rotationtransform[:, 0] = col1
+        rotationtransform[:, 1] = col0
+        rotationtransform[:, 2] = direction
+
+        transformedlocalrotation = np.dot(rotationtransform.T, self.localrotation)
+        
+        (tiltx, tilty, tiltz) = self.calculateTiltFromMatrix(transformedlocalrotation, self.order)
+        print(tiltx*180.0/math.pi, tilty*180.0/math.pi, tiltz*180.0/math.pi)
+        self.tiltx.setvalue(-tiltx)        
+        self.tilty.setvalue(-tilty)        
+        self.tiltz.setvalue(-tiltz)        
+                
+        if update:
+            self.update()
+        print("AIM END")
+        
 
     def returnLocalToGlobalPoints(self, localpts):
         """
@@ -243,7 +341,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
 
     def __str__(self):
-        s = 'name %s\norder %d\nglobal coordinates: %s\nld: %s\nlr: %s\nlb: %s\nchildren %s'\
+        s = 'name \'%s\'\norder %d\nglobal coordinates: %s\nld: %s\nlr:\n%s\nlb:\n%s\nchildren %s'\
         % (self.name, self.order, \
         self.globalcoordinates, \
         self.localdecenter, \
@@ -267,24 +365,52 @@ if __name__ == "__main__":
     surfcb6 = surfcb5.addChild(LocalCoordinates(name="6", decz=-20.0))
     surfcb7 = surfcb6.addChild(LocalCoordinates(name="7"))
     
-    surfcb8 = surfcb3.addChild(LocalCoordinates(name="8", decx=5.555, decy=3.333))    
-    surfcb9 = surfcb3.addChild(LocalCoordinates(name="9", decx=-5.555, decy=-3.333))    
+    surfcb8 = surfcb3.addChild(LocalCoordinates(name="8", decx=5.555, decy=3.333, tiltz=1.0, tiltx=1.0))    
+    surfcb9 = surfcb3.addChild(LocalCoordinates(name="9", decx=-5.555, decy=-3.333, tiltz=-1.0, tiltx=-1.0))    
     
-    print(str(surfcb1))
-    print(str(surfcb2))
-    print(str(surfcb3))
-    print(str(surfcb35))
-    print(str(surfcb4))
-    print(str(surfcb45))
-    print(str(surfcb5))
-    print(str(surfcb6))
-    print(str(surfcb7))
+    printouttestcase1 = False
+    printouttestcase2 = True
+    printouttestcase3 = True
     
-    print(surfcb1.returnConnectedNames())
-    print(surfcb1.pprint())
-
-    o = np.random.random((3,5))
-    print("ORIGINAL")
-    print(o)
-    print("TRANSFORMED")    
-    print(surfcb4.returnGlobalToLocalPoints(surfcb4.returnLocalToGlobalPoints(o)))
+    if printouttestcase1:
+        print(str(surfcb1))
+        print(str(surfcb2))
+        print(str(surfcb3))
+        print(str(surfcb35))
+        print(str(surfcb4))
+        print(str(surfcb45))
+        print(str(surfcb5))
+        print(str(surfcb6))
+        print(str(surfcb7))
+        
+        print(surfcb1.returnConnectedNames())
+        print(surfcb1.pprint())
+        
+        o = np.random.random((3,5))
+        print("ORIGINAL")
+        print(o)
+        print("TRANSFORMED")    
+        print(surfcb4.returnGlobalToLocalPoints(surfcb4.returnLocalToGlobalPoints(o)))
+    '''testcase2: convert rotation matrix to tilt'''
+    surfrt0 = LocalCoordinates("rt0")
+    (tiltx, tilty, tiltz) = (random.random()*2*math.pi - math.pi for i in range(3))
+    order = random.randint(0, 1)
+    surfrt1 = surfrt0.addChild(LocalCoordinates("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, order=order))
+    (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, order)
+    if printouttestcase2:    
+        print("diffs: %f %f %f" % (tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
+    '''testcase3: aimAt function'''
+    surfaa0 = LocalCoordinates("aa0")    
+    surfaa1 = surfaa0.addChild(LocalCoordinates("aa1", decz=20, tiltx=20*math.pi/180.0))
+    surfaa2 = surfaa1.addChild(LocalCoordinates("aa2", decz=20))
+    surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))#-39.84778792366982))
+    surfaa4 = surfaa3.addChild(LocalCoordinates("aa3", decz=39.84778792366982))
+    # TODO: why not updated to new basis?
+    
+    if printouttestcase3:    
+        print(surfaa0.pprint())
+        print(str(surfaa1))
+        print(str(surfaa2))
+        surfaa3.aimAt(surfaa0, update=True)
+        print(str(surfaa4))
+    
