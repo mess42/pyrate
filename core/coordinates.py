@@ -42,16 +42,28 @@ from optimize import ClassWithOptimizableVariables, OptimizableVariable
 class LocalCoordinates(ClassWithOptimizableVariables):
     def __init__(self, name="", **kwargs):
         '''
-        @param: name -- string for identification
-        @param: kwargs -- keyword args: decz, decx, decy, tiltx, tilty, tiltz, order        
+        Defines a local coordinate system, on which translated or tilted optical surfaces may refer.
+
+        @param: name -- name of the coordinate system for identification (str)
+                        if the value is "", a uuid will be generated as name. 
+        @param: kwargs -- keyword args: 
+                        decx, decy, decz: decenter of the surface in x, y and z, respectively (float)
+                                          Default values are zeros.
+                                          decz denotes the position of the current surface.
+                                          decz is equivalent to the Zemax thickness value CTVA or THIC of the previous surface.
+                        tiltx, tilty, tiltz: tilt around x, y, or z axis in radians (float).
+                                          Default values are zeros.
+                        tiltThenDecenter: order of tilt and decenter operation (bool or int).
+                                          Default value is zero.
+                                          0 or False means: the decenter operations are performed first, then tiltx, then tilty, then tiltz.
+                                          1 or True means: tiltz first, then tilty, then tiltx, then decenter.       
         
         '''
         super(LocalCoordinates, self).__init__()        
 
-        #thickness=0, decx=0, decy=0, tiltx=0, tilty=0, tiltz=0, order=0        
         
-        (decz, decx, decy, tiltx, tilty, tiltz, order) = \
-        (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "order"])
+        (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
+        (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "tiltThenDecenter"])
         
         
         if name == "":
@@ -78,7 +90,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         self.addVariable("tiltz", self.tiltz)
         
         
-        self.order = order
+        self.tiltThenDecenter = tiltThenDecenter
         
         self.parent = None # None means reference to global coordinate system 
         self.__children = [] # children
@@ -101,19 +113,39 @@ class LocalCoordinates(ClassWithOptimizableVariables):
     name = property(getName, setName)
 
 
-    def addChild(self, tmplc):        
-        tmplc.parent = self
-        tmplc.update()
-        self.__children.append(tmplc)
-        return tmplc
+    def addChild(self, childlc):
+        """
+        Add a child coordinate system. 
+        That is, the child coordinate system tilt and decenter 
+        are defined relative to the current system, "self".
+
+        @param: childlc -- the local coordinate system (object)
         
-    def addChildToReference(self, refname, tmplc):
+        @return: childlc -- return the input argument (object)
+        """        
+        childlc.parent = self
+        childlc.update()
+        self.__children.append(childlc)
+        return childlc
+        
+    def addChildToReference(self, refname, childlc):
+        """
+        Adds a child to the coordinate system specified.
+
+        @param: refname -- name of the desired parent of childlc (str)
+                           if name does not occur in self or its (grand)-children, nothing is done.
+        @param: childlc -- the coordinate system looking for a new parent (object)
+
+        @return: childlc -- return the input argument (object)
+
+        TODO: refnames occuring twice may lead to undefined behavior.
+        """
         if self.name == refname:
-            self.addChild(tmplc)
+            self.addChild(childlc)
         else:
             for x in self.__children:
-                x.addChildToReference(refname, tmplc)
-        return tmplc
+                x.addChildToReference(refname, childlc)
+        return childlc
     
 
     def rodrigues(self, angle, a):
@@ -132,8 +164,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
              )
         return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
     
-    def calculateMatrixFromTilt(self, tiltx, tilty, tiltz, order=0):
-        if order == 0:
+    def calculateMatrixFromTilt(self, tiltx, tilty, tiltz, tiltThenDecenter=0):
+        if tiltThenDecenter == 0:
             res = np.dot(self.rodrigues(tiltz, [0, 0, 1]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltx, [1, 0, 0])))
         else:
             res = np.dot(self.rodrigues(tiltx, [1, 0, 0]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltz, [0, 0, 1])))
@@ -191,9 +223,9 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
         
     
-    def calculateTiltFromMatrix(self, mat, order=0):
+    def calculateTiltFromMatrix(self, mat, tiltThenDecenter=0):
         res = (0., 0., 0.)
-        if order==0:
+        if tiltThenDecenter==0:
             res = self.FactorMatrixZYX(mat)
         else:
             res = self.FactorMatrixXYZ(mat)
@@ -202,9 +234,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             
     
     def calculate(self):
+ 
+        # TODO: correct comments and make a triple-" comment
         
-        # order=0: decx, decy, tiltx, tilty, tiltz
-        # order=1: tiltx, tilty, tilty, decx, decy        
+        # tiltThenDecenter=0: decx, decy, tiltx, tilty, tiltz
+        # tiltThenDecenter=1: tiltx, tilty, tilty, decx, decy        
         
         # 0 objectdist angle0
         # 1 thickness angle1
@@ -223,7 +257,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         decz = self.decz.evaluate()
         
         self.localdecenter = np.array([decx, decy, decz])
-        self.localrotation = self.calculateMatrixFromTilt(tiltx, tilty, tiltz, self.order)
+        self.localrotation = self.calculateMatrixFromTilt(tiltx, tilty, tiltz, self.tiltThenDecenter)
 
     def update(self):
         ''' 
@@ -241,14 +275,14 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             parentbasis = self.parent.localbasis
         
         self.localbasis = np.dot(self.localrotation, parentbasis)
-        if self.order == 0:
-            # first decenter then rotation, afterwards thickness
+        if self.tiltThenDecenter == 0:
+            # first decenter then rotation
             self.globalcoordinates = \
             parentcoordinates + \
             np.dot(parentbasis, self.localdecenter)
             # TODO: removed .T on parentbasis to obtain correct behavior; examine!
         else:
-            # first rotation then decenter, afterwards thickness
+            # first rotation then decenter
             self.globalcoordinates = \
             parentcoordinates + \
             np.dot(self.localbasis, self.localdecenter)
@@ -278,7 +312,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
         transformedlocalrotation = np.dot(rotationtransform.T, self.localrotation)
         
-        (tiltx, tilty, tiltz) = self.calculateTiltFromMatrix(transformedlocalrotation, self.order)
+        (tiltx, tilty, tiltz) = self.calculateTiltFromMatrix(transformedlocalrotation, self.tiltThenDecenter)
         print(tiltx*180.0/math.pi, tilty*180.0/math.pi, tiltz*180.0/math.pi)
         self.tiltx.setvalue(-tiltx)        
         self.tilty.setvalue(-tilty)        
@@ -333,6 +367,13 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         return lst
         
     def pprint(self, n=0):
+        """
+        returns a string visualizing the tree structure of self and its children.
+
+        @param n: indentation level (int)
+
+        @return s: structure of self.name and its children (str)
+        """
         s = n*"    " + self.name + " (" + str(self.globalcoordinates) + ")\n"
         for x in self.__children:
             s += x.pprint(n+1)
@@ -341,8 +382,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
 
     def __str__(self):
-        s = 'name \'%s\'\norder %d\nglobal coordinates: %s\nld: %s\nlr:\n%s\nlb:\n%s\nchildren %s'\
-        % (self.name, self.order, \
+        s = 'name \'%s\'\ntiltThenDecenter %d\nglobal coordinates: %s\nld: %s\nlr:\n%s\nlb:\n%s\nchildren %s'\
+        % (self.name, self.tiltThenDecenter, \
         self.globalcoordinates, \
         self.localdecenter, \
         self.localrotation, \
@@ -357,11 +398,11 @@ if __name__ == "__main__":
     '''testcase1: undo coordinate break'''
     surfcb1 = LocalCoordinates(name="1", decz=40.0)
     surfcb2 = surfcb1.addChild(LocalCoordinates(name="2", decz=20.0))
-    surfcb3 = surfcb2.addChild(LocalCoordinates(name="3", decy=15.0, tiltx=10.0*math.pi/180.0, order=0))
+    surfcb3 = surfcb2.addChild(LocalCoordinates(name="3", decy=15.0, tiltx=10.0*math.pi/180.0, tiltThenDecenter=0))
     surfcb35 = surfcb3.addChild(LocalCoordinates(name="35", decz=-20.0))
     surfcb4 = surfcb35.addChild(LocalCoordinates(name="4"))
     surfcb45 = surfcb4.addChild(LocalCoordinates(name="45", decz=+20.0))
-    surfcb5 = surfcb45.addChild(LocalCoordinates(name="5", decy=-15.0, tiltx=-10.0*math.pi/180.0, order=1))
+    surfcb5 = surfcb45.addChild(LocalCoordinates(name="5", decy=-15.0, tiltx=-10.0*math.pi/180.0, tiltThenDecenter=1))
     surfcb6 = surfcb5.addChild(LocalCoordinates(name="6", decz=-20.0))
     surfcb7 = surfcb6.addChild(LocalCoordinates(name="7"))
     
@@ -394,9 +435,9 @@ if __name__ == "__main__":
     '''testcase2: convert rotation matrix to tilt'''
     surfrt0 = LocalCoordinates("rt0")
     (tiltx, tilty, tiltz) = (random.random()*2*math.pi - math.pi for i in range(3))
-    order = random.randint(0, 1)
-    surfrt1 = surfrt0.addChild(LocalCoordinates("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, order=order))
-    (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, order)
+    tiltThenDecenter = random.randint(0, 1)
+    surfrt1 = surfrt0.addChild(LocalCoordinates("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, tiltThenDecenter=tiltThenDecenter))
+    (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, tiltThenDecenter)
     if printouttestcase2:    
         print("diffs: %f %f %f" % (tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
     '''testcase3: aimAt function'''
