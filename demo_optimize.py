@@ -137,7 +137,10 @@ def osnone(s):
 def osupdate(s):
     s.globalcoordinatesystem.update()
 
-s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', function=osupdate, options={'xtol': 1e-8, 'disp': True})
+optimi = optimize.Optimizer(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, osupdate)
+s = optimi.optimizeSciPyNelderMead()
+
+#s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', function=osupdate, options={'xtol': 1e-8, 'disp': True})
 
 print "aimy,stopDiameter after: ", aimy.stopDiameter
 

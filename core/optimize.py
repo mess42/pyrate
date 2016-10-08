@@ -309,7 +309,7 @@ class Optimizer(object):
         res = minimize(self.MeritFunctionWrapperScipy, x0, args=(), method=kwargs["method"], options=opts)
         print res # TODO: rewrite to log
         self.classwithoptvariables.setActiveVariableValues(res.x)
-        return s
+        return self.classwithoptvariables
 
     def optimizeSciPyNelderMead(self, **kwargs):
         """
