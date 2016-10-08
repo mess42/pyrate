@@ -33,7 +33,7 @@ from ray import RayPath
 # TODO: button for edit merit function with either external command or internal editor window
 
 
-def mySimpleDumpRMSSpotSizeMeritFunction(s):
+def mySimpleDumbRMSSpotSizeMeritFunction(s):
     """
     This is a test Merit function for RMS spot size on axis with modifications implemented suggested by Mo
 
@@ -51,7 +51,7 @@ def mySimpleDumpRMSSpotSizeMeritFunction(s):
     stopPosition = 5
 
     fieldType= field.ObjectHeight
-    fieldpoints = [0., 0.1]
+    fieldpoints = [0., 0.1, -0.1]
 
     aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType, pupilSizeParameter, fieldType, rasterType, nray, wavelength, stopPosition)
 
