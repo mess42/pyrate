@@ -258,6 +258,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             ch.update()
             
     def aimAt(self, anotherlc, update=False):
+        print("AIM START")
         rotationtransform = np.zeros((3, 3))
         direction = self.returnGlobalToLocalPoints(anotherlc.globalcoordinates)
         print(direction)
@@ -274,11 +275,18 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         rotationtransform[:, 0] = col1
         rotationtransform[:, 1] = col0
         rotationtransform[:, 2] = direction
-        print(self.localbasis)
-        self.localbasis = np.dot(rotationtransform.T, self.localbasis)
-        print(self.localbasis)
+
+        transformedlocalrotation = np.dot(rotationtransform.T, self.localrotation)
+        
+        (tiltx, tilty, tiltz) = self.calculateTiltFromMatrix(transformedlocalrotation, self.order)
+        print(tiltx*180.0/math.pi, tilty*180.0/math.pi, tiltz*180.0/math.pi)
+        self.tiltx.setvalue(-tiltx)        
+        self.tilty.setvalue(-tilty)        
+        self.tiltz.setvalue(-tiltz)        
+                
         if update:
             self.update()
+        print("AIM END")
         
 
     def returnLocalToGlobalPoints(self, localpts):
@@ -393,10 +401,10 @@ if __name__ == "__main__":
         print("diffs: %f %f %f" % (tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
     '''testcase3: aimAt function'''
     surfaa0 = LocalCoordinates("aa0")    
-    surfaa1 = surfaa0.addChild(LocalCoordinates("aa1", decz=20, tiltx=10*math.pi/180.0))
+    surfaa1 = surfaa0.addChild(LocalCoordinates("aa1", decz=20, tiltx=20*math.pi/180.0))
     surfaa2 = surfaa1.addChild(LocalCoordinates("aa2", decz=20))
     surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))#-39.84778792366982))
-    surfaa4 = surfaa3.addChild(LocalCoordinates("aa3", decz=-39.84778792366982))
+    surfaa4 = surfaa3.addChild(LocalCoordinates("aa3", decz=39.84778792366982))
     # TODO: why not updated to new basis?
     
     if printouttestcase3:    

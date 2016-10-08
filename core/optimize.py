@@ -386,16 +386,19 @@ if __name__ == "__main__":
     os = ExampleOS()
     print os.dict_variables["X"]
     print os.dict_variables["Y"]
+    
+    def optnonupdate(s):
+        pass
 
-    optimizeSciPyNelderMead(os, testmerit)
+    optimizeSciPyNelderMead(os, testmerit, function=optnonupdate)
     print os.dict_variables["X"]
     print os.dict_variables["Y"]
     print os.dict_variables["Z"].evaluate()
     
     print("NEW IT FUNCTION1")
-    print([v.evaluate() for v in os.getAllVariablesNew()])
+    print([v.evaluate() for v in os.getAllVariables()])
     print("NEW IT FUNCTION2")
-    print([v.evaluate() for v in cl.getAllVariablesNew()])
+    print([v.evaluate() for v in cl.getAllVariables()])
     print("NEW IT FUNCTION3")
-    print([v.evaluate() for v in cl2.getAllVariablesNew()])
+    print([v.evaluate() for v in cl2.getAllVariables()])
 
