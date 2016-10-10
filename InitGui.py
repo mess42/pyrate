@@ -38,6 +38,8 @@ from PyrateWorkbench import FieldOfSystem
 from PyrateWorkbench import AnalyseSystem
 from PyrateWorkbench import OptimizeSystem
 
+from PyrateWorkbench import LocalCoordinatesTree
+
 #import PyrateWorkbench.PyrateInterface
 #import PyrateWorkbench.CreateSystem
 #import PyrateWorkbench.LoadSystem
@@ -73,7 +75,7 @@ class PyrateWorkbench ( Workbench ):
                             "LoadSystemCommand",
                             "SaveSystemCommand"])
         self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"])
-        self.appendMenu("Pyrate System", ["CreateSystemCommand"])
+        self.appendMenu("Pyrate System", ["CreateSystemCommand", "CreateLocalCoordinatesCommand"])
         self.appendMenu("Pyrate Visualization", ["UpdateVisualizationCommand"])
         self.appendMenu("Pyrate Visualization", ["ShowSystemDraw2DCommand"])
         self.appendMenu(["Pyrate Visualization", "Show ..."],
