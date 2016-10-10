@@ -1,3 +1,30 @@
+"""
+Pyrate - Optical raytracing based on Python
+
+Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and Johannes Hartung j.hartung@gmx.net
+               and    Uwe Lippmann  uwe.lippmann@web.de
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+@author: Johannes Hartung
+
+Implementation of PySide TreeModel/View according to:
+http://stackoverflow.com/questions/17278182/qtreeview-with-custom-items
+
+"""
 import sys
 import os
 from PySide import QtGui, QtCore
@@ -5,11 +32,11 @@ import FreeCADGui, FreeCAD
 from core.coordinates import LocalCoordinates
 
 
-#-------------------------------------------------------------------------------
-# my test data
-class MyData(LocalCoordinates):
+
+
+class LocalCoordinatesTreeData(LocalCoordinates):
     def __init__(self, name="", **kwargs):
-        super(MyData, self).__init__(name, **kwargs)
+        super(LocalCoordinatesTreeData, self).__init__(name, **kwargs)
         self.icon = None
         self.index = None
 
@@ -25,27 +52,12 @@ class MyData(LocalCoordinates):
                 count += 1
         return position
 
-    #---------------------------------------------------------------------------
-    # test initialization
-#    @staticmethod
-#    def init():
-#        root = MyData("root")
-#        for i in range(0, 2):
-#            child1 = MyData("child %i" % (i), root)
-#            root.child.append(child1)
-#            for x in range(0, 2):
-#                child2 = MyData("child %i %i" % (i, x), child1)
-#                child1.child.append(child2)
-#
-#        return root
-
-
 #-------------------------------------------------------------------------------
-class TreeModel(QtCore.QAbstractItemModel):
+class LocalCoordinatesTreeModel(QtCore.QAbstractItemModel):
 
     #---------------------------------------------------------------------------
     def __init__(self, tree):
-        super(TreeModel, self).__init__()
+        super(LocalCoordinatesTreeModel, self).__init__()
         self.__tree = tree
         self.__current = tree
 
@@ -66,9 +78,16 @@ class TreeModel(QtCore.QAbstractItemModel):
         if parent.isValid():
             nodeS = parent.internalPointer()
             nodeX = nodeS.children[row]
-            node = self.__createIndex(row, column, nodeX)
+            if column == 0:
+                node = self.__createIndex(row, column, nodeX)
+            if column == 1:
+                # TODO: write down global coordinates
+                pass
         else:
-            node = self.__createIndex(row, column, self.__tree)
+            if column == 0:
+                node = self.__createIndex(row, column, self.__tree)
+            if column == 1:
+                pass
         return node
 
     #---------------------------------------------------------------------------
@@ -91,7 +110,7 @@ class TreeModel(QtCore.QAbstractItemModel):
 
     #---------------------------------------------------------------------------
     def columnCount(self, index=QtCore.QModelIndex()):
-        return 1
+        return 2
 
     #---------------------------------------------------------------------------
     def data(self, index, role=QtCore.Qt.DisplayRole):
@@ -113,7 +132,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         result = True
         if role == QtCore.Qt.EditRole and value != "":
             node = index.internalPointer()
-            node.text = value
+            node.name = value
             result = True
         return result
 
@@ -128,38 +147,22 @@ class TreeModel(QtCore.QAbstractItemModel):
         return node.index
 
 
-
-#-------------------------------------------------------------------------------
-#class TreeView(QtGui.QTreeView):
-#    #---------------------------------------------------------------------------
-#    def __init__(self, model, parent=None):
-#        super(TreeView, self).__init__(parent)
-#        self.__model = model
-#        self.setModel(model)
-#
-#
-#        self.setCurrentIndex(self.__model.index(0, 0))
-#        return
-
-
 class LocalCoordinatesTaskPanel:
     def __init__(self):
         # this will create a Qt widget from our ui file
-        # TODO: relative paths?
         fn = os.path.join(os.path.dirname(__file__), 'Qt/lcdialog.ui')        
         self.form = FreeCADGui.PySideUic.loadUi(fn)
 
-        data = MyData(name="test1")
-        lc21 = data.addChild(MyData(name="lc21", decz=40.0))
-        lc22 = data.addChild(MyData(name="lc22", decz=50.0))
-        lc23 = data.addChild(MyData(name="lc23", decz=60.0))
-        lc31 = lc22.addChild(MyData(name="lc31", decz=60.0))
-        lc32 = lc22.addChild(MyData(name="lc32", decz=60.0))
-        lc33 = lc23.addChild(MyData(name="lc33", decz=60.0))
-        lc34 = lc23.addChild(MyData(name="lc34", decz=60.0))
+        data = LocalCoordinatesTreeData(name="test1")
+        lc21 = data.addChild(LocalCoordinatesTreeData(name="lc21", decz=40.0))
+        lc22 = data.addChild(LocalCoordinatesTreeData(name="lc22", decz=50.0))
+        lc23 = data.addChild(LocalCoordinatesTreeData(name="lc23", decz=60.0))
+        lc31 = lc22.addChild(LocalCoordinatesTreeData(name="lc31", decz=60.0))
+        lc32 = lc22.addChild(LocalCoordinatesTreeData(name="lc32", decz=60.0))
+        lc33 = lc23.addChild(LocalCoordinatesTreeData(name="lc33", decz=60.0))
+        lc34 = lc23.addChild(LocalCoordinatesTreeData(name="lc34", decz=60.0))
         
-        treeModel = TreeModel(data)
-        #self.form.treeView = QtGui.QTreeView()
+        treeModel = LocalCoordinatesTreeModel(data)
         self.form.treeView.setModel(treeModel)#TreeView(treeModel)
         self.form.treeView.setCurrentIndex(treeModel.index(0, 0))
 
@@ -198,27 +201,3 @@ class CreateLocalCoordinatesTool:
 
 
 FreeCADGui.addCommand('CreateLocalCoordinatesCommand', CreateLocalCoordinatesTool())
-
-#-------------------------------------------------------------------------------
-#class MyTree(QtGui.QMainWindow):
-#    def __init__(self, parent=None):
-#        super(MyTree, self).__init__(parent)
-#
-#        data = MyData.init()
-#        treeModel = TreeModel(data)
-#        treeView = TreeView(treeModel)
-#
-#        self.setCentralWidget(treeView)
-#
-#
-##-------------------------------------------------------------------------------
-#def main():
-#    app = QtGui.QApplication.instance()
-#    if app is None:
-#        app = QtGui.QApplication(sys.argv)    
-#    form = MyTree()
-#    form.show()
-#    app.exec_()
-#
-#if __name__ == '__main__':
-#    main()
