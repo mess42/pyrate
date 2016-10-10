@@ -112,6 +112,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
     name = property(getName, setName)
 
+    def getChildren(self):
+        return self.__children
+        
+    children = property(getChildren)
+
 
     def addChild(self, childlc):
         """

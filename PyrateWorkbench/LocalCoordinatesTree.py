@@ -2,15 +2,14 @@ import sys
 import os
 from PySide import QtGui, QtCore
 import FreeCADGui, FreeCAD
+from core.coordinates import LocalCoordinates
 
 
 #-------------------------------------------------------------------------------
 # my test data
-class MyData():
-    def __init__(self, txt, parent=None):
-        self.txt = txt
-        self.parent = parent
-        self.child = []
+class MyData(LocalCoordinates):
+    def __init__(self, name="", **kwargs):
+        super(MyData, self).__init__(name, **kwargs)
         self.icon = None
         self.index = None
 
@@ -19,8 +18,7 @@ class MyData():
         position = 0
         if self.parent is not None:
             count = 0
-            children = self.parent.child
-            for child in children:
+            for child in self.getChildren():
                 if child == self:
                     position = count
                     break
@@ -29,17 +27,17 @@ class MyData():
 
     #---------------------------------------------------------------------------
     # test initialization
-    @staticmethod
-    def init():
-        root = MyData("root")
-        for i in range(0, 2):
-            child1 = MyData("child %i" % (i), root)
-            root.child.append(child1)
-            for x in range(0, 2):
-                child2 = MyData("child %i %i" % (i, x), child1)
-                child1.child.append(child2)
-
-        return root
+#    @staticmethod
+#    def init():
+#        root = MyData("root")
+#        for i in range(0, 2):
+#            child1 = MyData("child %i" % (i), root)
+#            root.child.append(child1)
+#            for x in range(0, 2):
+#                child2 = MyData("child %i %i" % (i, x), child1)
+#                child1.child.append(child2)
+#
+#        return root
 
 
 #-------------------------------------------------------------------------------
@@ -67,7 +65,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         node = QtCore.QModelIndex()
         if parent.isValid():
             nodeS = parent.internalPointer()
-            nodeX = nodeS.child[row]
+            nodeX = nodeS.children[row]
             node = self.__createIndex(row, column, nodeX)
         else:
             node = self.__createIndex(row, column, self.__tree)
@@ -88,7 +86,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         count = 1
         node = index.internalPointer()
         if node is not None:
-            count = len(node.child)
+            count = len(node.children)
         return count
 
     #---------------------------------------------------------------------------
@@ -100,11 +98,11 @@ class TreeModel(QtCore.QAbstractItemModel):
         data = None
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
             node = index.internalPointer()
-            data = node.txt
+            data = node.name
 
         if role == QtCore.Qt.ToolTipRole:
             node = index.internalPointer()
-            data = "ToolTip " + node.txt
+            data = "ToolTip " + node.name
 
         if role == QtCore.Qt.DecorationRole:
             data = QtGui.QIcon("icon.png")
@@ -126,22 +124,22 @@ class TreeModel(QtCore.QAbstractItemModel):
             node.index = index
             icon = QtGui.QIcon("icon.png")
             b = self.setData(index, icon, QtCore.Qt.DecorationRole)
-            b = self.setData(index, "ToolTip "+node.txt, QtCore.Qt.ToolTipRole)
+            b = self.setData(index, "ToolTip "+node.name, QtCore.Qt.ToolTipRole)
         return node.index
 
 
 
 #-------------------------------------------------------------------------------
-class TreeView(QtGui.QTreeView):
-    #---------------------------------------------------------------------------
-    def __init__(self, model, parent=None):
-        super(TreeView, self).__init__(parent)
-        self.__model = model
-        self.setModel(model)
-
-
-        self.setCurrentIndex(self.__model.index(0, 0))
-        return
+#class TreeView(QtGui.QTreeView):
+#    #---------------------------------------------------------------------------
+#    def __init__(self, model, parent=None):
+#        super(TreeView, self).__init__(parent)
+#        self.__model = model
+#        self.setModel(model)
+#
+#
+#        self.setCurrentIndex(self.__model.index(0, 0))
+#        return
 
 
 class LocalCoordinatesTaskPanel:
@@ -151,7 +149,15 @@ class LocalCoordinatesTaskPanel:
         fn = os.path.join(os.path.dirname(__file__), 'Qt/lcdialog.ui')        
         self.form = FreeCADGui.PySideUic.loadUi(fn)
 
-        data = MyData.init()
+        data = MyData(name="test1")
+        lc21 = data.addChild(MyData(name="lc21", decz=40.0))
+        lc22 = data.addChild(MyData(name="lc22", decz=50.0))
+        lc23 = data.addChild(MyData(name="lc23", decz=60.0))
+        lc31 = lc22.addChild(MyData(name="lc31", decz=60.0))
+        lc32 = lc22.addChild(MyData(name="lc32", decz=60.0))
+        lc33 = lc23.addChild(MyData(name="lc33", decz=60.0))
+        lc34 = lc23.addChild(MyData(name="lc34", decz=60.0))
+        
         treeModel = TreeModel(data)
         #self.form.treeView = QtGui.QTreeView()
         self.form.treeView.setModel(treeModel)#TreeView(treeModel)
