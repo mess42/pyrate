@@ -768,7 +768,7 @@ class OpticalSystemInterface(object):
         # some dialog
 
 
-OSinterface = OpticalSystemInterface()
+
 
 
 
