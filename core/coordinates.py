@@ -57,13 +57,15 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                           Default value is zero.
                                           0 or False means: the decenter operations are performed first, then tiltx, then tilty, then tiltz.
                                           1 or True means: tiltz first, then tilty, then tiltx, then decenter.       
-        
+                        observers:        list of observers derived from AbstractObserver
         '''
         super(LocalCoordinates, self).__init__()        
 
         
         (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
         (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "tiltThenDecenter"])
+        self.observers = []        
+        self.observers = kwargs.get("observers", [])        
         
         
         if name == "":
@@ -292,7 +294,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             parentcoordinates + \
             np.dot(self.localbasis, self.localdecenter)
             # TODO: removed .T on localbasis to obtain correct behavior; examine!
-            
+        
+        # inform observers about update
+        for obs in self.observers:
+            obs.informUpdate()
+        
         for ch in self.__children:
             ch.update()
             

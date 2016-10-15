@@ -10,11 +10,12 @@ import numpy as np
 class AbstractObserver(object):
     def __init__(self):
         """ 
-        Get actualized from to be observed object
+        Get actualized from to be observed object.
+        Most simple case: Observed object calls informUpdate()
         """
         super(AbstractObserver, self).__init__()
     
-    def setValues(self, vals):
+    def informAboutUpdate(self):
         raise NotImplemented()
     
 
