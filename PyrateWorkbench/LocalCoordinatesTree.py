@@ -30,6 +30,9 @@ import os
 import math
 
 from PySide import QtGui, QtCore
+from PySide.QtGui import QInputDialog
+from PySide.QtGui import QLineEdit
+
 import FreeCADGui, FreeCAD, Part
 from core.coordinates import LocalCoordinates
 from core.observers import AbstractObserver
@@ -88,8 +91,8 @@ class LC(AbstractObserver):
         LC(chobj, lcclasschild, self.__doc, subgroup)
 
 
-    def addChild(self):
-        ch = self.__lc.addChild(LocalCoordinates())
+    def addChild(self, name=""):
+        ch = self.__lc.addChild(LocalCoordinates(name))
         self.createSubgroupForChild(ch)
 
 
@@ -365,10 +368,11 @@ class ContextAddChildToLocalCoordinatesTool:
     def Activated(self):
         
         selection = [s  for s in FreeCADGui.Selection.getSelection() if s.Document == FreeCAD.ActiveDocument ]
-        if len(selection) == 1:
+        (name_of_child, accepted) = QInputDialog.getText(None,"Get text", "User name", QLineEdit.Normal, "NoName")
+        if len(selection) == 1 and accepted:
             obj = selection[0]
             if 'lcclass' in obj.PropertiesList:
-                obj.lcobserver.addChild()
+                obj.lcobserver.addChild(name = name_of_child)
                 
 class ContextIncreaseScaleOfAllLocalCoordinatesTool:
     def GetResources(self):
