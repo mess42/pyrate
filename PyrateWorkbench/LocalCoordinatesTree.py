@@ -27,11 +27,146 @@ http://stackoverflow.com/questions/17278182/qtreeview-with-custom-items
 """
 import sys
 import os
+import math
+
 from PySide import QtGui, QtCore
-import FreeCADGui, FreeCAD
+import FreeCADGui, FreeCAD, Part
 from core.coordinates import LocalCoordinates
+from core.observers import AbstractObserver
+
+class LC(AbstractObserver):
+    def __init__(self, obj, coupling, doc, group):
+        if obj == None:
+            obj = doc.addObject("Part::FeaturePython", coupling.name)
+
+        if group == None:
+            group = doc.addObject("App::DocumentObjectGroup", coupling.name + "_group")
+
+        self.__lc = coupling # link to appropriate data structure
+        self.__lc.observers.append(self)
+        self.__obj = obj
+        self.__group = group
+        self.__doc = doc
+
+        group.addObject(obj)
+        obj.addProperty("App::PropertyPythonObject", "lcclass", "LC", "class interface").lcclass = coupling
+        obj.addProperty("App::PropertyPythonObject", "lcobserver", "LC", "observer interface").lcobserver = self
+        obj.addProperty("App::PropertyVector", "globalcoordinates", "LC", "global coords").globalcoordinates = FreeCAD.Base.Vector(tuple(coupling.globalcoordinates))
+        obj.addProperty("App::PropertyVector", "decenter", "LC", "decenter").decenter = FreeCAD.Base.Vector((coupling.decx.evaluate(), coupling.decy.evaluate(), coupling.decz.evaluate()))
+        obj.addProperty("App::PropertyVector", "tilt", "LC", "tilt in degrees").tilt = FreeCAD.Base.Vector((coupling.tiltx.evaluate()*180.0/math.pi, coupling.tilty.evaluate()*180.0/math.pi, coupling.tiltz.evaluate()*180.0/math.pi))
+        obj.addProperty("App::PropertyBool", "order", "LC", "First Tilt then Decenter?").order = bool(coupling.tiltThenDecenter)
+        obj.addProperty("App::PropertyFloat", "scale", "LC", "Scale factor cross").scale = 1.0
+
+        obj.addProperty("App::PropertyVector", "localbasisX", "LC", "local basis vector x").localbasisX = FreeCAD.Base.Vector(tuple(coupling.localbasis[:,0]))
+        obj.addProperty("App::PropertyVector", "localbasisY", "LC", "local basis vector y").localbasisY = FreeCAD.Base.Vector(tuple(coupling.localbasis[:,1]))
+        obj.addProperty("App::PropertyVector", "localbasisZ", "LC", "local basis vector z").localbasisZ = FreeCAD.Base.Vector(tuple(coupling.localbasis[:,2]))
+
+        obj.setEditorMode("Placement", 2) # readonly and hide
+        obj.setEditorMode("globalcoordinates", 1) # readonly, is determined by tilt, decenter, order 
+        obj.setEditorMode("localbasisX", 1) # readonly, is determined by tilt, decenter, order 
+        obj.setEditorMode("localbasisY", 1) # readonly, is determined by tilt, decenter, order 
+        obj.setEditorMode("localbasisZ", 1) # readonly, is determined by tilt, decenter, order 
 
 
+        obj.Proxy = self
+        
+        obj.ViewObject.Proxy=0
+
+        for ch in coupling.getChildren():
+            self.createSubgroupForChild(ch)
+    
+    def returnGroupLabel(self, s):
+        return s + "_group"
+    def returnStructureLabel(self, s):
+        return s
+
+    def createSubgroupForChild(self, lcclasschild):
+        subgroup = self.__doc.addObject("App::DocumentObjectGroup", self.returnGroupLabel(lcclasschild.name))
+        self.__group.addObject(subgroup)
+        chobj = self.__doc.addObject("Part::FeaturePython", self.returnStructureLabel(lcclasschild.name))
+        subgroup.addObject(chobj)                        
+        LC(chobj, lcclasschild, self.__doc, subgroup)
+
+
+    def addChild(self):
+        ch = self.__lc.addChild(LocalCoordinates())
+        self.createSubgroupForChild(ch)
+
+
+    def getGroup(self):
+        return self.__group
+
+    group = property(getGroup)
+
+    def informUpdate(self):
+        # let this observer class be informed when update in underlying localcoordinate class takes place
+        FreeCAD.Console.PrintMessage("update info from " + self.__lc.name + "\n")
+        self.__obj.globalcoordinates = FreeCAD.Base.Vector(tuple(self.__lc.globalcoordinates))
+        self.__obj.localbasisX = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,0]))
+        self.__obj.localbasisY = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,1]))
+        self.__obj.localbasisZ = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,2]))
+        
+
+    def onChanged(self, fp, prop):
+        '''Do something when a property has changed'''
+        #FreeCAD.Console.PrintMessage("For fp: " + str(fp) + "\n")
+        #FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
+
+        if prop == "Label":
+            # rename also the group and the underlying localcoordinate class
+            self.__lc.name = self.returnStructureLabel(self.__obj.Label)
+            self.__group.Label = self.returnGroupLabel(self.__obj.Label)
+
+        if prop == "order" or prop == "tilt" or prop == "decenter":
+            # write back changed properties to underlying localcoordinate class
+            # and update tree
+            self.__lc.tiltx.setvalue(fp.tilt.x*math.pi/180.0)
+            self.__lc.tilty.setvalue(fp.tilt.y*math.pi/180.0)
+            self.__lc.tiltz.setvalue(fp.tilt.z*math.pi/180.0)
+
+            self.__lc.decx.setvalue(fp.decenter.x)
+            self.__lc.decy.setvalue(fp.decenter.y)
+            self.__lc.decz.setvalue(fp.decenter.z)
+
+            self.__lc.tiltThenDecenter = fp.order
+
+            self.__lc.update()
+
+            # perform data structur update of readonly properties after link update
+            # TODO: update of all children?
+            fp.globalcoordinates = FreeCAD.Base.Vector(tuple(self.__lc.globalcoordinates))
+            fp.localbasisX = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,0]))
+            fp.localbasisY = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,1]))
+            fp.localbasisZ = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,2]))
+
+        if prop != "Shape":
+            # prevent recursive call        
+            self.execute(fp)
+                             
+ 
+    def execute(self, fp):
+        '''Do something when doing a recomputation, this method is mandatory'''
+
+        p0 = fp.globalcoordinates
+        p1 = p0.add(fp.localbasisX*fp.scale)
+        p2 = p0.add(fp.localbasisY*fp.scale)
+        p3 = p0.add(fp.localbasisZ*fp.scale)
+
+        l1 = Part.makeLine(p0, p1)
+        l2 = Part.makeLine(p0, p2)
+        l3 = Part.makeLine(p0, p3)
+
+        c1 = Part.makeCone(0.05*fp.scale, 0.0, 0.1*fp.scale, p1, fp.localbasisX, 360)
+        c2 = Part.makeCone(0.05*fp.scale, 0.0, 0.1*fp.scale, p2, fp.localbasisY, 360)
+        c3 = Part.makeCone(0.05*fp.scale, 0.0, 0.1*fp.scale, p3, fp.localbasisZ, 360)
+
+        l1.Placement = fp.Placement
+        l2.Placement = fp.Placement
+        l3.Placement = fp.Placement
+
+
+        fp.Shape = Part.makeCompound([l1, l2, l3, c1, c2, c3])
+        #FreeCAD.Console.PrintMessage("Recompute Python LC feature\n")
 
 
 class LocalCoordinatesTreeData(LocalCoordinates):
@@ -194,10 +329,90 @@ class CreateLocalCoordinatesTool:
 
     def Activated(self):
 
-        doc = FreeCAD.ActiveDocument
-        panel = LocalCoordinatesTaskPanel()
-        FreeCADGui.Control.showDialog(panel)
+        gad = FreeCAD.ActiveDocument
+        if gad == None:
+            return
 
+        origin = LocalCoordinates(name="origin")
+        lc21 = origin.addChild(LocalCoordinates(name="lc21", decz=40.0))
+        lc22 = origin.addChild(LocalCoordinates(name="lc22", tiltx=0.1, decz=50.0))
+        lc23 = origin.addChild(LocalCoordinates(name="lc23", decz=60.0))
+        lc31 = lc22.addChild(LocalCoordinates(name="lc31", decz=60.0))
+        lc32 = lc22.addChild(LocalCoordinates(name="lc32", decz=70.0))
+        lc33 = lc23.addChild(LocalCoordinates(decz=60.0))
+        lc34 = lc23.addChild(LocalCoordinates(name="lc34", decz=60.0))
+    
+        llc = LC(None, origin, gad, None)
+
+class ContextAddChildToLocalCoordinatesTool:
+    
+    "Tool for adding child to local coordinates within context menu"
+
+    def GetResources(self):
+        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
+                "MenuText": "Add child to local coordinates ...",
+                "Accel": "",
+                "ToolTip": "Add child to local coordinates"
+                }
+
+
+    def IsActive(self):
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            return True
+
+    def Activated(self):
+        
+        selection = [s  for s in FreeCADGui.Selection.getSelection() if s.Document == FreeCAD.ActiveDocument ]
+        if len(selection) == 1:
+            obj = selection[0]
+            if 'lcclass' in obj.PropertiesList:
+                obj.lcobserver.addChild()
+                
+class ContextIncreaseScaleOfAllLocalCoordinatesTool:
+    def GetResources(self):
+        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
+                "MenuText": "Increase Scale of local coordinates ...",
+                "Accel": "",
+                "ToolTip": "increase Scale of local coordinates"
+                }
+
+    def IsActive(self):
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            return True
+
+    def Activated(self):
+
+        for o in FreeCAD.ActiveDocument.Objects:
+            if "lcclass" in o.PropertiesList:
+                o.scale += 1
+
+class ContextDecreaseScaleOfAllLocalCoordinatesTool:
+    def GetResources(self):
+        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
+                "MenuText": "Decrease Scale of local coordinates ...",
+                "Accel": "",
+                "ToolTip": "Decrease Scale of local coordinates"
+                }
+
+    def IsActive(self):
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            return True
+
+    def Activated(self):
+
+        for o in FreeCAD.ActiveDocument.Objects:
+            if "lcclass" in o.PropertiesList:
+                o.scale -= 1
+ 
 
 
 FreeCADGui.addCommand('CreateLocalCoordinatesCommand', CreateLocalCoordinatesTool())
+FreeCADGui.addCommand('ContextAddChildToLocalCoordinatesCommand', ContextAddChildToLocalCoordinatesTool())
+FreeCADGui.addCommand('ContextIncreaseScaleOfAllLocalCoordinatesCommand', ContextIncreaseScaleOfAllLocalCoordinatesTool())
+FreeCADGui.addCommand('ContextDecreaseScaleOfAllLocalCoordinatesCommand', ContextDecreaseScaleOfAllLocalCoordinatesTool())
