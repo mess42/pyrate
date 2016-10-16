@@ -8,13 +8,14 @@ Created on Wed Sep 28 10:45:28 2016
 import numpy as np
 
 class AbstractObserver(object):
-    __init__(self):
+    def __init__(self):
         """ 
-        Get actualized from to be observed object
+        Get actualized from to be observed object.
+        Most simple case: Observed object calls informUpdate()
         """
         super(AbstractObserver, self).__init__()
     
-    setValues(self, vals):
+    def informAboutUpdate(self):
         raise NotImplemented()
     
 

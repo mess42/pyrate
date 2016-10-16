@@ -11,8 +11,26 @@ wrapper codes to wrap the core functionality in a dialog and click & play manner
 There is still no lens editor interface. At the moment you can only choose some demo
 directly in the sources.
 
+Requirements
+------------
+
+You need Python 2.x with NumPy, SciPy, and matplotlib installed to run pyrate.
+
+In Ubuntu, Mint and Debian you can use:
+
+    $ sudo apt-get install python python-numpy python-scipy python-matplotlib
+
+If you want to run mypy on the project, you need also Python 3.x with mypy
+installed.
+
+In Ubuntu, Mint and Debian you can use:
+
+    $ sudo apt-get install python3 pip3
+    $ sudo pip3 install mypy-lang
+    $ sudo python3 -m pip install typed-ast
+
 FreeCAD workbench
-=================
+-----------------
 
 - copy (or symlink) the pyrate directory into ~/.FreeCAD/Mod
 - execute ./build_rc in PyrateWorkbench directory

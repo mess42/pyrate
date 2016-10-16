@@ -191,7 +191,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
         self.primaryWavelength = primaryWavelength
 
-        self.observers = {} # observers which will we informed upon change of OS
+        #self.observers = {} # observers which will we informed upon change of OS
 
     def addLocalCoordinateSystem(self, tmplc, refname=""):
         allnames = self.globalcoordinatesystem.returnConnectedNames()
@@ -211,29 +211,30 @@ class OpticalSystem(ClassWithOptimizableVariables):
         
         return tmplc
         
+    # TODO: removed observer functionality, because observers should be an integrated
+    # part of classwithoptimizable variables and maybe at higher levels in the class hierarchy
 
-
-    def addObserver(self, name, observer):
-        self.observers[name] = observer
+    #def addObserver(self, name, observer):
+    #    self.observers[name] = observer
     
-    def returnObserver(self, name):
-        return self.observers[name]
+    #def returnObserver(self, name):
+    #    return self.observers[name]
         
-    def removeObserver(self, name):
-        return self.observers.pop(name)
+    #def removeObserver(self, name):
+    #    return self.observers.pop(name)
         
-    def informObservers(self):
-        for o in self.observers:
-            o.setValues(self.obtainGeometricalSurfaceData())
+    #def informObservers(self):
+    #    for o in self.observers:
+    #        o.setValues(self.obtainGeometricalSurfaceData())
 
-    def obtainGeometricalSurfaceData(self):
-        doublelist = [[s.localcoordinates.thickness.evaluate(), \
-          s.localcoordinates.decx.evaluate(), \
-          s.localcoordinates.decy.evaluate(), \
-          s.localcoordinates.tiltx.evaluate(), \
-          s.localcoordinates.tilty.evaluate(), \
-          s.localcoordinates.tiltz.evaluate()] for s in self.surfaces]
-        return np.array(doublelist)
+    #def obtainGeometricalSurfaceData(self):
+    #    doublelist = [[s.localcoordinates.thickness.evaluate(), \
+    #      s.localcoordinates.decx.evaluate(), \
+    #      s.localcoordinates.decy.evaluate(), \
+    #      s.localcoordinates.tiltx.evaluate(), \
+    #      s.localcoordinates.tilty.evaluate(), \
+    #      s.localcoordinates.tiltz.evaluate()] for s in self.surfaces]
+    #    return np.array(doublelist)
 
 
     def appendSurface(self, surface):

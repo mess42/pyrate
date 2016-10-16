@@ -37,7 +37,9 @@ from core.optical_system import OpticalSystem, Surface
 from core.ray import RayPath, RayBundle
 
 from core import plots
-from core.aperture import CircularAperture
+from core.aperture import CircularAperture, BaseAperture
+from core.coordinates import LocalCoordinates
+
 import math
 
 # formula for effective focal length
@@ -66,10 +68,16 @@ def effl_pt(r, alpha, phi):
     )
 
 # definition of optical system
-s = OpticalSystem(objectDistance = 0.0)
 
-s.insertSurface(1, Surface(surfShape.Conic(curv=1./3.), thickness=10.0,
+s = OpticalSystem()
+
+
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=0.0)) # objectDist
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=10.0))
+
+s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1./3.),
                            material=material.ConstantIndexGlass(1.7), aperture=CircularAperture(3.0)))
+s.insertSurface(2, Surface(lc2))
 # pilot bundle
 
 fig = plt.figure(1)
@@ -90,7 +98,7 @@ for (ind, phiangle) in enumerate(phirange):
     pts = np.array([[0, 0], [0.0, 0.1], [0, 0]])
     dirs = np.array([[0,0], np.sin([phiangle, phiangle]), np.cos([phiangle, phiangle])])
 
-    pilotbundle = RayBundle(pts, dirs, np.array([0, 1, 2]), wave=0.55, pol=[])
+    pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=0.55, pol=[])
     pilotpath = RayPath(pilotbundle, s)
 
 

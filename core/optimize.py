@@ -264,43 +264,72 @@ class ClassWithOptimizableVariables(object):
         """
         self.dict_variables[name].status = var_status
 
-def MeritFunctionWrapperScipy(x, s, meritfunction, func):
-    """
-    Merit function wrapper for scipy optimize. Notice that x and length of active values must have the same size
 
-    :param x (np.array): active variable values
-    :param s (ClassWithOptimizableVariables): system to be optimized
-    :param meritfunction (function): meritfunction depending on s
+class Optimizer(object):
+    '''
+    Easy optimization interface. All variables are public such that a quick
+    attachment of other meritfunctions or other update functions with other
+    parameters is possible.
+    '''
+    def __init__(self, classwithoptvariables, meritfunction, updatefunction, meritparameters={}, updateparameters={}):
+        super(Optimizer, self).__init__()
+        self.classwithoptvariables = classwithoptvariables
+        self.meritfunction = meritfunction
+        self.updatefunction = updatefunction
+        self.meritparameters = meritparameters
+        self.updateparameters = updateparameters
+        self.log = "" # for logging
 
-    :return value of the merit function
-    """
-    s.setActiveVariableValues(x)
-    func(s)
+    def MeritFunctionWrapperScipy(self, x): #, s, meritfunction, func):
+        """
+        Merit function wrapper for scipy optimize. Notice that x and length of active values must have the same size
+    
+        :param x (np.array): active variable values
+        :param s (ClassWithOptimizableVariables): system to be optimized
+        :param meritfunction (function): meritfunction depending on s
+    
+        :return value of the merit function
+        """
+        self.classwithoptvariables.setActiveVariableValues(x)
+        self.updatefunction(self.classwithoptvariables, **self.updateparameters)    
+        return self.meritfunction(self.classwithoptvariables, **self.meritparameters)
 
-    return meritfunction(s)
+    def optimizeSciPyInterface(self, **kwargs):
+        """
+        Optimization function: Scipy.optimize wrapper
+        """
+        steps = kwargs.get("steps", 0.0)
+        if steps > 0:
+            opts["maxiter"] = steps
+        else:
+            opts = {}
+        
+        x0 = self.classwithoptvariables.getActiveVariableValues()
+        print(x0) # TODO: rewrite to log
+        res = minimize(self.MeritFunctionWrapperScipy, x0, args=(), method=kwargs["method"], options=opts)
+        print res # TODO: rewrite to log
+        self.classwithoptvariables.setActiveVariableValues(res.x)
+        return self.classwithoptvariables
+
+    def optimizeSciPyNelderMead(self, **kwargs):
+        """
+        Optimization function: direct access to Nelder-Mead algorithm in Scipy.
+        """
+        return self.optimizeSciPyInterface(method="Nelder-Mead")
+
+    def run(self, optimizer="optimizeSciPyNelderMead", steps=0, **kwargs):
+        '''
+        Funtion to perform a certain number of optimization steps.
+        '''
+        eval("self." + optimizer)(steps=steps, **kwargs)
+
+
 
 def optimizeNewton1D(s, meritfunction, dx, iterations=1):
     """
     Optimization function: Newton1D
     """
     pass
-
-def optimizeSciPyInterface(s, meritfunction, **kwargs):
-    """
-    Optimization function: Scipy.optimize wrapper
-    """
-    x0 = s.getActiveVariableValues()
-    print(x0)
-    res = minimize(MeritFunctionWrapperScipy, x0, args=(s, meritfunction, kwargs["function"]), method=kwargs["method"])
-    print res
-    s.setActiveVariableValues(res.x)
-    return s
-
-def optimizeSciPyNelderMead(s, meritfunction, **kwargs):
-    """
-    Optimization function: direct access to Nelder-Mead algorithm in Scipy.
-    """
-    return optimizeSciPyInterface(s, meritfunction, method="Nelder-Mead", function=kwargs["function"])
 
 
 if __name__ == "__main__":
@@ -390,7 +419,10 @@ if __name__ == "__main__":
     def optnonupdate(s):
         pass
 
-    optimizeSciPyNelderMead(os, testmerit, function=optnonupdate)
+    optimi = Optimizer(os, testmerit, optnonupdate)
+    optimi.optimizeSciPyNelderMead()
+    #optimi.run("optimizeSciPyNelderMead", steps=1)
+    #optimizeSciPyNelderMead(os, testmerit, function=optnonupdate)
     print os.dict_variables["X"]
     print os.dict_variables["Y"]
     print os.dict_variables["Z"].evaluate()
