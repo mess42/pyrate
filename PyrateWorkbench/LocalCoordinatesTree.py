@@ -40,10 +40,10 @@ from core.observers import AbstractObserver
 class LC(AbstractObserver):
     def __init__(self, obj, coupling, doc, group):
         if obj == None:
-            obj = doc.addObject("Part::FeaturePython", coupling.name)
+            obj = doc.addObject("Part::FeaturePython", self.returnStructureLabel(coupling.name))
 
         if group == None:
-            group = doc.addObject("App::DocumentObjectGroup", coupling.name + "_group")
+            group = doc.addObject("App::DocumentObjectGroup", self.returnGroupLabel(coupling.name))
 
         self.__lc = coupling # link to appropriate data structure
         self.__lc.observers.append(self)
