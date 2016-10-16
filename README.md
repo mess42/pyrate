@@ -29,10 +29,17 @@ In Ubuntu, Mint and Debian you can use:
     $ sudo pip3 install mypy-lang
     $ sudo python3 -m pip install typed-ast
 
-FreeCAD workbench
+FreeCAD Workbench
 -----------------
 
 - copy (or symlink) the pyrate directory into ~/.FreeCAD/Mod
 - execute ./build_rc in PyrateWorkbench directory
 - choose workbench in FreeCAD
+
+IRC
+---
+
+Visit us on freenode (ports 6697, 7000, 7070 for SSL) channel #pyrate for some real time communication.
+
+
 
