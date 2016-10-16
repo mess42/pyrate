@@ -368,7 +368,7 @@ class ContextAddChildToLocalCoordinatesTool:
     def Activated(self):
         
         selection = [s  for s in FreeCADGui.Selection.getSelection() if s.Document == FreeCAD.ActiveDocument ]
-        (name_of_child, accepted) = QInputDialog.getText(None,"Get text", "User name", QLineEdit.Normal, "NoName")
+        (name_of_child, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Child Local Coordinates System", QLineEdit.Normal, "")
         if len(selection) == 1 and accepted:
             obj = selection[0]
             if 'lcclass' in obj.PropertiesList:

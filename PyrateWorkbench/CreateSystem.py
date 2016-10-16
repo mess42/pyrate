@@ -54,19 +54,23 @@ class CreateSystemTool:
 
         doc = FreeCAD.ActiveDocument
 
-        doc.OSinterface = PyrateInterface.OpticalSystemInterface() 
+        PyrateInterface.OpticalSystemObserver(doc) 
+        
+        
         # TODO: 1 OSinterface per doc, but several optical systems
         # TODO: call wizard for creation of new system
 
-        doc.OSinterface.dummycreate4() # substitute by system creation dialog
+        # old code
+
+        # doc.OSinterface.dummycreate4() # substitute by system creation dialog
         # dummycreate() -> lens system
         # dummycreate2() -> mirror system
         # dummycreate3() -> lens system with incorrect curvature in surface7
         # dummycreate4() -> GRIN medium
-        doc.OSinterface.createSurfaceViews(doc)
-        doc.OSinterface.showAimFiniteSurfaceStopDialog()
-        doc.OSinterface.showFieldWaveLengthDialog()
-        doc.OSinterface.createRayViews(doc, 50)
+        # doc.OSinterface.createSurfaceViews(doc)
+        # doc.OSinterface.showAimFiniteSurfaceStopDialog()
+        # doc.OSinterface.showFieldWaveLengthDialog()
+        # doc.OSinterface.createRayViews(doc, 50)
         #PyrateInterface.OSinterface.showSpotDiagrams(100)
 
 
