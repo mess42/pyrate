@@ -308,26 +308,32 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         direction = self.returnGlobalToLocalPoints(anotherlc.globalcoordinates)
         print(direction)
         dist = np.linalg.norm(direction)
-        direction = direction/dist
+        localzaxis = direction/dist
         print(direction)
+        
+        #zaxis = normal(At - Eye)
+        #xaxis = normal(cross(Up, zaxis))
+        #yaxis = cross(zaxis, xaxis)
+        
+        
         up = np.array([0, 1, 0]) # y-axis
 
-        col1 = np.cross(up, direction)
-        col1 = col1/np.linalg.norm(col1)
-        col0 = np.cross(col1, direction)
-        col0 = col0/np.linalg.norm(col0)
+        localxaxis = np.cross(up, localzaxis)
+        localxaxis = localxaxis/np.linalg.norm(localxaxis)
+        localyaxis = np.cross(localzaxis, localxaxis)
+        localyaxis = localyaxis/np.linalg.norm(localyaxis)
         
-        rotationtransform[:, 0] = col1
-        rotationtransform[:, 1] = col0
-        rotationtransform[:, 2] = direction
+        rotationtransform[:, 0] = localxaxis
+        rotationtransform[:, 1] = localyaxis
+        rotationtransform[:, 2] = localzaxis
 
         transformedlocalrotation = np.dot(rotationtransform.T, self.localrotation)
         
         (tiltx, tilty, tiltz) = self.calculateTiltFromMatrix(transformedlocalrotation, self.tiltThenDecenter)
         print(tiltx*180.0/math.pi, tilty*180.0/math.pi, tiltz*180.0/math.pi)
-        self.tiltx.setvalue(-tiltx)        
-        self.tilty.setvalue(-tilty)        
-        self.tiltz.setvalue(-tiltz)        
+        self.tiltx.setvalue(tiltx)        
+        self.tilty.setvalue(tilty)        
+        self.tiltz.setvalue(tiltz)        
                 
         if update:
             self.update()
@@ -421,7 +427,7 @@ if __name__ == "__main__":
     surfcb9 = surfcb3.addChild(LocalCoordinates(name="9", decx=-5.555, decy=-3.333, tiltz=-1.0, tiltx=-1.0))    
     
     printouttestcase1 = False
-    printouttestcase2 = True
+    printouttestcase2 = False
     printouttestcase3 = True
     
     if printouttestcase1:
@@ -456,13 +462,14 @@ if __name__ == "__main__":
     surfaa1 = surfaa0.addChild(LocalCoordinates("aa1", decz=20, tiltx=20*math.pi/180.0))
     surfaa2 = surfaa1.addChild(LocalCoordinates("aa2", decz=20))
     surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))#-39.84778792366982))
-    surfaa4 = surfaa3.addChild(LocalCoordinates("aa3", decz=39.84778792366982))
+    surfaa4 = surfaa3.addChild(LocalCoordinates("aa4", decz=39.84778792366982))
     # TODO: why not updated to new basis?
     
     if printouttestcase3:    
         print(surfaa0.pprint())
-        print(str(surfaa1))
-        print(str(surfaa2))
+        #print(str(surfaa1))
+        #print(str(surfaa2))
         surfaa3.aimAt(surfaa0, update=True)
+        print(str(surfaa3))
         print(str(surfaa4))
     
