@@ -678,7 +678,6 @@ We call the points in the object and image plane field points.
   \label{fig:pupil}
 \end{figure}
 
-
 The optical system is capable of transmitting only a certain angular spectrum of the light emitted by each object field point.
 We call the component which limits the amount of transmitted light for the on-axis field point \emph{stop}.
 The stop can be, for example, the clear aperture of a finite sized lens or a metal ring aperture.
@@ -699,6 +698,8 @@ In close analogy, we can image rays from the stop to the exit pupil and perform 
 This property is often used to determine the marginal and coma angles: 
 aiming from the object into the entrance pupil by free-space propagation is much easier than tracing rays from the object to the stop.
 Care has to be taken if the front lens group imaging the stop to the pupil suffers from aberrations such as distortion.
+
+We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{saggital plane}.
 
 
 \section{Direction of the ray}
@@ -869,6 +870,125 @@ of the ``time'' coordinate
 $\text{d}s/\text{d}\sigma = g(\Vector{q}, \Vector{p})$.
 By using a special form of this transformation $g$ the new Hamiltonian is separable and we
 may use a symplectic scheme like the one mentioned above to integrate the new formulation.
+
+\section{Paraxial and Parabasal Optics}
+In paraxial optics, we consider centro-symmetric systems with rays close to the optical axis both in real and angular space. 
+Parabasal optics decribes rays close to a base ray. 
+We describe small fields around the base ray,
+allowing for systems with decenter, tilts and freeshapes. 
+
+\subsection{ABCD formalism}
+We consider a centro-symmetric optical system. 
+That is, all optical elements are symmetric around a common optical axis.
+All meridional planes are equivalent.
+Without loss of generality, we choose our $z$-axis along the optical axis and consider the meridional $yz$ plane only.
+We describe our rays by a $y$ coordinate and its inclination $y^{\,\prime} = \partial y / \partial z$. 
+We only consider rays with zero out of plane ($x$) coordinates and directions.
+Disregarding saggital rays, we cannot describe astigmatism in the ABCD formalism.
+
+The ray on the optical axis, $y=0, y^{\,\prime}=0$, is not refracted in the centro-symmetric system.
+The next leading order for rays with small height and angle is the linear order, so our model of an optical element in paraxial approximation is
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  y \\ y^{\,\prime}
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  A & B \\ C & D
+ \end{pmatrix}
+ \begin{pmatrix}
+  y_0 \\ y_0^{\,\prime}
+ \end{pmatrix}
+\end{eqnarray}
+
+Performing the Taylor expansion in linear order, we find the ABCD-Matrices of typical optical elements. 
+For simplicity, we restrict ourselves to homogeneous media that can be described by a real valued refractive index $n$.
+\begin{eqnarray}
+ \begin{pmatrix}
+  1 & \Delta z \\ 0 & 1
+ \end{pmatrix}
+ && \textrm{propagation in homogeneous media}
+ %
+ %
+ \\
+ \begin{pmatrix}
+  1 & 0 \\ \left( \frac{n_1}{n_2} - 1 \right) \frac{1}{R} & \frac{n_1}{n_2}
+ \end{pmatrix}
+ && \textrm{refraction of a thin surface}
+ %
+ %
+ \\
+ \begin{pmatrix}
+  1 & 0 \\ -\frac{2}{R} & 1
+ \end{pmatrix}
+ && \textrm{thin mirror}
+ %
+ %
+ \\
+ \begin{pmatrix}
+  1 & 0 \\ -\frac{1}{f} & 1
+ \end{pmatrix}
+ && \textrm{thin lens without immersion}
+\end{eqnarray}
+Propagation in homogeneous media does not change the ray direction, and refraction at thin surfaces (surfaces with negligible sag) does not change the ray position.
+
+An optical system can be described as concatenation of its optical elements.
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  y_{im} \\ y_{im}^{\,\prime}
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  A_N & B_N \\ C_N & D_N
+ \end{pmatrix}
+ \cdot
+ ...
+ \cdot
+ \begin{pmatrix}
+  A_2 & B_2 \\ C_2 & D_2
+ \end{pmatrix}
+ \cdot
+ \begin{pmatrix}
+  A_1 & B_1 \\ C_1 & D_1
+ \end{pmatrix}
+ \cdot
+ \begin{pmatrix}
+  y_{obj} \\ y_{obj}^{\,\prime}
+ \end{pmatrix}
+\end{eqnarray}
+Where the index $1$ describes the element closest to the object.
+The elements can be air gaps, single surfaces, or complete lens assemblies.
+
+\subsection{Interpretation of ABCD matrices}
+Let's consider we have a given ABCD matrix of an optical system and want to know the system's first order optical properties.
+
+\begin{eqnarray}
+  y_{im} &=& A y_{obj} + B y_{obj}^{\,\prime}
+  \\ 
+  y_{im}^{\,\prime} &=& C y_{obj} + D y_{obj}^{\,\prime}
+\end{eqnarray}
+
+
+
+
+\subsection{Limits of the ABCD formalism}
+The ABCD formalism allows for very fast calculations and is invaluable in the pre-design stage. 
+However, compared to real ray tracing, it has the following drawbacks:
+\begin{itemize}
+ \item It can only describe one ray fan in the meridional plane and requires all rays to stay within this plane. This means that, in general, non-centrosymmetric systems cannot be described within the ABCD formalism.
+ \item That is: no freeshape elements, no cylinder lenses, no off-axis parabolic mirrors, no tilted elements, no decentered elements.
+ \item The linearized formalism only works for paraxial rays.
+ \item Distortion cannot be described.
+ \item Aberrations cannot be described, with the exception of chromatic lateral and transversal aberrations.
+\end{itemize}
+
+A more precise representation of rays can be achieved by extending the ABCD formalism to 3-dimensional rays.
+
+\subsection{XYUV formalism}
+
+todo
 
 
 \chapter{Raytracing}
