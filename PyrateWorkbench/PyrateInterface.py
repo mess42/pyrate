@@ -46,6 +46,8 @@ from core import aperture
 
 from core.ray import RayPath
 from core.optical_system import OpticalSystem, Surface
+from core.observers import AbstractObserver
+
 
 # freecad modules
 
@@ -53,6 +55,9 @@ import FreeCAD
 import Part
 import Points
 import Draft
+
+
+from LocalCoordinatesTree import LC
 
 class AimDialog(QtGui.QDialog):
     def __init__(self, pupilsize, stopposition, numrays):
@@ -316,6 +321,33 @@ class FreeCADOutputStream(object):
     def write(self, txt):
         FreeCAD.Console.PrintMessage(txt)
 
+# TODO: new implementation of OS coupling
+class OpticalSystemObserver(AbstractObserver):
+    def __init__(self, doc):
+        self.__doc = doc
+        obj = doc.addObject("App::FeaturePython", "OS")
+        self.__obj = obj
+        self.__group = doc.addObject("App::DocumentObjectGroup", "OS_group")
+        self.__group.addObject(obj)
+
+        obj.addProperty("App::PropertyPythonObject", 
+                        "osclass", 
+                        "OS", 
+                        "os class interface").osclass = OpticalSystem()
+        obj.addProperty("App::PropertyPythonObject", 
+                        "coords", 
+                        "OS", 
+                        "os coords interface").coords = LC(None, obj.osclass.globalcoordinatesystem, doc, self.__group)
+
+    def onChanged(self, fp, prop):
+        '''Do something when a property has changed'''
+        FreeCAD.Console.PrintMessage("For fp: " + str(fp) + "\n")
+        FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
+        
+    def informUpdate(self):
+        """ can be used if there are any observers coupled to the optical system """
+        pass
+        
 
 
 class OpticalSystemInterface(object):

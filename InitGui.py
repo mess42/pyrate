@@ -93,9 +93,44 @@ class PyrateWorkbench ( Workbench ):
         self.appendMenu("Pyrate Field", ["ShowAimDialogCommand", "ShowFieldDialogCommand"])
         self.appendMenu("Pyrate Analysis", ["ShowSpotDiagramCommand"])
         self.appendMenu("Pyrate Optimization", ["StartOptimizationCommand"])
-
+        
 
         Log ("Loading Create System Module... done\n")
+
+    def ContextMenu(self, recipient):
+        selection = [s  for s in FreeCADGui.Selection.getSelection() if s.Document == FreeCAD.ActiveDocument ]
+        Log ("selection: " + str(selection) + "\n")
+        Log ("recipient: " + str(recipient) + "\n")
+
+        if selection == []:
+            self.appendContextMenu("Separator", [])
+            self.appendContextMenu( "Pyrate View", 
+                                       ["ShowSystemDraw2DCommand", 
+                                       "ContextIncreaseScaleOfAllLocalCoordinatesCommand",
+                                       "ContextDecreaseScaleOfAllLocalCoordinatesCommand"])
+            self.appendContextMenu("Separator", [])
+            
+        
+        if len(selection) == 1:
+            obj = selection[0]
+            if 'lcclass' in obj.PropertiesList:
+                self.appendContextMenu("Separator", [])
+                self.appendContextMenu( "Pyrate Local Coordinate System", 
+                                       ["ContextAddChildToLocalCoordinatesCommand"])
+                self.appendContextMenu("Separator", [])
+                                       
+            if 'sourceFile' in  obj.Content:
+                pass
+                #self.appendContextMenu( 
+                #    "Assembly2", 
+                #    [ 'assembly2_movePart',
+                #      'assembly2_duplicatePart',
+                #      'assembly2_editImportedPart',
+                #      'assembly2_forkImportedPart',
+                #      'assembly2_deletePartsConstraints']
+                #    )
+
+
 
     def Activated(self):
 # do something here if needed...
