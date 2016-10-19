@@ -699,7 +699,7 @@ This property is often used to determine the marginal and coma angles:
 aiming from the object into the entrance pupil by free-space propagation is much easier than tracing rays from the object to the stop.
 Care has to be taken if the front lens group imaging the stop to the pupil suffers from aberrations such as distortion.
 
-We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{saggital plane}.
+We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
 
 
 \section{Direction of the ray}
@@ -884,7 +884,7 @@ All meridional planes are equivalent.
 Without loss of generality, we choose our $z$-axis along the optical axis and consider the meridional $yz$ plane only.
 We describe our rays by a $y$ coordinate and its inclination $y^{\,\prime} = \partial y / \partial z$. 
 We only consider rays with zero out of plane ($x$) coordinates and directions.
-Disregarding saggital rays, we cannot describe astigmatism in the ABCD formalism.
+Disregarding sagittal rays, we cannot describe astigmatism in the ABCD formalism.
 
 The ray on the optical axis, $y=0, y^{\,\prime}=0$, is not refracted in the centro-symmetric system.
 The next leading order for rays with small height and angle is the linear order, so our model of an optical element in paraxial approximation is
@@ -1023,6 +1023,11 @@ The image point is reached independently from the ray direction in the object pl
 \end{eqnarray}
 
 We call $A = y_{im} / y_{obj}$ magnification of the system.
+$A$ is unitless.
+Once the imaging condition is fulfilled, all rays originating from an object field point are focused perfectly stigmatically into the corresponding image point. 
+The ABCD formalism calculates first order properties only.
+If the ABCD matrices are calculated with a corresponding dispersion model, lateral and transversal first order chromatic aberrations can be modeled.
+Also, the paraxial ABCD ray trace may be the basis for calculating the Seidel coefficients.
 
 In case $B$ is nonzero, the imaging condition can often be achieved by changing an air gap size. Most often the image sided distance is refocused.
 \begin{eqnarray}
@@ -1041,10 +1046,45 @@ In case $B$ is nonzero, the imaging condition can often be achieved by changing 
   \begin{pmatrix}
   A + C \Delta z_{im} & B + D \Delta z_{im} \\ C & D
  \end{pmatrix}
+ \label{eq:abcd_refocusing}
 \end{eqnarray}
 We choose $\Delta z_{im} = - B / D $. Note that $\tilde{A}$ is equal to the magnification \emph{only} if the imaging condition is met. 
 Otherwise, the matrix element has no physical meaning.
-Specifically, it is unsuited to deduct information about the telecentricity of an imaging system.
+In particular, it is unsuited to deduct information about the telecentricity of an imaging system.
+
+
+
+\subsubsection{properties of infinte to finite conjguate systems}
+In object sided infinite conjugate systems, each direction in object space $y^{\,\prime}_{obj}$ corresponds to a field point, 
+emitting a collimated bundle of rays.
+
+\begin{eqnarray}
+   y_{im} &=& B y^{\,\prime}_{obj} \\
+   A &=& 0
+\end{eqnarray}
+
+We call $B = y_{im} / y^{\,\prime}_{obj}$ magnification of the system.
+The unit of $B$ is length units per radian.
+
+In case the imaging condition $A=0$ is not achieved, we try to refocus the last surface (see eq. \ref{eq:abcd_refocusing}).
+We choose $\Delta z_{im} = - A / C $.
+
+
+
+\subsubsection{properties of infinte conjguate systems}
+In both sided infinite conjugate systems, imaging is achieved if collimated ray bundles are transfered into collimated ray bundles.
+
+\begin{eqnarray}
+   y^{\,\prime}_{im} &=& D y^{\,\prime}_{obj} \\
+   C &=& 0
+\end{eqnarray}
+
+We call $D = y_{im} / y^{\,\prime}_{obj}$ angular magnification of the system.
+$D$ is unitless.
+
+An infinite to infinite system cannot be refocused by adding a finite air distance on either object or image side.
+
+
 
 \subsection{Limits of the ABCD formalism}
 The ABCD formalism allows for very fast calculations and is invaluable in the pre-design stage. 
