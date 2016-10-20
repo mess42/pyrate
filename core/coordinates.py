@@ -281,6 +281,9 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             parentcoordinates = self.parent.globalcoordinates
             parentbasis = self.parent.localbasis
         
+        # FIXME: tilts are performed in relation to global basis
+        # this is not correct.
+        
         self.localbasis = np.dot(self.localrotation, parentbasis)
         if self.tiltThenDecenter == 0:
             # first decenter then rotation
@@ -295,22 +298,25 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             np.dot(self.localbasis, self.localdecenter)
             # TODO: removed .T on localbasis to obtain correct behavior; examine!
         
+        for ch in self.__children:
+            ch.update()
+
         # inform observers about update
         for obs in self.observers:
             obs.informUpdate()
-        
-        for ch in self.__children:
-            ch.update()
+
             
     def aimAt(self, anotherlc, update=False):
+        print("\n\n\n")
         print("AIM START")
         rotationtransform = np.zeros((3, 3))
         direction = self.returnGlobalToLocalPoints(anotherlc.globalcoordinates)
-        print(direction)
         dist = np.linalg.norm(direction)
         localzaxis = direction/dist
-        print(direction)
-        
+
+        print("global coordinates %s" % (anotherlc.globalcoordinates,))
+        print("direction %s with absvalue %f" % (direction, dist))
+       
         #zaxis = normal(At - Eye)
         #xaxis = normal(cross(Up, zaxis))
         #yaxis = cross(zaxis, xaxis)
@@ -326,18 +332,32 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         rotationtransform[:, 0] = localxaxis
         rotationtransform[:, 1] = localyaxis
         rotationtransform[:, 2] = localzaxis
+        
+        print(np.dot(localxaxis, np.array([1, 0, 0])))        
+        print(np.dot(localyaxis, np.array([0, 1, 0])))
+        print(np.dot(localzaxis, np.array([0, 0, 1])))                
+        
+        print(np.dot(rotationtransform.T, direction))
 
-        transformedlocalrotation = np.dot(rotationtransform.T, self.localrotation)
+        transformedlocalrotation = np.dot(rotationtransform, self.localrotation)
         
         (tiltx, tilty, tiltz) = self.calculateTiltFromMatrix(transformedlocalrotation, self.tiltThenDecenter)
+
+        # seems to be only correct for
+        # -pi/2 < tilty < pi/2
+        # 0 < tiltx < pi
+        # 0 < tiltz < pi        
+        
         print(tiltx*180.0/math.pi, tilty*180.0/math.pi, tiltz*180.0/math.pi)
-        self.tiltx.setvalue(tiltx)        
-        self.tilty.setvalue(tilty)        
-        self.tiltz.setvalue(tiltz)        
+        #self.tiltx.setvalue(tiltx)        
+        #self.tilty.setvalue(tilty)        
+        #self.tiltz.setvalue(tiltz)        
                 
-        if update:
-            self.update()
+        #if update:
+        #    self.update()
         print("AIM END")
+        print("\n\n\n")
+        return (tiltx, tilty, tiltz)
         
 
     def returnLocalToGlobalPoints(self, localpts):
@@ -451,25 +471,37 @@ if __name__ == "__main__":
         print(surfcb4.returnGlobalToLocalPoints(surfcb4.returnLocalToGlobalPoints(o)))
     '''testcase2: convert rotation matrix to tilt'''
     surfrt0 = LocalCoordinates("rt0")
-    (tiltx, tilty, tiltz) = (random.random()*2*math.pi - math.pi for i in range(3))
-    tiltThenDecenter = random.randint(0, 1)
-    surfrt1 = surfrt0.addChild(LocalCoordinates("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, tiltThenDecenter=tiltThenDecenter))
-    (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, tiltThenDecenter)
-    if printouttestcase2:    
-        print("diffs: %f %f %f" % (tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
+    for loop in range(1000):
+        (tiltx, tiltz) = (random.random()*math.pi for i in range(2))
+        tilty = random.random()*math.pi - math.pi/2
+        tiltThenDecenter = random.randint(0, 1) 
+        surfrt1 = surfrt0.addChild(LocalCoordinates("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, tiltThenDecenter=tiltThenDecenter))
+        (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, tiltThenDecenter)
+        if printouttestcase2:    
+            print("diffs %d %f %f %f: %f %f %f" % (tiltThenDecenter, tiltx, tilty, tiltz, tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
     '''testcase3: aimAt function'''
-    surfaa0 = LocalCoordinates("aa0")    
-    surfaa1 = surfaa0.addChild(LocalCoordinates("aa1", decz=20, tiltx=20*math.pi/180.0))
+    surfaa0 = LocalCoordinates("aa0")   
+    surfaa05 = surfaa0.addChild(LocalCoordinates("aa05", decz=20, tiltx=20*math.pi/180.0))
+    surfaa1 = surfaa05.addChild(LocalCoordinates("aa1", decz=20, tiltx=20*math.pi/180.0))
     surfaa2 = surfaa1.addChild(LocalCoordinates("aa2", decz=20))
     surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))#-39.84778792366982))
-    surfaa4 = surfaa3.addChild(LocalCoordinates("aa4", decz=39.84778792366982))
-    # TODO: why not updated to new basis?
+    surfaa4 = surfaa3.addChild(LocalCoordinates("aa4", decz=57.587705))
     
     if printouttestcase3:    
-        print(surfaa0.pprint())
+        #print(surfaa0.pprint())
         #print(str(surfaa1))
         #print(str(surfaa2))
-        surfaa3.aimAt(surfaa0, update=True)
-        print(str(surfaa3))
-        print(str(surfaa4))
+
+        print(surfaa3.localbasis)
+        print(str(surfaa4) + "\n\n\n")    
     
+        (tiltx, tilty, tiltz) = surfaa3.aimAt(surfaa0)
+        surfaa3.tiltx.setvalue(tiltx)
+        surfaa3.tilty.setvalue(tilty)
+        surfaa3.tiltz.setvalue(tiltz)
+                
+        surfaa3.update()
+        print(surfaa3.localbasis)
+        #print(str(surfaa3))
+        print(str(surfaa4) + "\n\n\n")
+        print(np.dot(surfaa4.localbasis, surfaa4.localdecenter))    
