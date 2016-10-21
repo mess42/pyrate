@@ -485,15 +485,11 @@ if __name__ == "__main__":
     surfaa4 = surfaa3.addChild(LocalCoordinates("aa4", decz=57.587705))
     
     if printouttestcase3:    
-        print(surfaa3.localbasis)
+
         print(str(surfaa4) + "\n\n\n")    
-    
         (tiltx, tilty, tiltz) = surfaa3.aimAt(surfaa0)
         surfaa3.tiltx.setvalue(tiltx)
         surfaa3.tilty.setvalue(tilty)
         surfaa3.tiltz.setvalue(tiltz)
-                
         surfaa3.update()
-        print(surfaa3.localbasis)
         print(str(surfaa4) + "\n\n\n")
-        print(np.dot(surfaa4.localbasis, surfaa4.localdecenter))    
