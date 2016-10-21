@@ -478,7 +478,7 @@ if __name__ == "__main__":
     if printouttestcase3:    
 
         print(str(surfaa4) + "\n\n\n")    
-        (tiltx, tilty, tiltz) = surfaa3.aimAt(surfaa0)
+        (tiltx, tilty, tiltz) = surfaa3.calculateAim(surfaa0)
         surfaa3.tiltx.setvalue(tiltx)
         surfaa3.tilty.setvalue(tilty)
         surfaa3.tiltz.setvalue(tiltz)
