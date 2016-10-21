@@ -302,22 +302,28 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         for obs in self.observers:
             obs.informUpdate()
 
-            
+
     def aimAt(self, anotherlc, update=False):
-        print("\n\n\n")
-        print("AIM START")
+        (tiltx, tilty, tiltz) = self.calculateAim(anotherlc)
+
+        self.tiltx.setvalue(tiltx)        
+        self.tilty.setvalue(tilty)        
+        self.tiltz.setvalue(tiltz)        
+
+        if update:
+            self.update()
+
+            
+    def calculateAim(self, anotherlc):
+
         rotationtransform = np.zeros((3, 3))
         direction = self.returnGlobalToLocalPoints(anotherlc.globalcoordinates)
         dist = np.linalg.norm(direction)
         localzaxis = direction/dist
-
-        print("global coordinates %s" % (anotherlc.globalcoordinates,))
-        print("direction %s with absvalue %f" % (direction, dist))
        
         #zaxis = normal(At - Eye)
         #xaxis = normal(cross(Up, zaxis))
-        #yaxis = cross(zaxis, xaxis)
-        
+        #yaxis = cross(zaxis, xaxis)        
         
         up = np.array([0, 1, 0]) # y-axis
 
@@ -345,15 +351,6 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         # 0 < tiltx < pi
         # 0 < tiltz < pi        
         
-        print(tiltx*180.0/math.pi, tilty*180.0/math.pi, tiltz*180.0/math.pi)
-        #self.tiltx.setvalue(tiltx)        
-        #self.tilty.setvalue(tilty)        
-        #self.tiltz.setvalue(tiltz)        
-                
-        #if update:
-        #    self.update()
-        print("AIM END")
-        print("\n\n\n")
         return (tiltx, tilty, tiltz)
         
 
