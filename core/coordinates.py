@@ -336,12 +336,6 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         rotationtransform[:, 1] = localyaxis
         rotationtransform[:, 2] = localzaxis
         
-        print(np.dot(localxaxis, np.array([1, 0, 0])))        
-        print(np.dot(localyaxis, np.array([0, 1, 0])))
-        print(np.dot(localzaxis, np.array([0, 0, 1])))                
-        
-        print(np.dot(rotationtransform.T, direction))
-
         transformedlocalrotation = np.dot(rotationtransform, self.localrotation)
         
         (tiltx, tilty, tiltz) = self.calculateTiltFromMatrix(transformedlocalrotation, self.tiltThenDecenter)
