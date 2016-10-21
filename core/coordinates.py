@@ -281,10 +281,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             parentcoordinates = self.parent.globalcoordinates
             parentbasis = self.parent.localbasis
         
-        # FIXME: tilts are performed in relation to global basis
-        # this is not correct.
-        
-        self.localbasis = np.dot(self.localrotation, parentbasis)
+        self.localbasis = np.dot(parentbasis, self.localrotation)
         if self.tiltThenDecenter == 0:
             # first decenter then rotation
             self.globalcoordinates = \
@@ -484,14 +481,10 @@ if __name__ == "__main__":
     surfaa05 = surfaa0.addChild(LocalCoordinates("aa05", decz=20, tiltx=20*math.pi/180.0))
     surfaa1 = surfaa05.addChild(LocalCoordinates("aa1", decz=20, tiltx=20*math.pi/180.0))
     surfaa2 = surfaa1.addChild(LocalCoordinates("aa2", decz=20))
-    surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))#-39.84778792366982))
+    surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))
     surfaa4 = surfaa3.addChild(LocalCoordinates("aa4", decz=57.587705))
     
     if printouttestcase3:    
-        #print(surfaa0.pprint())
-        #print(str(surfaa1))
-        #print(str(surfaa2))
-
         print(surfaa3.localbasis)
         print(str(surfaa4) + "\n\n\n")    
     
@@ -502,6 +495,5 @@ if __name__ == "__main__":
                 
         surfaa3.update()
         print(surfaa3.localbasis)
-        #print(str(surfaa3))
         print(str(surfaa4) + "\n\n\n")
         print(np.dot(surfaa4.localbasis, surfaa4.localdecenter))    
