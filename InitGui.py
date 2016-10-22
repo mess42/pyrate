@@ -39,6 +39,7 @@ from PyrateWorkbench import AnalyseSystem
 from PyrateWorkbench import OptimizeSystem
 
 from PyrateWorkbench import LocalCoordinatesTree
+from CheckObjects import *
 
 #import PyrateWorkbench.PyrateInterface
 #import PyrateWorkbench.CreateSystem
@@ -113,12 +114,12 @@ class PyrateWorkbench ( Workbench ):
         
         if len(selection) == 1:
             obj = selection[0] # TODO: better classification of selections
-            if 'lcclass' in obj.PropertiesList:
+            if isLocalCoordinatesObserver(obj):
                 self.appendContextMenu("Separator", [])
                 self.appendContextMenu( "Pyrate Local Coordinate System", 
                                        ["ContextAddChildToLocalCoordinatesCommand"])
                 self.appendContextMenu("Separator", [])
-            if 'wavelengths' in obj.PropertiesList:
+            if isOpticalSystemObserver(obj):
                 self.appendContextMenu("Separator", [])
                 self.appendContextMenu( "Pyrate Optical System", 
                                        ["ShowFieldDialogCommand"])

@@ -27,7 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import FreeCADGui, FreeCAD, Part
 
+# TODO: write better tests for some certain object class
+
 def isLocalCoordinatesObserver(obj):
     return 'lcclass' in obj.PropertiesList
 
+def isOpticalSystemObserver(obj):
+    return 'wavelengths' in obj.PropertiesList
 
