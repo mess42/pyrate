@@ -122,20 +122,26 @@
 
 In systems like Offner systems or off-axis parabolic mirrors, the center-of-field chief ray is no more aligned with the axis of rotational symmetry of the surfaces.
 In these systems, it is no longer sufficient to obtain first order properties from the central curvature on the axis of symmetry of each surface.
-In other systems, like freeshape Schiefspiegler telescopes, there is no axis of symmetry at all.
+In other systems, like freeshape Schiefspiegler telescopes, there is no axis of symmetry at all. 
+Anamorphotic systems, on the other hand, often have an optical axis, but do not have the same effective surface curvature for all ray directions.
 
-In this section, we develop a description for the first order properties of optical systems that can describe rotationally symmetric and non-symmetric systems with a single formalism.
+In this section, we develop a description for the first order properties of optical systems 
+and describe rotationally symmetric and non-symmetric systems with a single formalism.
 It is a formalism for rays close to the center-of-field chief ray, which we call \emph{pilot ray} in the following.
 This pilot ray takes the role of the optical axis in rotationally symmetric systems. 
 By choosing the term pilot ray, we want to emphasize that we mean neither a mechanical axis of symmetry of individual lens elements nor the extraordinary axis in anisotropic crystals.
 In most systems, the intial pilot ray direction is along the $z$ axis. 
-An exception is found, for example, in Scheimpflug systems,
+An exception is found, for example, in Scheimpflug systems.
+
+Our ansatz is to perform a real ray trace on the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
+From this Taylor expansion, we derive first order properties, like focal length, magnification and image positions.
+The concept is a parabasal approximation around a non-paraxial pilot ray.
+
+
+
+
 
 \subsection{Near-Pilot Rays}
-Our ansatz is to perform a real ray trace on the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
-From this Taylor expansion, we derive first order properties, like focal length, magnification and pupil positions.
-These properties are used to aim all other rays into the pupil.
-The concept is a parabasal (paraxial) approximation around a non-paraxial pilot ray.
 
 We consider near-pilot rays, that have an intersection point and a wavevector close to the pilot ray.
 
@@ -144,18 +150,45 @@ We consider near-pilot rays, that have an intersection point and a wavevector cl
 & & \\ \hline & & \\
 intersection point  & $\Vector{r}$ & $\tilde{\Vector{r}} = \Vector{r} + \Delta\Vector{r}$ \\
 initial wavevector  & $\Wavevector$ & $\tilde{\Wavevector} = \Wavevector + \Delta\Wavevector$ \\
+initial ray direction  & $\Vector{d}$ & $\tilde{\Vector{d}} = \Vector{d} + \Delta\Vector{d}$ \\
 surface normal      & $\Vector{n} = \Vector{n}(\Vector{r})$ & $\tilde{\Vector{n}}(\tilde{\Vector{r}}) = \Vector{n} + \Delta\Vector{n}$ \\
 & & \\ \hline & & \\
 out-of-plane wavevector component &  $\Wavevector_{\perp} = (\Wavevector \Vector{n})\Vector{n}$ & $\tilde{\Wavevector}_{\perp} = (\tilde{\Wavevector} \tilde{\Vector{n}})\tilde{\Vector{n}}$ \\
 in-plane wavevector component     &  $\Wavevector_{\parallel} = \Wavevector - \Wavevector_{\perp}$ & $\tilde{\Wavevector}_{\parallel} = \tilde{\Wavevector} - \tilde{\Wavevector}_{\perp}$ \\
-& & \\ \hline & & \\
-wavevector after refraction       &  $\Wavevector_2 = \Wavevector_{\parallel} + \xi \Vector{n}$ & $\tilde{\Wavevector}_2 = \tilde{\Wavevector}_{\parallel} + \tilde{\xi} \tilde{\Vector{n}}$
 \end{tabular}
 \\[2ex]
-The refraction conserves the in-plane wavevector component. 
-The out-of-plane or normal wavevector component $\xi, \tilde{\xi}$ after the refraction depends on the material permittivity and the in-plane component.
+
+There is an additional constraint on the ray direction: both pilot and near-pilot ray direction must be normalized.
+
+\begin{eqnarray}
+ |\tilde{\Vector{d}}| = |\Vector{d}| + \Vector{d} \cdot \Delta\Vector{d} + \mathcal{O}(\Delta\Vector{d}^2)
+\end{eqnarray}
+
+In the limit of near pilot rays, $\Delta\Vector{d}^2 \rightarrow 0$, the scalar product must vanish. 
+The change of direction is perpendicular to the pilot direction, $\Vector{d} \perp \Delta\Vector{d}$. 
+This leaves only two degrees of freedom for $\Delta\Vector{d}$.
+
+\begin{eqnarray}
+ \Delta\Vector{d} &=& d_1 \Vector{e}_{d1} + d_2 \Vector{e}_{d2}
+\end{eqnarray}
+
+We represent $\Delta\Vector{d}$ by two components $d_1$and $d_2$ and choose orthogonal unit vectors $\Vector{e}_{d1} \perp \Vector{e}_{d2} \perp \Vector{d}$,
+forming a cartesian coordinate system.
+In this representation, the normalization requirement $|\tilde{\Vector{d}}| = 1$ imposes no nonlinear constraint on the choice of $d_1$ and $d_2$.
+We may choose (small) values for $d_1$ and $d_2$ independent from each other and independent from the pilot direction. 
+
+
+\subsection{Evaluation of the Law of Refraction}
 
 We are interested in the change of the refracted wavevector $\Delta\Wavevector_2 = \tilde{\Wavevector}_2 - \Wavevector_2$ induced by $\Delta\Vector{r}$ and $\Delta\Wavevector$.
+\begin{eqnarray}
+ \Wavevector_2 &=& \Wavevector_{\parallel} + \xi \Vector{n} 
+ \\
+ \tilde{\Wavevector}_2 &=& \tilde{\Wavevector}_{\parallel} + \tilde{\xi} \tilde{\Vector{n}} 
+\end{eqnarray}
+
+The refraction conserves the in-plane wavevector component. 
+The out-of-plane or normal wavevector component $\xi, \tilde{\xi}$ after the refraction depends on the material permittivity and the in-plane component.
 
 \begin{eqnarray}
  \Delta\Wavevector_2 &=& \tilde{\Wavevector}_2 - \Wavevector_2 \\
