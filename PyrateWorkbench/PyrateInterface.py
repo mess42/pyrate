@@ -329,7 +329,13 @@ class OpticalSystemObserver(AbstractObserver):
         self.__obj = obj
         self.__group = doc.addObject("App::DocumentObjectGroup", "OS_group")
         self.__group.addObject(obj)
+        self.__surfacegroup = doc.addObject("App::DocumentObjectGroup", "Surfaces_group")
+        self.__group.addObject(self.__surfacegroup)
 
+        # TODO: all properties are not really operational
+
+        # OS Properties
+    
         obj.addProperty("App::PropertyPythonObject", 
                         "osclass", 
                         "OS", 
@@ -338,6 +344,72 @@ class OpticalSystemObserver(AbstractObserver):
                         "coords", 
                         "OS", 
                         "os coords interface").coords = LC(None, obj.osclass.globalcoordinatesystem, doc, self.__group)
+        obj.addProperty("App::PropertyFloatList",
+                        "wavelengths",
+                        "OS",
+                        "wavelengths list").wavelengths = [550.0e-6]
+
+        # Field properties
+
+        obj.addProperty("App::PropertyVectorList",
+                        "fieldpoints",
+                        "Field",
+                        "Field points").fieldpoints = [FreeCAD.Base.Vector(0, 0, 0)]
+        obj.setEditorMode("fieldpoints", 0) # rw mode 
+        obj.addProperty("App::PropertyEnumeration",
+                        "fieldtype",
+                        "Field",
+                        "Type of field?").fieldtype = \
+                                ["ObjectHeight",
+                                 "ObjectChiefAngle",
+                                 "ParaxialImageHeight"]
+
+
+        # Aiming properties
+
+        obj.addProperty("App::PropertyInteger",
+                        "stopposition",
+                        "Aiming",
+                        "Which surface is stop?").stopposition = 0
+        obj.addProperty("App::PropertyEnumeration",
+                        "pupiltype",
+                        "Aiming",
+                        "Type of pupil?").pupiltype = \
+                                        ["EntrancePupilDiameter",
+                                        "EntrancePupilRadius",
+                                        "StopDiameter",
+                                        "StopRadius",
+                                        "ExitPupilDiameter",
+                                        "ExitPupilRadius",
+                                        "InfiniteConjugateImageSpaceFNumber",
+                                        "InfiniteConjugateObjectSpaceFNumber",
+                                        "WorkingImageSpaceFNumber",
+                                        "WorkingObjectSpaceFNumber",
+                                        "ObjectSpaceNA",
+                                        "ImageSpaceNA"]
+        obj.addProperty("App::PropertyDistance",
+                        "pupilsize",
+                        "Aiming",
+                        "Pupil size?").pupilsize = 1.0
+        obj.addProperty("App::PropertyEnumeration",
+                        "rastertype",
+                        "Aiming",
+                        "Type of pupil rasterization?").rastertype = \
+                                                            ["RectGrid",
+                                                             "HexGrid",
+                                                             "RandomGrid",
+                                                             "PoissonDiskSampling",
+                                                             "MeridionalFan",
+                                                             "SagitalFan",
+                                                             "ChiefAndComa",
+                                                             "Single"]
+                                                             # TODO: -> text file
+        obj.addProperty("App::PropertyInteger",
+                        "numrays",
+                        "Aiming",
+                        "How many rays to be drawn?").numrays = 10
+
+
 
     def onChanged(self, fp, prop):
         '''Do something when a property has changed'''
