@@ -112,16 +112,24 @@ class PyrateWorkbench ( Workbench ):
             
         
         if len(selection) == 1:
-            obj = selection[0]
+            obj = selection[0] # TODO: better classification of selections
             if 'lcclass' in obj.PropertiesList:
                 self.appendContextMenu("Separator", [])
                 self.appendContextMenu( "Pyrate Local Coordinate System", 
                                        ["ContextAddChildToLocalCoordinatesCommand"])
                 self.appendContextMenu("Separator", [])
+            if 'wavelengths' in obj.PropertiesList:
+                self.appendContextMenu("Separator", [])
+                self.appendContextMenu( "Pyrate Optical System", 
+                                       ["ShowFieldDialogCommand"])
+                self.appendContextMenu("Separator", [])
+                
                                        
 
     def Activated(self):
 # do something here if needed...
+
+    
         Msg ("PyrateWorkbench.Activated()\n")
 
     def Deactivated(self):
