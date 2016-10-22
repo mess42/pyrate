@@ -119,18 +119,6 @@ class PyrateWorkbench ( Workbench ):
                                        ["ContextAddChildToLocalCoordinatesCommand"])
                 self.appendContextMenu("Separator", [])
                                        
-            if 'sourceFile' in  obj.Content:
-                pass
-                #self.appendContextMenu( 
-                #    "Assembly2", 
-                #    [ 'assembly2_movePart',
-                #      'assembly2_duplicatePart',
-                #      'assembly2_editImportedPart',
-                #      'assembly2_forkImportedPart',
-                #      'assembly2_deletePartsConstraints']
-                #    )
-
-
 
     def Activated(self):
 # do something here if needed...

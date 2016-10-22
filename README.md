@@ -32,6 +32,7 @@ In Ubuntu, Mint and Debian you can use:
 FreeCAD Workbench
 -----------------
 
+- You need at least FreeCAD 0.16
 - copy (or symlink) the pyrate directory into ~/.FreeCAD/Mod
 - execute ./build_rc in PyrateWorkbench directory
 - choose workbench in FreeCAD
