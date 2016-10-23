@@ -156,9 +156,7 @@ class ConstantIndexGlass(Material):
         return RayBundle(orig, d2, self, raybundle.rayID[valid], raybundle.wave)
 
     def returnDtoK(self, d, wavelength=550e-6):
-        k = d
-        absk = np.sqrt(np.sum(k**2, axis=0))
-        return 2.0*math.pi/wavelength*self.n.evaluate()*k/absk
+        return 2.0*math.pi/wavelength*self.n.evaluate()*d
     
     def returnKtoD(self, k):
         d = np.real(k)
