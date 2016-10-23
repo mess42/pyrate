@@ -95,11 +95,14 @@ class OpticalSystemObserver(AbstractObserver):
 
         # Field properties
 
-        obj.addProperty("App::PropertyVectorList",
+        obj.addProperty("App::PropertyPythonObject",
                         "fieldpoints",
                         "Field",
-                        "Field points").fieldpoints = [FreeCAD.Base.Vector(0, 0, 0)]
-        obj.setEditorMode("fieldpoints", 0) # rw mode 
+                        "Field points").fieldpoints = np.array([[0, 0]])
+        obj.addProperty("App::PropertyPythonObject",
+                        "fieldpointsbool",
+                        "Field",
+                        "Field points used?").fieldpointsbool = np.array([True], dtype=bool) 
         obj.addProperty("App::PropertyEnumeration",
                         "fieldtype",
                         "Field",
@@ -164,6 +167,16 @@ class OpticalSystemObserver(AbstractObserver):
         """ can be used if there are any observers coupled to the optical system """
         pass
         
+    def __getstate__(self):
+        '''When saving the document this object gets stored using Python's json module.\
+                Since we have some un-serializable parts here -- the Coin stuff -- we must define this method\
+                to return a tuple of all serializable objects or None.'''
+        return None
+ 
+    def __setstate__(self,state):
+        '''When restoring the serialized object from document we have the chance to set some internals here.\
+                Since no data were serialized nothing needs to be done here.'''
+        return None
 
 
 

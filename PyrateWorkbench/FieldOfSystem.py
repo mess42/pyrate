@@ -42,9 +42,17 @@ from PySide import QtCore, QtGui
 
 
 class FieldPointsTaskPanel:
-    def __init__(self):
-        # this will create a Qt widget from our ui file
+    def __init__(self, osobj):
         fn = os.path.join(os.path.dirname(__file__), 'Qt/fielddialog.ui') 
+
+        # grab field points from osobj
+        # grab boolean values from osobj
+
+        # add, del rows, change bool values, save, load from files (default boolean=true)
+        # either accept or reject. in the first case: write back to osobj (incl boolvals)        
+        
+        self.osobj = osobj
+                
         self.form = FreeCADGui.PySideUic.loadUi(fn)
         self.form.pbAdd.clicked.connect(self.onAdd)
         self.form.pbRemove.clicked.connect(self.onRemove)
@@ -53,8 +61,40 @@ class FieldPointsTaskPanel:
 
         self.form.tblFieldPoints.cellClicked.connect(self.onCellClicked)
         self.form.tblFieldPoints.cellActivated.connect(self.onCellActivated)
+
+        self.writeNumpyArraysIntoTable(osobj.fieldpoints, osobj.fieldpointsbool, self.form.tblFieldPoints)        
+
         
-        self.row = -1        
+        self.row = -1
+
+    def writeNumpyArraysIntoTable(self, xyarray, boolarray, tbl):
+        tbl.setRowCount(0)
+
+        print(xyarray, boolarray)
+
+        (lenb,) = np.shape(boolarray)
+
+        tbl.setRowCount(lenb)
+        #tbl.setColumnCount(3)
+
+        xylist = list(xyarray)
+
+        for (ind, pair) in enumerate(xylist):
+            for colindex in range(2):
+                tbl.setItem(ind, colindex, QtGui.QTableWidgetItem(str(pair[colindex])))
+            rb = QtGui.QCheckBox()
+            rb.setChecked(boolarray[ind])
+            tbl.setCellWidget(ind, 2, rb)
+    
+    def writeTableIntoNumpyArrays(self, tbl):
+        vlength = tbl.rowCount()
+        xylist = []
+        for i in range(vlength):
+            xylist.append([float(tbl.item(i, j).text()) for j in range(2)])
+        xyarray = np.array(xylist)
+        boolarray = np.array([bool(tbl.cellWidget(i, 2).isChecked()) for i in range(vlength)], dtype=bool)
+        print(xyarray, boolarray)
+        return (xyarray, boolarray)    
         
     def onCellClicked(self, r, c):
         '''is cell clicked?'''
@@ -67,6 +107,12 @@ class FieldPointsTaskPanel:
     def onAdd(self):
         '''Call Function to add field point'''
         self.form.tblFieldPoints.insertRow(self.form.tblFieldPoints.rowCount())
+        pair = [0., 0.]
+        for colindex in range(2):        
+            self.form.tblFieldPoints.setItem(self.form.tblFieldPoints.rowCount()-1, colindex, QtGui.QTableWidgetItem(str(pair[colindex])))    
+        rb = QtGui.QCheckBox()
+        rb.setChecked(True)
+        self.form.tblFieldPoints.setCellWidget(self.form.tblFieldPoints.rowCount()-1, 2, rb)
     
     def onRemove(self):
         '''Call Function to remove field point'''
@@ -95,6 +141,9 @@ class FieldPointsTaskPanel:
         #    return
         #box = Part.makeBox(length,width,height)
         #Part.show(box)
+        (self.osobj.fieldpoints, self.osobj.fieldpointsbool) = \
+            self.writeTableIntoNumpyArrays(self.form.tblFieldPoints)
+    
         FreeCADGui.Control.closeDialog()
         
     def reject(self):
@@ -135,10 +184,17 @@ class ShowFieldDialogCommand:
         if FreeCAD.ActiveDocument == None:
             return False
         else:
-            return True
+            selection = FreeCADGui.Selection.getSelection()
+            if len(selection) == 1 and ('wavelengths' in selection[0].PropertiesList):
+                # TODO: comparison with CheckObjects function?                
+                return True
+            else:
+                return False
 
     def Activated(self):
-        fppanel = FieldPointsTaskPanel()
+        osselection = FreeCADGui.Selection.getSelection()[0] # only active if len = 1 and obj is appropriate
+        
+        fppanel = FieldPointsTaskPanel(osselection)
         FreeCADGui.Control.showDialog(fppanel)
 
 
