@@ -123,12 +123,22 @@ class FieldPointsTaskPanel:
 
     def onLoadFile(self):
         '''Call Function to load field points from file'''
-        pass
+        fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', os.getcwd())
+                
+        xyvalues = np.loadtxt(fname)        
+        (numrows, _) = xyvalues.shape
+        boolvalues = np.ones((numrows,), dtype=bool)
+
+        self.writeNumpyArraysIntoTable(xyvalues, boolvalues, self.form.tblFieldPoints)         
+
 
     def onSaveFile(self):
-        '''Call Function to load field points from file'''
-        pass
+        '''Call Function to save field points to file'''
+        (xyvalues, boolvalues) = self.writeTableIntoNumpyArrays(self.form.tblFieldPoints)
         
+        fname, _ = QtGui.QFileDialog.getSaveFileName(None, 'Save file', os.getcwd())        
+        
+        np.savetxt(fname, xyvalues)
 
 
     def accept(self):
