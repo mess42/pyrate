@@ -37,6 +37,8 @@ import FreeCADGui, FreeCAD, Part
 from core.coordinates import LocalCoordinates
 from core.observers import AbstractObserver
 
+from CheckObjects import *
+
 class LC(AbstractObserver):
     def __init__(self, obj, coupling, doc, group):
         if obj == None:
@@ -181,147 +183,6 @@ class LC(AbstractObserver):
         '''When restoring the serialized object from document we have the chance to set some internals here.\
                 Since no data were serialized nothing needs to be done here.'''
         return None
-
-
-class LocalCoordinatesTreeData(LocalCoordinates):
-    def __init__(self, name="", **kwargs):
-        super(LocalCoordinatesTreeData, self).__init__(name, **kwargs)
-        self.icon = None
-        self.index = None
-
-    #---------------------------------------------------------------------------
-    def position(self):
-        position = 0
-        if self.parent is not None:
-            count = 0
-            for child in self.getChildren():
-                if child == self:
-                    position = count
-                    break
-                count += 1
-        return position
-
-#-------------------------------------------------------------------------------
-class LocalCoordinatesTreeModel(QtCore.QAbstractItemModel):
-
-    #---------------------------------------------------------------------------
-    def __init__(self, tree):
-        super(LocalCoordinatesTreeModel, self).__init__()
-        self.__tree = tree
-        self.__current = tree
-
-    #---------------------------------------------------------------------------
-    def flags(self, index):
-        flag = QtCore.Qt.ItemIsEnabled
-        if index.isValid():
-            flag |= QtCore.Qt.ItemIsSelectable \
-                 | QtCore.Qt.ItemIsUserCheckable \
-                 | QtCore.Qt.ItemIsEditable \
-                 | QtCore.Qt.ItemIsDragEnabled \
-                 | QtCore.Qt.ItemIsDropEnabled
-        return flag
-
-    #---------------------------------------------------------------------------
-    def index(self, row, column, parent=QtCore.QModelIndex()):
-        node = QtCore.QModelIndex()
-        if parent.isValid():
-            nodeS = parent.internalPointer()
-            nodeX = nodeS.children[row]
-            if column == 0:
-                node = self.__createIndex(row, column, nodeX)
-            if column == 1:
-                # TODO: write down global coordinates
-                pass
-        else:
-            if column == 0:
-                node = self.__createIndex(row, column, self.__tree)
-            if column == 1:
-                pass
-        return node
-
-    #---------------------------------------------------------------------------
-    def parent(self, index):
-        node = QtCore.QModelIndex()
-        if index.isValid():
-            nodeS = index.internalPointer()
-            parent = nodeS.parent
-            if parent is not None:
-                node = self.__createIndex(parent.position(), 0, parent)
-        return node
-
-    #---------------------------------------------------------------------------
-    def rowCount(self, index=QtCore.QModelIndex()):
-        count = 1
-        node = index.internalPointer()
-        if node is not None:
-            count = len(node.children)
-        return count
-
-    #---------------------------------------------------------------------------
-    def columnCount(self, index=QtCore.QModelIndex()):
-        return 2
-
-    #---------------------------------------------------------------------------
-    def data(self, index, role=QtCore.Qt.DisplayRole):
-        data = None
-        if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
-            node = index.internalPointer()
-            data = node.name
-
-        if role == QtCore.Qt.ToolTipRole:
-            node = index.internalPointer()
-            data = "ToolTip " + node.name
-
-        if role == QtCore.Qt.DecorationRole:
-            data = QtGui.QIcon("icon.png")
-        return data
-
-    #---------------------------------------------------------------------------
-    def setData(self, index, value, role=QtCore.Qt.DisplayRole):
-        result = True
-        if role == QtCore.Qt.EditRole and value != "":
-            node = index.internalPointer()
-            node.name = value
-            result = True
-        return result
-
-    #---------------------------------------------------------------------------
-    def __createIndex(self, row, column, node):
-        if node.index == None:
-            index = self.createIndex(row, column, node)
-            node.index = index
-            icon = QtGui.QIcon("icon.png")
-            b = self.setData(index, icon, QtCore.Qt.DecorationRole)
-            b = self.setData(index, "ToolTip "+node.name, QtCore.Qt.ToolTipRole)
-        return node.index
-
-
-class LocalCoordinatesTaskPanel:
-    def __init__(self):
-        # this will create a Qt widget from our ui file
-        fn = os.path.join(os.path.dirname(__file__), 'Qt/lcdialog.ui')        
-        self.form = FreeCADGui.PySideUic.loadUi(fn)
-
-        data = LocalCoordinatesTreeData(name="test1")
-        lc21 = data.addChild(LocalCoordinatesTreeData(name="lc21", decz=40.0))
-        lc22 = data.addChild(LocalCoordinatesTreeData(name="lc22", decz=50.0))
-        lc23 = data.addChild(LocalCoordinatesTreeData(name="lc23", decz=60.0))
-        lc31 = lc22.addChild(LocalCoordinatesTreeData(name="lc31", decz=60.0))
-        lc32 = lc22.addChild(LocalCoordinatesTreeData(name="lc32", decz=60.0))
-        lc33 = lc23.addChild(LocalCoordinatesTreeData(name="lc33", decz=60.0))
-        lc34 = lc23.addChild(LocalCoordinatesTreeData(name="lc34", decz=60.0))
-        
-        treeModel = LocalCoordinatesTreeModel(data)
-        self.form.treeView.setModel(treeModel)#TreeView(treeModel)
-        self.form.treeView.setCurrentIndex(treeModel.index(0, 0))
-
-    def accept(self):
-        print("pressed ok")
-        FreeCADGui.Control.closeDialog()
-        
-    def reject(self):
-        print("pressed cancel")
-        FreeCADGui.Control.closeDialog()
         
 
 
@@ -382,7 +243,7 @@ class ContextAddChildToLocalCoordinatesTool:
         (name_of_child, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Child Local Coordinates System", QLineEdit.Normal, "")
         if len(selection) == 1 and accepted:
             obj = selection[0]
-            if 'lcclass' in obj.PropertiesList:
+            if isLocalCoordinatesObserver(obj):
                 obj.lcobserver.addChild(name = name_of_child)
                 
 class ContextIncreaseScaleOfAllLocalCoordinatesTool:
@@ -402,7 +263,7 @@ class ContextIncreaseScaleOfAllLocalCoordinatesTool:
     def Activated(self):
 
         for o in FreeCAD.ActiveDocument.Objects:
-            if "lcclass" in o.PropertiesList:
+            if isLocalCoordinatesObserver(o):
                 o.scale += 1
 
 class ContextDecreaseScaleOfAllLocalCoordinatesTool:
@@ -422,7 +283,7 @@ class ContextDecreaseScaleOfAllLocalCoordinatesTool:
     def Activated(self):
 
         for o in FreeCAD.ActiveDocument.Objects:
-            if "lcclass" in o.PropertiesList:
+            if isLocalCoordinatesObserver(o):
                 o.scale -= 1
  
 

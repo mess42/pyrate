@@ -53,7 +53,6 @@ class CreateSystemTool:
     def Activated(self):
 
         doc = FreeCAD.ActiveDocument
-
         PyrateInterface.OpticalSystemObserver(doc) 
         
         
