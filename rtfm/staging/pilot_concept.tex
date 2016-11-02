@@ -123,7 +123,7 @@
 In systems like Offner systems or off-axis parabolic mirrors, the center-of-field chief ray is no more aligned with the axis of rotational symmetry of the surfaces.
 In these systems, it is no longer sufficient to obtain first order properties from the central curvature on the axis of symmetry of each surface.
 In other systems, like freeshape Schiefspiegler telescopes, there is no axis of symmetry at all. 
-Anamorphotic systems, on the other hand, often have an optical axis, but do not have the same effective surface curvature for all ray directions.
+Anamorphotic systems, on the other hand, often have an optical axis, but do not have the same effective surface curvature in all meridional planes.
 
 In this section, we develop a description for the first order properties of optical systems 
 and describe rotationally symmetric and non-symmetric systems with a single formalism.
@@ -136,8 +136,6 @@ An exception is found, for example, in Scheimpflug systems.
 Our ansatz is to perform a real ray trace on the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
 From this Taylor expansion, we derive first order properties, like focal length, magnification and image positions.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
-
-
 
 
 
@@ -158,7 +156,10 @@ in-plane wavevector component     &  $\Wavevector_{\parallel} = \Wavevector - \W
 \end{tabular}
 \\[2ex]
 
-There is an additional constraint on the ray direction: both pilot and near-pilot ray direction must be normalized.
+\subsubsection{Representation of near-pilot ray directions}
+
+There is an additional constraint on the ray direction unit vectors: both pilot and near-pilot ray direction must be normalized,
+$|\Vector{d}|=|\tilde{\Vector{d}}|=1$.
 
 \begin{eqnarray}
  |\tilde{\Vector{d}}| = |\Vector{d}| + \Vector{d} \cdot \Delta\Vector{d} + \mathcal{O}(\Delta\Vector{d}^2)
@@ -176,6 +177,68 @@ We represent $\Delta\Vector{d}$ by two components $d_1$and $d_2$ and choose orth
 forming a cartesian coordinate system.
 In this representation, the normalization requirement $|\tilde{\Vector{d}}| = 1$ imposes no nonlinear constraint on the choice of $d_1$ and $d_2$.
 We may choose (small) values for $d_1$ and $d_2$ independent from each other and independent from the pilot direction. 
+
+\subsubsection{Representation of near-pilot intersection points}
+
+In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point, 
+reperesented by its tangetial plane.
+
+TODO: take over local coordinate system (ray height) of surface xor make a new tangential plane coordinate system ?
+
+\begin{eqnarray}
+ \Delta\Vector{r} = r_1 \Vector{e}_{r1} + r_2 \Vector{e}_{r2}
+\end{eqnarray}
+
+In general, the planes for $\Delta\Vector{d}$ and $\Delta\Vector{r}$ may differ.
+To avoid confusion, we choose the two unit vectors representing each deviation from the pilot ray identical,
+except for the component along the pilot ray axis.
+
+\begin{eqnarray}
+ \Vector{e}_{d1} &=& \frac{\Vector{e}_{r1} - (\Vector{e}_{r1}\Vector{d})\Vector{d}}{|\Vector{e}_{r1} - (\Vector{e}_{r1}\Vector{d})\Vector{d}|}
+ \\[2ex]
+ \Vector{e}_{d2} &=& \frac{\Vector{e}_{r2} - (\Vector{e}_{r2}\Vector{d})\Vector{d}}{|\Vector{e}_{r2} - (\Vector{e}_{r2}\Vector{d})\Vector{d}|}
+\end{eqnarray}
+
+With this choice, we restrict ourselves to cases where the pilot direction does not lie inside the plane of $\Vector{e}_{r1}$ and $\Vector{e}_{r2}$.
+
+\subsection{Propagation of rays through an optical system}
+
+After tracing the pilot ray, we also want to propagate near-pilot rays.
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  r_{1,im} \\ r_{2,im} \\ d_{1,im} \\ d_{2,im}
+ \end{pmatrix}
+ &=&
+ \hat{G}
+ \begin{pmatrix}
+  r_{1,obj} \\ r_{2,obj} \\ d_{1,obj} \\ d_{2,obj}
+ \end{pmatrix}
+ \end{eqnarray}
+
+The coordinates $r$ and $d$ reside in their respective object and image sided coordinate systems $\Vector{e}$.
+By definition, the propagator projects the object sided pilot ray onto the image sided pilot ray.
+$\hat{G}\Vector{0} = \Vector{0}$.
+
+In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position 
+$\mathcal{O}(\Delta\Vector{d}^2)$ and $\mathcal{O}(\Delta\Vector{r}^2)$, as well as mixed terms $\mathcal{O}(\Delta\Vector{d}\Delta\Vector{r})$.
+The linear terms in $\hat{G}$ can be repressnted by a matrix.
+
+\begin{eqnarray}
+ \hat{G} &=&
+ \begin{pmatrix}
+  a_{11} & a_{12} & b_{11} & b_{12} \\
+  a_{21} & a_{22} & b_{21} & b_{22} \\  
+  c_{11} & c_{12} & d_{11} & d_{12} \\
+  c_{21} & c_{22} & d_{21} & d_{22} 
+ \end{pmatrix}
+ =
+ \begin{pmatrix}
+  \hat{A} & \hat{B} \\
+  \hat{C} & \hat{D}
+ \end{pmatrix} 
+\end{eqnarray}
+
 
 
 \subsection{Evaluation of the Law of Refraction}
