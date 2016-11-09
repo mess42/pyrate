@@ -434,3 +434,5 @@ if __name__ == "__main__":
     print("NEW IT FUNCTION3")
     print([v.evaluate() for v in cl2.getAllVariables()])
 
+    print(os.dict_variables.items())
+
