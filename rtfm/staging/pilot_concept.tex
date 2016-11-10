@@ -182,17 +182,17 @@ We may choose (small) values for $U$ and $V$ independent from each other and ind
 
 \subsubsection{Representation of near-pilot intersection points}
 
-In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point, 
-reperesented by its tangetial plane.
-
-TODO: take over local coordinate system (ray height) of surface xor make a new tangential plane coordinate system ?
+In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
+We represent the ray height in this plane by
 
 \begin{eqnarray}
  \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
 \end{eqnarray}
 
+As we will see later, this choice is beneficial when calculating near-pilot ray intersection points.
+The disadvantage of this representation is that it is not identical to the coordinate system used to describe the surface sag.
 In general, the planes for $\Delta\Vector{d}$ and $\Delta\Vector{r}$ may differ.
-To avoid confusion, we choose the two unit vectors representing each deviation from the pilot ray identical,
+For simplicity, we choose the two unit vectors representing each deviation from the pilot ray identical,
 except for the component along the pilot ray axis.
 
 \begin{eqnarray}
@@ -216,13 +216,26 @@ After tracing the pilot ray, we also want to propagate near-pilot rays.
  \begin{pmatrix}
   X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj}
  \end{pmatrix}
- \end{eqnarray}
+\end{eqnarray}
 
 The coordinates $X,Y,U,V$ reside in their respective object and image sided coordinate systems $\Vector{e}$.
-By definition, the propagator projects the object sided pilot ray onto the image sided pilot ray.
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
 $\hat{G}\Vector{0} = \Vector{0}$.
 
-In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position 
+In analogy to the ABCD formalism, 
+\begin{eqnarray}
+ \begin{pmatrix}
+  y_{im} \\ y^\prime_{im}
+ \end{pmatrix}
+ =
+ \begin{pmatrix}
+   A & B \\ C & D
+ \end{pmatrix}
+ \begin{pmatrix}
+   y_{obj} \\ y^\prime_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+we neglect terms quadratic in the change of direction or position, 
 $\orderof{\Delta\Vector{d}^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Vector{d}\Delta\Vector{r}}$.
 The linear terms in $\hat{G}$ can be represented by a matrix.
 
@@ -240,6 +253,22 @@ The linear terms in $\hat{G}$ can be represented by a matrix.
   \hat{C} & \hat{D}
  \end{pmatrix} 
 \end{eqnarray}
+
+Like in the ABCD-formalism, we can express the effect of multiple propagators as the product of its matrices.
+The individual propagators can be, for example, free space propagation or surface refraction.
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_{im} \\ Y_{im} \\ U_{im} \\ V_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot
+ \begin{pmatrix}
+  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+
+The matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
 
 
 \subsection{Free Space Propagation}
@@ -333,12 +362,7 @@ We are insterested in the limit $\Delta\Wavevector, \Delta\Vector{r} \rightarrow
 \end{eqnarray}
 to be proportional to $\Delta\Vector{r}$. 
 We neglect all higher order terms $\Delta\Wavevector^2$ and $\Delta\Vector{r}^2$.
-Like the ABCD-matrix formalism, 
-\begin{eqnarray}
- y_2 &=& A y_1 + B y^\prime_1 \\
- y^\prime_2 &=& C y_1 + D y^\prime_1
-\end{eqnarray}
-we also neglect cross-terms $\Delta\Wavevector\Delta\Vector{r}$. 
+We also neglect cross-terms $\Delta\Wavevector\Delta\Vector{r}$. 
 This leaves the lowest order terms
 \begin{eqnarray}
 % \Delta\Wavevector_2 &\approx& 
