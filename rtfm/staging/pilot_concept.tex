@@ -203,6 +203,25 @@ except for the component along the pilot ray axis.
 
 With this choice, we restrict ourselves to cases where the pilot direction does not lie inside the plane of $\Vector{e}_{X}$ and $\Vector{e}_{Y}$.
 
+\subsection{Unique choice of unit vectors}
+Up to now, the coordinate systems $\Vector{e}_{X}, \Vector{e}_{Y}$ are defined except for a \emph{roll} degree of freedom, that is, a rotation around the pilot ray.
+In case we partition our optical system into subsets, for example individual optical elements or surfaces, each subsystem $i$ may have its own coordinate system
+$\Vector{e}_{X,i}, \Vector{e}_{Y,i}$.
+Each subsystem may have an arbitrarily chosen roll angle. 
+There is, among others, one choices we want to highlight:
+
+We take the local coordinate system used to describe the surface sag and project its unit vectors on the tangential plane.
+The projections of sag $x$ and $y$ unit vectors are then employed for $X$ and $Y$ ray heights, respectively.
+With this choice, we can easily express absolute vertex heights of near pilot rays back in the sag coordinate system. 
+In case the pilot ray lies in the sag $xy$ plane, however, we face numerical difficulties.
+
+\begin{eqnarray}
+ \Vector{e}_{X} &=& \frac{\Vector{e}_{x} - (\Vector{e}_{x}\Vector{n}_{pilot})\Vector{n}_{pilot}}{|\Vector{e}_{x} - (\Vector{e}_{x}\Vector{n}_{pilot})\Vector{n}_{pilot}|}
+ \\[2ex]
+ \Vector{e}_{Y} &=& \frac{\Vector{e}_{y} - (\Vector{e}_{y}\Vector{n}_{pilot})\Vector{n}_{pilot}}{|\Vector{e}_{y} - (\Vector{e}_{y}\Vector{n}_{pilot})\Vector{n}_{pilot}|}
+\end{eqnarray}
+
+
 \subsection{Propagation of rays through an optical system}
 
 After tracing the pilot ray, we also want to propagate near-pilot rays.
@@ -225,14 +244,14 @@ $\hat{G}\Vector{0} = \Vector{0}$.
 In analogy to the ABCD formalism, 
 \begin{eqnarray}
  \begin{pmatrix}
-  y_{im} \\ y^\prime_{im}
+  y_{im} \\ y^{\,\prime}_{im}
  \end{pmatrix}
  =
  \begin{pmatrix}
    A & B \\ C & D
  \end{pmatrix}
  \begin{pmatrix}
-   y_{obj} \\ y^\prime_{obj}
+   y_{obj} \\ y^{\,\prime}_{obj}
  \end{pmatrix}
 \end{eqnarray}
 we neglect terms quadratic in the change of direction or position, 
@@ -268,7 +287,7 @@ The individual propagators can be, for example, free space propagation or surfac
  \end{pmatrix}
 \end{eqnarray}
 
-The matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
+In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
 
 
 \subsection{Free Space Propagation}
