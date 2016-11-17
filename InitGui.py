@@ -40,6 +40,7 @@ from PyrateWorkbench import OptimizeSystem
 
 from PyrateWorkbench import LocalCoordinatesTree
 from PyrateWorkbench import CheckObjects
+from PyrateWorkbench import FunctionObjects
 
 #import PyrateWorkbench.PyrateInterface
 #import PyrateWorkbench.CreateSystem
