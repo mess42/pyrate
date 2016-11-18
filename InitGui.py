@@ -64,13 +64,15 @@ class PyrateWorkbench ( Workbench ):
 
     def Initialize(self):
         self.appendToolbar("Pyrate",
-                           ["CreateSystemCommand",
+                           [
+                           "CreateSystemCommand",
                             "Separator",
-                            "DeleteSystemCommand",
+#                            "DeleteSystemCommand",
                             "UpdateVisualizationCommand",
                             "Separator",
-                            "LoadSystemCommand",
-                            "SaveSystemCommand"])
+#                            "LoadSystemCommand",
+#                            "SaveSystemCommand"
+                            ])
         #self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"]) # TODO: update
         self.appendMenu("Pyrate System", ["CreateSystemCommand", "CreateLocalCoordinatesCommand"])
         self.appendMenu("Pyrate Visualization", ["UpdateVisualizationCommand"])
