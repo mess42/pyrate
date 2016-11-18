@@ -75,16 +75,16 @@ class PyrateWorkbench ( Workbench ):
         self.appendMenu("Pyrate System", ["CreateSystemCommand", "CreateLocalCoordinatesCommand"])
         self.appendMenu("Pyrate Visualization", ["UpdateVisualizationCommand"])
         self.appendMenu("Pyrate Visualization", ["ShowSystemDraw2DCommand"])
-        self.appendMenu(["Pyrate Visualization", "Show ..."],
-                                                ["ShowSystemCommand",
-                                                 "ShowSurfacesCommand",
-                                                 "ShowRaysCommand"]
-                        )
-        self.appendMenu(["Pyrate Visualization", "Delete ..."],
-                                                ["DeleteSystemCommand",
-                                                 "DeleteSurfacesCommand",
-                                                 "DeleteRaysCommand"]
-                        )
+#        self.appendMenu(["Pyrate Visualization", "Show ..."],
+#                                                ["ShowSystemCommand",
+#                                                 "ShowSurfacesCommand",
+#                                                 "ShowRaysCommand"]
+#                        )
+#        self.appendMenu(["Pyrate Visualization", "Delete ..."],
+#                                                ["DeleteSystemCommand",
+#                                                 "DeleteSurfacesCommand",
+#                                                 "DeleteRaysCommand"]
+#                        )
 
 
         self.appendMenu("Pyrate Field", ["ShowAimDialogCommand", "ShowFieldDialogCommand"])
