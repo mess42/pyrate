@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCADGui
 import FreeCAD
 
-from PyrateWorkbench import CheckObjects
+from PyrateWorkbench.CheckObjects import isLocalCoordinatesObserver
 
 from PyrateWorkbench import Commands_OpticalSystem
 from PyrateWorkbench import Observer_OpticalSystem
@@ -113,8 +113,8 @@ class PyrateWorkbench ( Workbench ):
         if len(selection) == 1:
             obj = selection[0] # TODO: better classification of selections
             # TODO: why CheckObjects function not working here?
-            if 'lcclass' in obj.PropertiesList:            
-            #if CheckObjects.isLocalCoordinatesObserver(obj):
+            #if 'lcclass' in obj.PropertiesList:            
+            if isLocalCoordinatesObserver(obj):
                 self.appendContextMenu("Separator", [])
                 self.appendContextMenu( "Pyrate Local Coordinate System", 
                                        ["ContextAddChildToLocalCoordinatesCommand"])

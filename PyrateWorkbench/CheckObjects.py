@@ -25,13 +25,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 @author: Johannes Hartung
 """
 
-import FreeCADGui, FreeCAD, Part
+import FreeCAD
 
 # TODO: write better tests for some certain object class
 
-def isLocalCoordinatesObserver(obj):
-    return 'lcclass' in obj.PropertiesList
+def isLocalCoordinatesObserver(fobj):
+    FreeCAD.Console.Message("bla")
+    tmp = 'lcclass' in fobj.PropertiesList
+    return tmp
 
-def isOpticalSystemObserver(obj):
-    return 'wavelengths' in obj.PropertiesList
-
+def isOpticalSystemObserver(fobj):
+    tmp = 'wavelengths' in fobj.PropertiesList
+    return tmp
+    
