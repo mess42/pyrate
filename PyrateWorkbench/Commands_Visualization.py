@@ -29,7 +29,7 @@ import PartGui
 import Points
 
 
-import PyrateInterface
+from Observer_OpticalSystem import OpticalSystemObserver
 from PySide import QtGui
 
 

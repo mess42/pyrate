@@ -29,17 +29,20 @@ import FreeCAD
 
 from PyrateWorkbench import CheckObjects
 
-from PyrateWorkbench import PyrateInterface
-from PyrateWorkbench import CreateSystem
-from PyrateWorkbench import LoadSystem
-from PyrateWorkbench import SaveSystem
-from PyrateWorkbench import DeleteRays
-from PyrateWorkbench import DeleteSystem
-from PyrateWorkbench import VisualizeSystem
+from PyrateWorkbench import Commands_OpticalSystem
+from PyrateWorkbench import Observer_OpticalSystem
+
+#from PyrateWorkbench import Commands_Files # TODO: update
+
+from PyrateWorkbench import Commands_Visualization # TODO: update
+
 from PyrateWorkbench import Commands_FieldPoints
 from PyrateWorkbench import TaskPanel_FieldPoints
-from PyrateWorkbench import AnalyseSystem
-from PyrateWorkbench import OptimizeSystem
+
+from PyrateWorkbench import Commands_Analysis # TODO: update
+
+from PyrateWorkbench import Commands_Optimization
+from PyrateWorkbench import Dialog_Optimization
 
 from PyrateWorkbench import Commands_LocalCoordinates
 from PyrateWorkbench import Observer_LocalCoordinates
@@ -68,7 +71,7 @@ class PyrateWorkbench ( Workbench ):
                             "Separator",
                             "LoadSystemCommand",
                             "SaveSystemCommand"])
-        self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"])
+        #self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"]) # TODO: update
         self.appendMenu("Pyrate System", ["CreateSystemCommand", "CreateLocalCoordinatesCommand"])
         self.appendMenu("Pyrate Visualization", ["UpdateVisualizationCommand"])
         self.appendMenu("Pyrate Visualization", ["ShowSystemDraw2DCommand"])

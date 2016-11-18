@@ -57,7 +57,7 @@ import Points
 import Draft
 
 
-from LocalCoordinatesTree import LC
+from Observer_LocalCoordinates import LC
 
 
     
