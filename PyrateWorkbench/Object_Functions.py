@@ -37,7 +37,7 @@ from PySide.QtGui import QLineEdit
 
 import FreeCADGui, FreeCAD, Part
 
-class FreeCADFunctionObject:
+class ObjectFunctions:
     
     
     def __init__(self, name, doc, group):

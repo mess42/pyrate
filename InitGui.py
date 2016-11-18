@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCADGui
 import FreeCAD
 
+from PyrateWorkbench import CheckObjects
+
 from PyrateWorkbench import PyrateInterface
 from PyrateWorkbench import CreateSystem
 from PyrateWorkbench import LoadSystem
@@ -34,25 +36,15 @@ from PyrateWorkbench import SaveSystem
 from PyrateWorkbench import DeleteRays
 from PyrateWorkbench import DeleteSystem
 from PyrateWorkbench import VisualizeSystem
-from PyrateWorkbench import FieldOfSystem
+from PyrateWorkbench import Commands_FieldPoints
+from PyrateWorkbench import TaskPanel_FieldPoints
 from PyrateWorkbench import AnalyseSystem
 from PyrateWorkbench import OptimizeSystem
 
-from PyrateWorkbench import LocalCoordinatesTree
-from PyrateWorkbench import CheckObjects
-from PyrateWorkbench import FunctionObjects
+from PyrateWorkbench import Commands_LocalCoordinates
+from PyrateWorkbench import Observer_LocalCoordinates
 
-#import PyrateWorkbench.PyrateInterface
-#import PyrateWorkbench.CreateSystem
-#import PyrateWorkbench.LoadSystem
-#import PyrateWorkbench.SaveSystem
-#import PyrateWorkbench.DeleteRays
-#import PyrateWorkbench.DeleteSystem
-#import PyrateWorkbench.VisualizeSystem
-#import PyrateWorkbench.FieldOfSystem
-#import PyrateWorkbench.AnalyseSystem
-#import PyrateWorkbench.OptimizeSystem
-
+from PyrateWorkbench import Object_Functions
 
 
 # access to the resource file
