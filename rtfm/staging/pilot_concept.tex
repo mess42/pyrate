@@ -132,11 +132,11 @@ and describe rotationally symmetric and non-symmetric systems with a single form
 It is a formalism for rays close to the center-of-field chief ray, which we call \emph{pilot ray} in the following.
 This pilot ray takes the role of the optical axis in rotationally symmetric systems. 
 By choosing the term pilot ray, we want to emphasize that we mean neither a mechanical axis of symmetry of individual lens elements nor the extraordinary axis in anisotropic crystals.
-In most systems, the intial pilot ray direction is along the $z$ axis. 
+In most systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
-Our ansatz is to perform a real ray trace on the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
-From this Taylor expansion, we derive first order properties, like focal length, magnification and image positions.
+Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
+From this Taylor expansion, we derive first order properties, like focal length, magnification and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
 
 
@@ -175,9 +175,9 @@ This leaves only two degrees of freedom for $\Delta\Vector{d}$.
  \Delta\Vector{d} &=& U \Vector{e}_{U} + V \Vector{e}_{V}
 \end{eqnarray}
 
-We represent $\Delta\Vector{d}$ by two components $U$and $V$ and choose orthogonal unit vectors $\Vector{e}_{U} \perp \Vector{e}_{V} \perp \Vector{d}_{pilot}$,
+We represent $\Delta\Vector{d}$ by two components $U$and $V$ and choose orthogonal unit vectors $\Vector{e}_{U} \perp \Vector{e}_{V} \perp \Vector{d}_{pilot} \perp \Vector{e}_{U}$,
 forming a cartesian coordinate system.
-In this representation, the normalization requirement $|\tilde{\Vector{d}}| = 1$ imposes no nonlinear constraint on the choice of $U$ and $V$.
+In this representation, the normalization requirement $|\tilde{\Vector{d}}| = 1$ imposes no nonlinear constraint on a third component depending on the choice of $U$ and $V$.
 We may choose (small) values for $U$ and $V$ independent from each other and independent from the pilot direction. 
 
 \subsubsection{Representation of near-pilot intersection points}
@@ -189,11 +189,12 @@ We represent the ray height in this plane by
  \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
 \end{eqnarray}
 
+where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 As we will see later, this choice is beneficial when calculating near-pilot ray intersection points.
 The disadvantage of this representation is that it is not identical to the coordinate system used to describe the surface sag.
 In general, the planes for $\Delta\Vector{d}$ and $\Delta\Vector{r}$ may differ.
-For simplicity, we choose the two unit vectors representing each deviation from the pilot ray identical,
-except for the component along the pilot ray axis.
+For simplicity, we choose the two systems $XY$ and $UV$ identical,
+except for a component along the pilot ray axis.
 
 \begin{eqnarray}
  \Vector{e}_{U} &=& \frac{\Vector{e}_{X} - (\Vector{e}_{X}\Vector{d}_{pilot})\Vector{d}_{pilot}}{|\Vector{e}_{X} - (\Vector{e}_{X}\Vector{d}_{pilot})\Vector{d}_{pilot}|}
@@ -326,9 +327,39 @@ In cartesian coordinates, it reads
  \right)
 \end{eqnarray}
 
+\subsection{Thin lenses}
+We consider a thin, spherical lens in air with focal length $f$ and no tilt of the pilot ray, 
+$\Vector{e}_{X1} = \Vector{e}_{X0}$ and $\Vector{e}_{Y1} = \Vector{e}_{Y0}$. Its XYUV matrix reads
 
-TODO:
+\begin{eqnarray}
+XYUV_{thin lens} &=&
+ \begin{pmatrix}
+  1 & 0 & 0 & 0 \\
+  0 & 1 & 0 & 0 \\
+  -\frac{1}{f} & 0 & 1 & 0 \\
+  0 & -\frac{1}{f} & 0 & 1
+ \end{pmatrix}
+\end{eqnarray}
+
+and for a cylindrical lens with a focal power tilted by $\theta$ with respect to the $Y$ axis
+
+\begin{eqnarray}
+XYUV_{cyl} &=&
+ \begin{pmatrix}
+  1 & 0 & 0 & 0 \\
+  0 & 1 & 0 & 0 \\
+  -\frac{1}{f} \sin^2\theta & -\frac{1}{f} \sin\theta \cos\theta & 1 & 0 \\
+  -\frac{1}{f} \sin\theta \cos\theta & -\frac{1}{f} \cos^2\theta & 0 & 1
+ \end{pmatrix}
+\end{eqnarray}
+
+
+
 \subsection{Evaluation of the Law of Refraction}
+
+
+
+TODO: adapt to new nomenclature
 
 We are interested in the change of the refracted wavevector $\Delta\Wavevector_2 = \tilde{\Wavevector}_2 - \Wavevector_2$ induced by $\Delta\Vector{r}$ and $\Delta\Wavevector$.
 \begin{eqnarray}
