@@ -69,7 +69,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
         
         if name == "":
-            name = str(uuid.uuid1())
+            name = str(uuid.uuid4()).lower() # TODO: translate - into _
         
         self.setName(name)
         
