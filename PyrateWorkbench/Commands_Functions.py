@@ -23,13 +23,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 
-from PySide.QtGui import QInputDialog
-from PySide.QtGui import QLineEdit
+from PySide.QtGui import QInputDialog, QLineEdit, QComboBox
+
 
 import FreeCADGui, FreeCAD
 
 
 from Object_Functions import FunctionsObject
+from TaskPanel_Functions_Add import FunctionsTaskPanelAdd
+
+from Interface_Checks import *
 
 
 class CreateFunctionTool:
@@ -52,13 +55,26 @@ class CreateFunctionTool:
 
         doc = FreeCAD.ActiveDocument
 
-        osgroups = doc.getObjectsByLabel("OS_group")
-        if osgroups == []:
-            FreeCAD.Console.PrintMessage("no optical system found")
-        else:
-            osgroup = osgroups[0]
-            (name_of_functionsobject, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Function Object", QLineEdit.Normal, "")        
-            FunctionsObject(name_of_functionsobject, doc, osgroup) 
+        osobservers = []
+        for obj in doc.Objects:
+            if isOpticalSystemObserver(obj):
+                osobservers.append(obj)
+
+        
+
+        #if len(osobservers) > 1:
+        panel = FunctionsTaskPanelAdd(doc, [oso.Label for oso in osobservers])
+        FreeCADGui.Control.showDialog(panel)
+
+            
+
+        #osgroups = doc.getObjectsByLabel("OS_group")
+        #if osgroups == []:
+        #    FreeCAD.Console.PrintMessage("no optical system found")
+        #else:
+        #    osgroup = osgroups[0]
+        #    (name_of_functionsobject, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Function Object", QLineEdit.Normal, "")        
+        #    FunctionsObject(name_of_functionsobject, doc, osgroup) 
 
 
 FreeCADGui.addCommand('CreateFunctionsCommand', CreateFunctionTool())

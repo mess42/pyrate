@@ -29,6 +29,8 @@ import math
 import sys
 import os
 
+import uuid
+
 import numpy as np
 import matplotlib.pyplot as plt
 from PySide import QtCore, QtGui
@@ -59,6 +61,8 @@ import Draft
 
 from Observer_LocalCoordinates import LC
 
+from Interface_Identifiers import *
+from Interface_Helpers import *
 
     
 
@@ -72,12 +76,38 @@ class OpticalSystemObserver(AbstractObserver):
         self.__doc = doc
         obj = doc.addObject("App::FeaturePython", "OS")
         self.__obj = obj
-        self.__group = doc.addObject("App::DocumentObjectGroup", "OS_group")
-        self.__group.addObject(obj)
-        self.__surfacegroup = doc.addObject("App::DocumentObjectGroup", "Surfaces_group")
-        self.__group.addObject(self.__surfacegroup)
+        obj.Proxy = self
 
+        self.__NameOSGroup = Group_OS_Label + "_" + uuidToName(uuid.uuid4())
+        self.__NameSurfaceGroup = Group_Surface_Label + "_" + uuidToName(uuid.uuid4())        
+        self.__NameFunctionsGroup = Group_Functions_Label + "_" + uuidToName(uuid.uuid4())
+        
+        self.__group = doc.addObject("App::DocumentObjectGroup", self.__NameOSGroup)
+        self.__group.addObject(obj)
+        
+        self.__surfacegroup = doc.addObject("App::DocumentObjectGroup", self.__NameSurfaceGroup)
+        self.__functionsgroup = doc.addObject("App::DocumentObjectGroup", self.__NameFunctionsGroup)
+        
+        self.__group.addObject(self.__surfacegroup)
+        self.__group.addObject(self.__functionsgroup)
+
+        self.__functionsgroup.Label = Group_Functions_Label
+        self.__surfacegroup.Label = Group_Surface_Label
+        self.__group.Label = Group_OS_Label
+
+        
         # TODO: all properties are not really operational
+
+        # group links
+
+        obj.addProperty("App::PropertyString", "NameOSGroup", "Groups", "Name of OS Group").NameOSGroup = self.__NameOSGroup
+        obj.addProperty("App::PropertyString", "NameFunctionsGroup", "Groups", "Name of Functions Group").NameFunctionsGroup = self.__NameFunctionsGroup
+        obj.addProperty("App::PropertyString", "NameSurfaceGroup", "Groups", "Name of Surface Group").NameSurfaceGroup = self.__NameSurfaceGroup
+        
+        obj.setEditorMode("NameOSGroup", 1) # readonly 
+        obj.setEditorMode("NameFunctionsGroup", 1) # readonly
+        obj.setEditorMode("NameSurfaceGroup", 1) # readonly
+
 
         # OS Properties
     

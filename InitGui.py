@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCADGui
 import FreeCAD
 
-from PyrateWorkbench.CheckObjects import isLocalCoordinatesObserver
+from PyrateWorkbench.Interface_Checks import isLocalCoordinatesObserver
 
 from PyrateWorkbench import Commands_OpticalSystem
 from PyrateWorkbench import Observer_OpticalSystem

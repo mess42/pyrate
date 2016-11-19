@@ -34,7 +34,7 @@ import FreeCADGui, FreeCAD, Part
 from core.coordinates import LocalCoordinates
 from core.observers import AbstractObserver
 
-from CheckObjects import *
+from Interface_Checks import *
 
 class LC(AbstractObserver):
     def __init__(self, obj, coupling, doc, group):

@@ -33,19 +33,16 @@ from core.observers import AbstractObserver
 
 from PySide import QtGui, QtCore
 
+from Interface_Identifiers import *
+
 class FunctionsObject:
     
     
     def __init__(self, name, doc, group):
         self.__doc = doc # e.g. ActiveDocument
-        self.__group = group # e.g. OS group, group which the functions belong to
-        if self.__doc.getObjectsByLabel("functions_group") == []:
-            self.__subgroup = self.__doc.addObject("App::DocumentObjectGroup", "functions_group")
-        else:
-            self.__subgroup = self.__doc.getObjectsByLabel("functions_group")[0]
-        self.__group.addObject(self.__subgroup)
+        self.__group = group # functions group
         self.__obj = doc.addObject("App::FeaturePython", self.returnStructureLabel(name))
-        self.__subgroup.addObject(self.__obj)
+        self.__group.addObject(self.__obj)
         self.__obj.addProperty("App::PropertyStringList", "functions", "FunctionObject", "functions in object").functions = []
         self.__obj.addProperty("App::PropertyStringList", "source", "FunctionObject", "source code for functions").source = []
         self.__obj.Proxy = self
@@ -74,5 +71,5 @@ class FunctionsObject:
         return self.getFunctionsFromSource(sourcetext, self.__obj.functions)
         
     def returnStructureLabel(self, name):
-        return name + "_function"
+        return "function_" + name
 
