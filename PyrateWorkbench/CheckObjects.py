@@ -25,12 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 @author: Johannes Hartung
 """
 
-import FreeCAD
-
 # TODO: write better tests for some certain object class
 
 def isLocalCoordinatesObserver(fobj):
-    FreeCAD.Console.Message("bla")
     tmp = 'lcclass' in fobj.PropertiesList
     return tmp
 

@@ -78,7 +78,7 @@ class LC(AbstractObserver):
             self.createSubgroupForChild(ch)
     
     def returnGroupLabel(self, s):
-        return s + "_group"
+        return s + "_LCS"
     def returnStructureLabel(self, s):
         return s
 

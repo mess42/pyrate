@@ -36,7 +36,7 @@ class CreateFunctionTool:
     "Tool for creating optical system"
 
     def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
+        return {"Pixmap"  : ":/icons/pyrate_func_icon.svg", # resource qrc file needed, and precompile with python-rcc
                 "MenuText": "Create function ...",
                 "Accel": "",
                 "ToolTip": "Generates function object in document"
@@ -54,13 +54,11 @@ class CreateFunctionTool:
 
         osgroups = doc.getObjectsByLabel("OS_group")
         if osgroups == []:
-            Log("no optical system found")
+            FreeCAD.Console.PrintMessage("no optical system found")
         else:
             osgroup = osgroups[0]
-
-        (name_of_functionsobject, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Function Object", QLineEdit.Normal, "")        
-        
-        FunctionsObject(name_of_functionsobject, doc, osgroup) 
+            (name_of_functionsobject, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Function Object", QLineEdit.Normal, "")        
+            FunctionsObject(name_of_functionsobject, doc, osgroup) 
 
 
 FreeCADGui.addCommand('CreateFunctionsCommand', CreateFunctionTool())

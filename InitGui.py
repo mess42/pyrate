@@ -71,6 +71,7 @@ class PyrateWorkbench ( Workbench ):
 #                            "DeleteSystemCommand",
                             "UpdateVisualizationCommand",
                             "Separator",
+                            "ContextAddChildToLocalCoordinatesCommand", 
                             "CreateFunctionsCommand"
 #                            "LoadSystemCommand",
 #                            "SaveSystemCommand"
@@ -115,8 +116,8 @@ class PyrateWorkbench ( Workbench ):
         if len(selection) == 1:
             obj = selection[0] # TODO: better classification of selections
             # TODO: why CheckObjects function not working here?
-            #if 'lcclass' in obj.PropertiesList:            
-            if isLocalCoordinatesObserver(obj):
+            if 'lcclass' in obj.PropertiesList:            
+            #if isLocalCoordinatesObserver(obj):
                 self.appendContextMenu("Separator", [])
                 self.appendContextMenu( "Pyrate Local Coordinate System", 
                                        ["ContextAddChildToLocalCoordinatesCommand"])

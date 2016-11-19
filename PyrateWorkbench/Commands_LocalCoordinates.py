@@ -30,7 +30,6 @@ from PySide.QtGui import QInputDialog
 from PySide.QtGui import QLineEdit
 
 import FreeCADGui, FreeCAD
-from core.coordinates import LocalCoordinates
 
 from CheckObjects import *
 
@@ -39,7 +38,7 @@ class CreateLocalCoordinatesTool:
     "Tool for creating local coordinates"
 
     def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
+        return {"Pixmap"  : ":/icons/pyrate_coord_icon.svg", # resource qrc file needed, and precompile with python-rcc
                 "MenuText": "Create local coordinates ...",
                 "Accel": "",
                 "ToolTip": "Opens dialog for local coordinates"
@@ -57,23 +56,13 @@ class CreateLocalCoordinatesTool:
         if gad == None:
             return
 
-        origin = LocalCoordinates(name="origin")
-        lc21 = origin.addChild(LocalCoordinates(name="lc21", decz=40.0))
-        lc22 = origin.addChild(LocalCoordinates(name="lc22", tiltx=0.1, decz=50.0))
-        lc23 = origin.addChild(LocalCoordinates(name="lc23", decz=60.0))
-        lc31 = lc22.addChild(LocalCoordinates(name="lc31", decz=60.0))
-        lc32 = lc22.addChild(LocalCoordinates(name="lc32", decz=70.0))
-        lc33 = lc23.addChild(LocalCoordinates(decz=60.0))
-        lc34 = lc23.addChild(LocalCoordinates(name="lc34", decz=60.0))
-    
-        llc = LC(None, origin, gad, None)
 
 class ContextAddChildToLocalCoordinatesTool:
     
     "Tool for adding child to local coordinates within context menu"
 
     def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
+        return {"Pixmap"  : ":/icons/pyrate_coord_icon.svg", # resource qrc file needed, and precompile with python-rcc
                 "MenuText": "Add child to local coordinates ...",
                 "Accel": "",
                 "ToolTip": "Add child to local coordinates"
@@ -97,7 +86,7 @@ class ContextAddChildToLocalCoordinatesTool:
                 
 class ContextIncreaseScaleOfAllLocalCoordinatesTool:
     def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
+        return {"Pixmap"  : ":/icons/pyrate_coord_icon.svg", # resource qrc file needed, and precompile with python-rcc
                 "MenuText": "Increase Scale of local coordinates ...",
                 "Accel": "",
                 "ToolTip": "increase Scale of local coordinates"
@@ -117,7 +106,7 @@ class ContextIncreaseScaleOfAllLocalCoordinatesTool:
 
 class ContextDecreaseScaleOfAllLocalCoordinatesTool:
     def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
+        return {"Pixmap"  : ":/icons/pyrate_coord_icon.svg", # resource qrc file needed, and precompile with python-rcc
                 "MenuText": "Decrease Scale of local coordinates ...",
                 "Accel": "",
                 "ToolTip": "Decrease Scale of local coordinates"

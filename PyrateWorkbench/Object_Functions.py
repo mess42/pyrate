@@ -39,7 +39,10 @@ class FunctionsObject:
     def __init__(self, name, doc, group):
         self.__doc = doc # e.g. ActiveDocument
         self.__group = group # e.g. OS group, group which the functions belong to
-        self.__subgroup = self.__doc.addObject("App::DocumentObjectGroup", "functions_group")
+        if self.__doc.getObjectsByLabel("functions_group") == []:
+            self.__subgroup = self.__doc.addObject("App::DocumentObjectGroup", "functions_group")
+        else:
+            self.__subgroup = self.__doc.getObjectsByLabel("functions_group")[0]
         self.__group.addObject(self.__subgroup)
         self.__obj = doc.addObject("App::FeaturePython", self.returnStructureLabel(name))
         self.__subgroup.addObject(self.__obj)
