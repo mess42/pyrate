@@ -21,9 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author: Johannes Hartung
 
-Implementation of PySide TreeModel/View according to:
-http://stackoverflow.com/questions/17278182/qtreeview-with-custom-items
-
 """
 import sys
 import os
@@ -81,7 +78,7 @@ class LC(AbstractObserver):
             self.createSubgroupForChild(ch)
     
     def returnGroupLabel(self, s):
-        return s + "_group"
+        return s + "_LCS"
     def returnStructureLabel(self, s):
         return s
 
@@ -186,109 +183,3 @@ class LC(AbstractObserver):
         
 
 
-class CreateLocalCoordinatesTool:
-    "Tool for creating local coordinates"
-
-    def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
-                "MenuText": "Create local coordinates ...",
-                "Accel": "",
-                "ToolTip": "Opens dialog for local coordinates"
-                }
-
-    def IsActive(self):
-        if FreeCAD.ActiveDocument == None:
-            return False
-        else:
-            return True
-
-    def Activated(self):
-
-        gad = FreeCAD.ActiveDocument
-        if gad == None:
-            return
-
-        origin = LocalCoordinates(name="origin")
-        lc21 = origin.addChild(LocalCoordinates(name="lc21", decz=40.0))
-        lc22 = origin.addChild(LocalCoordinates(name="lc22", tiltx=0.1, decz=50.0))
-        lc23 = origin.addChild(LocalCoordinates(name="lc23", decz=60.0))
-        lc31 = lc22.addChild(LocalCoordinates(name="lc31", decz=60.0))
-        lc32 = lc22.addChild(LocalCoordinates(name="lc32", decz=70.0))
-        lc33 = lc23.addChild(LocalCoordinates(decz=60.0))
-        lc34 = lc23.addChild(LocalCoordinates(name="lc34", decz=60.0))
-    
-        llc = LC(None, origin, gad, None)
-
-class ContextAddChildToLocalCoordinatesTool:
-    
-    "Tool for adding child to local coordinates within context menu"
-
-    def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
-                "MenuText": "Add child to local coordinates ...",
-                "Accel": "",
-                "ToolTip": "Add child to local coordinates"
-                }
-
-
-    def IsActive(self):
-        if FreeCAD.ActiveDocument == None:
-            return False
-        else:
-            return True
-
-    def Activated(self):
-        
-        selection = [s  for s in FreeCADGui.Selection.getSelection() if s.Document == FreeCAD.ActiveDocument ]
-        (name_of_child, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Child Local Coordinates System", QLineEdit.Normal, "")
-        if len(selection) == 1 and accepted:
-            obj = selection[0]
-            if isLocalCoordinatesObserver(obj):
-                obj.lcobserver.addChild(name = name_of_child)
-                
-class ContextIncreaseScaleOfAllLocalCoordinatesTool:
-    def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
-                "MenuText": "Increase Scale of local coordinates ...",
-                "Accel": "",
-                "ToolTip": "increase Scale of local coordinates"
-                }
-
-    def IsActive(self):
-        if FreeCAD.ActiveDocument == None:
-            return False
-        else:
-            return True
-
-    def Activated(self):
-
-        for o in FreeCAD.ActiveDocument.Objects:
-            if isLocalCoordinatesObserver(o):
-                o.scale += 1
-
-class ContextDecreaseScaleOfAllLocalCoordinatesTool:
-    def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_logo_icon.svg", # resource qrc file needed, and precompile with python-rcc
-                "MenuText": "Decrease Scale of local coordinates ...",
-                "Accel": "",
-                "ToolTip": "Decrease Scale of local coordinates"
-                }
-
-    def IsActive(self):
-        if FreeCAD.ActiveDocument == None:
-            return False
-        else:
-            return True
-
-    def Activated(self):
-
-        for o in FreeCAD.ActiveDocument.Objects:
-            if isLocalCoordinatesObserver(o):
-                o.scale -= 1
- 
-
-
-FreeCADGui.addCommand('CreateLocalCoordinatesCommand', CreateLocalCoordinatesTool())
-FreeCADGui.addCommand('ContextAddChildToLocalCoordinatesCommand', ContextAddChildToLocalCoordinatesTool())
-FreeCADGui.addCommand('ContextIncreaseScaleOfAllLocalCoordinatesCommand', ContextIncreaseScaleOfAllLocalCoordinatesTool())
-FreeCADGui.addCommand('ContextDecreaseScaleOfAllLocalCoordinatesCommand', ContextDecreaseScaleOfAllLocalCoordinatesTool())

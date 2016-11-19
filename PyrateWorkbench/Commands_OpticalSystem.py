@@ -22,16 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 
-from PySide import QtGui, QtCore
 
 import FreeCAD
 import FreeCADGui
-import Part
-import PartGui # wichtig fuer import von icons falls keine eigenen XPMs verwendet werden
-import Points
 
 
-import PyrateInterface
+from Observer_OpticalSystem import OpticalSystemObserver 
 
 
 class CreateSystemTool:
@@ -53,7 +49,7 @@ class CreateSystemTool:
     def Activated(self):
 
         doc = FreeCAD.ActiveDocument
-        PyrateInterface.OpticalSystemObserver(doc) 
+        OpticalSystemObserver(doc) 
         
         
         # TODO: 1 OSinterface per doc, but several optical systems

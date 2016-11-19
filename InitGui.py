@@ -27,31 +27,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCADGui
 import FreeCAD
 
-from PyrateWorkbench import PyrateInterface
-from PyrateWorkbench import CreateSystem
-from PyrateWorkbench import LoadSystem
-from PyrateWorkbench import SaveSystem
-from PyrateWorkbench import DeleteRays
-from PyrateWorkbench import DeleteSystem
-from PyrateWorkbench import VisualizeSystem
-from PyrateWorkbench import FieldOfSystem
-from PyrateWorkbench import AnalyseSystem
-from PyrateWorkbench import OptimizeSystem
+from PyrateWorkbench.CheckObjects import isLocalCoordinatesObserver
 
-from PyrateWorkbench import LocalCoordinatesTree
-from PyrateWorkbench import CheckObjects
+from PyrateWorkbench import Commands_OpticalSystem
+from PyrateWorkbench import Observer_OpticalSystem
 
-#import PyrateWorkbench.PyrateInterface
-#import PyrateWorkbench.CreateSystem
-#import PyrateWorkbench.LoadSystem
-#import PyrateWorkbench.SaveSystem
-#import PyrateWorkbench.DeleteRays
-#import PyrateWorkbench.DeleteSystem
-#import PyrateWorkbench.VisualizeSystem
-#import PyrateWorkbench.FieldOfSystem
-#import PyrateWorkbench.AnalyseSystem
-#import PyrateWorkbench.OptimizeSystem
+#from PyrateWorkbench import Commands_Files # TODO: update
 
+from PyrateWorkbench import Commands_Visualization # TODO: update
+
+from PyrateWorkbench import Commands_FieldPoints
+from PyrateWorkbench import TaskPanel_FieldPoints
+
+from PyrateWorkbench import Commands_Analysis # TODO: update
+
+from PyrateWorkbench import Commands_Optimization
+from PyrateWorkbench import Dialog_Optimization
+
+from PyrateWorkbench import Commands_LocalCoordinates
+from PyrateWorkbench import Observer_LocalCoordinates
+
+from PyrateWorkbench import Commands_Functions
+from PyrateWorkbench import Object_Functions
 
 
 # access to the resource file
@@ -68,27 +65,31 @@ class PyrateWorkbench ( Workbench ):
 
     def Initialize(self):
         self.appendToolbar("Pyrate",
-                           ["CreateSystemCommand",
+                           [
+                           "CreateSystemCommand",
                             "Separator",
-                            "DeleteSystemCommand",
+#                            "DeleteSystemCommand",
                             "UpdateVisualizationCommand",
                             "Separator",
-                            "LoadSystemCommand",
-                            "SaveSystemCommand"])
-        self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"])
+                            "ContextAddChildToLocalCoordinatesCommand", 
+                            "CreateFunctionsCommand"
+#                            "LoadSystemCommand",
+#                            "SaveSystemCommand"
+                            ])
+        #self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"]) # TODO: update
         self.appendMenu("Pyrate System", ["CreateSystemCommand", "CreateLocalCoordinatesCommand"])
         self.appendMenu("Pyrate Visualization", ["UpdateVisualizationCommand"])
         self.appendMenu("Pyrate Visualization", ["ShowSystemDraw2DCommand"])
-        self.appendMenu(["Pyrate Visualization", "Show ..."],
-                                                ["ShowSystemCommand",
-                                                 "ShowSurfacesCommand",
-                                                 "ShowRaysCommand"]
-                        )
-        self.appendMenu(["Pyrate Visualization", "Delete ..."],
-                                                ["DeleteSystemCommand",
-                                                 "DeleteSurfacesCommand",
-                                                 "DeleteRaysCommand"]
-                        )
+#        self.appendMenu(["Pyrate Visualization", "Show ..."],
+#                                                ["ShowSystemCommand",
+#                                                 "ShowSurfacesCommand",
+#                                                 "ShowRaysCommand"]
+#                        )
+#        self.appendMenu(["Pyrate Visualization", "Delete ..."],
+#                                                ["DeleteSystemCommand",
+#                                                 "DeleteSurfacesCommand",
+#                                                 "DeleteRaysCommand"]
+#                        )
 
 
         self.appendMenu("Pyrate Field", ["ShowAimDialogCommand", "ShowFieldDialogCommand"])
@@ -116,7 +117,7 @@ class PyrateWorkbench ( Workbench ):
             obj = selection[0] # TODO: better classification of selections
             # TODO: why CheckObjects function not working here?
             if 'lcclass' in obj.PropertiesList:            
-            #if CheckObjects.isLocalCoordinatesObserver(obj):
+            #if isLocalCoordinatesObserver(obj):
                 self.appendContextMenu("Separator", [])
                 self.appendContextMenu( "Pyrate Local Coordinate System", 
                                        ["ContextAddChildToLocalCoordinatesCommand"])

@@ -22,23 +22,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 
-import time
-import math
-import sys
 import os
 
 import numpy as np
-import matplotlib.pyplot as plt
 
-import FreeCAD
+
 import FreeCADGui
-import Part
-import PartGui
-import Points
 
 
-import PyrateInterface
-from PySide import QtCore, QtGui
+from PySide import QtGui
 
 
 class FieldPointsTaskPanel:
@@ -160,56 +152,6 @@ class FieldPointsTaskPanel:
         FreeCADGui.Control.closeDialog()
         
 
-class ShowAimDialogCommand:
-    "Show aim dialog"
-
-    def GetResources(self):
-        return {"MenuText": "Aim Dialog",
-                "Accel": "",
-                "ToolTip": "You may enter data for the aiming",
-                "Pixmap": ":/icons/pyrate_del_sys_icon.svg"
-                }
-
-    def IsActive(self):
-        if FreeCAD.ActiveDocument == None:
-            return False
-        else:
-            return True
-
-    def Activated(self):
-        pass
-        #PyrateInterface.OSinterface.showAimFiniteSurfaceStopDialog()
-
-class ShowFieldDialogCommand:
-    "Show field dialog"
-
-    def GetResources(self):
-        return {"MenuText": "Field Dialog",
-                "Accel": "",
-                "ToolTip": "You may enter field point data",
-                "Pixmap": ":/icons/pyrate_del_sys_icon.svg"
-                }
-
-    def IsActive(self):
-        if FreeCAD.ActiveDocument == None:
-            return False
-        else:
-            selection = FreeCADGui.Selection.getSelection()
-            if len(selection) == 1 and ('wavelengths' in selection[0].PropertiesList):
-                # TODO: comparison with CheckObjects function?                
-                return True
-            else:
-                return False
-
-    def Activated(self):
-        osselection = FreeCADGui.Selection.getSelection()[0] # only active if len = 1 and obj is appropriate
-        
-        fppanel = FieldPointsTaskPanel(osselection)
-        FreeCADGui.Control.showDialog(fppanel)
-
-
-FreeCADGui.addCommand('ShowAimDialogCommand',ShowAimDialogCommand())
-FreeCADGui.addCommand('ShowFieldDialogCommand',ShowFieldDialogCommand())
 
 
 

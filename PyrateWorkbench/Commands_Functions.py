@@ -22,51 +22,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 
-import pickle
-import sys
-from PySide import QtGui, QtCore
 
-import FreeCAD
-import FreeCADGui
-import Part
-import PartGui # wichtig fuer import von icons falls keine eigenen XPMs verwendet werden
-import Points
+from PySide.QtGui import QInputDialog
+from PySide.QtGui import QLineEdit
+
+import FreeCADGui, FreeCAD
 
 
-import PyrateInterface
+from Object_Functions import FunctionsObject
 
-class LoadSystemCommand:
-    "Load optical system file"
+
+class CreateFunctionTool:
+    "Tool for creating optical system"
 
     def GetResources(self):
-        return {"MenuText": "Load Optical System from pickle ...",
+        return {"Pixmap"  : ":/icons/pyrate_func_icon.svg", # resource qrc file needed, and precompile with python-rcc
+                "MenuText": "Create function ...",
                 "Accel": "",
-                "ToolTip": "Loads an optical system from pickles file",
-                "Pixmap": ":/icons/pyrate_load_sys_icon.svg"
+                "ToolTip": "Generates function object in document"
                 }
 
     def IsActive(self):
-        return True
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            return True
 
     def Activated(self):
-        if FreeCAD.ActiveDocument == None:
-            FreeCAD.newDocument()
 
+        doc = FreeCAD.ActiveDocument
 
-        fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', '')
-
-        if fname == "":
-            return 1
+        osgroups = doc.getObjectsByLabel("OS_group")
+        if osgroups == []:
+            FreeCAD.Console.PrintMessage("no optical system found")
         else:
-            with open(fname, 'rb') as input:
-                PyrateInterface.OSinterface.os = pickle.load(input)
-            PyrateInterface.OSinterface.createSurfaceViews()
-            #PyrateInterface.OSinterface.createRayViews()
+            osgroup = osgroups[0]
+            (name_of_functionsobject, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Function Object", QLineEdit.Normal, "")        
+            FunctionsObject(name_of_functionsobject, doc, osgroup) 
 
 
-        for i in FreeCAD.ActiveDocument.Objects:
-            i.touch()
-
-        FreeCAD.ActiveDocument.recompute()
-
-FreeCADGui.addCommand('LoadSystemCommand',LoadSystemCommand())
+FreeCADGui.addCommand('CreateFunctionsCommand', CreateFunctionTool())
