@@ -32,12 +32,8 @@ import math
 from core.observers import AbstractObserver
 
 from PySide import QtGui, QtCore
-from PySide.QtGui import QInputDialog
-from PySide.QtGui import QLineEdit
 
-import FreeCADGui, FreeCAD, Part
-
-class ObjectFunctions:
+class FunctionsObject:
     
     
     def __init__(self, name, doc, group):

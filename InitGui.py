@@ -47,6 +47,7 @@ from PyrateWorkbench import Dialog_Optimization
 from PyrateWorkbench import Commands_LocalCoordinates
 from PyrateWorkbench import Observer_LocalCoordinates
 
+from PyrateWorkbench import Commands_Functions
 from PyrateWorkbench import Object_Functions
 
 
@@ -70,6 +71,7 @@ class PyrateWorkbench ( Workbench ):
 #                            "DeleteSystemCommand",
                             "UpdateVisualizationCommand",
                             "Separator",
+                            "CreateFunctionsCommand"
 #                            "LoadSystemCommand",
 #                            "SaveSystemCommand"
                             ])
