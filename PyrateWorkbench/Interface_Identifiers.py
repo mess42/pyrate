@@ -20,10 +20,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-@author: Johannes Hartung
+@author Johannes Hartung
 
 """
 
-Group_OS_Label = "OS_group" # Label of group containing Optical System Structure
-Group_Functions_Label = "functions_group" # Label of subgroup containing Function Objects
-Group_Surface_Label = "Surface_group" # Label of subgroup containing surface objects
+Group_OS_Label = "Group_OS" # Label of group containing Optical System Structure
+Group_Functions_Label = "Functions" # Label of subgroup containing Function Objects
+Group_Surface_Label = "Surfaces" # Label of subgroup containing surface objects
+Group_Coordinates_Label = "Coordinates" # Label of subgroup containing local coordinates objects

@@ -60,21 +60,8 @@ class CreateFunctionTool:
             if isOpticalSystemObserver(obj):
                 osobservers.append(obj)
 
-        
-
-        #if len(osobservers) > 1:
         panel = FunctionsTaskPanelAdd(doc, [oso.Label for oso in osobservers])
         FreeCADGui.Control.showDialog(panel)
 
             
-
-        #osgroups = doc.getObjectsByLabel("OS_group")
-        #if osgroups == []:
-        #    FreeCAD.Console.PrintMessage("no optical system found")
-        #else:
-        #    osgroup = osgroups[0]
-        #    (name_of_functionsobject, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Function Object", QLineEdit.Normal, "")        
-        #    FunctionsObject(name_of_functionsobject, doc, osgroup) 
-
-
 FreeCADGui.addCommand('CreateFunctionsCommand', CreateFunctionTool())

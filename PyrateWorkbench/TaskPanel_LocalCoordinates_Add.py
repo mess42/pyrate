@@ -22,29 +22,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import FreeCADGui
 
-from Object_Functions import FunctionsObject
+from Observer_LocalCoordinates import LC
 
 from Interface_Helpers import *
 
-class FunctionsTaskPanelAdd:
-    def __init__(self, doc, stringlist):
-        fn = getRelativeFilePath(__file__, 'Qt/dlg_functionsobject_add.ui')        
+class LocalCoordinatesTaskPanelAdd:
+    def __init__(self, doc, oslabellist):
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_localcoords_add.ui')        
         
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(fn)
-        self.form.comboBox.addItems(stringlist)
+        self.form.comboBoxOS.addItems(oslabellist)
+        self.form.comboBoxOS.activated.connect(self.onActivatedCBOS)        
+
         self.doc = doc
+        self.actualizeLCComboBoxFromOSComboBox()
+        
+
+    def actualizeLCComboBoxFromOSComboBox(self):
+        oslabel = self.form.comboBoxOS.currentText()
+        osselected = self.doc.getObjectsByLabel(oslabel)[0]
+        lcingroup = osselected.Proxy.returnObjectsFromCoordinatesGroup()
+        lclabellist = [lc.Label for lc in lcingroup]
+        self.form.comboBoxParentLC.clear()
+        self.form.comboBoxParentLC.addItems(lclabellist)
+        
+
+    def onActivatedCBOS(self, index):
+        self.actualizeLCComboBoxFromOSComboBox()        
+        
 
     def accept(self):
-        oslabel = self.form.comboBox.currentText()
-        name_of_functionsobject = self.form.lineEditName.text()
+        parentlclabel = self.form.comboBoxParentLC.currentText()        
         
-        os = self.doc.getObjectsByLabel(oslabel)[0]
+        name_of_newlc = self.form.lineEditName.text()
+        
+        parentlc = self.doc.getObjectsByLabel(parentlclabel)[0]                
                 
-        fngroupname = os.NameFunctionsGroup
-        fngroup = self.doc.getObject(fngroupname)
-
-        FunctionsObject(name_of_functionsobject, self.doc, fngroup) 
+        parentlc.Proxy.addChild(name=name_of_newlc) 
 
         FreeCADGui.Control.closeDialog()
 

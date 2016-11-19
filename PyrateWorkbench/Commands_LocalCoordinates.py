@@ -31,7 +31,9 @@ from PySide.QtGui import QLineEdit
 
 import FreeCADGui, FreeCAD
 
-from CheckObjects import *
+from Interface_Checks import *
+
+from TaskPanel_LocalCoordinates_Add import LocalCoordinatesTaskPanelAdd
 
 
 class CreateLocalCoordinatesTool:
@@ -52,9 +54,20 @@ class CreateLocalCoordinatesTool:
 
     def Activated(self):
 
-        gad = FreeCAD.ActiveDocument
-        if gad == None:
+        doc = FreeCAD.ActiveDocument
+        if doc == None:
             return
+
+        osobservers = []
+        for obj in doc.Objects:
+            if isOpticalSystemObserver(obj):
+                osobservers.append(obj)
+            
+            
+
+        lcpanel = LocalCoordinatesTaskPanelAdd(doc, [oso.Label for oso in osobservers])
+        FreeCADGui.Control.showDialog(lcpanel)
+
 
 
 class ContextAddChildToLocalCoordinatesTool:

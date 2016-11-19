@@ -32,10 +32,12 @@ import FreeCADGui
 
 from PySide import QtGui
 
+from Interface_Helpers import *
+
 
 class FieldPointsTaskPanel:
     def __init__(self, osobj):
-        fn = os.path.join(os.path.dirname(__file__), 'Qt/fielddialog.ui') 
+        fn = getRelativeFilePath(__file__, 'Qt/fielddialog.ui')
 
         # grab field points from osobj
         # grab boolean values from osobj

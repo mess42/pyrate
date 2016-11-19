@@ -63,14 +63,9 @@ from Observer_LocalCoordinates import LC
 
 from Interface_Identifiers import *
 from Interface_Helpers import *
-
+from Interface_Checks import *
     
 
-class FreeCADOutputStream(object):
-    def write(self, txt):
-        FreeCAD.Console.PrintMessage(txt)
-
-# TODO: new implementation of OS coupling
 class OpticalSystemObserver(AbstractObserver):
     def __init__(self, doc):
         self.__doc = doc
@@ -81,18 +76,23 @@ class OpticalSystemObserver(AbstractObserver):
         self.__NameOSGroup = Group_OS_Label + "_" + uuidToName(uuid.uuid4())
         self.__NameSurfaceGroup = Group_Surface_Label + "_" + uuidToName(uuid.uuid4())        
         self.__NameFunctionsGroup = Group_Functions_Label + "_" + uuidToName(uuid.uuid4())
+        self.__NameCoordinatesGroup = Group_Coordinates_Label + "_" + uuidToName(uuid.uuid4())
         
         self.__group = doc.addObject("App::DocumentObjectGroup", self.__NameOSGroup)
         self.__group.addObject(obj)
         
         self.__surfacegroup = doc.addObject("App::DocumentObjectGroup", self.__NameSurfaceGroup)
         self.__functionsgroup = doc.addObject("App::DocumentObjectGroup", self.__NameFunctionsGroup)
+        self.__coordinatesgroup = doc.addObject("App::DocumentObjectGroup", self.__NameCoordinatesGroup)
+
         
         self.__group.addObject(self.__surfacegroup)
         self.__group.addObject(self.__functionsgroup)
+        self.__group.addObject(self.__coordinatesgroup)
 
         self.__functionsgroup.Label = Group_Functions_Label
         self.__surfacegroup.Label = Group_Surface_Label
+        self.__coordinatesgroup.Label = Group_Coordinates_Label
         self.__group.Label = Group_OS_Label
 
         
@@ -103,10 +103,12 @@ class OpticalSystemObserver(AbstractObserver):
         obj.addProperty("App::PropertyString", "NameOSGroup", "Groups", "Name of OS Group").NameOSGroup = self.__NameOSGroup
         obj.addProperty("App::PropertyString", "NameFunctionsGroup", "Groups", "Name of Functions Group").NameFunctionsGroup = self.__NameFunctionsGroup
         obj.addProperty("App::PropertyString", "NameSurfaceGroup", "Groups", "Name of Surface Group").NameSurfaceGroup = self.__NameSurfaceGroup
+        obj.addProperty("App::PropertyString", "NameCoordinatesGroup", "Groups", "Name of Coordinates Group").NameCoordinatesGroup = self.__NameCoordinatesGroup
         
         obj.setEditorMode("NameOSGroup", 1) # readonly 
         obj.setEditorMode("NameFunctionsGroup", 1) # readonly
         obj.setEditorMode("NameSurfaceGroup", 1) # readonly
+        obj.setEditorMode("NameCoordinatesGroup", 1) # readonly
 
 
         # OS Properties
@@ -162,7 +164,7 @@ class OpticalSystemObserver(AbstractObserver):
         obj.addProperty("App::PropertyPythonObject", 
                         "coords", 
                         "OS", 
-                        "os coords interface").coords = LC(None, obj.osclass.globalcoordinatesystem, doc, self.__group)
+                        "os coords interface").coords = LC(None, obj.osclass.globalcoordinatesystem, doc, self.__coordinatesgroup)
         obj.addProperty("App::PropertyFloatList",
                         "wavelengths",
                         "OS",
@@ -253,6 +255,15 @@ class OpticalSystemObserver(AbstractObserver):
                 Since no data were serialized nothing needs to be done here.'''
         return None
 
+    def getObjectsFromGroupTree(self, grp, boolfun):
+        lstboolfun = [o for o in grp.Group if boolfun(o)]
+        lstsubgroups = sum([self.getObjectsFromGroupTree(o, boolfun) for o in grp.Group if 'Group' in o.PropertiesList], []) # flatten
+        return sum([lstboolfun, lstsubgroups], [])
+        
+        
+    
+    def returnObjectsFromCoordinatesGroup(self):
+        return self.getObjectsFromGroupTree(self.__coordinatesgroup, isLocalCoordinatesObserver)
 
 
 

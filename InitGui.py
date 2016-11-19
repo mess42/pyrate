@@ -71,7 +71,7 @@ class PyrateWorkbench ( Workbench ):
 #                            "DeleteSystemCommand",
                             "UpdateVisualizationCommand",
                             "Separator",
-                            "ContextAddChildToLocalCoordinatesCommand", 
+                            "CreateLocalCoordinatesCommand", 
                             "CreateFunctionsCommand"
 #                            "LoadSystemCommand",
 #                            "SaveSystemCommand"
