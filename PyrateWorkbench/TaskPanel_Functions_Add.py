@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import FreeCADGui
 
+from PySide import QtGui
+
 from Object_Functions import FunctionsObject
 
 from Interface_Helpers import *
@@ -39,12 +41,15 @@ class FunctionsTaskPanelAdd:
         oslabel = self.form.comboBox.currentText()
         name_of_functionsobject = self.form.lineEditName.text()
         
-        os = self.doc.getObjectsByLabel(oslabel)[0]
-                
-        fngroupname = os.NameFunctionsGroup
-        fngroup = self.doc.getObject(fngroupname)
-
-        FunctionsObject(name_of_functionsobject, self.doc, fngroup) 
+        try:        
+            os = self.doc.getObjectsByLabel(oslabel)[0]
+        except IndexError:
+            QtGui.QMessageBox.warning(None, "pyrate", "No optical system available! Please create one.")            
+        else:
+            fngroupname = os.NameFunctionsGroup
+            fngroup = self.doc.getObject(fngroupname)
+    
+            FunctionsObject(name_of_functionsobject, self.doc, fngroup) 
 
         FreeCADGui.Control.closeDialog()
 

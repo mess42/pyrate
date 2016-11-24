@@ -50,6 +50,8 @@ from PyrateWorkbench import Observer_LocalCoordinates
 from PyrateWorkbench import Commands_Functions
 from PyrateWorkbench import Object_Functions
 
+from PyrateWorkbench import Commands_Materials
+
 
 # access to the resource file
 from PyrateWorkbench import resources_rc
@@ -72,7 +74,8 @@ class PyrateWorkbench ( Workbench ):
                             "UpdateVisualizationCommand",
                             "Separator",
                             "CreateLocalCoordinatesCommand", 
-                            "CreateFunctionsCommand"
+                            "CreateFunctionsCommand",
+                            "CreateMaterialsCommand"
 #                            "LoadSystemCommand",
 #                            "SaveSystemCommand"
                             ])

@@ -35,3 +35,7 @@ def isOpticalSystemObserver(fobj):
     tmp = 'wavelengths' in fobj.PropertiesList
     return tmp
     
+def isFunctionsObject(fobj):
+    tmp = 'functions' in fobj.PropertiesList
+    return tmp
+    

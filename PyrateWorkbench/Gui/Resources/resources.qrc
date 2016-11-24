@@ -6,6 +6,7 @@
 	<file>icons/pyrate_del_sys_icon.svg</file>
 	<file>icons/pyrate_coord_icon.svg</file>
 	<file>icons/pyrate_func_icon.svg</file>
+        <file>icons/pyrate_material_icon.svg</file>
     </qresource>
 </RCC> 
 
