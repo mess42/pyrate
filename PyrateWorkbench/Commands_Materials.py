@@ -27,7 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCADGui, FreeCAD
 
 
+from PySide.QtGui import QLineEdit, QInputDialog
+
 from TaskPanel_Materials_Add import MaterialsTaskPanelAdd
+from Object_MaterialCatalogue import MaterialCatalogueObject
 
 from Interface_Checks import *
 
@@ -76,6 +79,11 @@ class CreateMaterialsCatalogueTool:
     def Activated(self):
 
         doc = FreeCAD.ActiveDocument
+        
+        (text, ok) = QInputDialog.getText(None, "pyrate", "Name for material catalogue?", QLineEdit.Normal)        
+
+        if text and ok:
+            MaterialCatalogueObject(doc, text)
 
 
             

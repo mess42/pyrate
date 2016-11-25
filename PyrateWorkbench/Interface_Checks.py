@@ -42,3 +42,9 @@ def isFunctionsObject(fobj):
 def isGroup(fobj):
     return 'Group' in fobj.PropertiesList
     
+def isMaterialCatalogue(fobj):
+    result = False
+    if isGroup(fobj):
+        result = any(['NameMaterialsCatalogue' in o.PropertiesList for o in fobj.Group])
+    return result
+    

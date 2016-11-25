@@ -24,27 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # standard include
 
-import time
-import math
-import sys
-import os
-
 import uuid
+import math
+
 
 import numpy as np
-import matplotlib.pyplot as plt
-from PySide import QtCore, QtGui
 
 from core import material
 from core import surfShape
-from core import aim
-from core import field
-from core import pupil
-from core import raster
-from core import plots
-from core import aperture
 
-from core.ray import RayPath
 from core.optical_system import OpticalSystem, Surface
 from core.observers import AbstractObserver
 from core.coordinates import LocalCoordinates
@@ -53,10 +41,6 @@ from core.aperture import CircularAperture
 # freecad modules
 
 import FreeCAD
-import FreeCADGui
-import Part
-import Points
-import Draft
 
 
 from Observer_LocalCoordinates import LC

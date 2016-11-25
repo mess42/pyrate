@@ -27,6 +27,10 @@ from Interface_Checks import *
 
 class MaterialsTaskPanelAdd:
     def __init__(self, doc):
+        # doc needs to be initialized first        
+        self.doc = doc
+
+
         fn = getRelativeFilePath(__file__, 'Qt/dlg_material_add.ui')        
 
         fnobjectsindocument = []
@@ -35,9 +39,13 @@ class MaterialsTaskPanelAdd:
                fnobjectsindocument.append(obj)
                
         fnobjectslabels = [obj.Label for obj in fnobjectsindocument]
+        matcatobjectslabels = [obj.Label for obj in getAllMaterialCatalogues(doc)]
         
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(fn)
+        
+        self.form.comboBoxCatalogue.addItems(matcatobjectslabels)
+                
         
         
         self.form.comboBox_FO_N.addItems(fnobjectslabels)
@@ -50,9 +58,6 @@ class MaterialsTaskPanelAdd:
         self.form.comboBox_FO_Ny.currentIndexChanged.connect(self.onCurrentIndexChangedFO_Ny)        
         self.form.comboBox_FO_Nz.currentIndexChanged.connect(self.onCurrentIndexChangedFO_Nz)        
 
-        self.doc = doc
-
-        # doc needs to be initialized first        
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_N, self.form.comboBox_FOf_N)
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Nx, self.form.comboBox_FOf_Nx)
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Ny, self.form.comboBox_FOf_Ny)
