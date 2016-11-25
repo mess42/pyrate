@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 
-from PySide.QtGui import QInputDialog, QLineEdit, QComboBox
-
 
 import FreeCADGui, FreeCAD
 
@@ -58,6 +56,29 @@ class CreateMaterialsTool:
         panel = MaterialsTaskPanelAdd(doc)#, [oso.Label for oso in osobservers])
         FreeCADGui.Control.showDialog(panel)
 
+
+class CreateMaterialsCatalogueTool:
+    "Tool for creating materials object"
+
+    def GetResources(self):
+        return {"Pixmap"  : ":/icons/pyrate_material_catalogue_icon.svg", # resource qrc file needed, and precompile with python-rcc
+                "MenuText": "Create material catalogue",
+                "Accel": "",
+                "ToolTip": "Generates material catalogue group in document"
+                }
+
+    def IsActive(self):
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            return True
+
+    def Activated(self):
+
+        doc = FreeCAD.ActiveDocument
+
+
             
 FreeCADGui.addCommand('CreateMaterialsCommand', CreateMaterialsTool())
+FreeCADGui.addCommand('CreateMaterialsCatalogueCommand', CreateMaterialsCatalogueTool())
 

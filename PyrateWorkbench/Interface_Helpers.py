@@ -26,9 +26,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from string import maketrans
 import os
 
+from Interface_Identifiers import *
+from Interface_Checks import *
+
+import FreeCAD, FreeCADGui
+
+# general
+
 def uuidToName(uuid):
     tab = maketrans('-','_')
     return str(uuid).lower().translate(tab)
     
 def getRelativeFilePath(relativefilename, targetfile):
     return os.path.join(os.path.dirname(relativefilename), targetfile)
+    
+# collect optical system observers
+    
+def getAllOpticalSystemObservers(doc):
+    return [obj for obj in doc.Objects if isOpticalSystemObserver(obj)]
+
+# collect function objects
+    
+def getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os):
+    fngroupname = os.NameFunctionsGroup
+    fngroup = self.doc.getObject(fngroupname)
+    return fngroup
+
+def getFunctionObjectsFromOpticalSystemObserver(doc, os):
+    subgroup = getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os)
+    return subgroup.Group
+    
+    
+        

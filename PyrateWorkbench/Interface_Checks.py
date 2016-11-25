@@ -38,4 +38,7 @@ def isOpticalSystemObserver(fobj):
 def isFunctionsObject(fobj):
     tmp = 'functions' in fobj.PropertiesList
     return tmp
+
+def isGroup(fobj):
+    return 'Group' in fobj.PropertiesList
     

@@ -7,6 +7,8 @@
 	<file>icons/pyrate_coord_icon.svg</file>
 	<file>icons/pyrate_func_icon.svg</file>
         <file>icons/pyrate_material_icon.svg</file>
+        <file>icons/pyrate_material_catalogue_icon.svg</file>
+        <file>icons/pyrate_shape_icon.svg</file>
     </qresource>
 </RCC> 
 

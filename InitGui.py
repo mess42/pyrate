@@ -75,7 +75,10 @@ class PyrateWorkbench ( Workbench ):
                             "Separator",
                             "CreateLocalCoordinatesCommand", 
                             "CreateFunctionsCommand",
-                            "CreateMaterialsCommand"
+                            "Separator",
+                            "CreateMaterialsCatalogueCommand",
+                            "CreateMaterialsCommand",
+                            "Separator"
 #                            "LoadSystemCommand",
 #                            "SaveSystemCommand"
                             ])

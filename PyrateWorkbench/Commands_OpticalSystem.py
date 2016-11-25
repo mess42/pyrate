@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCAD
 import FreeCADGui
 
+from PySide.QtGui import QLineEdit, QInputDialog
+
 
 from Observer_OpticalSystem import OpticalSystemObserver 
 
@@ -49,7 +51,10 @@ class CreateSystemTool:
     def Activated(self):
 
         doc = FreeCAD.ActiveDocument
-        OpticalSystemObserver(doc) 
+        (text, ok) = QInputDialog.getText(None, "pyrate", "Name for optical system?", QLineEdit.Normal)        
+        
+        if text and ok:
+            OpticalSystemObserver(doc, text) 
         
         
         # TODO: 1 OSinterface per doc, but several optical systems

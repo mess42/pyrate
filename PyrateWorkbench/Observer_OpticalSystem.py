@@ -67,9 +67,9 @@ from Interface_Checks import *
     
 
 class OpticalSystemObserver(AbstractObserver):
-    def __init__(self, doc):
+    def __init__(self, doc, name):
         self.__doc = doc
-        obj = doc.addObject("App::FeaturePython", "OS")
+        obj = doc.addObject("App::FeaturePython", name)
         self.__obj = obj
         obj.Proxy = self
 
@@ -90,10 +90,10 @@ class OpticalSystemObserver(AbstractObserver):
         self.__group.addObject(self.__functionsgroup)
         self.__group.addObject(self.__coordinatesgroup)
 
-        self.__functionsgroup.Label = Group_Functions_Label
-        self.__surfacegroup.Label = Group_Surface_Label
-        self.__coordinatesgroup.Label = Group_Coordinates_Label
-        self.__group.Label = Group_OS_Label
+        self.__functionsgroup.Label = Group_Functions_Label + "_" + name
+        self.__surfacegroup.Label = Group_Surface_Label + "_" + name
+        self.__coordinatesgroup.Label = Group_Coordinates_Label + "_" + name
+        self.__group.Label = Group_OS_Label + "_" + name
 
         
         # TODO: all properties are not really operational
@@ -257,7 +257,7 @@ class OpticalSystemObserver(AbstractObserver):
 
     def getObjectsFromGroupTree(self, grp, boolfun):
         lstboolfun = [o for o in grp.Group if boolfun(o)]
-        lstsubgroups = sum([self.getObjectsFromGroupTree(o, boolfun) for o in grp.Group if 'Group' in o.PropertiesList], []) # flatten
+        lstsubgroups = sum([self.getObjectsFromGroupTree(o, boolfun) for o in grp.Group if isGroup(o)], []) # flatten
         return sum([lstboolfun, lstsubgroups], [])
         
         
