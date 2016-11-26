@@ -52,6 +52,7 @@ from PyrateWorkbench import Object_Functions
 
 from PyrateWorkbench import Commands_Materials
 
+from PyrateWorkbench import Commands_Surface
 
 # access to the resource file
 from PyrateWorkbench import resources_rc
@@ -71,14 +72,15 @@ class PyrateWorkbench ( Workbench ):
                            "CreateSystemCommand",
                             "Separator",
 #                            "DeleteSystemCommand",
-                            "UpdateVisualizationCommand",
-                            "Separator",
+#                            "UpdateVisualizationCommand",
+#                            "Separator",
                             "CreateLocalCoordinatesCommand", 
                             "CreateFunctionsCommand",
                             "Separator",
                             "CreateMaterialsCatalogueCommand",
                             "CreateMaterialsCommand",
-                            "Separator"
+                            "Separator",
+                            "CreateSurfacesCommand"
 #                            "LoadSystemCommand",
 #                            "SaveSystemCommand"
                             ])

@@ -7,37 +7,54 @@
     <x>0</x>
     <y>0</y>
     <width>487</width>
-    <height>410</height>
+    <height>549</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="5" column="1">
+    <widget class="QComboBox" name="comboBoxLC"/>
+   </item>
+   <item row="10" column="1">
+    <widget class="QLabel" name="label_19">
+     <property name="text">
+      <string>Shape</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="lineEditName">
+     <property name="placeholderText">
+      <string>surface_name</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Choose a shape name and type and enter its parameters.</string>
+      <string>Surface Name</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLineEdit" name="lineEditName">
-     <property name="placeholderText">
-      <string>shape_name</string>
+   <item row="3" column="1">
+    <widget class="QComboBox" name="comboBoxOS"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="label_17">
+     <property name="text">
+      <string>Optical System</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QComboBox" name="comboBoxOS"/>
-   </item>
-   <item row="3" column="0">
-    <widget class="QTabWidget" name="tabWidget">
+   <item row="11" column="1">
+    <widget class="QTabWidget" name="tabWidgetShapes">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabConicShape">
       <attribute name="title">
@@ -321,6 +338,85 @@
       </layout>
      </widget>
     </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLabel" name="label_18">
+     <property name="text">
+      <string>Coordinate System</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QTabWidget" name="tabWidgetApertures">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabBaseAperture">
+      <attribute name="title">
+       <string>Base Aperture</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_21">
+         <property name="text">
+          <string>Base Aperture only has a typical dimension for drawing reasons but does not block the rays</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabCircularAperture">
+      <attribute name="title">
+       <string>Circular</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="1">
+        <widget class="QSpinBox" name="spinBoxCircularApertureRadius"/>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_22">
+         <property name="text">
+          <string>Radius</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabUserDefinedAperture">
+      <attribute name="title">
+       <string>User defined</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_8">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_23">
+         <property name="text">
+          <string>To be implemented</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLabel" name="label_20">
+     <property name="text">
+      <string>Aperture</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLabel" name="label_24">
+     <property name="text">
+      <string>Material</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QComboBox" name="comboBox"/>
    </item>
   </layout>
  </widget>

@@ -22,9 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import FreeCADGui
 
+from PySide import QtGui
+
 from Observer_LocalCoordinates import LC
 
 from Interface_Helpers import *
+from Interface_Identifiers import *
 
 class LocalCoordinatesTaskPanelAdd:
     def __init__(self, doc, oslabellist):
@@ -41,11 +44,15 @@ class LocalCoordinatesTaskPanelAdd:
 
     def actualizeLCComboBoxFromOSComboBox(self):
         oslabel = self.form.comboBoxOS.currentText()
-        osselected = self.doc.getObjectsByLabel(oslabel)[0]
-        lcingroup = osselected.Proxy.returnObjectsFromCoordinatesGroup()
-        lclabellist = [lc.Label for lc in lcingroup]
-        self.form.comboBoxParentLC.clear()
-        self.form.comboBoxParentLC.addItems(lclabellist)
+        oslist = self.doc.getObjectsByLabel(oslabel)
+        if oslist != []:
+            osselected = oslist[0]
+            lcingroup = osselected.Proxy.returnObjectsFromCoordinatesGroup()
+            lclabellist = [lc.Label for lc in lcingroup]
+            self.form.comboBoxParentLC.clear()
+            self.form.comboBoxParentLC.addItems(lclabellist)
+        else:
+            self.form.comboBoxParentLC.clear()
         
 
     def onActivatedCBOS(self, index):
@@ -53,13 +60,18 @@ class LocalCoordinatesTaskPanelAdd:
         
 
     def accept(self):
-        parentlclabel = self.form.comboBoxParentLC.currentText()        
-        
-        name_of_newlc = self.form.lineEditName.text()
-        
-        parentlc = self.doc.getObjectsByLabel(parentlclabel)[0]                
-                
-        parentlc.Proxy.addChild(name=name_of_newlc) 
+        if self.form.comboBoxOS.currentText() != "":
+            parentlclabel = self.form.comboBoxParentLC.currentText()        
+            name_of_newlc = self.form.lineEditName.text()
+            parentlclist = self.doc.getObjectsByLabel(parentlclabel)
+            if parentlclist != []:
+                parentlc = parentlclist[0]                
+                parentlc.Proxy.addChild(name=name_of_newlc) 
+            else:
+                pass # either warning or new global LC
+        else:
+            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "No optical system available! Please create one.")            
+
 
         FreeCADGui.Control.closeDialog()
 

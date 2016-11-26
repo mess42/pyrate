@@ -55,6 +55,8 @@ import Part
 import Points
 import Draft
 
+from Interface_Identifiers import *
+
 
 class AimDialog(QtGui.QDialog):
     def __init__(self, pupilsize, stopposition, numrays):
@@ -688,7 +690,7 @@ class OpticalSystemInterface(object):
     def createRayViews(self, doc, numrays):
 
         if not self.aiminitialized or not self.fieldwaveinitialized:
-            QtGui.QMessageBox.critical(None, "Pyrate", "Either aimy or field/wavelength matrix was not initialized. Please do that!")
+            QtGui.QMessageBox.critical(None, Title_MessageBoxes, "Either aimy or field/wavelength matrix was not initialized. Please do that!")
             return
 
         #numrays = 100

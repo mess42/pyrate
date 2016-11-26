@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env/python
 """
-Created on Sat Oct 22 15:29:19 2016
-
 Pyrate - Optical raytracing based on Python
 
 Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
@@ -21,35 +19,45 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-@author: Johannes Hartung
 """
 
-# TODO: write better tests for some certain object class
 
+
+
+import FreeCADGui, FreeCAD
+
+
+from PySide.QtGui import QLineEdit, QInputDialog
+
+from TaskPanel_Surfaces_Add import SurfacesTaskPanelAdd
+
+from Interface_Checks import *
 from Interface_Identifiers import *
 
-def isLocalCoordinatesObserver(fobj):
-    tmp = 'lcclass' in fobj.PropertiesList
-    return tmp
 
-def isOpticalSystemObserver(fobj):
-    tmp = 'wavelengths' in fobj.PropertiesList
-    return tmp
-    
-def isFunctionsObject(fobj):
-    tmp = 'functions' in fobj.PropertiesList
-    return tmp
+class CreateSurfaceTool:
+    "Tool for creating surface object"
 
-def isGroup(fobj):
-    return 'Group' in fobj.PropertiesList
-    
-def isMaterialCatalogue(fobj):
-    result = False
-    if isGroup(fobj):
-        result = any(['NameMaterialsCatalogue' in o.PropertiesList for o in fobj.Group])
-    return result
+    def GetResources(self):
+        return {"Pixmap"  : ":/icons/pyrate_shape_icon.svg", # resource qrc file needed, and precompile with python-rcc
+                "MenuText": "Create surface ...",
+                "Accel": "",
+                "ToolTip": "Generates surface object in document"
+                }
 
-def existsStandardMaterials(doc):
-    return all([obj.Label != Group_StandardMaterials_Label for obj in doc.Objects if isMaterialCatalogue(obj)])
-    
+    def IsActive(self):
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            return True
+
+    def Activated(self):
+
+        doc = FreeCAD.ActiveDocument
+
+
+        panel = SurfacesTaskPanelAdd(doc)
+        FreeCADGui.Control.showDialog(panel)
+
+
+FreeCADGui.addCommand('CreateSurfacesCommand', CreateSurfaceTool())

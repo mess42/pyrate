@@ -31,6 +31,8 @@ import FreeCADGui
 
 
 import PyrateInterface
+from Interface_Identifiers import *
+
 
 class LoadSystemCommand:
     "Load optical system file"
@@ -93,7 +95,7 @@ class SaveSystemCommand:
         else:
             with open(fname, 'wb') as output:
                 pickle.dump(PyrateInterface.OSinterface.os, output, pickle.HIGHEST_PROTOCOL)
-            QtGui.QMessageBox.warning(None, "Pyrate", "Dumped!\n" + "Warning, pickle format may change over time!")
+            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "Dumped!\n" + "Warning, pickle format may change over time!")
 
 
 FreeCADGui.addCommand('LoadSystemCommand',LoadSystemCommand())

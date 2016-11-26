@@ -31,7 +31,7 @@ import Points
 
 from Observer_OpticalSystem import OpticalSystemObserver
 from PySide import QtGui
-
+from Interface_Identifiers import *
 
 class ShowSystemCommand:
     "Show system in active document"
@@ -227,7 +227,7 @@ class DeleteSystemCommand:
 #         PyrateInterface.OSinterface.surfaceobs[:] = []
 #         PyrateInterface.OSinterface.surfaceviews[:] = []
 
-        QtGui.QMessageBox.warning(None, "Pyrate", "Notice that the optical system variable still exists and is valid!\n" + \
+        QtGui.QMessageBox.warning(None, Title_MessageBoxes, "Notice that the optical system variable still exists and is valid!\n" + \
                                   "Only the representation of it was deleted from the active document!")
 
         for i in FreeCAD.ActiveDocument.Objects:

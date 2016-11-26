@@ -56,7 +56,7 @@ class FunctionsObject:
         except:
             # TODO: maybe let exception pass here to catch it at a higher level
             # maybe this is better for an unperturbed program flow in case of syntax errors
-            QtGui.QMessageBox.information(None,"Exception caught","Problem in " + self.__obj.Label)
+            QtGui.QMessageBox.information(None, Title_MessageBoxes,"Exception caught. Problem in " + self.__obj.Label)
             return functionsobjects
             
         for fn in funcnamelist:

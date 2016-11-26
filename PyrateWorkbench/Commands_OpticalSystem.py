@@ -26,11 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCAD
 import FreeCADGui
 
-from PySide.QtGui import QLineEdit, QInputDialog
+from PySide.QtGui import QLineEdit, QInputDialog, QMessageBox
 
 
 from Observer_OpticalSystem import OpticalSystemObserver 
+from Object_MaterialCatalogue import MaterialCatalogueObject
 
+from Interface_Identifiers import *
+from Interface_Checks import *
 
 class CreateSystemTool:
     "Tool for creating optical system"
@@ -51,10 +54,20 @@ class CreateSystemTool:
     def Activated(self):
 
         doc = FreeCAD.ActiveDocument
-        (text, ok) = QInputDialog.getText(None, "pyrate", "Name for optical system?", QLineEdit.Normal)        
-        
+        (text, ok) = QInputDialog.getText(None, Title_MessageBoxes, "Name for optical system?", QLineEdit.Normal)        
         if text and ok:
             OpticalSystemObserver(doc, text) 
+
+        if existsStandardMaterials(doc):
+            result = QMessageBox.question(None, Title_MessageBoxes, 
+                                          "No Standard Materials Catalogue defined. Create one?", 
+                                          QMessageBox.Yes | QMessageBox.No)
+            if result == QMessageBox.Yes:
+                stdmatcatalogue = MaterialCatalogueObject(doc, Group_StandardMaterials_Label)
+                # TODO: stdmatcatalogue.addMaterial(mirror)
+                # TODO: stdmatcatalogue.addMaterial(pmma)
+                # TODO: stdmatcatalogue.addMaterial(sf6)
+
         
         
         # TODO: 1 OSinterface per doc, but several optical systems

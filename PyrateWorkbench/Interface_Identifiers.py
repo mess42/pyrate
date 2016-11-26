@@ -24,10 +24,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 """
 
+Title_MessageBoxes = "pyrate"
+
 Group_OS_Label = "Optical_System" # Label of group containing Optical System Structure
 Group_Functions_Label = "Functions" # Label of subgroup containing Function Objects
 Group_Surface_Label = "Surfaces" # Label of subgroup containing surface objects
 Group_Coordinates_Label = "Coordinates" # Label of subgroup containing local coordinates objects
-Group_Materials_Label = "Materials" # Label of global group containing materials (material catalogue)
+Group_StandardMaterials_Label = "StandardMaterials" # Label of global group containing standard materials (material catalogue)
 
 Object_MaterialCatalogue_Properties_Label = "_Properties" # Label of properties object in Material Catalogue
