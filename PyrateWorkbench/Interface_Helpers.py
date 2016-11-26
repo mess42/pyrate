@@ -60,5 +60,12 @@ def getFunctionObjectsFromOpticalSystemObserver(doc, os):
 
 def getAllMaterialCatalogues(doc):
     return [obj for obj in doc.Objects if isMaterialCatalogue(obj)]
+
+def getAllMaterials(doc):
+    return [obj for obj in doc.Objects if isMaterial(obj)]
+
+# TODO:    
+#def getAllMaterialsFromMaterialCatalogue(doc, matcat):
+#    pass
     
         

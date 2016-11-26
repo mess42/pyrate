@@ -31,9 +31,12 @@ from PySide.QtGui import QLineEdit, QInputDialog, QMessageBox
 
 from Observer_OpticalSystem import OpticalSystemObserver 
 from Object_MaterialCatalogue import MaterialCatalogueObject
+from Object_Material import MaterialObject
 
 from Interface_Identifiers import *
 from Interface_Checks import *
+
+from TaskPanel_SurfaceList_Edit import SurfaceListTaskPanelEdit
 
 class CreateSystemTool:
     "Tool for creating optical system"
@@ -64,9 +67,10 @@ class CreateSystemTool:
                                           QMessageBox.Yes | QMessageBox.No)
             if result == QMessageBox.Yes:
                 stdmatcatalogue = MaterialCatalogueObject(doc, Group_StandardMaterials_Label)
-                # TODO: stdmatcatalogue.addMaterial(mirror)
-                # TODO: stdmatcatalogue.addMaterial(pmma)
-                # TODO: stdmatcatalogue.addMaterial(sf6)
+                stdmatcatalogue.addMaterial("Mirror", "Mirror")
+                stdmatcatalogue.addMaterial("ConstantIndexGlass", "PMMA", index=1.5)
+                stdmatcatalogue.addMaterial("ConstantIndexGlass", "Vacuum")
+                stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")                
 
         
         
@@ -87,8 +91,41 @@ class CreateSystemTool:
         #PyrateInterface.OSinterface.showSpotDiagrams(100)
 
 
+class ShowSurfaceList:
+    def GetResources(self):
+        return {"Pixmap"  : ":/icons/pyrate_shape_icon.svg", 
+                "MenuText": "Edit Surface List ...",
+                "Accel": "",
+                "ToolTip": "Manage Surface List"
+                }
+    
+    def IsActive(self):
+
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            selection = FreeCADGui.Selection.getSelection()
+            if len(selection) == 1 and isOpticalSystemObserver(selection[0]): #('wavelengths' in selection[0].PropertiesList):
+                # TODO: comparison with CheckObjects function?                
+                return True
+            else:
+                return False
+
+    def Activated(self):
+        osselection = FreeCADGui.Selection.getSelection()[0] # only active if len = 1 and obj is appropriate
+
+
+        # TODO: In menu: Add, Del Surf001, Delf Surf002, ..., Del Surf00N
+        # TODO: Enums must have actualized with Labels of defined surfaces
+        # TODO: every time something is changed the list in the core opticalsystem has to be actualized
+        # TODO: initial Surfaces list from core opticalsystem
+        # TODO: initial enumeration list from core opticalsystem
+        
+        panel = SurfaceListTaskPanelEdit(osselection)
+        FreeCADGui.Control.showDialog(panel)
 
 
 
 FreeCADGui.addCommand('CreateSystemCommand', CreateSystemTool())
+FreeCADGui.addCommand('ShowSurfaceDialogCommand', ShowSurfaceList())
 

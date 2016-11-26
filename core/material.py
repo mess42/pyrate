@@ -247,9 +247,14 @@ class ModelGlass(ConstantIndexGlass):
         super(ModelGlass, self).__init__(n0_A_B[0])
         self.listOfOptimizableVariables = []
 
-        self.n0 = self.createOptimizableVariable("Conrady n0", value=n0_A_B[0], status=False)
-        self.A = self.createOptimizableVariable("Conrady A", value=n0_A_B[1], status=False)
-        self.B = self.createOptimizableVariable("Conrady B", value=n0_A_B[2], status=False)
+        self.n0 = optimize.OptimizableVariable(False, value=n0_A_B[0])
+        self.A = optimize.OptimizableVariable(False, value=n0_A_B[1])
+        self.B = optimize.OptimizableVariable(False, value=n0_A_B[2])
+        
+        self.addVariable("Conrady n0", self.n0)
+        self.addVariable("Conrady A", self.A)
+        self.addVariable("Conrady B", self.B)
+
 
     def setCoefficients(self, n0_A_B):
         """
@@ -257,9 +262,9 @@ class ModelGlass(ConstantIndexGlass):
 
         :param n0_A_B: coefficients (list or 1d numpy array of 3 floats)
         """
-        self.n0.val = n0_A_B[0]
-        self.A.val = n0_A_B[1]
-        self.B.val = n0_A_B[2]
+        self.n0.value = n0_A_B[0]
+        self.A.value = n0_A_B[1]
+        self.B.value = n0_A_B[2]
 
     def getIndex(self, raybundle):
         """
@@ -270,7 +275,7 @@ class ModelGlass(ConstantIndexGlass):
         :return index: refractive index at respective wavelength (float)
         """
         wave = raybundle.wave  # wavelength in um
-        return self.n0.val + self.A.val / wave + self.B.val / (wave**3.5)
+        return self.n0.evaluate() + self.A.evaluate() / wave + self.B.evaluate() / (wave**3.5)
 
     def calcCoefficientsFrom_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
         """

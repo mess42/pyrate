@@ -33,3 +33,17 @@ Group_Coordinates_Label = "Coordinates" # Label of subgroup containing local coo
 Group_StandardMaterials_Label = "StandardMaterials" # Label of global group containing standard materials (material catalogue)
 
 Object_MaterialCatalogue_Properties_Label = "_Properties" # Label of properties object in Material Catalogue
+
+Material_ConstantIndexGlass = "ConstantIndexGlass"
+Material_ModelGlass = "ModelGlass"
+Material_GrinMedium = "GrinMedium"
+Material_Mirror = "Mirror"
+
+Shape_Conic = "Conic"
+Shape_Cylinder = "Cylinder"
+Shape_Asphere = "Asphere"
+Shape_Explicit = "Explicit Shape"
+
+Aperture_Base = "Base Aperture"
+Aperture_Circular = "Circular"
+Aperture_UserDefined = "User defined"

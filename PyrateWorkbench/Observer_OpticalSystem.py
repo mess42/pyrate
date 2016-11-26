@@ -153,6 +153,7 @@ class OpticalSystemObserver(AbstractObserver):
                         "wavelengths",
                         "OS",
                         "wavelengths list").wavelengths = [550.0e-6]
+        obj.addProperty("App::PropertyLinkList", "surfaces", "OS", "surface list").surfaces = []
 
         # Field properties
 

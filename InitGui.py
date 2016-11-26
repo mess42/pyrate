@@ -85,7 +85,13 @@ class PyrateWorkbench ( Workbench ):
 #                            "SaveSystemCommand"
                             ])
         #self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"]) # TODO: update
-        self.appendMenu("Pyrate System", ["CreateSystemCommand", "CreateLocalCoordinatesCommand"])
+        self.appendMenu("Pyrate System", 
+                        ["CreateSystemCommand", 
+                        "CreateLocalCoordinatesCommand",
+                        "CreateFunctionsCommand",
+                        "CreateSurfacesCommand",
+                        "ShowSurfaceDialogCommand"
+                        ])
         self.appendMenu("Pyrate Visualization", ["UpdateVisualizationCommand"])
         self.appendMenu("Pyrate Visualization", ["ShowSystemDraw2DCommand"])
 #        self.appendMenu(["Pyrate Visualization", "Show ..."],
@@ -100,7 +106,11 @@ class PyrateWorkbench ( Workbench ):
 #                        )
 
 
-        self.appendMenu("Pyrate Field", ["ShowAimDialogCommand", "ShowFieldDialogCommand"])
+        self.appendMenu("Pyrate Field", 
+                        [
+#                        "ShowAimDialogCommand", 
+                        "ShowFieldDialogCommand"
+                        ])
         self.appendMenu("Pyrate Analysis", ["ShowSpotDiagramCommand"])
         self.appendMenu("Pyrate Optimization", ["StartOptimizationCommand"])
         
@@ -132,8 +142,10 @@ class PyrateWorkbench ( Workbench ):
                 self.appendContextMenu("Separator", [])
             if 'wavelengths' in obj.PropertiesList:
                 self.appendContextMenu("Separator", [])
-                self.appendContextMenu( "Pyrate Optical System", 
+                self.appendContextMenu( "Pyrate Field", 
                                        ["ShowFieldDialogCommand"])
+                self.appendContextMenu( "Pyrate Surfaces", 
+                                       ["ShowSurfaceDialogCommand"])
                 self.appendContextMenu("Separator", [])
                 
                                        

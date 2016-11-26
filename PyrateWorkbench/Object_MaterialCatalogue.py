@@ -31,6 +31,8 @@ from Interface_Helpers import *
 
 import uuid
 
+from Object_Material import MaterialObject
+
 class MaterialCatalogueObject:
     
     
@@ -50,6 +52,7 @@ class MaterialCatalogueObject:
         self.__obj.Proxy = self
         # TODO: load/save
         
-       
+    def addMaterial(self, mattype, name, **kwargs):
+        MaterialObject(self.__doc, self.__group, name, mattype, **kwargs)
        
 

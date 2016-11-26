@@ -32,11 +32,30 @@ class SurfacesTaskPanelAdd:
 
 
         fn = getRelativeFilePath(__file__, 'Qt/dlg_surface_add.ui')        
-
-       
-        # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(fn)
+
+        # now add all optical systems to combobox
+        self.form.comboBoxOS.activated.connect(self.onActivatedCBOS)        
+
+
+        self.form.comboBoxOS.clear()
+        self.form.comboBoxOS.addItems([os.Label for os in getAllOpticalSystemObservers(self.doc)])
         
+        self.form.comboBoxLC.clear()
+        self.updateComboLCfromComboOS(self.form.comboBoxOS, self.form.comboBoxLC)
+        
+        self.form.comboBoxMaterial.clear()
+        self.form.comboBoxMaterial.addItems([mat.Label for mat in getAllMaterials(self.doc)])
+
+    def updateComboLCfromComboOS(self, comboos, combolc):
+        labelos = comboos.currentText()
+        oss = self.doc.getObjectsByLabel(labelos)
+        if oss != None:
+            combolc.clear()
+            combolc.addItems([lc.Label for lc in oss[0].Proxy.returnObjectsFromCoordinatesGroup()])
+    
+    def onActivatedCBOS(self, index):
+        self.updateComboLCfromComboOS(self.form.comboBoxOS, self.form.comboBoxLC)
 
     def accept(self):
         

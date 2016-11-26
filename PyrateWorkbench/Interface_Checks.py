@@ -49,6 +49,9 @@ def isMaterialCatalogue(fobj):
     if isGroup(fobj):
         result = any(['NameMaterialsCatalogue' in o.PropertiesList for o in fobj.Group])
     return result
+    
+def isMaterial(fobj):
+    return 'matclass' in fobj.PropertiesList
 
 def existsStandardMaterials(doc):
     return all([obj.Label != Group_StandardMaterials_Label for obj in doc.Objects if isMaterialCatalogue(obj)])
