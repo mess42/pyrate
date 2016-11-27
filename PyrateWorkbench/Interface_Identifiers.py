@@ -70,3 +70,4 @@ Surface_GUI_TaskPanel_Add_Aperture_TabWidget = {
     2:Aperture_UserDefined
     }
 
+Surface_GUIChangeableProperties = ["curv", "cc"] # TODO: aspheric corrections

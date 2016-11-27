@@ -26,7 +26,7 @@ from Interface_Checks import *
 from Interface_Identifiers import *
 
 from core.observers import AbstractObserver
-from core.surfShape import Conic, Asphere, ExplicitShape
+from core.surfShape import Conic, Cylinder, Asphere, ExplicitShape
 from core.aperture import BaseAperture, CircularAperture
 
 class SurfaceObject(AbstractObserver):
@@ -35,7 +35,7 @@ class SurfaceObject(AbstractObserver):
     def __init__(self, doc, group, name, shapetype, aptype, lclabel, matlabel, **kwargs):
         self.__doc = doc # e.g. ActiveDocument
         self.__group = group # surface group
-        self.__obj = doc.addObject("App::FeaturePython", name)
+        self.__obj = doc.addObject("Part::FeaturePython", name)
         self.__group.addObject(self.__obj)
 
         self.initshapedict = {
@@ -50,18 +50,20 @@ class SurfaceObject(AbstractObserver):
             Aperture_Circular:self.initApCircular,
             Aperture_UserDefined:self.initApUserDefined
         }
-#        
-#        self.writebackfunc = { # for shape
-#            Material_ConstantIndexGlass:self.writebackConstantIndex,
-#            Material_ModelGlass:self.writebackModel,
-#            Material_GrinMedium:self.writebackGrin
-#        }
-#        
-#        self.readfunc = { # for shape
-#            Material_ConstantIndexGlass:self.readConstantIndex,
-#            Material_ModelGlass:self.readModel,
-#            Material_GrinMedium:self.readGrin
-#        }
+        
+        self.writebackshapefunc = { # for shape
+            Shape_Conic:self.writebackShConic,
+            Shape_Cylinder:self.writebackShCylinder,
+            Shape_Asphere:self.writebackShAsphere,
+            Shape_Explicit:self.writebackShExplicit
+        }
+        
+        self.readshapefunc = { # for shape
+            Shape_Conic:self.readShConic,
+            Shape_Cylinder:self.readShCylinder,
+            Shape_Asphere:self.readShAsphere,
+            Shape_Explicit:self.readShExplicit
+        }
           
         # TODO: set values from initialized matclass coming from a predefined optical system
         
@@ -109,6 +111,9 @@ class SurfaceObject(AbstractObserver):
         self.__obj.shapeclass.appendObservers([self])
         self.__obj.Proxy = self
 
+    def getObject(self):
+        return self.__obj
+
 
     # shape initialization    
     
@@ -133,6 +138,41 @@ class SurfaceObject(AbstractObserver):
         # TODO: implement
         self.__obj.shapeclass = Conic(curv=0, cc=0)
 
+    # shape readout
+
+    def readShConic(self):
+        self.__obj.curv = self.__obj.shapeclass.curvature.evaluate()
+        self.__obj.cc = self.__obj.shapeclass.conic.evaluate()
+
+    def readShCylinder(self):
+        self.__obj.curv = self.__obj.shapeclass.curvature.evaluate()
+        self.__obj.cc = self.__obj.shapeclass.conic.evaluate()
+
+    def readShAsphere(self):
+        self.__obj.curv = self.__obj.shapeclass.curvature.evaluate()
+        self.__obj.cc = self.__obj.shapeclass.conic.evaluate()
+        # TODO: aspheric corrections
+
+    def readShExplicit(self):
+        pass
+
+    # shape writeback 
+
+    def writebackShConic(self, fp):
+        self.__obj.shapeclass.curvature.setvalue(fp.curv)
+        self.__obj.shapeclass.conic.setvalue(fp.cc)
+
+    def writebackShCylinder(self, fp):
+        self.__obj.shapeclass.curvature.setvalue(fp.curv)
+        self.__obj.shapeclass.conic.setvalue(fp.cc)
+
+    def writebackShAsphere(self, fp):
+        self.__obj.shapeclass.curvature.setvalue(fp.curv)
+        self.__obj.shapeclass.conic.setvalue(fp.cc)
+
+    def writebackShExplicit(self, fp):
+        pass
+
     # aperture initialization
 
     def initApBase(self, **kwargs):
@@ -147,3 +187,21 @@ class SurfaceObject(AbstractObserver):
     
     def initApUserDefined(self, **kwargs):
         self.__obj.apertureclass = BaseAperture()
+        
+        
+        
+    def onChanged(self, fp, prop):
+        FreeCAD.Console.PrintMessage("Changed Surface in GUI " + self.__obj.Name + "\n")
+        if prop == "Label":
+            # what to do if Label is changed?
+            pass
+
+        if prop in Surface_GUIChangeableProperties:
+            # write back changed properties to underlying material
+            self.writebackshapefunc[self.__obj.shapetype](fp)
+
+    def informAboutUpdate(self):
+        # override AbstractObserver method
+        FreeCAD.Console.PrintMessage("Changed Surface in Core " + self.__obj.Name + "\n")
+
+        self.readshapefunc[self.__obj.shapetype]()

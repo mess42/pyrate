@@ -244,9 +244,12 @@ class Cylinder(Conic):
              cc > 1 hyperbolic
         """
         super(Cylinder, self).__init__()
+        
+        self.curvature = OptimizableVariable(False, "Variable", value=curv)
+        self.addVariable("curvature", self.curvature) #self.createOptimizableVariable("curvature", value=curv, status=False)
+        self.conic = OptimizableVariable(False, "Variable", value=cc)
+        self.addVariable("conic constant", self.conic) #self.createOptimizableVariable("conic constant", value=cc, status=False)
 
-        self.curvature = self.createOptimizableVariable("curvature", value=curv, status=False)
-        self.conic = self.createOptimizableVariable("conic constant", value=cc, status=False)
 
     def getSag(self, x, y):
         """

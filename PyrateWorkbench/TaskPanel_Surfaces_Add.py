@@ -26,6 +26,7 @@ from Interface_Helpers import *
 from Interface_Checks import *
 
 from Object_Surface import SurfaceObject
+from View_Surface import SurfaceView
 
 class SurfacesTaskPanelAdd:
     def __init__(self, doc):
@@ -130,14 +131,14 @@ class SurfacesTaskPanelAdd:
             srgroupname = os.NameSurfaceGroup
             srgroup = self.doc.getObject(srgroupname)
     
-            SurfaceObject(self.doc, 
+            so = SurfaceObject(self.doc, 
                           srgroup, 
                           name_of_surfaceobject,
                           shapetype,
                           aperturetype,
                           self.form.comboBoxLC.currentText(),
                           self.form.comboBoxMaterial.currentText(), **wholedict)
-        #def __init__(self, doc, group, name, shapetype, aptype, lclabel, matlabel, **kwargs):
+            SurfaceView(so.getObject().ViewObject)
 
 
         FreeCADGui.Control.closeDialog()
