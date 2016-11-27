@@ -35,7 +35,7 @@ class MaterialObject(AbstractObserver):
 
     def __init__(self, doc, group, name, mattype, **kwargs):
         self.__doc = doc # e.g. ActiveDocument
-        self.__group = group # functions group
+        self.__group = group # material catalogue
         self.__obj = doc.addObject("App::FeaturePython", name)
         self.__group.addObject(self.__obj)
 
@@ -58,12 +58,8 @@ class MaterialObject(AbstractObserver):
             Material_GrinMedium:self.readGrin
         }
           
-        # TODO: which functions should be called if onChanged event occurs (to write changed values back)
         # TODO: set values from initialized matclass coming from a predefined optical system
         
-        #self.changefundict = {
-        #}
-
         self.__obj.addProperty("App::PropertyPythonObject", "matclass", "Material", "material class from core code")
         self.__obj.addProperty("App::PropertyString", "comment", "Material", "comments").comment = ""
         self.__obj.addProperty("App::PropertyString", "mattype", "Material", "specifies type").mattype = mattype

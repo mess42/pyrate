@@ -50,8 +50,23 @@ Material_GUI_TaskPanel_Add_TabWidget = {
 Shape_Conic = "Conic"
 Shape_Cylinder = "Cylinder"
 Shape_Asphere = "Asphere"
-Shape_Explicit = "Explicit Shape"
+Shape_Explicit = "ExplicitShape"
+
+Surface_GUI_TaskPanel_Add_Shape_TabWidget = {
+    0:Shape_Conic,
+    1:Shape_Cylinder,
+    2:Shape_Asphere,
+    3:Shape_Explicit
+    }
+
 
 Aperture_Base = "Base Aperture"
 Aperture_Circular = "Circular"
 Aperture_UserDefined = "User defined"
+
+Surface_GUI_TaskPanel_Add_Aperture_TabWidget = {
+    0:Aperture_Base,
+    1:Aperture_Circular,
+    2:Aperture_UserDefined
+    }
+

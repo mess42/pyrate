@@ -25,6 +25,8 @@ import FreeCADGui
 from Interface_Helpers import *
 from Interface_Checks import *
 
+from Object_Surface import SurfaceObject
+
 class SurfacesTaskPanelAdd:
     def __init__(self, doc):
         # doc needs to be initialized first        
@@ -47,6 +49,7 @@ class SurfacesTaskPanelAdd:
         self.form.comboBoxMaterial.clear()
         self.form.comboBoxMaterial.addItems([mat.Label for mat in getAllMaterials(self.doc)])
 
+
     def updateComboLCfromComboOS(self, comboos, combolc):
         labelos = comboos.currentText()
         oss = self.doc.getObjectsByLabel(labelos)
@@ -57,7 +60,85 @@ class SurfacesTaskPanelAdd:
     def onActivatedCBOS(self, index):
         self.updateComboLCfromComboOS(self.form.comboBoxOS, self.form.comboBoxLC)
 
+
+    # extraction functions for different shape classes
+
+    def extractShConic(self):
+        return {"curv":self.form.doubleSpinBoxCurvatureConic.value(),
+                "cc":self.form.doubleSpinBoxConicConstantConic.value()
+                }
+        
+    def extractShCylinder(self):
+        return {"curv":self.form.doubleSpinBoxCurvatureCylinder.value(),
+                "cc":self.form.doubleSpinBoxConicConstantCylinder.value()
+                }
+
+    def extractShAsphere(self):
+        return {"curv":self.form.doubleSpinBoxCurvatureAsphere.value(),
+                "cc":self.form.doubleSpinBoxConicConstantAsphere.value()
+                }
+
+    def extractShExplicit(self):
+        return {}
+        
+    # extraction functions for different aperture classes
+
+    def extractApBase(self):
+        return {}
+
+    def extractApCircular(self):
+        return {"semidiameter":self.form.doubleSpinBoxRadius.value(),
+                "tx":0.0, # TODO: could also be given in dialog
+                "ty":0.0}
+            
+    def extractApUserDefined(self):
+        return {}
+
     def accept(self):
         
+        oslabel = self.form.comboBoxOS.currentText()
+        name_of_surfaceobject = self.form.lineEditName.text()
+        
+        try:        
+            os = self.doc.getObjectsByLabel(oslabel)[0]
+        except IndexError:
+            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "No optical system available! Please create one.")            
+        else:
+
+            shapetype = Surface_GUI_TaskPanel_Add_Shape_TabWidget[self.form.tabWidgetShapes.currentIndex()]
+            aperturetype = Surface_GUI_TaskPanel_Add_Aperture_TabWidget[self.form.tabWidgetApertures.currentIndex()]
+            
+            shapeextractfunc = {
+                Shape_Conic:    self.extractShConic,
+                Shape_Cylinder: self.extractShCylinder,
+                Shape_Asphere:  self.extractShAsphere,
+                Shape_Explicit: self.extractShExplicit
+            }
+            
+            apertureextractfunc = {
+                Aperture_Base:      self.extractApBase,
+                Aperture_Circular:  self.extractApCircular,
+                Aperture_UserDefined:self.extractApUserDefined
+            }
+
+            shapedict = shapeextractfunc[shapetype]()
+            aperturedict = apertureextractfunc[aperturetype]()
+            
+            wholedict = dict(shapedict.items() + aperturedict.items())
+            print(wholedict)
+
+            srgroupname = os.NameSurfaceGroup
+            srgroup = self.doc.getObject(srgroupname)
+    
+            SurfaceObject(self.doc, 
+                          srgroup, 
+                          name_of_surfaceobject,
+                          shapetype,
+                          aperturetype,
+                          self.form.comboBoxLC.currentText(),
+                          self.form.comboBoxMaterial.currentText(), **wholedict)
+        #def __init__(self, doc, group, name, shapetype, aptype, lclabel, matlabel, **kwargs):
+
 
         FreeCADGui.Control.closeDialog()
+
