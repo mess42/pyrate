@@ -56,6 +56,10 @@ def getFunctionObjectsFromOpticalSystemObserver(doc, os):
     subgroup = getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os)
     return subgroup.Group
     
+def getAllFunctionObjects(doc):
+    return [obj for obj in doc.Objects if isFunctionsObject(obj)]
+
+    
 # collect material catalogues
 
 def getAllMaterialCatalogues(doc):

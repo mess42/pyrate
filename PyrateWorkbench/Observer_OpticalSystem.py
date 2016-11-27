@@ -42,7 +42,7 @@ from core.aperture import CircularAperture
 
 import FreeCAD
 
-
+# TODO: rename Observer to object (developer sees if it is derived from Observer)
 from Observer_LocalCoordinates import LC
 
 from Interface_Identifiers import *

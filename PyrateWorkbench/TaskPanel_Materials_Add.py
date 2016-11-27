@@ -24,6 +24,9 @@ import FreeCADGui
 
 from Interface_Helpers import *
 from Interface_Checks import *
+from Interface_Identifiers import *
+
+from Object_Material import MaterialObject
 
 class MaterialsTaskPanelAdd:
     def __init__(self, doc):
@@ -33,12 +36,9 @@ class MaterialsTaskPanelAdd:
 
         fn = getRelativeFilePath(__file__, 'Qt/dlg_material_add.ui')        
 
-        fnobjectsindocument = []
-        for obj in doc.Objects:
-           if isFunctionsObject(obj):
-               fnobjectsindocument.append(obj)
+        self.fnobjectsindocument = getAllFunctionObjects(self.doc)
                
-        fnobjectslabels = [obj.Label for obj in fnobjectsindocument]
+        fnobjectslabels = [obj.Label for obj in self.fnobjectsindocument]
         matcatobjectslabels = [obj.Label for obj in getAllMaterialCatalogues(doc)]
         
         # this will create a Qt widget from our ui file
@@ -85,7 +85,56 @@ class MaterialsTaskPanelAdd:
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Nz, self.form.comboBox_FOf_Nz)
 
 
+    # extraction functions for different material classes
+
+    def extractConstantIndex(self):
+        return {"index":self.form.doubleSpinBoxIndex.value()}
+        
+    def extractModel(self):
+        return {
+                "n0":self.form.doubleSpinBoxN0.value(),
+                "A":self.form.doubleSpinBox_A.value(),
+                "B":self.form.doubleSpinBox_B.value()
+                }
+    
+    def extractGrin(self):
+        return {
+            "fun":self.doc.getObjectsByLabel(
+                self.form.comboBox_FO_N.currentText())[0].Proxy.returnSingleFunctionObject(self.form.comboBox_FOf_N.currentText()
+            ),
+            "dfdx":self.doc.getObjectsByLabel(
+                self.form.comboBox_FO_Nx.currentText())[0].Proxy.returnSingleFunctionObject(self.form.comboBox_FOf_Nx.currentText()
+            ),
+            "dfdy":self.doc.getObjectsByLabel(
+                self.form.comboBox_FO_Ny.currentText())[0].Proxy.returnSingleFunctionObject(self.form.comboBox_FOf_Ny.currentText()
+            ),
+            "dfdz":self.doc.getObjectsByLabel(
+                self.form.comboBox_FO_Nz.currentText())[0].Proxy.returnSingleFunctionObject(self.form.comboBox_FOf_Nz.currentText()
+            )
+        }
+
+
+
     def accept(self):
+       
+        matname = self.form.lineEditName.text()
+        
+        mattype = Material_GUI_TaskPanel_Add_TabWidget[self.form.tabWidget.currentIndex()]
+        
+        matextractfunc = {
+            Material_ConstantIndexGlass:self.extractConstantIndex,
+            Material_ModelGlass:self.extractModel,
+            Material_GrinMedium:self.extractGrin
+        }
+        
+        # generating material object depending on type        
+        
+        MaterialObject(self.doc, 
+                       self.doc.getObjectsByLabel(self.form.comboBoxCatalogue.currentText())[0], 
+                        matname, 
+                        mattype, 
+                        **(matextractfunc[mattype]()))                
+        
         # TODO: Check for Materials group (Label Name in Interface_Identifiers)
         # TODO: If it already exists Check for Material Mirror (if it not exists, warning, rename yes/no)        
         # TODO: if there is no such group: create one with uuid name and identifier label

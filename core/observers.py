@@ -25,7 +25,7 @@ class AbstractObserver(object):
     def __init__(self):
         """ 
         Get actualized from to be observed object.
-        Most simple case: Observed object calls informUpdate()
+        Most simple case: Observed object calls informAboutUpdate()
         """
         super(AbstractObserver, self).__init__()
     

@@ -31,7 +31,6 @@ from PySide.QtGui import QLineEdit, QInputDialog, QMessageBox
 
 from Observer_OpticalSystem import OpticalSystemObserver 
 from Object_MaterialCatalogue import MaterialCatalogueObject
-from Object_Material import MaterialObject
 
 from Interface_Identifiers import *
 from Interface_Checks import *

@@ -25,13 +25,7 @@ Created on Thu Nov 17 22:01:02 2016
 @author: Johannes Hartung
 """
 
-import sys
-import os
-import math
-
-from core.observers import AbstractObserver
-
-from PySide import QtGui, QtCore
+from PySide import QtGui
 
 from Interface_Identifiers import *
 
@@ -66,9 +60,22 @@ class FunctionsObject:
                 pass
         return functionsobjects
         
+    def createSourceCode(self):
+        return "\n".join(self.__obj.source)        
+    
+    
     def returnFunctionObjects(self):
-        sourcetext = "\n".join(self.__obj.source)
-        return self.getFunctionsFromSource(sourcetext, self.__obj.functions)
+        return self.getFunctionsFromSource(self.createSourceCode(), self.__obj.functions)
+        
+    def returnSingleFunctionObject(self, name):
+        result = None
+        try:
+            result = self.getFunctionsFromSource(self.createSourceCode(), [name])[0]
+        except:
+            pass
+        
+        return result
+        
         
     def returnStructureLabel(self, name):
         return "function_" + name

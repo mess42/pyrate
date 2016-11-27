@@ -129,6 +129,16 @@ class ClassWithOptimizableVariables(object):
         Initialize with empty dict.
         """
         self.dict_variables = {}
+        self.list_observers = [] 
+        # for the optimizable variable class it is useful to have some observer links
+        # they get informed if variables change their values
+
+    def appendObservers(self, obslist):
+        self.list_observers += obslist
+
+    def informObservers(self):
+        for obs in self.list_observers:
+            obs.informAboutUpdate()
 
     def addVariable(self, name, var):
         """

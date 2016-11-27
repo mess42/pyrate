@@ -38,7 +38,7 @@
      </property>
      <widget class="QWidget" name="tabConstIndexGlass">
       <attribute name="title">
-       <string>Const Index Glass</string>
+       <string>Constant Index Glass</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="1">

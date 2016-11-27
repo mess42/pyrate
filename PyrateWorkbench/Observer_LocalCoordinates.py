@@ -45,7 +45,7 @@ class LC(AbstractObserver):
             group = doc.addObject("App::DocumentObjectGroup", self.returnGroupLabel(coupling.name))
 
         self.__lc = coupling # link to appropriate data structure
-        self.__lc.observers.append(self)
+        self.__lc.appendObservers([self])
         self.__obj = obj
         self.__group = group
         self.__doc = doc
@@ -100,7 +100,8 @@ class LC(AbstractObserver):
 
     group = property(getGroup)
 
-    def informUpdate(self):
+    def informAboutUpdate(self):
+        # override AbstractObserver method
         # let this observer class be informed when update in underlying localcoordinate class takes place
         FreeCAD.Console.PrintMessage("update info from " + self.__lc.name + "\n")
         self.__obj.globalcoordinates = FreeCAD.Base.Vector(tuple(self.__lc.globalcoordinates))
@@ -135,7 +136,6 @@ class LC(AbstractObserver):
             self.__lc.update()
 
             # perform data structur update of readonly properties after link update
-            # TODO: update of all children?
             fp.globalcoordinates = FreeCAD.Base.Vector(tuple(self.__lc.globalcoordinates))
             fp.localbasisX = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,0]))
             fp.localbasisY = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,1]))
