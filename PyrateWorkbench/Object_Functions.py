@@ -33,13 +33,13 @@ class FunctionsObject:
     
     
     def __init__(self, name, doc, group):
-        self.__doc = doc # e.g. ActiveDocument
-        self.__group = group # functions group
-        self.__obj = doc.addObject("App::FeaturePython", self.returnStructureLabel(name))
-        self.__group.addObject(self.__obj)
-        self.__obj.addProperty("App::PropertyStringList", "functions", "FunctionObject", "functions in object").functions = []
-        self.__obj.addProperty("App::PropertyStringList", "source", "FunctionObject", "source code for functions").source = []
-        self.__obj.Proxy = self
+        self.Document = doc # e.g. ActiveDocument
+        self.Group = group # functions group
+        self.Object = doc.addObject("App::FeaturePython", self.returnStructureLabel(name))
+        self.Group.addObject(self.Object)
+        self.Object.addProperty("App::PropertyStringList", "functions", "FunctionObject", "functions in object").functions = []
+        self.Object.addProperty("App::PropertyStringList", "source", "FunctionObject", "source code for functions").source = []
+        self.Object.Proxy = self
         # TODO: load/save
         
     def getFunctionsFromSource(self, sourcecodestring, funcnamelist):
@@ -50,7 +50,7 @@ class FunctionsObject:
         except:
             # TODO: maybe let exception pass here to catch it at a higher level
             # maybe this is better for an unperturbed program flow in case of syntax errors
-            QtGui.QMessageBox.information(None, Title_MessageBoxes,"Exception caught. Problem in " + self.__obj.Label)
+            QtGui.QMessageBox.information(None, Title_MessageBoxes,"Exception caught. Problem in " + self.Object.Label)
             return functionsobjects
             
         for fn in funcnamelist:
@@ -61,11 +61,11 @@ class FunctionsObject:
         return functionsobjects
         
     def createSourceCode(self):
-        return "\n".join(self.__obj.source)        
+        return "\n".join(self.Object.source)        
     
     
     def returnFunctionObjects(self):
-        return self.getFunctionsFromSource(self.createSourceCode(), self.__obj.functions)
+        return self.getFunctionsFromSource(self.createSourceCode(), self.Object.functions)
         
     def returnSingleFunctionObject(self, name):
         result = None
@@ -80,3 +80,10 @@ class FunctionsObject:
     def returnStructureLabel(self, name):
         return "function_" + name
 
+    
+    def __setstate__(self, state):
+        return None
+        
+    def __getstate__(self):
+        return None
+        
