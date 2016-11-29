@@ -57,16 +57,17 @@ class SurfaceView:
 
         # TODO: aperture, point generation, rotation into local coordinate system        
         
-        for r in np.linspace(0, 5,rpoints): # aperture
-            points = []
-            for a in np.linspace(0.0, 360.0-360/float(phipoints), phipoints):
-                x = r * math.cos(a*math.pi/180.0)# + startpoint[0]
-                y = r * math.sin(a*math.pi/180.0)# + startpoint[1]
-                z = shape.getSag(x, y)# + startpoint[2]
-                p = FreeCAD.Base.Vector(x,y,z)
-                #p2 = FreeCAD.Base.Vector(x+startpoint[0], y+startpoint[1], z+startpoint[2])
-                points.append(p)
-            surPoints.append(points)
+        if aperture.typicaldimension < 100.0:
+            for r in np.linspace(0, aperture.typicaldimension,rpoints): # aperture
+                points = []
+                for a in np.linspace(0.0, 360.0-360/float(phipoints), phipoints):
+                    x = r * math.cos(a*math.pi/180.0)# + startpoint[0]
+                    y = r * math.sin(a*math.pi/180.0)# + startpoint[1]
+                    z = shape.getSag(x, y)# + startpoint[2]
+                    p = FreeCAD.Base.Vector(x,y,z)
+                    #p2 = FreeCAD.Base.Vector(x+startpoint[0], y+startpoint[1], z+startpoint[2])
+                    points.append(p)
+                surPoints.append(points)
         sur = Part.BSplineSurface()
         sur.interpolate(surPoints)
         sur.setVPeriodic()

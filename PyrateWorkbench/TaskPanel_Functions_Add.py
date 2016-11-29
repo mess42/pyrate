@@ -24,7 +24,7 @@ import FreeCADGui
 
 from PySide import QtGui
 
-from Object_Functions import FunctionsObject
+from Object_Functions import FunctionsObject, FunctionsView
 
 from Interface_Helpers import *
 from Interface_Identifiers import *
@@ -41,6 +41,7 @@ class FunctionsTaskPanelAdd:
     def accept(self):
         oslabel = self.form.comboBox.currentText()
         name_of_functionsobject = self.form.lineEditName.text()
+        initial_source_code = self.form.plainTextEdit.toPlainText()
         
         try:        
             os = self.doc.getObjectsByLabel(oslabel)[0]
@@ -50,7 +51,8 @@ class FunctionsTaskPanelAdd:
             fngroupname = os.NameFunctionsGroup
             fngroup = self.doc.getObject(fngroupname)
     
-            FunctionsObject(name_of_functionsobject, self.doc, fngroup) 
+            fnobj = FunctionsObject(name_of_functionsobject, initial_source_code, self.doc, fngroup) 
+            FunctionsView(fnobj.Object.ViewObject)
 
         FreeCADGui.Control.closeDialog()
 

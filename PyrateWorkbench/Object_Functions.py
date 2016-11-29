@@ -29,27 +29,62 @@ from PySide import QtGui
 
 from Interface_Identifiers import *
 
+class FunctionsView:
+    
+    def __init__(self, vobj):
+        self.vobj = vobj
+        self.vobj.Proxy = self
+        
+        self.obj = vobj.Object
+
+
+    
+    def doubleClicked(self, obj):
+        print(obj)
+        QtGui.QMessageBox.information(None, Title_MessageBoxes,str(obj) + "open text editor here")
+        # TODO: open text editor window (dlg_functionobjects_edit.ui)
+        # TODO: implement widget class for text editor with little syntax coloring
+        # TODO: implement widget class with line numbering
+        
+    def setupContextMenu(self, obj, menu):
+        actload = menu.addAction("Load function object")
+        actsave = menu.addAction("Save function object")
+        
+        actload.triggered.connect(self.loadFile)
+        actsave.triggered.connect(self.saveFile)        
+
+    def loadFile(self):
+        self.obj.Proxy.Source = "blub" # TODO: implement file open dialog and load file into Source
+    
+    def saveFile(self):
+        QtGui.QMessageBox.information(None, Title_MessageBoxes,self.obj.Proxy.Source)
+        # TODO: implement file save procedure, but let messagebox show the first few lines of the code
+
+
+
 class FunctionsObject:
     
     
-    def __init__(self, name, doc, group):
+    def __init__(self, name, initialsrc, doc, group):
         self.Document = doc # e.g. ActiveDocument
         self.Group = group # functions group
         self.Object = doc.addObject("App::FeaturePython", self.returnStructureLabel(name))
         self.Group.addObject(self.Object)
         self.Object.addProperty("App::PropertyStringList", "functions", "FunctionObject", "functions in object").functions = []
-        self.Object.addProperty("App::PropertyStringList", "source", "FunctionObject", "source code for functions").source = []
+
         self.Object.Proxy = self
+        self.Source = initialsrc
+        
         # TODO: load/save
         
     def getFunctionsFromSource(self, sourcecodestring, funcnamelist):
         localsdict = {}
         functionsobjects = []
         try:
-            exec(sourcecodestring, localsdict)
+            exec(sourcecodestring, localsdict) 
+            # exec is a security risk, but the code to be executed is loaded from a file at most
+            # which has to be inspected by the user; there is no automatic code execution
         except:
-            # TODO: maybe let exception pass here to catch it at a higher level
-            # maybe this is better for an unperturbed program flow in case of syntax errors
             QtGui.QMessageBox.information(None, Title_MessageBoxes,"Exception caught. Problem in " + self.Object.Label)
             return functionsobjects
             
@@ -61,7 +96,9 @@ class FunctionsObject:
         return functionsobjects
         
     def createSourceCode(self):
-        return "\n".join(self.Object.source)        
+        return str(self.Source) 
+        # removed reference to stringlist property source, due to security risk
+        # of loading and saving code from/to FreeCAD documents
     
     
     def returnFunctionObjects(self):
