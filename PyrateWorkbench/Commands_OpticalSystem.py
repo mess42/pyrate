@@ -56,9 +56,10 @@ class CreateSystemTool:
     def Activated(self):
 
         doc = FreeCAD.ActiveDocument
-        (text, ok) = QInputDialog.getText(None, Title_MessageBoxes, "Name for optical system?", QLineEdit.Normal)        
+        (text, ok) = QInputDialog.getText(None, Title_MessageBoxes, "Name for optical system?", QLineEdit.Normal)
+        osobs = None
         if text and ok:
-            OpticalSystemObserver(doc, text) 
+            osobs = OpticalSystemObserver(doc, text) 
 
         if existsStandardMaterials(doc):
             result = QMessageBox.question(None, Title_MessageBoxes, 
@@ -71,7 +72,8 @@ class CreateSystemTool:
                 stdmatcatalogue.addMaterial("ConstantIndexGlass", "Vacuum")
                 stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")                
 
-        
+        if osobs != None:
+            osobs.initFromGivenOpticalSystem(osobs.initDemoSystem())
         
         # TODO: 1 OSinterface per doc, but several optical systems
         # TODO: call wizard for creation of new system

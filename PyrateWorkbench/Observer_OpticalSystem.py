@@ -45,6 +45,9 @@ import FreeCAD
 # TODO: rename Observer to object (developer sees if it is derived from Observer)
 from Observer_LocalCoordinates import LC
 
+from Object_Surface import SurfaceObject
+from View_Surface import SurfaceView
+
 from Interface_Identifiers import *
 from Interface_Helpers import *
 from Interface_Checks import *
@@ -102,46 +105,8 @@ class OpticalSystemObserver(AbstractObserver):
                         "OS", 
                         "os class interface").osclass = OpticalSystem()
 
-        s = obj.osclass
                         
-        lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
-        lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
-        lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0))
-        lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
-        lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
-        lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
-        lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0))
-        lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0))
         
-        
-        s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
-                                   material=material.ConstantIndexGlass(1.7), 
-                                    aperture=CircularAperture(0.55)))
-        
-        s.insertSurface(2, Surface(lc2, surfShape.Conic(curv=1/-3.160), # thickness=5.0, 
-                                   aperture=CircularAperture(1.0)))
-        
-        s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
-                                   material=material.ConstantIndexGlass(1.7), 
-                                    aperture=CircularAperture(1.3)))
-        
-        s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
-                                   aperture=CircularAperture(1.3)))
-        
-        #s.insertSurface(5, Surface(surfShape.Decenter(dx = 0., dy = 1.), material=material.Tilt(angle=20.*np.pi/180.0, axis='X')))
-        
-        s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
-                                   aperture=CircularAperture(1.01))) # Stop Surface
-        
-        s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
-                                   material=material.ConstantIndexGlass(1.5), 
-                                    aperture=CircularAperture(1.0)))
-        
-        s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=1/1.479), #thickness=19.0,
-                                   aperture=CircularAperture(1.0)))
-        
-        
-        s.insertSurface(8, Surface(lc8)) # image
                         
                         
                         
@@ -154,6 +119,7 @@ class OpticalSystemObserver(AbstractObserver):
                         "OS",
                         "wavelengths list").wavelengths = [550.0e-6]
         obj.addProperty("App::PropertyLinkList", "surfaces", "OS", "surface list").surfaces = []
+
 
         # Field properties
 
@@ -251,6 +217,62 @@ class OpticalSystemObserver(AbstractObserver):
         return self.getObjectsFromGroupTree(self.__coordinatesgroup, isLocalCoordinatesObserver)
 
 
+    def initDemoSystem(self):
+        s = OpticalSystem()
+                        
+        lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
+        lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
+        lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0))
+        lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
+        lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
+        lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
+        lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0))
+        lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0))
+        
+        
+        s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
+                                   material=material.ConstantIndexGlass(1.7), 
+                                    aperture=CircularAperture(0.55)))
+        
+        s.insertSurface(2, Surface(lc2, surfShape.Conic(curv=1/-3.160), # thickness=5.0, 
+                                   aperture=CircularAperture(1.0)))
+        
+        s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
+                                   material=material.ConstantIndexGlass(1.7), 
+                                    aperture=CircularAperture(1.3)))
+        
+        s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
+                                   aperture=CircularAperture(1.3)))
+        
+        #s.insertSurface(5, Surface(surfShape.Decenter(dx = 0., dy = 1.), material=material.Tilt(angle=20.*np.pi/180.0, axis='X')))
+        
+        s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
+                                   aperture=CircularAperture(1.01))) # Stop Surface
+        
+        s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
+                                   material=material.ConstantIndexGlass(1.5), 
+                                    aperture=CircularAperture(1.0)))
+        
+        s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=1/1.479), #thickness=19.0,
+                                   aperture=CircularAperture(1.0)))
+        
+        
+        s.insertSurface(8, Surface(lc8)) # image
+        
+        return s
+
+
+
+    def initFromGivenOpticalSystem(self, s):
+        
+        self.__obj.osclass = s
+        self.__obj.coords = LC(None, s.globalcoordinatesystem, self.__doc, self.__coordinatesgroup)
+        
+        # first init coordinate systems than surfaces
+
+        for (num, surf) in enumerate(s.surfaces):
+            so = SurfaceObject(self.__doc, self.__surfacegroup, "surface"+str(num), shapetype="", aptype="", lclabel="global", matlabel="Vacuum", surface=surf)
+            SurfaceView(so.getObject().ViewObject)
 
 
 

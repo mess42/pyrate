@@ -56,6 +56,8 @@ class SurfaceView:
         surPoints = []
 
         # TODO: aperture, point generation, rotation into local coordinate system        
+
+        surshape = None
         
         if aperture.typicaldimension < 100.0:
             for r in np.linspace(0, aperture.typicaldimension,rpoints): # aperture
@@ -68,12 +70,14 @@ class SurfaceView:
                     #p2 = FreeCAD.Base.Vector(x+startpoint[0], y+startpoint[1], z+startpoint[2])
                     points.append(p)
                 surPoints.append(points)
-        sur = Part.BSplineSurface()
-        sur.interpolate(surPoints)
-        sur.setVPeriodic()
-        surshape = sur.toShape()
-        
-        
+            sur = Part.BSplineSurface()
+            sur.interpolate(surPoints)
+            sur.setVPeriodic()
+            surshape = sur.toShape()
+        else:
+            surshape = Part.makePlane(2,2)
+            surshape.translate((-1, -1, 0))
+
         surshape.transformShape(
             FreeCAD.Matrix(
                 basisX[0], basisY[0], basisZ[0], 0, 
@@ -83,6 +87,7 @@ class SurfaceView:
             )
         )
         surshape.translate(coords)
+
         
         
         return surshape

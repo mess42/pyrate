@@ -37,6 +37,31 @@ class SurfaceObject(AbstractObserver):
         self.__group = group # surface group
         self.__obj = doc.addObject("Part::FeaturePython", name)
         self.__group.addObject(self.__obj)
+        
+        if kwargs.has_key("surface"):
+            # initialization from pre defined optical system
+            # override shapetype, aptype, lclabel, matlabel could be set later
+            surf = kwargs["surface"]
+            # self.shape = shape
+            # self.material = material
+            # self.aperture = aperture
+            # self.lc = lc # reference to local coordinate system tree
+
+            shapetype = ""
+            if isinstance(surf.shape, Conic):
+                shapetype = Shape_Conic
+            if isinstance(surf.shape, Cylinder):
+                shapetype = Shape_Cylinder
+            if isinstance(surf.shape, Asphere):
+                shapetype = Shape_Asphere
+
+            aptype = ""
+            if isinstance(surf.aperture, BaseAperture):
+                aptype = Aperture_Base
+            if isinstance(surf.aperture, CircularAperture):
+                aptype = Aperture_Circular
+                
+                
 
         self.initshapedict = {
             Shape_Conic:self.initShConic,
@@ -114,13 +139,20 @@ class SurfaceObject(AbstractObserver):
     def getObject(self):
         return self.__obj
 
-
     # shape initialization    
     
     def initShConic(self, curv=0., cc=0., **kwargs):
+        shapeclass = None
+        if kwargs.has_key("surface"):
+            shapeclass = kwargs["surface"].shape
+            curv = shapeclass.curvature.evaluate()
+            cc = shapeclass.conic.evaluate()
+        else:
+            shapeclass = Conic(curv=curv, cc=cc)
+            
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
-        self.__obj.shapeclass = Conic(curv=curv, cc=cc)
+        self.__obj.shapeclass = shapeclass
 
     def initShCylinder(self, curv=0., cc=0., **kwargs):
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature y").curv = curv
@@ -179,11 +211,22 @@ class SurfaceObject(AbstractObserver):
         self.__obj.apertureclass = BaseAperture()
         
     def initApCircular(self, semidiameter=1.0, tx=0., ty=0., **kwargs):
+
+        apclass = None
+        if kwargs.has_key("surface"):
+            apclass = kwargs["surface"].aperture
+            semidiameter = apclass.semidiameter
+            tx = apclass.tx
+            ty = apclass.ty            
+        else:
+            apclass = CircularAperture(semidiameter=semidiameter, tx=tx, ty=ty)        
+
+
         self.__obj.addProperty("App::PropertyFloat", "semidiameter", "Aperture", "semidiameter").semidiameter = semidiameter
         self.__obj.addProperty("App::PropertyFloat", "tx", "Aperture", "decentration x").tx = tx
         self.__obj.addProperty("App::PropertyFloat", "ty", "Aperture", "decentration y").ty = ty
       
-        self.__obj.apertureclass = CircularAperture(semidiameter=semidiameter, tx=tx, ty=ty)        
+        self.__obj.apertureclass = apclass
     
     def initApUserDefined(self, **kwargs):
         self.__obj.apertureclass = BaseAperture()
