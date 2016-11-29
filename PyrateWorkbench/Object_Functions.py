@@ -25,9 +25,13 @@ Created on Thu Nov 17 22:01:02 2016
 @author: Johannes Hartung
 """
 
+import FreeCADGui
+
 from PySide import QtGui
 
 from Interface_Identifiers import *
+from TaskPanel_Functions_Edit import FunctionsTaskPanelEdit
+
 
 class FunctionsView:
     
@@ -36,15 +40,17 @@ class FunctionsView:
         self.vobj.Proxy = self
         
         self.obj = vobj.Object
-
+        self.path = ""
 
     
     def doubleClicked(self, obj):
-        print(obj)
-        QtGui.QMessageBox.information(None, Title_MessageBoxes,str(obj) + "open text editor here")
         # TODO: open text editor window (dlg_functionobjects_edit.ui)
         # TODO: implement widget class for text editor with little syntax coloring
         # TODO: implement widget class with line numbering
+        panel = FunctionsTaskPanelEdit(self.obj)
+        FreeCADGui.Control.showDialog(panel)
+        
+        
         
     def setupContextMenu(self, obj, menu):
         actload = menu.addAction("Load function object")
@@ -54,11 +60,28 @@ class FunctionsView:
         actsave.triggered.connect(self.saveFile)        
 
     def loadFile(self):
-        self.obj.Proxy.Source = "blub" # TODO: implement file open dialog and load file into Source
+        (FileName, Result) = QtGui.QFileDialog.getOpenFileName(None, Title_MessageBoxes, "", "Source files (*.py *.FCMacro);;All files (*.*)")
+        
+        if Result:
+            self.path = FileName
+            fp = open(FileName)
+            self.obj.Proxy.Source = "".join([line for line in fp])
+            fp.close()
     
     def saveFile(self):
         QtGui.QMessageBox.information(None, Title_MessageBoxes,self.obj.Proxy.Source)
+        (FileName, Result) = QtGui.QFileDialog.getSaveFileName(None, Title_MessageBoxes, self.path, "Source files (*.py *.FCMacro);;All files (*.*)")        
         # TODO: implement file save procedure, but let messagebox show the first few lines of the code
+        if Result:
+            fp = open(FileName, "w")
+            fp.write(self.obj.Proxy.Source)
+            fp.close()
+
+    def __setstate__(self, state):
+        return None
+        
+    def __getstate__(self):
+        return None
 
 
 
@@ -84,6 +107,9 @@ class FunctionsObject:
             exec(sourcecodestring, localsdict) 
             # exec is a security risk, but the code to be executed is loaded from a file at most
             # which has to be inspected by the user; there is no automatic code execution
+            
+            # TODO: substitute this code by execfile interface
+            
         except:
             QtGui.QMessageBox.information(None, Title_MessageBoxes,"Exception caught. Problem in " + self.Object.Label)
             return functionsobjects
