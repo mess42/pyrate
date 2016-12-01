@@ -67,11 +67,11 @@ class SurfaceView:
             surPoints2 = []
             
             rvalues = np.linspace(0, aperture.typicaldimension, rpoints)
-            phivalues = np.linspace(0, 2*math.pi, phipoints)
+            phivalues = np.linspace(0, 2*math.pi - 2*math.pi/phipoints, phipoints)
             
             start1 = timer()            
             
-            R, PHI = np.meshgrid(rvalues, phivalues)
+            PHI, R = np.meshgrid(phivalues, rvalues)
         
 
             X = (R*np.cos(PHI)).reshape((rpoints*phipoints,)).T
@@ -80,18 +80,29 @@ class SurfaceView:
             Z = shape.getSag(X, Y)
 
             XYZ = np.vstack((X, Y, Z)).T
-            XYZ = XYZ.reshape((3, phipoints, rpoints)) # TODO
+            XYZ = XYZ.reshape((rpoints, phipoints, 3)) # TODO
                         
             surPoints2 = XYZ.tolist()
             
-            surPoints2 = [[FreeCAD.Base.Vector(p) for phi in r for p in phi] for r in surPoints2] # TODO
+            print("opti pre")
+            print(surPoints2)            
+            
+            
+            surPoints2post = [[FreeCAD.Base.Vector(*p) for p in r] for r in surPoints2]
+                
+                    
+            #surPoints2post = [[FreeCAD.Base.Vector(p) for phi in r for p in phi] for r in surPoints2] # TODO
+
+            print("opti post")
+            print(surPoints2post)            
+
             
             end1 = timer()
             start2 = timer()
             
-            for r in np.linspace(0, aperture.typicaldimension, rpoints): # aperture
+            for r in rvalues: # aperture
                 points = []
-                for a in np.linspace(0.0, 360.0-360/float(phipoints), phipoints):
+                for a in phivalues:
                     x = r * math.cos(a*math.pi/180.0)# + startpoint[0]
                     y = r * math.sin(a*math.pi/180.0)# + startpoint[1]
                     z = shape.getSag(x, y)# + startpoint[2]
@@ -101,14 +112,16 @@ class SurfaceView:
                 surPoints.append(points)
             
             end2 = timer()
-                    
-            print(surPoints)                        
-            print(surPoints2) 
+
+            print("ORIG")                                            
+            print(surPoints)
+            #print("OPT")                        
+            #print(surPoints2) 
             
             FreeCAD.Console.PrintMessage("numpy: %f; nested: %f\n" % (end1-start1, end2-start2))                
             
             sur = Part.BSplineSurface()
-            sur.interpolate(surPoints)
+            sur.interpolate(surPoints2post)
             sur.setVPeriodic()
             surshape = sur.toShape()
             vobj.ShapeColor = (0., 0., 1.)
