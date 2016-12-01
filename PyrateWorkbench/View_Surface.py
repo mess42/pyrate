@@ -34,15 +34,17 @@ import Part, FreeCAD
 import numpy as np
 import math
 
+from timeit import default_timer as timer
+
 class SurfaceView:
     def __init__(self, vobj):
 
         '''Set this object to the proxy object of the actual view provider'''
         
-        vobj.addProperty("App::PropertyColor","Color","Surface","Color of the surface").Color=(0.0,0.0,1.0)
+        #vobj.addProperty("App::PropertyColor","Color","Surface","Color of the surface").Color=(0.0,0.0,1.0)
         vobj.Proxy = self
 
-    def makeSurfaceFromSag(self, obj, rpoints=10, phipoints=12):
+    def makeSurfaceFromSag(self, obj, rpoints=5, phipoints=8):
 
         # TODO: sdia parameter not valid anymore, change behaviour here, too. depending on the type of aperture
 
@@ -52,15 +54,42 @@ class SurfaceView:
         basisX = obj.LocalCoordinatesLink.localbasisX
         basisY = obj.LocalCoordinatesLink.localbasisY
         basisZ = obj.LocalCoordinatesLink.localbasisZ
-
-        surPoints = []
+        
+        vobj = obj.ViewObject
 
         # TODO: aperture, point generation, rotation into local coordinate system        
 
         surshape = None
         
         if aperture.typicaldimension < 100.0:
-            for r in np.linspace(0, aperture.typicaldimension,rpoints): # aperture
+
+            surPoints = []
+            surPoints2 = []
+            
+            rvalues = np.linspace(0, aperture.typicaldimension, rpoints)
+            phivalues = np.linspace(0, 2*math.pi, phipoints)
+            
+            start1 = timer()            
+            
+            R, PHI = np.meshgrid(rvalues, phivalues)
+        
+
+            X = (R*np.cos(PHI)).reshape((rpoints*phipoints,)).T
+            Y = (R*np.sin(PHI)).reshape((rpoints*phipoints,)).T
+
+            Z = shape.getSag(X, Y)
+
+            XYZ = np.vstack((X, Y, Z)).T
+            XYZ = XYZ.reshape((3, phipoints, rpoints)) # TODO
+                        
+            surPoints2 = XYZ.tolist()
+            
+            surPoints2 = [[FreeCAD.Base.Vector(p) for phi in r for p in phi] for r in surPoints2] # TODO
+            
+            end1 = timer()
+            start2 = timer()
+            
+            for r in np.linspace(0, aperture.typicaldimension, rpoints): # aperture
                 points = []
                 for a in np.linspace(0.0, 360.0-360/float(phipoints), phipoints):
                     x = r * math.cos(a*math.pi/180.0)# + startpoint[0]
@@ -70,13 +99,23 @@ class SurfaceView:
                     #p2 = FreeCAD.Base.Vector(x+startpoint[0], y+startpoint[1], z+startpoint[2])
                     points.append(p)
                 surPoints.append(points)
+            
+            end2 = timer()
+                    
+            print(surPoints)                        
+            print(surPoints2) 
+            
+            FreeCAD.Console.PrintMessage("numpy: %f; nested: %f\n" % (end1-start1, end2-start2))                
+            
             sur = Part.BSplineSurface()
             sur.interpolate(surPoints)
             sur.setVPeriodic()
             surshape = sur.toShape()
+            vobj.ShapeColor = (0., 0., 1.)
         else:
             surshape = Part.makePlane(2,2)
             surshape.translate((-1, -1, 0))
+            vobj.ShapeColor = (1., 0., 0.)
 
         surshape.transformShape(
             FreeCAD.Matrix(
@@ -107,8 +146,11 @@ class SurfaceView:
         # fp is the handled feature, prop is the name of the property that has changed
         FreeCAD.Console.PrintMessage("Update feature: " + str(fp) + ": " + str(prop) + "\n")
 
+        geometricalproperties = ["curv", "cc", "semidiameter"] # TODO: just for testing purposes
+
         if prop != "Shape":
-            fp.Shape = self.makeSurfaceFromSag(fp)
+            if prop in geometricalproperties:
+                fp.Shape = self.makeSurfaceFromSag(fp)
 
 
  
