@@ -44,7 +44,7 @@ class SurfaceView:
         #vobj.addProperty("App::PropertyColor","Color","Surface","Color of the surface").Color=(0.0,0.0,1.0)
         vobj.Proxy = self
 
-    def makeSurfaceFromSag(self, obj, rpoints=5, phipoints=8):
+    def makeSurfaceFromSag(self, obj, rpoints=10, phipoints=12):
 
         # TODO: sdia parameter not valid anymore, change behaviour here, too. depending on the type of aperture
 
@@ -75,6 +75,8 @@ class SurfaceView:
             Y = (R*np.sin(PHI)).reshape((rpoints*phipoints,)).T
 
             Z = shape.getSag(X, Y)
+
+            Z[np.isnan(Z)] = 0.0 # something has to happen if sqrts become negative
 
             XYZ = np.vstack((X, Y, Z)).T
             XYZ = XYZ.reshape((rpoints, phipoints, 3)) # TODO
@@ -121,7 +123,7 @@ class SurfaceView:
         # fp is the handled feature, prop is the name of the property that has changed
         FreeCAD.Console.PrintMessage("Update feature: " + str(fp) + ": " + str(prop) + "\n")
 
-        geometricalproperties = ["curv", "cc", "semidiameter"] # TODO: just for testing purposes
+        geometricalproperties = ["curv", "cc", "semidiameter", "LocalCoordinatesLink"] # TODO: just for testing purposes
 
         if prop != "Shape":
             if prop in geometricalproperties:

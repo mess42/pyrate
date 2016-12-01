@@ -265,15 +265,22 @@ class OpticalSystemObserver(AbstractObserver):
 
     def initFromGivenOpticalSystem(self, s):
         
+        # delete surfaces and coordinate systems before fill them up from s
+        # do not remove functions objects        
+        
+        self.__surfacegroup.removeObjectsFromDocument()
+        self.__coordinatesgroup.removeObjectsFromDocument()        
+        
         self.__obj.osclass = s
         self.__obj.coords = LC(None, s.globalcoordinatesystem, self.__doc, self.__coordinatesgroup)
         
-        # first init coordinate systems than surfaces
+        # first init coordinate systems then surfaces
 
         for (num, surf) in enumerate(s.surfaces):
             so = SurfaceObject(self.__doc, self.__surfacegroup, "surface"+str(num), shapetype="", aptype="", lclabel="global", matlabel="Vacuum", surface=surf)
             SurfaceView(so.getObject().ViewObject)
-
+            so.getObject().LocalCoordinatesLink = self.__doc.getObject(surf.lc.name) # update local coordinates links
+            
 
 
 
