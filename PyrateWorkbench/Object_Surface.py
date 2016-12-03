@@ -155,15 +155,33 @@ class SurfaceObject(AbstractObserver):
         self.__obj.shapeclass = shapeclass
 
     def initShCylinder(self, curv=0., cc=0., **kwargs):
+
+        shapeclass = None
+        if kwargs.has_key("surface"):
+            shapeclass = kwargs["surface"].shape
+            curv = shapeclass.curvature.evaluate()
+            cc = shapeclass.conic.evaluate()
+        else:
+            shapeclass = Cylinder(curv=curv, cc=cc)
+
+
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature y").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant y").cc = cc
-        self.__obj.shapeclass = Cylinder(curv=curv, cc=cc)
+        self.__obj.shapeclass = shapeclass
     
     def initShAsphere(self, curv=0., cc=0., asphereparams=[], **kwargs):
+
+        shapeclass = None
+        if kwargs.has_key("surface"):
+            shapeclass = kwargs["surface"].shape
+            curv = shapeclass.curvature.evaluate()
+            cc = shapeclass.conic.evaluate()
+        else:
+            shapeclass = Asphere(curv=curv, cc=cc, acoeffs=asphereparams)
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
         self.__obj.addProperty("App::PropertyFloatList", "asphereparams", "Shape", "aspherical corrections").asphereparams = asphereparams
-        self.__obj.shapeclass = Asphere(curv=curv, cc=cc, acoeffs=asphereparams)
+        self.__obj.shapeclass = shapeclass
 
     def initShExplicit(self, **kwargs):
         # this function offers the flexibility to use function objects with tunable parameters
@@ -242,6 +260,9 @@ class SurfaceObject(AbstractObserver):
         if prop in Surface_GUIChangeableProperties:
             # write back changed properties to underlying material
             self.writebackshapefunc[self.__obj.shapetype](fp)
+            
+        #if prop in Aperture_GUIChangeableProperties:
+        #    self.writebackaperturefunc[self.__obj.aperturetype](fp)
 
     def informAboutUpdate(self):
         # override AbstractObserver method

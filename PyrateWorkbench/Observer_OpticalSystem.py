@@ -269,7 +269,10 @@ class OpticalSystemObserver(AbstractObserver):
         # do not remove functions objects        
         
         self.__surfacegroup.removeObjectsFromDocument()
-        self.__coordinatesgroup.removeObjectsFromDocument()        
+        self.__coordinatesgroup.removeObjectsFromDocument()
+        
+        # TODO: reference error induced because reference to variables in objects vanishes
+        # due to reference counting
         
         self.__obj.osclass = s
         self.__obj.coords = LC(None, s.globalcoordinatesystem, self.__doc, self.__coordinatesgroup)

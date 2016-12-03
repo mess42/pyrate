@@ -59,7 +59,6 @@ Surface_GUI_TaskPanel_Add_Shape_TabWidget = {
     3:Shape_Explicit
     }
 
-
 Aperture_Base = "Base Aperture"
 Aperture_Circular = "Circular"
 Aperture_UserDefined = "User defined"
@@ -71,3 +70,4 @@ Surface_GUI_TaskPanel_Add_Aperture_TabWidget = {
     }
 
 Surface_GUIChangeableProperties = ["curv", "cc"] # TODO: aspheric corrections
+Aperture_GUIChangeableProperties = ["semidiameter", "tx", "ty"]
