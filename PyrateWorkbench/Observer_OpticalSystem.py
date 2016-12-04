@@ -38,9 +38,15 @@ from core.observers import AbstractObserver
 from core.coordinates import LocalCoordinates
 from core.aperture import CircularAperture
 
+from core import pupil
+from core import raster
+from core import field
+from core import aim
+from core import ray
+
 # freecad modules
 
-import FreeCAD
+import FreeCAD, Part
 
 # TODO: rename Observer to object (developer sees if it is derived from Observer)
 from Observer_LocalCoordinates import LC
@@ -262,7 +268,6 @@ class OpticalSystemObserver(AbstractObserver):
         return s
 
 
-
     def initFromGivenOpticalSystem(self, s):
         
         # delete surfaces and coordinate systems before fill them up from s
@@ -285,6 +290,118 @@ class OpticalSystemObserver(AbstractObserver):
             so.getObject().LocalCoordinatesLink = self.__doc.getObject(surf.lc.name) # update local coordinates links
             
 
+    def makeRayBundle(self, raybundle, offset):
+        raysorigin = raybundle.o
+        nrays = np.shape(raysorigin)[1]
+
+        pp = Points.Points()
+        sectionpoints = []
+
+        res = []
+
+        for i in range(nrays):
+            if abs(raybundle.t[i]) > 1e-6:
+                x1 = raysorigin[0, i] + offset[0]
+                y1 = raysorigin[1, i] + offset[1]
+                z1 = raysorigin[2, i] + offset[2]
+
+                x2 = x1 + raybundle.t[i] * raybundle.rayDir[0, i]
+                y2 = y1 + raybundle.t[i] * raybundle.rayDir[1, i]
+                z2 = z1 + raybundle.t[i] * raybundle.rayDir[2, i]
+
+                res.append(Part.makeLine((x1,y1,z1),(x2,y2,z2))) # draw ray
+                sectionpoints.append((x2,y2,z2))
+        pp.addPoints(sectionpoints)
+        #Points.show(pp) # draw intersection points per raybundle per field point
+
+        return (pp, res)
 
 
+    def makeRaysFromRayPath(self, raypath, offset, color = (0.5, 0.5, 0.5)):
+        def shift(l, n):
+            return l[n:] + l[:n]
+
+        #grincolor = (np.random.random(), np.random.random(), np.random.random())
+
+        doc = FreeCAD.ActiveDocument # in initialisierung auslagern
+        Nraybundles = len(raypath.raybundles)
+        offx = offset[0]
+        offy = offset[1]
+        offz = offset[2]
+
+        for i in np.arange(Nraybundles):
+            offz += self.os.surfaces[i].getThickness()
+
+            (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
+
+            #FreeCAD.Console.PrintMessage(str(intersectionpts)+'\n')
+
+            FCptsobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_Intersectionpoints")
+            FCptsobj.Points = intersectionpts
+            FCptsview = FCptsobj.ViewObject
+            FCptsview.PointSize = 5.0
+            FCptsview.ShapeColor = (1.0, 1.0, 0.0)
+
+            self.intersectptsobs.append(FCptsobj)
+
+            for (n, ray) in enumerate(rays):
+                FCrayobj = doc.addObject("Part::Feature", "Surf_"+str(i)+"_Ray_"+str(n))
+                FCrayobj.Shape = ray
+                FCrayview = FCrayobj.ViewObject
+
+                FCrayview.LineColor = color
+                FCrayview.PointColor = (1.0, 1.0, 0.0)
+
+                self.rayobs.append(FCrayobj)
+
+
+
+    def calculateAimys(self):
+
+
+        pupiltype = eval("pupil." + self.__obj.pupiltype) # eval is evil but who cares :p
+        pupilsize = self.__obj.pupilsize.Value
+        fieldType = eval("field."+ self.__obj.fieldtype)
+        rasterType = eval("raster."+ self.__obj.rastertype)
+        stopPosition = self.__obj.stopposition
+        numrays = self.__obj.numrays
+
+        aimys = [aim.aimFiniteByMakingASurfaceTheStop(self.__obj.osclass, pupilType=pupiltype, \
+                                                    pupilSizeParameter=pupilsize, \
+                                                    fieldType=fieldType, \
+                                                    rasterType=rasterType, \
+                                                    nray=numrays, wavelength=w, \
+                                                    stopPosition=stopPosition) for w in self.__obj.wavelengths]
+
+        return aimys
+
+    def calculateRaypaths(self, aimys):
+        raypaths = []
+        fieldpoints = self.__obj.fieldpoints[self.__obj.fieldpointsbool]
+        for (w, aimy) in zip(self.__obj.wavelengths, aimys):
+            for fXY in fieldpoints:
+                initialBundle = aimy.getInitialRayBundle(self.__obj.osclass, fieldXY=fXY, wavelength=w) # why we need the wavelength another time?
+                raypath = ray.RayPath(initialBundle, self.__obj.osclass)
+                raypaths.append(raypath)
+        return raypaths
+        
+    def drawRaypaths(self, raypaths):
+        for rp in raypaths: # per field point
+            compoundlist = []
+            for (r1, r2) in zip(rp.raybundles[:-1], rp.raybundles[1:]): # per surface
+                for (p1, p2) in zip(r1.o.T.tolist(), r2.o.T.tolist()):
+                    compoundlist.append(Part.makeLine(
+                        FreeCAD.Base.Vector(*p1), FreeCAD.Base.Vector(*p2)
+                    ))
+
+            cp = Part.makeCompound(compoundlist)
+            FCrayobj = self.__doc.addObject("Part::Feature", "Ray")
+            FCrayobj.Shape = cp
+            FCrayview = FCrayobj.ViewObject
+
+            FCrayview.LineColor = tuple(np.random.random(3).tolist())
+            FCrayview.PointColor = (1.0, 1.0, 0.0)
+
+            
+            #Part.show(cp)
 

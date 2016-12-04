@@ -46,8 +46,6 @@ class SurfaceView:
 
     def makeSurfaceFromSag(self, obj, rpoints=10, phipoints=12):
 
-        # TODO: sdia parameter not valid anymore, change behaviour here, too. depending on the type of aperture
-
         shape = obj.shapeclass
         aperture = obj.apertureclass
         coords = obj.LocalCoordinatesLink.globalcoordinates
@@ -56,8 +54,6 @@ class SurfaceView:
         basisZ = obj.LocalCoordinatesLink.localbasisZ
         
         vobj = obj.ViewObject
-
-        # TODO: aperture, point generation, rotation into local coordinate system        
 
         surshape = None
         
@@ -78,8 +74,12 @@ class SurfaceView:
 
             Z[np.isnan(Z)] = 0.0 # something has to happen if sqrts become negative
 
+            # TODO: setting values to last defined values
+            # TODO: constructing wires set from last defined values
+            # TODO: generating final aperture from this wires set
+
             XYZ = np.vstack((X, Y, Z)).T
-            XYZ = XYZ.reshape((rpoints, phipoints, 3)) # TODO
+            XYZ = XYZ.reshape((rpoints, phipoints, 3))
                         
             surPoints = [[FreeCAD.Base.Vector(*p) for p in r] for r in XYZ.tolist()]
                 
@@ -123,7 +123,10 @@ class SurfaceView:
         # fp is the handled feature, prop is the name of the property that has changed
         FreeCAD.Console.PrintMessage("Update feature: " + str(fp) + ": " + str(prop) + "\n")
 
-        geometricalproperties = ["curv", "cc", "semidiameter", "LocalCoordinatesLink"] # TODO: just for testing purposes
+        geometricalproperties = ["curv", "cc", "semidiameter", "LocalCoordinatesLink"] 
+        # TODO: just for testing purposes
+        # TODO: must be returned from every surface class itself (e.g. curv, cc for conic,
+        # curv, cc, aspheric coefficients from polynomial asphere)
 
         if prop != "Shape":
             if prop in geometricalproperties:
