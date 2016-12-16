@@ -119,7 +119,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
         Aiming into the pupil is non-iterative, which means there is no check 
         whether the real ray actually hits the stop at the paraxially calculated position.
         
-        TO DO: At the moment, this function fails to produce correct values for immersion (marginalslope and absk need to be corrected)
+        TODO: At the moment, this function fails to produce correct values for immersion (marginalslope and absk need to be corrected)
         """
         # dummy ray that carries the wavelength information
         ray = RayBundle(zeros((3, 1)), ones((3, 1)), opticalSystem.surfaces[0].material, [0], wavelength)

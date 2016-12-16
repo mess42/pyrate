@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCAD, FreeCADGui
 
 from TaskPanel_FieldPoints import FieldPointsTaskPanel
+from Interface_Checks import *
+
 
 class ShowAimDialogCommand:
     "Show aim dialog"
@@ -65,7 +67,7 @@ class ShowFieldDialogCommand:
             return False
         else:
             selection = FreeCADGui.Selection.getSelection()
-            if len(selection) == 1 and ('wavelengths' in selection[0].PropertiesList):
+            if len(selection) == 1 and isOpticalSystemObserver(selection[0]): #('wavelengths' in selection[0].PropertiesList):
                 # TODO: comparison with CheckObjects function?                
                 return True
             else:

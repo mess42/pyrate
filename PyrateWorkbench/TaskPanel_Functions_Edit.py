@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env/python
 """
-Created on Sat Oct 22 15:29:19 2016
-
 Pyrate - Optical raytracing based on Python
 
 Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
@@ -21,17 +19,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-@author: Johannes Hartung
 """
+import FreeCADGui
 
-# TODO: write better tests for some certain object class
+from Interface_Helpers import *
+from Interface_Identifiers import *
 
-def isLocalCoordinatesObserver(fobj):
-    tmp = 'lcclass' in fobj.PropertiesList
-    return tmp
 
-def isOpticalSystemObserver(fobj):
-    tmp = 'wavelengths' in fobj.PropertiesList
-    return tmp
-    
+class FunctionsTaskPanelEdit:
+    def __init__(self, fobj):
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_functionsobject_edit.ui')        
+        
+        # this will create a Qt widget from our ui file
+        self.form = FreeCADGui.PySideUic.loadUi(fn)
+        self.fobj = fobj
+        self.form.plainTextEdit.insertPlainText(fobj.Proxy.Source)
+
+    def accept(self):
+        self.fobj.Proxy.Source = self.form.plainTextEdit.toPlainText()
+
+        FreeCADGui.Control.closeDialog()

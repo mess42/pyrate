@@ -64,12 +64,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
         (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
         (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "tiltThenDecenter"])
-        self.observers = []        
-        self.observers = kwargs.get("observers", [])        
+
+        self.list_observers = kwargs.get("observers", [])        
         
         
         if name == "":
-            name = str(uuid.uuid1())
+            name = str(uuid.uuid4()).lower() # TODO: translate - into _
         
         self.setName(name)
         
@@ -299,9 +299,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             ch.update()
 
         # inform observers about update
-        for obs in self.observers:
-            obs.informUpdate()
-
+        self.informObservers()
 
     def aimAt(self, anotherlc, update=False):
         (tiltx, tilty, tiltz) = self.calculateAim(anotherlc)

@@ -20,16 +20,25 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+import FreeCADGui
 
-class AbstractObserver(object):
-    def __init__(self):
-        """ 
-        Get actualized from to be observed object.
-        Most simple case: Observed object calls informAboutUpdate()
-        """
-        super(AbstractObserver, self).__init__()
-    
-    def informAboutUpdate(self):
-        raise NotImplemented()
-    
+from Interface_Helpers import *
+from Interface_Checks import *
 
+class SurfaceListTaskPanelEdit:
+    def __init__(self, os):
+        # doc needs to be initialized first        
+        self.os = os
+
+
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_surfacelist_edit.ui')        
+
+       
+        # this will create a Qt widget from our ui file
+        self.form = FreeCADGui.PySideUic.loadUi(fn)
+        
+
+    def accept(self):
+        
+
+        FreeCADGui.Control.closeDialog()

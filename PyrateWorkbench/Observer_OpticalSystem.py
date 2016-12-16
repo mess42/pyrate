@@ -24,60 +24,85 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # standard include
 
-import time
+import uuid
 import math
-import sys
-import os
+
 
 import numpy as np
-import matplotlib.pyplot as plt
-from PySide import QtCore, QtGui
 
 from core import material
 from core import surfShape
-from core import aim
-from core import field
-from core import pupil
-from core import raster
-from core import plots
-from core import aperture
 
-from core.ray import RayPath
 from core.optical_system import OpticalSystem, Surface
 from core.observers import AbstractObserver
 from core.coordinates import LocalCoordinates
 from core.aperture import CircularAperture
 
+from core import pupil
+from core import raster
+from core import field
+from core import aim
+from core import ray
+
 # freecad modules
 
-import FreeCAD
-import FreeCADGui
-import Part
-import Points
-import Draft
+import FreeCAD, Part
 
-
+# TODO: rename Observer to object (developer sees if it is derived from Observer)
 from Observer_LocalCoordinates import LC
 
+from Object_Surface import SurfaceObject
+from View_Surface import SurfaceView
 
+from Interface_Identifiers import *
+from Interface_Helpers import *
+from Interface_Checks import *
     
 
-class FreeCADOutputStream(object):
-    def write(self, txt):
-        FreeCAD.Console.PrintMessage(txt)
-
-# TODO: new implementation of OS coupling
 class OpticalSystemObserver(AbstractObserver):
-    def __init__(self, doc):
+    def __init__(self, doc, name):
         self.__doc = doc
-        obj = doc.addObject("App::FeaturePython", "OS")
+        obj = doc.addObject("App::FeaturePython", name)
         self.__obj = obj
-        self.__group = doc.addObject("App::DocumentObjectGroup", "OS_group")
-        self.__group.addObject(obj)
-        self.__surfacegroup = doc.addObject("App::DocumentObjectGroup", "Surfaces_group")
-        self.__group.addObject(self.__surfacegroup)
+        obj.Proxy = self
 
+        self.__NameOSGroup = Group_OS_Label + "_" + uuidToName(uuid.uuid4())
+        self.__NameSurfaceGroup = Group_Surface_Label + "_" + uuidToName(uuid.uuid4())        
+        self.__NameFunctionsGroup = Group_Functions_Label + "_" + uuidToName(uuid.uuid4())
+        self.__NameCoordinatesGroup = Group_Coordinates_Label + "_" + uuidToName(uuid.uuid4())
+        
+        self.__group = doc.addObject("App::DocumentObjectGroup", self.__NameOSGroup)
+        self.__group.addObject(obj)
+        
+        self.__surfacegroup = doc.addObject("App::DocumentObjectGroup", self.__NameSurfaceGroup)
+        self.__functionsgroup = doc.addObject("App::DocumentObjectGroup", self.__NameFunctionsGroup)
+        self.__coordinatesgroup = doc.addObject("App::DocumentObjectGroup", self.__NameCoordinatesGroup)
+
+        
+        self.__group.addObject(self.__surfacegroup)
+        self.__group.addObject(self.__functionsgroup)
+        self.__group.addObject(self.__coordinatesgroup)
+
+        self.__functionsgroup.Label = Group_Functions_Label + "_" + name
+        self.__surfacegroup.Label = Group_Surface_Label + "_" + name
+        self.__coordinatesgroup.Label = Group_Coordinates_Label + "_" + name
+        self.__group.Label = Group_OS_Label + "_" + name
+
+        
         # TODO: all properties are not really operational
+
+        # group links
+
+        obj.addProperty("App::PropertyString", "NameOSGroup", "Groups", "Name of OS Group").NameOSGroup = self.__NameOSGroup
+        obj.addProperty("App::PropertyString", "NameFunctionsGroup", "Groups", "Name of Functions Group").NameFunctionsGroup = self.__NameFunctionsGroup
+        obj.addProperty("App::PropertyString", "NameSurfaceGroup", "Groups", "Name of Surface Group").NameSurfaceGroup = self.__NameSurfaceGroup
+        obj.addProperty("App::PropertyString", "NameCoordinatesGroup", "Groups", "Name of Coordinates Group").NameCoordinatesGroup = self.__NameCoordinatesGroup
+        
+        obj.setEditorMode("NameOSGroup", 1) # readonly 
+        obj.setEditorMode("NameFunctionsGroup", 1) # readonly
+        obj.setEditorMode("NameSurfaceGroup", 1) # readonly
+        obj.setEditorMode("NameCoordinatesGroup", 1) # readonly
+
 
         # OS Properties
     
@@ -86,57 +111,21 @@ class OpticalSystemObserver(AbstractObserver):
                         "OS", 
                         "os class interface").osclass = OpticalSystem()
 
-        s = obj.osclass
                         
-        lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
-        lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
-        lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0))
-        lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
-        lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
-        lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
-        lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0))
-        lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0))
         
-        
-        s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
-                                   material=material.ConstantIndexGlass(1.7), 
-                                    aperture=CircularAperture(0.55)))
-        
-        s.insertSurface(2, Surface(lc2, surfShape.Conic(curv=1/-3.160), # thickness=5.0, 
-                                   aperture=CircularAperture(1.0)))
-        
-        s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
-                                   material=material.ConstantIndexGlass(1.7), 
-                                    aperture=CircularAperture(1.3)))
-        
-        s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
-                                   aperture=CircularAperture(1.3)))
-        
-        #s.insertSurface(5, Surface(surfShape.Decenter(dx = 0., dy = 1.), material=material.Tilt(angle=20.*np.pi/180.0, axis='X')))
-        
-        s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
-                                   aperture=CircularAperture(1.01))) # Stop Surface
-        
-        s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
-                                   material=material.ConstantIndexGlass(1.5), 
-                                    aperture=CircularAperture(1.0)))
-        
-        s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=1/1.479), #thickness=19.0,
-                                   aperture=CircularAperture(1.0)))
-        
-        
-        s.insertSurface(8, Surface(lc8)) # image
                         
                         
                         
         obj.addProperty("App::PropertyPythonObject", 
                         "coords", 
                         "OS", 
-                        "os coords interface").coords = LC(None, obj.osclass.globalcoordinatesystem, doc, self.__group)
+                        "os coords interface").coords = LC(None, obj.osclass.globalcoordinatesystem, doc, self.__coordinatesgroup)
         obj.addProperty("App::PropertyFloatList",
                         "wavelengths",
                         "OS",
                         "wavelengths list").wavelengths = [550.0e-6]
+        obj.addProperty("App::PropertyLinkList", "surfaces", "OS", "surface list").surfaces = []
+
 
         # Field properties
 
@@ -223,10 +212,196 @@ class OpticalSystemObserver(AbstractObserver):
                 Since no data were serialized nothing needs to be done here.'''
         return None
 
+    def getObjectsFromGroupTree(self, grp, boolfun):
+        lstboolfun = [o for o in grp.Group if boolfun(o)]
+        lstsubgroups = sum([self.getObjectsFromGroupTree(o, boolfun) for o in grp.Group if isGroup(o)], []) # flatten
+        return sum([lstboolfun, lstsubgroups], [])
+        
+        
+    
+    def returnObjectsFromCoordinatesGroup(self):
+        return self.getObjectsFromGroupTree(self.__coordinatesgroup, isLocalCoordinatesObserver)
+
+
+    def initDemoSystem(self):
+        s = OpticalSystem()
+                        
+        lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
+        lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
+        lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0))
+        lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
+        lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
+        lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
+        lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0))
+        lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0))
+        
+        
+        s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
+                                   material=material.ConstantIndexGlass(1.7), 
+                                    aperture=CircularAperture(0.55)))
+        
+        s.insertSurface(2, Surface(lc2, surfShape.Conic(curv=1/-3.160), # thickness=5.0, 
+                                   aperture=CircularAperture(1.0)))
+        
+        s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
+                                   material=material.ConstantIndexGlass(1.7), 
+                                    aperture=CircularAperture(1.3)))
+        
+        s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
+                                   aperture=CircularAperture(1.3)))
+        
+        #s.insertSurface(5, Surface(surfShape.Decenter(dx = 0., dy = 1.), material=material.Tilt(angle=20.*np.pi/180.0, axis='X')))
+        
+        s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
+                                   aperture=CircularAperture(1.01))) # Stop Surface
+        
+        s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
+                                   material=material.ConstantIndexGlass(1.5), 
+                                    aperture=CircularAperture(1.0)))
+        
+        s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=1/1.479), #thickness=19.0,
+                                   aperture=CircularAperture(1.0)))
+        
+        
+        s.insertSurface(8, Surface(lc8)) # image
+        
+        return s
+
+
+    def initFromGivenOpticalSystem(self, s):
+        
+        # delete surfaces and coordinate systems before fill them up from s
+        # do not remove functions objects        
+        
+        self.__surfacegroup.removeObjectsFromDocument()
+        self.__coordinatesgroup.removeObjectsFromDocument()
+        
+        # TODO: reference error induced because reference to variables in objects vanishes
+        # due to reference counting
+        
+        self.__obj.osclass = s
+        self.__obj.coords = LC(None, s.globalcoordinatesystem, self.__doc, self.__coordinatesgroup)
+        
+        # first init coordinate systems then surfaces
+
+        for (num, surf) in enumerate(s.surfaces):
+            so = SurfaceObject(self.__doc, self.__surfacegroup, "surface"+str(num), shapetype="", aptype="", lclabel="global", matlabel="Vacuum", surface=surf)
+            SurfaceView(so.getObject().ViewObject)
+            so.getObject().LocalCoordinatesLink = self.__doc.getObject(surf.lc.name) # update local coordinates links
+            
+
+    def makeRayBundle(self, raybundle, offset):
+        raysorigin = raybundle.o
+        nrays = np.shape(raysorigin)[1]
+
+        pp = Points.Points()
+        sectionpoints = []
+
+        res = []
+
+        for i in range(nrays):
+            if abs(raybundle.t[i]) > 1e-6:
+                x1 = raysorigin[0, i] + offset[0]
+                y1 = raysorigin[1, i] + offset[1]
+                z1 = raysorigin[2, i] + offset[2]
+
+                x2 = x1 + raybundle.t[i] * raybundle.rayDir[0, i]
+                y2 = y1 + raybundle.t[i] * raybundle.rayDir[1, i]
+                z2 = z1 + raybundle.t[i] * raybundle.rayDir[2, i]
+
+                res.append(Part.makeLine((x1,y1,z1),(x2,y2,z2))) # draw ray
+                sectionpoints.append((x2,y2,z2))
+        pp.addPoints(sectionpoints)
+        #Points.show(pp) # draw intersection points per raybundle per field point
+
+        return (pp, res)
+
+
+    def makeRaysFromRayPath(self, raypath, offset, color = (0.5, 0.5, 0.5)):
+        def shift(l, n):
+            return l[n:] + l[:n]
+
+        #grincolor = (np.random.random(), np.random.random(), np.random.random())
+
+        doc = FreeCAD.ActiveDocument # in initialisierung auslagern
+        Nraybundles = len(raypath.raybundles)
+        offx = offset[0]
+        offy = offset[1]
+        offz = offset[2]
+
+        for i in np.arange(Nraybundles):
+            offz += self.os.surfaces[i].getThickness()
+
+            (intersectionpts, rays) = self.makeRayBundle(raypath.raybundles[i], offset=(offx, offy, offz))
+
+            #FreeCAD.Console.PrintMessage(str(intersectionpts)+'\n')
+
+            FCptsobj = doc.addObject("Points::Feature", "Surf_"+str(i)+"_Intersectionpoints")
+            FCptsobj.Points = intersectionpts
+            FCptsview = FCptsobj.ViewObject
+            FCptsview.PointSize = 5.0
+            FCptsview.ShapeColor = (1.0, 1.0, 0.0)
+
+            self.intersectptsobs.append(FCptsobj)
+
+            for (n, ray) in enumerate(rays):
+                FCrayobj = doc.addObject("Part::Feature", "Surf_"+str(i)+"_Ray_"+str(n))
+                FCrayobj.Shape = ray
+                FCrayview = FCrayobj.ViewObject
+
+                FCrayview.LineColor = color
+                FCrayview.PointColor = (1.0, 1.0, 0.0)
+
+                self.rayobs.append(FCrayobj)
 
 
 
+    def calculateAimys(self):
 
 
+        pupiltype = eval("pupil." + self.__obj.pupiltype) # eval is evil but who cares :p
+        pupilsize = self.__obj.pupilsize.Value
+        fieldType = eval("field."+ self.__obj.fieldtype)
+        rasterType = eval("raster."+ self.__obj.rastertype)
+        stopPosition = self.__obj.stopposition
+        numrays = self.__obj.numrays
 
+        aimys = [aim.aimFiniteByMakingASurfaceTheStop(self.__obj.osclass, pupilType=pupiltype, \
+                                                    pupilSizeParameter=pupilsize, \
+                                                    fieldType=fieldType, \
+                                                    rasterType=rasterType, \
+                                                    nray=numrays, wavelength=w, \
+                                                    stopPosition=stopPosition) for w in self.__obj.wavelengths]
+
+        return aimys
+
+    def calculateRaypaths(self, aimys):
+        raypaths = []
+        fieldpoints = self.__obj.fieldpoints[self.__obj.fieldpointsbool]
+        for (w, aimy) in zip(self.__obj.wavelengths, aimys):
+            for fXY in fieldpoints:
+                initialBundle = aimy.getInitialRayBundle(self.__obj.osclass, fieldXY=fXY, wavelength=w) # why we need the wavelength another time?
+                raypath = ray.RayPath(initialBundle, self.__obj.osclass)
+                raypaths.append(raypath)
+        return raypaths
+        
+    def drawRaypaths(self, raypaths):
+        for rp in raypaths: # per field point
+            compoundlist = []
+            for (r1, r2) in zip(rp.raybundles[:-1], rp.raybundles[1:]): # per surface
+                for (p1, p2) in zip(r1.o.T.tolist(), r2.o.T.tolist()):
+                    compoundlist.append(Part.makeLine(
+                        FreeCAD.Base.Vector(*p1), FreeCAD.Base.Vector(*p2)
+                    ))
+
+            cp = Part.makeCompound(compoundlist)
+            FCrayobj = self.__doc.addObject("Part::Feature", "Ray")
+            FCrayobj.Shape = cp
+            FCrayview = FCrayobj.ViewObject
+
+            FCrayview.LineColor = tuple(np.random.random(3).tolist())
+            FCrayview.PointColor = (1.0, 1.0, 0.0)
+
+            
+            #Part.show(cp)
 

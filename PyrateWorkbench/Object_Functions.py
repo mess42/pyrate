@@ -25,41 +25,93 @@ Created on Thu Nov 17 22:01:02 2016
 @author: Johannes Hartung
 """
 
-import sys
-import os
-import math
+import FreeCADGui
 
-from core.observers import AbstractObserver
+from PySide import QtGui
 
-from PySide import QtGui, QtCore
+from Interface_Identifiers import *
+from TaskPanel_Functions_Edit import FunctionsTaskPanelEdit
+
+
+class FunctionsView:
+    
+    def __init__(self, vobj):
+        self.vobj = vobj
+        self.vobj.Proxy = self
+        
+        self.obj = vobj.Object
+        self.path = ""
+
+    
+    def doubleClicked(self, obj):
+        # TODO: open text editor window (dlg_functionobjects_edit.ui)
+        # TODO: implement widget class for text editor with little syntax coloring
+        # TODO: implement widget class with line numbering
+        panel = FunctionsTaskPanelEdit(self.obj)
+        FreeCADGui.Control.showDialog(panel)
+        
+        
+        
+    def setupContextMenu(self, obj, menu):
+        actload = menu.addAction("Load function object")
+        actsave = menu.addAction("Save function object")
+        
+        actload.triggered.connect(self.loadFile)
+        actsave.triggered.connect(self.saveFile)        
+
+    def loadFile(self):
+        (FileName, Result) = QtGui.QFileDialog.getOpenFileName(None, Title_MessageBoxes, "", "Source files (*.py *.FCMacro);;All files (*.*)")
+        
+        if Result:
+            self.path = FileName
+            fp = open(FileName)
+            self.obj.Proxy.Source = "".join([line for line in fp])
+            fp.close()
+    
+    def saveFile(self):
+        QtGui.QMessageBox.information(None, Title_MessageBoxes,self.obj.Proxy.Source)
+        (FileName, Result) = QtGui.QFileDialog.getSaveFileName(None, Title_MessageBoxes, self.path, "Source files (*.py *.FCMacro);;All files (*.*)")        
+        # TODO: implement file save procedure, but let messagebox show the first few lines of the code
+        if Result:
+            fp = open(FileName, "w")
+            fp.write(self.obj.Proxy.Source)
+            fp.close()
+
+    def __setstate__(self, state):
+        return None
+        
+    def __getstate__(self):
+        return None
+
+
 
 class FunctionsObject:
     
     
-    def __init__(self, name, doc, group):
-        self.__doc = doc # e.g. ActiveDocument
-        self.__group = group # e.g. OS group, group which the functions belong to
-        if self.__doc.getObjectsByLabel("functions_group") == []:
-            self.__subgroup = self.__doc.addObject("App::DocumentObjectGroup", "functions_group")
-        else:
-            self.__subgroup = self.__doc.getObjectsByLabel("functions_group")[0]
-        self.__group.addObject(self.__subgroup)
-        self.__obj = doc.addObject("App::FeaturePython", self.returnStructureLabel(name))
-        self.__subgroup.addObject(self.__obj)
-        self.__obj.addProperty("App::PropertyStringList", "functions", "FunctionObject", "functions in object").functions = []
-        self.__obj.addProperty("App::PropertyStringList", "source", "FunctionObject", "source code for functions").source = []
-        self.__obj.Proxy = self
+    def __init__(self, name, initialsrc, doc, group):
+        self.Document = doc # e.g. ActiveDocument
+        self.Group = group # functions group
+        self.Object = doc.addObject("App::FeaturePython", self.returnStructureLabel(name))
+        self.Group.addObject(self.Object)
+        self.Object.addProperty("App::PropertyStringList", "functions", "FunctionObject", "functions in object").functions = []
+
+        self.Object.Proxy = self
+        self.Source = initialsrc
+        
         # TODO: load/save
         
     def getFunctionsFromSource(self, sourcecodestring, funcnamelist):
         localsdict = {}
         functionsobjects = []
         try:
-            exec(sourcecodestring, localsdict)
+            exec(sourcecodestring, localsdict) 
+            # exec is a security risk, but the code to be executed is loaded from a file at most
+            # which has to be inspected by the user; there is no automatic code execution
+            
+            # TODO: substitute this code by execfile interface
+            
         except:
-            # TODO: maybe let exception pass here to catch it at a higher level
-            # maybe this is better for an unperturbed program flow in case of syntax errors
-            QtGui.QMessageBox.information(None,"Exception caught","Problem in " + self.__obj.Label)
+            QtGui.QMessageBox.information(None, Title_MessageBoxes,"Exception caught. Problem in " + self.Object.Label)
             return functionsobjects
             
         for fn in funcnamelist:
@@ -69,10 +121,32 @@ class FunctionsObject:
                 pass
         return functionsobjects
         
+    def createSourceCode(self):
+        return str(self.Source) 
+        # removed reference to stringlist property source, due to security risk
+        # of loading and saving code from/to FreeCAD documents
+    
+    
     def returnFunctionObjects(self):
-        sourcetext = "\n".join(self.__obj.source)
-        return self.getFunctionsFromSource(sourcetext, self.__obj.functions)
+        return self.getFunctionsFromSource(self.createSourceCode(), self.Object.functions)
+        
+    def returnSingleFunctionObject(self, name):
+        result = None
+        try:
+            result = self.getFunctionsFromSource(self.createSourceCode(), [name])[0]
+        except:
+            pass
+        
+        return result
+        
         
     def returnStructureLabel(self, name):
-        return name + "_function"
+        return "function_" + name
 
+    
+    def __setstate__(self, state):
+        return None
+        
+    def __getstate__(self):
+        return None
+        

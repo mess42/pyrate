@@ -23,26 +23,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 
-from PySide.QtGui import QInputDialog, QLineEdit, QComboBox
-
 
 import FreeCADGui, FreeCAD
 
 
-from Object_Functions import FunctionsObject
-from TaskPanel_Functions_Add import FunctionsTaskPanelAdd
+from PySide.QtGui import QLineEdit, QInputDialog
+
+from TaskPanel_Surfaces_Add import SurfacesTaskPanelAdd
 
 from Interface_Checks import *
+from Interface_Identifiers import *
 
 
-class CreateFunctionTool:
-    "Tool for creating optical system"
+class CreateSurfaceTool:
+    "Tool for creating surface object"
 
     def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_func_icon.svg", # resource qrc file needed, and precompile with python-rcc
-                "MenuText": "Create function ...",
+        return {"Pixmap"  : ":/icons/pyrate_shape_icon.svg", # resource qrc file needed, and precompile with python-rcc
+                "MenuText": "Create surface ...",
                 "Accel": "",
-                "ToolTip": "Generates function object in document"
+                "ToolTip": "Generates surface object in document"
                 }
 
     def IsActive(self):
@@ -55,13 +55,9 @@ class CreateFunctionTool:
 
         doc = FreeCAD.ActiveDocument
 
-        osobservers = []
-        for obj in doc.Objects:
-            if isOpticalSystemObserver(obj):
-                osobservers.append(obj)
 
-        panel = FunctionsTaskPanelAdd(doc, [oso.Label for oso in osobservers])
+        panel = SurfacesTaskPanelAdd(doc)
         FreeCADGui.Control.showDialog(panel)
 
-            
-FreeCADGui.addCommand('CreateFunctionsCommand', CreateFunctionTool())
+
+FreeCADGui.addCommand('CreateSurfacesCommand', CreateSurfaceTool())
