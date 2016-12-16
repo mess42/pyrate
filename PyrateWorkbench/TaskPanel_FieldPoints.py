@@ -37,7 +37,7 @@ from Interface_Helpers import *
 
 class FieldPointsTaskPanel:
     def __init__(self, osobj):
-        fn = getRelativeFilePath(__file__, 'Qt/fielddialog.ui')
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_field.ui')
 
         # grab field points from osobj
         # grab boolean values from osobj
