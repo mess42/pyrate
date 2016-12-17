@@ -146,6 +146,7 @@ class PyrateWorkbench ( Workbench ):
                                        ["ShowFieldDialogCommand"])
                 self.appendContextMenu( "Pyrate Surfaces", 
                                        ["ShowSurfaceDialogCommand"])
+                self.appendContextMenu("ShowRaybundlesCommand", [])
                 self.appendContextMenu("Separator", [])
                 
                                        
