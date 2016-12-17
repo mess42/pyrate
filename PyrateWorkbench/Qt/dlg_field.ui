@@ -128,7 +128,14 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="1">
-        <widget class="QLineEdit" name="leMaxX"/>
+        <widget class="QLineEdit" name="leMaxX">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label">
@@ -152,13 +159,34 @@
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QLineEdit" name="leMinY"/>
+        <widget class="QLineEdit" name="leMinY">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>-1</string>
+         </property>
+        </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="leMaxY"/>
+        <widget class="QLineEdit" name="leMaxY">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QLineEdit" name="leMinX"/>
+        <widget class="QLineEdit" name="leMinX">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>-1</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="1">
         <widget class="QLabel" name="label_2">
@@ -168,7 +196,14 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QLineEdit" name="leNumPointsX"/>
+        <widget class="QLineEdit" name="leNumPointsX">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="2">
         <widget class="QLabel" name="label_5">
@@ -178,7 +213,14 @@
         </widget>
        </item>
        <item row="3" column="2">
-        <widget class="QLineEdit" name="leNumPointsY"/>
+        <widget class="QLineEdit" name="leNumPointsY">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
        </item>
        <item row="2" column="2">
         <widget class="QLabel" name="label_6">
@@ -216,13 +258,25 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QLineEdit" name="leMinRadius"/>
+        <widget class="QLineEdit" name="leMinRadius">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="leMaxRadius"/>
+        <widget class="QLineEdit" name="leMaxRadius">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QLineEdit" name="leNumPointsRadius"/>
+        <widget class="QLineEdit" name="leNumPointsRadius">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_11">
@@ -246,13 +300,25 @@
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QLineEdit" name="leMinPhi"/>
+        <widget class="QLineEdit" name="leMinPhi">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="leMaxPhi"/>
+        <widget class="QLineEdit" name="leMaxPhi">
+         <property name="text">
+          <string>360</string>
+         </property>
+        </widget>
        </item>
        <item row="3" column="2">
-        <widget class="QLineEdit" name="leNumPointsPhi"/>
+        <widget class="QLineEdit" name="leNumPointsPhi">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -260,6 +326,27 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tblFieldPoints</tabstop>
+  <tabstop>tabWidgetSampling</tabstop>
+  <tabstop>leMinX</tabstop>
+  <tabstop>leMaxX</tabstop>
+  <tabstop>leNumPointsX</tabstop>
+  <tabstop>leMinY</tabstop>
+  <tabstop>leMaxY</tabstop>
+  <tabstop>leNumPointsY</tabstop>
+  <tabstop>leMinRadius</tabstop>
+  <tabstop>leMaxRadius</tabstop>
+  <tabstop>leNumPointsRadius</tabstop>
+  <tabstop>leMinPhi</tabstop>
+  <tabstop>leMaxPhi</tabstop>
+  <tabstop>leNumPointsPhi</tabstop>
+  <tabstop>pbSample</tabstop>
+  <tabstop>pbAdd</tabstop>
+  <tabstop>pbRemove</tabstop>
+  <tabstop>pbLoadFile</tabstop>
+  <tabstop>pbSaveFile</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
