@@ -305,27 +305,56 @@ First, we propagate the pilot ray to its intersection point $\Vector{r}_{pilot,1
  \tilde{\Vector{r}}_1 &=& \Vector{r}_{pilot,1} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1}
 \end{eqnarray}
 The free parameter of the straight $t$ has to be chosen to intersect surface $1$.
+
 \begin{eqnarray}
- \tilde{\Vector{r}}_{pilot,0} - \Vector{r}_{pilot,1} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} 
- &=& 
- X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} - \tilde{\Vector{d}}_0 t
+  \tilde{\Vector{r}}_0 + \tilde{\Vector{d}}_0 t &=& \Vector{r}_{pilot,1} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1}
+\\
+  \tilde{\Vector{d}}_0 t - X_1 \Vector{e}_{X1} - Y_1 \Vector{e}_{Y1} &=& \Vector{r}_{pilot,1} - \tilde{\Vector{r}}_0  
+\\
+  \begin{pmatrix}
+   \tilde{d}_{0x} & -e_{X1x} & -e_{Y1x}
+   \\
+   \tilde{d}_{0y} & -e_{X1y} & -e_{Y1y}
+   \\
+   \tilde{d}_{0z} & -e_{X1z} & -e_{Y1z}
+  \end{pmatrix}
+  \begin{pmatrix}
+    t \\ X_1 \\ Y_1
+  \end{pmatrix}
+  &=&
+  \Vector{r}_{pilot,1} - \tilde{\Vector{r}}_0
+\\
+  \begin{pmatrix}
+    t \\ X_1 \\ Y_1
+  \end{pmatrix}
+  &=&
+  \begin{pmatrix}
+   \tilde{d}_{0x} & -e_{X1x} & -e_{Y1x}
+   \\
+   \tilde{d}_{0y} & -e_{X1y} & -e_{Y1y}
+   \\
+   \tilde{d}_{0z} & -e_{X1z} & -e_{Y1z}
+  \end{pmatrix}^{-1}
+  \left(
+    \Vector{r}_{pilot,1} - \tilde{\Vector{r}}_0
+  \right)
 \end{eqnarray}
-We have a 3 dimensional vectorial equation and 3 unknowns $X_1, Y_1, t$.
-In cartesian coordinates, it reads
+While $t$ is in the order of the macroscopic distance between both planes $0$ and $1$,
+near pilot rays take infinitessimal values for $X_1$ and $Y_1$, that is 
 \begin{eqnarray}
- \begin{pmatrix}
-  X_1 \\ Y_1 \\ t
- \end{pmatrix}
- &=&
- \begin{pmatrix}
-  e_{X1x} & e_{Y1x} & d_{0x} \\
-  e_{X1y} & e_{Y1y} & d_{0y} \\
-  e_{X1z} & e_{Y1z} & d_{0z}
- \end{pmatrix}^{-1}
- \left(
-  \tilde{\Vector{r}}_{pilot,0} - \Vector{r}_{pilot,1} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} 
- \right)
+t \gg X_0, Y_0, U_0, V_0, X_1, Y_1 
 \end{eqnarray}
+
+
+
+
+\begin{eqnarray}
+  \tilde{\Vector{r}}_0 &=& \Vector{r}_{pilot,0} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}
+\\
+  \tilde{\Vector{d}}_0 &=& \Vector{d}_{pilot,0} + U_0 \Vector{e}_{U0} + V_0 \Vector{e}_{V0}
+\end{eqnarray}
+
+
 
 \subsection{Thin lenses}
 We consider a thin, spherical lens in air with focal length $f$ and no tilt of the pilot ray, 

@@ -1126,11 +1126,11 @@ and $c_y$ the conic constant in $y$ direction, respectively.
 
 Depending on the conic constant, the biconic $x$ and $y$ cross sections are a
 \begin{eqnarray*}
--1 < c < 0 && \textrm{oblate ellipse} \\
+     c < -1 && \textrm{hyperbola} \\
+     c = -1 && \textrm{parabola} \\
+-1 < c < 0 && \textrm{prolate ellipse} \\
      c = 0 && \textrm{sphere} \\
- 0 < c < 1 && \textrm{prolate ellipse} \\
-     c = 1 && \textrm{parabola} \\
-     c > 1 && \textrm{hyperbola}
+ 0 < c < 1 && \textrm{oblate ellipse}
 \end{eqnarray*}
 
 
@@ -1305,6 +1305,104 @@ The solution further simplifies to
    H &=& - \rho \\
    t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
 \end{eqnarray}
+
+\subsection{Quadratic Form}
+\remark{The quadratic form section is not double checked yet.}
+
+A quadratic form is a polynomial freeshape of 2nd degree.
+\begin{align}
+ z &=& \frac{1}{2} a x^2 + \frac{1}{2} b x y + \frac{1}{2} c y^2
+\end{align}
+The solution is given by
+\begin{eqnarray}
+ F &=& d_z - \left( a x_0 d_x + \frac{1}{2} b (x_0 d_y + y_0 d_x) + c y_0 d_y \right)  \\
+ G &=& a x_0^2 + b x_0 y_0 + c y_0^2 - 2 z_0 \\
+ H &=& - ( a d_x^2  + b d_x d_y + c d_y^2 ) \\
+ t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+%
+Rotating the coordinate system,
+\begin{eqnarray}
+ x &=& \tilde{x} \cos(\phi) - \tilde{y} \sin(\phi) \\
+ y &=& \tilde{x} \sin(\phi) + \tilde{y} \cos(\phi)
+\end{eqnarray}
+%
+%\begin{eqnarray}
+% 2 z &=&          a (\tilde{x} \cos(\phi) - \tilde{y} \sin(\phi))^2 
+% \nonumber\\ && + b (\tilde{x} \cos(\phi) - \tilde{y} \sin(\phi)) (\tilde{x} \sin(\phi) + \tilde{y} \cos(\phi)) 
+% \nonumber\\ && + c (\tilde{x} \sin(\phi) + \tilde{y} \cos(\phi))^2
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+% 2 z &=&          a \tilde{x}^2 \cos^2(\phi) - 2 a \tilde{x} \tilde{y} \sin(\phi) \cos(\phi) + a \tilde{y}^2 \sin^2(\phi)
+% \nonumber\\ && + b \tilde{x}^2 \sin(\phi) \cos(\phi) + b \tilde{x} \tilde{y} \cos^2(\phi) - b \tilde{x} \tilde{y} sin^2(\phi) - b \tilde{y}^2 \sin(\phi)\cos(\phi) 
+% \nonumber\\ && + c \tilde{x}^2 \sin^2(\phi) + 2 c \tilde{x} \tilde{y} \sin(\phi) \cos(\phi) + c \tilde{y}^2 \cos^2(\phi)
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+% 2 z =         
+%   & \tilde{x}^2 &
+%   \left( 
+%     a \cos^2(\phi) + b \sin(\phi) \cos(\phi) + c \sin^2(\phi) 
+%   \right) 
+% \nonumber \\
+% & + \tilde{x} \tilde{y}& 
+%   \left( 
+%     - 2 a \sin(\phi) \cos(\phi) + b \cos^2(\phi) - b sin^2(\phi) + 2 c \sin(\phi) \cos(\phi)
+%   \right)
+% \nonumber \\
+% & + \tilde{y}^2 &
+%   \left(
+%     a \sin^2(\phi) - b \sin(\phi)\cos(\phi) + c \cos^2(\phi)
+%   \right)
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+% z &=& \frac{1}{2} \tilde{a} \tilde{x}^2 + \frac{1}{2} \tilde{b} \tilde{x} \tilde{y} + \frac{1}{2} \tilde{c} \tilde{y}^2
+%\end{eqnarray}
+%
+%We find the mixed term $\tilde{b}$ becomes zero for
+%\begin{eqnarray}
+% 0 &=& - 2 a \sin(\phi) \cos(\phi) + b \cos^2(\phi) - b sin^2(\phi) + 2 c \sin(\phi) \cos(\phi) \\
+% 2 ( a - c ) \sin(\phi) \cos(\phi) &=&  b \cos^2(\phi) - b sin^2(\phi)  \\ 
+% 4 ( a - c )^2 \sin^2(\phi) \cos^2(\phi) &=&  b^2 ( \cos^2(\phi) - sin^2(\phi) )^2  \\ 
+%\end{eqnarray}
+%We substitute
+%\begin{eqnarray}
+% \sin^2(\phi) &=& s \\
+% \cos^2(\phi) &=& 1-s
+%\end{eqnarray}
+%and search for solutions $0 \leq s \leq 1$.
+%\begin{eqnarray}
+% 4 ( a - c )^2 s (1-s) &=&  b^2 ( (1-s) - s )^2  \\ 
+% 4 ( a - c )^2 (s-s^2) &=&  b^2 ( 1-2s )^2  \\ 
+% 0                     &=&  b^2 ( 1-4s+4s^2 ) + 4 ( a - c )^2 (s^2-s) \\ 
+% 0                     &=&  (4 b^2 + 4 (a-c)^2 ) s^2 - (4b^2+ 4(a-c)^2) s + b^2 \\
+% 0                     &=&  s^2 - s + \frac{b^2}{4 b^2 + 4 (a-c)^2 } \\
+%\end{eqnarray}
+one can rotate the quadratic form on its orthogonal \emph{main axes},
+\begin{eqnarray}
+ z &=& \frac{1}{2} \tilde{a} \tilde{x}^2 + \frac{1}{2} \tilde{c} \tilde{y}^2
+\end{eqnarray}
+by choosing the angle $\phi$ of the coordinate system appropriately. 
+\begin{eqnarray}
+ \sin^2(\phi) &=& \frac{1}{2} \pm \sqrt{\frac{1}{4} - \frac{b^2}{4 b^2 + 4 (a-c)^2 } }
+\end{eqnarray}
+The term under square root is nonnegative for real valued $a,b,c$. 
+%
+If we associate
+\begin{eqnarray}
+ \rho_x &=& \frac{1}{2} \tilde{a} = \frac{1}{2} \left( a \cos^2(\phi) + b \sin(\phi) \cos(\phi) + c \sin^2(\phi) \right)\\
+ \rho_y &=& \frac{1}{2} \tilde{c} = \frac{1}{2} \left( a \sin^2(\phi) - b \sin(\phi) \cos(\phi) + c \cos^2(\phi) \right) \\
+ c_x &=& -1 \\
+ c_y &=& -1
+\end{eqnarray}
+we find the quadratic form is another special case of a biconic.
+
+
+
+
+
 
 
 \subsection{Polynomial Asphere}
