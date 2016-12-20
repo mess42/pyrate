@@ -92,7 +92,44 @@ class CreateSystemTool:
         #PyrateInterface.OSinterface.showSpotDiagrams(100)
 
 
-class ShowSurfaceList:
+class ShowRaybundlesTool:
+    "Tool for showing raybundles"
+
+    def GetResources(self):
+        return {"Pixmap"  : ":/icons/pyrate_rays_icon.svg", # resource qrc file needed, and precompile with python-rcc
+                "MenuText": "Actualize rays ...",
+                "Accel": "",
+                "ToolTip": "Actualize rays"
+                }
+
+    def IsActive(self):
+        if FreeCAD.ActiveDocument == None:
+            return False
+        else:
+            selection = FreeCADGui.Selection.getSelection()
+            if len(selection) == 1 and isOpticalSystemObserver(selection[0]): #('wavelengths' in selection[0].PropertiesList):
+                # TODO: comparison with CheckObjects function?                
+                return True
+            else:
+                return False
+
+    def Activated(self):
+        selection = FreeCADGui.Selection.getSelection()
+        if isOpticalSystemObserver(selection[0]):
+            doc = FreeCAD.ActiveDocument
+            # preliminary deletion of former Ray objects
+            # TODO: subgroup in OS group
+            raysobjectslabel = [o.Label for o in doc.Objects if o.Label.find("Ray") != -1]
+            for r in raysobjectslabel:
+                doc.removeObject(r)
+            
+            obj = selection[0]
+            aimys = obj.Proxy.calculateAimys()
+            rays = obj.Proxy.calculateRaypaths(aimys)
+            obj.Proxy.drawRaypaths(rays)
+
+
+class ShowSurfaceListTool:
     def GetResources(self):
         return {"Pixmap"  : ":/icons/pyrate_shape_icon.svg", 
                 "MenuText": "Edit Surface List ...",
@@ -128,5 +165,6 @@ class ShowSurfaceList:
 
 
 FreeCADGui.addCommand('CreateSystemCommand', CreateSystemTool())
-FreeCADGui.addCommand('ShowSurfaceDialogCommand', ShowSurfaceList())
+FreeCADGui.addCommand('ShowSurfaceDialogCommand', ShowSurfaceListTool())
+FreeCADGui.addCommand('ShowRaybundlesCommand', ShowRaybundlesTool())
 

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import os
 
 import numpy as np
+import math
 
 
 import FreeCADGui
@@ -52,6 +53,7 @@ class FieldPointsTaskPanel:
         self.form.pbRemove.clicked.connect(self.onRemove)
         self.form.pbLoadFile.clicked.connect(self.onLoadFile)
         self.form.pbSaveFile.clicked.connect(self.onSaveFile)
+        self.form.pbSample.clicked.connect(self.onSample)
 
         self.form.tblFieldPoints.cellClicked.connect(self.onCellClicked)
         self.form.tblFieldPoints.cellActivated.connect(self.onCellActivated)
@@ -60,6 +62,64 @@ class FieldPointsTaskPanel:
 
         
         self.row = -1
+
+    def onSample(self):
+        if self.form.tabWidgetSampling.currentIndex() == 0:
+            # bilinear sampling
+            minx = float(self.form.leMinX.text())
+            maxx = float(self.form.leMaxX.text())
+            numx = int(self.form.leNumPointsX.text())            
+                
+            miny = float(self.form.leMinY.text())
+            maxy = float(self.form.leMaxY.text())
+            numy = int(self.form.leNumPointsY.text())
+            
+            xvals = np.linspace(minx, maxx, numx)
+            yvals = np.linspace(miny, maxy, numy)
+            
+            Xvals, Yvals = np.meshgrid(xvals, yvals)
+            Xvals = Xvals.reshape((numx*numy,1))
+            Yvals = Yvals.reshape((numx*numy,1))
+
+            xyvalues = np.hstack((Xvals, Yvals))
+
+            (numrows, _) = xyvalues.shape
+            boolvalues = np.ones((numrows,), dtype=bool)
+            
+            # TODO: rounding?
+            
+            self.writeNumpyArraysIntoTable(xyvalues, boolvalues, self.form.tblFieldPoints)
+            
+        if self.form.tabWidgetSampling.currentIndex() == 1:
+            # circular sampling
+            
+            minr = float(self.form.leMinRadius.text())
+            maxr = float(self.form.leMaxRadius.text())
+            numr = int(self.form.leNumPointsRadius.text())            
+                
+            minphi = float(self.form.leMinPhi.text())
+            maxphi = float(self.form.leMaxPhi.text())
+            numphi = int(self.form.leNumPointsPhi.text())
+
+            # TODO: rounding?
+
+            rvals = np.linspace(minr, maxr, numr)
+            phivals = np.linspace(minphi, maxphi, numphi)
+            
+            Rvals, Phivals = np.meshgrid(rvals, phivals)
+
+            Xvals = Rvals*np.cos(Phivals*math.pi/180.0)
+            Yvals = Rvals*np.sin(Phivals*math.pi/180.0)
+            
+            Xvals = Xvals.reshape((numr*numphi,1))
+            Yvals = Yvals.reshape((numr*numphi,1))
+
+            xyvalues = np.hstack((Xvals, Yvals))
+            (numrows, _) = xyvalues.shape
+
+            boolvalues = np.ones((numrows,), dtype=bool)
+
+            self.writeNumpyArraysIntoTable(xyvalues, boolvalues, self.form.tblFieldPoints)
 
     def writeNumpyArraysIntoTable(self, xyarray, boolarray, tbl):
         tbl.setRowCount(0)
