@@ -296,63 +296,38 @@ In this section, we discuss propagation of straight rays on the tangential plane
 Rays travel along straights in homogeneous media.
 
 Assume we have a pilot ray with starting point $\Vector{r}_{pilot,0}$ and a near-pilot ray $\tilde{\Vector{r}_0}$.
-First, we propagate the pilot ray to its intersection point $\Vector{r}_{pilot,1}$ and then the near pilot ray.
-\begin{eqnarray}
- %\Vector{d}_{pilot,1} &=& \Vector{d}_{pilot,0} \\
- %\Vector{r}_{pilot,1} &=& \Vector{r}_{pilot,0} + \Vector{d}_{pilot,0} t_{pilot} \\
- \tilde{\Vector{d}}_1 &=& \tilde{\Vector{d}}_0 \\
- \tilde{\Vector{r}}_1 &=& \tilde{\Vector{r}}_0 + \tilde{\Vector{d}}_0 t \\
- \tilde{\Vector{r}}_1 &=& \Vector{r}_{pilot,1} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1}
-\end{eqnarray}
-The free parameter of the straight $t$ has to be chosen to intersect surface $1$.
+First, we propagate the pilot ray to its intersection point $\Vector{r}_{pilot,1}$ with surface 1 and then the near pilot ray.
 
 \begin{eqnarray}
-  \tilde{\Vector{r}}_0 + \tilde{\Vector{d}}_0 t &=& \Vector{r}_{pilot,1} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1}
-\\
-  \tilde{\Vector{d}}_0 t - X_1 \Vector{e}_{X1} - Y_1 \Vector{e}_{Y1} &=& \Vector{r}_{pilot,1} - \tilde{\Vector{r}}_0  
-\\
-  \begin{pmatrix}
-   \tilde{d}_{0x} & -e_{X1x} & -e_{Y1x}
-   \\
-   \tilde{d}_{0y} & -e_{X1y} & -e_{Y1y}
-   \\
-   \tilde{d}_{0z} & -e_{X1z} & -e_{Y1z}
-  \end{pmatrix}
-  \begin{pmatrix}
-    t \\ X_1 \\ Y_1
-  \end{pmatrix}
-  &=&
-  \Vector{r}_{pilot,1} - \tilde{\Vector{r}}_0
-\\
-  \begin{pmatrix}
-    t \\ X_1 \\ Y_1
-  \end{pmatrix}
-  &=&
-  \begin{pmatrix}
-   \tilde{d}_{0x} & -e_{X1x} & -e_{Y1x}
-   \\
-   \tilde{d}_{0y} & -e_{X1y} & -e_{Y1y}
-   \\
-   \tilde{d}_{0z} & -e_{X1z} & -e_{Y1z}
-  \end{pmatrix}^{-1}
-  \left(
-    \Vector{r}_{pilot,1} - \tilde{\Vector{r}}_0
-  \right)
-\end{eqnarray}
-While $t$ is in the order of the macroscopic distance between both planes $0$ and $1$,
-near pilot rays take infinitessimal values for $X_1$ and $Y_1$, that is 
+ \Vector{r}_1 &=& \Vector{r}_0 + \Vector{d} t \\
+ \Vector{r}_1 &=& (\Vector{r}_{0,pilot} + \Delta\Vector{r}_0) + (\Vector{d}_{pilot} + \Delta\Vector{d}) (t_{pilot} + \Delta t) \\ 
+ %\Vector{r}_1 &=& \Vector{r}_{0,pilot} + \Delta\Vector{r}_0 + \Vector{d}_{pilot}t_{pilot} + \Vector{d}_{pilot}\Delta t + \Delta\Vector{d}t_{pilot} + \Delta\Vector{d}\Delta t \\
+ %\Vector{r}_1 &=& \Vector{r}_{1,pilot} + \Delta\Vector{r}_0 + \Vector{d}_{pilot}\Delta t + \Delta\Vector{d}t_{pilot} + \Delta\Vector{d}\Delta t
+\end{eqnarray} 
+
+We expand
 \begin{eqnarray}
-t \gg X_0, Y_0, U_0, V_0, X_1, Y_1 
+ \Delta t \approx 
+    \underbrace{
+      \Delta t(\Delta\Vector{d} = 0, \Delta\Vector{r}_0 = 0)
+    }_{=0}
+    + \left. \frac{\partial t}{\partial\Vector{d}} \right|_{\Vector{d}_{pilot}}  \cdot \Delta\Vector{d} 
+    + \left. \frac{\partial t}{\partial\Vector{r}} \right|_{\Vector{r}_{0,pilot}} \cdot \Delta\Vector{r}_0 
+    + ...
 \end{eqnarray}
-
-
-
-
+and find for near-pilot rays
 \begin{eqnarray}
-  \tilde{\Vector{r}}_0 &=& \Vector{r}_{pilot,0} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}
-\\
-  \tilde{\Vector{d}}_0 &=& \Vector{d}_{pilot,0} + U_0 \Vector{e}_{U0} + V_0 \Vector{e}_{V0}
-\end{eqnarray}
+ \Vector{r}_1 &=& \Vector{r}_{1,pilot} + \Delta\Vector{r}_0 + \Vector{d}_{pilot}\Delta t + \Delta\Vector{d}t_{pilot} 
+      + \frac{\partial t}{\partial\Vector{d}} \Delta\Vector{d}^2 
+      + \frac{\partial t}{\partial\Vector{r}} \Delta\Vector{d} \Delta\Vector{r}_0 
+\end{eqnarray} 
+Similarly to the ABCD matrix formalism, we neglect all terms quadratic in the input arguments $(\Delta\Vector{d}, \Delta\Vector{r}_0)$
+and leave the linear, lowest order terms
+\begin{eqnarray}
+ \Vector{r}_1 &=& \Vector{r}_{1,pilot} + \Delta\Vector{r}_0 + \Vector{d}_{pilot}\Delta t + \Delta\Vector{d}t_{pilot} 
+\end{eqnarray} 
+
+TODO: complete the free space subsection
 
 
 
