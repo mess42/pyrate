@@ -158,7 +158,7 @@ class Surface(ClassWithOptimizableVariables):
         curvature = self.shape.getCentralCurvature()
         # TODO: improvement, call shape.getHessian() to obtain curvature components at intersection point
         nextCurvature = nextSurface.shape.getCentralCurvature()
-        return self.material.getABCDMatrix(curvature, self.getThickness(), nextCurvature, ray)
+        return self.material.getABCDMatrix(curvature, nextSurface.getThickness(), nextCurvature, ray)
         # TODO:
 
 

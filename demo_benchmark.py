@@ -95,7 +95,7 @@ dirs = np.array([[0,0, 0], [0, 0, 0], [1, 1, 1]])
 pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=0.55, pol=[])
 pilotpath = RayPath(pilotbundle, s)
 
-print([blub.o for blub in pilotpath.raybundles])
+#print([blub.o for blub in pilotpath.raybundles])
 
 # definition of rays
 nray = 1E5 # number of rays
@@ -128,8 +128,10 @@ ax.axis('equal')
 ax.set_axis_bgcolor('black')
 
 #plots.drawLayout2d(ax, s, [pilotpath])
-plots.drawLayout2d(ax, s, [r2])
+plots.drawLayout2d(ax, s, [r2,r3])
+
+print(s.getParaxialPupil( stopPosition=5, ray=initialBundle))
 
 plt.show()
 
-print(s.globalcoordinatesystem.pprint())
+
