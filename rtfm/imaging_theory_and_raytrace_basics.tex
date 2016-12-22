@@ -1309,100 +1309,137 @@ The solution further simplifies to
 \subsection{Quadratic Form}
 \remark{The quadratic form section is not double checked yet.}
 
-A quadratic form is a polynomial freeshape of 2nd degree.
-\begin{align}
- z &=& \frac{1}{2} a x^2 + \frac{1}{2} b x y + \frac{1}{2} c y^2
-\end{align}
-The solution is given by
+A quadratic form is the lowest order polynomial with curvatures.
+As it plays an important role for the parabasal approximation, we treat this shape explicitly.
+
+
 \begin{eqnarray}
- F &=& d_z - \left( a x_0 d_x + \frac{1}{2} b (x_0 d_y + y_0 d_x) + c y_0 d_y \right)  \\
- G &=& a x_0^2 + b x_0 y_0 + c y_0^2 - 2 z_0 \\
- H &=& - ( a d_x^2  + b d_x d_y + c d_y^2 ) \\
+ z(x,y) &=& a x + b y + \frac{1}{2} c x^2 + \frac{1}{2} \delta x y + \frac{1}{2} e y^2
+\end{eqnarray}
+The parameters $a,b,c,\delta,e$ are real valued. 
+$a$ and $b$ shift the surface vertex, leaving $z(\Vector{0})=0$, and lead to an inclined tangential plane at the origin.
+$c$, $\delta$ and $e$ represent the surface curvature. 
+A nonzero $\delta$ parameter denotes a nonzero rotation of the principal axes of the paraboloid with respect to the $x$ and $y$ axes.
+%
+%
+%\begin{eqnarray}
+% 0 &=& a x + b y - z + \frac{1}{2} c x^2 + \frac{1}{2} \delta x y + \frac{1}{2} e y^2 \\
+% 0 &=& a (x_0 + d_x t) \nonumber \\
+%   &&  + b (y_0 + d_y t) \nonumber \\
+%   &&  -   (z_0 + d_z t) \nonumber \\
+%   &&  + \frac{1}{2} c (x_0 + d_x t)^2 \nonumber \\
+%   &&  + \frac{1}{2} \delta (x_0 + d_x t) (y_0 + d_y t) \nonumber \\
+%   &&  + \frac{1}{2} e (y_0 + d_y t)^2 \\
+% 0 &=& a x_0 + a d_x t \nonumber \\
+%   &&  + b y_0 + b d_y t \nonumber \\
+%   &&  - z_0 - d_z t \nonumber \\
+%   &&  + \frac{1}{2} c x_0^2 + c x_0 d_x t + \frac{1}{2} c d_x^2 t^2 \nonumber \\
+%   &&  + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + \frac{1}{2} \delta d_x d_y t^2 \nonumber \\
+%   &&  + \frac{1}{2} e y_0^2 + e y_0 d_y t + \frac{1}{2} e d_y^2 t^2 \\
+% 0 &=& \frac{1}{2} c d_x^2 t^2 + \frac{1}{2} \delta d_x d_y t^2 + \frac{1}{2} e d_y^2 t^2 \nonumber \\
+%   && + a d_x t + b d_y t - d_z t + c x_0 d_x t + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + e y_0 d_y t \nonumber \\
+%   && + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2
+%\end{eqnarray}
+%We compare to
+%\begin{eqnarray}
+%  H t^2 + 2 F t - G &=& 0
+%\end{eqnarray}
+%and find
+%\begin{eqnarray}
+% - \frac{1}{2} H t^2  &=& \frac{1}{2} c d_x^2 t^2 + \frac{1}{2} \delta d_x d_y t^2 + \frac{1}{2} e d_y^2 t^2   \\
+% - F t  &=& + a d_x t + b d_y t - d_z t + c x_0 d_x t + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + e y_0 d_y t   \\
+% + \frac{1}{2} G      &=&  + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+% - F   &=& + a d_x  + b d_y  - d_z  + c x_0 d_x  + \frac{1}{2} \delta x_0 d_y  + \frac{1}{2} \delta y_0 d_x  + e y_0 d_y    \\
+% + \frac{1}{2} G      &=&  + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2 \\
+% - \frac{1}{2} H &=& \frac{1}{2} c d_x^2 + \frac{1}{2} \delta d_x d_y + \frac{1}{2} e d_y^2 
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+% - F   &=& + a d_x  + b d_y  - d_z  + c x_0 d_x  + \frac{1}{2} \delta x_0 d_y  + \frac{1}{2} \delta y_0 d_x  + e y_0 d_y    \\
+% + G      &=&  2 a x_0 + 2 b y_0 - 2 z_0 + c x_0^2 + \delta x_0 y_0 + e y_0^2 \\
+% - H &=& c d_x^2 + \delta d_x d_y + e d_y^2 
+%\end{eqnarray}
+%
+The solution of the intersection with the straight equation is
+\begin{eqnarray}
+ F &=& d_z - a d_x - b d_y - \left( c x_0 d_x + \delta \left( \frac{1}{2} x_0 d_y + \frac{1}{2} y_0 d_x \right)  + e y_0 d_y \right)   \\
+ G &=&  2 a x_0 + 2 b y_0 - 2 z_0 + c x_0^2 + \delta x_0 y_0 + e y_0^2 \\
+ H &=& - \left( c d_x^2 + \delta d_x d_y + e d_y^2 \right) \\
  t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
 \end{eqnarray}
-%
 Rotating the coordinate system,
 \begin{eqnarray}
  x &=& \tilde{x} \cos(\phi) - \tilde{y} \sin(\phi) \\
  y &=& \tilde{x} \sin(\phi) + \tilde{y} \cos(\phi)
 \end{eqnarray}
-%
+one can represent the quadratic form in its principal axes system, eliminating the $\delta x y$ term. 
+The principal axes of $\tilde{x}$ and $\tilde{y}$ are orthogonal.
 %\begin{eqnarray}
-% 2 z &=&          a (\tilde{x} \cos(\phi) - \tilde{y} \sin(\phi))^2 
-% \nonumber\\ && + b (\tilde{x} \cos(\phi) - \tilde{y} \sin(\phi)) (\tilde{x} \sin(\phi) + \tilde{y} \cos(\phi)) 
-% \nonumber\\ && + c (\tilde{x} \sin(\phi) + \tilde{y} \cos(\phi))^2
+% \sin^2(\phi) &=& \frac{1}{2} \pm \sqrt{\frac{1}{4} - \frac{\delta^2}{4 \delta^2 + 4 (c-e)^2 } } \\
+% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{1 - \frac{\delta^2}{\delta^2 + (c-e)^2 } } \\ 
+% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(c-e)^2}{\delta^2 + (c-e)^2 } } \\ 
 %\end{eqnarray}
-%
-%\begin{eqnarray}
-% 2 z &=&          a \tilde{x}^2 \cos^2(\phi) - 2 a \tilde{x} \tilde{y} \sin(\phi) \cos(\phi) + a \tilde{y}^2 \sin^2(\phi)
-% \nonumber\\ && + b \tilde{x}^2 \sin(\phi) \cos(\phi) + b \tilde{x} \tilde{y} \cos^2(\phi) - b \tilde{x} \tilde{y} sin^2(\phi) - b \tilde{y}^2 \sin(\phi)\cos(\phi) 
-% \nonumber\\ && + c \tilde{x}^2 \sin^2(\phi) + 2 c \tilde{x} \tilde{y} \sin(\phi) \cos(\phi) + c \tilde{y}^2 \cos^2(\phi)
-%\end{eqnarray}
-%
-%\begin{eqnarray}
-% 2 z =         
-%   & \tilde{x}^2 &
-%   \left( 
-%     a \cos^2(\phi) + b \sin(\phi) \cos(\phi) + c \sin^2(\phi) 
-%   \right) 
-% \nonumber \\
-% & + \tilde{x} \tilde{y}& 
-%   \left( 
-%     - 2 a \sin(\phi) \cos(\phi) + b \cos^2(\phi) - b sin^2(\phi) + 2 c \sin(\phi) \cos(\phi)
-%   \right)
-% \nonumber \\
-% & + \tilde{y}^2 &
-%   \left(
-%     a \sin^2(\phi) - b \sin(\phi)\cos(\phi) + c \cos^2(\phi)
-%   \right)
-%\end{eqnarray}
-%
-%\begin{eqnarray}
-% z &=& \frac{1}{2} \tilde{a} \tilde{x}^2 + \frac{1}{2} \tilde{b} \tilde{x} \tilde{y} + \frac{1}{2} \tilde{c} \tilde{y}^2
-%\end{eqnarray}
-%
-%We find the mixed term $\tilde{b}$ becomes zero for
-%\begin{eqnarray}
-% 0 &=& - 2 a \sin(\phi) \cos(\phi) + b \cos^2(\phi) - b sin^2(\phi) + 2 c \sin(\phi) \cos(\phi) \\
-% 2 ( a - c ) \sin(\phi) \cos(\phi) &=&  b \cos^2(\phi) - b sin^2(\phi)  \\ 
-% 4 ( a - c )^2 \sin^2(\phi) \cos^2(\phi) &=&  b^2 ( \cos^2(\phi) - sin^2(\phi) )^2  \\ 
-%\end{eqnarray}
-%We substitute
-%\begin{eqnarray}
-% \sin^2(\phi) &=& s \\
-% \cos^2(\phi) &=& 1-s
-%\end{eqnarray}
-%and search for solutions $0 \leq s \leq 1$.
-%\begin{eqnarray}
-% 4 ( a - c )^2 s (1-s) &=&  b^2 ( (1-s) - s )^2  \\ 
-% 4 ( a - c )^2 (s-s^2) &=&  b^2 ( 1-2s )^2  \\ 
-% 0                     &=&  b^2 ( 1-4s+4s^2 ) + 4 ( a - c )^2 (s^2-s) \\ 
-% 0                     &=&  (4 b^2 + 4 (a-c)^2 ) s^2 - (4b^2+ 4(a-c)^2) s + b^2 \\
-% 0                     &=&  s^2 - s + \frac{b^2}{4 b^2 + 4 (a-c)^2 } \\
-%\end{eqnarray}
-one can rotate the quadratic form on its orthogonal \emph{main axes},
 \begin{eqnarray}
- z &=& \frac{1}{2} \tilde{a} \tilde{x}^2 + \frac{1}{2} \tilde{c} \tilde{y}^2
+ z &=& \tilde{a} \tilde{x} + \tilde{b} \tilde{y} + \frac{1}{2} \tilde{c} \tilde{x}^2 + \frac{1}{2} \tilde{e} \tilde{y}^2
 \end{eqnarray}
-by choosing the angle $\phi$ of the coordinate system appropriately. 
+with
 \begin{eqnarray}
- \sin^2(\phi) &=& \frac{1}{2} \pm \sqrt{\frac{1}{4} - \frac{b^2}{4 b^2 + 4 (a-c)^2 } }
+ \tilde{a} &=& a \cos(\phi) + b \sin(\phi) \\
+ \tilde{b} &=& -a \sin(\phi) + b \cos(\phi) \\
+ \tilde{c} &=& a \cos^2(\phi) + b \sin(\phi) \cos(\phi) + c \sin^2(\phi) \\
+ \tilde{e} &=& a \sin^2(\phi) - b \sin(\phi) \cos(\phi) + c \cos^2(\phi) \\
+ \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(c-e)^2}{\delta^2 + (c-e)^2 } }
 \end{eqnarray}
-The term under square root is nonnegative for real valued $a,b,c$. 
-%
-If we associate
+The term under square root is nonnegative for real valued $c,\delta,e$. 
+
+Next we shift our coordinate system
 \begin{eqnarray}
- \rho_x &=& \frac{1}{2} \tilde{a} = \frac{1}{2} \left( a \cos^2(\phi) + b \sin(\phi) \cos(\phi) + c \sin^2(\phi) \right)\\
- \rho_y &=& \frac{1}{2} \tilde{c} = \frac{1}{2} \left( a \sin^2(\phi) - b \sin(\phi) \cos(\phi) + c \cos^2(\phi) \right) \\
+  \tilde{x} &=& \tilde{\tilde{x}} + \Delta x \\
+  \tilde{y} &=& \tilde{\tilde{y}} + \Delta y
+\end{eqnarray}
+%
+%\begin{eqnarray}
+% z &=& \tilde{a} ( \tilde{\tilde{x}} + \Delta x ) \nonumber \\
+%   &&  + \tilde{b} ( \tilde{\tilde{y}} + \Delta y ) \nonumber \\ 
+%   &&  + \frac{1}{2} \tilde{c} ( \tilde{\tilde{x}} + \Delta x )^2  \nonumber \\ 
+%   &&  + \frac{1}{2} \tilde{e} ( \tilde{\tilde{y}} + \Delta y )^2  \\
+% z &=& \tilde{a} \tilde{\tilde{x}} + \tilde{a} \Delta x \nonumber \\
+%   &&  + \tilde{b} \tilde{\tilde{y}} + \tilde{b} \Delta y \nonumber \\ 
+%   &&  + \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \tilde{c} \tilde{\tilde{x}} \Delta x + \frac{1}{2} \tilde{c} \Delta x^2  \nonumber \\ 
+%   &&  + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2 + \tilde{e} \tilde{\tilde{y}} \Delta y + \frac{1}{2} \tilde{e} \Delta y^2 \\
+% z &=& \tilde{a} \Delta x + \tilde{b} \Delta y + \frac{1}{2} \tilde{c} \Delta x^2 + \frac{1}{2} \tilde{e} \Delta y^2 \nonumber \\
+%   && + \tilde{a} \tilde{\tilde{x}} + \tilde{c} \tilde{\tilde{x}} \Delta x \nonumber \\
+%   && + \tilde{b} \tilde{\tilde{y}} + \tilde{e} \tilde{\tilde{y}} \Delta y \nonumber \\
+%   &&  + \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2
+%\end{eqnarray}
+We choose
+%\begin{eqnarray}
+% 0 &=& \tilde{a} \tilde{\tilde{x}} + \tilde{c} \tilde{\tilde{x}} \Delta x \\
+% 0 &=& \tilde{b} \tilde{\tilde{y}} + \tilde{e} \tilde{\tilde{y}} \Delta y
+%\end{eqnarray}
+\begin{eqnarray}
+ \Delta x &=& -\frac{\tilde{a}}{\tilde{c}} \\
+ \Delta y &=& -\frac{\tilde{b}}{\tilde{e}}
+\end{eqnarray}
+in case both principlal curvatures are nonzero. This results in a sag equation
+\begin{eqnarray}
+  z - \Delta z &=& \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2 \\
+  \Delta z &=& \tilde{a} \Delta x + \tilde{b} \Delta y + \frac{1}{2} \tilde{c} \Delta x^2 + \frac{1}{2} \tilde{e} \Delta y^2
+\end{eqnarray}
+
+That is: 
+After rotating and shifting the coordinate system, the quadratic form is equivalent to a biconic with
+\begin{eqnarray}
+ \rho_x &=& \tilde{c} \\
+ \rho_y &=& \tilde{e} \\
  c_x &=& -1 \\
  c_y &=& -1
 \end{eqnarray}
-we find the quadratic form is another special case of a biconic.
-
-
-
-
-
+In case exactly one principal curvature is zero, the quadratic form is equivalent to a tilted parabolic acylinder, and in case both curvatures are zero, it is equivalent to a tilted plane.
+In those cases, the tilt cannot be compensated by an equivalent coordinate shift.
 
 
 \subsection{Polynomial Asphere}
