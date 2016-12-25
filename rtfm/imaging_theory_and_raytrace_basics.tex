@@ -123,7 +123,7 @@
 \subject{Pyrate -- Optical raytracing based on Python}
 \title{Read This Fundamental Manual \\ on Imaging Theory and Basics of Optical Raytracing}
 \author{M. Esslinger, J. Hartung, U. Lippmann}
-\date{2014-2015}
+\date{2014-2016}
 \publishers{}
 \maketitle
 
@@ -166,6 +166,8 @@ and the continuity equation, that follows directly from the Maxwell equations.
 All quantities are real valued. All material properties are described by unit bearing quantities, i.e., 
 they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. 
 $\permittivity$ and $\permeability$ are the electric and magnetic permittivity, respectively, and $\conductivity$ the conductivity. 
+The Maxwell equations require media in which the constitutive bulk quantities can be assigned to all positions in space.
+Single atoms or nanoscopic structures of few atoms must be treated quantum-mechanically and are beyond the scope of this manual.
 
 \section{Energy Conservation}
 We assume the strictly monochromatic case $\Efield,\Dfield,\Hfield,\Bfield, \currentdensity \propto \sin(\omega t + \varphi_0)$ for electrodynamic scenarios only, $\omega \neq 0$.
@@ -308,7 +310,7 @@ and
 	- \overline{\scalarEfield}_j \scalarEfield_\ell 
       ) k_\ell\,.\label{eq:poyntingvector}
 \end{eqnarray}
-In general, the direction of the Poynting vector is a weighted sum of the directions of $\Wavevector$ and $\Efield$.
+In general, the direction of the Poynting vector is the real projection of a weighted sum of the directions of $\Wavevector$ and $\Efield$.
 
 
 \section{Plane Wave Solutions and Dispersion}
@@ -439,7 +441,7 @@ We have a nontrivial solution for the electric field in $y$-direction.
  \\
  \Efield &\propto& \Vector{e}_y
 \end{eqnarray}
-For the ordinary mode, $\Wavevector$ and $\Efield$ are orthogonal, so the Poynting vector points in the direction of $\Wavevector$,
+For the ordinary mode, $\Wavevector$ and $\Efield$ are orthogonal, so the Poynting vector points in the direction of the real part of $\Wavevector$,
 \begin{eqnarray}
  \timeavg{\Vector{S}}_\ordi = \frac{ |\scalarEfield_y|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector\,.\label{eq:Suniaxialordi}
 \end{eqnarray}
@@ -504,10 +506,8 @@ Poynting vector coincide in their direction.
      \scalarpermittivity_{eo} \wavenumber_z 
    \end{pmatrix}
 \end{eqnarray}
-The direction of the Poynting vector is
+The direction of the Poynting vector depends on
 \begin{eqnarray}
- \timeavg{\Vector{S}}
- &\propto&
    \begin{pmatrix}
      \scalarpermittivity_{\ordi} \wavenumber_x 
      \\
@@ -561,7 +561,6 @@ These relations hold for a step-interface between two homogeneous media.
 In mesoscopically inhomogenous media like  diffractive optical elements and metamaterials, 
 the boundary conditions hold at each interface between homogeneous materials of the mesoscopic sub-structure.
 
-
 \section{Refraction of Plane Waves at Planar Surfaces}
 
 \subsection{Derivation}
@@ -579,16 +578,20 @@ From the boundary conditions \ref{eq:boundary_conditions} we conclude that with 
   \Wavevector_{2\parallel} &=& \Wavevector_{1\parallel}
 \end{eqnarray}
 The in-plane wave vector component is conserved.
-From angular spectrum representation we conclude that the field in medium 2 is also a single plane wave. 
+From the Helmholtz equation we conclude that the field in medium 2 is also a plane wave. 
 
 \subsection{The Law of Refraction}
-Our formulation of the law of refraction is
+Our formulation of the law of refraction and the law of reflection is
 \begin{eqnarray}
- \Efield_1(\Location) &=& \Efield_{01} \exp(i \Wavevector_1 \Location) \\
+ \Efield_1(\Location) &=& \Efield_{01} \exp(i \Wavevector_1 \Location) + \Efield_{0r} \exp(i \Wavevector_r \Location)   \\
  \Efield_2(\Location) &=& \Efield_{02} \exp(i \Wavevector_2 \Location) \\
- \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \Vector{n}\,.\label{eq:xieqn}
+ \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \Vector{n}\,.\label{eq:xieqn} \\
+ \Wavevector_{r} &=& \Wavevector_{1\parallel} - \Wavevector_{1\perp}
 \end{eqnarray}
-and holds for any planar boundary between two homogeneous media. 
+and holds for planar boundaries between two homogeneous media.
+$\Efield_{01}$ is the amplitude of the incoming plane wave, 
+$\Efield_{0r}$ the amplitude of the reflected plane wave in medium 1, 
+and $\Efield_{02}$ the amplitude of the refracted plane wave.
 $\Vector{k}_2$ consists of the conserved in-plane component $\wavenumber_{1\parallel}$ and the out-of-plane component $\xi$. 
 The explicit form of the normal component $\xi$ depends on the material dispersion in material $\permittivity_2$. 
 
@@ -603,10 +606,11 @@ Compared to the law of Snellius, this formulation bears the following advantages
        The refraction method takes the incident rays as arguments and requires no further information from material 1.
  \item It is not required to implement a different law of refraction for each \emph{pair} of material classes interfacing 
        (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...).
- \item Unlike in the Snellius law, we can also calculate with complex valued permittivities and anisotropic permittivities.
+ \item We can also calculate with complex valued and anisotropic permittivities.
+ The law of Snellius only coincides with the Maxwell equations for real valued positive refractive indices only.
 \end{itemize}
 The formulation does not actually solve the problem of refraction, but just forwards it to the problem of finding a solution $\xi$ of the material dispersion. 
-This calculation can, for certain types of anisotropic materials, be time consuming.
+This calculation can, for certain types of anisotropic materials, be complicated.
 
 \subsubsection{isotropic media}
 \begin{align}
@@ -663,6 +667,7 @@ However, the optical designer has to check for each calculation whether the ray 
 
 We choose a cartesian coordinate system and call the z-axis our \emph{optical axis}. 
 In rotationally symmetric optical systems, this is usually the axis of symmetry.
+In systems without an axis of symmetry, we try to avoid the the term \emph{optical axis}.
 
 For imaging systems, we consider an object plane and a image plane with our optical system in between. 
 The optical system shall focus all rays originating from a certain point in the object plane into a point or small spot in the image plane.
@@ -685,10 +690,12 @@ If at field points far from the axis also other elements start to clip rays, we 
 
 The rays emitted by the central (on-axis) field point that hit the border of the stop are called \emph{marginal rays}.
 The rays emitted by any non-zero field point that hit the border of the stop are called \emph{coma rays}.
-The ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
-Often, the chief ray is approximated to be the central ray in the ray bundle emitted by a field point.
+A ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
+Often, the chief ray is approximated to be the central ray in the transmitted ray bundle emitted by a field point.
 
-We divide the optical systems into two groups -- elements in front of and behind the stop. 
+We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
+
+We divide an optical system in two groups -- elements in front of and behind the stop. 
 We consider both groups of optical elements as systems imaging the stop.
 We call the image of the stop created by the object sided elements \emph{entrance pupil}, and the image created by the image sided elements \emph{exit pupil}.
 
@@ -699,15 +706,16 @@ This property is often used to determine the marginal and coma angles:
 aiming from the object into the entrance pupil by free-space propagation is much easier than tracing rays from the object to the stop.
 Care has to be taken if the front lens group imaging the stop to the pupil suffers from aberrations such as distortion.
 
-We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
 
 
-\section{Direction of the ray}
+\section{Direction of rays}
+We assume rays propagate along the direction of energy transport, that is, the direction of the Poynting vector.
 We assign a unit direction vector $\Vector{d}$ to each ray.
 The direction vector points in the direction of the time averaged Poynting vector.
 \begin{eqnarray}
  \Vector{d} &=& \frac{\timeavg{\Vector{S}}}{|\timeavg{\Vector{S}}|}
 \end{eqnarray}
+In general, the direction of the ray $\Vector{d}$ and its corresponding plane wave phase retardation $\Vector{k}$ may differ.
 
 \section{Surface Normal}
 Assume the surface of a material boundary is given in the form
@@ -734,22 +742,10 @@ We normalize these local vectors and form the surface normal, perpendicular to b
    \end{pmatrix}
 \end{eqnarray}
 
-
-\section{Optical path length}
-We define the optical path length as the time of travel of a near-monochromatic wavepacket times the vacuum speed of light.
-
-In the special case of materials that can be described by an isotropic, real valued refractive index, the optical path length functional is given according to the Fermat principle,
-\begin{align}
- L &= \int_{s_1}^{s_2} \underbrace{n(\Vector{r}(s)) |\Vector{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.\label{eq:fermatiso}
-\end{align}
-with the corresponding ``Lagrangian'' $\mathcal{L}$.
-$s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
-equations we may not set it to $1$ at the moment.)
-
-\remark{to do: all other cases; restriction to linear optics}
-
-
 \section{Lagrange formalism}
+\remark{todo: derive Fermat from Maxwell}
+\remark{todo: derive Lagrange from Fermat}
+
 Euler-Lagrange-Equations are given by
 \begin{align}
  \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \Vector{r}'} &= \frac{\partial \mathcal{L}}{\partial \Vector{r}}\,.
@@ -777,6 +773,7 @@ where $\Vector{d}$ is the direction unit vector of some certain ray and $(x,y,z)
 Now we may integrate \eqref{eq:ODEGRIN} for every set of initial conditions \eqref{eq:ODEGRINic}
 and obtain after a (in general numerical) integration a set of values $\Vector{r}(s)$ and $\Vector{r}'(s)$
 which correspond to the final position and direction of the ray.
+
 \section{Hamilton formalism}
 There are two distinct parametrisations. The first one parametrizes the theory with respect to the
 arc length $s$ in 3D space where (one possible choice of) the Hamiltonian is given by
@@ -829,6 +826,19 @@ Therefore for $z$ dependent $n$ the Hamiltonian is no conserved quantity anymore
 massive particle in special relativity with imaginary linear momentum.
 Therefore nearly all of the results there are applicable here. It is also very useful 
 for the paraxial approximation which corresponds to a post-Newtonian expansion.)
+
+\section{Optical path length}
+We define the optical path length as the time of travel of a near-monochromatic wavepacket times the vacuum speed of light.
+
+In the special case of materials that can be described by an isotropic, real valued refractive index, the optical path length functional is given according to the Fermat principle,
+\begin{align}
+ L &= \int_{s_1}^{s_2} \underbrace{n(\Vector{r}(s)) |\Vector{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.\label{eq:fermatiso}
+\end{align}
+with the corresponding ``Lagrangian'' $\mathcal{L}$.
+$s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
+equations we may not set it to $1$ at the moment.)
+
+\remark{to do: all other cases; restriction to linear optics}
 
 \section{Numerical Integration for GRIN Media}
 Let us start with the integration of the 3D formulation since it is separable $H = T + U$. Here we use a symplectic integration formalism
@@ -903,7 +913,7 @@ The next leading order for rays with small height and angle is the linear order,
 \end{eqnarray}
 
 Performing the Taylor expansion in linear order, we find the ABCD-Matrices of typical optical elements. 
-For simplicity, we restrict ourselves to homogeneous media that can be described by a real valued refractive index $n$.
+% For simplicity, we restrict the examples shown here to homogeneous media that can be described by a real valued refractive index $n$.
 \begin{eqnarray}
  \begin{pmatrix}
   1 & \Delta z \\ 0 & 1
@@ -1008,7 +1018,7 @@ We obtain in close analogy to the image sided focal length
  f_{obj} &=& - \frac{AD-BC}{C}
 \end{eqnarray}
 In systems with classical lens elements only and without immersion, 
-we find equal focal lengths on object and image side. The determinant of the ABCD matrix is equal to one.
+we find equal focal lengths on object and image side. The determinant of the ABCD matrix is then equal to one.
 
 \subsubsection{properties of finite conjguate systems}
 In object sided finite conjugate systems, each point in object space $y_{obj}$ is a field point, 
@@ -1024,7 +1034,7 @@ The image point is reached independently from the ray direction in the object pl
 
 We call $A = y_{im} / y_{obj}$ magnification of the system.
 $A$ is unitless.
-Once the imaging condition is fulfilled, all rays originating from an object field point are focused perfectly stigmatically into the corresponding image point. 
+Once the imaging condition is fulfilled, all rays originating from an object field point are focused stigmatically to the corresponding image point. 
 The ABCD formalism calculates first order properties only.
 If the ABCD matrices are calculated with a corresponding dispersion model, lateral and transversal first order chromatic aberrations can be modeled.
 Also, the paraxial ABCD ray trace may be the basis for calculating the Seidel coefficients.
@@ -1050,11 +1060,15 @@ In case $B$ is nonzero, the imaging condition can often be achieved by changing 
 \end{eqnarray}
 We choose $\Delta z_{im} = - B / D $. Note that $\tilde{A}$ is equal to the magnification \emph{only} if the imaging condition is met. 
 Otherwise, the matrix element has no physical meaning.
-In particular, it is unsuited to deduct information about the telecentricity of an imaging system.
+In particular, it is unsuitable to deduct information about the telecentricity of an imaging system.
+The magnifictaion $\tilde{A}$ after refocusing is
+\begin{eqnarray}
+ \tilde{A} &=& A - \frac{BC}{D}
+\end{eqnarray}
 
 
 
-\subsubsection{properties of infinte to finite conjguate systems}
+\subsubsection{properties of infinite to finite conjguate systems}
 In object sided infinite conjugate systems, each direction in object space $y^{\,\prime}_{obj}$ corresponds to a field point, 
 emitting a collimated bundle of rays.
 
@@ -1068,10 +1082,55 @@ The unit of $B$ is length units per radian.
 
 In case the imaging condition $A=0$ is not achieved, we try to refocus the last surface (see eq. \ref{eq:abcd_refocusing}).
 We choose $\Delta z_{im} = - A / C $.
+The magnifictaion $\tilde{B}$ after refocusing is
+\begin{eqnarray}
+ \tilde{B} &=& B - \frac{AD}{C} 
+\end{eqnarray}
+In systems with classical lens elements only and no immersion, the determinant of the ABCD matrix is 1, and the magnification simplifies to
+\begin{eqnarray}
+ \tilde{B} &=& - \frac{1}{C} 
+\end{eqnarray}
 
 
+\subsubsection{properties of finite to infinite conjguate systems}
+In image sided infinite conjugate systems, each point in object space $y_{obj}$ emits a cone of rays, 
+that is collimated by the optical system.
 
-\subsubsection{properties of infinte conjguate systems}
+\begin{eqnarray}
+   y^{\,\prime}_{im} &=& C y_{obj} \\
+   D &=& 0
+\end{eqnarray}
+
+We call $C = y^{\,\prime}_{im} / y_{obj}$ magnification of the system.
+The unit of $C$ is radian per length unit.
+In case $D$ is nonzero, we try to fulfill the imaging condition by adding an object sided air gap.
+\begin{eqnarray}
+ \begin{pmatrix}
+  \tilde{A} & \tilde{B} \\ \tilde{C} & \tilde{D}
+ \end{pmatrix}
+ =
+ \begin{pmatrix}
+  A & B \\ C & D
+ \end{pmatrix}
+ \cdot
+  \begin{pmatrix}
+  1 & \Delta z_{obj} \\ 0 & 1
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  A\qquad & A \Delta z_{obj} + B \\
+  C\qquad & C \Delta z_{obj} + D 
+ \end{pmatrix}
+\end{eqnarray}
+% 0 = C \Delta z_{obj} + D
+We choose $\Delta z_{obj} = - D / C$.
+The magnifictaion $\tilde{C}$ after shifting the object distance is
+\begin{eqnarray}
+ \tilde{C} &=& C 
+\end{eqnarray}
+
+
+\subsubsection{properties of infinite conjguate systems}
 In both sided infinite conjugate systems, imaging is achieved if collimated ray bundles are transfered into collimated ray bundles.
 
 \begin{eqnarray}
@@ -1115,8 +1174,10 @@ Then, a new wavevector is determined using the refraction law for plane waves on
 \section{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
 
 \subsection{Biconics}
-A biconic describes a surface which has two perpendicular sections
-which have a conic structure. These surfaces have two symmetry planes.
+The word ``conic" is short for conic section. 
+This refers to intersections of a plane with a cone.
+A biconic describes a surface with two perpendicular sections of conic shape. 
+These surfaces have two symmetry planes.
 The explicit surface sag formula is given by
 \begin{align}
  z &= \frac{\rho_x x^2 + \rho_y y^2}{1 + \sqrt{1 - (1+c_x) \rho_x^2 x^2 - (1+c_y) \rho_y^2 y^2}} \label{eq:biconic}\,.
@@ -1150,13 +1211,14 @@ Inserting the straight equation leads to a polynomial of fourth order in $t$.
 The fourth order equation can be solved either analytically or numerically.
 The one physically valid solution must be real valued.
 
+\remark{to do: surface normal equation for all surface shapes}
+
 \subsection{Simplified Biconic}
 We assume a Biconic sag equation \eqref{eq:biconic} in which not all parameters are independent, but the x and y conic constants are linked via
 \begin{eqnarray}
- (1 + c_x) \rho_x = (1 + c_y) \rho_y
+ \kappa := (1 + c_x) \rho_x = (1 + c_y) \rho_y
 \end{eqnarray}
-We abbreviate this term as $\kappa = (1 + c_x) \rho_x$.
-The coeffcients $a$ and $b$ in the implicit for of the sag equation \ref{eq:biconicImplicitSag} are no longer independent.
+The coeffcients $a$ and $b$ in the implicit form of the sag equation \ref{eq:biconicImplicitSag} are no longer independent.
 \begin{eqnarray}
  a(x,y) &=& \kappa b(x,y) 
 \end{eqnarray}
@@ -1217,94 +1279,6 @@ This formulation of the solution is stable for weakly bent surfaces $\rho_x, \rh
 The solution exists for positive terms under the square root only, $F^2 + H G > 0$. 
 Otherwise, the ray misses the surface.
 
-\subsection{Conics}
-Conics are spheres, rotationally symmetric ellipsoids, paraboloids and hyperboloids.
-The word ``conic" is short for conic section. This refers to these figures as the
-intersections of a plane with a cone.
-In the vertex form their surface sag $z$ can be described by
-\begin{eqnarray}
- z =  \frac
- { \rho ( x^2 + y^2 ) }
- { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }\,,
-\end{eqnarray}
-where $c$ is the conic constant. 
-For an explicit solution of the intersection parameter $t$,
-one can use the implicit form of the surface equation
-\begin{align}
- \rho (1 + c) z^2 - 2 z + \rho (x^2 + y^2) &=0\,.
-\end{align}
-After insertion of \eqref{eq:ray}, the solution is given by
-\begin{subequations}
-\label{eq:intersectionconicsection}
-\begin{eqnarray}
-   F &=& d_z - \rho \left( d_x x_0 + d_y y_0 + d_z z_0 (1+c) \right)\,, \\
-   G &=& \rho (x_0^2 + y_0^2 + z_0^2 (1+c)) - 2 z_0\,, \\
-   H &=& - \rho ( 1 + c \, d_z^2 )\,, \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,.
-\end{eqnarray}
-\end{subequations}
-
-The unit surface normal of such a conic section pointing in forward (positive $z$) direction is
-\begin{eqnarray}
-\Vector{n} &=& - \frac{1}{\sqrt{ 1 - \rho^2 c (x^2 + y^2)}} 
-  \begin{pmatrix}
-   \rho x \\
-   \rho y \\
-   \rho ( 1 + c ) z - 1
-  \end{pmatrix}
-\end{eqnarray}
-
-
-
-
-\subsection{Spheres}
-\label{subsection:spheres}
-
-We consider a ray and a Sphere that intersects the optical axis in the origin
-\begin{eqnarray}
- \left| \Location - \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2\,, \label{eq:sphereeq}
-\end{eqnarray}
-The sphere is a special case of a conic.
-\begin{subequations}
-\label{eq:spheresolution}
-\begin{eqnarray}
-   F &=& d_z - \rho \scpm{\Vector{d}}{\Location_0}\,, \\
-   G &=& \rho |\Location_0|^2 - 2 z_0\,, \\
-   H &=& - \rho\,, \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,, \label{eq:tsolsphere}
-\end{eqnarray}
-\end{subequations}
-where $\rho = 1 / R$ is the surface curvature. 
-
-\subsection{Conical Acylinder}
-A conical acylinder is the special case $\rho_x=0$ of a biconic. It contains cylindric and simple acylindric lenses like elliptical, parabolic and hyperbolic acylindric lenses.
-Without loss of generality, we choose our coordinate system so that the curvature in x-direction vanishes.
-This effectively reduces the problem of an intersection in three-dimensional space to a two-dimensional one.
-
-\begin{align}
- z &= \frac{ \rho y^2}{1 + \sqrt{1 - (1+c) \rho^2 y^2}}
-\end{align}
-The solution is
-\begin{eqnarray}
-   F &=& d_z - \rho \left(  d_y y_0 + d_z z_0 (1+c) \right) \\
-   G &=& \rho ( y_0^2 + z_0^2 (1+c)) - 2 z_0 \\
-   H &=& - \rho ( 1 + c \, d_z^2 ) \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
-\end{eqnarray}
-
-
-\subsection{Cylindric}
-A cylindric surface is the special case $c = 0$ of a conical acylinder.
-\begin{align}
- z &= \frac{ \rho y^2}{1 + \sqrt{1 - \rho^2 y^2}}
-\end{align}
-The solution further simplifies to
-\begin{eqnarray}
-   F &=& d_z - \rho \left(  d_y y_0 + d_z z_0  \right) \\
-   G &=& \rho ( y_0^2 + z_0^2 ) - 2 z_0 \\
-   H &=& - \rho \\
-   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
-\end{eqnarray}
 
 \subsection{Quadratic Form}
 \remark{The quadratic form section is not double checked yet.}
@@ -1442,7 +1416,96 @@ In case exactly one principal curvature is zero, the quadratic form is equivalen
 In those cases, the tilt cannot be compensated by an equivalent coordinate shift.
 
 
-\subsection{Polynomial Asphere}
+\subsection{Conics}
+Conics are the rotationally symmetric special case of a biconic $\rho_x = \rho_y$, $c_x = c_y$ .
+In the vertex form their surface sag $z$ can be described by
+\begin{eqnarray}
+ z =  \frac
+ { \rho ( x^2 + y^2 ) }
+ { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} }\,,
+\end{eqnarray}
+where $c$ is the conic constant. 
+For an explicit solution of the intersection parameter $t$,
+one can use the implicit form of the surface equation
+\begin{align}
+ \rho (1 + c) z^2 - 2 z + \rho (x^2 + y^2) &=0\,.
+\end{align}
+After insertion of \eqref{eq:ray}, the solution is given by
+\begin{subequations}
+\label{eq:intersectionconicsection}
+\begin{eqnarray}
+   F &=& d_z - \rho \left( d_x x_0 + d_y y_0 + d_z z_0 (1+c) \right)\,, \\
+   G &=& \rho (x_0^2 + y_0^2 + z_0^2 (1+c)) - 2 z_0\,, \\
+   H &=& - \rho ( 1 + c \, d_z^2 )\,, \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,.
+\end{eqnarray}
+\end{subequations}
+
+The unit surface normal of such a conic section pointing in forward (positive $z$) direction is
+\begin{eqnarray}
+\Vector{n} &=& - \frac{1}{\sqrt{ 1 - \rho^2 c (x^2 + y^2)}} 
+  \begin{pmatrix}
+   \rho x \\
+   \rho y \\
+   \rho ( 1 + c ) z - 1
+  \end{pmatrix}
+\end{eqnarray}
+
+
+
+
+\subsection{Spheres}
+\label{subsection:spheres}
+
+We consider a ray and a Sphere that intersects the optical axis in the origin
+\begin{eqnarray}
+ \left| \Location - \begin{pmatrix} 0 \\ 0 \\ R \end{pmatrix} \right|^2 &=& R^2\,, \label{eq:sphereeq}
+\end{eqnarray}
+The sphere is a special case of a conic.
+\begin{subequations}
+\label{eq:spheresolution}
+\begin{eqnarray}
+   F &=& d_z - \rho \scpm{\Vector{d}}{\Location_0}\,, \\
+   G &=& \rho |\Location_0|^2 - 2 z_0\,, \\
+   H &=& - \rho\,, \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }\,, \label{eq:tsolsphere}
+\end{eqnarray}
+\end{subequations}
+where $\rho = 1 / R$ is the surface curvature. 
+
+\subsection{Conical Acylinder}
+A conical acylinder is the special case $\rho_x=0$ of a biconic. It contains cylindric and simple acylindric lenses like elliptical, parabolic and hyperbolic acylindric lenses.
+Without loss of generality, we choose our coordinate system so that the curvature in x-direction vanishes.
+This effectively reduces the problem of an intersection in three-dimensional space to a two-dimensional one.
+
+\begin{align}
+ z &= \frac{ \rho y^2}{1 + \sqrt{1 - (1+c) \rho^2 y^2}}
+\end{align}
+The solution is
+\begin{eqnarray}
+   F &=& d_z - \rho \left(  d_y y_0 + d_z z_0 (1+c) \right) \\
+   G &=& \rho ( y_0^2 + z_0^2 (1+c)) - 2 z_0 \\
+   H &=& - \rho ( 1 + c \, d_z^2 ) \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+
+
+\subsection{Cylindric}
+A cylindric surface is the special case $c = 0$ of a conical acylinder.
+\begin{align}
+ z &= \frac{ \rho y^2}{1 + \sqrt{1 - \rho^2 y^2}}
+\end{align}
+The solution further simplifies to
+\begin{eqnarray}
+   F &=& d_z - \rho \left(  d_y y_0 + d_z z_0  \right) \\
+   G &=& \rho ( y_0^2 + z_0^2 ) - 2 z_0 \\
+   H &=& - \rho \\
+   t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+\end{eqnarray}
+
+
+
+\subsection{Polynomial Even Asphere}
 
 For a polynomial asphere the general form is
 \begin{align}
@@ -1450,7 +1513,7 @@ For a polynomial asphere the general form is
  { \rho ( x^2 + y^2 ) }
  { 1 + \sqrt{1 - (1+c) \rho^2  (x^2 + y^2)} } + A(x^2 + y^2)\,,
 \end{align}
-where $A$ is a polynomial starting at second order in the given variable.
+where $A$ is a polynomial of the ray height squared.
 The appropriate equation to find the intersection point is given by [completing the square and so on]\remark{check!}
 \begin{align}
  \left(z - A(x^2 + y^2) - \frac{1}{\rho(1+c)}\right)^2 - \frac{1}{\rho^2 (1+c)^2} \left(1 -(1+c)\rho^2 (x^2 + y^2) \right) &= 0\,.
@@ -1479,7 +1542,7 @@ variables more difficult.}
 The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
 Often, the desired size of the pupil is not given explicitly, but the optical designer wants to specify a f-number or a numerical aperture.
 This section deals with the conversion between different pupil and field descriptions and how to find suitable starting positions and directions of rays in the object plane.
-If possible, we prefer a description that is numerically stable for telecentric systems and infinite conjugate systems.
+If possible, we prefer a description that is numerically stable for telecentric systems or infinite conjugate systems.
 
 \subsection{Ray origin for finite conjugate objects}
 For finite conjugate objects, the object plane is part of the optical system. Rays from one field point originate from the same point in the object plane.
