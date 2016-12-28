@@ -167,7 +167,7 @@ All quantities are real valued. All material properties are described by unit be
 they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. 
 $\permittivity$ and $\permeability$ are the electric and magnetic permittivity, respectively, and $\conductivity$ the conductivity. 
 The Maxwell equations require media in which the constitutive bulk quantities can be assigned to all positions in space.
-Single atoms or nanoscopic structures of few atoms must be treated quantum-mechanically and are beyond the scope of this manual.
+Single atoms, molecules or nanoscopic structures must be treated quantum-mechanically and are beyond the scope of this manual.
 
 \section{Energy Conservation}
 We assume the strictly monochromatic case $\Efield,\Dfield,\Hfield,\Bfield, \currentdensity \propto \sin(\omega t + \varphi_0)$ for electrodynamic scenarios only, $\omega \neq 0$.
@@ -561,6 +561,7 @@ These relations hold for a step-interface between two homogeneous media.
 In mesoscopically inhomogenous media like  diffractive optical elements and metamaterials, 
 the boundary conditions hold at each interface between homogeneous materials of the mesoscopic sub-structure.
 
+
 \section{Refraction of Plane Waves at Planar Surfaces}
 
 \subsection{Derivation}
@@ -677,7 +678,7 @@ We call the points in the object and image plane field points.
   \centering
    \includegraphics[width=0.5\columnwidth]{pupil}
   \caption{a) In an imaging system without vignetting, the stop acts as aperture for rays from all field points. The rays displayed are on-axis ray (blue), marginal rays (violet), chief ray (red), and coma rays (orange).
-  b) In this system, the lens creates a virtual image of the stop, the pupil (green).
+  b) In the system shown here, the lens creates a virtual image of the stop, the pupil (green).
   c) The imaging relation between pupil and stop causes rays aimed at the pupil border to be refracted onto the stop border.
   }
   \label{fig:pupil}
@@ -1158,7 +1159,7 @@ However, compared to real ray tracing, it has the following drawbacks:
 
 A more precise representation of rays can be achieved by extending the ABCD formalism to 3-dimensional rays.
 
-\subsection{XYUV formalism}
+\subsection{XYUV formalism} \label{subseq:xyuv_formalism}
 
 todo
 
@@ -1344,6 +1345,108 @@ The solution of the intersection with the straight equation is
  H &=& - \left( c d_x^2 + \delta d_x d_y + e d_y^2 \right) \\
  t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
 \end{eqnarray}
+
+\subsubsection{Intersection point perturbation}
+We investigate the change of the intersection point due to small perturbations in the ray starting paramaters $\Location_0$ and $\Vector{d}$.
+For a first order Taylor expansion, we calculate the derivatives $\partial t / \partial q$
+with $q \in \{ x_0, y_0, z_0, d_x, d_y, d_z \}$
+\begin{eqnarray}
+% \frac{\partial t}{\partial q} 
+% &=& 
+%     \frac{1}{F + \sqrt{F^2 + H G}} \frac{\partial G}{\partial q} 
+%     - 
+%     \frac{G}{(F + \sqrt{F^2 + H G})^2}
+%   \left(
+%     \frac{\partial F}{\partial q}
+%     +
+%     \frac{1}{2} \frac{1}{\sqrt{F^2 + H G}}
+%     \left(
+%         2 F \frac{\partial F}{\partial q}
+%       + H \frac{\partial G}{\partial q}
+%       + G \frac{\partial H}{\partial q}
+%     \right)
+%   \right)
+% \\
+% \frac{\partial t}{\partial q} 
+% &=& 
+%   \frac{1}{F + \sqrt{F^2 + H G}} 
+%   \left(
+%     \frac{\partial G}{\partial q} 
+%     - 
+%     t
+%   \left(
+%     \frac{\partial F}{\partial q}
+%     +
+%     \frac{1}{2} \frac{1}{\sqrt{F^2 + H G}}
+%     \left(
+%         2 F \frac{\partial F}{\partial q}
+%       + H \frac{\partial G}{\partial q}
+%       + G \frac{\partial H}{\partial q}
+%     \right)
+%   \right)
+%  \right)
+% \\
+ \frac{\partial t}{\partial q} 
+ &=& 
+  \frac{t}{G}
+  % \frac{1}{F + \sqrt{F^2 + H G}} 
+   \left(
+     \frac{\partial G}{\partial q} 
+     - t \frac{\partial F}{\partial q}
+     - \frac{1}{2} t \frac{1}{\sqrt{F^2 + H G}}
+     \left(
+         2 F \frac{\partial F}{\partial q}
+       + H \frac{\partial G}{\partial q}
+       + G \frac{\partial H}{\partial q}
+     \right)
+  \right)
+\end{eqnarray}
+with the gradients
+\begin{eqnarray}
+  \frac{\partial F}{\partial \Location_0} 
+  &=&
+  \begin{pmatrix}
+    - c d_x - \frac{1}{2} \delta d_y \\
+    - \frac{1}{2} \delta d_x - e d_y \\
+    0
+  \end{pmatrix}
+  \\
+  \frac{\partial F}{\partial \Vector{d}}
+  &=&
+  \begin{pmatrix}
+    - a - c x_0 - \frac{1}{2} \delta y_0 \\
+    - b - \frac{1}{2} \delta x_0 - e y_0 \\
+    1
+  \end{pmatrix}
+  \\
+  \frac{\partial G}{\partial \Location_0}
+  &=&
+  \begin{pmatrix}
+    2 a + 2 c x_0 + \delta y_0\\
+    2 b + \delta x_0 + 2 e y_0\\
+    - 2
+  \end{pmatrix}
+  \\
+  \frac{\partial G}{\partial \Vector{d}}
+  &=&
+  \Vector{0}
+  \\
+  \frac{\partial H}{\partial \Location_0}
+  &=&
+  \Vector{0}
+  \\
+  \frac{\partial H}{\partial \Vector{d}}
+  &=&
+  \begin{pmatrix}
+    - 2 c d_x - \delta d_y\\
+    - \delta d_x - 2 e d_y\\
+    0
+  \end{pmatrix}
+\end{eqnarray}
+
+These intermediate results will be used to develop the XYUV matrix formalism in subsection \ref{subseq:xyuv_formalism}.
+
+\subsubsection{On the equality of quadratic form and biconic}
 Rotating the coordinate system,
 \begin{eqnarray}
  x &=& \tilde{x} \cos(\phi) - \tilde{y} \sin(\phi) \\
