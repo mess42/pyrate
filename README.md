@@ -46,10 +46,10 @@ For windows you may need take care of additional scipy support:
 - find scipy binary which is compatible with these two versions
 - install it (maybe you need a standalone external Python installation, first)
 - add path to scipy in FreeCAD Python console manually
-
+```python
     import sys
     sys.path.append("C:/Python27/Lib/site-packages/scipy-0.16.1")
-
+```
 - check whether import of scipy is successful by importing scipy itself
 - load Pyrate Workbench
 
