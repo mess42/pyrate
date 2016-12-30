@@ -33,7 +33,7 @@ FreeCAD Workbench
 -----------------
 
 - You need at least FreeCAD 0.16
-- copy (or symlink) the pyrate directory into ~/.FreeCAD/Mod
+- copy (or symlink) the pyrate directory into `~/.FreeCAD/Mod` (Windows: `c:\program files\FreeCAD\Mod` or user directory [not tested, yet])
 - choose workbench in FreeCAD
 - execution of build_rc is not necessary anymore
 
@@ -53,7 +53,7 @@ For windows you may need take care of additional scipy support:
 - check whether import of scipy is successful by importing scipy itself
 - load Pyrate Workbench
 
-Please test this workflow. If there is anything incorrect, please file an issue.
+Please test this workflow. If there is anything incorrect, please fill an issue.
 
 IRC
 ---
