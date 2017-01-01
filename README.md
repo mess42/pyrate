@@ -48,10 +48,10 @@ For windows you may need take care of additional scipy support:
 - add path to scipy in FreeCAD Python console manually
 ```python
     import sys
-    sys.path.append("C:/Python27/Lib/site-packages/scipy-0.16.1")
+    sys.path.append("C:/Python27/Lib/site-packages/")
 ```
-- check whether import of scipy is successful by importing scipy itself
-- load Pyrate Workbench
+- check whether import of scipy is successful by `import scipy`
+- independently of whether scipy is found or not, there may still be a DLL initialization error: check whether MSVC version of your scipy binaries and the ones of FreeCAD are identical
 
 Please test this workflow. If there is anything incorrect, please fill an issue.
 
