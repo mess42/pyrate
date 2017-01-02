@@ -21,6 +21,37 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+# check whether scipy (or other packages are available)
+# this is only necessary for FreeCAD invocation since for the script execution
+# of pyrate there is only a standard python distribution necessary for which
+# it should not be a problem to install the scipy stack
+
+import platform
+import os
+import sys
+
+# TODO: at the moment only available for scipy, add further libs in the future
+try:
+    print("checking for scipy support")
+    import scipy
+except:
+    print("scipy not found:")
+    print("please add appropriate paths to paths.txt, i.e. c:/yourpython/Lib/site-packages/")
+    if platform.system() == 'Windows':
+
+        winpathfile = os.path.join(os.path.dirname(__file__), "paths.txt")
+        wpfile = open(winpathfile)
+        for line in wpfile:
+            sys.path.append(line)
+        wpfile.close()
+    if platform.system() == 'Linux':
+        print("please install scipy via your favourite package manager or download an appropriate python distribution")
+    print("retrying to import")
+    import scipy
+else:
+    print("found scipy")
+    
+
 
 # access to global variables for the FreeCAD interface
 
