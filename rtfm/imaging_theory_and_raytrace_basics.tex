@@ -1344,6 +1344,7 @@ The solution of the intersection with the straight equation is
  G &=&  2 a x_0 + 2 b y_0 - 2 z_0 + c x_0^2 + \delta x_0 y_0 + e y_0^2 \\
  H &=& - \left( c d_x^2 + \delta d_x d_y + e d_y^2 \right) \\
  t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
+ \label{eq:quadratic_form_t}
 \end{eqnarray}
 
 \subsubsection{Intersection point perturbation}
@@ -1399,7 +1400,8 @@ with $q \in \{ x_0, y_0, z_0, d_x, d_y, d_z \}$
        + H \frac{\partial G}{\partial q}
        + G \frac{\partial H}{\partial q}
      \right)
-  \right)
+  \right) 
+  \label{eq:derivative_of_t}
 \end{eqnarray}
 with the gradients
 \begin{eqnarray}

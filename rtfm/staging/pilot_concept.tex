@@ -314,6 +314,7 @@ We expand
     + \left. \frac{\partial t}{\partial\Vector{d}} \right|_{\Vector{d}_{pilot}}  \cdot \Delta\Vector{d} 
     + \left. \frac{\partial t}{\partial\Vector{r}} \right|_{\Vector{r}_{0,pilot}} \cdot \Delta\Vector{r}_0 
     + ...
+    \label{eq:delta_t}
 \end{eqnarray}
 and find for near-pilot rays
 \begin{eqnarray}
@@ -326,6 +327,191 @@ and leave the linear, lowest order terms
 \begin{eqnarray}
  \Vector{r}_1 &=& \Vector{r}_{1,pilot} + \Delta\Vector{r}_0 + \Vector{d}_{pilot}\Delta t + \Delta\Vector{d}t_{pilot} 
 \end{eqnarray} 
+
+\subsubsection{Geometric path difference in a special coordinate system}
+We consider the change in geometrical propagation length $\Delta t$.
+Without loss of generality, we choose our coordinate system so that the pilot ray lies on the $z$ axis and hits the surface in the origin.
+We represent the surface around the pilot intersection point by the quadratic form type, 
+that accounts for tangential plane tilt and quadratic order curvature.
+We use equation \ref{eq:derivative_of_t}, insert $x_0,y_0,d_x,d_y = 0$
+%
+%\begin{eqnarray}
+%  \frac{\partial F}{\partial \Location_0} &=& \Vector{0}
+%  \\
+%  \frac{\partial F}{\partial \Vector{d}}
+%  &=&
+%  \begin{pmatrix}
+%    - a \\
+%    - b \\
+%    1
+%  \end{pmatrix}
+%  \\
+%  \frac{\partial G}{\partial \Location_0}
+%  &=&
+%  \begin{pmatrix}
+%    2 a \\
+%    2 b \\
+%    - 2
+%  \end{pmatrix}
+%  \\
+%  \frac{\partial G}{\partial \Vector{d}}
+%  &=&
+%  \Vector{0}
+%  \\
+%  \frac{\partial H}{\partial \Location_0}
+%  &=&
+%  \Vector{0}
+%  \\
+%  \frac{\partial H}{\partial \Vector{d}} &=& \Vector{0}
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+%  \frac{\partial t}{\partial \Location_0} 
+% &=& 
+%  \frac{t}{G}
+%  % \frac{1}{F + \sqrt{F^2 + H G}} 
+%   \left(
+%     \frac{\partial G}{\partial \Location_0} 
+%     - t \frac{\partial F}{\partial \Location_0}
+%     - \frac{1}{2} t \frac{1}{\sqrt{F^2 + H G}}
+%     \left(
+%         2 F \frac{\partial F}{\partial \Location_0}
+%       + H \frac{\partial G}{\partial \Location_0}
+%       + G \frac{\partial H}{\partial \Location_0}
+%     \right)
+%  \right) 
+%\\
+%  \frac{\partial t}{\partial \Vector{d}} 
+% &=& 
+%  \frac{t}{G}
+%  % \frac{1}{F + \sqrt{F^2 + H G}} 
+%   \left(
+%     \frac{\partial G}{\partial \Vector{d}} 
+%     - t \frac{\partial F}{\partial \Vector{d}}
+%     - \frac{1}{2} t \frac{1}{\sqrt{F^2 + H G}}
+%     \left(
+%         2 F \frac{\partial F}{\partial \Vector{d}}
+%       + H \frac{\partial G}{\partial \Vector{d}}
+%       + G \frac{\partial H}{\partial \Vector{d}}
+%     \right)
+%  \right) 
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+%  \frac{\partial t}{\partial \Location_0} 
+% &=& 
+%  \frac{1}{F + \sqrt{F^2 + H G}} 
+%   \left(
+%     \frac{\partial G}{\partial \Location_0} 
+%     - \frac{1}{2} t \frac{1}{\sqrt{F^2 + H G}}
+%     \left(
+%       H \frac{\partial G}{\partial \Location_0}
+%     \right)
+%  \right) 
+%\\
+%  \frac{\partial t}{\partial \Vector{d}} 
+% &=& 
+%  \frac{1}{F + \sqrt{F^2 + H G}} 
+%   \left(
+%     - t \frac{\partial F}{\partial \Vector{d}}
+%     - \frac{1}{2} t \frac{1}{\sqrt{F^2 + H G}}
+%     \left(
+%         2 F \frac{\partial F}{\partial \Vector{d}}
+%     \right)
+%  \right) 
+%\end{eqnarray}
+%
+%\begin{eqnarray}
+%  \frac{\partial t}{\partial \Location_0} 
+% &=& 
+%  \frac{1}{F + \sqrt{F^2 + H G}} 
+%   \left(
+%     1 - \frac{t H}{2 \sqrt{F^2 + H G}}
+%  \right) 
+%  \begin{pmatrix}
+%    2 a \\
+%    2 b \\
+%    - 2
+%  \end{pmatrix}
+%\\
+%  \frac{\partial t}{\partial \Vector{d}} 
+% &=& 
+%  - \frac{t}{F + \sqrt{F^2 + H G}}
+%   \left(
+%     1 + \frac{F}{\sqrt{F^2 + H G}}
+%  \right) 
+%  \begin{pmatrix}
+%    - a \\
+%    - b \\
+%    1
+%  \end{pmatrix}
+%\end{eqnarray}
+%We evaluate $F,G,H$ from equation \ref{eq:quadratic_form_t} for the pilot ray
+%\begin{eqnarray}
+% F &=& 1 \\
+% G &=&  - 2 z_0 \\
+% H &=& 0 \\
+% t &=& - z_0
+%\end{eqnarray}
+and obtain
+\begin{eqnarray}
+  \frac{\partial t}{\partial \Location_0} 
+ &=&  
+  \begin{pmatrix}
+    a \\
+    b \\
+    - 1
+  \end{pmatrix}
+\\
+  \frac{\partial t}{\partial \Vector{d}} 
+ &=& 
+  t
+  \begin{pmatrix}
+    a \\
+    b \\
+    - 1
+  \end{pmatrix}
+\end{eqnarray}
+The coordinate choice reduces calculation effort and allows for a clear display of the underlying relations.
+In first order approximation, as shown in equation \ref{eq:delta_t}, $\Delta t$ solely depends on the tangential plane, not the local surface curvature.
+
+\subsubsection{Geometric path difference in a general coordinate system}
+We assume a surface $z(x,y)$. 
+We approximate the surface by its tangential plane
+\begin{eqnarray}
+ z = z_{ax} + a x + b y
+\end{eqnarray}
+where $z_{ax}$ is chosen so that $\Location_{1,pilot}$ lies in the plane.
+\begin{eqnarray}
+ z_{ax} &=&  z_{1,pilot} - a x_{1,pilot} - b y_{1,pilot} \\
+ a &=& \left. \frac{\partial z}{\partial x} \right|_{\Location_{1,pilot}} \\
+ b &=& \left. \frac{\partial z}{\partial y} \right|_{\Location_{1,pilot}}
+\end{eqnarray}
+This description may be numerically instable in its present form.
+The solution is a special case of the quadratic form
+\begin{eqnarray}
+ F &=& d_z - a d_x - b d_y  \\
+ G &=&  2 a x_0 + 2 b y_0 - 2 (z_0-z_{ax})  \\
+ H &=& 0 \\
+ t &=& \frac{G}{ 2F }
+\end{eqnarray}
+and its derivatives are found straightforward as
+\begin{eqnarray}
+ \frac{\partial t}{\partial \Location_0} 
+ &=& 
+   \frac{1}{F} 
+   \begin{pmatrix}
+     a\\b\\-1
+   \end{pmatrix}
+\end{eqnarray}
+
+\begin{eqnarray}
+ \frac{\partial t}{\partial \Vector{d}} &=& \frac{1}{2F} \frac{\partial G}{\partial \Vector{d}} - \frac{G}{2 F^2} \frac{\partial F}{\partial \Vector{d}}
+\end{eqnarray}
+
+ORLY ???
+
+
 
 TODO: complete the free space subsection
 
