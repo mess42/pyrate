@@ -149,14 +149,10 @@ We consider near-pilot rays, that have an intersection point and a wavevector cl
 		    & pilot ray & near-pilot ray \\
 & & \\ \hline & & \\
 intersection point  & $\Vector{r}_{pilot}$ & ${\Vector{r}} = \Vector{r}_{pilot} + \Delta\Vector{r}$ \\
-initial wavevector  & $\Wavevector_{pilot}$ & ${\Wavevector} = \Wavevector_{pilot} + \Delta\Wavevector$ \\
-initial ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \Delta\Vector{d}$ \\
+wavevector  & $\Wavevector_{pilot}$ & ${\Wavevector} = \Wavevector_{pilot} + \Delta\Wavevector$ \\
+ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \Delta\Vector{d}$ \\
 surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
-& & \\ \hline & & \\
-out-of-plane wavevector component &  $\Wavevector_{pilot, \perp} = (\Wavevector_{pilot} \Vector{n})\Vector{n}$ & ${\Wavevector}_{\perp} = ({\Wavevector} {\Vector{n}}){\Vector{n}}$ \\
-in-plane wavevector component     &  $\Wavevector_{pilot, \parallel} = \Wavevector_{pilot} - \Wavevector_{pilot, \perp}$ & ${\Wavevector}_{\parallel} = {\Wavevector} - {\Wavevector}_{\perp}$ \\
 \end{tabular}
-\\[2ex]
 
 \subsubsection{Representation of near-pilot ray directions}
 
@@ -194,7 +190,8 @@ where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 As we will see later, this choice is beneficial when calculating near-pilot ray intersection points.
 The disadvantage of this representation is that it is not identical to the coordinate system used to describe the surface sag.
 In general, the planes for $\Delta\Vector{d}$ and $\Delta\Vector{r}$ may differ.
-For simplicity, we choose the two systems $XY$ and $UV$ identical,
+We first choose the two unit vectors for the $X$ and $Y$-component in the surface plane.
+For simplicity, we choose the vectors of $U$ and $V$ identical,
 except for a component along the pilot ray axis.
 
 \begin{eqnarray}
@@ -409,33 +406,35 @@ The out-of-plane or normal wavevector component $\xi_{pilot}, {\xi}$ after the r
    \nonumber \\
    +& n_{i, pilot} &\Delta\xi 
 \end{eqnarray}
-Next we try to express $\Delta\Vector{n}$ and $\Delta\xi$ as function of $\Delta\Vector{r}$ and $\Delta\Vector{k}$.
+Next we try to express $\Delta\Vector{n}$ and $\Delta\xi$ as functions of $\Delta\Vector{r}$ and $\Delta\Vector{k}$.
+
+\subsubsection{The Derivative of the Normal Unit Vector}
 We approximate $\Delta\Vector{n}$ in first order
 \begin{eqnarray}
  \Delta n_i \approx \left. \frac{\partial n_i}{\partial r_j} \right|_{\Vector{r}_{pilot}} \Delta r_j
 \end{eqnarray}
-We introduce a scalar function $F$. The function shall represent the surface shape implicitly as $F(\Vector{r}_{pilot}) = 0$. 
-One possibility to define $F$ would be $F = z - \textrm{sag}(x,y)$.
+We introduce a scalar function $F$. The function shall represent the surface shape implicitly as $F(\Vector{r}) = 0$. 
+One possibile definition is $F = z - \textrm{sag}(x,y)$. We express the surface normal in terms of $F$
 \begin{eqnarray}
- n_i &=& \frac{\partial_i F}{\sqrt{(\partial_k F)(\partial_k F)}}\,,
-\end{eqnarray}
-to
-\begin{eqnarray}
-  \partial_j n_i &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - \frac{\partial_i F \partial_\ell F}{(\partial_k F)(\partial_k F)}\right)\,,\\
-    &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - n_\ell n_i\right)\,.\label{eq:nderivative}
+ n_i &=& \frac{\partial_i F}{\sqrt{(\partial_k F)(\partial_k F)}}
+ \\
+ \partial_j n_i &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - n_\ell n_i\right)
+ \label{eq:nderivative}
 \end{eqnarray}
 It links the derivative of the surface normal $\partial n$ to the second derivative of the surface sag 
 or, in other words, to the surface curvature.
 
 
+\subsubsection{The Derivative of the Normal Component Length}
 
 TODO: adapt to new nomenclature
 
-
-
 We assume an explicit $\Vector{r}_{pilot}$, an explicit $\Wavevector$, and an implicit $\Vector{r}_{pilot}$ dependence in terms
 of the surface normal vector $\Vector{n}$ of $\xi$. Therefore 
-$\Delta \xi = \left(\partial_k \xi + \frac{\partial \xi}{\partial n_j} \partial_k n_j\right) \Delta r_k + \tfrac{\partial \xi}{\partial k_i} \Delta k_i$. 
+
+\begin{eqnarray}
+\Delta \xi = \left(\partial_k \xi + \frac{\partial \xi}{\partial n_j} \partial_k n_j\right) \Delta r_k + \frac{\partial \xi}{\partial k_i} \Delta k_i 
+\end{eqnarray}
 Hence by introducing $a$ and $a+1$ as the respective surface indices we may obtain a matrix formulation for the different delta parts
 \begin{eqnarray}
  \Delta r_{a+1\,i} &=& \Delta r_{a\,i}\,,\\
@@ -448,7 +447,7 @@ Hence by introducing $a$ and $a+1$ as the respective surface indices we may obta
      - \wavenumber_{a\,m} n_m \delta_{ij}  
      + \xi \delta_{ij}
      + n_i \frac{\partial \xi}{\partial n_j}
-    \right) \partial_\ell n_j + \partial_\ell \xi\right]\Delta r_{a\,\ell}\,.
+    \right) \partial_\ell n_j + \partial_\ell \xi\right]\Delta r_{a\,\ell}
 \end{eqnarray}
 
 
