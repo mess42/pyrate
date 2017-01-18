@@ -148,23 +148,23 @@ We consider near-pilot rays, that have an intersection point and a wavevector cl
 \begin{tabular}{ l | l | l }
 		    & pilot ray & near-pilot ray \\
 & & \\ \hline & & \\
-intersection point  & $\Vector{r}_{pilot}$ & $\tilde{\Vector{r}} = \Vector{r}_{pilot} + \Delta\Vector{r}$ \\
-initial wavevector  & $\Wavevector_{pilot}$ & $\tilde{\Wavevector} = \Wavevector_{pilot} + \Delta\Wavevector$ \\
-initial ray direction  & $\Vector{d}_{pilot}$ & $\tilde{\Vector{d}} = \Vector{d}_{pilot} + \Delta\Vector{d}$ \\
-surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & $\tilde{\Vector{n}} = \Vector{n}(\tilde{\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
+intersection point  & $\Vector{r}_{pilot}$ & ${\Vector{r}} = \Vector{r}_{pilot} + \Delta\Vector{r}$ \\
+initial wavevector  & $\Wavevector_{pilot}$ & ${\Wavevector} = \Wavevector_{pilot} + \Delta\Wavevector$ \\
+initial ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \Delta\Vector{d}$ \\
+surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
 & & \\ \hline & & \\
-out-of-plane wavevector component &  $\Wavevector_{pilot, \perp} = (\Wavevector_{pilot} \Vector{n})\Vector{n}$ & $\tilde{\Wavevector}_{\perp} = (\tilde{\Wavevector} \tilde{\Vector{n}})\tilde{\Vector{n}}$ \\
-in-plane wavevector component     &  $\Wavevector_{pilot, \parallel} = \Wavevector_{pilot} - \Wavevector_{pilot, \perp}$ & $\tilde{\Wavevector}_{\parallel} = \tilde{\Wavevector} - \tilde{\Wavevector}_{\perp}$ \\
+out-of-plane wavevector component &  $\Wavevector_{pilot, \perp} = (\Wavevector_{pilot} \Vector{n})\Vector{n}$ & ${\Wavevector}_{\perp} = ({\Wavevector} {\Vector{n}}){\Vector{n}}$ \\
+in-plane wavevector component     &  $\Wavevector_{pilot, \parallel} = \Wavevector_{pilot} - \Wavevector_{pilot, \perp}$ & ${\Wavevector}_{\parallel} = {\Wavevector} - {\Wavevector}_{\perp}$ \\
 \end{tabular}
 \\[2ex]
 
 \subsubsection{Representation of near-pilot ray directions}
 
 There is an additional constraint on the ray direction unit vectors: both pilot and near-pilot ray direction must be normalized,
-$|\Vector{d}_{pilot}|=|\tilde{\Vector{d}}|=1$.
+$|\Vector{d}_{pilot}|=|{\Vector{d}}|=1$.
 
 \begin{eqnarray}
- |\tilde{\Vector{d}}|^2 = |\Vector{d}_{pilot}|^2 + 2 \Vector{d}_{pilot} \cdot \Delta\Vector{d} + |\Delta\Vector{d}|^2
+ |{\Vector{d}}|^2 = |\Vector{d}_{pilot}|^2 + 2 \Vector{d}_{pilot} \cdot \Delta\Vector{d} + |\Delta\Vector{d}|^2
 \end{eqnarray}
 
 In the limit of near pilot rays, $|\Delta\Vector{d}|^2 \rightarrow 0$, the scalar product must vanish. 
@@ -177,7 +177,7 @@ This leaves only two degrees of freedom for $\Delta\Vector{d}$.
 
 We represent $\Delta\Vector{d}$ by two components $U$and $V$ and choose orthogonal unit vectors $\Vector{e}_{U} \perp \Vector{e}_{V} \perp \Vector{d}_{pilot} \perp \Vector{e}_{U}$,
 forming a cartesian coordinate system.
-In this representation, the normalization requirement $|\tilde{\Vector{d}}| = 1$ imposes no nonlinear constraint on a third component depending on the choice of $U$ and $V$.
+In this representation, the normalization requirement $|{\Vector{d}}| = 1$ imposes no nonlinear constraint on a third component depending on the choice of $U$ and $V$.
 We may choose (small) values for $U$ and $V$ independent from each other and independent from the pilot direction. 
 
 \subsubsection{Representation of near-pilot intersection points}
@@ -187,6 +187,7 @@ We represent the ray height in this plane by
 
 \begin{eqnarray}
  \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
+ \label{eq:deltaR_equals_XY}
 \end{eqnarray}
 
 where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
@@ -295,7 +296,7 @@ In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest
 In this section, we discuss propagation of straight rays on the tangential plane of the following surface.
 Rays travel along straights in homogeneous media.
 
-Assume we have a pilot ray with starting point $\Vector{r}_{pilot,0}$ and a near-pilot ray $\tilde{\Vector{r}_0}$.
+Assume we have a pilot ray with starting point $\Vector{r}_{pilot,0}$ and a near-pilot ray ${\Vector{r}_0}$.
 First, we propagate the pilot ray to its intersection point $\Vector{r}_{pilot,1}$ with surface 1 and then the near pilot ray.
 
 \begin{eqnarray}
@@ -320,36 +321,36 @@ and find for near-pilot rays
 \begin{eqnarray}
  \Vector{r}_1 &=& \Vector{r}_{1,pilot} + \Delta\Vector{r}_0 + \Vector{d}_{pilot}\Delta t + \Delta\Vector{d}t_{pilot} 
       + \frac{\partial t}{\partial\Vector{d}} \Delta\Vector{d}^2 
-      + \frac{\partial t}{\partial\Vector{r}} \Delta\Vector{d} \Delta\Vector{r}_0 
+      + \frac{\partial t}{\partial\Vector{r}} \Delta\Vector{d} \Delta\Vector{r}_0 + ...
 \end{eqnarray} 
-Similarly to the ABCD matrix formalism, we neglect all terms quadratic in the input arguments $(\Delta\Vector{d}, \Delta\Vector{r}_0)$
+We neglect all terms quadratic in the input arguments $(\Delta\Vector{d}, \Delta\Vector{r}_0)$
 and leave the linear, lowest order terms
 \begin{eqnarray}
  \Vector{r}_1 &=& \Vector{r}_{1,pilot} + \Delta\Vector{r}_0 + \Vector{d}_{pilot}\Delta t + \Delta\Vector{d}t_{pilot}
  \label{eq:nearpilotintersection}
 \end{eqnarray} 
-We want to express this result in terms of the in-plane unit vectors $\Vector{e}_{X1,Y1}$
-\begin{eqnarray}
- \Vector{r}_1 &=& \Vector{r}_{1,pilot} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1}
-\end{eqnarray} 
 We represent each term of \ref{eq:nearpilotintersection} in the complete basis $(\Vector{e}_{X1}, \Vector{e}_{Y1}, \Vector{d}_{pilot}$).
 \begin{eqnarray}
  \Delta\Vector{r}_0 &=& X_{1,0} \Vector{e}_{X1} + Y_{1,0} \Vector{e}_{Y1} + D_{1,0} \Vector{d}_{pilot} \\
  \Vector{d}_{pilot}\Delta t &=& X_{1,1} \Vector{e}_{X1} + Y_{1,1} \Vector{e}_{Y1} + D_{1,1} \Vector{d}_{pilot} \\
- \Delta\Vector{d}t_{pilot} &=& X_{1,2} \Vector{e}_{X1} + Y_{1,2} \Vector{e}_{Y1} + D_{1,2} \Vector{d}_{pilot} \\
- 0 &=& D_{1,0} + D_{1,1} + D_{1,2}
+ \Delta\Vector{d}t_{pilot} &=& X_{1,2} \Vector{e}_{X1} + Y_{1,2} \Vector{e}_{Y1} + D_{1,2} \Vector{d}_{pilot} 
 \end{eqnarray}
 Decomposing the terms, one should consider that the basis might not be orthogonal.
 One can see $X_{1,1} = 0$ and $Y_{1,1}=0$.
-Our final result is
+We compare to equation \ref{eq:deltaR_equals_XY}. 
+The favorable choice of the unit vectors allows us to easily find the additional constraint
+\begin{eqnarray}
+ D_{1,0} + D_{1,1} + D_{1,2} &=& 0
+\end{eqnarray}
+as well as the final result
 \begin{eqnarray}
  X_1 &=& X_{1,0} + X_{1,2} \\
  Y_1 &=& Y_{1,0} + Y_{1,2}
 \end{eqnarray}
 
 \subsection{Thin lenses}
-We consider a thin, spherical lens in air with focal length $f$
-and a pilot ray on the $z$-axis, $\Vector{d}_{pilot,0} = \Vector{d}_{pilot,1} = \Vector{e}_{z}$.
+We consider a thin lens in air with focal length $f$ isotropically in $\Vector{e}_U$ and $\Vector{e}_V$ direction
+and identical unit vectors in front of and behind the surface, $\Vector{e}_{X,Y,U,V 0} = \Vector{e}_{X,Y,U,V 1}$.
 Its XYUV matrix reads
 \begin{eqnarray}
 XYUV_{thin lens} &=&
@@ -379,98 +380,62 @@ XYUV_{cyl} &=&
 
 
 
-TODO: adapt to new nomenclature
-
-We are interested in the change of the refracted wavevector $\Delta\Wavevector_2 = \tilde{\Wavevector}_2 - \Wavevector_2$ induced by $\Delta\Vector{r}$ and $\Delta\Wavevector$.
+We are interested in the change of the refracted wavevector $\Delta\Wavevector_2 = {\Wavevector}_2 - \Wavevector_{2, pilot}$ induced by $\Delta\Vector{r}$ and $\Delta\Wavevector$.
 \begin{eqnarray}
- \Wavevector_2 &=& \Wavevector_{\parallel} + \xi \Vector{n} 
+ \Wavevector_{2, pilot} &=& \Wavevector_{\parallel, pilot} + \xi_{pilot} \Vector{n}_{pilot} 
  \\
- \tilde{\Wavevector}_2 &=& \tilde{\Wavevector}_{\parallel} + \tilde{\xi} \tilde{\Vector{n}} 
+ {\Wavevector}_2 &=& {\Wavevector}_{\parallel} + {\xi} {\Vector{n}} 
 \end{eqnarray}
-
 The refraction conserves the in-plane wavevector component. 
-The out-of-plane or normal wavevector component $\xi, \tilde{\xi}$ after the refraction depends on the material permittivity and the in-plane component.
-
+The out-of-plane or normal wavevector component $\xi_{pilot}, {\xi}$ after the refraction depends on the material permittivity and the in-plane component.
 \begin{eqnarray}
- \Delta\Wavevector_2 &=& \tilde{\Wavevector}_2 - \Wavevector_2 \\
- &=& ( \tilde{\Wavevector}_{\parallel} - \Wavevector_{\parallel} ) + ( \tilde{\xi} \tilde{\Vector{n}} - \xi \Vector{n} ) \\
-% &=& ( \tilde{\Wavevector} - \Wavevector)  - (\tilde{\Wavevector}_{\perp} - \Wavevector_{\perp}) + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
-% &=& \Delta\Wavevector - (\tilde{\Wavevector}_{\perp} - \Wavevector_{\perp}) + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
-% &=& \Delta\Wavevector - ((\tilde{\Wavevector} \tilde{\Vector{n}})\tilde{\Vector{n}} - (\Wavevector \Vector{n})\Vector{n}) + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
-% &=& \Delta\Wavevector - 
-% \left(
-%   (\tilde{\Wavevector} \tilde{\Vector{n}})\Vector{n}+(\tilde{\Wavevector} \tilde{\Vector{n}})\Delta\Vector{n} - (\Wavevector \Vector{n})\Vector{n}
-% \right) 
-% + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
-% &=& \Delta\Wavevector - 
-% \left(
-%   (\tilde{\Wavevector} (\Vector{n} + \Delta\Vector{n}) )\Vector{n}+(\tilde{\Wavevector} (\Vector{n} + \Delta\Vector{n}) )\Delta\Vector{n} - (\Wavevector \Vector{n})\Vector{n}
-% \right) 
-% + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
-% &=& \Delta\Wavevector - 
-% \left(
-%   (\tilde{\Wavevector} \Vector{n} )\Vector{n} + (\tilde{\Wavevector} \Delta\Vector{n} )\Vector{n} + (\tilde{\Wavevector} \Vector{n} )\Delta\Vector{n} + (\tilde{\Wavevector} \Delta\Vector{n} )\Delta\Vector{n} - (\Wavevector \Vector{n})\Vector{n}
-% \right) 
-% + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
-% &=& \Delta\Wavevector - 
-% \left(
-%   (\Delta\Wavevector \Vector{n} )\Vector{n} + (\tilde{\Wavevector} \Delta\Vector{n} )\Vector{n} + (\tilde{\Wavevector} \Vector{n} )\Delta\Vector{n} + (\tilde{\Wavevector} \Delta\Vector{n} )\Delta\Vector{n}
-% \right) 
-% + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n} \\
- &=& \Delta\Wavevector - 
- \bigg(
-   (\Delta\Wavevector \Vector{n} )\Vector{n} 
-   + (\Wavevector \Delta\Vector{n} )\Vector{n}  + (\Delta\Wavevector \Delta\Vector{n} )\Vector{n} 
-   + (\Wavevector \Vector{n} )\Delta\Vector{n}  + 
-  \nonumber \\ &&
-   + (\Delta\Wavevector \Vector{n} )\Delta\Vector{n} 
-   + (\Wavevector \Delta\Vector{n} )\Delta\Vector{n}
-   + (\Delta\Wavevector \Delta\Vector{n} )\Delta\Vector{n}
- \bigg) 
- + ( \tilde{\xi} - \xi ) \Vector{n} + \tilde{\xi} \Delta\Vector{n}
+ \Delta\Wavevector_2 =& ( {\Wavevector}_{\parallel} - \Wavevector_{\parallel, pilot} ) + ( {\xi} {\Vector{n}} - \xi_{pilot} \Vector{n}_{pilot} )&
+\\[2ex]
+ \Delta \wavenumber_{2,i} \approx&
+   \left.
+     \left( \delta_{ij}  - n_{i} n_{j} \right)
+   \right|_{pilot}
+   &\Delta\wavenumber_j
+   \nonumber\\
+   +&
+   \left.
+   \left(
+     - \wavenumber_{j}  n_{i} 
+     - (\wavenumber_{m} n_{m}) \delta_{ij}  
+     + \xi \delta_{ij}
+   \right) 
+   \right|_{pilot}
+   &\Delta n_{j}
+   \nonumber \\
+   +& n_{i, pilot} &\Delta\xi 
 \end{eqnarray}
-We are insterested in the limit $\Delta\Wavevector, \Delta\Vector{r} \rightarrow 0$. We approximate $\Delta\Vector{n}$ in first order
+Next we try to express $\Delta\Vector{n}$ and $\Delta\xi$ as function of $\Delta\Vector{r}$ and $\Delta\Vector{k}$.
+We approximate $\Delta\Vector{n}$ in first order
 \begin{eqnarray}
  \Delta n_i \approx \left. \frac{\partial n_i}{\partial r_j} \right|_{\Vector{r}_{pilot}} \Delta r_j
 \end{eqnarray}
-to be proportional to $\Delta\Vector{r}$. 
-We neglect all higher order terms $\Delta\Wavevector^2$ and $\Delta\Vector{r}^2$.
-We also neglect cross-terms $\Delta\Wavevector\Delta\Vector{r}$. 
-This leaves the lowest order terms
-\begin{eqnarray}
-% \Delta\Wavevector_2 &\approx& 
-%   \Delta\Wavevector 
-%   - (\Delta\Wavevector \Vector{n} )\Vector{n} 
-%   - (\Wavevector \Delta\Vector{n} )\Vector{n} 
-%   - (\Wavevector \Vector{n} )\Delta\Vector{n}   
-%   + ( \tilde{\xi} - \xi ) \Vector{n} 
-%   + \tilde{\xi} \Delta\Vector{n} 
-% \\
- \Delta \wavenumber_{2,i} &\approx& 
-   \left( \delta_{ij}  - n_i n_j \right) \Delta\wavenumber_j
-   +
-   \left(
-     - \wavenumber_j  n_i 
-     - \wavenumber_m n_m \delta_{ij}  
-     + \xi \delta_{ij}
-   \right) \Delta n_j
-   + n_i \Delta\xi 
-\end{eqnarray}
-The explicit form of $\Delta\xi = \tilde{\xi} - \xi$ can be found once the material dispersion is specified.
-One can even more simplify this equation by assuming an explicit $\Vector{r}_{pilot}$, an explicit $\Wavevector$, and an implicit $\Vector{r}_{pilot}$ dependence in terms
-of the surface normal vector $\Vector{n}$ of $\xi$. Therefore 
-$\Delta \xi = \left(\partial_k \xi + \frac{\partial \xi}{\partial n_j} \partial_k n_j\right) \Delta r_k + \tfrac{\partial \xi}{\partial k_i} \Delta k_i$. 
-Further it is possible to express the $\Vector{n}$ derivatives in terms of $\Delta \Vector{r}$ by describing the surface via
-a scalar function $F(\Vector{r}_{pilot}) = 0$. This leads by using
+We introduce a scalar function $F$. The function shall represent the surface shape implicitly as $F(\Vector{r}_{pilot}) = 0$. 
+One possibility to define $F$ would be $F = z - \textrm{sag}(x,y)$.
 \begin{eqnarray}
  n_i &=& \frac{\partial_i F}{\sqrt{(\partial_k F)(\partial_k F)}}\,,
 \end{eqnarray}
 to
-\remark{In terms of effective local curvature radii?}
 \begin{eqnarray}
   \partial_j n_i &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - \frac{\partial_i F \partial_\ell F}{(\partial_k F)(\partial_k F)}\right)\,,\\
     &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - n_\ell n_i\right)\,.\label{eq:nderivative}
 \end{eqnarray}
+It links the derivative of the surface normal $\partial n$ to the second derivative of the surface sag 
+or, in other words, to the surface curvature.
+
+
+
+TODO: adapt to new nomenclature
+
+
+
+We assume an explicit $\Vector{r}_{pilot}$, an explicit $\Wavevector$, and an implicit $\Vector{r}_{pilot}$ dependence in terms
+of the surface normal vector $\Vector{n}$ of $\xi$. Therefore 
+$\Delta \xi = \left(\partial_k \xi + \frac{\partial \xi}{\partial n_j} \partial_k n_j\right) \Delta r_k + \tfrac{\partial \xi}{\partial k_i} \Delta k_i$. 
 Hence by introducing $a$ and $a+1$ as the respective surface indices we may obtain a matrix formulation for the different delta parts
 \begin{eqnarray}
  \Delta r_{a+1\,i} &=& \Delta r_{a\,i}\,,\\
