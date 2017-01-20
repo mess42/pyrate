@@ -406,7 +406,8 @@ The out-of-plane or normal wavevector component $\xi_{pilot}, {\xi}$ after the r
    \nonumber \\
    +& n_{i, pilot} &\Delta\xi 
 \end{eqnarray}
-Next we try to express $\Delta\Vector{n}$ and $\Delta\xi$ as functions of $\Delta\Vector{r}$ and $\Delta\Vector{k}$.
+Next we try to express $\Delta\Vector{n}$ and $\Delta\xi$ as functions of $\Delta\Vector{r}$ and $\Delta\Wavevector$.
+
 
 \subsubsection{The Derivative of the Normal Unit Vector}
 We approximate $\Delta\Vector{n}$ in first order
@@ -414,11 +415,11 @@ We approximate $\Delta\Vector{n}$ in first order
  \Delta n_i \approx \left. \frac{\partial n_i}{\partial r_j} \right|_{\Vector{r}_{pilot}} \Delta r_j
 \end{eqnarray}
 We introduce a scalar function $F$. The function shall represent the surface shape implicitly as $F(\Vector{r}) = 0$. 
-One possibile definition is $F = z - \textrm{sag}(x,y)$. We express the surface normal in terms of $F$
+One possibile definition is $F = z - \textrm{sag}(x,y)$. The surface normal points in the direction of the gradient of $F$
 \begin{eqnarray}
- n_i &=& \frac{\partial_i F}{\sqrt{(\partial_k F)(\partial_k F)}}
+ n_i &=& \frac{\partial_i F}{\sqrt{(\partial_m F)(\partial_m F)}}
  \\
- \partial_j n_i &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_k F)(\partial_k F)}} \left(\delta_{\ell i} - n_\ell n_i\right)
+ \partial_j n_i &=& \frac{\partial_j \partial_\ell F}{\sqrt{(\partial_m F)(\partial_m F)}} \left(\delta_{\ell i} - n_\ell n_i\right)
  \label{eq:nderivative}
 \end{eqnarray}
 It links the derivative of the surface normal $\partial n$ to the second derivative of the surface sag 
@@ -426,15 +427,17 @@ or, in other words, to the surface curvature.
 
 
 \subsubsection{The Derivative of the Normal Component Length}
+The normal component of the wavevector $\xi$ in medium $\permittivity_2$ after the refraction 
+is a function of incoming wavevector and the surface normal direction.
+\begin{eqnarray}
+ \xi &=& \xi(\Wavevector_{1}, \Vector{n}) \\
+ \Delta \xi &=& 
+     \left.  \frac{\partial \xi}{\partial k_{1i}}  \right|_{\Vector{n}=const} \cdot \Delta k_{1i}
+   + \left. \frac{\partial \xi}{\partial n_j} \right|_{\Wavevector_{1}=const} \cdot \Delta n_j
+\end{eqnarray}
 
 TODO: adapt to new nomenclature
 
-We assume an explicit $\Vector{r}_{pilot}$, an explicit $\Wavevector$, and an implicit $\Vector{r}_{pilot}$ dependence in terms
-of the surface normal vector $\Vector{n}$ of $\xi$. Therefore 
-
-\begin{eqnarray}
-\Delta \xi = \left(\partial_k \xi + \frac{\partial \xi}{\partial n_j} \partial_k n_j\right) \Delta r_k + \frac{\partial \xi}{\partial k_i} \Delta k_i 
-\end{eqnarray}
 Hence by introducing $a$ and $a+1$ as the respective surface indices we may obtain a matrix formulation for the different delta parts
 \begin{eqnarray}
  \Delta r_{a+1\,i} &=& \Delta r_{a\,i}\,,\\
@@ -450,28 +453,23 @@ Hence by introducing $a$ and $a+1$ as the respective surface indices we may obta
     \right) \partial_\ell n_j + \partial_\ell \xi\right]\Delta r_{a\,\ell}
 \end{eqnarray}
 
+\subsubsection{From Wavevectors to Ray Directions}
+Up to now, we calculated the wavevector after the refraction as a function of the incoming wavevector. 
+For the XYUV formalism, however, we need a formulation employing the ray directions $\Vector{d}$.
+\begin{eqnarray}
+ \Delta\Vector{d} = ?
+\end{eqnarray}
+
+TO DO
 
 \subsection{Isotropic Media}
 We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
 \begin{eqnarray}
  \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \nonumber\\
-      &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - (\Wavevector - \scpm{\Wavevector}{\Vector{n}}\Vector{n}) \cdot (\Wavevector - \scpm{\Wavevector}{\Vector{n}}\Vector{n})}\\
- %\Delta \xi &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \tilde{\Wavevector}_{\parallel} \cdot \tilde{\Wavevector}_{\parallel}} - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
-% \tilde{\Wavevector}_{\parallel} &\approx& \Wavevector_\parallel + \Delta\Wavevector - (\Delta\Wavevector \Vector{n})\Vector{n} - (\Wavevector\Vector{n})\Delta\Vector{n} - (\Wavevector \Delta\Vector{n})\Vector{n} \\
-% \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} + \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i \\
-% \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} 
-%   &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} + 
-%     2 \wavenumber_{\parallel,i} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
-% \\
-% \tilde{\wavenumber}_{\parallel, i} \cdot \tilde{\wavenumber}_{\parallel, i} &\approx& \wavenumber_{\parallel,i} \cdot \wavenumber_{\parallel,i} +  2 \mu \\
-% \sqrt{x- 2 \mu} &\approx& \sqrt{x} + \left. \frac{\partial \sqrt{x-2\mu}}{\partial \mu} \right|_{0} \mu = \sqrt{x} - \frac{\mu}{\sqrt{x}} \\
-% \Delta \xi &\approx& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel} - 2 \mu } - \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - \Wavevector_{\parallel} \cdot \Wavevector_{\parallel}} \\ 
-% \Delta \xi &\approx& - \frac{\mu}{\xi} \\
- %\Delta \xi &\approx& - \frac{\wavenumber_{\parallel,i}}{\xi} ( \Delta\wavenumber_i - (\Delta\wavenumber_j n_j) n_i - (\wavenumber_j n_j) \Delta n_i - (\wavenumber_j \Delta n_j) n_i )
+      &=& \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_2 - (\wavenumber_i - \wavenumber_j n_j n_i) \cdot (\wavenumber_i - \wavenumber_j n_j n_i)}
 \end{eqnarray}
 The partial derivatives which are necessary to compute the matrix elements are given by\remark{to be checked!}
 \begin{eqnarray}
- \partial_k \xi &=& 0\,,\\
  \frac{\partial \xi}{\partial k_i} &=& -\frac{k_i - (k_\ell n_\ell) n_i}{\xi}\,,\\
  \frac{\partial \xi}{\partial n_i} &=& \frac{(k_m n_m) (k_i - (n_m k_m) n_i)}{\xi}\,.
 \end{eqnarray}
