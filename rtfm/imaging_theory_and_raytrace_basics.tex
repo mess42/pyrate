@@ -163,9 +163,13 @@ and the continuity equation, that follows directly from the Maxwell equations.
 \begin{eqnarray}
   \Nabla \currentdensity + \timederivative{\chargedensity} &=& 0		\label{eq:continuity}
 \end{eqnarray}
-All quantities are real valued. All material properties are described by unit bearing quantities, i.e., 
+All quantities are real valued. $\permittivity$ is the  electric  permittivity, 
+$\permeability$ the magnetic permeability, 
+and $\conductivity$ the conductivity.
+All material properties are described by unit bearing quantities, i.e., 
 they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. 
-$\permittivity$ and $\permeability$ are the electric and magnetic permittivity, respectively, and $\conductivity$ the conductivity. 
+We restrict ourselves to linear constitutive equations, that is, ($\permittivity$, $\permeability$ , $\conductivity$) do not depend on the field strength.
+This limitation excludes treatment of effects like higher harmonic generation, frequency conversion, or wave mixing.
 The Maxwell equations require media in which the constitutive bulk quantities can be assigned to all positions in space.
 Single atoms, molecules or nanoscopic structures must be treated quantum-mechanically and are beyond the scope of this manual.
 
@@ -206,7 +210,7 @@ leading to a continuity equation.
 We associate $\Efield \currentdensity$ with ohmic losses, that is, the volume density of energy losses from optical energy into other forms, for example heat.
 Thus, the equation is a continuity equation of energy.
 $\frac{1}{2} \Hfield \Bfield + \frac{1}{2} \Efield \Dfield$ is the energy density stored in a system, 
-and $\Efield \times \Hfield$, which we call Poynting vector $\Vector{S}$, is the areal density of energy flow. 
+and $\Efield \times \Hfield$, which we call Poynting vector $\Vector{S}$, is the areal density of energy flow.
 This equation holds for the real valued Maxwell equations with linear constitutive equations, time harmonic and real valued fields, real valued permeabilities, permittivities and conductivities.
 
 \section{Source-Free Maxwell Equations in Non-Magnetic Materials}
@@ -270,7 +274,7 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \label{eq:sourcefreemaxwell}
 \end{subequations}
 
-\section{Poynting Vector}
+\section{Poynting Vector}\label{sec:Poynting}
 The Poynting vector is the a real density of energy flow. 
 We want the Poynting vector to be real and stay numerically identical to the quantity derived above for the real valued Maxwell equations.
 
@@ -297,7 +301,7 @@ and via the Gra\ss mann identity
 \begin{eqnarray}
   \timeavg{\Vector{S}}_j &=&  \Re \frac{ \overline{\scalarEfield}_i \partial_j \scalarEfield_i - \overline{\scalarEfield}_j \partial_i \scalarEfield_i }{2 i \omega \vacuumpermeability}
 \end{eqnarray}
-The last term which contains the divergence of $\Efield$ vanishes in vacuum or isotropic, homogenious media.
+The last term which contains the divergence of $\Efield$ vanishes in vacuum or isotropic, homogeneous media.
 Assuming a plane wave expansion of $\Efield = \Vector{A} \exp(i \scpm{\Vector{k}}{\Location})$, we find
 \begin{eqnarray}
   \partial_j E_i &=& i\,k_j E_i\,,
@@ -354,9 +358,9 @@ or more explicit
 \Efield_0
 &=& 0 \label{eq:generalDispersionEigenEquation}
 \end{eqnarray}
-In the following, we search for nontrivial solutions $\Efield_0$ for special cases of $\permittivity$.
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
 that is, a propagation wavector is only valid for a certain polarisation.
+In the following, we search for simplified solutions $\Efield_0$ for special cases of $\permittivity$.
 
 \subsection{Uniaxial anisotropic, homogeneous media}
 Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
@@ -465,60 +469,23 @@ With \eqref{eq:divDuniaxial} we may derive an expression for the divergence appe
 \end{eqnarray}
 Therefore the Poynting vector consists of two terms like in the general case
 \begin{eqnarray}
-  \timeavg{\Vector{S}}_\eo = \frac{ 1 }{ 2\omega\vacuumpermeability } \Re 
+  \timeavg{\Vector{S}} = \frac{ 1 }{ 2\omega\vacuumpermeability } \Re 
   \left[
       (|\scalarEfield_x|^2 + |\scalarEfield_z|^2)\Wavevector
       - \left(1 - \frac{\scalarpermittivity_{\ordi}}{\scalarpermittivity_\eo}\right)\scalarEfield_z \wavenumber_z \overline{\Efield}
   \right]\,.\label{eq:Suniaxialeo}
 \end{eqnarray}
-The $\overline{\Efield}$ on the right hand side has of course no $y$-component. The same is true for the wave vector.
-In the case where the two values of the permittivity are degenerate we arrive at the isotropic case and the two cases for the
-Poynting vector coincide in their direction.
-\remark{Arguments to be checked, in particular for complex valued wave vectors}
+For general coordinate systems, where the extraordinary axis points in the direction $\Vector{e}_{eo}$, 
+we replace $E_z \rightarrow E_i e_{\eo, i}$ and find
 \begin{eqnarray}
- \timeavg{\Vector{S}}
- &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
-   \begin{pmatrix}
-     \wavenumber_x (\overline{\scalarEfield_x} \scalarEfield_x + \overline{\scalarEfield_z} \scalarEfield_z) - \overline{\scalarEfield_x} (\wavenumber_x \scalarEfield_x + \wavenumber_z \scalarEfield_z )
-     \\
-     0
-     \\
-     \wavenumber_z (\overline{\scalarEfield_x} \scalarEfield_x + \overline{\scalarEfield_z} \scalarEfield_z) - \overline{\scalarEfield_z} (\wavenumber_x \scalarEfield_x + \wavenumber_z \scalarEfield_z )     
-   \end{pmatrix}
-  \\
- &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
-   ( \wavenumber_x \overline{\scalarEfield_z} - \wavenumber_z \overline{\scalarEfield_x})
-   \begin{pmatrix}
-     \scalarEfield_z 
-     \\
-     0
-     \\
-     - \scalarEfield_x 
-   \end{pmatrix}
-  \\
- &=& \frac{1}{2 \omega \vacuumpermeability} \Re 
-   \left( \frac{\wavenumber_x \scalarEfield_z \overline{\scalarEfield_z}}{\scalarpermittivity_{\ordi}} + \frac{\wavenumber_z \scalarEfield_x \overline{\scalarEfield_x}}{\scalarpermittivity_{\eo}} \right)
-   \begin{pmatrix}
-     \scalarpermittivity_{\ordi} \wavenumber_x 
-     \\
-     0
-     \\
-     \scalarpermittivity_{eo} \wavenumber_z 
-   \end{pmatrix}
+  \timeavg{S}_j = \frac{ 1 }{ 2\omega\vacuumpermeability } \Re 
+  \left[
+      \scalarEfield_i \overline{\scalarEfield}_i \wavenumber_j
+      + \left(\frac{\scalarpermittivity_{\ordi}}{\scalarpermittivity_\eo} - 1\right)
+        (\scalarEfield_m e_{\eo,m}) (\wavenumber_n e_{\eo,n}) \overline{\scalarEfield}_j
+  \right]\,.\label{eq:Suniaxialeo}
 \end{eqnarray}
-The direction of the Poynting vector depends on
-\begin{eqnarray}
-   \begin{pmatrix}
-     \scalarpermittivity_{\ordi} \wavenumber_x 
-     \\
-     0
-     \\
-     \scalarpermittivity_{\eo} \wavenumber_z 
-   \end{pmatrix}
-   =
-   \Wavevector \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector \Vector{e}_{\eo}) \Vector{e}_{\eo}
-\end{eqnarray}
-The complex valued prefactor influences the real part of the above term.
+
 
 \subsection{Isotropic media}
 
@@ -1796,6 +1763,11 @@ We assume that the macroscopic distance between image and exit pupil $R^2$ term 
 The geometric path length $t$ is inserted into the material dispersion to obtain the retardation between exit pupil and image. After that, this propagation length is subtracted from the optical path length from object to image.
 Another subtraction of the chief ray value normalizes the result.
 By didviding with the vacuum wavelength, we obtain the wave aberration in number of waves.
+
+
+\bibliographystyle{unsrt}
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{pyrate}
 
 
 
