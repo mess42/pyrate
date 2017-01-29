@@ -1,0 +1,155 @@
+\documentclass[12pt,a4paper,twoside,openright,BCOR10mm,headsepline,titlepage,abstracton,chapterprefix,final]{scrreprt}
+
+\usepackage{ae}
+\usepackage[ngerman, english]{babel}
+%\usepackage{SIunits}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{setspace}
+
+% load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
+
+\RequirePackage{ifpdf}  % flag for pdf or dvi backend
+\ifpdf
+  \usepackage[pdftex]{graphicx}
+  \usepackage[pdftitle={RTFM on Imaging Theory and Basics of Optical Raytracing},%
+              pdfsubject={},%
+              pdfauthor={M. Esslinger, J. Hartung, U. Lippmann},%
+              pdfkeywords={},%
+              bookmarks=true,%
+%              colorlinks=true,%
+              urlcolor=blue,%
+              pdfpagelayout=TwoColumnRight,%
+              pdfpagemode=UseNone,%
+              pdfstartview=Fit,%
+	      pdfpagelabels,
+              pdftex]{hyperref}
+\else
+  \usepackage[dvips]{graphicx}
+  \usepackage[colorlinks=false,dvips]{hyperref}
+\fi
+%\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
+
+\usepackage{ae}
+%\usepackage[ngerman, english]{babel}
+
+%\usepackage{SIunits}
+\newcommand\elementarycharge{\textrm{e}}
+\newcommand\sccm{\textrm{sccm}}
+\newcommand\mbar{\milli\textrm{bar}}
+
+
+\usepackage{amsmath}
+%\usepackage{amssymb}
+\usepackage{setspace}
+
+%\widowpenalty = 1000
+
+
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
+
+\newcommand\Vector[1]{{\mathbf{#1}}}
+
+\newcommand\vacuum{0}
+
+\newcommand\location{r}
+\newcommand\Location{\Vector{r}}
+
+
+\newcommand\wavenumber{k}
+\newcommand\vacuumWavenumber{\wavenumber_{\vacuum}}
+\newcommand\Wavevector{\Vector{\wavenumber}}
+
+\newcommand\Nabla{\Vector{\nabla}}
+\newcommand\Laplace{\Delta}
+\newcommand\timederivative[1]{\dot{{#1}}}
+\newcommand\Tensor[1]{\hat{#1}}
+\newcommand\conjugate[1]{\overline{#1}}
+\newcommand\transpose[1]{#1^{T}}
+\newcommand\Norm[1]{\left| #1 \right|}
+\newcommand{\ket}[1]{\left\vert{#1}\right\rangle}
+\newcommand{\bra}[1]{\left\langle{#1}\right\vert}
+\newcommand{\braket}[2]{\left\langle{#1}\vert{#2}\right\rangle}
+\newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
+
+\newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
+
+\newcommand\Greenfunction{\Tensor{G}}
+
+\newcommand\scalarEfield{E}
+\newcommand\scalarBfield{B}
+\newcommand\scalarHfield{H}
+\newcommand\scalarDfield{D}
+\newcommand\scalarTipfield{T}
+\newcommand\scalarSamplefield{S}
+\newcommand\scalarDipolarmoment{p}
+\newcommand\Efield{\Vector{\scalarEfield}}
+\newcommand\Bfield{\Vector{\scalarBfield}}
+\newcommand\Hfield{\Vector{\scalarHfield}}
+\newcommand\Dfield{\Vector{\scalarDfield}}
+\newcommand\Dipolarmoment{\Vector{\scalarDipolarmoment}}
+
+\newcommand\permeability{\Tensor{\mu}}
+\newcommand\vacuumpermeability{\mu_{\vacuum}}
+\newcommand\permittivity{\Tensor{\epsilon}}
+\newcommand\generalPermittivity{\Tensor{\tilde\epsilon}}
+\newcommand\vacuumpermittivity{\epsilon_{\vacuum}}
+\newcommand\scalarpermittivity{\epsilon}
+\newcommand\conductivity{\Tensor{\sigma}}
+\newcommand\susceptibility{\Tensor{\chi}}
+\newcommand\currentdensity{\Vector{j}}
+\newcommand\Current{\Vector{I}}
+\newcommand\chargedensity{\rho}
+\newcommand\PoyntingVector{\Vector{S}}
+
+\newcommand\ordi{\text{ord}}
+\newcommand\eo{\text{eo}}
+
+\newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
+
+\newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
+\newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
+
+
+
+\begin{document}
+
+\begin{eqnarray}
+ 0 &=& \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_{j\,0} \\
+ 0 &=& -\Vector{k}^2 E_{i\,0} + k_i k_j E_{j\,0} + \omega^2 \mu_0 D_{i\,0} \\
+\end{eqnarray}
+
+Without loss of generality, we assume $\Wavevector \propto \Vector{e}_z$. [https://de.wikipedia.org/w/index.php?title=Kristalloptik\&oldid=159476511]
+From the Maxwell equation $\Nabla \Dfield = 0$ we conclude $\Dfield \perp \Wavevector$ and $\scalarDfield_z=0$.
+
+\begin{eqnarray}
+ - \wavenumber_z^2 E_{x\,0} + \omega^2 \mu_0 \scalarDfield_{x\,0} &=& 0\\ 
+ - \wavenumber_z^2 E_{y\,0} + \omega^2 \mu_0 \scalarDfield_{y\,0} &=& 0\\
+ 0 &=& 0
+\end{eqnarray}
+
+We define the inverse permittivity as $\alpha_{ij} = (\permittivity^{-1})_{ij}$
+
+\begin{eqnarray}
+ - \wavenumber_z^2 (\alpha_{xx} \scalarDfield_{x\,0} + \alpha_{xy} \scalarDfield_{y\,0}) + \omega^2 \mu_0 \scalarDfield_{x\,0} &=& 0\\ 
+ - \wavenumber_z^2 (\alpha_{yx} \scalarDfield_{x\,0} + \alpha_{yy} \scalarDfield_{y\,0}) + \omega^2 \mu_0 \scalarDfield_{y\,0} &=& 0
+\end{eqnarray}
+
+We introduce the $\Dfield$ polarisation angle $\phi$
+\begin{eqnarray}
+ \scalarDfield_{x\,0} &=& \scalarDfield_{0} \cos \phi \\
+ \scalarDfield_{y\,0} &=& \scalarDfield_{0} \sin \phi
+\end{eqnarray}
+
+\begin{eqnarray}
+ - \wavenumber_z^2 (\alpha_{xx} \scalarDfield_{0} \cos \phi + \alpha_{xy} \scalarDfield_{0} \sin \phi) + \omega^2 \mu_0 \scalarDfield_{0} \cos \phi &=& 0\\ 
+ - \wavenumber_z^2 (\alpha_{yx} \scalarDfield_{0} \cos \phi + \alpha_{yy} \scalarDfield_{0} \sin \phi) + \omega^2 \mu_0 \scalarDfield_{0} \sin \phi &=& 0
+\end{eqnarray}
+
+
+
+
+\end{document}
