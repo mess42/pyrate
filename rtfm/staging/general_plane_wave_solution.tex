@@ -117,6 +117,9 @@
 
 \begin{document}
 
+\section{Attempt 1: unit direction vector of k is known}
+
+
 \begin{eqnarray}
  0 &=& \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_{j\,0} \\
  0 &=& -\Vector{k}^2 E_{i\,0} + k_i k_j E_{j\,0} + \omega^2 \mu_0 D_{i\,0} \\
@@ -149,7 +152,184 @@ We introduce the $\Dfield$ polarisation angle $\phi$
  - \wavenumber_z^2 (\alpha_{yx} \scalarDfield_{0} \cos \phi + \alpha_{yy} \scalarDfield_{0} \sin \phi) + \omega^2 \mu_0 \scalarDfield_{0} \sin \phi &=& 0
 \end{eqnarray}
 
+\begin{eqnarray}
+ \wavenumber_z^2 &=& \frac{ \omega^2 \mu_0 \cos \phi}{\alpha_{xx} \cos \phi + \alpha_{xy} \sin \phi}\\ 
+ \omega^2 \mu_0 \cos \phi (\alpha_{yx} \cos \phi + \alpha_{yy} \sin \phi) &=& \omega^2 \mu_0 \sin \phi (\alpha_{xx} \cos \phi + \alpha_{xy} \sin \phi) \\
+ \cos \phi (\alpha_{yx} \cos \phi + \alpha_{yy} \sin \phi) &=& \sin \phi (\alpha_{xx} \cos \phi + \alpha_{xy} \sin \phi) \\
+ \alpha_{yx} \cos^2 \phi - \alpha_{xy} \sin^2 \phi &=& \alpha_{xx} \sin \phi \cos \phi - \alpha_{yy} \sin \phi \cos \phi \\
+ \alpha_{yx} \cos^2 \phi - \alpha_{xy} ( 1- \cos^2 \phi ) &=& ( \alpha_{xx} - \alpha_{yy} ) \sin \phi \cos \phi \\
+ ( \alpha_{xy} + \alpha_{yx} ) \cos^2 \phi - \alpha_{xy} &=& ( \alpha_{xx} - \alpha_{yy} ) \sin \phi \cos \phi \\
+ \left( ( \alpha_{xy} + \alpha_{yx} ) \cos^2 \phi - \alpha_{xy}\right)^2 &=& ( \alpha_{xx} - \alpha_{yy} )^2 (1- \cos^2 \phi) \cos^2 \phi
+\end{eqnarray}
 
+We substitute $\cos^2 \phi = \zeta$
+
+
+
+
+
+\section{Attempt 2: 2D problem}
+TODO: double check this section
+
+\begin{eqnarray}
+\begin{pmatrix}
+ \wavenumber_y^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} 
+ &
+ - \wavenumber_x \wavenumber_y - \omega^2 \vacuumpermeability \scalarpermittivity_{xy}
+ &
+ - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{xz}
+ \\
+ - \wavenumber_x \wavenumber_y - \omega^2 \vacuumpermeability \scalarpermittivity_{yx}
+ &
+ \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{yy} 
+ &
+ - \wavenumber_y \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{yz}
+ \\
+ - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{zx}
+ &
+ - \wavenumber_y \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{zy}
+ &
+ \wavenumber_x^2 + \wavenumber_y^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{zz}  
+\end{pmatrix}
+\Efield_0
+&=& 0 \label{eq:generalDispersionEigenEquation}
+\end{eqnarray}
+
+Without loss of generality, we assume $\wavenumber_y =0$.
+
+\begin{eqnarray}
+\begin{pmatrix}
+ \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} 
+ &
+ - \omega^2 \vacuumpermeability \scalarpermittivity_{xy}
+ &
+ - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{xz}
+ \\
+ - \omega^2 \vacuumpermeability \scalarpermittivity_{yx}
+ &
+ \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{yy} 
+ &
+ - \omega^2 \vacuumpermeability \scalarpermittivity_{yz}
+ \\
+ - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{zx}
+ &
+ - \omega^2 \vacuumpermeability \scalarpermittivity_{zy}
+ &
+ \wavenumber_x^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{zz}  
+\end{pmatrix}
+\Efield_0
+&=& 0 \label{eq:generalDispersionEigenEquation}
+\end{eqnarray}
+nontrivial solutions can be found, if the determinant is zero
+\begin{eqnarray}
+ 0 =&&
+     ( \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} ) 
+     ( \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{yy} )
+     ( \wavenumber_x^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{zz} )
+   \nonumber\\
+   &+&
+     ( - \omega^2 \vacuumpermeability \scalarpermittivity_{xy} )  
+     ( - \omega^2 \vacuumpermeability \scalarpermittivity_{yz} )
+     ( - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{zx} )
+   \nonumber\\
+   &+&
+     ( - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{xz} )
+     ( - \omega^2 \vacuumpermeability \scalarpermittivity_{yx} )
+     ( - \omega^2 \vacuumpermeability \scalarpermittivity_{zy} )
+   \nonumber\\
+   &-&  
+     ( - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{xz} )
+     (   \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{yy} )
+     ( - \wavenumber_x \wavenumber_z - \omega^2 \vacuumpermeability \scalarpermittivity_{zx} )
+   \nonumber\\
+   &-&
+     ( - \omega^2 \vacuumpermeability \scalarpermittivity_{xy} )
+     ( - \omega^2 \vacuumpermeability \scalarpermittivity_{yx} )
+     (   \wavenumber_x^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{zz} )
+   \nonumber\\
+   &-&
+     (   \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} )
+     ( - \omega^2 \vacuumpermeability \scalarpermittivity_{yz} )
+     (  - \omega^2 \vacuumpermeability \scalarpermittivity_{zy} )
+\end{eqnarray}
+which is a quartic equation in $\wavenumber_z$. 
+For each $x$ wavevector component, there are 2 solutions traveling in positive $z$-direction, and 2 in negative $z$-direction.
+The travelling direction can be determined from $\Re \wavenumber_z$. 
+The 2 solutions for each direction determine the polarisation eigenstates $\Efield_0$.
+
+We substitute $\omega^2 \vacuumpermeability \scalarpermittivity_{ij} = \gamma_{ij}$
+
+\begin{eqnarray}
+ 0 =&&
+     ( \wavenumber_z^2 -  \gamma_{xx} ) 
+     ( \wavenumber_x^2 + \wavenumber_z^2 -  \gamma_{yy} )
+     ( \wavenumber_x^2 -  \gamma_{zz} )
+   \nonumber\\
+   &+&
+     ( -  \gamma_{xy} )  
+     ( -  \gamma_{yz} )
+     ( - \wavenumber_x \wavenumber_z -  \gamma_{zx} )
+   \nonumber\\
+   &+&
+     ( - \wavenumber_x \wavenumber_z -  \gamma_{xz} )
+     ( -  \gamma_{yx} )
+     ( -  \gamma_{zy} )
+   \nonumber\\
+   &-&  
+     ( - \wavenumber_x \wavenumber_z -  \gamma_{xz} )
+     (   \wavenumber_x^2 + \wavenumber_z^2 -  \gamma_{yy} )
+     ( - \wavenumber_x \wavenumber_z -  \gamma_{zx} )
+   \nonumber\\
+   &-&
+     ( -  \gamma_{xy} )
+     ( -  \gamma_{yx} )
+     (   \wavenumber_x^2 -  \gamma_{zz} )
+   \nonumber\\
+   &-&
+     (   \wavenumber_z^2 -  \gamma_{xx} )
+     ( -  \gamma_{yz} )
+     (  -  \gamma_{zy} )
+\end{eqnarray}
+
+\begin{eqnarray}
+ 0   &=& a_4 \wavenumber_z^4 + a_3 \wavenumber_z^3 + a_2 \wavenumber_z^2 + a_1 \wavenumber_z + a_0 \\
+ a_4 &=& 
+      \gamma_{zz} 
+    \\
+ a_3 &=& 
+      (\gamma_{xz}+\gamma_{zx}) \wavenumber_x
+    \\
+ a_2 &=& 
+     -  (\wavenumber_x^2 - \gamma_{xx} - \gamma_{yy}) ( \wavenumber_x^2 -  \gamma_{zz} )
+     + \wavenumber_x^4
+     - \gamma_{yy}  \wavenumber_x^2
+     + \gamma_{xz} \gamma_{zx}
+     + \gamma_{yz} \gamma_{zy}
+    \\
+a_1 &=& 
+     \wavenumber_x 
+     \left( 
+        \gamma_{xy} \gamma_{yz} 
+       + \gamma_{yx} \gamma_{zy}
+       + (\gamma_{xz}+\gamma_{zx}) ( \wavenumber_x^2 - \gamma_{yy} )
+     \right)
+    \\
+a_0 &=& 
+     ( \gamma_{xx} (\wavenumber_x^2 - \gamma_{yy}) + \gamma_{xy} \gamma_{yx} ) ( \wavenumber_x^2 -  \gamma_{zz} )
+     + \gamma_{xy} \gamma_{yz} \gamma_{zx}
+     + \gamma_{xz} \gamma_{zy} \gamma_{yx}
+     + \gamma_{xz} \gamma_{zx} ( \wavenumber_x^2 - \gamma_{yy} ) 
+     - \gamma_{yz} \gamma_{zy} \gamma_{xx}    
+\end{eqnarray}
+
+We perform a Tschirnhaus transformation $\wavenumber_z = u - \tfrac{a_3}{4 a_4}$. 
+We yield a quartic equation in $u$ without a third order term, the \emph{depressed} form of the quartic equation.
+\begin{eqnarray}
+ 0   &=& u^4 + b_2 u^2 + b_1 u + b_0 \\
+ b_2 &=& -\frac{3 a_3^2}{8 a_4^2} + \frac{a_2}{a_4}\\
+ b_1 &=& \frac{a_3^3}{8 a_4^3} - \frac{a_3 a_2}{2 a_4^2}+ \frac{a_1}{a_4}\\
+ b_0 &=& \frac{3 a_3^4}{256 a_4^4} + \frac{a_3^2 a_2}{16 a_4^3}-\frac{a_3 a_1}{4 a_4^2} + \frac{a_0}{a_4}
+\end{eqnarray}
 
 
 \end{document}
