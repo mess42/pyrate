@@ -43,6 +43,7 @@ Additional Notes for Windows 32
 For win32 you have to take care of additional scipy support:
 According to http://forum.freecadweb.org/viewtopic.php?f=4&t=20674 it is possible to
 install scipy and the appropriate numpy library for FreeCAD 0.16 for win32.
+(Thanks to peterl94 and sgrogan from the FreeCAD forum for their immediate and englighting response :-))
 
 Requirements:
 - 7zip (http://www.7-zip.org/)
