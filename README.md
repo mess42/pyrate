@@ -37,10 +37,31 @@ FreeCAD Workbench
 - choose workbench in FreeCAD
 - execution of build_rc is not necessary anymore
 
-Additional Notes for Windows (not tested, yet)
+Additional Notes for Windows 32
 -----------------------------------------
 
-For windows you may need take care of additional scipy support:
+For win32 you have to take care of additional scipy support:
+According to http://forum.freecadweb.org/viewtopic.php?f=4&t=20674 it is possible to
+install scipy and the appropriate numpy library for FreeCAD 0.16 for win32.
+
+Requirements:
+- 7zip (http://www.7-zip.org/)
+- numpy‑1.12.0+mkl‑cp27‑cp27m‑win32.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/
+- scipy‑0.18.1‑cp27‑cp27m‑win32.whl from http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+Installation procedure:
+- Install FreeCAD 0.16, 32bit from http://freecadweb.org/wiki/Download
+- Delete (or rename) `C:\Program Files (x86)\FreeCAD 0.16\bin\Lib\site-packages\numpy`
+- Use 7-zip to extract numpy‑1.12.0+mkl‑cp27‑cp27m‑win32.whl\numpy to `C:\Program Files (x86)\FreeCAD 0.16\bin\Lib\site-packages`
+- Use 7-zip to extract scipy‑0.18.1‑cp27‑cp27m‑win32.whl\scipy to `C:\Program Files (x86)\FreeCAD 0.16\bin\Lib\site-packages`
+- Copy the whole directory of this git repo into `C:\Program Files (x86)\FreeCAD 0.16\Mod`
+
+In the future it may be necessary to change the versions of numpy and scipy appropriatly.
+
+Additional Notes for Windows 64 (not tested, yet)
+-----------------------------------------
+
+For win64 you also need to take care of additional scipy support:
 
 - open FreeCAD and check Python and MSC (Visual Studio) version (first line in Python console)
 - find scipy binary which is compatible with these two versions
@@ -52,6 +73,7 @@ For windows you may need take care of additional scipy support:
 ```
 - check whether import of scipy is successful by `import scipy`
 - independently of whether scipy is found or not, there may still be a DLL initialization error: check whether MSVC version of your scipy binaries and the ones of FreeCAD are identical
+- It seems that for windows 64 there is no solution to integrate scipy into FreeCAD in a generic way, see also http://forum.freecadweb.org/viewtopic.php?f=4&t=20674 for a discussion about this issue
 
 Please test this workflow. If there is anything incorrect, please fill an issue.
 
@@ -59,6 +81,3 @@ IRC
 ---
 
 Visit us on freenode (ports 6697, 7000, 7070 for SSL) channel #pyrate for some real time communication.
-
-
-
