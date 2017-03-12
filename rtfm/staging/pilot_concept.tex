@@ -154,7 +154,7 @@ ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \De
 surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
 \end{tabular}
 
-\subsubsection{Representation of near-pilot ray directions}
+\subsubsection{Near-pilot ray directions}
 
 There is an additional constraint on the ray direction unit vectors: both pilot and near-pilot ray direction must be normalized,
 $|\Vector{d}_{pilot}|=|{\Vector{d}}|=1$.
@@ -163,20 +163,50 @@ $|\Vector{d}_{pilot}|=|{\Vector{d}}|=1$.
  |{\Vector{d}}|^2 = |\Vector{d}_{pilot}|^2 + 2 \Vector{d}_{pilot} \cdot \Delta\Vector{d} + |\Delta\Vector{d}|^2
 \end{eqnarray}
 
-In the limit of near pilot rays, $|\Delta\Vector{d}|^2 \rightarrow 0$, the scalar product must vanish. 
-The change of direction is perpendicular to the pilot direction, $\Vector{d}_{pilot} \perp \Delta\Vector{d}$. 
+In the limit of near pilot rays, terms quadratic in $\Delta\Vector{d}$ are negligible, $|\Delta\Vector{d}|^2 \rightarrow 0$. 
+We want both the pilot direction $\Vector{d}_{pilot}$ and near-pilot directions ${\Vector{d}}$ to be valid ray directions 
+without the need to apply nonlinear normalization operations.
+\begin{eqnarray}
+1 &=& 1 + 2 \Vector{d}_{pilot} \cdot \Delta\Vector{d}
+\end{eqnarray}
+In this case, the change of direction must be perpendicular to the pilot direction, $\Vector{d}_{pilot} \perp \Delta\Vector{d}$. 
 This leaves only two degrees of freedom for $\Delta\Vector{d}$.
 
 \begin{eqnarray}
  \Delta\Vector{d} &=& U \Vector{e}_{U} + V \Vector{e}_{V}
 \end{eqnarray}
 
-We represent $\Delta\Vector{d}$ by two components $U$and $V$ and choose orthogonal unit vectors $\Vector{e}_{U} \perp \Vector{e}_{V} \perp \Vector{d}_{pilot} \perp \Vector{e}_{U}$,
+We represent $\Delta\Vector{d}$ by two components $U$and $V$ 
+and choose orthogonal unit vectors $\Vector{e}_{U} \perp \Vector{e}_{V} \perp \Vector{d}_{pilot} \perp \Vector{e}_{U}$,
 forming a cartesian coordinate system.
-In this representation, the normalization requirement $|{\Vector{d}}| = 1$ imposes no nonlinear constraint on a third component depending on the choice of $U$ and $V$.
 We may choose (small) values for $U$ and $V$ independent from each other and independent from the pilot direction. 
 
-\subsubsection{Representation of near-pilot intersection points}
+\subsubsection{Near-pilot wavevectors}
+Similarly to the choice of near-pilot ray directions, we demand that near-pilot wavevectors are valid wavevectors.
+That is, they have to fulfill the dispersion relation. 
+In contrast to the real valued ray directions, wavevectors may deviate from the pilot ray in real and imaginary part.
+
+\paragraph{Isotropic, homogenous media.}
+
+The dispersion in isotropic media reads
+\begin{eqnarray}
+ \Wavevector \cdot \Wavevector &=& \Wavevector_{pilot} \cdot \Wavevector_{pilot} = \omega^2 \vacuumpermeability \scalarpermittivity
+\end{eqnarray}
+Near-pilot rays must fulfill
+\begin{eqnarray}
+ \Delta \Wavevector \cdot \Wavevector_{pilot} &=& 0 + 0i
+\end{eqnarray}
+This leaves 4 (real valued) degrees of freedom for $\Delta \Wavevector$.
+
+TODO
+
+\paragraph{Anisotropic, homogeneous media.}
+TODO
+
+\paragraph{Inhomogenous media.}
+TODO
+
+\subsubsection{Near-pilot intersection points}
 
 In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
 We represent the ray height in this plane by
@@ -202,7 +232,7 @@ except for a component along the pilot ray axis.
 
 With this choice, we restrict ourselves to cases where the pilot direction does not lie inside the plane of $\Vector{e}_{X}$ and $\Vector{e}_{Y}$.
 
-\subsection{Unique choice of unit vectors}
+\subsubsection{Unique choice of unit vectors}
 Up to now, the coordinate systems $\Vector{e}_{X}, \Vector{e}_{Y}$ are defined except for a \emph{roll} degree of freedom, that is, a rotation around the pilot ray.
 In case we partition our optical system into subsets, for example individual optical elements or surfaces, each subsystem $i$ may have its own coordinate system
 $\Vector{e}_{X,i}, \Vector{e}_{Y,i}$.
@@ -220,73 +250,6 @@ In case the pilot ray lies in the sag $xy$ plane, however, we face numerical dif
  \Vector{e}_{Y} &=& \frac{\Vector{e}_{y} - (\Vector{e}_{y}\Vector{n}_{pilot})\Vector{n}_{pilot}}{|\Vector{e}_{y} - (\Vector{e}_{y}\Vector{n}_{pilot})\Vector{n}_{pilot}|}
 \end{eqnarray}
 
-
-\subsection{Propagation of rays through an optical system}
-
-After tracing the pilot ray, we also want to propagate near-pilot rays.
-
-\begin{eqnarray}
- \begin{pmatrix}
-  X_{im} \\ Y_{im} \\ U_{im} \\ V_{im}
- \end{pmatrix}
- &=&
- \hat{G}
- \begin{pmatrix}
-  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj}
- \end{pmatrix}
-\end{eqnarray}
-
-The coordinates $X,Y,U,V$ reside in their respective object and image sided coordinate systems $\Vector{e}$.
-By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
-$\hat{G}\Vector{0} = \Vector{0}$.
-
-In analogy to the ABCD formalism, 
-\begin{eqnarray}
- \begin{pmatrix}
-  y_{im} \\ y^{\,\prime}_{im}
- \end{pmatrix}
- =
- \begin{pmatrix}
-   A & B \\ C & D
- \end{pmatrix}
- \begin{pmatrix}
-   y_{obj} \\ y^{\,\prime}_{obj}
- \end{pmatrix}
-\end{eqnarray}
-we neglect terms quadratic in the change of direction or position, 
-$\orderof{\Delta\Vector{d}^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Vector{d}\Delta\Vector{r}}$.
-The linear terms in $\hat{G}$ can be represented by a matrix.
-
-\begin{eqnarray}
- \hat{G} &=&
- \begin{pmatrix}
-  a_{11} & a_{12} & b_{11} & b_{12} \\
-  a_{21} & a_{22} & b_{21} & b_{22} \\  
-  c_{11} & c_{12} & d_{11} & d_{12} \\
-  c_{21} & c_{22} & d_{21} & d_{22} 
- \end{pmatrix}
- =
- \begin{pmatrix}
-  \hat{A} & \hat{B} \\
-  \hat{C} & \hat{D}
- \end{pmatrix} 
-\end{eqnarray}
-
-Like in the ABCD-formalism, we can express the effect of multiple propagators as the product of its matrices.
-The individual propagators can be, for example, free space propagation or surface refraction.
-
-\begin{eqnarray}
- \begin{pmatrix}
-  X_{im} \\ Y_{im} \\ U_{im} \\ V_{im}
- \end{pmatrix}
- &=&
- \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot
- \begin{pmatrix}
-  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj}
- \end{pmatrix}
-\end{eqnarray}
-
-In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
 
 
 \subsection{Free Space Propagation}
@@ -343,32 +306,6 @@ as well as the final result
 \begin{eqnarray}
  X_1 &=& X_{1,0} + X_{1,2} \\
  Y_1 &=& Y_{1,0} + Y_{1,2}
-\end{eqnarray}
-
-\subsection{Thin lenses}
-We consider a thin lens in air with focal length $f$ isotropically in $\Vector{e}_U$ and $\Vector{e}_V$ direction
-and identical unit vectors in front of and behind the surface, $\Vector{e}_{X,Y,U,V 0} = \Vector{e}_{X,Y,U,V 1}$.
-Its XYUV matrix reads
-\begin{eqnarray}
-XYUV_{thin lens} &=&
- \begin{pmatrix}
-  1 & 0 & 0 & 0 \\
-  0 & 1 & 0 & 0 \\
-  -\frac{1}{f} & 0 & 1 & 0 \\
-  0 & -\frac{1}{f} & 0 & 1
- \end{pmatrix}
-\end{eqnarray}
-
-and for a cylindrical lens with a focal power tilted by $\theta$ with respect to the $Y$ axis
-
-\begin{eqnarray}
-XYUV_{cyl} &=&
- \begin{pmatrix}
-  1 & 0 & 0 & 0 \\
-  0 & 1 & 0 & 0 \\
-  -\frac{1}{f} \sin^2\theta & -\frac{1}{f} \sin\theta \cos\theta & 1 & 0 \\
-  -\frac{1}{f} \sin\theta \cos\theta & -\frac{1}{f} \cos^2\theta & 0 & 1
- \end{pmatrix}
 \end{eqnarray}
 
 
@@ -460,7 +397,9 @@ For the XYUV formalism, however, we need a formulation employing the ray directi
  \Delta\Vector{d} = ?
 \end{eqnarray}
 
-TO DO
+
+
+\section{to do parts}
 
 \subsection{Isotropic Media}
 We assume a scalar, complex valued permittivity $\scalarpermittivity_2$.
@@ -554,6 +493,100 @@ Therefore the matrix of the normal vector derivatives is given by
 %  \right)
 % \end{eqnarray}
 
+
+\subsection{Propagation of rays through an optical system}
+
+After tracing the pilot ray, we also want to propagate near-pilot rays.
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_{im} \\ Y_{im} \\ U_{im} \\ V_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}
+ \begin{pmatrix}
+  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+
+The coordinates $X,Y,U,V$ reside in their respective object and image sided coordinate systems $\Vector{e}$.
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
+$\hat{G}\Vector{0} = \Vector{0}$.
+
+In analogy to the ABCD formalism, 
+\begin{eqnarray}
+ \begin{pmatrix}
+  y_{im} \\ y^{\,\prime}_{im}
+ \end{pmatrix}
+ =
+ \begin{pmatrix}
+   A & B \\ C & D
+ \end{pmatrix}
+ \begin{pmatrix}
+   y_{obj} \\ y^{\,\prime}_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+we neglect terms quadratic in the change of direction or position, 
+$\orderof{\Delta\Vector{d}^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Vector{d}\Delta\Vector{r}}$.
+The linear terms in $\hat{G}$ can be represented by a matrix.
+
+\begin{eqnarray}
+ \hat{G} &=&
+ \begin{pmatrix}
+  a_{11} & a_{12} & b_{11} & b_{12} \\
+  a_{21} & a_{22} & b_{21} & b_{22} \\  
+  c_{11} & c_{12} & d_{11} & d_{12} \\
+  c_{21} & c_{22} & d_{21} & d_{22} 
+ \end{pmatrix}
+ =
+ \begin{pmatrix}
+  \hat{A} & \hat{B} \\
+  \hat{C} & \hat{D}
+ \end{pmatrix} 
+\end{eqnarray}
+
+Like in the ABCD-formalism, we can express the effect of multiple propagators as the product of its matrices.
+The individual propagators can be, for example, free space propagation or surface refraction.
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_{im} \\ Y_{im} \\ U_{im} \\ V_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot
+ \begin{pmatrix}
+  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+
+In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
+
+
+\subsection{Thin lenses}
+We consider a thin lens in air with focal length $f$ isotropically in $\Vector{e}_U$ and $\Vector{e}_V$ direction
+and identical unit vectors in front of and behind the surface, $\Vector{e}_{X,Y,U,V 0} = \Vector{e}_{X,Y,U,V 1}$.
+Its XYUV matrix reads
+\begin{eqnarray}
+XYUV_{thin lens} &=&
+ \begin{pmatrix}
+  1 & 0 & 0 & 0 \\
+  0 & 1 & 0 & 0 \\
+  -\frac{1}{f} & 0 & 1 & 0 \\
+  0 & -\frac{1}{f} & 0 & 1
+ \end{pmatrix}
+\end{eqnarray}
+
+and for a cylindrical lens with a focal power tilted by $\theta$ with respect to the $Y$ axis
+
+\begin{eqnarray}
+XYUV_{cyl} &=&
+ \begin{pmatrix}
+  1 & 0 & 0 & 0 \\
+  0 & 1 & 0 & 0 \\
+  -\frac{1}{f} \sin^2\theta & -\frac{1}{f} \sin\theta \cos\theta & 1 & 0 \\
+  -\frac{1}{f} \sin\theta \cos\theta & -\frac{1}{f} \cos^2\theta & 0 & 1
+ \end{pmatrix}
+\end{eqnarray}
 
 
 \end{document}
