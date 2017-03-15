@@ -141,7 +141,7 @@ The concept is a parabasal approximation around a non-paraxial pilot ray.
 
 
 
-\subsection{Near-Pilot Rays}
+\subsection{Near-Pilot Basis Systems}
 
 We consider near-pilot rays, that have an intersection point and a wavevector close to the pilot ray.
 
@@ -154,7 +154,7 @@ ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \De
 surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
 \end{tabular}
 
-\subsubsection{Near-pilot ray directions}
+\subsubsection{Ray Directions}
 
 There is an additional constraint on the ray direction unit vectors: both pilot and near-pilot ray direction must be normalized,
 $|\Vector{d}_{pilot}|=|{\Vector{d}}|=1$.
@@ -181,7 +181,7 @@ and choose orthogonal unit vectors $\Vector{e}_{U} \perp \Vector{e}_{V} \perp \V
 forming a cartesian coordinate system.
 We may choose (small) values for $U$ and $V$ independent from each other and independent from the pilot direction. 
 
-\subsubsection{Near-pilot wavevectors}
+\subsubsection{Wavevectors}
 Similarly to the choice of near-pilot ray directions, we demand that near-pilot wavevectors are valid wavevectors.
 That is, they have to fulfill the dispersion relation. 
 In contrast to the real valued ray directions, wavevectors may deviate from the pilot ray in real and imaginary part.
@@ -196,17 +196,21 @@ Near-pilot rays must fulfill
 \begin{eqnarray}
  \Delta \Wavevector \cdot \Wavevector_{pilot} &=& 0 + 0i
 \end{eqnarray}
-This leaves 4 (real valued) degrees of freedom for $\Delta \Wavevector$.
-
-TODO
+We represent $\Delta \Wavevector$ as
+\begin{eqnarray}
+ \Delta \Wavevector &=& M \Vector{e}_M + N \Vector{e}_N
+\end{eqnarray}
+where $\Vector{e}_M$ and $\Vector{e}_N$ are two complex valued vectors of unitary length
+$||\Vector{e}_M||=||\Vector{e}_N||=1$ and $M,N$ are real valued prefactors.
 
 \paragraph{Anisotropic, homogeneous media.}
 TODO
 
 \paragraph{Inhomogenous media.}
 TODO
+One should consider that the pilot ray does not have \emph{one} direction over all its trajectory.
 
-\subsubsection{Near-pilot intersection points}
+\subsubsection{Intersection points}
 
 In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
 We represent the ray height in this plane by
@@ -218,41 +222,39 @@ We represent the ray height in this plane by
 
 where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 As we will see later, this choice is beneficial when calculating near-pilot ray intersection points.
-The disadvantage of this representation is that it is not identical to the coordinate system used to describe the surface sag.
-In general, the planes for $\Delta\Vector{d}$ and $\Delta\Vector{r}$ may differ.
-We first choose the two unit vectors for the $X$ and $Y$-component in the surface plane.
-For simplicity, we choose the vectors of $U$ and $V$ identical,
-except for a component along the pilot ray axis.
 
-\begin{eqnarray}
- \Vector{e}_{U} &=& \frac{\Vector{e}_{X} - (\Vector{e}_{X}\Vector{d}_{pilot})\Vector{d}_{pilot}}{|\Vector{e}_{X} - (\Vector{e}_{X}\Vector{d}_{pilot})\Vector{d}_{pilot}|}
- \\[2ex]
- \Vector{e}_{V} &=& \frac{\Vector{e}_{Y} - (\Vector{e}_{Y}\Vector{d}_{pilot})\Vector{d}_{pilot}}{|\Vector{e}_{Y} - (\Vector{e}_{Y}\Vector{d}_{pilot})\Vector{d}_{pilot}|}
-\end{eqnarray}
-
-With this choice, we restrict ourselves to cases where the pilot direction does not lie inside the plane of $\Vector{e}_{X}$ and $\Vector{e}_{Y}$.
 
 \subsubsection{Unique choice of unit vectors}
-Up to now, the coordinate systems $\Vector{e}_{X}, \Vector{e}_{Y}$ are defined except for a \emph{roll} degree of freedom, that is, a rotation around the pilot ray.
-In case we partition our optical system into subsets, for example individual optical elements or surfaces, each subsystem $i$ may have its own coordinate system
-$\Vector{e}_{X,i}, \Vector{e}_{Y,i}$.
-Each subsystem may have an arbitrarily chosen roll angle. 
-There is, among others, one choices we want to highlight:
+We have basis systems for:
+\begin{itemize}
+ \item the cartesian global coordinates $( \Vector{e}_x, \Vector{e}_y, \Vector{e}_z )$
+ \item the deviation from the pilot ray intersection $( \Vector{e}_X, \Vector{e}_Y )$
+ \item the deviation of the ray direction $( \Vector{e}_U, \Vector{e}_V )$
+ \item the deviation of the wavevector $( \Vector{e}_M, \Vector{e}_N )$
+\end{itemize}
+Up to now, the unit vectors to describe the deviations are not uniquely defined: 
+we only demand that the pairs of vectors are linear independent and lay both in the plane of valid vectors, as discussed above.
 
-We take the local coordinate system used to describe the surface sag and project its unit vectors on the tangential plane.
-The projections of sag $x$ and $y$ unit vectors are then employed for $X$ and $Y$ ray heights, respectively.
-With this choice, we can easily express absolute vertex heights of near pilot rays back in the sag coordinate system. 
-In case the pilot ray lies in the sag $xy$ plane, however, we face numerical difficulties.
-
-\begin{eqnarray}
- \Vector{e}_{X} &=& \frac{\Vector{e}_{x} - (\Vector{e}_{x}\Vector{n}_{pilot})\Vector{n}_{pilot}}{|\Vector{e}_{x} - (\Vector{e}_{x}\Vector{n}_{pilot})\Vector{n}_{pilot}|}
- \\[2ex]
- \Vector{e}_{Y} &=& \frac{\Vector{e}_{y} - (\Vector{e}_{y}\Vector{n}_{pilot})\Vector{n}_{pilot}}{|\Vector{e}_{y} - (\Vector{e}_{y}\Vector{n}_{pilot})\Vector{n}_{pilot}|}
-\end{eqnarray}
-
+In this section, we aim for an arbitrary choice of unit vectors, so that
+\begin{itemize}
+ \item all unit vectors are uniquely defined
+ \item their computation and conversion is fast 
+ \item the optimization of optical systems is robust.
+\end{itemize}
+For the robustness of optimization, 
+we need to find unit vector definitions that do not change abruptly 
+when applying small changes to the optical system.
 
 
-\subsection{Free Space Propagation}
+
+For example, they should not contain an arcus tangent pole or limit in the normalization of close-to-zero vectors.
+\remark{TODO: add a solution to the problem stated}
+
+\subsubsection{Conversion of Wavevectors and Ray Directions}
+TODO
+
+
+\subsection{Propagation in Homogeneous Media}
 In this section, we discuss propagation of straight rays on the tangential plane of the following surface.
 Rays travel along straights in homogeneous media.
 
@@ -310,9 +312,7 @@ as well as the final result
 
 
 
-\subsection{Evaluation of the Law of Refraction}
-
-
+\subsection{Refraction}
 
 We are interested in the change of the refracted wavevector $\Delta\Wavevector_2 = {\Wavevector}_2 - \Wavevector_{2, pilot}$ induced by $\Delta\Vector{r}$ and $\Delta\Wavevector$.
 \begin{eqnarray}
@@ -388,13 +388,6 @@ Hence by introducing $a$ and $a+1$ as the respective surface indices we may obta
      + \xi \delta_{ij}
      + n_i \frac{\partial \xi}{\partial n_j}
     \right) \partial_\ell n_j + \partial_\ell \xi\right]\Delta r_{a\,\ell}
-\end{eqnarray}
-
-\subsubsection{From Wavevectors to Ray Directions}
-Up to now, we calculated the wavevector after the refraction as a function of the incoming wavevector. 
-For the XYUV formalism, however, we need a formulation employing the ray directions $\Vector{d}$.
-\begin{eqnarray}
- \Delta\Vector{d} = ?
 \end{eqnarray}
 
 
