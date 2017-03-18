@@ -576,15 +576,17 @@ Our formulation of the law of refraction and the law of reflection is
 \begin{eqnarray}
  \Efield_1(\Location) &=& \Efield_{01} \exp(i \Wavevector_1 \Location) + \Efield_{0r} \exp(i \Wavevector_r \Location)   \\
  \Efield_2(\Location) &=& \Efield_{02} \exp(i \Wavevector_2 \Location) \\
- \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi \Vector{n}\,.\label{eq:xieqn} \\
- \Wavevector_{r} &=& \Wavevector_{1\parallel} - \Wavevector_{1\perp}
+ \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi_t \Vector{n}\,.\label{eq:xieqn} \\
+ \Wavevector_{r} &=& \Wavevector_{1\parallel} - \xi_r \Vector{n}
 \end{eqnarray}
 and holds for planar boundaries between two homogeneous media.
 $\Efield_{01}$ is the amplitude of the incoming plane wave, 
 $\Efield_{0r}$ the amplitude of the reflected plane wave in medium 1, 
 and $\Efield_{02}$ the amplitude of the refracted plane wave.
 $\Vector{k}_2$ consists of the conserved in-plane component $\wavenumber_{1\parallel}$ and the out-of-plane component $\xi$. 
-The explicit form of the normal component $\xi$ depends on the material dispersion in material $\permittivity_2$. 
+The explicit form of the normal component $\xi$ depends 
+on the material dispersion in material $\permittivity_2$ for the transmitted wave
+and on $\permittivity_1$ for the reflected wave. 
 
 
 Compared to the law of Snellius, this formulation bears the following advantages:
