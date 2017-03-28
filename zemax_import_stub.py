@@ -1,8 +1,45 @@
 # -*- coding: utf-8 -*-
 """
 """
+from numpy import *
 
-def zmx2dict(filename):
+def lines2dict(lines):
+    """
+    Converts lines of a zmx file into a dictionary
+
+    :param: lines (list of str)
+    :return: dic (dict)
+    """
+    dic = {}    
+
+    # Concatenate lines that are indented
+    data = []
+    for l in lines:
+        if l.startswith("  "):
+            data[-1] += "\r\n" + l[2:] 
+        else:
+            data.append(l)
+
+    # put all lines beginning with the same 4 characters in one dict entry
+    for d in data:
+        d = d.strip()
+        if len(d) >= 4:
+            if d[0:4] in dic:
+                dic[d[0:4]] += [d[5:]]
+            else:
+                dic[d[0:4]]  = [d[5:]]
+
+    dic.pop("", None) # remove the empty set from the dic definition
+        
+    for key in dic:
+        for i in arange(len(dic[key])):
+            if dic[key][i].find("\r\n") != -1:
+                a = dic[key][i].split("\r\n")
+                dic[key][i] = lines2dict(a)
+    return dic
+
+
+def readzmx(filename):
     """
     Reads a Zemax file and converts it to a python dictionary.
     
@@ -18,39 +55,18 @@ def zmx2dict(filename):
     """
     f = open(filename,"r")
     zmx = f.read() 
-    if zmx.startswith("\xff\xfe"): # utf8
-        zmx = zmx[2::2].replace('\"', "") # dirty way to convert to ascii
+    if zmx.startswith("\xff\xfe"): # utf16
+        zmx = zmx.decode("utf16")
     f.close
+    lines = zmx.split("\r\n")
     
-    modeblocks = zmx.split("\r\nMODE ")
-    # Before the first occurence of "MODE", 
-    # there is the Zemax version and dongle number of the file creator.
-    # Then either "MODE SEQ" or "MODE NSC" occurs, 
-    # followed by a sequential or non-sequential lens decription. 
-    
-    for current_modeblock in modeblocks[1:]:
-        if current_modeblock.startswith("SEQ"):
-            # Current block describes a lens in Zemax sequential raytracing mode
-            
-            # Split at \r\n windows newline commands,
-            # except if a line begins with an indent 
-            lines = current_modeblock.split("\r\n")[1:]
-            data = []
-            for l in lines:
-                if l.startswith("  "):
-                    data[-1] += l + "\r\n"
-                else:
-                    data.append(l)
-                    
-            # Group lines that begin with the same 4 characters
-            zmxdict = {}
-            for d in data:
-                if d[0:4] in zmxdict:
-                    zmxdict[d[0:4]] += [d[5:]]
-                else:
-                    zmxdict[d[0:4]]  = [d[5:]]
-        else:
-            raise Exception("Nonsequential mode import not supported yet.")
+    zmxdict = lines2dict(lines)
+        
+    if len(zmxdict["MODE"]) > 1:
+        raise Exception("Mixed sequential and NSC Zemax files not supported yet")
+        
     return zmxdict
     
-zmxdict = zmx2dict("lenssystem.ZMX")
+zmxdict = readzmx("lenssystem.ZMX")
+
+#print zmxdict
