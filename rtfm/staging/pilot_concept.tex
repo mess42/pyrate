@@ -131,18 +131,33 @@ In this section, we develop a description for the first order properties of opti
 and describe rotationally symmetric and non-symmetric systems with a single formalism.
 It is a formalism for rays close to the center-of-field chief ray, which we call \emph{pilot ray} in the following.
 This pilot ray takes the role of the optical axis in rotationally symmetric systems. 
-By choosing the term pilot ray, we want to emphasize that we mean neither a mechanical axis of symmetry of individual lens elements nor the extraordinary axis in anisotropic crystals.
-In most systems, the intial pilot ray direction is perpendicular to the object plane. 
+By choosing the term pilot ray, we want to avoid confusions with mechanical symmetry axes of sub-systems.
+In many systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
+
+
+\subsection{Propagation of rays through an optical system}
 Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
-From this Taylor expansion, we derive first order properties, like focal length, magnification and image position.
+From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
 
-
-
-\subsection{Near-Pilot Rays}
-
+The ABCD formalism 
+\begin{eqnarray}
+ \begin{pmatrix}
+  y_{im} \\ y^{\,\prime}_{im}
+ \end{pmatrix}
+ =
+ \begin{pmatrix}
+   A & B \\ C & D
+ \end{pmatrix}
+ \begin{pmatrix}
+   y_{obj} \\ y^{\,\prime}_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+describes height $y$ and direction $y^{\,\prime}$ of meridional rays in first order. 
+In the ABCD-formalism, the ray height is measured relative to the optical axis of the rotationally symmetric system.
+In our generalized ansatz, we describe the vectorial deviation from the pilot ray position and direction.
 We consider near-pilot rays, that have an intersection point and a wavevector close to the pilot ray.
 
 \begin{tabular}{ l | l | l }
@@ -152,11 +167,54 @@ intersection point  & $\Vector{r}_{pilot}$ & ${\Vector{r}} = \Vector{r}_{pilot} 
 wavevector  & $\Wavevector_{pilot}$ & ${\Wavevector} = \Wavevector_{pilot} + \Delta\Wavevector$ \\
 ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \Delta\Vector{d}$ \\
 surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
-\end{tabular}
+\end{tabular}\\[2ex]
+We represent the propagation of these deviations through the optical system by a propagator $\hat{G}$
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
+That is $\hat{G}\Vector{0} = \Vector{0}$.
+In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
+$\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
+The linear terms in $\hat{G}$ can be represented by a matrix,
+and we can express the effect of multiple propagators as the product of its matrices.
+The individual propagators can be, for example, free space propagation or surface refraction.
 
-\subsubsection{Near-pilot ray directions}
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot
+ \begin{pmatrix}
+  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+ \end{pmatrix}
+\end{eqnarray}
 
-There is an additional constraint on the ray direction unit vectors: both pilot and near-pilot ray direction must be normalized,
+In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
+In the following, we discuss the rank of the matrices $\hat{G}$ and the basis of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+
+\subsection{Near-Pilot Basis Systems}
+
+The deviations may not be chosen freely, but we need to choose
+$\Delta\Vector{r}$, $\Delta\Wavevector$ and $\Delta\Vector{d}$ 
+in a way so that both pilot and near-pilot rays
+have valid properties.
+Intersection points must lay on the surface,
+wavevectors must obey the dispersion relation 
+and ray direction vectors must be of unit length.
+This limits the degrees of freedom for the deviations.
+
+\subsubsection{Ray Directions}
+
+Both pilot and near-pilot ray direction must be normalized,
 $|\Vector{d}_{pilot}|=|{\Vector{d}}|=1$.
 
 \begin{eqnarray}
@@ -164,12 +222,10 @@ $|\Vector{d}_{pilot}|=|{\Vector{d}}|=1$.
 \end{eqnarray}
 
 In the limit of near pilot rays, terms quadratic in $\Delta\Vector{d}$ are negligible, $|\Delta\Vector{d}|^2 \rightarrow 0$. 
-We want both the pilot direction $\Vector{d}_{pilot}$ and near-pilot directions ${\Vector{d}}$ to be valid ray directions 
-without the need to apply nonlinear normalization operations.
 \begin{eqnarray}
-1 &=& 1 + 2 \Vector{d}_{pilot} \cdot \Delta\Vector{d}
+0 &=& 2 \Vector{d}_{pilot} \cdot \Delta\Vector{d}
 \end{eqnarray}
-In this case, the change of direction must be perpendicular to the pilot direction, $\Vector{d}_{pilot} \perp \Delta\Vector{d}$. 
+The change of direction must be perpendicular to the pilot direction, $\Vector{d}_{pilot} \perp \Delta\Vector{d}$. 
 This leaves only two degrees of freedom for $\Delta\Vector{d}$.
 
 \begin{eqnarray}
@@ -181,10 +237,9 @@ and choose orthogonal unit vectors $\Vector{e}_{U} \perp \Vector{e}_{V} \perp \V
 forming a cartesian coordinate system.
 We may choose (small) values for $U$ and $V$ independent from each other and independent from the pilot direction. 
 
-\subsubsection{Near-pilot wavevectors}
-Similarly to the choice of near-pilot ray directions, we demand that near-pilot wavevectors are valid wavevectors.
-That is, they have to fulfill the dispersion relation. 
-In contrast to the real valued ray directions, wavevectors may deviate from the pilot ray in real and imaginary part.
+\subsubsection{Wavevectors}
+Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
+In contrast to the real valued ray directions, wavevectors may be complex valued.
 
 \paragraph{Isotropic, homogenous media.}
 
@@ -196,18 +251,22 @@ Near-pilot rays must fulfill
 \begin{eqnarray}
  \Delta \Wavevector \cdot \Wavevector_{pilot} &=& 0 + 0i
 \end{eqnarray}
-This leaves 4 (real valued) degrees of freedom for $\Delta \Wavevector$.
-
-TODO
+We represent $\Delta \Wavevector$ as
+\begin{eqnarray}
+ \Delta \Wavevector &=& M \Vector{e}_M + N \Vector{e}_N
+\end{eqnarray}
+where $\Vector{e}_M$ and $\Vector{e}_N$ are two real valued, independent unit vectors and $M,N$ are complex valued prefactors.
 
 \paragraph{Anisotropic, homogeneous media.}
 TODO
 
 \paragraph{Inhomogenous media.}
 TODO
+One should consider that the pilot ray does not have \emph{one} direction over all its trajectory.
 
-\subsubsection{Near-pilot intersection points}
+\subsubsection{Intersection points}
 
+We demand that near-pilot intersection points are on the surface.
 In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
 We represent the ray height in this plane by
 
@@ -215,46 +274,42 @@ We represent the ray height in this plane by
  \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
  \label{eq:deltaR_equals_XY}
 \end{eqnarray}
-
 where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
-As we will see later, this choice is beneficial when calculating near-pilot ray intersection points.
-The disadvantage of this representation is that it is not identical to the coordinate system used to describe the surface sag.
-In general, the planes for $\Delta\Vector{d}$ and $\Delta\Vector{r}$ may differ.
-We first choose the two unit vectors for the $X$ and $Y$-component in the surface plane.
-For simplicity, we choose the vectors of $U$ and $V$ identical,
-except for a component along the pilot ray axis.
 
-\begin{eqnarray}
- \Vector{e}_{U} &=& \frac{\Vector{e}_{X} - (\Vector{e}_{X}\Vector{d}_{pilot})\Vector{d}_{pilot}}{|\Vector{e}_{X} - (\Vector{e}_{X}\Vector{d}_{pilot})\Vector{d}_{pilot}|}
- \\[2ex]
- \Vector{e}_{V} &=& \frac{\Vector{e}_{Y} - (\Vector{e}_{Y}\Vector{d}_{pilot})\Vector{d}_{pilot}}{|\Vector{e}_{Y} - (\Vector{e}_{Y}\Vector{d}_{pilot})\Vector{d}_{pilot}|}
-\end{eqnarray}
-
-With this choice, we restrict ourselves to cases where the pilot direction does not lie inside the plane of $\Vector{e}_{X}$ and $\Vector{e}_{Y}$.
 
 \subsubsection{Unique choice of unit vectors}
-Up to now, the coordinate systems $\Vector{e}_{X}, \Vector{e}_{Y}$ are defined except for a \emph{roll} degree of freedom, that is, a rotation around the pilot ray.
-In case we partition our optical system into subsets, for example individual optical elements or surfaces, each subsystem $i$ may have its own coordinate system
-$\Vector{e}_{X,i}, \Vector{e}_{Y,i}$.
-Each subsystem may have an arbitrarily chosen roll angle. 
-There is, among others, one choices we want to highlight:
+We have basis systems for:
+\begin{itemize}
+ \item the cartesian global coordinates $( \Vector{e}_x, \Vector{e}_y, \Vector{e}_z )$
+ \item the deviation from the pilot ray intersection $( \Vector{e}_X, \Vector{e}_Y )$
+ \item the deviation of the ray direction $( \Vector{e}_U, \Vector{e}_V )$
+ \item the deviation of the wavevector $( \Vector{e}_M, \Vector{e}_N )$
+\end{itemize}
+Up to now, the unit vectors to describe the deviations are not uniquely defined: 
+we only demand that the pairs of vectors are linear independent and lay both in the plane of valid vectors, as discussed above.
 
-We take the local coordinate system used to describe the surface sag and project its unit vectors on the tangential plane.
-The projections of sag $x$ and $y$ unit vectors are then employed for $X$ and $Y$ ray heights, respectively.
-With this choice, we can easily express absolute vertex heights of near pilot rays back in the sag coordinate system. 
-In case the pilot ray lies in the sag $xy$ plane, however, we face numerical difficulties.
-
-\begin{eqnarray}
- \Vector{e}_{X} &=& \frac{\Vector{e}_{x} - (\Vector{e}_{x}\Vector{n}_{pilot})\Vector{n}_{pilot}}{|\Vector{e}_{x} - (\Vector{e}_{x}\Vector{n}_{pilot})\Vector{n}_{pilot}|}
- \\[2ex]
- \Vector{e}_{Y} &=& \frac{\Vector{e}_{y} - (\Vector{e}_{y}\Vector{n}_{pilot})\Vector{n}_{pilot}}{|\Vector{e}_{y} - (\Vector{e}_{y}\Vector{n}_{pilot})\Vector{n}_{pilot}|}
-\end{eqnarray}
-
+In this section, we aim for an arbitrary choice of unit vectors, so that
+\begin{itemize}
+ \item all unit vectors are uniquely defined
+ \item their computation and conversion is fast 
+ \item the optimization of optical systems is robust.
+\end{itemize}
+For the robustness of optimization, 
+we need to find unit vector definitions that do not change abruptly 
+when applying small changes to the optical system.
 
 
-\subsection{Free Space Propagation}
-In this section, we discuss propagation of straight rays on the tangential plane of the following surface.
-Rays travel along straights in homogeneous media.
+
+For example, they should not contain an arcus tangent pole or limit in the normalization of close-to-zero vectors.
+\remark{TODO: add a solution to the problem stated}
+
+\subsubsection{Conversion of Wavevectors and Ray Directions}
+TODO
+
+
+\subsection{Propagation in Homogeneous Media}
+In this section, we discuss propagation of rays to the tangential plane of the following surface.
+In homogeneous media, rays are straight.
 
 Assume we have a pilot ray with starting point $\Vector{r}_{pilot,0}$ and a near-pilot ray ${\Vector{r}_0}$.
 First, we propagate the pilot ray to its intersection point $\Vector{r}_{pilot,1}$ with surface 1 and then the near pilot ray.
@@ -297,8 +352,8 @@ We represent each term of \ref{eq:nearpilotintersection} in the complete basis $
 \end{eqnarray}
 Decomposing the terms, one should consider that the basis might not be orthogonal.
 One can see $X_{1,1} = 0$ and $Y_{1,1}=0$.
-We compare to equation \ref{eq:deltaR_equals_XY}. 
-The favorable choice of the unit vectors allows us to easily find the additional constraint
+Comparing coefficients to the definition of the near-pilot intersection points (equation \ref{eq:deltaR_equals_XY}), 
+we find the constraint
 \begin{eqnarray}
  D_{1,0} + D_{1,1} + D_{1,2} &=& 0
 \end{eqnarray}
@@ -310,9 +365,7 @@ as well as the final result
 
 
 
-\subsection{Evaluation of the Law of Refraction}
-
-
+\subsection{Refraction}
 
 We are interested in the change of the refracted wavevector $\Delta\Wavevector_2 = {\Wavevector}_2 - \Wavevector_{2, pilot}$ induced by $\Delta\Vector{r}$ and $\Delta\Wavevector$.
 \begin{eqnarray}
@@ -352,7 +405,7 @@ We approximate $\Delta\Vector{n}$ in first order
  \Delta n_i \approx \left. \frac{\partial n_i}{\partial r_j} \right|_{\Vector{r}_{pilot}} \Delta r_j
 \end{eqnarray}
 We introduce a scalar function $F$. The function shall represent the surface shape implicitly as $F(\Vector{r}) = 0$. 
-One possibile definition is $F = z - \textrm{sag}(x,y)$. The surface normal points in the direction of the gradient of $F$
+One possible definition is $F = z - \textrm{sag}(x,y)$. The surface normal points in the direction of the gradient of $F$
 \begin{eqnarray}
  n_i &=& \frac{\partial_i F}{\sqrt{(\partial_m F)(\partial_m F)}}
  \\
@@ -388,13 +441,6 @@ Hence by introducing $a$ and $a+1$ as the respective surface indices we may obta
      + \xi \delta_{ij}
      + n_i \frac{\partial \xi}{\partial n_j}
     \right) \partial_\ell n_j + \partial_\ell \xi\right]\Delta r_{a\,\ell}
-\end{eqnarray}
-
-\subsubsection{From Wavevectors to Ray Directions}
-Up to now, we calculated the wavevector after the refraction as a function of the incoming wavevector. 
-For the XYUV formalism, however, we need a formulation employing the ray directions $\Vector{d}$.
-\begin{eqnarray}
- \Delta\Vector{d} = ?
 \end{eqnarray}
 
 
@@ -494,72 +540,6 @@ Therefore the matrix of the normal vector derivatives is given by
 % \end{eqnarray}
 
 
-\subsection{Propagation of rays through an optical system}
-
-After tracing the pilot ray, we also want to propagate near-pilot rays.
-
-\begin{eqnarray}
- \begin{pmatrix}
-  X_{im} \\ Y_{im} \\ U_{im} \\ V_{im}
- \end{pmatrix}
- &=&
- \hat{G}
- \begin{pmatrix}
-  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj}
- \end{pmatrix}
-\end{eqnarray}
-
-The coordinates $X,Y,U,V$ reside in their respective object and image sided coordinate systems $\Vector{e}$.
-By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
-$\hat{G}\Vector{0} = \Vector{0}$.
-
-In analogy to the ABCD formalism, 
-\begin{eqnarray}
- \begin{pmatrix}
-  y_{im} \\ y^{\,\prime}_{im}
- \end{pmatrix}
- =
- \begin{pmatrix}
-   A & B \\ C & D
- \end{pmatrix}
- \begin{pmatrix}
-   y_{obj} \\ y^{\,\prime}_{obj}
- \end{pmatrix}
-\end{eqnarray}
-we neglect terms quadratic in the change of direction or position, 
-$\orderof{\Delta\Vector{d}^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Vector{d}\Delta\Vector{r}}$.
-The linear terms in $\hat{G}$ can be represented by a matrix.
-
-\begin{eqnarray}
- \hat{G} &=&
- \begin{pmatrix}
-  a_{11} & a_{12} & b_{11} & b_{12} \\
-  a_{21} & a_{22} & b_{21} & b_{22} \\  
-  c_{11} & c_{12} & d_{11} & d_{12} \\
-  c_{21} & c_{22} & d_{21} & d_{22} 
- \end{pmatrix}
- =
- \begin{pmatrix}
-  \hat{A} & \hat{B} \\
-  \hat{C} & \hat{D}
- \end{pmatrix} 
-\end{eqnarray}
-
-Like in the ABCD-formalism, we can express the effect of multiple propagators as the product of its matrices.
-The individual propagators can be, for example, free space propagation or surface refraction.
-
-\begin{eqnarray}
- \begin{pmatrix}
-  X_{im} \\ Y_{im} \\ U_{im} \\ V_{im}
- \end{pmatrix}
- &=&
- \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot
- \begin{pmatrix}
-  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj}
- \end{pmatrix}
-\end{eqnarray}
-
-In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
 
 
 \subsection{Thin lenses}
@@ -587,6 +567,7 @@ XYUV_{cyl} &=&
   -\frac{1}{f} \sin\theta \cos\theta & -\frac{1}{f} \cos^2\theta & 0 & 1
  \end{pmatrix}
 \end{eqnarray}
+
 
 
 \end{document}
