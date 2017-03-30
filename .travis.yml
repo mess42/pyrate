@@ -12,7 +12,7 @@ install:
   - pip-compile
   - pip install -r requirements.txt
 script:
-  - py.test --cov
+  - python -m py.test --cov=core
 after_success:
   - coveralls
 

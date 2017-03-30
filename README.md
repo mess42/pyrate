@@ -3,6 +3,7 @@ Pyrate
 Optical Design with Python.
 
 [![Build Status](https://travis-ci.org/theinze/pyrate.svg?branch=master)](https://travis-ci.org/theinze/pyrate)
+[![Coverage Status](https://coveralls.io/repos/github/theinze/pyrate/badge.svg?branch=master)](https://coveralls.io/github/theinze/pyrate?branch=master)
 
 To use the core package with standard management and optimization code
 write your source file and import the modules from the core subdirectory.
