@@ -11,4 +11,8 @@ install:
   - pip install -U pip pip-tools
   - pip-compile
   - pip install -r requirements.txt
-script: pytest
+script:
+  - pytest
+after_success:
+  - coveralls
+
