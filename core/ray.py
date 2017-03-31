@@ -189,11 +189,13 @@ class RayPath(object):
         :param opticalSystem:  optical system through which the rays are propagated ( OpticalSystem object )
 
         """
-        self.raybundles = [initialraybundle]
-        N = opticalSystem.getNumberOfSurfaces()
+        self.raybundles = opticalSystem.trace(initialraybundle)
 
-        for i in arange(N-1)+1:
-            self.traceToNextSurface(opticalSystem.surfaces[i-1], opticalSystem.surfaces[i])
+        #self.raybundles = [initialraybundle]
+        #N = opticalSystem.getNumberOfSurfaces()
+        #for i in arange(N-1)+1:
+        #    self.traceToNextSurface(opticalSystem.surfaces[i-1], opticalSystem.surfaces[i])
+           
 
     def traceToNextSurface(self, actualSurface, nextSurface):
         """

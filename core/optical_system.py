@@ -413,6 +413,28 @@ class OpticalSystem(ClassWithOptimizableVariables):
             varsToReturn += sur.getAllOptimizableVariables()
         return varsToReturn
 
+    def trace(self, initbundle):
+        """
+        This function asks the optical system to kindly trace some rays through
+        its materials.
+        
+        :param initbundle (RayBundle object)
+        
+        :return list of Raybundle objects
+        """
+
+        raybundles = [initbundle]
+
+        for (actualSurface, nextSurface) in zip(self.surfaces[:-1], self.surfaces[1:]):
+            intersection, t, normal, validIndices = \
+                actualSurface.material.propagate(actualSurface, \
+                                                nextSurface, \
+                                                raybundles[-1])
+
+            raybundles.append(nextSurface.material.refract(actualSurface.material, raybundles[-1], intersection, normal, validIndices))
+
+        return raybundles
+
 
 if __name__ == "__main__":
     os = OpticalSystem()
