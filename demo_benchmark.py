@@ -42,6 +42,8 @@ from core.coordinates import LocalCoordinates
 
 import math
 
+wavelength = 0.55e-3
+
 # definition of optical system
 s = OpticalSystem() # objectDistance = 2.0
 
@@ -92,7 +94,7 @@ s.insertSurface(8, Surface(lc8)) # image
 pts = np.array([[0,0, 0], [0.1, 0.2, 0.3], [0, 0, 0]])
 dirs = np.array([[0,0, 0], [0, 0, 0], [1, 1, 1]])
 
-pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=0.55, pol=[])
+pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=wavelength, pol=[])
 pilotpath = RayPath(pilotbundle, s)
 
 #print([blub.o for blub in pilotpath.raybundles])
@@ -103,7 +105,7 @@ aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.
                                             pupilSizeParameter=0.2,#3.0,
                                             fieldType= field.ObjectHeight,
                                             rasterType= raster.RectGrid,
-                                            nray=nray, wavelength=0.55, stopPosition=5)
+                                            nray=nray, wavelength=wavelength, stopPosition=5)
 initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 nray = len(initialBundle.o[0, :])
 
