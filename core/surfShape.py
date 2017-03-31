@@ -196,7 +196,8 @@ class Conic(Shape):
     def getCentralCurvature(self):
         return self.curvature.evaluate()
 
-    def intersect(self, raybundle, rayDir):
+    def intersect(self, raybundle):
+        rayDir = raybundle.d
 
         r0 = raybundle.o
         # r0 is raybundle.o in the local coordinate system

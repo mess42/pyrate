@@ -20,21 +20,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
+from numpy import *
 import aperture
 
 class RayBundle(object):
-    def __init__(self, o, k, mat, rayID, wave=0.55e-3, Efield=[]):
+    def __init__(self, o, d, mat, rayID, wave=0.55e-3, pol=[]):
         """
         Class representing a bundle of rays.
 
         :param o:     Origin of the rays.  (2d numpy 3xN array of float)
-        :param k:     Wave vector of the rays. (2d numpy 3xN array of complex)
-                      (Unit 1/mm, vacuum value: |k| = 2pi/lambda)
+        :param d:     Direction of the rays, normalized. (2d numpy 3xN array of float)
+                      Direction of energy transport.
         :param rayID: Set an ID number for each ray in the bundle (1d numpy array of int)
                       (for example, the ray index at surface 0)
         :param wave:  Wavelength of the radiation in millimeters. (float)
-        :param Efield:   Polarization state of the rays. (2d numpy 3xN array of complex)
+        :param pol:   Polarization state of the rays. (2d numpy 2xN array of complex); not implemented yet
 
         """
         # TODO: implement polarization
@@ -43,14 +43,12 @@ class RayBundle(object):
         #       the difference is, that Jones allows for description of phases of the coherent, fully polarized beam
         #       and Mueller allows for describing intensity transmission of partially polarized beams
         self.o = o
-        self.k = k #mat.returnDtoK(d, wave)
+        self.d = d
+        self.k = mat.returnDtoK(d, wave)
         self.rayID = rayID
-        self.t = np.zeros(np.shape(o)[1])  # Geometrical path length to the ray final position.
+        self.t = zeros(shape(o)[1])  # Geometrical path length to the ray final position.
         self.wave = wave
-        if Efield == []:
-            self.Efield = np.zeros_like(o)
-        else:
-            self.Efield = Efield
+        self.pol = pol
 
     def getCentroidPos(self):
         """
@@ -58,12 +56,12 @@ class RayBundle(object):
 
         :return centr: centroid position (1d numpy array of 3 floats)
         """
-        oneOverN = 1.0 / (np.shape(self.o)[1])
+        oneOverN = 1.0 / (shape(self.o)[1])
         xav = sum(self.o[0][0:]) * oneOverN
         yav = sum(self.o[1][0:]) * oneOverN
         zav = sum(self.o[2][0:]) * oneOverN
 
-        return np.array([xav, yav, zav])
+        return array([xav, yav, zav])
 
     def getChiefPos(self):
         """
@@ -88,7 +86,7 @@ class RayBundle(object):
 
         N = len(deltax)
 
-        return np.sqrt((sum(deltax**2) + sum(deltay**2) + sum(deltaz**2)) / (N-1.0))
+        return sqrt((sum(deltax**2) + sum(deltay**2) + sum(deltaz**2)) / (N-1.0))
 
     def getRMSspotSizeCentroid(self):
         """
@@ -175,18 +173,10 @@ class RayBundle(object):
 
     def draw2d(self, ax, color="blue"):
         # o and k in global coordinates
-        nrays = np.shape(self.o)[1]
-        
-        # TODO: does not work if k is complex and k has in general nothing to do with ray direction.        
-
-        kunit = np.real(self.k)
-        absk = np.sqrt(np.sum(kunit**2, axis=0))
-        kunit = kunit/absk
-
-        
-        for i in np.arange(nrays):
-            y = np.array([self.o[1, i], self.o[1, i] + self.t[i] * kunit[1, i]])
-            z = np.array([self.o[2, i], self.o[2, i] + self.t[i] * kunit[2, i]])
+        nrays = shape(self.o)[1]
+        for i in arange(nrays):
+            y = array([self.o[1, i], self.o[1, i] + self.t[i] * self.d[1, i]])
+            z = array([self.o[2, i], self.o[2, i] + self.t[i] * self.d[2, i]])
             ax.plot(z, y, color)
 
 
@@ -202,7 +192,7 @@ class RayPath(object):
         self.raybundles = [initialraybundle]
         N = opticalSystem.getNumberOfSurfaces()
 
-        for i in np.arange(N-1)+1:
+        for i in arange(N-1)+1:
             self.traceToNextSurface(opticalSystem.surfaces[i-1], opticalSystem.surfaces[i])
 
     def traceToNextSurface(self, actualSurface, nextSurface):
@@ -225,6 +215,6 @@ class RayPath(object):
 
     def draw2d(self, opticalsystem, ax, color="blue"):
         Nsurf = len(self.raybundles)
-        for i in np.arange(Nsurf):
+        for i in arange(Nsurf):
             self.raybundles[i].draw2d(ax, color=color)
 

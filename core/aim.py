@@ -34,7 +34,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
     fieldType= field.ObjectHeight, 
     rasterType= raster.RectGrid, 
     nray=10,
-    wavelength=0.55e-3, 
+    wavelength=0.55, 
     stopPosition=1):
         """
         This class provides functionality to create an initial ray bundle 
@@ -146,5 +146,5 @@ class aimFiniteByMakingASurfaceTheStop(object):
         o[0, :] = originXY[0]
         o[1, :] = originXY[1]
 
-        raybundle = RayBundle(o, k, opticalSystem.surfaces[0].material, arange(nray), wavelength, Efield=[])
+        raybundle = RayBundle(o, k, opticalSystem.surfaces[0].material, arange(nray), wavelength, pol=[])
         return raybundle

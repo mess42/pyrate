@@ -92,7 +92,7 @@ s.insertSurface(8, Surface(lc8)) # image
 pts = np.array([[0,0, 0], [0.1, 0.2, 0.3], [0, 0, 0]])
 dirs = np.array([[0,0, 0], [0, 0, 0], [1, 1, 1]])
 
-pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=0.55e-3, Efield=[])
+pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=0.55, pol=[])
 pilotpath = RayPath(pilotbundle, s)
 
 #print([blub.o for blub in pilotpath.raybundles])
@@ -103,8 +103,8 @@ aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.
                                             pupilSizeParameter=0.2,#3.0,
                                             fieldType= field.ObjectHeight,
                                             rasterType= raster.RectGrid,
-                                            nray=nray, wavelength=0.55e-3, stopPosition=5)
-initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55e-3)
+                                            nray=nray, wavelength=0.55, stopPosition=5)
+initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 nray = len(initialBundle.o[0, :])
 
 t0 = time.clock()
@@ -115,10 +115,10 @@ print "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.cl
 # plot
 aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
 
-initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55e-3)
+initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
 r2 = RayPath(initialBundle2, s)
 
-initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55e-3)
+initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55)
 r3 = RayPath(initialBundle3, s)
 
 fig = plt.figure(1)
