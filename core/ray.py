@@ -22,10 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from numpy import *
 import aperture
-import material
 
 class RayBundle(object):
-    def __init__(self, o, d, mat, rayID, wave=0.55, pol=[]):
+    def __init__(self, o, d, mat, rayID, wave=0.55e-3, pol=[]):
         """
         Class representing a bundle of rays.
 
@@ -34,7 +33,7 @@ class RayBundle(object):
                       Direction of energy transport.
         :param rayID: Set an ID number for each ray in the bundle (1d numpy array of int)
                       (for example, the ray index at surface 0)
-        :param wave:  Wavelength of the radiation in micrometers. (float)
+        :param wave:  Wavelength of the radiation in millimeters. (float)
         :param pol:   Polarization state of the rays. (2d numpy 2xN array of complex); not implemented yet
 
         """

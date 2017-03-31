@@ -239,10 +239,13 @@ class ConstantIndexGlass(Material):
 
 
 class ModelGlass(ConstantIndexGlass):
-    def __init__(self, n0_A_B=(1.49749699179, 0.0100998734374, 0.000328623343942)):
+    def __init__(self, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5)):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
+        n0 [1], A [mm], B[mm**3.5]        
+        
+        :param tuple (n0, A, B) of float
         """
         super(ModelGlass, self).__init__(n0_A_B[0])
         self.listOfOptimizableVariables = []
@@ -262,9 +265,9 @@ class ModelGlass(ConstantIndexGlass):
 
         :param n0_A_B: coefficients (list or 1d numpy array of 3 floats)
         """
-        self.n0.value = n0_A_B[0]
-        self.A.value = n0_A_B[1]
-        self.B.value = n0_A_B[2]
+        self.n0.setvalue(n0_A_B[0])
+        self.A.setvalue(n0_A_B[1])
+        self.B.setvalue(n0_A_B[2])
 
     def getIndex(self, raybundle):
         """
@@ -287,11 +290,11 @@ class ModelGlass(ConstantIndexGlass):
         """
 
         nF_minus_nC = (nd - 1) / vd
-        B = 0.454670392956 * nF_minus_nC * (PgF - 0.445154791693)
-        A = 1.87513751845 * nF_minus_nC - B * 15.2203074842
-        n0 = nd - 1.70194862906 * A - 6.43150432188 * B
+        B = (0.454670392956 * nF_minus_nC * (PgF - 0.445154791693))*(1e-3)**3.5
+        A = (1.87513751845 * nF_minus_nC - B * 15.2203074842)*1e-3
+        n0 = nd - 1.70194862906e3 * A - 6.43150432188*(1e3**3.5) * B
 
-        self.setCoefficients(self,  (n0, A, B))
+        self.setCoefficients((n0, A, B))
 
     def calcCoefficientsFrom_nd_vd(self, nd=1.51680, vd=64.17):
         """
