@@ -106,7 +106,7 @@ aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.
                                             fieldType= field.ObjectHeight,
                                             rasterType= raster.RectGrid,
                                             nray=nray, wavelength=wavelength, stopPosition=5)
-initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
+initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
 nray = len(initialBundle.o[0, :])
 
 t0 = time.clock()
@@ -117,10 +117,10 @@ print "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.cl
 # plot
 aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
 
-initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
+initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
 r2 = RayPath(initialBundle2, s)
 
-initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55)
+initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=wavelength)
 r3 = RayPath(initialBundle3, s)
 
 fig = plt.figure(1)
