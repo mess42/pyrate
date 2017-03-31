@@ -1,0 +1,18 @@
+language: python
+python:
+  - "2.7"
+addons:
+  apt:
+    packages:
+      - libblas-dev
+      - liblapack-dev
+      - gfortran
+install:
+  - pip install -U pip pip-tools
+  - pip-compile
+  - pip install -r requirements.txt
+script:
+  - python -m py.test --cov=core
+after_success:
+  - coveralls
+
