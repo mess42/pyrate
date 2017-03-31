@@ -89,16 +89,16 @@ aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.
                                             pupilSizeParameter=0.2,#3.0,
                                             fieldType= field.ObjectHeight,
                                             rasterType= raster.RectGrid,
-                                            nray=20, wavelength=0.55, stopPosition=5)
+                                            nray=20, wavelength=0.55e-3, stopPosition=5)
 
-initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
+initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55e-3)
 
 r2 = RayPath(initialBundle2, s)
 
-initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55)
+initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55e-3)
 r3 = RayPath(initialBundle3, s)
 
-initialBundle4 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, -0.1]), wavelength=.55)
+initialBundle4 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, -0.1]), wavelength=.55e-3)
 r4 = RayPath(initialBundle4, s)
 
 fig = plt.figure(1)
@@ -160,11 +160,11 @@ print "aimy,stopDiameter after: ", aimy.stopDiameter
 print "Optimized merit function: ", merit.mySimpleDumbRMSSpotSizeMeritFunction(s)
 
 aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
-initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55)
+initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=.55e-3)
 r2 = RayPath(initialBundle2, s)
-initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55)
+initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=.55e-3)
 r3 = RayPath(initialBundle3, s)
-initialBundle4 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, -0.1]), wavelength=.55)
+initialBundle4 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, -0.1]), wavelength=.55e-3)
 r4 = RayPath(initialBundle4, s)
 
 

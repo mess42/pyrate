@@ -122,7 +122,7 @@ class ConstantIndexGlass(Material):
 
     def refract(self, previousmaterial, raybundle, intersection, normal, previouslyValid):
 
-        k1 = previousmaterial.returnDtoK(raybundle.d, raybundle.wave)
+        k1 = raybundle.k
 
         abs_k1_normal = np.sum(k1 * normal, axis=0)
         k_perp = k1 - abs_k1_normal * normal
@@ -151,14 +151,27 @@ class ConstantIndexGlass(Material):
         #newk[2] = k2[2][valid]
         newk = k2[:, valid]
 
-        d2 = self.returnKtoD(newk)
+        #d2 = self.returnKtoD(newk)
 
-        return RayBundle(orig, d2, self, raybundle.rayID[valid], raybundle.wave)
+        return RayBundle(orig, newk, self, raybundle.rayID[valid], raybundle.wave)
 
-    def returnDtoK(self, d, wavelength=550e-6):
-        return 2.0*math.pi/wavelength*self.n.evaluate()*d
+    # TODO: delete since d to k is no useful transformation (information loss)
+    #def returnDtoK(self, d, wavelength=550e-6):
+    #    return 2.0*math.pi/wavelength*self.n.evaluate()*d
     
     def returnKtoD(self, k):
+        """
+        Calculate direction from wave vector for ISOTROPIC materials.
+        
+        :param k (3 x N numpy array of complex)
+        
+        :return d (3 x N numpy array of float)
+        Normalized direction vector of energy transport.
+        """
+
+        # TODO: implement for general anisotropic materials by using
+        # <S_i> = ... projection E ..., needs E field and Fresnel coefficients.
+        
         d = np.real(k)
         absd = np.sqrt(np.sum(d**2, axis=0))
         return d/absd
@@ -166,10 +179,12 @@ class ConstantIndexGlass(Material):
     def propagate(self, actualSurface, nextSurface, raybundle):
 
         localo = nextSurface.lc.returnGlobalToLocalPoints(raybundle.o)
-        locald = nextSurface.lc.returnGlobalToLocalDirections(raybundle.d)                
+        localk = nextSurface.lc.returnGlobalToLocalDirections(raybundle.k)                
+        
+        locald = self.returnKtoD(localk)        
         
         intersection, t, normal, validIndices = \
-            nextSurface.shape.intersect(RayBundle(localo, locald, actualSurface.material, raybundle.rayID, raybundle.wave))
+            nextSurface.shape.intersect(RayBundle(localo, localk, actualSurface.material, raybundle.rayID, raybundle.wave), locald)
         # use Poynting direction to calculate rays
 
         raybundle.t = t
