@@ -98,7 +98,7 @@ for (ind, phiangle) in enumerate(phirange):
     pts = np.array([[0, 0], [0.0, 0.1], [0, 0]])
     dirs = np.array([[0,0], np.sin([phiangle, phiangle]), np.cos([phiangle, phiangle])])
 
-    pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=0.55, pol=[])
+    pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=0.55e-3, pol=[])
     pilotpath = RayPath(pilotbundle, s)
 
 
