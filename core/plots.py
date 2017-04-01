@@ -1,5 +1,5 @@
-import optical_system
-import ray
+#import optical_system
+#import ray
 import numpy as np
 import matplotlib.pyplot as plt
 

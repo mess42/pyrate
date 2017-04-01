@@ -21,7 +21,88 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from numpy import *
+import numpy as np
 import aperture
+
+class RayBundleNew(object):
+    def __init__(self, x0, k0, Efield0, rayID = [], wave = 550e-6):
+        """
+        Class representing a bundle of rays.
+
+        :param x0:  (2d numpy 3xN array of float) 
+                    Initial position of the rays in global coordinates.  
+        :param k0:  (2d numpy 3xN array of float) 
+                    Wave vector of the rays in global coordinates.
+        :param Efield0:  (2d numpy 3xN array of complex) 
+                    Polarization state of the rays. 
+        :param rayID: (1d numpy array of int) 
+                    Set an ID number for each ray in the bundle; 
+                    if empty -> generate arange 
+        :param wave: (float) 
+                    Wavelength of the radiation in millimeters. 
+        """
+        numray = np.shape(x0)[0]
+        if rayID == [] or len(rayID) == 0:
+            rayID = np.arange(numray)
+            
+        newshape = self.newshape(np.shape(x0))
+            
+        self.x = x0.reshape(newshape) 
+        # First index counting index: x[0] == x0
+        # shape(x): axis=0: counting axis
+        # axis=1: vector components (xyz)
+        # axis=2: ray number
+
+        self.k = k0.reshape(newshape) 
+        
+        self.valid = np.ones((1, numray), dtype=bool)
+        
+        self.wave = wave
+        if Efield0 == [] or len(Efield0) == 0:
+            self.Efield = np.zeros(newshape)
+            self.Efield[:, 1, :] = 1.
+        else:
+            self.Efield = Efield0.reshape(newshape)
+
+    def newshape(self, shape2d):
+        """
+        Constructs 3d array shape (1, N, M) from 2d array shape (N, M).
+        """
+        return tuple([1] + list(shape2d))
+
+    def append(self, xnew, knew, Enew, Validnew):
+        """
+        Appends one point with appropriate wave vector, electrical field and
+        validity array. New validity status is cumulative. 
+        
+        :param xnew (2d numpy 3xN array of float)
+        :param knew (2d numpy 3xN array of complex)
+        :param Enew (2d numpy 3xN array of complex)
+        :param Validnew (1d numpy array of bool)
+        
+        """
+        newshape = self.newshape(np.shape(xnew))        
+        newshapev = (1, np.shape(Validnew)[0])                
+        
+        txnew = np.reshape(xnew, newshape)
+        tknew = np.reshape(knew, newshape)
+        tEnew = np.reshape(Enew, newshape)
+        tValidnew = np.reshape(self.valid[-1]*Validnew, newshapev)
+        
+        self.x      = np.vstack((self.x, txnew))
+        self.k      = np.vstack((self.k, tknew))
+        self.Efield = np.vstack((self.Efield, tEnew))
+        self.valid  = np.vstack((self.valid, tValidnew))
+        
+    def getArcLength(self):
+        """
+        Calculates arc length for all rays.
+        
+        :return Arc length (1d numpy array of float)
+        """
+        ds = np.sqrt(np.sum((self.x[1:] - self.x[:-1])**2, axis=1)) # arc element lengths for every ray
+        return np.sum(ds, axis=0)
+        
 
 class RayBundle(object):
     def __init__(self, o, d, mat, rayID, wave=0.55e-3, pol=[]):
@@ -37,11 +118,17 @@ class RayBundle(object):
         :param pol:   Polarization state of the rays. (2d numpy 2xN array of complex); not implemented yet
 
         """
+        # Primary goal:
+        # TODO: new properties: x0, k0; for GRIN media many xi, ki; last xN-1, kN-1        
+        # TODO: remove t and calculate t by calcArcLength() which is a line integral t = int[x0, xN-1] ds
+
+        # Secondary goal:
         # TODO: implement polarization
         # TODO: implement reflection / transmission coefficients
         #       coherent (Jones formalism) or incoherent (Mueller/Stokes formalism) ?
         #       the difference is, that Jones allows for description of phases of the coherent, fully polarized beam
         #       and Mueller allows for describing intensity transmission of partially polarized beams
+        
         self.o = o
         self.d = d
         self.k = mat.returnDtoK(d, wave)
@@ -220,3 +307,22 @@ class RayPath(object):
         for i in arange(Nsurf):
             self.raybundles[i].draw2d(ax, color=color)
 
+if __name__ == "__main__":
+    wavelength = 550E-6
+    nray = 4
+    x0      =       np.random.random((3,nray))
+    k0      = 0.5 * np.random.random((3,nray))
+    k0[2,:] = 1 - np.sqrt( k0[0,:]**2 + k0[1,:]**2 )
+    k0      = k0 * 2 *pi / wavelength    
+    
+    E0 = np.random.random((3,nray)) # warning: E not orthogonal to k
+
+    x1 = np.random.random((3,nray))
+
+    r = RayBundleNew(x0, k0, E0, wave=wavelength)
+    r.append(x1, k0, E0)
+
+    print(x0)
+    print(x1)
+    print(r.getArcLength())    
+    

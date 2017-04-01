@@ -43,11 +43,12 @@ class OpticalElement(ClassWithOptimizableVariables):
     :param lc (Local Coordinates of optical element)
     :param label (string), if empty -> uuid
     """
-    def __init__(self, lc, label="", **kwargs):
+    def __init__(self, lc, matbackground, label="", **kwargs):
         self.label = label
         self.__surfaces = {} # Append surfaces objects
         self.__materials = {} # Append materials objects
         self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
+        
         self.lc = lc
         
     def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), label=""):
@@ -60,21 +61,25 @@ class OpticalElement(ClassWithOptimizableVariables):
         :param label (string, optional), label of surface
         """
         self.__surfaces[key] = surface_object
-        self.__surfaces[key].setLabel(label)
+        self.__surfaces[key].label = label
         self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
         
 
     def addMaterial(self, key, material_object, comment=""):
         """
         Adds material class object to the optical element.
-        
+
         :param key (string ... dict key)
         :param material_object (Material class object)
         :param comment (string, optional), comment for the material
         """
         self.__materials[key] = material_object
-        self.__materials[key].setComment(comment)
+        self.__materials[key].comment = comment
 
+    def seqtrace(raybundle, sequence):
+        # TODO: hier weitermachen
+        # sequence = ["surf1", "surf2", "surf3"], keys
+        return raybundle
 
 
 
@@ -160,7 +165,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, objectLC = LocalCoordinates(name="object")):
+    def __init__(self, matbackground, objectLC = LocalCoordinates(name="object")):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -178,7 +183,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
         self.lcfocus = self.objectlc.name
         
 
-        
+        self.material_background = matbackground # Background material        
         self.elements = {}
         self.addElement("object", OpticalElement(self.objectlc))  # object
         # in standard initialization the surface use the BaseAperture which is not limited
@@ -306,7 +311,11 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
 
 if __name__ == "__main__":
+
+    # AC254-100-Ad 	25.4 	100.1 	97.1 	info 	62.8 	-45.7 	-128.2 	4.0 	2.5 	4.7 	N-BK7/SF5    
+    
     os = OpticalSystem()
+    
     lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0))
     os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0))
     os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0))

@@ -29,6 +29,14 @@ import optimize
 
 class Material(optimize.ClassWithOptimizableVariables):
     """Abstract base class for materials."""
+    def __init__(self, name="", comment=""):
+        super(Material, self).__init__()
+        """
+        virtual constructor
+        """
+        self.setName(name)
+        self.comment = comment
+
     def refract(self, previousmaterial, raybundle, intersection, normal, validIndices):
         """
         Class describing the interaction of the ray at the surface based on the material.
@@ -113,9 +121,8 @@ class ConstantIndexGlass(Material):
     """
     A simple glass defined by a single refractive index.
     """
-    def __init__(self, n=1.0):
-        super(ConstantIndexGlass, self).__init__()
-        self.listOfOptimizableVariables = []
+    def __init__(self, n=1.0, name="", comment=""):
+        super(ConstantIndexGlass, self).__init__(name, comment)
 
         self.n = optimize.OptimizableVariable(False, value=n)
         self.addVariable("refractive index", self.n)
@@ -239,7 +246,7 @@ class ConstantIndexGlass(Material):
 
 
 class ModelGlass(ConstantIndexGlass):
-    def __init__(self, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5)):
+    def __init__(self, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5), name="", comment=""):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
@@ -247,8 +254,8 @@ class ModelGlass(ConstantIndexGlass):
         
         :param tuple (n0, A, B) of float
         """
-        super(ModelGlass, self).__init__(n0_A_B[0])
-        self.listOfOptimizableVariables = []
+        super(ModelGlass, self).__init__(n0_A_B[0], name, comment)
+
 
         self.n0 = optimize.OptimizableVariable(False, value=n0_A_B[0])
         self.A = optimize.OptimizableVariable(False, value=n0_A_B[1])
