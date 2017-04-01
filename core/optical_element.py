@@ -179,8 +179,8 @@ class OpticalSystem(ClassWithOptimizableVariables):
         
 
         
-        self.elements = []
-        self.insertElement(OpticalElement(self.objectlc))  # object
+        self.elements = {}
+        self.addElement("object", OpticalElement(self.objectlc))  # object
         # in standard initialization the surface use the BaseAperture which is not limited
 
     def addLocalCoordinateSystem(self, tmplc, refname=""):
@@ -201,75 +201,26 @@ class OpticalSystem(ClassWithOptimizableVariables):
         
         return tmplc
             
-    def insertElement(self, surface):
+    def addElement(self, key, element):
         """
-        Inserts a new surface into the optical system.
+        Adds a new element (containing several surfaces) into the optical system.
 
-        :param position: number of the new surface (int).
-           Surface that is currently at this position
-           and all following surface indices are incremented.
+        :param key (string)        
+        :param element (optical element class)
         """
 
-        self.surfaces.insert(position, surface)
+        self.elements[key] = element
 
-    def removeSurface(self, position):
+    def removeElement(self, key):
         """
-        Removes a surface from the optical system.
+        Removes an optical element from the optical system.
 
-        :param position: number of the surface to remove (int)
+        :param key (string)
         """
         # TODO: update of local coordinate references missing
-        self.surfaces.pop(position)
+        if key in self.elements:        
+            self.elements.pop(key)
 
-    def getNumberOfSurfaces(self):
-        """
-        Returns the number of surfaces, including object and image (int)
-        """
-        return len(self.surfaces)
-
-    def setThickness(self, position, thickness):
-        """
-        Sets the on-axis thickness of a surface.
-
-        :param position: number of the surface (int)
-        """
-        self.surfaces[position].setThickness(thickness)
-
-    def getThickness(self, position):
-        """
-        Returns the on-axis thickness of a surface.
-
-        :param position: number of the surface (int)
-        """
-        return self.surfaces[position].getThickness()
-
-
-    def setMaterial(self, position, materialType):
-        """
-        Sets the material of a surface.
-
-        :param position: number of the surface (int)
-        :param materialType: name of the Material child class (str)
-        """
-        self.surfaces[position].setMaterial(materialType)
-
-    def setMaterialCoefficients(self, position, coeff):
-        """
-        Sets the coefficients that determine the material behavior.
-
-        :param position: number of the surface (int)
-        :param coeff: coefficients. Type and format depend on Material child class.
-        """
-        self.surfaces[position].setMaterialCoefficients(coeff)
-
-    def setShape(self, position, shape):
-        """
-        Sets the shape of a surface.
-
-        :param position: number of the surface (int)
-        :param shapeName: name of the Shape child class (str)
-        """
-        self.surfaces[position].setShape(shape)
 
     def getABCDMatrix(self, ray, firstSurfacePosition=0, lastSurfacePosition=-1):
         """
@@ -352,20 +303,6 @@ class OpticalSystem(ClassWithOptimizableVariables):
         for (num, s) in enumerate(self.surfaces):
             s.draw2d(ax, vertices=vertices, color=color)
             
-
-
-    def createOptimizableVariable(self, name, value=0.0, status=False):
-        """
-        This class is not able to create own variables.
-        It only forwards variables from its surfaces.
-        """
-        raise NotImplementedError()
-
-    def getAllOptimizableVariables(self):
-        varsToReturn = []
-        for sur in self.surfaces:
-            varsToReturn += sur.getAllOptimizableVariables()
-        return varsToReturn
 
 
 if __name__ == "__main__":
