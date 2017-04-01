@@ -41,7 +41,7 @@ class RayBundleNew(object):
         :param wave: (float) 
                     Wavelength of the radiation in millimeters. 
         """
-        numray = np.shape(x0)[0]
+        numray = np.shape(x0)[1]
         if rayID == [] or len(rayID) == 0:
             rayID = np.arange(numray)
             
@@ -103,7 +103,19 @@ class RayBundleNew(object):
         ds = np.sqrt(np.sum((self.x[1:] - self.x[:-1])**2, axis=1)) # arc element lengths for every ray
         return np.sum(ds, axis=0)
         
-
+    def returnKtoD(self):
+        # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
+        absE2 = np.sum(np.conj(self.Efield)*self.Efield, axis=1)
+        Ek = np.sum(self.Efield * self.k, axis=1)
+        S = zeros_like( self.k, dtype=float)        
+        for j in arange(3):
+            S[:,j,:] = np.real(absE2*self.k[:,j,:] - Ek*np.conj(self.Efield)[:,j,:])
+        absS = np.sqrt(np.sum(S**2, axis=1))
+        d = zeros_like( self.k, dtype=float)        
+        for j in arange(3):
+            d[:,j,:] = S[:,j,:] / absS
+        return d
+        
 class RayBundle(object):
     def __init__(self, o, d, mat, rayID, wave=0.55e-3, pol=[]):
         """
@@ -267,6 +279,19 @@ class RayBundle(object):
             ax.plot(z, y, color)
 
 
+class RayPathNew(object):
+    
+    def __init__(self, initialraybundle):
+        self.raybundles = [initialraybundle]
+        
+    def appendRayBundle(self, raybundle):
+        self.raybundles.append(raybundle)
+        
+    def appendRayPath(self, raypath):
+        self.raybundles += raypath.raybundles
+        
+        
+
 class RayPath(object):
     def __init__(self, initialraybundle, opticalSystem):
         """
@@ -318,9 +343,15 @@ if __name__ == "__main__":
     E0 = np.random.random((3,nray)) # warning: E not orthogonal to k
 
     x1 = np.random.random((3,nray))
+    
+    validity = np.ones(nray, dtype=bool)
 
     r = RayBundleNew(x0, k0, E0, wave=wavelength)
-    r.append(x1, k0, E0)
+    r.append(x1, k0, E0, validity)
+    
+    d = r.returnKtoD()
+    print "d=",r.returnKtoD()
+    print np.sum(d**2, axis=1)
 
     print(x0)
     print(x1)

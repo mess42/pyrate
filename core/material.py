@@ -112,7 +112,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
         
-    def propagate(self, actualSurface, nextSurface, raybundle):
+    def propagate(self, raybundle, nextSurface):
         raise NotImplementedError()
 
 
@@ -170,13 +170,14 @@ class ConstantIndexGlass(Material):
         absd = np.sqrt(np.sum(d**2, axis=0))
         return d/absd
 
-    def propagate(self, actualSurface, nextSurface, raybundle):
+    def propagate(self, raybundle, nextSurface):
 
-        localo = nextSurface.lc.returnGlobalToLocalPoints(raybundle.o)
-        locald = nextSurface.lc.returnGlobalToLocalDirections(raybundle.d)                
+        localo = nextSurface.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+        globald = raybundle.returnKtoD()        
+        locald = nextSurface.lc.returnGlobalToLocalDirections(globald[-1])                
         
         intersection, t, normal, validIndices = \
-            nextSurface.shape.intersect(RayBundle(localo, locald, actualSurface.material, raybundle.rayID, raybundle.wave))
+            nextSurface.shape.intersect(RayBundle(localo, locald, raybundle.rayID, raybundle.wave))
         # use Poynting direction to calculate rays
 
         raybundle.t = t

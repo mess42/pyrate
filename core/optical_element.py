@@ -33,6 +33,8 @@ import numpy as np
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 
+from ray import RayPathNew, RayBundleNew
+
 import uuid
 
 class OpticalElement(ClassWithOptimizableVariables):
@@ -43,7 +45,7 @@ class OpticalElement(ClassWithOptimizableVariables):
     :param lc (Local Coordinates of optical element)
     :param label (string), if empty -> uuid
     """
-    def __init__(self, lc, matbackground, label="", **kwargs):
+    def __init__(self, lc, label="", **kwargs):
         self.label = label
         self.__surfaces = {} # Append surfaces objects
         self.__materials = {} # Append materials objects
@@ -76,14 +78,27 @@ class OpticalElement(ClassWithOptimizableVariables):
         self.__materials[key] = material_object
         self.__materials[key].comment = comment
 
-    def seqtrace(raybundle, sequence):
+    def seqtrace(self, raybundle, sequence, background_medium):
         # TODO: hier weitermachen
         # sequence = ["surf1", "surf2", "surf3"], keys
-        return raybundle
+    
+        current_material = background_medium    
+    
+        for surfkey in sequence:
+            current_material.propagate(self.__surfaces[surfkey])            
+            print(surfkey)
+            print(self.__surf_mat_connection[surfkey])
+            (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
+            mnmat = self.__materials.get(mnmat, background_medium)
+            pnmat = self.__materials.get(pnmat, background_medium)
+            
+            print(mnmat.n.evaluate(), pnmat.n.evaluate())
+    
+        return RayPathNew(raybundle)
 
 
 
-class Surface(ClassWithOptimizableVariables):
+class SurfaceNew(ClassWithOptimizableVariables):
     """
     Represents a surface of an optical system.
 
@@ -92,7 +107,7 @@ class Surface(ClassWithOptimizableVariables):
     :param thickness: distance to next surface on the optical axis
     """
     def __init__(self, lc, shape=surfShape.Conic(), aperture=aperture.BaseAperture(), **kwargs):
-        super(Surface, self).__init__()
+        super(SurfaceNew, self).__init__()
 
         self.shape = shape
         self.aperture = aperture
@@ -161,11 +176,11 @@ class Surface(ClassWithOptimizableVariables):
         return curvature
         
 
-class OpticalSystem(ClassWithOptimizableVariables):
+class OpticalSystemNew(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, matbackground, objectLC = LocalCoordinates(name="object")):
+    def __init__(self, matbackground = ConstantIndexGlass(1.0), name = "", objectLC = LocalCoordinates(name="object")):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -174,7 +189,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
 
 
         """
-        super(OpticalSystem, self).__init__()
+        super(OpticalSystemNew, self).__init__(name = name)
         
         self.globalcoordinatesystem = LocalCoordinates(name="global")
         self.lcfocus = "global"
@@ -187,6 +202,13 @@ class OpticalSystem(ClassWithOptimizableVariables):
         self.elements = {}
         self.addElement("object", OpticalElement(self.objectlc))  # object
         # in standard initialization the surface use the BaseAperture which is not limited
+
+    def seqtrace(self, initialbundle, elementsequence): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+        rpath = RayPathNew(initialbundle)
+        for (elem, subseq) in elementsequence:
+            rpath.appendRayPath(self.elements[elem].seqtrace(rpath.raybundles[-1], subseq, self.material_background)) 
+        return rpath
+            
 
     def addLocalCoordinateSystem(self, tmplc, refname=""):
         allnames = self.globalcoordinatesystem.returnConnectedNames()
@@ -314,7 +336,7 @@ if __name__ == "__main__":
 
     # AC254-100-Ad 	25.4 	100.1 	97.1 	info 	62.8 	-45.7 	-128.2 	4.0 	2.5 	4.7 	N-BK7/SF5    
     
-    os = OpticalSystem()
+    os = OpticalSystemNew()
     
     lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0))
     os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0))
