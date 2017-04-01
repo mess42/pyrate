@@ -104,15 +104,6 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
         self.update() # initial update
 
-    def setName(self, name):
-        if name == "":
-            name = str(uuid.uuid1())
-        self.__name = name
-        
-    def getName(self):
-        return self.__name
-        
-    name = property(getName, setName)
 
     def getChildren(self):
         return self.__children
