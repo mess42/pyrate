@@ -63,8 +63,11 @@ image = SurfaceNew(lc4)
 
 elem = OpticalElement(lc0, label="thorlabs_AC_254-100-A")
 
-elem.addMaterial("BK7", material.ConstantIndexGlass(lc1, n=1.5168))
-elem.addMaterial("SF5", material.ConstantIndexGlass(lc2, n=1.6727))
+bk7 = material.ConstantIndexGlass(lc1, n=1.5168)
+sf5 = material.ConstantIndexGlass(lc2, n=1.6727)
+
+elem.addMaterial("BK7", bk7)
+elem.addMaterial("SF5", sf5)
 
 elem.addSurface("stop", stopsurf, (None, None))
 elem.addSurface("front", frontsurf, (None, "BK7"))
@@ -92,6 +95,10 @@ E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
 
 initialbundle = RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
+
+print(bk7.n())
+print(sf5.n())
+print(s.rootcoordinatesystem.tiltx())
 
 r2 = s.seqtrace(initialbundle, [("AC254-100", ["stop", "front", "cement", "rear", "image"])])
 
