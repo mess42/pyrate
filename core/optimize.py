@@ -30,11 +30,11 @@ class OptimizableVariable(object):
     Class that contains an optimizable variable. Used to get a pointer on a variable.
     The value is not constrained to float. Also other dependent variables are possible to define.
     """
-    def __init__(self, variable_status=False, variable_type="Variable", **kwargs):
+    def __init__(self, variable_type="fixed", **kwargs):
         """
         Name is gone since it's only needed for reference. Therefore the former listOfOptimizableVariables
         will be a dictionary. type may contain a string e.g.
-        "Variable", "Pickup", "External", "...",
+        "Fixed", "Variable", "Pickup", "External", "...",
         status=True means updating during optimization run
         status=False means no updating during optimization run
         kwargs depend on type
@@ -42,14 +42,14 @@ class OptimizableVariable(object):
         "Pickup" gets function=f, args=tuple of optimizablevariables
         "External" gets function=f, args=tuple of external standard variables (or values)
 
-        :param variable_status (bool): should variable optimized during optimization run?
-        :param variable_type (string): which kind of variable do we have? valid choices are: 'variable', 'pickup', 'external'
+        :param variable_type (string): which kind of variable do we have? valid choices are: 'fixed', 'variable', 'pickup', 'external'
 
         :param kwargs (keyword arguments): used to fill up parameters dictionary for variable.
 
         kwargs:
 
         type:        kwargs:
+        'fixed'         value=1.0 or value='hello'
         'variable'    value=1.0, or value='hello'
         'pickup'        function=f, args=(other_optvar1, other_optvar2, ...)
         'external'        function=f, args=(other_externalvar/value, ...)
@@ -60,8 +60,16 @@ class OptimizableVariable(object):
 
 
         """
-        self.__var_type = variable_type.lower()
-        self.status = variable_status
+
+        self.evaldict = {
+                    "fixed"    : self.eval_fixed,
+                    "variable" : self.eval_variable,
+                    "pickup"   : self.eval_pickup,
+                    "external" : self.eval_external
+                    }
+
+
+        self.changetype(variable_type)
         self.parameters = kwargs
 
         # TODO: status variable for "pickup" and "external"
@@ -77,21 +85,24 @@ class OptimizableVariable(object):
     def __str__(self, *args, **kwargs):
         return "OptVar('" + self.var_type + "') = " + str(self.parameters)
 
-    @property
-    def var_type(self):
+    def getVarType(self):
         return self.__var_type.lower()
 
-    @var_type.setter
-    def var_type(self, variable_type="Variable"):
-        self.__var_type = variable_type.lower()
+    var_type = property(fget=getVarType)
+
 
     def changetype(self, vtype, **kwargs):
-        self.var_type = vtype
+        self.__var_type = vtype.lower()
+        self.evalfunc = self.evaldict[self.var_type]
         self.parameters = kwargs
 
     def setvalue(self, value):
-        if self.var_type == "variable":
+        if self.var_type == "variable" or self.var_type == "fixed":
             self.parameters["value"] = value
+
+    def eval_fixed(self):
+        # if type = variable then give only access to value
+        return self.parameters["value"]
 
     def eval_variable(self):
         # if type = variable then give only access to value
@@ -108,18 +119,14 @@ class OptimizableVariable(object):
         # same as for solve except that there are no further OptimizableVariables to be considered
         return self.parameters["function"](*self.parameters["args"])
 
-
-
     def evaluate(self):
         # notice: evaluation code is not limited to floats
         # do not use if-else construct because for many cases dict lookup is faster
-        evaldict = {
-                    "variable" : self.eval_variable,
-                    "pickup" : self.eval_pickup,
-                    "external" : self.eval_external
-                    }
 
-        return evaldict[self.var_type]()
+        return self.evalfunc()
+        
+    def __call__(self):
+        return self.evaluate()
         
 class ClassWithOptimizableVariables(object):
     """
@@ -233,33 +240,28 @@ class ClassWithOptimizableVariables(object):
         """
         return np.array([a.evaluate() for a in self.getAllVariables()])
 
-    def getAllStates(self):
-        """
-        For fast evaluation of optimizable values vector
-        """
-        return np.array([a.status for a in self.getAllVariables()])
-
     def getActiveVariables(self):
         """
         Returns a list of active variables the names are lost
         but it does not matter since the variable references are still in the
         original dictionary in the class
         """
-        return filter(lambda x: x.status, self.getAllVariables())
+        return [x for x in self.getAllVariables() if x.var_type == "variable"]
+        #return filter(lambda x: x.var_type == "variable", self.getAllVariables())
 
     def getActiveVariablesIsWriteable(self):
         """
         Returns a np.array of bools which is True for a variable and False for a pickup or external,
         since they cannot be modified. The length of this vector is the same as for getActiveVariables()
         """
-        return np.array(filter(lambda x: x.var_type == "variable", self.getActiveVariables()))
+        return self.getActiveVariables()
 
 
     def getActiveValues(self):
         """
         Function to get all values into one large np.array.
         """
-        return np.array([a.evaluate() for a in self.getActiveVariables()])
+        return np.array([a() for a in self.getActiveVariables()])
 
     def setActiveValues(self, x):
         """
@@ -272,7 +274,7 @@ class ClassWithOptimizableVariables(object):
         """
         Function to get all values from active variables into one large np.array.
         """
-        return np.array([a.evaluate() for a in self.getActiveVariablesIsWriteable()])
+        return self.getActiveValues()
 
     def setActiveVariableValues(self, x):
         """
@@ -280,13 +282,6 @@ class ClassWithOptimizableVariables(object):
         """
         for i, var in enumerate(self.getActiveVariablesIsWriteable()):
             var.setvalue(x[i])
-
-
-    def setStatus(self, name, var_status=True):
-        """
-        Change status of certain variables.
-        """
-        self.dict_variables[name].status = var_status
 
 
 class Optimizer(object):
@@ -322,11 +317,10 @@ class Optimizer(object):
         """
         Optimization function: Scipy.optimize wrapper
         """
+        opts = {}
         steps = kwargs.get("steps", 0.0)
         if steps > 0:
             opts["maxiter"] = steps
-        else:
-            opts = {}
         
         x0 = self.classwithoptvariables.getActiveVariableValues()
         print(x0) # TODO: rewrite to log
@@ -366,34 +360,34 @@ if __name__ == "__main__":
             super(ExampleSuperClass, self).__init__()
             self.b = 20.
             self.c = ClassWithOptimizableVariables()
-            self.c.addVariable("blubberbla", OptimizableVariable(False, "Variable", value=5.0))
-            self.addVariable("blubberdieblub", OptimizableVariable(False, "Variable", value=10.0))
+            self.c.addVariable("blubberbla", OptimizableVariable("Variable", value=5.0))
+            self.addVariable("blubberdieblub", OptimizableVariable("Variable", value=10.0))
 
 
     class ExampleOS(ClassWithOptimizableVariables):
         def __init__(self):
             super(ExampleOS, self).__init__()
-            self.addVariable("X", OptimizableVariable(True, "Variable", value=10.0))
-            self.addVariable("Y", OptimizableVariable(True, "Variable", value=20.0))
+            self.addVariable("X", OptimizableVariable("Fixed", value=3.0))
+            self.addVariable("Y", OptimizableVariable("Variable", value=20.0))
             self.addVariable("Z",
-                         OptimizableVariable(True, "Pickup",
+                         OptimizableVariable("Pickup",
                                              function=lambda x, y: x**2 + y**2,
                                              args=(self.dict_variables["X"], self.dict_variables["Y"])))
 
 
     def testmerit(s):
-        return s.dict_variables["X"].evaluate()**2 \
-            + s.dict_variables["Y"].evaluate()**2 \
-            + s.dict_variables["Z"].evaluate()**2
+        return (s.dict_variables["X"].evaluate()**2 \
+            + s.dict_variables["Y"].evaluate()**2 - 5.**2)**2#\
+            #+ s.dict_variables["Z"].evaluate()**2
 
 
     def f(p, q):
         return p + q
 
-    p = OptimizableVariable(False, "Variable", value="glass1")
-    q = OptimizableVariable(True, "Variable", value="glass2")
-    r = OptimizableVariable(False, "Pickup", function=f, args=(p, q))
-    s = OptimizableVariable(False, "External", function=f, args=(1.0, 6.0))
+    p = OptimizableVariable("Variable", value="glass1")
+    q = OptimizableVariable("Variable", value="glass2")
+    r = OptimizableVariable("Pickup", function=f, args=(p, q))
+    s = OptimizableVariable("External", function=f, args=(1.0, 6.0))
     print("print p variable")
     print p
     print p.__dict__
@@ -423,11 +417,9 @@ if __name__ == "__main__":
     print cl.__dict__
     print cl.getAllVariables()
     print cl.getAllValues()
-    print cl.getAllStates()
     lst = cl.getActiveVariables()
     print lst[0].evaluate()
     lst[0].setvalue("blublub")
-    print cl.getAllValues()[cl.getAllStates()]
     print cl.getAllValues()
     print cl.getActiveValues()
 

@@ -37,7 +37,60 @@ from ray import RayPathNew, RayBundleNew
 
 import uuid
 
-class OpticalElement(ClassWithOptimizableVariables):
+
+class CoordinateTreeBase(ClassWithOptimizableVariables):
+    """
+    Optical element base class for optical system and optical element, whereas
+    an optical system consists of many optical elements.
+    Implements functionality for local coordinate system tree and connection
+    checks.
+    
+    :param rootcoordinatesystem (LocalCoordinates object)
+    :param label (string)
+    :param *kwargs (key word arguments)
+    """
+    def __init__(self, rootcoordinatesystem, label="", **kwargs):
+        self.label = label
+        self.rootcoordinatesystem = rootcoordinatesystem
+        
+    def checkForRootConnection(self, lc):
+        """
+        Checks whether given local coordinate system is child of rootcoordinatesystem.
+        
+        :param lc (LocalCoordinates object)
+        
+        :return bool
+        """
+        allconnectedchildren = self.rootcoordinatesystem.returnConnectedChildren()        
+        return (lc in allconnectedchildren)
+            
+    def addLocalCoordinateSystem(self, lc, refname):
+        """
+        Adds local coordinate system as child to given reference.
+        
+        :param lc (LocalCoordinates object)
+        :param refname (string)
+        
+        :return lc        
+        """
+        allnames = self.rootcoordinatesystem.returnConnectedNames()
+       
+        if lc.name in allnames:
+            lc.name = str(uuid.uuid4())
+            
+        if refname not in allnames:
+            refname = self.rootcoordinatesystem.name
+        
+        self.rootcoordinatesystem.addChildToReference(refname, lc)
+            
+        return lc
+    
+    
+    
+        
+
+
+class OpticalElement(CoordinateTreeBase):
     """
     Represents an optical element (volume with surface boundary and inner
     surfaces representing material boundaries)
@@ -46,12 +99,10 @@ class OpticalElement(ClassWithOptimizableVariables):
     :param label (string), if empty -> uuid
     """
     def __init__(self, lc, label="", **kwargs):
-        self.label = label
+        super(OpticalElement, self).__init__(lc, label=label)
         self.__surfaces = {} # Append surfaces objects
         self.__materials = {} # Append materials objects
         self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
-        
-        self.lc = lc
         
     def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), label=""):
         """
@@ -62,7 +113,10 @@ class OpticalElement(ClassWithOptimizableVariables):
         :param (minusNmat_key, plusNmat_key) (tuple of strings ... keys to material dict)
         :param label (string, optional), label of surface
         """
-        self.__surfaces[key] = surface_object
+        if self.checkForRootConnection(surface_object.rootcoordinatesystem):
+            self.__surfaces[key] = surface_object
+        else:
+            raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
         self.__surfaces[key].label = label
         self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
         
@@ -75,7 +129,10 @@ class OpticalElement(ClassWithOptimizableVariables):
         :param material_object (Material class object)
         :param comment (string, optional), comment for the material
         """
-        self.__materials[key] = material_object
+        if self.checkForRootConnection(material_object.lc):
+            self.__materials[key] = material_object
+        else:
+            raise Exception("material coordinate system should be connected to OpticalElement root coordinate system")            
         self.__materials[key].comment = comment
 
     def findoutWhichMaterial(self, mat1, mat2, current_mat):
@@ -122,7 +179,7 @@ class OpticalElement(ClassWithOptimizableVariables):
 
 
 
-class SurfaceNew(ClassWithOptimizableVariables):
+class SurfaceNew(CoordinateTreeBase):
     """
     Represents a surface of an optical system.
 
@@ -130,20 +187,36 @@ class SurfaceNew(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, lc, shape=[], apert=[], **kwargs):
-        super(SurfaceNew, self).__init__()
+    def __init__(self, rootlc, shape=None, apert=None, label=""):
+        super(SurfaceNew, self).__init__(rootlc, label)
 
-        if shape == []:        
-            shape = surfShape.Conic(lc)
-        if apert == []:
-            apert = aperture.BaseAperture(lc)
+        if shape is None:        
+            shape = surfShape.Conic(rootlc)
+        if apert is None:
+            apert = aperture.BaseAperture(rootlc)
             
+        self.setShape(shape)
+        self.setAperture(apert)
 
-        self.shape = shape
-        self.aperture = apert
-        self.lc = lc # reference to local coordinate system tree
 
-    
+    def setAperture(self, apert):
+        """
+        Sets the shape object self.shap
+
+        :param shape: the new Shape object
+
+        :return self.shape: new Shape object
+        """
+        if self.checkForRootConnection(self.rootcoordinatesystem):
+            self.__aperture = apert
+        else:
+            raise Exception("Aperture coordinate system should be connected to surface coordinate system")            
+       
+    def getAperture(self):
+        return self.__aperture
+        
+    aperture = property(getAperture, setAperture)
+
 
     def setShape(self, shape):
         """
@@ -153,11 +226,16 @@ class SurfaceNew(ClassWithOptimizableVariables):
 
         :return self.shape: new Shape object
         """
-
-        # TODO: conserve the most basic parameters of the shape
-
-        self.shape = shape
-        return self.shape
+        if self.checkForRootConnection(self.rootcoordinatesystem):
+            self.__shape = shape
+        else:
+            raise Exception("Shape coordinate system should be connected to surface coordinate system")            
+        
+    def getShape(self):
+        return self.__shape
+        
+    shape = property(getShape, setShape)
+    
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         sizelimit = 1000.0
@@ -206,11 +284,12 @@ class SurfaceNew(ClassWithOptimizableVariables):
         return curvature
         
 
-class OpticalSystemNew(ClassWithOptimizableVariables):
+class OpticalSystemNew(CoordinateTreeBase):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, matbackground = [], name = "", objectLC = LocalCoordinates(name="object")):
+    def __init__(self, rootlc = None, matbackground = None, name = ""):
+        # TODO: rename variable name to label
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -219,21 +298,17 @@ class OpticalSystemNew(ClassWithOptimizableVariables):
 
 
         """
-        super(OpticalSystemNew, self).__init__(name = name)
+        if rootlc is None:        
+            rootlc = LocalCoordinates(name="global")
+        self.rootcoordinatesystem = rootlc
+
+        super(OpticalSystemNew, self).__init__(self.rootcoordinatesystem, label = name)
         
-        self.globalcoordinatesystem = LocalCoordinates(name="global")
-        self.lcfocus = "global"
-        
-        self.objectlc = self.addLocalCoordinateSystem(objectLC)
-        self.lcfocus = self.objectlc.name
-        
-        if matbackground == []:
-            matbackground = ConstantIndexGlass(self.globalcoordinatesystem, 1.0)
+        if matbackground is None:
+            matbackground = ConstantIndexGlass(self.rootcoordinatesystem, 1.0)
 
         self.material_background = matbackground # Background material        
         self.elements = {}
-        self.addElement("object", OpticalElement(self.objectlc))  # object
-        # in standard initialization the surface use the BaseAperture which is not limited
 
     def seqtrace(self, initialbundle, elementsequence): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPathNew(initialbundle)
@@ -242,24 +317,6 @@ class OpticalSystemNew(ClassWithOptimizableVariables):
         return rpath
             
 
-    def addLocalCoordinateSystem(self, tmplc, refname=""):
-        allnames = self.globalcoordinatesystem.returnConnectedNames()
-       
-        if refname == "":
-            refname = self.lcfocus
-        if tmplc.name in allnames:
-            # TODO: throw exception
-            tmplc.name = ""
-            
-        if refname not in allnames:
-            refname = self.globalcoordinates.name
-        
-        self.globalcoordinatesystem.addChildToReference(refname, tmplc)
-            
-        self.lcfocus = tmplc.name
-        
-        return tmplc
-            
     def addElement(self, key, element):
         """
         Adds a new element (containing several surfaces) into the optical system.
@@ -267,8 +324,10 @@ class OpticalSystemNew(ClassWithOptimizableVariables):
         :param key (string)        
         :param element (optical element class)
         """
-
-        self.elements[key] = element
+        if self.checkForRootConnection(element.rootcoordinatesystem):
+            self.elements[key] = element
+        else:
+            raise Exception("OpticalElement root should be connected to root of OpticalSystem")
 
     def removeElement(self, key):
         """
@@ -370,12 +429,12 @@ if __name__ == "__main__":
     
     os = OpticalSystemNew()
     
-    lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0))
-    os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0))
-    os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0))
-    os.addLocalCoordinateSystem(LocalCoordinates(decz=40.0))
+    lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0), refname=os.rootcoordinatesystem.name)
+    lc2 = os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0), refname=lc1.name)
+    lc3 = os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0), refname=lc2.name)
+    lc4 = os.addLocalCoordinateSystem(LocalCoordinates(decz=40.0), refname=lc3.name)
     
-    os.addLocalCoordinateSystem(LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
+    lc5 = os.addLocalCoordinateSystem(LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
     
-    print(os.globalcoordinatesystem.pprint())
+    print(os.rootcoordinatesystem.pprint())
         
