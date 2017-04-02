@@ -116,10 +116,8 @@ class OpticalElement(ClassWithOptimizableVariables):
 
             current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
             
-            current_material.refractNew(current_bundle, current_surface)
+            rpath.appendRayBundle(current_material.refractNew(current_bundle, current_surface))
 
-            print(current_material.n.evaluate())            
-    
         return rpath
 
 

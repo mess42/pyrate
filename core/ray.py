@@ -43,7 +43,8 @@ class RayBundleNew(object):
         """
         numray = np.shape(x0)[1]
         if rayID == [] or len(rayID) == 0:
-            self.rayID = np.arange(numray)
+            rayID = np.arange(numray)
+        self.rayID = rayID            
             
         newshape = self.newshape(np.shape(x0))
             
