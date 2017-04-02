@@ -78,23 +78,49 @@ class OpticalElement(ClassWithOptimizableVariables):
         self.__materials[key] = material_object
         self.__materials[key].comment = comment
 
+    def findoutWhichMaterial(self, mat1, mat2, current_mat):
+        """
+        Dirty method to determine material after refraction. 
+        (Reference comparison.)
+        
+        :param mat1 (Material object)
+        :param mat2 (Material object)
+        :param current_mat (Material object)
+        
+        :return (Material object)
+        """        
+        
+        if id(mat1) == id(current_mat):
+            returnmat = mat2
+        else:
+            returnmat = mat1
+            
+        return returnmat
+
     def seqtrace(self, raybundle, sequence, background_medium):
         # TODO: hier weitermachen
         # sequence = ["surf1", "surf2", "surf3"], keys
     
         current_material = background_medium    
     
+        rpath = RayPathNew(raybundle)    
+    
         for surfkey in sequence:
-            current_material.propagate(self.__surfaces[surfkey])            
-            print(surfkey)
-            print(self.__surf_mat_connection[surfkey])
+            current_bundle = rpath.raybundles[-1]
+            current_surface = self.__surfaces[surfkey]
+            current_material.propagate(current_bundle, current_surface)
+            
             (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
             mnmat = self.__materials.get(mnmat, background_medium)
             pnmat = self.__materials.get(pnmat, background_medium)
+
+            current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
             
-            print(mnmat.n.evaluate(), pnmat.n.evaluate())
+            current_material.refractNew(current_bundle, current_surface)
+
+            print(current_material.n.evaluate())            
     
-        return RayPathNew(raybundle)
+        return rpath
 
 
 
@@ -106,11 +132,17 @@ class SurfaceNew(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, lc, shape=surfShape.Conic(), aperture=aperture.BaseAperture(), **kwargs):
+    def __init__(self, lc, shape=[], apert=[], **kwargs):
         super(SurfaceNew, self).__init__()
 
+        if shape == []:        
+            shape = surfShape.Conic(lc)
+        if apert == []:
+            apert = aperture.BaseAperture(lc)
+            
+
         self.shape = shape
-        self.aperture = aperture
+        self.aperture = apert
         self.lc = lc # reference to local coordinate system tree
 
     
@@ -180,7 +212,7 @@ class OpticalSystemNew(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, matbackground = ConstantIndexGlass(1.0), name = "", objectLC = LocalCoordinates(name="object")):
+    def __init__(self, matbackground = [], name = "", objectLC = LocalCoordinates(name="object")):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -197,6 +229,8 @@ class OpticalSystemNew(ClassWithOptimizableVariables):
         self.objectlc = self.addLocalCoordinateSystem(objectLC)
         self.lcfocus = self.objectlc.name
         
+        if matbackground == []:
+            matbackground = ConstantIndexGlass(self.globalcoordinatesystem, 1.0)
 
         self.material_background = matbackground # Background material        
         self.elements = {}

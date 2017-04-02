@@ -43,7 +43,7 @@ class RayBundleNew(object):
         """
         numray = np.shape(x0)[1]
         if rayID == [] or len(rayID) == 0:
-            rayID = np.arange(numray)
+            self.rayID = np.arange(numray)
             
         newshape = self.newshape(np.shape(x0))
             
@@ -93,6 +93,17 @@ class RayBundleNew(object):
         self.k      = np.vstack((self.k, tknew))
         self.Efield = np.vstack((self.Efield, tEnew))
         self.valid  = np.vstack((self.valid, tValidnew))
+        
+    def clone(self):
+        result = RayBundleNew(self.x[0], self.k[0], self.Efield[0], self.rayID, self.wave)
+        
+        result.x = np.copy(self.x)
+        result.k = np.copy(self.k)
+        result.Efield = np.copy(self.Efield)
+        result.valid = np.copy(self.valid)
+
+        return result        
+        
         
     def getArcLength(self):
         """
@@ -357,3 +368,5 @@ if __name__ == "__main__":
     print(x1)
     print(r.getArcLength())    
     
+    
+    r2 = RayBundleNew(x0 = [], k0 = [], Efield0 = [])    

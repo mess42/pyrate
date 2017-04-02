@@ -27,12 +27,14 @@ from optimize import OptimizableVariable
 from scipy.optimize import fsolve
 
 class Shape(ClassWithOptimizableVariables):
-    def __init__(self):
+    def __init__(self, lc):
         """
         Virtual Class for all surface shapes.
         The shape of a surface provides a function to calculate
         the intersection point with a ray.
         """
+        self.lc = lc        
+        
         super(Shape, self).__init__()
 
     def intersect(self, raybundle):
@@ -101,7 +103,7 @@ class Shape(ClassWithOptimizableVariables):
 
 
 class Conic(Shape):
-    def __init__(self, curv=0.0, cc=0.0):
+    def __init__(self, lc, curv=0.0, cc=0.0):
         """
         Create rotationally symmetric surface
         with a conic cross section in the meridional plane.
@@ -115,7 +117,7 @@ class Conic(Shape):
              cc = 1 rotational paraboloid
              cc > 1 rotational hyperboloid
         """
-        super(Conic, self).__init__()
+        super(Conic, self).__init__(lc)
 
         self.curvature = OptimizableVariable(False, "Variable", value=curv)
         self.addVariable("curvature", self.curvature) #self.createOptimizableVariable("curvature", value=curv, status=False)
@@ -142,6 +144,22 @@ class Conic(Shape):
         z =  self.curvature.evaluate() * rsquared / (1 + np.sqrt(sqrtterm))
 
         return z
+
+    def getGlobalNormal(self, xvec):
+        """
+        Calculates Normal in global coordinate system at the appropriate local
+        coordinates.
+        
+        :param xvec (3xN array of float)
+        
+        :return global surface normal (3xN array of float)
+        """
+        xveclocal = self.lc.returnGlobalToLocalPoints(xvec)        
+        x = xveclocal[0, :]
+        y = xveclocal[1, :]
+        localnormal = self.getNormal(x, y)
+        return self.lc.returnLocalToGlobalDirections(localnormal)
+        
 
     def getNormal(self, x,y):
         """
@@ -196,6 +214,43 @@ class Conic(Shape):
     def getCentralCurvature(self):
         return self.curvature.evaluate()
 
+    def intersectNew(self, raybundle):
+        """
+        Calculates intersection from raybundle.
+        
+        :param raybundle (RayBundle object), gets changed!
+        """
+
+        localo = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+        globald = raybundle.returnKtoD()        
+        locald = self.lc.returnGlobalToLocalDirections(globald[-1])                
+
+        rayDir = locald
+
+        r0 = localo
+        # r0 is raybundle.o in the local coordinate system
+        # rayDir = raybundle.rayDir in the local coordinate system
+        # raybundle itself lives in the global coordinate system
+
+        F = rayDir[2] - self.curvature.evaluate() * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.evaluate()))
+        G = self.curvature.evaluate() * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.evaluate())) - 2 * r0[2]
+        H = - self.curvature.evaluate() - self.conic.evaluate() * self.curvature.evaluate() * rayDir[2]**2
+
+        square = F**2 + H*G
+
+        t = G / (F + np.sqrt(square))
+
+        intersection = r0 + rayDir * t
+
+        # find indices of rays that don't intersect with the sphere
+        validIndices = (square > 0) #*(intersection[0]**2 + intersection[1]**2 <= 10.0**2))
+        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
+
+        globalinter = self.lc.returnLocalToGlobalPoints(intersection)
+        
+        raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
+        
+
     def intersect(self, raybundle):
         rayDir = raybundle.d
 
@@ -223,6 +278,7 @@ class Conic(Shape):
         normal = self.getNormal( intersection[0], intersection[1] )
 
         return intersection, t, normal, validIndices
+
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
         # this function will be removed soon
