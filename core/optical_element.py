@@ -33,10 +33,96 @@ import numpy as np
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 
+from ray import RayPathNew, RayBundleNew
+
 import uuid
 
+class OpticalElement(ClassWithOptimizableVariables):
+    """
+    Represents an optical element (volume with surface boundary and inner
+    surfaces representing material boundaries)
+    
+    :param lc (Local Coordinates of optical element)
+    :param label (string), if empty -> uuid
+    """
+    def __init__(self, lc, label="", **kwargs):
+        self.label = label
+        self.__surfaces = {} # Append surfaces objects
+        self.__materials = {} # Append materials objects
+        self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
+        
+        self.lc = lc
+        
+    def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), label=""):
+        """
+        Adds surface class object to the optical element.
+        
+        :param key (string ... dict key)
+        :param surface_object (Surface class object)
+        :param (minusNmat_key, plusNmat_key) (tuple of strings ... keys to material dict)
+        :param label (string, optional), label of surface
+        """
+        self.__surfaces[key] = surface_object
+        self.__surfaces[key].label = label
+        self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
+        
 
-class Surface(ClassWithOptimizableVariables):
+    def addMaterial(self, key, material_object, comment=""):
+        """
+        Adds material class object to the optical element.
+
+        :param key (string ... dict key)
+        :param material_object (Material class object)
+        :param comment (string, optional), comment for the material
+        """
+        self.__materials[key] = material_object
+        self.__materials[key].comment = comment
+
+    def findoutWhichMaterial(self, mat1, mat2, current_mat):
+        """
+        Dirty method to determine material after refraction. 
+        (Reference comparison.)
+        
+        :param mat1 (Material object)
+        :param mat2 (Material object)
+        :param current_mat (Material object)
+        
+        :return (Material object)
+        """        
+        
+        if id(mat1) == id(current_mat):
+            returnmat = mat2
+        else:
+            returnmat = mat1
+            
+        return returnmat
+
+    def seqtrace(self, raybundle, sequence, background_medium):
+        # TODO: hier weitermachen
+        # sequence = ["surf1", "surf2", "surf3"], keys
+    
+        current_material = background_medium    
+    
+        rpath = RayPathNew(raybundle)    
+    
+        for surfkey in sequence:
+            current_bundle = rpath.raybundles[-1]
+            current_surface = self.__surfaces[surfkey]
+            current_material.propagate(current_bundle, current_surface)
+            
+            (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
+            mnmat = self.__materials.get(mnmat, background_medium)
+            pnmat = self.__materials.get(pnmat, background_medium)
+
+            current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
+            
+            rpath.appendRayBundle(current_material.refractNew(current_bundle, current_surface))
+
+        return rpath
+
+
+
+class SurfaceNew(ClassWithOptimizableVariables):
     """
     Represents a surface of an optical system.
 
@@ -44,47 +130,20 @@ class Surface(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, lc, shape=surfShape.Conic(), material=ConstantIndexGlass(), aperture=aperture.BaseAperture(), **kwargs):
-        super(Surface, self).__init__()
+    def __init__(self, lc, shape=[], apert=[], **kwargs):
+        super(SurfaceNew, self).__init__()
+
+        if shape == []:        
+            shape = surfShape.Conic(lc)
+        if apert == []:
+            apert = aperture.BaseAperture(lc)
+            
 
         self.shape = shape
-        self.material = material
-        self.aperture = aperture
+        self.aperture = apert
         self.lc = lc # reference to local coordinate system tree
 
     
-    # TODO: these functions will be obsolete, since the thickness parameters is
-    # superceded by self.localcoordinates.globalcoordinates and
-    # self.localcoordinates.localbasissystem
-    def setThickness(self, thickness):
-        self.lc.dict_variables["decz"].setvalue(thickness)
-
-    def getThickness(self):
-        return self.lc.dict_variables["decz"].evaluate()
-        
-
-    def setMaterial(self, material):
-        """
-        Sets the material object self.mater
-
-        :param material: (object)
-
-        :return self.material: new Material object
-        """
-
-        # TODO: conserve most basic material properties
-
-        self.material = material
-
-        return self.material
-
-    def setMaterialCoefficients(self, coeff):
-        """
-        Sets the coefficients that determine the material behavior.
-
-        :param coeff: coefficients. Type and format depend on Material child class.
-        """
-        self.material.setCoefficients(coeff)
 
     def setShape(self, shape):
         """
@@ -98,7 +157,6 @@ class Surface(ClassWithOptimizableVariables):
         # TODO: conserve the most basic parameters of the shape
 
         self.shape = shape
-
         return self.shape
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
@@ -141,53 +199,48 @@ class Surface(ClassWithOptimizableVariables):
         
         #self.shape.draw2d(ax, offset, vertices, color, self.aperture)
 
-    def getABCDMatrix(self, nextSurface, ray):
-        """
-        Returns an ABCD matrix of the current surface.
-        The matrix is set up in geometric convention for (y, dy/dz) vectors.
-
-        The matrix contains:
-        - paraxial refraction from vacuum through the front surface
-        - paraxial translation through the material
-        - paraxial refraction at the rear surface into vacuum
-
-        :param nextSurface: next surface for rear surface curvature (Surface object)
-        :param ray: ray bundle to obtain wavelength (RayBundle object)
-        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
-        """
+    def getCentralCurvature(self, ray):
         curvature = self.shape.getCentralCurvature()
-        # TODO: improvement, call shape.getHessian() to obtain curvature components at intersection point
-        nextCurvature = nextSurface.shape.getCentralCurvature()
-        return self.material.getABCDMatrix(curvature, nextSurface.getThickness(), nextCurvature, ray)
-        # TODO:
+        # TODO: curvature at ray position
+        
+        return curvature
+        
 
-
-class OpticalSystem(ClassWithOptimizableVariables):
+class OpticalSystemNew(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, objectLC = LocalCoordinates(name="object"), primaryWavelength = 550e-6):
+    def __init__(self, matbackground = [], name = "", objectLC = LocalCoordinates(name="object")):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
-        :param objectDistance: Distance (on axis thickness) from the object to the first surface in mm (float).
-        :param primaryWavelength: Primary Wavelength of optical system in mm (float).
+
+        :param objectLC: local coordinate system of object (class LocalCoordinates).
 
 
         """
-        super(OpticalSystem, self).__init__()
+        super(OpticalSystemNew, self).__init__(name = name)
         
         self.globalcoordinatesystem = LocalCoordinates(name="global")
         self.lcfocus = "global"
         
         self.objectlc = self.addLocalCoordinateSystem(objectLC)
-        self.lcfocus = "object"
+        self.lcfocus = self.objectlc.name
         
+        if matbackground == []:
+            matbackground = ConstantIndexGlass(self.globalcoordinatesystem, 1.0)
 
-        
-        self.elements = []
-        self.insertElement(opticalElement(self.objectlc))  # object
+        self.material_background = matbackground # Background material        
+        self.elements = {}
+        self.addElement("object", OpticalElement(self.objectlc))  # object
         # in standard initialization the surface use the BaseAperture which is not limited
+
+    def seqtrace(self, initialbundle, elementsequence): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+        rpath = RayPathNew(initialbundle)
+        for (elem, subseq) in elementsequence:
+            rpath.appendRayPath(self.elements[elem].seqtrace(rpath.raybundles[-1], subseq, self.material_background)) 
+        return rpath
+            
 
     def addLocalCoordinateSystem(self, tmplc, refname=""):
         allnames = self.globalcoordinatesystem.returnConnectedNames()
@@ -207,75 +260,26 @@ class OpticalSystem(ClassWithOptimizableVariables):
         
         return tmplc
             
-    def insertElement(self, surface):
+    def addElement(self, key, element):
         """
-        Inserts a new surface into the optical system.
+        Adds a new element (containing several surfaces) into the optical system.
 
-        :param position: number of the new surface (int).
-           Surface that is currently at this position
-           and all following surface indices are incremented.
+        :param key (string)        
+        :param element (optical element class)
         """
 
-        self.surfaces.insert(position, surface)
+        self.elements[key] = element
 
-    def removeSurface(self, position):
+    def removeElement(self, key):
         """
-        Removes a surface from the optical system.
+        Removes an optical element from the optical system.
 
-        :param position: number of the surface to remove (int)
+        :param key (string)
         """
         # TODO: update of local coordinate references missing
-        self.surfaces.pop(position)
+        if key in self.elements:        
+            self.elements.pop(key)
 
-    def getNumberOfSurfaces(self):
-        """
-        Returns the number of surfaces, including object and image (int)
-        """
-        return len(self.surfaces)
-
-    def setThickness(self, position, thickness):
-        """
-        Sets the on-axis thickness of a surface.
-
-        :param position: number of the surface (int)
-        """
-        self.surfaces[position].setThickness(thickness)
-
-    def getThickness(self, position):
-        """
-        Returns the on-axis thickness of a surface.
-
-        :param position: number of the surface (int)
-        """
-        return self.surfaces[position].getThickness()
-
-
-    def setMaterial(self, position, materialType):
-        """
-        Sets the material of a surface.
-
-        :param position: number of the surface (int)
-        :param materialType: name of the Material child class (str)
-        """
-        self.surfaces[position].setMaterial(materialType)
-
-    def setMaterialCoefficients(self, position, coeff):
-        """
-        Sets the coefficients that determine the material behavior.
-
-        :param position: number of the surface (int)
-        :param coeff: coefficients. Type and format depend on Material child class.
-        """
-        self.surfaces[position].setMaterialCoefficients(coeff)
-
-    def setShape(self, position, shape):
-        """
-        Sets the shape of a surface.
-
-        :param position: number of the surface (int)
-        :param shapeName: name of the Shape child class (str)
-        """
-        self.surfaces[position].setShape(shape)
 
     def getABCDMatrix(self, ray, firstSurfacePosition=0, lastSurfacePosition=-1):
         """
@@ -360,22 +364,12 @@ class OpticalSystem(ClassWithOptimizableVariables):
             
 
 
-    def createOptimizableVariable(self, name, value=0.0, status=False):
-        """
-        This class is not able to create own variables.
-        It only forwards variables from its surfaces.
-        """
-        raise NotImplementedError()
-
-    def getAllOptimizableVariables(self):
-        varsToReturn = []
-        for sur in self.surfaces:
-            varsToReturn += sur.getAllOptimizableVariables()
-        return varsToReturn
-
-
 if __name__ == "__main__":
-    os = OpticalSystem()
+
+    # AC254-100-Ad 	25.4 	100.1 	97.1 	info 	62.8 	-45.7 	-128.2 	4.0 	2.5 	4.7 	N-BK7/SF5    
+    
+    os = OpticalSystemNew()
+    
     lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0))
     os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0))
     os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0))

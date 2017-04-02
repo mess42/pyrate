@@ -37,7 +37,7 @@ class BaseAperture(object):
 
     The base class does not limit the beam diameter.
     """
-    def __init__(self, tx=0.0, ty=0.0):
+    def __init__(self, lc, tx=0.0, ty=0.0):
         self.typicaldimension = 1e10
         self.tx = tx
         self.ty = ty
@@ -83,8 +83,8 @@ class CircularAperture(BaseAperture):
     Circular aperture of a surface.
     """
 
-    def __init__(self, semidiameter = 1.0, tx = 0.0, ty = 0.0):
-        super(CircularAperture, self).__init__(tx, ty)
+    def __init__(self, lc, semidiameter = 1.0, tx = 0.0, ty = 0.0):
+        super(CircularAperture, self).__init__(lc, tx, ty)
         self.semidiameter = semidiameter
         self.typicaldimension = self.semidiameter
 
@@ -102,8 +102,8 @@ class RectangularAperture(BaseAperture):
     Rectangular aperture of a surface.
     """
 
-    def __init__(self, w=1.0, h=1.0, tx=0.0, ty=0.0):
-        super(RectangularAperture, self).__init__(tx, ty)
+    def __init__(self, lc, w=1.0, h=1.0, tx=0.0, ty=0.0):
+        super(RectangularAperture, self).__init__(lc, tx, ty)
         self.width = w
         self.height = h
         self.typicaldimension = math.sqrt(self.width**2 + self.height**2)

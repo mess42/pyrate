@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 from scipy.optimize import minimize
-
+import uuid
 
 class OptimizableVariable(object):
     """
@@ -71,6 +71,8 @@ class OptimizableVariable(object):
         # in evaluate()
 
         self.initial_value = self.evaluate()
+
+
 
     def __str__(self, *args, **kwargs):
         return "OptVar('" + self.var_type + "') = " + str(self.parameters)
@@ -124,14 +126,26 @@ class ClassWithOptimizableVariables(object):
     Implementation of some class with optimizable variables with the help of a dictionary.
     This class is also able to collect the variables and their values from its subclasses per recursion.
     """
-    def __init__(self):
+    def __init__(self, name = ""):
         """
         Initialize with empty dict.
         """
+        self.setName(name)
         self.dict_variables = {}
         self.list_observers = [] 
         # for the optimizable variable class it is useful to have some observer links
         # they get informed if variables change their values
+
+    def setName(self, name):
+        if name == "":
+            name = str(uuid.uuid4())
+        self.__name = name
+        
+    def getName(self):
+        return self.__name
+        
+    name = property(getName, setName)
+
 
     def appendObservers(self, obslist):
         self.list_observers += obslist
@@ -443,6 +457,9 @@ if __name__ == "__main__":
     print([v.evaluate() for v in cl.getAllVariables()])
     print("NEW IT FUNCTION3")
     print([v.evaluate() for v in cl2.getAllVariables()])
+
+
+    print(os.name)
 
     print(os.dict_variables.items())
 
