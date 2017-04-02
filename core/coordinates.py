@@ -336,6 +336,23 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
         return (tiltx, tilty, tiltz)
         
+    def returnActualToOtherPoints(self, localpts, lcother):
+        raise NotImplemented()
+        return localpts
+
+    def returnOtherToActualPoints(self, otherpts, lcother):
+        raise NotImplemented()
+        return otherpts
+        
+    def returnActualToOtherDirections(self, localdirs, lcother):
+        raise NotImplemented()        
+        return localdirs
+
+    def returnOtherToActualDirections(self, otherdirs, lcother):
+        raise NotImplemented()        
+        return otherdirs
+        
+
 
     def returnLocalToGlobalPoints(self, localpts):
         """
@@ -379,6 +396,13 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         for ch in self.__children:
             lst = lst + ch.returnConnectedNames()
         return lst
+
+    def returnConnectedChildren(self):
+        lst = [self]
+        for ch in self.__children:
+            lst = lst + ch.returnConnectedChildren()
+        return lst
+
         
     def pprint(self, n=0):
         """
