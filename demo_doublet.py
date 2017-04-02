@@ -47,17 +47,17 @@ wavelength = 0.5876e-3
 # definition of optical system
 s = OpticalSystemNew() 
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0))
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-1.048)) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=4.0))
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=2.5))
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=97.2))
+lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-1.048), refname=lc0.name) # objectDist
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=4.0), refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=2.5), refname=lc2.name)
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=97.2), refname=lc3.name)
 
 
 stopsurf = SurfaceNew(lc0)
-frontsurf = SurfaceNew(lc1, surfShape.Conic(lc1, curv=1./62.8), aperture=CircularAperture(lc1, 12.7))
-cementsurf = SurfaceNew(lc2, surfShape.Conic(lc2, curv=-1./45.7), aperture=CircularAperture(lc2, 12.7))
-rearsurf = SurfaceNew(lc3, surfShape.Conic(lc3, curv=-1./128.2), aperture=CircularAperture(lc3, 12.7))
+frontsurf = SurfaceNew(lc1, shape=surfShape.Conic(lc1, curv=1./62.8), apert=CircularAperture(lc1, 12.7))
+cementsurf = SurfaceNew(lc2, shape=surfShape.Conic(lc2, curv=-1./45.7), apert=CircularAperture(lc2, 12.7))
+rearsurf = SurfaceNew(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2), apert=CircularAperture(lc3, 12.7))
 image = SurfaceNew(lc4)
 
 
@@ -74,6 +74,7 @@ elem.addSurface("image", image, (None, None))
 
 s.addElement("AC254-100", elem)
 
+print(s.rootcoordinatesystem.pprint())
 
 rstobj = raster.RectGrid()
 (px, py) = rstobj.getGrid(10)
@@ -94,12 +95,13 @@ initialbundle = RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 r2 = s.seqtrace(initialbundle, [("AC254-100", ["stop", "front", "cement", "rear", "image"])])
 
-for (ind, r) in enumerate(r2.raybundles):
-    print("bundle %d" % (ind,))
-    print(r.x)
-    print(r.valid)
-    #print(r.k)
+#for (ind, r) in enumerate(r2.raybundles):
+#    print("bundle %d" % (ind,))
+#    print(r.x)
+#    #print(r.valid)
+#    print(r.k)
     
+print("last coordinates")
 print(r2.raybundles[-1].x[-1, :, :])
 
 """

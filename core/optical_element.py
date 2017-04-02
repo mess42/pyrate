@@ -38,7 +38,7 @@ from ray import RayPathNew, RayBundleNew
 import uuid
 
 
-class OpticalElementBase(ClassWithOptimizableVariables):
+class CoordinateTreeBase(ClassWithOptimizableVariables):
     """
     Optical element base class for optical system and optical element, whereas
     an optical system consists of many optical elements.
@@ -90,7 +90,7 @@ class OpticalElementBase(ClassWithOptimizableVariables):
         
 
 
-class OpticalElement(OpticalElementBase):
+class OpticalElement(CoordinateTreeBase):
     """
     Represents an optical element (volume with surface boundary and inner
     surfaces representing material boundaries)
@@ -113,7 +113,7 @@ class OpticalElement(OpticalElementBase):
         :param (minusNmat_key, plusNmat_key) (tuple of strings ... keys to material dict)
         :param label (string, optional), label of surface
         """
-        if self.checkForRootConnection(surface_object.lc):
+        if self.checkForRootConnection(surface_object.rootcoordinatesystem):
             self.__surfaces[key] = surface_object
         else:
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
@@ -179,7 +179,7 @@ class OpticalElement(OpticalElementBase):
 
 
 
-class SurfaceNew(ClassWithOptimizableVariables):
+class SurfaceNew(CoordinateTreeBase):
     """
     Represents a surface of an optical system.
 
@@ -187,20 +187,36 @@ class SurfaceNew(ClassWithOptimizableVariables):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, lc, shape=[], apert=[], **kwargs):
-        super(SurfaceNew, self).__init__()
+    def __init__(self, rootlc, shape=None, apert=None, label=""):
+        super(SurfaceNew, self).__init__(rootlc, label)
 
-        if shape == []:        
-            shape = surfShape.Conic(lc)
-        if apert == []:
-            apert = aperture.BaseAperture(lc)
+        if shape is None:        
+            shape = surfShape.Conic(rootlc)
+        if apert is None:
+            apert = aperture.BaseAperture(rootlc)
             
+        self.setShape(shape)
+        self.setAperture(apert)
 
-        self.shape = shape
-        self.aperture = apert
-        self.lc = lc # reference to local coordinate system tree
 
-    
+    def setAperture(self, apert):
+        """
+        Sets the shape object self.shap
+
+        :param shape: the new Shape object
+
+        :return self.shape: new Shape object
+        """
+        if self.checkForRootConnection(self.rootcoordinatesystem):
+            self.__aperture = apert
+        else:
+            raise Exception("Aperture coordinate system should be connected to surface coordinate system")            
+       
+    def getAperture(self):
+        return self.__aperture
+        
+    aperture = property(getAperture, setAperture)
+
 
     def setShape(self, shape):
         """
@@ -210,11 +226,16 @@ class SurfaceNew(ClassWithOptimizableVariables):
 
         :return self.shape: new Shape object
         """
-
-        # TODO: conserve the most basic parameters of the shape
-
-        self.shape = shape
-        return self.shape
+        if self.checkForRootConnection(self.rootcoordinatesystem):
+            self.__shape = shape
+        else:
+            raise Exception("Shape coordinate system should be connected to surface coordinate system")            
+        
+    def getShape(self):
+        return self.__shape
+        
+    shape = property(getShape, setShape)
+    
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
         sizelimit = 1000.0
@@ -263,11 +284,11 @@ class SurfaceNew(ClassWithOptimizableVariables):
         return curvature
         
 
-class OpticalSystemNew(OpticalElementBase):
+class OpticalSystemNew(CoordinateTreeBase):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, rootlc = None, matbackground = [], name = ""):
+    def __init__(self, rootlc = None, matbackground = None, name = ""):
         # TODO: rename variable name to label
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
@@ -283,7 +304,7 @@ class OpticalSystemNew(OpticalElementBase):
 
         super(OpticalSystemNew, self).__init__(self.rootcoordinatesystem, label = name)
         
-        if matbackground == []:
+        if matbackground is None:
             matbackground = ConstantIndexGlass(self.rootcoordinatesystem, 1.0)
 
         self.material_background = matbackground # Background material        

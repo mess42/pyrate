@@ -154,9 +154,12 @@ class Conic(Shape):
         
         :return global surface normal (3xN array of float)
         """
+       
         xveclocal = self.lc.returnGlobalToLocalPoints(xvec)        
+
         x = xveclocal[0, :]
         y = xveclocal[1, :]
+
         localnormal = self.getNormal(x, y)
         return self.lc.returnLocalToGlobalDirections(localnormal)
         
@@ -237,7 +240,7 @@ class Conic(Shape):
         H = - self.curvature.evaluate() - self.conic.evaluate() * self.curvature.evaluate() * rayDir[2]**2
 
         square = F**2 + H*G
-
+        
         t = G / (F + np.sqrt(square))
 
         intersection = r0 + rayDir * t

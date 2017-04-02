@@ -41,6 +41,7 @@ from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
 class LocalCoordinates(ClassWithOptimizableVariables):
     def __init__(self, name="", **kwargs):
+        # TODO: Reference to global to be rewritten into reference to root
         '''
         Defines a local coordinate system, on which translated or tilted optical surfaces may refer.
 
@@ -94,7 +95,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
         self.tiltThenDecenter = tiltThenDecenter
         
-        self.parent = None # None means reference to global coordinate system 
+        self.parent = None # None means reference to root coordinate system 
         self.__children = [] # children
     
         self.globalcoordinates = np.array([0, 0, 0])
@@ -337,19 +338,19 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         return (tiltx, tilty, tiltz)
         
     def returnActualToOtherPoints(self, localpts, lcother):
-        raise NotImplemented()
+        raise NotImplementedError()
         return localpts
 
     def returnOtherToActualPoints(self, otherpts, lcother):
-        raise NotImplemented()
+        raise NotImplementedError()
         return otherpts
         
     def returnActualToOtherDirections(self, localdirs, lcother):
-        raise NotImplemented()        
+        raise NotImplementedError()        
         return localdirs
 
     def returnOtherToActualDirections(self, otherdirs, lcother):
-        raise NotImplemented()        
+        raise NotImplementedError()        
         return otherdirs
         
 
