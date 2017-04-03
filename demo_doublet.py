@@ -118,12 +118,17 @@ ax = fig.add_subplot(111)
 ax.axis('equal')
 ax.set_axis_bgcolor('black')
 
+phi = math.pi/4
+pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
+up = canonical_ey
+
 print("drawing!")
-r2.draw2d(ax, color="blue", plane_normal=canonical_ex, up=canonical_ey) #np.array([math.cos(math.pi/4), 0, math.sin(math.pi/4)]), up=np.array([0, 1, 0]))
-pilotray.draw2d(ax, color="green", plane_normal=canonical_ex, up=canonical_ey)
+r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+pilotray.draw2d(ax, color="green", plane_normal=pn, up=up)
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax, color="grey")
+        #surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+        surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 #plots.drawLayout2d(ax, s, [pilotpath])
 #plots.drawLayout2d(ax, s, [r2])

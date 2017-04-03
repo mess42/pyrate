@@ -250,9 +250,17 @@ class SurfaceNew(CoordinateTreeBase):
     shape = property(getShape, setShape)
     
 
-    def draw2d(self, ax, vertices=100, color="grey", plane_normal = canonical_ex, up = canonical_ey):
-
+    def draw2d(self, ax, vertices=100, inyzplane = True, color="grey", plane_normal = canonical_ex, up = canonical_ey):
+        """
+        :param ax (Axis object)
+        :param vertices (int), vertices in xy for aperture sampling
+        :param inyzplane (bool), cuts globalpts in yz plane before projection on plane_normal
+        :param color (string), "red", "blue", "grey", "green", ...
+        :param plane_normal (1D numpy array of float), new x projection axis
+        :param up (1D numpy array), invariant y axis, z = x x y
         
+        """
+
 
         sizelimit = 1000.0
         failsafevalue = 10.0        
@@ -291,13 +299,44 @@ class SurfaceNew(CoordinateTreeBase):
         
         globalpts = self.rootcoordinatesystem.returnLocalToGlobalPoints(localpts_surf)
 
-        inYZplane = np.abs(xinap) < 2*effsemidia/vertices
+        # doubled code begin (also in RayBundleNew.draw2d)
+        plane_normal = plane_normal/np.linalg.norm(plane_normal)
+        up = up/np.linalg.norm(up)
 
-        globalpts = globalpts[:, inYZplane]
+        ez = np.cross(plane_normal, up)
+
+        (num_dims, num_rays) = np.shape(globalpts)
+
+        # arrange num_ray copies of simple vectors in appropriate form
+        plane_normal = np.column_stack((plane_normal for i in np.arange(num_rays)))
+        ez = np.column_stack((ez for i in np.arange(num_rays)))
+        up = np.column_stack((up for i in np.arange(num_rays)))
+        # doubled code (also in RayBundleNew.draw2d)
+
+        # doubled code (see ray.py)
+
+        # show surfaces with points in yz plane before pn-plane projection
+        # if false show full surface
+        if inyzplane:
+            inYZplane = np.abs(globalpts[0]) < 2*effsemidia/vertices
+            globalpts = globalpts[:, inYZplane]
+            plane_normal = plane_normal[:, inYZplane]
+            up = up[:, inYZplane]
+            ez = ez[:, inYZplane]
+
+        globalptsinplane = globalpts - np.sum(globalpts*plane_normal, axis=0)*plane_normal
+
+       
+        # calculate y-components
+        ypt = np.sum(globalptsinplane * up, axis=0)
+        # calculate z-components
+        zpt = np.sum(globalptsinplane * ez, axis=0)
+
+        # doubled code (see ray.py)
 
         
         #ax.plot(zinap+offset[1], yinap+offset[0], color)
-        ax.plot(globalpts[2], globalpts[1], color)
+        ax.plot(zpt, ypt, color)
         
         
         #self.shape.draw2d(ax, offset, vertices, color, self.aperture)
