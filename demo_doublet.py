@@ -40,6 +40,8 @@ from core import plots
 from core.aperture import CircularAperture
 from core.coordinates import LocalCoordinates
 
+from core.globalconstants import canonical_ex, canonical_ey, canonical_ez
+
 import math
 
 wavelength = 0.5876e-3
@@ -123,7 +125,10 @@ ax.axis('equal')
 ax.set_axis_bgcolor('black')
 
 print("drawing!")
-r2.draw2d(ax, color="blue", plane_normal=np.array([math.cos(math.pi/4), 0, math.sin(math.pi/4)]), up=np.array([0, 1, 0]))
+r2.draw2d(ax, color="blue", plane_normal=canonical_ex, up=canonical_ey) #np.array([math.cos(math.pi/4), 0, math.sin(math.pi/4)]), up=np.array([0, 1, 0]))
+for e in s.elements.itervalues():
+    for surfs in e.surfaces.itervalues():
+        surfs.draw2d(ax, color="grey")
 
 #plots.drawLayout2d(ax, s, [pilotpath])
 #plots.drawLayout2d(ax, s, [r2])

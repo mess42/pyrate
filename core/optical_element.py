@@ -105,7 +105,8 @@ class OpticalElement(CoordinateTreeBase):
         self.__surfaces = {} # Append surfaces objects
         self.__materials = {} # Append materials objects
         self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
-        
+    
+    
     def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), label=""):
         """
         Adds surface class object to the optical element.
@@ -121,6 +122,11 @@ class OpticalElement(CoordinateTreeBase):
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
         self.__surfaces[key].label = label
         self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
+
+    def getSurfaces(self):
+        return self.__surfaces
+        
+    surfaces = property(fget=getSurfaces)
         
 
     def addMaterial(self, key, material_object, comment=""):
@@ -269,12 +275,21 @@ class SurfaceNew(CoordinateTreeBase):
         isinap = np.array(self.aperture.arePointsInAperture(x, y))
         xinap = x[isinap]        
         yinap = y[isinap]
+        zinap = np.zeros_like(xinap)
         
+        localpts_aperture = np.row_stack((xinap, yinap, zinap))
+        localpts_shape = self.shape.lc.returnOtherToActualPoints(localpts_aperture, self.aperture.lc)
         
-        zinap = self.shape.getSag(xinap, yinap)
+        xinap_shape = localpts_shape[0, :]
+        yinap_shape = localpts_shape[1, :]        
+        zinap_shape = self.shape.getSag(xinap_shape, yinap_shape)
         
-        localpts = np.row_stack((xinap, yinap, zinap))
-        globalpts = self.lc.returnLocalToGlobalPoints(localpts)
+        localpts_shape = np.row_stack((xinap_shape, yinap_shape, zinap_shape))
+        localpts_surf = self.rootcoordinatesystem.returnOtherToActualPoints(localpts_shape, self.shape.lc)        
+        
+        # ebenenprojektion hier!        
+        
+        globalpts = self.rootcoordinatesystem.returnLocalToGlobalPoints(localpts_surf)
 
         inYZplane = np.abs(xinap) < 2*effsemidia/vertices
 
