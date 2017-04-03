@@ -11,4 +11,4 @@ def test_smoke_doublet():
     matplotlib.use('Template')
 
     import demo_doublet
-    assert True
+    assert False 
