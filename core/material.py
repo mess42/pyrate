@@ -22,20 +22,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
-from ray import RayBundle
+from ray import RayBundleNew
 import optimize
 
 # import FreeCAD
 
 class Material(optimize.ClassWithOptimizableVariables):
     """Abstract base class for materials."""
-    def __init__(self, name="", comment=""):
+    
+    # TODO: material coordinate system to be used by propagate and refract
+    
+    def __init__(self, lc, name="", comment=""):
         super(Material, self).__init__()
         """
         virtual constructor
         """
         self.setName(name)
         self.comment = comment
+        self.lc = lc
 
     def refract(self, previousmaterial, raybundle, intersection, normal, validIndices):
         """
@@ -112,7 +116,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
         
-    def propagate(self, actualSurface, nextSurface, raybundle):
+    def propagate(self, raybundle, nextSurface):
         raise NotImplementedError()
 
 
@@ -121,15 +125,20 @@ class ConstantIndexGlass(Material):
     """
     A simple glass defined by a single refractive index.
     """
-    def __init__(self, n=1.0, name="", comment=""):
-        super(ConstantIndexGlass, self).__init__(name, comment)
+    def __init__(self, lc, n=1.0, name="", comment=""):
+        super(ConstantIndexGlass, self).__init__(lc, name, comment)
 
         self.n = optimize.OptimizableVariable(False, value=n)
         self.addVariable("refractive index", self.n)
 
-    def refract(self, previousmaterial, raybundle, intersection, normal, previouslyValid):
 
-        k1 = previousmaterial.returnDtoK(raybundle.d, raybundle.wave)
+
+    def refractNew(self, raybundle, actualSurface):
+
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
+        
+        globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
+        normal = self.lc.returnGlobalToLocalDirections(globalnormal)
 
         abs_k1_normal = np.sum(k1 * normal, axis=0)
         k_perp = k1 - abs_k1_normal * normal
@@ -137,57 +146,51 @@ class ConstantIndexGlass(Material):
         square = abs_k2**2 - np.sum(k_perp * k_perp, axis=0)
 
         # make total internal reflection invalid
-        valid = previouslyValid * (square > 0)
-        valid[0] = True  # hail to the chief
+        valid = raybundle.valid[-1] * (square > 0)
 
         abs_k2_normal = np.sqrt(square)
         k2 = k_perp + abs_k2_normal * normal
 
         # return ray with new direction and properties of old ray
         # return only valid rays
-        Nval = np.sum(valid)
-        #orig = np.zeros((3, Nval), dtype=float)
-        #orig[0] = intersection[0][valid]
-        #orig[1] = intersection[1][valid]
-        #orig[2] = intersection[2][valid]
-        orig = intersection[:, valid]        
-        
-        #newk = np.zeros((3, Nval), dtype=float)
-        #newk[0] = k2[0][valid]
-        #newk[1] = k2[1][valid]
-        #newk[2] = k2[2][valid]
+        orig = raybundle.x[-1][:, valid]        
         newk = k2[:, valid]
 
-        d2 = self.returnKtoD(newk)
+        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
+        ey = np.zeros_like(orig)
+        ey[1,:] =  1.
+        Efield = np.cross(newk, ey, axisa=0, axisb=0).T
 
-        return RayBundle(orig, d2, self, raybundle.rayID[valid], raybundle.wave)
+        return RayBundleNew(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
 
-    def returnDtoK(self, d, wavelength=550e-6):
-        return 2.0*math.pi/wavelength*self.n.evaluate()*d
-    
-    def returnKtoD(self, k):
-        d = np.real(k)
-        absd = np.sqrt(np.sum(d**2, axis=0))
-        return d/absd
+    def propagate(self, raybundle, nextSurface):
 
-    def propagate(self, actualSurface, nextSurface, raybundle):
-
-        localo = nextSurface.lc.returnGlobalToLocalPoints(raybundle.o)
-        locald = nextSurface.lc.returnGlobalToLocalDirections(raybundle.d)                
+        """
+        Propagates through material until nextSurface.
+        Has to check for aperture (TODO). Changes raybundle!
         
-        intersection, t, normal, validIndices = \
-            nextSurface.shape.intersect(RayBundle(localo, locald, actualSurface.material, raybundle.rayID, raybundle.wave))
+        :param raybundle (RayBundle object), gets changed!
+        :param nextSurface (Surface object)
+        """
+
+        #intersection, t, normal, validIndices = \
+        #    nextSurface.shape.intersect(RayBundle(localo, localk, locale, raybundle.rayID, raybundle.wave))
         # use Poynting direction to calculate rays
 
-        raybundle.t = t
+        nextSurface.shape.intersectNew(raybundle)
+        
 
-        validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
-        validIndices[0] = True # hail to the chief ray
+        #raybundle.t = t
+
+        #validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
+        # TODO: generalize to apertures in local coordinates
+        
+        #validIndices[0] = True # hail to the chief ray
 
 
         
-        globalintersection = nextSurface.lc.returnLocalToGlobalPoints(intersection)
-        globalnormal = nextSurface.lc.returnLocalToGlobalDirections(normal)
+        #globalintersection = nextSurface.lc.returnLocalToGlobalPoints(intersection)
+        #globalnormal = nextSurface.lc.returnLocalToGlobalDirections(normal)
         
         
 
@@ -195,7 +198,6 @@ class ConstantIndexGlass(Material):
         # TODO: needs heavy testing
 
         #raybundle.t = t
-        return (globalintersection, t, globalnormal, validIndices)
             
 
 
