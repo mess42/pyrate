@@ -24,23 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 
-
-from core import pupil
-from core import field
 from core import raster
 from core import material
-from core import aim
 from core import surfShape
 from core.optical_element import OpticalSystemNew, SurfaceNew, OpticalElement
-from core.ray import RayPath, RayBundle, RayBundleNew
+from core.ray import RayBundleNew
 
-from core import plots
 from core.aperture import CircularAperture
 from core.coordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ex, canonical_ey, canonical_ez
+from core.globalconstants import canonical_ex, canonical_ey
 
 import math
 
