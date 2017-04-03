@@ -102,13 +102,13 @@ phi = 5.*math.pi/180.0
 initialbundle = RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq)
 
-#pilotbundle = RayBundleNew(
-#                x0 = np.array([[0], [0], [0]]), 
-#                k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi)], [2.*math.pi/wavelength*math.cos(phi)]]), 
-#                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
-#                )
+pilotbundle = RayBundleNew(
+                x0 = np.array([[0], [0], [0]]), 
+                k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi)], [2.*math.pi/wavelength*math.cos(phi)]]), 
+                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
+                )
 
-#pilotray = s.seqtrace(pilotbundle, sysseq)
+pilotray = s.seqtrace(pilotbundle, sysseq)
 
 #for (ind, r) in enumerate(pilotray.raybundles):
 #    print("pilot bundle %d" % (ind,))
@@ -126,6 +126,7 @@ ax.set_axis_bgcolor('black')
 
 print("drawing!")
 r2.draw2d(ax, color="blue", plane_normal=canonical_ex, up=canonical_ey) #np.array([math.cos(math.pi/4), 0, math.sin(math.pi/4)]), up=np.array([0, 1, 0]))
+pilotray.draw2d(ax, color="green", plane_normal=canonical_ex, up=canonical_ey)
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax, color="grey")
