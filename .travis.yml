@@ -1,5 +1,6 @@
 language: python
 python:
+  # travis CI uses x64 VMs, python builds not available for OSX
   - "2.7"
 addons:
   apt:

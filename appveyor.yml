@@ -9,7 +9,7 @@ environment:
     - platform: x64
       PYTHON_ROOT: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7"
-      MINICONDAPATH: "C:\\Miniconda-x64"
+      MINICONDA: "C:\\Miniconda-x64"
 
 install:
   - "set PATH=%PYTHON_ROOT%;%PYTHON_ROOT%\\Scripts;%PATH%"
