@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+import math
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 from scipy.optimize import fsolve
@@ -36,6 +37,7 @@ class Shape(ClassWithOptimizableVariables):
         self.lc = lc        
         
         super(Shape, self).__init__()
+
 
     def intersect(self, raybundle):
         """
@@ -83,7 +85,37 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
+    def getGlobalNormal(self, xvec):
+        """
+        Calculates Normal in global coordinate system at the appropriate local
+        coordinates.
+        
+        :param xvec (3xN array of float)
+        
+        :return global surface normal (3xN array of float)
+        """
+       
+        xveclocal = self.lc.returnGlobalToLocalPoints(xvec)        
 
+        x = xveclocal[0, :]
+        y = xveclocal[1, :]
+
+        localnormal = self.getNormal(x, y)
+        return self.lc.returnLocalToGlobalDirections(localnormal)
+
+
+    def getGlobalNormalDerivative(self, xvecglobal):
+        xveclocal = self.lc.returnGlobalToLocalPoints(xvecglobal)
+        rotationmatrix = self.lc.localbasis        
+        
+        # TODO: to be tested!!!!!        
+        
+        return np.dot(rotationmatrix, np.dot(rotationmatrix, self.getNormalDerivative(xveclocal)))
+
+
+    def getNormalDerivative(self, xveclocal):
+        
+        raise NotImplementedError()
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
         """
@@ -119,10 +151,10 @@ class Conic(Shape):
         """
         super(Conic, self).__init__(lc)
 
-        self.curvature = OptimizableVariable(False, "Variable", value=curv)
-        self.addVariable("curvature", self.curvature) #self.createOptimizableVariable("curvature", value=curv, status=False)
-        self.conic = OptimizableVariable(False, "Variable", value=cc)
-        self.addVariable("conic constant", self.conic) #self.createOptimizableVariable("conic constant", value=cc, status=False)
+        self.curvature = OptimizableVariable(value=curv)
+        self.addVariable("curvature", self.curvature) 
+        self.conic = OptimizableVariable(value=cc)
+        self.addVariable("conic constant", self.conic) 
 
     def getSag(self, x, y):
         """
@@ -144,25 +176,6 @@ class Conic(Shape):
         z =  self.curvature.evaluate() * rsquared / (1 + np.sqrt(sqrtterm))
 
         return z
-
-    def getGlobalNormal(self, xvec):
-        """
-        Calculates Normal in global coordinate system at the appropriate local
-        coordinates.
-        
-        :param xvec (3xN array of float)
-        
-        :return global surface normal (3xN array of float)
-        """
-       
-        xveclocal = self.lc.returnGlobalToLocalPoints(xvec)        
-
-        x = xveclocal[0, :]
-        y = xveclocal[1, :]
-
-        localnormal = self.getNormal(x, y)
-        return self.lc.returnLocalToGlobalDirections(localnormal)
-        
 
     def getNormal(self, x,y):
         """
@@ -212,6 +225,33 @@ class Conic(Shape):
         hessian[5] = np.zeros_like(x) #zx
 
         return hessian
+
+       
+
+    def getNormalDerivative(self, xveclocal):
+        """
+        :param xveclocal (3x1 array float), single ray position 
+        
+        :return (3x3 numpy array of float) 
+        """
+        
+        (x, y, z) = (xveclocal[0, 0], xveclocal[1, 0], xveclocal[2, 0])
+        rho = self.curvature()
+        cc = self.conic()
+
+        factor = 1. - cc*rho**2*(x**2 + y**2)
+        
+        prematrix = 1./math.sqrt(factor)*np.array([[rho, 0, 0], [0, rho, 0], [0, 0, rho*(1.+cc)]])
+        
+        innermatrix = np.eye(3) \
+            - 1./factor*np.array([
+                [rho**2*x**2, rho**2*x*y, rho*x*(rho*(1+cc)*z - 1.)],
+                [rho**2*y*x, rho**2*y**2, rho*y*(rho*(1+cc)*z - 1.)],
+                [rho*x*(rho*(1+cc)*z - 1.), rho*y*(rho*(1+cc)*z - 1.), 1 - rho**2*(1+cc)*(x**2 + y**2)] 
+            ])
+        
+        return np.dot(prematrix, innermatrix)
+
 
 
     def getCentralCurvature(self):

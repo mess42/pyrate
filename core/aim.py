@@ -26,6 +26,11 @@ import raster
 from ray import RayBundle
 from numpy import *
 
+from globalconstants import standard_wavelength
+
+class aimNew(object):
+    def __init__(self, opticalsystem):
+        pass
 
 class aimFiniteByMakingASurfaceTheStop(object):
     def __init__(self, opticalSystem, 
@@ -34,7 +39,7 @@ class aimFiniteByMakingASurfaceTheStop(object):
     fieldType= field.ObjectHeight, 
     rasterType= raster.RectGrid, 
     nray=10,
-    wavelength=0.55, 
+    wavelength=standard_wavelength, 
     stopPosition=1):
         """
         This class provides functionality to create an initial ray bundle 

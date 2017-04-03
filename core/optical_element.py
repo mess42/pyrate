@@ -165,6 +165,11 @@ class OpticalElement(CoordinateTreeBase):
         for surfkey in sequence:
             current_bundle = rpath.raybundles[-1]
             current_surface = self.__surfaces[surfkey]
+            
+            print(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1)))
+            
+            print(current_surface.shape.getNormalDerivative(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1))))
+            
             current_material.propagate(current_bundle, current_surface)
             
             (mnmat, pnmat) = self.__surf_mat_connection[surfkey]

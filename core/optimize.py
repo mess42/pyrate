@@ -97,6 +97,7 @@ class OptimizableVariable(object):
         self.parameters = kwargs
 
     def setvalue(self, value):
+        # TODO: overload assign operator
         if self.var_type == "variable" or self.var_type == "fixed":
             self.parameters["value"] = value
 
