@@ -35,6 +35,8 @@ from optimize import OptimizableVariable
 
 from ray import RayPathNew, RayBundleNew
 
+from globalconstants import canonical_ex, canonical_ey, canonical_ez
+
 import uuid
 
 
@@ -103,7 +105,8 @@ class OpticalElement(CoordinateTreeBase):
         self.__surfaces = {} # Append surfaces objects
         self.__materials = {} # Append materials objects
         self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
-        
+    
+    
     def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), label=""):
         """
         Adds surface class object to the optical element.
@@ -119,6 +122,11 @@ class OpticalElement(CoordinateTreeBase):
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
         self.__surfaces[key].label = label
         self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
+
+    def getSurfaces(self):
+        return self.__surfaces
+        
+    surfaces = property(fget=getSurfaces)
         
 
     def addMaterial(self, key, material_object, comment=""):
@@ -212,7 +220,7 @@ class SurfaceNew(CoordinateTreeBase):
 
         :return self.shape: new Shape object
         """
-        if self.checkForRootConnection(self.rootcoordinatesystem):
+        if self.checkForRootConnection(apert.lc):
             self.__aperture = apert
         else:
             raise Exception("Aperture coordinate system should be connected to surface coordinate system")            
@@ -231,7 +239,7 @@ class SurfaceNew(CoordinateTreeBase):
 
         :return self.shape: new Shape object
         """
-        if self.checkForRootConnection(self.rootcoordinatesystem):
+        if self.checkForRootConnection(shape.lc):
             self.__shape = shape
         else:
             raise Exception("Shape coordinate system should be connected to surface coordinate system")            
@@ -242,7 +250,10 @@ class SurfaceNew(CoordinateTreeBase):
     shape = property(getShape, setShape)
     
 
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
+    def draw2d(self, ax, vertices=100, color="grey", plane_normal = canonical_ex, up = canonical_ey):
+
+        
+
         sizelimit = 1000.0
         failsafevalue = 10.0        
         if self.aperture == None:
@@ -264,12 +275,21 @@ class SurfaceNew(CoordinateTreeBase):
         isinap = np.array(self.aperture.arePointsInAperture(x, y))
         xinap = x[isinap]        
         yinap = y[isinap]
+        zinap = np.zeros_like(xinap)
         
+        localpts_aperture = np.row_stack((xinap, yinap, zinap))
+        localpts_shape = self.shape.lc.returnOtherToActualPoints(localpts_aperture, self.aperture.lc)
         
-        zinap = self.shape.getSag(xinap, yinap)
+        xinap_shape = localpts_shape[0, :]
+        yinap_shape = localpts_shape[1, :]        
+        zinap_shape = self.shape.getSag(xinap_shape, yinap_shape)
         
-        localpts = np.row_stack((xinap, yinap, zinap))
-        globalpts = self.lc.returnLocalToGlobalPoints(localpts)
+        localpts_shape = np.row_stack((xinap_shape, yinap_shape, zinap_shape))
+        localpts_surf = self.rootcoordinatesystem.returnOtherToActualPoints(localpts_shape, self.shape.lc)        
+        
+        # ebenenprojektion hier!        
+        
+        globalpts = self.rootcoordinatesystem.returnLocalToGlobalPoints(localpts_surf)
 
         inYZplane = np.abs(xinap) < 2*effsemidia/vertices
 

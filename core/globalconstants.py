@@ -22,9 +22,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import math
+import numpy as np
 
 standard_wavelength = 0.5876e-3 # (d line) in mm
 
 c0 = 299792458 # definition, m/s
 mu0 = 4.*math.pi*1e-7 # N/A**2
 eps0 = 1./(c0**2*mu0) # Vs/(Am)
+
+canonical_ex = np.array([1, 0, 0])
+canonical_ey = np.array([0, 1, 0])
+canonical_ez = np.array([0, 0, 1])

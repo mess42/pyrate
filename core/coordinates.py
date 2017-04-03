@@ -338,20 +338,23 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         return (tiltx, tilty, tiltz)
         
     def returnActualToOtherPoints(self, localpts, lcother):
-        raise NotImplementedError()
-        return localpts
+        # TODO: constraint: lcother and self share same root, check: lcother=self
+        globalpts = self.returnLocalToGlobalPoints(localpts)
+        return lcother.returnGlobalToLocalPoints(globalpts)
 
     def returnOtherToActualPoints(self, otherpts, lcother):
-        raise NotImplementedError()
-        return otherpts
-        
+        # TODO: constraint: lcother and self share same root        
+        globalpts = lcother.returnLocalToGlobalPoints(otherpts)
+        return self.returnGlobalToLocalPoints(globalpts)
+       
     def returnActualToOtherDirections(self, localdirs, lcother):
-        raise NotImplementedError()        
-        return localdirs
+        # TODO: constraint: lcother and self share same root
+        globaldirs = self.returnLocalToGlobalDirections(localdirs)
+        return lcother.returnGlobalToLocalDirections(globaldirs)
 
     def returnOtherToActualDirections(self, otherdirs, lcother):
-        raise NotImplementedError()        
-        return otherdirs
+        globaldirs = lcother.returnLocalToGlobalDirections(otherdirs)
+        return self.returnGlobalToLocalDirections(globaldirs)
         
 
 
