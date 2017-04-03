@@ -27,7 +27,7 @@ installed.
 
 In Ubuntu, Mint and Debian you can use:
 
-    $ sudo apt-get install python3 pip3
+    $ sudo apt-get install python3 python3-pip 
     $ sudo pip3 install mypy-lang
     $ sudo python3 -m pip install typed-ast
 
