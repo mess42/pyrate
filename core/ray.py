@@ -24,7 +24,7 @@ from numpy import *
 import numpy as np
 import math
 
-from globalconstants import standard_wavelength
+from globalconstants import standard_wavelength, canonical_ex, canonical_ey, canonical_ez
 
 class RayBundleNew(object):
     def __init__(self, x0, k0, Efield0, rayID = [], wave = standard_wavelength):
@@ -132,7 +132,7 @@ class RayBundleNew(object):
         
     def draw2d(self, ax, color="blue", plane_normal = np.array([1, 0, 0]), up = np.array([0, 1, 0])):
 
-        # normalizing plane_normal
+        # normalizing plane_normal, up direction
         plane_normal = plane_normal/np.linalg.norm(plane_normal)
         up = up/np.linalg.norm(up)
 
@@ -340,7 +340,7 @@ class RayPathNew(object):
     def appendRayPath(self, raypath):
         self.raybundles += raypath.raybundles
         
-    def draw2d(self, ax, color="blue", plane_normal = np.array([1, 0, 0]), up = np.array([0, 1, 0])):
+    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey):
         for r in self.raybundles:
             r.draw2d(ax, color=color, plane_normal=plane_normal, up=up)
 

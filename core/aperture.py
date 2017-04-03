@@ -38,6 +38,7 @@ class BaseAperture(object):
     The base class does not limit the beam diameter.
     """
     def __init__(self, lc, tx=0.0, ty=0.0):
+        self.lc = lc
         self.typicaldimension = 1e10
         self.tx = tx
         self.ty = ty

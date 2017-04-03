@@ -35,6 +35,8 @@ from optimize import OptimizableVariable
 
 from ray import RayPathNew, RayBundleNew
 
+from globalconstants import canonical_ex, canonical_ey, canonical_ez
+
 import uuid
 
 
@@ -212,7 +214,7 @@ class SurfaceNew(CoordinateTreeBase):
 
         :return self.shape: new Shape object
         """
-        if self.checkForRootConnection(self.rootcoordinatesystem):
+        if self.checkForRootConnection(apert.lc):
             self.__aperture = apert
         else:
             raise Exception("Aperture coordinate system should be connected to surface coordinate system")            
@@ -231,7 +233,7 @@ class SurfaceNew(CoordinateTreeBase):
 
         :return self.shape: new Shape object
         """
-        if self.checkForRootConnection(self.rootcoordinatesystem):
+        if self.checkForRootConnection(shape.lc):
             self.__shape = shape
         else:
             raise Exception("Shape coordinate system should be connected to surface coordinate system")            
@@ -242,7 +244,10 @@ class SurfaceNew(CoordinateTreeBase):
     shape = property(getShape, setShape)
     
 
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
+    def draw2d(self, ax, vertices=100, color="grey", plane_normal = canonical_ex, up = canonical_ey):
+
+        
+
         sizelimit = 1000.0
         failsafevalue = 10.0        
         if self.aperture == None:
