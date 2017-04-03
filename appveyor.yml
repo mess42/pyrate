@@ -1,0 +1,26 @@
+build: false
+
+environment:
+  matrix:
+    - platform: x86
+      PYTHON_ROOT: "C:\\Python27"
+      PYTHON_VERSION: "2.7"
+      MINICONDA: "C:\\Miniconda"
+    - platform: x64
+      PYTHON_ROOT: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7"
+      MINICONDA: "C:\\Miniconda-x64"
+
+install:
+  - "set PATH=%PYTHON_ROOT%;%PYTHON_ROOT%\\Scripts;%PATH%"
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy matplotlib pytest"
+  - activate test-environment
+  - pip install -U pip pip-tools
+  - pip-compile                       # requirements.in -> requirements.txt
+  - pip install -r requirements.txt   # install pyrate dependences
+
+test_script:
+  - python -m py.test  # test automation, no coverage (alreay by travis CI)
