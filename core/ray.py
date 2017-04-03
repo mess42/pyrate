@@ -24,8 +24,10 @@ from numpy import *
 import numpy as np
 import aperture
 
+from globalconstants import standard_wavelength
+
 class RayBundleNew(object):
-    def __init__(self, x0, k0, Efield0, rayID = [], wave = 550e-6):
+    def __init__(self, x0, k0, Efield0, rayID = [], wave = standard_wavelength):
         """
         Class representing a bundle of rays.
 
@@ -129,7 +131,7 @@ class RayBundleNew(object):
         return d
         
 class RayBundle(object):
-    def __init__(self, o, d, mat, rayID, wave=0.55e-3, pol=[]):
+    def __init__(self, o, d, mat, rayID, wave=standard_wavelength, pol=[]):
         """
         Class representing a bundle of rays.
 
@@ -345,7 +347,7 @@ class RayPath(object):
             self.raybundles[i].draw2d(ax, color=color)
 
 if __name__ == "__main__":
-    wavelength = 550E-6
+    wavelength = standard_wavelength
     nray = 4
     x0      =       np.random.random((3,nray))
     k0      = 0.5 * np.random.random((3,nray))

@@ -93,20 +93,24 @@ ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
+sysseq = [("AC254-100", ["stop", "front", "cement", "rear", "image"])]
+
+phi = 5.*math.pi/180.0
 
 initialbundle = RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
+r2 = s.seqtrace(initialbundle, sysseq)
 
-print(bk7.n())
-print(sf5.n())
-print(s.rootcoordinatesystem.tiltx())
+#pilotbundle = RayBundleNew(
+#                x0 = np.array([[0], [0], [0]]), 
+#                k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi)], [2.*math.pi/wavelength*math.cos(phi)]]), 
+#                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
+#                )
 
-r2 = s.seqtrace(initialbundle, [("AC254-100", ["stop", "front", "cement", "rear", "image"])])
+#pilotray = s.seqtrace(pilotbundle, sysseq)
 
-#for (ind, r) in enumerate(r2.raybundles):
-#    print("bundle %d" % (ind,))
+#for (ind, r) in enumerate(pilotray.raybundles):
+#    print("pilot bundle %d" % (ind,))
 #    print(r.x)
-#    #print(r.valid)
-#    print(r.k)
     
 print("last coordinates")
 print(r2.raybundles[-1].x[-1, :, :])

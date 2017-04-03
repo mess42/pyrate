@@ -33,6 +33,8 @@ import numpy as np
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 
+from globalconstants import standard_wavelength
+
 import uuid
 
 
@@ -166,7 +168,7 @@ class OpticalSystem(ClassWithOptimizableVariables):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, objectLC = LocalCoordinates(name="object"), primaryWavelength = 550e-6):
+    def __init__(self, objectLC = LocalCoordinates(name="object")):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 

@@ -40,9 +40,11 @@ from core import plots
 from core.aperture import CircularAperture
 from core.coordinates import LocalCoordinates
 
+from globalconstants import standard_wavelength
+
 import math
 
-wavelength = 0.55e-3
+wavelength = standard_wavelength
 
 # definition of optical system
 s = OpticalSystem() # objectDistance = 2.0
