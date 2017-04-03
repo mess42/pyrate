@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from numpy import *
 import numpy as np
-import aperture
+import math
 
 from globalconstants import standard_wavelength
 
@@ -121,14 +121,50 @@ class RayBundleNew(object):
         # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
         absE2 = np.sum(np.conj(self.Efield)*self.Efield, axis=1)
         Ek = np.sum(self.Efield * self.k, axis=1)
-        S = zeros_like( self.k, dtype=float)        
-        for j in arange(3):
+        S = np.zeros_like( self.k, dtype=float)        
+        for j in np.arange(3):
             S[:,j,:] = np.real(absE2*self.k[:,j,:] - Ek*np.conj(self.Efield)[:,j,:])
         absS = np.sqrt(np.sum(S**2, axis=1))
-        d = zeros_like( self.k, dtype=float)        
-        for j in arange(3):
+        d = np.zeros_like( self.k, dtype=float)        
+        for j in np.arange(3):
             d[:,j,:] = S[:,j,:] / absS
         return d
+        
+    def draw2d(self, ax, color="blue", plane_normal = np.array([1, 0, 0]), up = np.array([0, 1, 0])):
+
+        # normalizing plane_normal
+        plane_normal = plane_normal/np.linalg.norm(plane_normal)
+        up = up/np.linalg.norm(up)
+
+        ez = np.cross(plane_normal, up)
+
+        (num_points, num_dims, num_rays) = np.shape(self.x)
+
+        # arrange num_ray copies of simple vectors in appropriate form
+        plane_normal = np.column_stack((plane_normal for i in np.arange(num_rays)))
+        ez = np.column_stack((ez for i in np.arange(num_rays)))
+        up = np.column_stack((up for i in np.arange(num_rays)))
+        
+        ptlist = [self.x[i] for i in np.arange(num_points)]
+        
+        for (pt1, pt2) in zip(ptlist[1:], ptlist[:-1]):
+
+            # perform in-plane projection
+            pt1inplane = pt1 - np.sum(pt1*plane_normal, axis=0)*plane_normal
+            pt2inplane = pt2 - np.sum(pt2*plane_normal, axis=0)*plane_normal
+            
+            # calculate y-components
+            ypt1 = np.sum(pt1inplane * up, axis=0)
+            ypt2 = np.sum(pt2inplane * up, axis=0)
+
+            # calculate z-components
+            zpt1 = np.sum(pt1inplane * ez, axis=0)
+            zpt2 = np.sum(pt2inplane * ez, axis=0)
+            
+            y = np.vstack((ypt1, ypt2))
+            z = np.vstack((zpt1, zpt2))
+            ax.plot(z, y, color)            
+            
         
 class RayBundle(object):
     def __init__(self, o, d, mat, rayID, wave=standard_wavelength, pol=[]):
@@ -303,6 +339,11 @@ class RayPathNew(object):
         
     def appendRayPath(self, raypath):
         self.raybundles += raypath.raybundles
+        
+    def draw2d(self, ax, color="blue", plane_normal = np.array([1, 0, 0]), up = np.array([0, 1, 0])):
+        for r in self.raybundles:
+            r.draw2d(ax, color=color, plane_normal=plane_normal, up=up)
+
         
         
 

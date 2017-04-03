@@ -80,7 +80,7 @@ s.addElement("AC254-100", elem)
 print(s.rootcoordinatesystem.pprint())
 
 rstobj = raster.RectGrid()
-(px, py) = rstobj.getGrid(10)
+(px, py) = rstobj.getGrid(100)
 
 rpup = 11.43
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
@@ -112,21 +112,22 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #    print("pilot bundle %d" % (ind,))
 #    print(r.x)
     
-print("last coordinates")
-print(r2.raybundles[-1].x[-1, :, :])
+#print("last coordinates")
+#print(r2.raybundles[-1].x[-1, :, :])
 
-"""
+
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
 
 ax.axis('equal')
 ax.set_axis_bgcolor('black')
 
-#plots.drawLayout2d(ax, s, [pilotpath])
-plots.drawLayout2d(ax, s, [r2])
+print("drawing!")
+r2.draw2d(ax, color="blue", plane_normal=np.array([math.cos(math.pi/4), 0, math.sin(math.pi/4)]), up=np.array([0, 1, 0]))
 
-print()
+#plots.drawLayout2d(ax, s, [pilotpath])
+#plots.drawLayout2d(ax, s, [r2])
 
 plt.show()
-"""
+
 
