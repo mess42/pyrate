@@ -26,6 +26,7 @@ import math
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 from scipy.optimize import fsolve
+from globalconstants import numerical_tolerance
 
 class Shape(ClassWithOptimizableVariables):
     def __init__(self, lc):
@@ -280,14 +281,16 @@ class Conic(Shape):
         H = - self.curvature.evaluate() - self.conic.evaluate() * self.curvature.evaluate() * rayDir[2]**2
 
         square = F**2 + H*G
+        division_part = F + np.sqrt(square)
         
-        t = G / (F + np.sqrt(square))
+        t_not_infinite = (np.abs(division_part) > numerical_tolerance)
+
+        t = np.where(t_not_infinite, G / division_part, 0.)
 
         intersection = r0 + rayDir * t
 
         # find indices of rays that don't intersect with the sphere
-        validIndices = (square > 0) #*(intersection[0]**2 + intersection[1]**2 <= 10.0**2))
-        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
+        validIndices = (square > 0)*t_not_infinite
 
         globalinter = self.lc.returnLocalToGlobalPoints(intersection)
         

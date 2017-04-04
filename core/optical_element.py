@@ -163,20 +163,20 @@ class OpticalElement(CoordinateTreeBase):
         return returnmat
 
     def seqtrace(self, raybundle, sequence, background_medium):
-        # TODO: hier weitermachen
-        # sequence = ["surf1", "surf2", "surf3"], keys
+        
+        print(sequence)
     
         current_material = background_medium    
     
         rpath = RayPathNew(raybundle)    
     
-        for surfkey in sequence:
+        for (surfkey, refract_flag, ordinary_flag) in sequence:
+            
             current_bundle = rpath.raybundles[-1]
             current_surface = self.__surfaces[surfkey]
             
-            print(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1)))
-            
-            print(current_surface.shape.getNormalDerivative(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1))))
+            #print(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1)))
+            #print(current_surface.shape.getNormalDerivative(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1))))
             
             current_material.propagate(current_bundle, current_surface)
             
@@ -184,9 +184,12 @@ class OpticalElement(CoordinateTreeBase):
             mnmat = self.__materials.get(mnmat, background_medium)
             pnmat = self.__materials.get(pnmat, background_medium)
 
-            current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-            
-            rpath.appendRayBundle(current_material.refractNew(current_bundle, current_surface))
+            if refract_flag:
+                current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
+                rpath.appendRayBundle(current_material.refractNew(current_bundle, current_surface))
+            else:
+                rpath.appendRayBundle(current_material.reflectNew(current_bundle, current_surface))
+
 
         return rpath
 

@@ -139,6 +139,9 @@ class RayBundleNew(object):
         ez = np.cross(plane_normal, up)
 
         (num_points, num_dims, num_rays) = np.shape(self.x)
+        
+        if num_rays == 0:
+            return
 
         # arrange num_ray copies of simple vectors in appropriate form
         plane_normal = np.column_stack((plane_normal for i in np.arange(num_rays)))

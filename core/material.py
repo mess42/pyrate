@@ -147,19 +147,13 @@ class Material(optimize.ClassWithOptimizableVariables):
         raise NotImplementedError()
 
 
-
-class ConstantIndexGlass(Material):
-    """
-    A simple glass defined by a single refractive index.
-    """
+class IsotropicMaterial(Material):
+    
     def __init__(self, lc, n=1.0, name="", comment=""):
-        super(ConstantIndexGlass, self).__init__(lc, name, comment)
-
-        self.n = optimize.OptimizableVariable(value=n)
-        self.addVariable("refractive index", self.n)
+        super(IsotropicMaterial, self).__init__(lc, name, comment)
 
     def getEpsilonTensor(self, wave=standard_wavelength):
-        return np.eye(3)*self.n()**2
+        raise NotImplementedError()
 
     def calcXiNormalDerivative(self, n, k_inplane, wave=standard_wavelength):
         return np.zeros_like(n)        
@@ -208,6 +202,35 @@ class ConstantIndexGlass(Material):
 
         return RayBundleNew(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
 
+
+    def reflectNew(self, raybundle, actualSurface):
+
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
+        
+        globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
+        normal = self.lc.returnGlobalToLocalDirections(globalnormal)
+
+        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
+
+        (xi, valid_refraction) = self.calcXi(normal, k_inplane, wave=raybundle.wave)
+        
+        valid = raybundle.valid[-1] * valid_refraction
+
+        k2 = k_inplane - xi * normal # changed for mirror, all other code is doubled
+
+        # return ray with new direction and properties of old ray
+        # return only valid rays
+        orig = raybundle.x[-1][:, valid]        
+        newk = k2[:, valid]
+
+        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
+        ey = np.zeros_like(orig)
+        ey[1,:] =  1.
+        Efield = np.cross(newk, ey, axisa=0, axisb=0).T
+
+        return RayBundleNew(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
+
+
     def propagate(self, raybundle, nextSurface):
 
         """
@@ -218,32 +241,22 @@ class ConstantIndexGlass(Material):
         :param nextSurface (Surface object)
         """
 
-        #intersection, t, normal, validIndices = \
-        #    nextSurface.shape.intersect(RayBundle(localo, localk, locale, raybundle.rayID, raybundle.wave))
-        # use Poynting direction to calculate rays
-
         nextSurface.shape.intersectNew(raybundle)
         
 
-        #raybundle.t = t
+class ConstantIndexGlass(IsotropicMaterial):
+    """
+    A simple glass defined by a single refractive index.
+    """
+    def __init__(self, lc, n=1.0, name="", comment=""):
+        super(ConstantIndexGlass, self).__init__(lc, name, comment)
 
-        #validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
-        # TODO: generalize to apertures in local coordinates
-        
-        #validIndices[0] = True # hail to the chief ray
+        self.n = optimize.OptimizableVariable(value=n)
+        self.addVariable("refractive index", self.n)
 
-
-        
-        #globalintersection = nextSurface.lc.returnLocalToGlobalPoints(intersection)
-        #globalnormal = nextSurface.lc.returnLocalToGlobalDirections(normal)
-        
-        
-
-        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
-        # TODO: needs heavy testing
-
-        #raybundle.t = t
             
+    def getEpsilonTensor(self, wave=standard_wavelength):
+        return np.eye(3)*self.n()**2
 
 
     def setCoefficients(self, n):
@@ -293,7 +306,7 @@ class ConstantIndexGlass(Material):
 
 
 class ModelGlass(ConstantIndexGlass):
-    def __init__(self, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5), name="", comment=""):
+    def __init__(self, lc, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5), name="", comment=""):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
@@ -301,7 +314,7 @@ class ModelGlass(ConstantIndexGlass):
         
         :param tuple (n0, A, B) of float
         """
-        super(ModelGlass, self).__init__(n0_A_B[0], name, comment)
+        super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0], name=name, comment=comment)
 
 
         self.n0 = optimize.OptimizableVariable(False, value=n0_A_B[0])
@@ -333,6 +346,10 @@ class ModelGlass(ConstantIndexGlass):
         """
         wave = raybundle.wave  # wavelength in um
         return self.n0.evaluate() + self.A.evaluate() / wave + self.B.evaluate() / (wave**3.5)
+
+    def getEpsilonTensor(self, wave=standard_wavelength):
+        n = self.n0() + self.A() / wave + self.B() / (wave**3.5)
+        return np.eye(3)*n**2
 
     def calcCoefficientsFrom_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
         """
@@ -378,42 +395,6 @@ class ModelGlass(ConstantIndexGlass):
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
-
-class Mirror(Material):
-    "A mirror material - not sure whether a material class is the right way to implement it."
-
-    def refract(self, raybundle, intersection, normal, previouslyValid):
-
-        abs_k1_normal = np.sum(raybundle.k * normal, axis=0)
-        k_perp = raybundle.k - abs_k1_normal * normal
-        k2 = raybundle.k - 2.0*k_perp
-
-        newk = k2
-        orig = intersection
-
-        return RayBundle(orig, newk, raybundle.rayID, raybundle.wave)
-
-    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
-        return abcd
-
-    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
-        abcd = np.dot([
-                       [1, 0, thickness, 0, 0],
-                       [0, 1, 0, thickness, 0],
-                       [0, 0, 1, 0, 0],
-                       [0, 0, 0, 1, 0],
-                       [0, 0, 0, 0, 1]
-                      ],
-                      [
-                       [1, 0, 0, 0, 0],
-                       [0, 1, 0, 0, 0],
-                       [-2.0*curvature, 0, 1., 0, 0],
-                       [0, -2.0*curvature, 0., 1., 0],
-                       [0, 0, 0, 0, 1]
-                      ]
-                      )  # translation * mirror
-        return abcd
 
 
 class GrinMaterial(Material):
