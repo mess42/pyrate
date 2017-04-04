@@ -166,8 +166,6 @@ class OpticalElement(CoordinateTreeBase):
 
     def seqtrace(self, raybundle, sequence, background_medium):
         
-        print(sequence)
-    
         current_material = background_medium    
     
         rpath = RayPathNew(raybundle)    

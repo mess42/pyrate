@@ -280,26 +280,9 @@ class Conic(Shape):
         G = self.curvature.evaluate() * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.evaluate())) - 2 * r0[2]
         H = - self.curvature.evaluate() - self.conic.evaluate() * self.curvature.evaluate() * rayDir[2]**2
 
-        print("raydir")
-        print(rayDir)
-        print("localo")
-        print(localo)
-        print("F")
-        print(F)
-        print("G")
-        print(G)
-        print("H")
-        print(H)
-        
         square = F**2 + H*G
         division_part = F + np.sqrt(square)
 
-        print("square")
-        print(square)
-
-        print("div")
-        print(division_part)
-        
         t_not_infinite = (np.abs(division_part) > numerical_tolerance)
 
         t = np.where(t_not_infinite, G / division_part, 0.)
