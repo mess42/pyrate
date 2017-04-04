@@ -191,6 +191,7 @@ class OpticalElement(CoordinateTreeBase):
                 rpath.appendRayBundle(current_material.refractNew(current_bundle, current_surface))
             else:
                 rpath.appendRayBundle(current_material.reflectNew(current_bundle, current_surface))
+                
 
 
         return rpath

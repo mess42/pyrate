@@ -45,19 +45,22 @@ s = OpticalSystemNew()
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2", decz=-50.0, tiltx=math.pi/8), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-20), refname=lc2.name)
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-50, decy=-20), refname=lc3.name)
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2", decz=-50.0, decy=-20, tiltx=math.pi/16), refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=math.pi/8), refname=lc2.name)
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-50, decy=-10), refname=lc3.name)
 
 
 stopsurf = SurfaceNew(lc0)
-frontsurf = SurfaceNew(lc1, shape=surfShape.Conic(lc1), apert=CircularAperture(lc1, 12.7))
-cementsurf = SurfaceNew(lc2, shape=surfShape.Conic(lc2), apert=CircularAperture(lc2, 12.7))
-rearsurf = SurfaceNew(lc3, shape=surfShape.Conic(lc3), apert=CircularAperture(lc3, 12.7))
+frontsurf = SurfaceNew(lc1, shape=surfShape.Conic(lc1, curv=-0.001), apert=CircularAperture(lc1, 12.7))
+cementsurf = SurfaceNew(lc2, shape=surfShape.Conic(lc2, curv=-0.001), apert=CircularAperture(lc2, 12.7))
+rearsurf = SurfaceNew(lc3, shape=surfShape.Conic(lc3, curv=0.001), apert=CircularAperture(lc3, 12.7))
 image = SurfaceNew(lc4)
 
+air = material.ConstantIndexGlass(lc0, 1.0)
 
 elem = OpticalElement(lc0, label="TMA")
+
+elem.addMaterial("air", air)
 
 elem.addSurface("stop", stopsurf, (None, None))
 elem.addSurface("m1", frontsurf, (None, None))
@@ -85,23 +88,37 @@ E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
 sysseq = [("TMA", [("stop", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image", True, True)])] 
 
+sysseq_pilot = [("TMA", 
+                 [
+                    ("stop", True, True), 
+                    ("m1", False, True), 
+                    ("m2", False, True), 
+                    ("m3", False, True), 
+                    ("m2", False, True),
+                    ("m1", False, True),
+                ])
+                ] 
+
+
 phi = 5.*math.pi/180.0
 
 initialbundle = RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq)
 
-#pilotbundle = RayBundleNew(
-#                x0 = np.array([[0], [0], [0]]), 
-#                k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi)], [2.*math.pi/wavelength*math.cos(phi)]]), 
-#                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
-#                )
+pilotbundle = RayBundleNew(
+                x0 = np.array([[0], [0], [0]]), 
+                k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi)], [2.*math.pi/wavelength*math.cos(phi)]]), 
+                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
+                )
 
-#pilotray = s.seqtrace(pilotbundle, sysseq)
+pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
-for (ind, r) in enumerate(r2.raybundles):
-    print("bundle %d" % (ind,))
-    print(r.x)
-    print(r.k)
+#for (ind, r) in enumerate(r2.raybundles):
+#    print("bundle %d" % (ind,))
+#    print("r")
+#    print(r.x)
+#    print("k")
+#    print(r.k)
     
 #print("last coordinates")
 #print(r2.raybundles[-1].x[-1, :, :])
@@ -119,7 +136,7 @@ up = canonical_ey
 
 print("drawing!")
 r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-#pilotray.draw2d(ax, color="green", plane_normal=pn, up=up)
+pilotray.draw2d(ax, color="green", plane_normal=pn, up=up)
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.

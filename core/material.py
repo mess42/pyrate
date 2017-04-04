@@ -170,6 +170,8 @@ class IsotropicMaterial(Material):
         # make total internal reflection invalid
         valid = (square > 0)
 
+        print(valid)
+
         xi = np.sqrt(square)
         
         return (xi, valid)
@@ -216,7 +218,7 @@ class IsotropicMaterial(Material):
         
         valid = raybundle.valid[-1] * valid_refraction
 
-        k2 = k_inplane - xi * normal # changed for mirror, all other code is doubled
+        k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
 
         # return ray with new direction and properties of old ray
         # return only valid rays
@@ -227,6 +229,11 @@ class IsotropicMaterial(Material):
         ey = np.zeros_like(orig)
         ey[1,:] =  1.
         Efield = np.cross(newk, ey, axisa=0, axisb=0).T
+        
+        print("reflect k1:")
+        print(k1)
+        print("reflect newk:")
+        print(newk)
 
         return RayBundleNew(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
 
@@ -241,8 +248,11 @@ class IsotropicMaterial(Material):
         :param nextSurface (Surface object)
         """
 
+        print("propagate vorher")
+        print(raybundle.x)
         nextSurface.intersect(raybundle)
-        
+        print("propagate nachher")
+        print(raybundle.x)        
 
 class ConstantIndexGlass(IsotropicMaterial):
     """
