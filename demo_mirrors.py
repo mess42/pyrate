@@ -59,10 +59,6 @@ image = SurfaceNew(lc4)
 
 elem = OpticalElement(lc0, label="TMA")
 
-mirror = material.Mirror(lc1)
-
-elem.addMaterial("mirror", mirror)
-
 elem.addSurface("stop", stopsurf, (None, None))
 elem.addSurface("m1", frontsurf, (None, None))
 elem.addSurface("m2", cementsurf, (None, None))

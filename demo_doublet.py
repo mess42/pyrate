@@ -78,7 +78,7 @@ print(s.rootcoordinatesystem.pprint())
 rstobj = raster.RectGrid()
 (px, py) = rstobj.getGrid(100)
 
-rpup = 11.43
+rpup = 20. #11.43
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 
 k = np.zeros_like(o)

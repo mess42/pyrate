@@ -241,7 +241,7 @@ class IsotropicMaterial(Material):
         :param nextSurface (Surface object)
         """
 
-        nextSurface.shape.intersectNew(raybundle)
+        nextSurface.intersect(raybundle)
         
 
 class ConstantIndexGlass(IsotropicMaterial):
@@ -317,9 +317,9 @@ class ModelGlass(ConstantIndexGlass):
         super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0], name=name, comment=comment)
 
 
-        self.n0 = optimize.OptimizableVariable(False, value=n0_A_B[0])
-        self.A = optimize.OptimizableVariable(False, value=n0_A_B[1])
-        self.B = optimize.OptimizableVariable(False, value=n0_A_B[2])
+        self.n0 = optimize.OptimizableVariable(value=n0_A_B[0])
+        self.A = optimize.OptimizableVariable(value=n0_A_B[1])
+        self.B = optimize.OptimizableVariable(value=n0_A_B[2])
         
         self.addVariable("Conrady n0", self.n0)
         self.addVariable("Conrady A", self.A)

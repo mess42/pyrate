@@ -162,6 +162,8 @@ class OpticalElement(CoordinateTreeBase):
             
         return returnmat
 
+     
+
     def seqtrace(self, raybundle, sequence, background_medium):
         
         print(sequence)
@@ -252,6 +254,25 @@ class SurfaceNew(CoordinateTreeBase):
         
     shape = property(getShape, setShape)
     
+
+    def intersect(self, raybundle, remove_rays_outside_aperture=True):
+        """
+        Calculates intersection from raybundle. Knows shape and aperture and
+        can remove rays due to aperture.
+        
+        :param raybundle (RayBundle object), gets changed!
+        """
+        
+        self.shape.intersectNew(raybundle)
+        
+        if remove_rays_outside_aperture:
+            globalintersection = raybundle.x[-1]
+            local_ap_intersection = self.aperture.lc.returnGlobalToLocalPoints(globalintersection)
+        
+            valid = self.aperture.arePointsInAperture(local_ap_intersection[0], local_ap_intersection[1])
+        
+            raybundle.valid[-1] = raybundle.valid[-1]*valid
+
 
     def draw2d(self, ax, vertices=100, inyzplane = True, color="grey", plane_normal = canonical_ex, up = canonical_ey):
         """
