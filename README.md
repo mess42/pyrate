@@ -3,6 +3,7 @@ Pyrate
 Optical Design with Python.
 
 [![Build Status](https://travis-ci.org/theinze/pyrate.svg?branch=master)](https://travis-ci.org/theinze/pyrate)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/theinze/pyrate?branch=master&svg=true)](https://ci.appveyor.com/project/theinze/pyrate/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/theinze/pyrate/badge.svg?branch=master)](https://coveralls.io/github/theinze/pyrate?branch=master)
 
 To use the core package with standard management and optimization code
@@ -27,7 +28,7 @@ installed.
 
 In Ubuntu, Mint and Debian you can use:
 
-    $ sudo apt-get install python3 pip3
+    $ sudo apt-get install python3 python3-pip 
     $ sudo pip3 install mypy-lang
     $ sudo python3 -m pip install typed-ast
 

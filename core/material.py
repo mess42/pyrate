@@ -25,6 +25,8 @@ import math
 from ray import RayBundleNew
 import optimize
 
+from globalconstants import standard_wavelength
+
 # import FreeCAD
 
 class Material(optimize.ClassWithOptimizableVariables):
@@ -53,13 +55,38 @@ class Material(optimize.ClassWithOptimizableVariables):
         :return newray: rays after surface interaction ( RayBundle object )
         """
         raise NotImplementedError()
-        
-    def returnDtoK(self, d, wavelength=550e-6):
-        raise NotImplementedError()
-    
-    def returnKtoD(self, k):
-        raise NotImplementedError()
 
+    def getEpsilonTensor(self, wave=standard_wavelength):
+        """
+        Calculate epsilon tensor if needed. (isotropic e.g.) eps = diag(3)*n^2
+        
+        :return epsilon (3x3 numpy array of complex)
+        """
+        raise NotImplementedError()
+        
+    def calcXi(self, n, k_inplane, wave=standard_wavelength):
+        """
+        Calculate normal component of k after refraction.
+        
+        :param n (3xN numpy array of float) 
+                normal of surface in local coordinates
+        :param k_inplane (3xN numpy array of float) 
+                incoming wave vector inplane component in local coordinates
+        
+        :return (xi, valid) tuple of (3x1 numpy array of complex, 
+                3x1 numpy array of bool)
+        """
+        raise NotImplementedError()
+        
+    def calcXiNormalDerivative(self, n, k_inplane, wave=standard_wavelength):
+        
+        raise NotImplementedError()
+        
+    def calcXiKinplaneDerivative(self, n, k_inplane, wave=standard_wavelength):
+
+        raise NotImplementedError()
+        
+    
     def setCoefficients(self, coefficients):
         """
         Sets the dispersion coefficients of a glass (if any)
@@ -128,9 +155,30 @@ class ConstantIndexGlass(Material):
     def __init__(self, lc, n=1.0, name="", comment=""):
         super(ConstantIndexGlass, self).__init__(lc, name, comment)
 
-        self.n = optimize.OptimizableVariable(False, value=n)
+        self.n = optimize.OptimizableVariable(value=n)
         self.addVariable("refractive index", self.n)
 
+    def getEpsilonTensor(self, wave=standard_wavelength):
+        return np.eye(3)*self.n()**2
+
+    def calcXiNormalDerivative(self, n, k_inplane, wave=standard_wavelength):
+        return np.zeros_like(n)        
+        
+    def calcXiKinplaneDerivative(self, n, k_inplane, wave=standard_wavelength):
+        (xi, valid) = self.calcXi(n, k_inplane, wave=wave)
+        return -k_inplane/xi
+
+    def calcXi(self, normal, k_inplane, wave=standard_wavelength):
+        
+        k2_squared = 4.*math.pi**2/wave**2/3.*np.trace(self.getEpsilonTensor(wave))
+        square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
+
+        # make total internal reflection invalid
+        valid = (square > 0)
+
+        xi = np.sqrt(square)
+        
+        return (xi, valid)
 
 
     def refractNew(self, raybundle, actualSurface):
@@ -140,16 +188,13 @@ class ConstantIndexGlass(Material):
         globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
         normal = self.lc.returnGlobalToLocalDirections(globalnormal)
 
-        abs_k1_normal = np.sum(k1 * normal, axis=0)
-        k_perp = k1 - abs_k1_normal * normal
-        abs_k2 = 2*math.pi/raybundle.wave*self.getIndex(raybundle)
-        square = abs_k2**2 - np.sum(k_perp * k_perp, axis=0)
+        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        # make total internal reflection invalid
-        valid = raybundle.valid[-1] * (square > 0)
+        (xi, valid_refraction) = self.calcXi(normal, k_inplane, wave=raybundle.wave)
+        
+        valid = raybundle.valid[-1] * valid_refraction
 
-        abs_k2_normal = np.sqrt(square)
-        k2 = k_perp + abs_k2_normal * normal
+        k2 = k_inplane + xi * normal
 
         # return ray with new direction and properties of old ray
         # return only valid rays

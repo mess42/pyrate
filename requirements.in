@@ -1,6 +1,6 @@
-numpy
-scipy
-matplotlib
-pytest
-pytest-cov
-coveralls
+numpy # pyrate dependency
+scipy # pyrate dependency
+matplotlib # pyrate dependency
+pytest # test automation
+pytest-cov # test coverage
+coveralls # coveralls.io CI

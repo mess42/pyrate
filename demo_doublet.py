@@ -24,21 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 
-
-from core import pupil
-from core import field
 from core import raster
 from core import material
-from core import aim
 from core import surfShape
 from core.optical_element import OpticalSystemNew, SurfaceNew, OpticalElement
-from core.ray import RayPath, RayBundle, RayBundleNew
+from core.ray import RayBundleNew
 
-from core import plots
 from core.aperture import CircularAperture
 from core.coordinates import LocalCoordinates
+
+from core.globalconstants import canonical_ex, canonical_ey
 
 import math
 
@@ -80,7 +76,7 @@ s.addElement("AC254-100", elem)
 print(s.rootcoordinatesystem.pprint())
 
 rstobj = raster.RectGrid()
-(px, py) = rstobj.getGrid(10)
+(px, py) = rstobj.getGrid(100)
 
 rpup = 11.43
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
@@ -93,36 +89,50 @@ ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
+sysseq = [("AC254-100", ["stop", "front", "cement", "rear", "image"])]
+
+phi = 5.*math.pi/180.0
 
 initialbundle = RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
+r2 = s.seqtrace(initialbundle, sysseq)
 
-print(bk7.n())
-print(sf5.n())
-print(s.rootcoordinatesystem.tiltx())
+pilotbundle = RayBundleNew(
+                x0 = np.array([[0], [0], [0]]), 
+                k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi)], [2.*math.pi/wavelength*math.cos(phi)]]), 
+                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
+                )
 
-r2 = s.seqtrace(initialbundle, [("AC254-100", ["stop", "front", "cement", "rear", "image"])])
+pilotray = s.seqtrace(pilotbundle, sysseq)
 
-#for (ind, r) in enumerate(r2.raybundles):
-#    print("bundle %d" % (ind,))
+#for (ind, r) in enumerate(pilotray.raybundles):
+#    print("pilot bundle %d" % (ind,))
 #    print(r.x)
-#    #print(r.valid)
-#    print(r.k)
     
-print("last coordinates")
-print(r2.raybundles[-1].x[-1, :, :])
+#print("last coordinates")
+#print(r2.raybundles[-1].x[-1, :, :])
 
-"""
+
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
 
 ax.axis('equal')
 ax.set_axis_bgcolor('black')
 
-#plots.drawLayout2d(ax, s, [pilotpath])
-plots.drawLayout2d(ax, s, [r2])
+phi = math.pi/4
+pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
+up = canonical_ey
 
-print()
+print("drawing!")
+r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+pilotray.draw2d(ax, color="green", plane_normal=pn, up=up)
+for e in s.elements.itervalues():
+    for surfs in e.surfaces.itervalues():
+        #surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+        surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+
+#plots.drawLayout2d(ax, s, [pilotpath])
+#plots.drawLayout2d(ax, s, [r2])
 
 plt.show()
-"""
+
 

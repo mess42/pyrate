@@ -35,6 +35,8 @@ from optimize import OptimizableVariable
 
 from ray import RayPathNew, RayBundleNew
 
+from globalconstants import canonical_ex, canonical_ey, canonical_ez
+
 import uuid
 
 
@@ -103,7 +105,8 @@ class OpticalElement(CoordinateTreeBase):
         self.__surfaces = {} # Append surfaces objects
         self.__materials = {} # Append materials objects
         self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
-        
+    
+    
     def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), label=""):
         """
         Adds surface class object to the optical element.
@@ -119,6 +122,11 @@ class OpticalElement(CoordinateTreeBase):
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
         self.__surfaces[key].label = label
         self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
+
+    def getSurfaces(self):
+        return self.__surfaces
+        
+    surfaces = property(fget=getSurfaces)
         
 
     def addMaterial(self, key, material_object, comment=""):
@@ -165,6 +173,11 @@ class OpticalElement(CoordinateTreeBase):
         for surfkey in sequence:
             current_bundle = rpath.raybundles[-1]
             current_surface = self.__surfaces[surfkey]
+            
+            print(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1)))
+            
+            print(current_surface.shape.getNormalDerivative(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1))))
+            
             current_material.propagate(current_bundle, current_surface)
             
             (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
@@ -207,7 +220,7 @@ class SurfaceNew(CoordinateTreeBase):
 
         :return self.shape: new Shape object
         """
-        if self.checkForRootConnection(self.rootcoordinatesystem):
+        if self.checkForRootConnection(apert.lc):
             self.__aperture = apert
         else:
             raise Exception("Aperture coordinate system should be connected to surface coordinate system")            
@@ -226,7 +239,7 @@ class SurfaceNew(CoordinateTreeBase):
 
         :return self.shape: new Shape object
         """
-        if self.checkForRootConnection(self.rootcoordinatesystem):
+        if self.checkForRootConnection(shape.lc):
             self.__shape = shape
         else:
             raise Exception("Shape coordinate system should be connected to surface coordinate system")            
@@ -237,7 +250,18 @@ class SurfaceNew(CoordinateTreeBase):
     shape = property(getShape, setShape)
     
 
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
+    def draw2d(self, ax, vertices=100, inyzplane = True, color="grey", plane_normal = canonical_ex, up = canonical_ey):
+        """
+        :param ax (Axis object)
+        :param vertices (int), vertices in xy for aperture sampling
+        :param inyzplane (bool), cuts globalpts in yz plane before projection on plane_normal
+        :param color (string), "red", "blue", "grey", "green", ...
+        :param plane_normal (1D numpy array of float), new x projection axis
+        :param up (1D numpy array), invariant y axis, z = x x y
+        
+        """
+
+
         sizelimit = 1000.0
         failsafevalue = 10.0        
         if self.aperture == None:
@@ -259,20 +283,60 @@ class SurfaceNew(CoordinateTreeBase):
         isinap = np.array(self.aperture.arePointsInAperture(x, y))
         xinap = x[isinap]        
         yinap = y[isinap]
+        zinap = np.zeros_like(xinap)
         
+        localpts_aperture = np.row_stack((xinap, yinap, zinap))
+        localpts_shape = self.shape.lc.returnOtherToActualPoints(localpts_aperture, self.aperture.lc)
         
-        zinap = self.shape.getSag(xinap, yinap)
+        xinap_shape = localpts_shape[0, :]
+        yinap_shape = localpts_shape[1, :]        
+        zinap_shape = self.shape.getSag(xinap_shape, yinap_shape)
         
-        localpts = np.row_stack((xinap, yinap, zinap))
-        globalpts = self.lc.returnLocalToGlobalPoints(localpts)
+        localpts_shape = np.row_stack((xinap_shape, yinap_shape, zinap_shape))
+        localpts_surf = self.rootcoordinatesystem.returnOtherToActualPoints(localpts_shape, self.shape.lc)        
+        
+        # ebenenprojektion hier!        
+        
+        globalpts = self.rootcoordinatesystem.returnLocalToGlobalPoints(localpts_surf)
 
-        inYZplane = np.abs(xinap) < 2*effsemidia/vertices
+        # doubled code begin (also in RayBundleNew.draw2d)
+        plane_normal = plane_normal/np.linalg.norm(plane_normal)
+        up = up/np.linalg.norm(up)
 
-        globalpts = globalpts[:, inYZplane]
+        ez = np.cross(plane_normal, up)
+
+        (num_dims, num_rays) = np.shape(globalpts)
+
+        # arrange num_ray copies of simple vectors in appropriate form
+        plane_normal = np.column_stack((plane_normal for i in np.arange(num_rays)))
+        ez = np.column_stack((ez for i in np.arange(num_rays)))
+        up = np.column_stack((up for i in np.arange(num_rays)))
+        # doubled code (also in RayBundleNew.draw2d)
+
+        # doubled code (see ray.py)
+
+        # show surfaces with points in yz plane before pn-plane projection
+        # if false show full surface
+        if inyzplane:
+            inYZplane = np.abs(globalpts[0]) < 2*effsemidia/vertices
+            globalpts = globalpts[:, inYZplane]
+            plane_normal = plane_normal[:, inYZplane]
+            up = up[:, inYZplane]
+            ez = ez[:, inYZplane]
+
+        globalptsinplane = globalpts - np.sum(globalpts*plane_normal, axis=0)*plane_normal
+
+       
+        # calculate y-components
+        ypt = np.sum(globalptsinplane * up, axis=0)
+        # calculate z-components
+        zpt = np.sum(globalptsinplane * ez, axis=0)
+
+        # doubled code (see ray.py)
 
         
         #ax.plot(zinap+offset[1], yinap+offset[0], color)
-        ax.plot(globalpts[2], globalpts[1], color)
+        ax.plot(zpt, ypt, color)
         
         
         #self.shape.draw2d(ax, offset, vertices, color, self.aperture)
