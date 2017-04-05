@@ -75,8 +75,8 @@ s.addElement("AC254-100", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-rstobj = raster.RectGrid()
-(px, py) = rstobj.getGrid(100)
+rstobj = raster.MeridionalFan()
+(px, py) = rstobj.getGrid(20)
 
 rpup = 20. #11.43
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
@@ -116,19 +116,19 @@ fig = plt.figure(1)
 ax = fig.add_subplot(111)
 
 ax.axis('equal')
-ax.set_axis_bgcolor('black')
+ax.set_axis_bgcolor('white')
 
-phi = math.pi/4
+phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
 print("drawing!")
 r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-pilotray.draw2d(ax, color="green", plane_normal=pn, up=up)
+pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
-        #surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 #plots.drawLayout2d(ax, s, [pilotpath])
 #plots.drawLayout2d(ax, s, [r2])

@@ -21,165 +21,237 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-
 import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-from core import pupil
-from core import field
 from core import raster
 from core import material
-from core import aim
 from core import surfShape
 from core import merit
 from core import optimize
-from core.optical_system import OpticalSystem, Surface
-from core.ray import RayPath
+from core.ray import RayPath, RayBundleNew, RayPathNew
 
 from core import plots
 from core.aperture import CircularAperture, BaseAperture
 from core.coordinates import LocalCoordinates
 
+from core.globalconstants import standard_wavelength
+
+from core.optical_element import OpticalElement, SurfaceNew, OpticalSystemNew
+
+from core.globalconstants import canonical_ey
+
 wavelength = standard_wavelength
 
 # definition of optical system
-s = OpticalSystem() # objectDistance = 2.0
+s = OpticalSystemNew() # objectDistance = 2.0
 
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=2.5*math.pi/180.0))
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
-lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
-lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
-lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0))
-lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0))
+lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0), refname=lc0.name) # objectDist
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0), refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=2.5*math.pi/180.0), refname=lc2.name)
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0), refname=lc3.name)
+lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0), refname=lc4.name)
+lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0), refname=lc5.name)
+lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0), refname=lc6.name)
+lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0), refname=lc7.name)
 
-
-s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), 
-                            aperture=BaseAperture()))
-
-s.insertSurface(2, Surface(lc2, surfShape.Conic(curv=1/-3.160), # thickness=5.0, 
-                           aperture=BaseAperture()))
-
-s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), 
-                            aperture=BaseAperture()))
-
-s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
-                           aperture=BaseAperture()))
-
-s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
-                           aperture=BaseAperture())) # Stop Surface
-
-s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
-                           material=material.ConstantIndexGlass(1.5), 
-                            aperture=BaseAperture()))
-
-s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=0.1*1/1.479), #thickness=19.0,
-                           aperture=BaseAperture()))
+objectsurf = SurfaceNew(lc0)
+surf1 = SurfaceNew(lc1, shape=surfShape.Conic(lc1, curv=1/-5.922))
+surf2 = SurfaceNew(lc2, shape=surfShape.Conic(lc2, curv=1/-3.160))
+surf3 = SurfaceNew(lc3, shape=surfShape.Conic(lc3, curv=1/15.884))
+surf4 = SurfaceNew(lc4, shape=surfShape.Conic(lc4, curv=1/-12.756))
+stopsurf = SurfaceNew(lc5)
+surf6 = SurfaceNew(lc6, shape=surfShape.Conic(lc6, curv=1/3.125))
+surf7 = SurfaceNew(lc7, shape=surfShape.Conic(lc7, curv=0.1*1/1.479))
+image = SurfaceNew(lc8)
 
 
-s.insertSurface(8, Surface(lc8)) # image
+elem = OpticalElement(lc0, label="lenssystem")
+
+glass = material.ConstantIndexGlass(lc0, n=1.7)
+glass2 = material.ConstantIndexGlass(lc0, n=1.5)
+
+elem.addMaterial("glass", glass)
+elem.addMaterial("glass2", glass2)
+
+elem.addSurface("object", objectsurf, (None, None))
+elem.addSurface("surf1", surf1, (None, "glass"))
+elem.addSurface("surf2", surf2, ("glass", None))
+elem.addSurface("surf3", surf3, (None, "glass"))
+elem.addSurface("surf4", surf4, ("glass", None))
+elem.addSurface("stop", stopsurf, (None, None))
+elem.addSurface("surf6", surf6, (None, "glass2"))
+elem.addSurface("surf7", surf7, ("glass2", None))
+elem.addSurface("image", image, (None, None))
+
+s.addElement("lenssys", elem)
+
 
 
 
 
 # plot initial system
-aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.StopDiameter,
-                                            pupilSizeParameter=0.2,#3.0,
-                                            fieldType= field.ObjectHeight,
-                                            rasterType= raster.RectGrid,
-                                            nray=20, wavelength=wavelength, stopPosition=5)
+#aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.StopDiameter,
+#                                            pupilSizeParameter=0.2,#3.0,
+#                                            fieldType= field.ObjectHeight,
+#                                            rasterType= raster.RectGrid,
+#                                            nray=20, wavelength=wavelength, stopPosition=5)
+#
+#initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
+#
+#r2 = RayPath(initialBundle2, s)
+#
+#initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=wavelength)
+#r3 = RayPath(initialBundle3, s)
+#
+#initialBundle4 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, -0.1]), wavelength=wavelength)
+#r4 = RayPath(initialBundle4, s)
+#
+#fig = plt.figure(1)
+#ax = fig.add_subplot(211)
+#ax2 = fig.add_subplot(212)
+#
+#ax.axis('equal')
+#ax.set_axis_bgcolor('black')
+#ax2.axis('equal')
+#ax2.set_axis_bgcolor('black')
+#
+#plots.drawLayout2d(ax, s, [r2, r3, r4])
 
-initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
 
-r2 = RayPath(initialBundle2, s)
+# optimize
+#print "Initial   merit function: ", merit.mySimpleDumbRMSSpotSizeMeritFunction(s)
 
-initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=wavelength)
-r3 = RayPath(initialBundle3, s)
 
-initialBundle4 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, -0.1]), wavelength=wavelength)
-r4 = RayPath(initialBundle4, s)
+# reintroduced apertures after optimization run
+#s.surfaces[1].aperture = CircularAperture(0.55)
+#s.surfaces[2].aperture = CircularAperture(1.0)
+#s.surfaces[3].aperture = CircularAperture(1.3)
+#s.surfaces[4].aperture = CircularAperture(1.3)
+#s.surfaces[5].aperture = CircularAperture(1.01)
+#s.surfaces[6].aperture = CircularAperture(1.0)
+#s.surfaces[7].aperture = CircularAperture(1.0)
+
+
+#print "aimy,stopDiameter after: ", aimy.stopDiameter
+
+#print "Optimized merit function: ", merit.mySimpleDumbRMSSpotSizeMeritFunction(s)
+
+#aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
+#initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
+#r2 = RayPath(initialBundle2, s)
+#initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=wavelength)
+#r3 = RayPath(initialBundle3, s)
+#initialBundle4 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, -0.1]), wavelength=wavelength)
+#r4 = RayPath(initialBundle4, s)
+
+
+#fig15 = plt.figure(15)
+#ax3 = fig15.add_subplot(111)
+#
+#plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
+#plots.drawLayout2d(ax2, s, [r2, r3, r4])
+#plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
+#plots.drawSpotDiagram(ax3, s, r3, -1)
+#plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
+
 
 fig = plt.figure(1)
 ax = fig.add_subplot(211)
 ax2 = fig.add_subplot(212)
 
 ax.axis('equal')
-ax.set_axis_bgcolor('black')
 ax2.axis('equal')
-ax2.set_axis_bgcolor('black')
+ax.set_axis_bgcolor('white')
 
-plots.drawLayout2d(ax, s, [r2, r3, r4])
-
-
-# optimize
-print "Initial   merit function: ", merit.mySimpleDumbRMSSpotSizeMeritFunction(s)
-
-# make surface curvatures variable
-#s.surfaces[2].shape.setStatus("curvature", True)
-#s.surfaces[3].shape.setStatus("curvature", True)
-#s.surfaces[4].shape.setStatus("curvature", True)
-#s.surfaces[5].shape.setStatus("curvature", True)
-#s.surfaces[7].shape.setStatus("curvature", True)
+phi = 0.#math.pi/4
+pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
+up = canonical_ey
 
 
-s.surfaces[2].shape.curvature.status=(True)
-s.surfaces[3].shape.curvature.status=(True)
-s.surfaces[4].shape.curvature.status=(True)
-s.surfaces[5].shape.curvature.status=(True)
-s.surfaces[7].shape.curvature.status=(True)
-s.surfaces[3].lc.tiltx.status=True
+def generatebundle(openangle=0.01, numrays=11):
+   
+    o = np.zeros((3, numrays))
+    k = np.zeros_like(o)
+    
+    angles = np.linspace(-openangle, openangle, num=numrays)
+    
+    k[1,:] = 2.*math.pi/wavelength*np.sin(angles)
+    k[2,:] = 2.*math.pi/wavelength*np.cos(angles)
+    
+    ey = np.zeros_like(o)
+    ey[1,:] =  1.
+    
+    E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
+    return RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
-print "aimy,stopDiameter before: ", aimy.stopDiameter
+initialbundle = generatebundle(openangle=10.*math.pi/180., numrays=11)
+
+sysseq = [("lenssys", [
+            ("object", True, True), 
+            ("surf1", True, True), 
+            ("surf2", True, True), 
+            ("surf3", True, True), 
+            ("surf4", True, True), 
+            ("stop", True, True), 
+            ("surf6", True, True), 
+            ("surf7", True, True), 
+            ("image", True, True)])]
+r2 = s.seqtrace(initialbundle, sysseq)
+print("drawing!")
+r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+for e in s.elements.itervalues():
+    for surfs in e.surfaces.itervalues():
+        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+
+s.elements["lenssys"].surfaces["surf2"].shape.curvature.changetype("variable")
+s.elements["lenssys"].surfaces["surf3"].shape.curvature.changetype("variable")
+s.elements["lenssys"].surfaces["surf4"].shape.curvature.changetype("variable")
+s.elements["lenssys"].surfaces["surf6"].shape.curvature.changetype("variable")
+s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx.changetype("variable")
+
 
 def osnone(s):
     pass
 
 def osupdate(s):
-    s.globalcoordinatesystem.update()
+    s.rootcoordinatesystem.update()
 
-optimi = optimize.Optimizer(s, merit.mySimpleDumbRMSSpotSizeMeritFunction, osupdate)
+def meritfunctionrms(s):
+    initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=121)
+    rpath = s.seqtrace(initialbundle, sysseq)
+    
+    x = rpath.raybundles[-1].x[-1, 0, :]
+    y = rpath.raybundles[-1].x[-1, 1, :]
+    
+    res = np.sum(x**2 + y**2)
+    
+    print(res)
+    return res
+
+
+optimi = optimize.Optimizer(s, meritfunctionrms, osupdate)
 s = optimi.optimizeSciPyNelderMead()
 
-#s = optimize.optimizeSciPyInterface(s, merit.mySimpleDumpRMSSpotSizeMeritFunction, method='nelder-mead', function=osupdate, options={'xtol': 1e-8, 'disp': True})
+r2 = s.seqtrace(initialbundle, sysseq) # trace again
+print("drawing!")
+r2.draw2d(ax2, color="blue", plane_normal=pn, up=up) 
+for e in s.elements.itervalues():
+    for surfs in e.surfaces.itervalues():
+        surfs.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
-# reintroduced apertures after optimization run
-s.surfaces[1].aperture = CircularAperture(0.55)
-s.surfaces[2].aperture = CircularAperture(1.0)
-s.surfaces[3].aperture = CircularAperture(1.3)
-s.surfaces[4].aperture = CircularAperture(1.3)
-s.surfaces[5].aperture = CircularAperture(1.01)
-s.surfaces[6].aperture = CircularAperture(1.0)
-s.surfaces[7].aperture = CircularAperture(1.0)
-
-
-print "aimy,stopDiameter after: ", aimy.stopDiameter
-
-print "Optimized merit function: ", merit.mySimpleDumbRMSSpotSizeMeritFunction(s)
-
-aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
-initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
-r2 = RayPath(initialBundle2, s)
-initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=wavelength)
-r3 = RayPath(initialBundle3, s)
-initialBundle4 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, -0.1]), wavelength=wavelength)
-r4 = RayPath(initialBundle4, s)
-
-
-fig15 = plt.figure(15)
-ax3 = fig15.add_subplot(111)
-
-plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
-plots.drawLayout2d(ax2, s, [r2, r3, r4])
-plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
-plots.drawSpotDiagram(ax3, s, r3, -1)
-plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 
 plt.show()
 
 
+plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
+#plots.drawLayout2d(ax2, s, [r2, r3, r4])
+plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
+#plots.drawSpotDiagram(ax3, s, r3, -1)
+#plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 

@@ -76,12 +76,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
         
 
-        self.decx = OptimizableVariable(variable_status=False, variable_type='Variable', value=decx)
-        self.decy = OptimizableVariable(variable_status=False, variable_type='Variable', value=decy)
-        self.decz = OptimizableVariable(variable_status=False, variable_type='Variable', value=decz)
-        self.tiltx = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltx)
-        self.tilty = OptimizableVariable(variable_status=False, variable_type='Variable', value=tilty)
-        self.tiltz = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltz)
+        self.decx = OptimizableVariable(variable_type='fixed', value=decx)
+        self.decy = OptimizableVariable(variable_type='fixed', value=decy)
+        self.decz = OptimizableVariable(variable_type='fixed', value=decz)
+        self.tiltx = OptimizableVariable(variable_type='fixed', value=tiltx)
+        self.tilty = OptimizableVariable(variable_type='fixed', value=tilty)
+        self.tiltz = OptimizableVariable(variable_type='fixed', value=tiltz)
         
 
 

@@ -134,7 +134,7 @@ fig = plt.figure(1)
 ax = fig.add_subplot(111)
 
 ax.axis('equal')
-ax.set_axis_bgcolor('black')
+ax.set_axis_bgcolor('white')
 
 phi = 0. #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
@@ -142,7 +142,7 @@ up = canonical_ey
 
 print("drawing!")
 r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-pilotray.draw2d(ax, color="green", plane_normal=pn, up=up)
+pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
 pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
