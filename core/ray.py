@@ -3,6 +3,7 @@
 Pyrate - Optical raytracing based on Python
 
 Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
 
 This program is free software; you can redistribute it and/or
@@ -97,7 +98,7 @@ class RayBundle(object):
         self.valid  = np.vstack((self.valid, tValidnew))
         
     def clone(self):
-        result = RayBundleNew(self.x[0], self.k[0], self.Efield[0], self.rayID, self.wave)
+        result = RayBundle(self.x[0], self.k[0], self.Efield[0], self.rayID, self.wave)
         
         result.x = np.copy(self.x)
         result.k = np.copy(self.k)
