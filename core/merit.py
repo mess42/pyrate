@@ -21,17 +21,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from numpy import *
+import numpy as np
 import aim
 import field
 import raster
 import pupil
 from ray import RayPath
-
-# TODO: create user def'd merit function file
-# TODO: create optimization dialog for selecting merit function and file
-# TODO: button for edit merit function with either external command or internal editor window
-
 
 def mySimpleDumbRMSSpotSizeMeritFunction(s):
     """

@@ -28,8 +28,10 @@ import matplotlib.pyplot as plt
 from core import raster
 from core import material
 from core import surfShape
-from core.optical_element import OpticalSystemNew, SurfaceNew, OpticalElement
-from core.ray import RayBundleNew
+from core.optical_element import OpticalElement
+from core.optical_system import OpticalSystem
+from core.surface import Surface
+from core.ray import RayBundle
 
 from core.aperture import CircularAperture
 from core.coordinates import LocalCoordinates
@@ -41,7 +43,7 @@ import math
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystemNew() 
+s = OpticalSystem() 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
@@ -52,13 +54,13 @@ lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="oapara", decz=-100, decy
 lc5ap = s.addLocalCoordinateSystem(LocalCoordinates(name="oaparaap", decz=0, decy=35), refname=lc5.name)
 lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=55), refname=lc5.name)
 
-stopsurf = SurfaceNew(lc0)
-frontsurf = SurfaceNew(lc1, shape=surfShape.Conic(lc1, curv=-0.001), apert=CircularAperture(lc1, 20.))
-cementsurf = SurfaceNew(lc2, shape=surfShape.Conic(lc2, curv=-0.001), apert=CircularAperture(lc2, 12.7))
-rearsurf = SurfaceNew(lc3, shape=surfShape.Conic(lc3, curv=0.001), apert=CircularAperture(lc3, 12.7))
-image1 = SurfaceNew(lc4)
-oapara = SurfaceNew(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 12.7))
-image2 = SurfaceNew(lc6)
+stopsurf = Surface(lc0)
+frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.001), apert=CircularAperture(lc1, 20.))
+cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-0.001), apert=CircularAperture(lc2, 12.7))
+rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=0.001), apert=CircularAperture(lc3, 12.7))
+image1 = Surface(lc4)
+oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 12.7))
+image2 = Surface(lc6)
 
 air = material.ConstantIndexGlass(lc0, 1.0)
 
@@ -110,16 +112,16 @@ sysseq_pilot = [("TMA",
 phi = 5.*math.pi/180.0
 phi2 = 0.
 
-initialbundle = RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
+initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq)
 
-pilotbundle = RayBundleNew(
+pilotbundle = RayBundle(
                 x0 = np.array([[0], [0], [0]]), 
                 k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi)], [2.*math.pi/wavelength*math.cos(phi)]]), 
                 Efield0 = np.array([[1], [0], [0]]), wave=wavelength
                 )
 
-pilotbundle2 = RayBundleNew(
+pilotbundle2 = RayBundle(
                 x0 = np.array([[0], [0], [0]]), 
                 k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi2)], [2.*math.pi/wavelength*math.cos(phi2)]]), 
                 Efield0 = np.array([[1], [0], [0]]), wave=wavelength

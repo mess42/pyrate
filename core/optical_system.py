@@ -21,303 +21,68 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import surfShape
-from material import ConstantIndexGlass
-
-import aperture
-import pupil
-from coordinates import LocalCoordinates
-
-#import inspector
 import numpy as np
-from optimize import ClassWithOptimizableVariables
-from optimize import OptimizableVariable
 
-from globalconstants import standard_wavelength
+from material import ConstantIndexGlass
+from localcoordinates import LocalCoordinates
+from localcoordinatestreebase import LocalCoordinatesTreeBase
+from ray import RayPath
 
-import uuid
-
-
-class Surface(ClassWithOptimizableVariables):
-    """
-    Represents a surface of an optical system.
-
-    :param shape: Shape of the surface. Calculates the intersection with rays. ( Shape object or child )
-    :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
-    :param thickness: distance to next surface on the optical axis
-    """
-    def __init__(self, lc, shape=surfShape.Conic(), material=ConstantIndexGlass(), aperture=aperture.BaseAperture(), **kwargs):
-        super(Surface, self).__init__()
-
-        self.shape = shape
-        self.material = material
-        self.aperture = aperture
-        self.lc = lc # reference to local coordinate system tree
-
-    
-    # TODO: these functions will be obsolete, since the thickness parameters is
-    # superceded by self.localcoordinates.globalcoordinates and
-    # self.localcoordinates.localbasissystem
-    def setThickness(self, thickness):
-        self.lc.dict_variables["decz"].setvalue(thickness)
-
-    def getThickness(self):
-        return self.lc.dict_variables["decz"].evaluate()
-        
-
-    def setMaterial(self, material):
-        """
-        Sets the material object self.mater
-
-        :param material: (object)
-
-        :return self.material: new Material object
-        """
-
-        # TODO: conserve most basic material properties
-
-        self.material = material
-
-        return self.material
-
-    def setMaterialCoefficients(self, coeff):
-        """
-        Sets the coefficients that determine the material behavior.
-
-        :param coeff: coefficients. Type and format depend on Material child class.
-        """
-        self.material.setCoefficients(coeff)
-
-    def setShape(self, shape):
-        """
-        Sets the shape object self.shap
-
-        :param shape: the new Shape object
-
-        :return self.shape: new Shape object
-        """
-
-        # TODO: conserve the most basic parameters of the shape
-
-        self.shape = shape
-
-        return self.shape
-
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey"):
-        sizelimit = 1000.0
-        failsafevalue = 10.0        
-        if self.aperture == None:
-            effsemidia = failsafevalue
-        else:
-            if self.aperture.getTypicalDimension() <= sizelimit:
-                # TODO: maybe introduce aperture types Object and Image to distuingish from very large normal apertures
-                effsemidia = self.aperture.getTypicalDimension() #self.sdia.val if self.sdia.val < 10.0 else 10.0
-            else:
-                effsemidia = failsafevalue
-        
-        xl = effsemidia * np.linspace(-1, 1, num=vertices)
-        yl = effsemidia * np.linspace(-1, 1, num=vertices)
-        
-        X, Y = np.meshgrid(xl, yl)
-        x = X.flatten()
-        y = Y.flatten()
-        
-        isinap = np.array(self.aperture.arePointsInAperture(x, y))
-        xinap = x[isinap]        
-        yinap = y[isinap]
-        
-        
-        zinap = self.shape.getSag(xinap, yinap)
-        
-        localpts = np.row_stack((xinap, yinap, zinap))
-        globalpts = self.lc.returnLocalToGlobalPoints(localpts)
-
-        inYZplane = np.abs(xinap) < 2*effsemidia/vertices
-
-        globalpts = globalpts[:, inYZplane]
-
-        
-        #ax.plot(zinap+offset[1], yinap+offset[0], color)
-        ax.plot(globalpts[2], globalpts[1], color)
-        
-        
-        #self.shape.draw2d(ax, offset, vertices, color, self.aperture)
-
-    def getABCDMatrix(self, nextSurface, ray):
-        """
-        Returns an ABCD matrix of the current surface.
-        The matrix is set up in geometric convention for (y, dy/dz) vectors.
-
-        The matrix contains:
-        - paraxial refraction from vacuum through the front surface
-        - paraxial translation through the material
-        - paraxial refraction at the rear surface into vacuum
-
-        :param nextSurface: next surface for rear surface curvature (Surface object)
-        :param ray: ray bundle to obtain wavelength (RayBundle object)
-        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
-        """
-        curvature = self.shape.getCentralCurvature()
-        # TODO: improvement, call shape.getHessian() to obtain curvature components at intersection point
-        nextCurvature = nextSurface.shape.getCentralCurvature()
-        return self.material.getABCDMatrix(curvature, nextSurface.getThickness(), nextCurvature, ray)
-        # TODO:
-
-
-class OpticalSystem(ClassWithOptimizableVariables):
+class OpticalSystem(LocalCoordinatesTreeBase):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, objectLC = LocalCoordinates(name="object")):
+    def __init__(self, rootlc = None, matbackground = None, name = ""):
+        # TODO: rename variable name to label
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
-        :param objectDistance: Distance (on axis thickness) from the object to the first surface in mm (float).
-        :param primaryWavelength: Primary Wavelength of optical system in mm (float).
+
+        :param objectLC: local coordinate system of object (class LocalCoordinates).
 
 
         """
-        super(OpticalSystem, self).__init__()
-        
-        self.globalcoordinatesystem = LocalCoordinates(name="global")
-        self.lcfocus = "global"
-        
-        self.objectlc = self.addLocalCoordinateSystem(objectLC)
-        self.lcfocus = "object"
-        
+        if rootlc is None:        
+            rootlc = LocalCoordinates(name="global")
+        self.rootcoordinatesystem = rootlc
 
+        super(OpticalSystem, self).__init__(self.rootcoordinatesystem, label = name)
         
-        self.surfaces = []
-        self.insertSurface(0, Surface(self.objectlc))  # object
-        # in standard initialization the surface use the BaseAperture which is not limited
+        if matbackground is None:
+            matbackground = ConstantIndexGlass(self.rootcoordinatesystem, 1.0)
 
-        self.primaryWavelength = primaryWavelength
+        self.material_background = matbackground # Background material        
+        self.elements = {}
 
-        #self.observers = {} # observers which will we informed upon change of OS
-
-    def addLocalCoordinateSystem(self, tmplc, refname=""):
-        allnames = self.globalcoordinatesystem.returnConnectedNames()
-       
-        if refname == "":
-            refname = self.lcfocus
-        if tmplc.name in allnames:
-            # TODO: throw exception
-            tmplc.name = ""
+    def seqtrace(self, initialbundle, elementsequence): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+        rpath = RayPath(initialbundle)
+        for (elem, subseq) in elementsequence:
+            rpath.appendRayPath(self.elements[elem].seqtrace(rpath.raybundles[-1], subseq, self.material_background)) 
+        return rpath
             
-        if refname not in allnames:
-            refname = self.globalcoordinates.name
-        
-        self.globalcoordinatesystem.addChildToReference(refname, tmplc)
-            
-        self.lcfocus = tmplc.name
-        
-        return tmplc
-        
-    # TODO: removed observer functionality, because observers should be an integrated
-    # part of classwithoptimizable variables and maybe at higher levels in the class hierarchy
 
-    #def addObserver(self, name, observer):
-    #    self.observers[name] = observer
-    
-    #def returnObserver(self, name):
-    #    return self.observers[name]
-        
-    #def removeObserver(self, name):
-    #    return self.observers.pop(name)
-        
-    #def informObservers(self):
-    #    for o in self.observers:
-    #        o.setValues(self.obtainGeometricalSurfaceData())
-
-    #def obtainGeometricalSurfaceData(self):
-    #    doublelist = [[s.localcoordinates.thickness.evaluate(), \
-    #      s.localcoordinates.decx.evaluate(), \
-    #      s.localcoordinates.decy.evaluate(), \
-    #      s.localcoordinates.tiltx.evaluate(), \
-    #      s.localcoordinates.tilty.evaluate(), \
-    #      s.localcoordinates.tiltz.evaluate()] for s in self.surfaces]
-    #    return np.array(doublelist)
-
-
-    def appendSurface(self, surface):
+    def addElement(self, key, element):
         """
-        Appends a new surface into the optical system.
+        Adds a new element (containing several surfaces) into the optical system.
 
-        :param position: number of the new surface (int).
-           Surface that is currently at this position
-           and all following surface indices are incremented.
+        :param key (string)        
+        :param element (optical element class)
         """
-        self.surfaces.insert(len(self.surfaces), surface)
+        if self.checkForRootConnection(element.rootcoordinatesystem):
+            self.elements[key] = element
+        else:
+            raise Exception("OpticalElement root should be connected to root of OpticalSystem")
 
-    def insertSurface(self, position, surface):
+    def removeElement(self, key):
         """
-        Inserts a new surface into the optical system.
+        Removes an optical element from the optical system.
 
-        :param position: number of the new surface (int).
-           Surface that is currently at this position
-           and all following surface indices are incremented.
-        """
-
-        self.surfaces.insert(position, surface)
-
-    def removeSurface(self, position):
-        """
-        Removes a surface from the optical system.
-
-        :param position: number of the surface to remove (int)
+        :param key (string)
         """
         # TODO: update of local coordinate references missing
-        self.surfaces.pop(position)
+        if key in self.elements:        
+            self.elements.pop(key)
 
-    def getNumberOfSurfaces(self):
-        """
-        Returns the number of surfaces, including object and image (int)
-        """
-        return len(self.surfaces)
-
-    def setThickness(self, position, thickness):
-        """
-        Sets the on-axis thickness of a surface.
-
-        :param position: number of the surface (int)
-        """
-        self.surfaces[position].setThickness(thickness)
-
-    def getThickness(self, position):
-        """
-        Returns the on-axis thickness of a surface.
-
-        :param position: number of the surface (int)
-        """
-        return self.surfaces[position].getThickness()
-
-
-    def setMaterial(self, position, materialType):
-        """
-        Sets the material of a surface.
-
-        :param position: number of the surface (int)
-        :param materialType: name of the Material child class (str)
-        """
-        self.surfaces[position].setMaterial(materialType)
-
-    def setMaterialCoefficients(self, position, coeff):
-        """
-        Sets the coefficients that determine the material behavior.
-
-        :param position: number of the surface (int)
-        :param coeff: coefficients. Type and format depend on Material child class.
-        """
-        self.surfaces[position].setMaterialCoefficients(coeff)
-
-    def setShape(self, position, shape):
-        """
-        Sets the shape of a surface.
-
-        :param position: number of the surface (int)
-        :param shapeName: name of the Shape child class (str)
-        """
-        self.surfaces[position].setShape(shape)
 
     def getABCDMatrix(self, ray, firstSurfacePosition=0, lastSurfacePosition=-1):
         """
@@ -402,50 +167,20 @@ class OpticalSystem(ClassWithOptimizableVariables):
             
 
 
-    def createOptimizableVariable(self, name, value=0.0, status=False):
-        """
-        This class is not able to create own variables.
-        It only forwards variables from its surfaces.
-        """
-        raise NotImplementedError()
-
-    def getAllOptimizableVariables(self):
-        varsToReturn = []
-        for sur in self.surfaces:
-            varsToReturn += sur.getAllOptimizableVariables()
-        return varsToReturn
-
-    def trace(self, initbundle):
-        """
-        This function asks the optical system to kindly trace some rays through
-        its materials.
-        
-        :param initbundle (RayBundle object)
-        
-        :return list of Raybundle objects
-        """
-
-        raybundles = [initbundle]
-
-        for (actualSurface, nextSurface) in zip(self.surfaces[:-1], self.surfaces[1:]):
-            intersection, t, normal, validIndices = \
-                actualSurface.material.propagate(actualSurface, \
-                                                nextSurface, \
-                                                raybundles[-1])
-
-            raybundles.append(nextSurface.material.refract(actualSurface.material, raybundles[-1], intersection, normal, validIndices))
-
-        return raybundles
-
-
 if __name__ == "__main__":
+
+   
     os = OpticalSystem()
-    lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0))
-    os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0))
-    os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0))
-    os.addLocalCoordinateSystem(LocalCoordinates(decz=40.0))
     
-    os.addLocalCoordinateSystem(LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
+    lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0), refname=os.rootcoordinatesystem.name)
+    lc2 = os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0), refname=lc1.name)
+    lc3 = os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0), refname=lc2.name)
+    lc4 = os.addLocalCoordinateSystem(LocalCoordinates(decz=40.0), refname=lc3.name)
     
-    print(os.globalcoordinatesystem.pprint())
-        
+    lc5 = os.addLocalCoordinateSystem(LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
+    
+    print(os.rootcoordinatesystem.pprint())
+
+
+
+       

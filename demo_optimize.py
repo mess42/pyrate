@@ -25,12 +25,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-from core import raster
 from core import material
 from core import surfShape
-from core import merit
 from core import optimize
-from core.ray import RayPath, RayBundleNew, RayPathNew
+from core.ray import RayPath, RayBundle
 
 from core import plots
 from core.aperture import CircularAperture, BaseAperture
@@ -38,14 +36,16 @@ from core.coordinates import LocalCoordinates
 
 from core.globalconstants import standard_wavelength
 
-from core.optical_element import OpticalElement, SurfaceNew, OpticalSystemNew
+from core.optical_element import OpticalElement
+from core.optical_system import OpticalSystem
+from core.surface import Surface
 
 from core.globalconstants import canonical_ey
 
 wavelength = standard_wavelength
 
 # definition of optical system
-s = OpticalSystemNew() # objectDistance = 2.0
+s = OpticalSystem() # objectDistance = 2.0
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0), refname=lc0.name) # objectDist
@@ -57,15 +57,15 @@ lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0), refna
 lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0), refname=lc6.name)
 lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0), refname=lc7.name)
 
-objectsurf = SurfaceNew(lc0)
-surf1 = SurfaceNew(lc1, shape=surfShape.Conic(lc1, curv=1/-5.922))
-surf2 = SurfaceNew(lc2, shape=surfShape.Conic(lc2, curv=1/-3.160))
-surf3 = SurfaceNew(lc3, shape=surfShape.Conic(lc3, curv=1/15.884))
-surf4 = SurfaceNew(lc4, shape=surfShape.Conic(lc4, curv=1/-12.756))
-stopsurf = SurfaceNew(lc5)
-surf6 = SurfaceNew(lc6, shape=surfShape.Conic(lc6, curv=1/3.125))
-surf7 = SurfaceNew(lc7, shape=surfShape.Conic(lc7, curv=0.1*1/1.479))
-image = SurfaceNew(lc8)
+objectsurf = Surface(lc0)
+surf1 = Surface(lc1, shape=surfShape.Conic(lc1, curv=1/-5.922))
+surf2 = Surface(lc2, shape=surfShape.Conic(lc2, curv=1/-3.160))
+surf3 = Surface(lc3, shape=surfShape.Conic(lc3, curv=1/15.884))
+surf4 = Surface(lc4, shape=surfShape.Conic(lc4, curv=1/-12.756))
+stopsurf = Surface(lc5)
+surf6 = Surface(lc6, shape=surfShape.Conic(lc6, curv=1/3.125))
+surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=0.1*1/1.479))
+image = Surface(lc8)
 
 
 elem = OpticalElement(lc0, label="lenssystem")
@@ -186,7 +186,7 @@ def generatebundle(openangle=0.01, numrays=11):
     
     E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-    return RayBundleNew(x0=o, k0=k, Efield0=E0, wave=wavelength)
+    return RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 initialbundle = generatebundle(openangle=10.*math.pi/180., numrays=11)
 
