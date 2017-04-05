@@ -104,7 +104,9 @@ sysseq_pilot = [("TMA",
                     ("m3", False, True), 
                     ("m2", False, True),
                     ("m1", False, True),
-                    ("stop", True, True)
+                    ("m2", False, True),
+                    ("m1", False, True),
+                    ("m2", False, True)
                 ])
                 ] 
 
@@ -129,7 +131,7 @@ pilotbundle2 = RayBundle(
 
 
 pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
-pilotray2 = s.seqtrace(pilotbundle2, sysseq_pilot)
+pilotray2 = s.seqtrace(pilotbundle2, sysseq)
 
 
 fig = plt.figure(1)
