@@ -552,55 +552,68 @@ In mesoscopically inhomogenous media like  diffractive optical elements and meta
 the boundary conditions hold at each interface between homogeneous materials of the mesoscopic sub-structure.
 
 
-\section{Refraction of Plane Waves at Planar Surfaces}
+\section{Reflection and refraction of Plane Waves at Planar Surfaces}
 
 \subsection{Derivation}
 We consider a plane wave incident on a planar boundary between two homogeneous materials.
-The incident plane wave projects a grating on the boundary plane. $\Dfield_1$ and $\Efield_1$ on the boundary in medium $\permittivity_1$ are modulated with the in-plane component of the wavevector. 
+The incident plane wave projects a grating on the boundary plane. $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permittivity_1$ are modulated with the in-plane component of the wavevector. 
 \begin{eqnarray}
- \Dfield_1, \Efield_1 &\propto& \exp( i \Wavevector_{1\parallel} \Location)|_{boundary} \\
- \Wavevector_{1\perp} &=& ( \Wavevector_1 \Vector{n} ) \Vector{n} \\
- \Wavevector_{1\parallel} &=& \Wavevector_1 - \Wavevector_{1\perp}
+ \Dfield_{in}, \Efield_{in} &\propto& \exp( i \Wavevector_{in\parallel} \Location)|_{boundary} \\
+ \Wavevector_{in\perp} &=& ( \Wavevector_{in} \Vector{n} ) \Vector{n} \\
+ \Wavevector_{in\parallel} &=& \Wavevector_{in} - \Wavevector_{in\perp}
 \end{eqnarray}
 where $\Vector{n}$ is the surface normal unit vector.
-From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_1$ and $\Efield_1$, also the fields $\Dfield_2$ and $\Efield_2$ in medium 2 are to be modulated by the same in-plane wavevector component.
+From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_1$ and $\Efield_1$, all reflected or refracted modes $\Dfield_2$ and $\Efield_2$ are to be modulated by the same in-plane wavevector component.
 \begin{eqnarray}
   \Dfield_2, \Efield_2 &\propto& \exp( i \Wavevector_{2\parallel} \Location)|_{boundary} \\
-  \Wavevector_{2\parallel} &=& \Wavevector_{1\parallel}
+  \Wavevector_{2\parallel} &=& \Wavevector_{in\parallel}
 \end{eqnarray}
 The in-plane wave vector component is conserved.
-From the Helmholtz equation we conclude that the field in medium 2 is also a plane wave. 
+To find the reflected and refracted modes, 
+we fix the in-plane wavevector component and search for solutions of the material dispersion
+(equation \ref{eq:generalDispersionEigenEquation}).
+In general, the dispersion is quartic and allows for 4 solutions in each medium (see figure \ref{fig:boundary_wavevectors}).
+\begin{figure}
+  \centering
+   \includegraphics[width=0.5\columnwidth]{boundary_wavevectors}
+  \caption{a) Wavevectors with the same in-plane component.
+           b) Scenario of a single incident plane wave.}
+  \label{fig:boundary_wavevectors}
+\end{figure}
+In each medium, there are 2 solutions transporting energy towards the boundary, and 2 solutions transporting energy from it.
+In the scenario we consider, we have a single incident plane wave from medium $1$, 
+and we discard the 3 remaining solutions transporting energy towards the boundary.
+In general, one incident plane wave can split up into 2 reflected modes and 2 refracted modes.
+On boundaries between isotropic media, both refracted modes have identical wavevectors and the same direction of energy transport.
+The same holds for the two reflected modes.
 
 \subsection{The Law of Refraction}
 Our formulation of the law of refraction and the law of reflection is
 \begin{eqnarray}
- \Efield_1(\Location) &=& \Efield_{01} \exp(i \Wavevector_1 \Location) + \Efield_{0r} \exp(i \Wavevector_r \Location)   \\
- \Efield_2(\Location) &=& \Efield_{02} \exp(i \Wavevector_2 \Location) \\
- \Wavevector_{2} &=& \Wavevector_{1\parallel} + \xi_t \Vector{n}\,.\label{eq:xieqn} \\
- \Wavevector_{r} &=& \Wavevector_{1\parallel} - \xi_r \Vector{n}
+ \Efield_1(\Location) &=& \Efield_{in,0} \exp(i \Wavevector_{in} \Location) + \Efield_{r1,0} \exp(i \Wavevector_{r1} \Location) + \Efield_{r2,0} \exp(i \Wavevector_{r2} \Location)  \\
+ \Efield_2(\Location) &=& \Efield_{t1,0} \exp(i \Wavevector_{t1} \Location) + \Efield_{t2,0} \exp(i \Wavevector_{t2} \Location) \\
+ \Wavevector_{i} &=& \Wavevector_{in\parallel} + \xi_i \Vector{n}\,.\label{eq:xieqn} \\
 \end{eqnarray}
 and holds for planar boundaries between two homogeneous media.
-$\Efield_{01}$ is the amplitude of the incoming plane wave, 
-$\Efield_{0r}$ the amplitude of the reflected plane wave in medium 1, 
-and $\Efield_{02}$ the amplitude of the refracted plane wave.
-$\Vector{k}_2$ consists of the conserved in-plane component $\wavenumber_{1\parallel}$ and the out-of-plane component $\xi$. 
+$\Efield_{in,0}$ is the amplitude of the incoming plane wave, 
+$\Efield_{r12,0}$ the amplitudes of the reflected plane waves in medium 1, 
+and $\Efield_{t12,0}$ the amplitudes of the refracted plane waves in medium 2.
+The wavevectors of each mode $\Wavevector_i$ consists of the conserved in-plane component $\wavenumber_{in\parallel}$ and the out-of-plane component $\xi_i$. 
 The explicit form of the normal component $\xi$ depends 
-on the material dispersion in material $\permittivity_2$ for the transmitted wave
-and on $\permittivity_1$ for the reflected wave. 
-
+on the material dispersion in the respective material, 
+that is on $\permittivity_1$ for the reflected waves, and $\permittivity_2$ for the transmitted waves.
 
 Compared to the law of Snellius, this formulation bears the following advantages:
 \begin{itemize}
  \item It does not require the calculation of angles in 3D space, only scalar products.
- \item The incident wavevector can be modelled as a property of the ray. When calculating the refraction, 
+ \item The incident wavevector can be modelled as a property of the ray. When calculating the refracted wavevector, 
        the dispersion relation in material $\permittivity_1$ is not required.
- \item The direction after the refraction can thus be expressed as a function of incident wave and the dispersion of material 2.
- \item In object-oriented programming, we can introduce a class for refraction that is a property of surface 2.
-       The refraction method takes the incident rays as arguments and requires no further information from material 1.
+       This allows to isolate methods in object-oriented programming.
  \item It is not required to implement a different law of refraction for each \emph{pair} of material classes interfacing 
-       (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...).
+       (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...),
+       but the effort increases linearly with the number of material classes.
  \item We can also calculate with complex valued and anisotropic permittivities.
- The law of Snellius only coincides with the Maxwell equations for real valued positive refractive indices only.
+       The law of Snellius only coincides with the Maxwell equations for real valued positive refractive indices only.
 \end{itemize}
 The formulation does not actually solve the problem of refraction, but just forwards it to the problem of finding a solution $\xi$ of the material dispersion. 
 This calculation can, for certain types of anisotropic materials, be complicated.
