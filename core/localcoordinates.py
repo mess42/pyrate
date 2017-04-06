@@ -32,13 +32,6 @@ import uuid
 
 from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
-#TODO: want to have some aiming function aimAt(ref), aimAt(globalcoords)?
-
-
-# TODO: to avoid circle references: please add addChild function
-# TODO: how to arange names that dict has unique identifier and name is still
-# changeable? mydict[new_key] = mydict.pop(old_key)
-
 class LocalCoordinates(ClassWithOptimizableVariables):
     def __init__(self, name="", **kwargs):
         # TODO: Reference to global to be rewritten into reference to root
@@ -76,12 +69,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
         
 
-        self.decx = OptimizableVariable(variable_status=False, variable_type='Variable', value=decx)
-        self.decy = OptimizableVariable(variable_status=False, variable_type='Variable', value=decy)
-        self.decz = OptimizableVariable(variable_status=False, variable_type='Variable', value=decz)
-        self.tiltx = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltx)
-        self.tilty = OptimizableVariable(variable_status=False, variable_type='Variable', value=tilty)
-        self.tiltz = OptimizableVariable(variable_status=False, variable_type='Variable', value=tiltz)
+        self.decx = OptimizableVariable(variable_type='fixed', value=decx)
+        self.decy = OptimizableVariable(variable_type='fixed', value=decy)
+        self.decz = OptimizableVariable(variable_type='fixed', value=decz)
+        self.tiltx = OptimizableVariable(variable_type='fixed', value=tiltx)
+        self.tilty = OptimizableVariable(variable_type='fixed', value=tilty)
+        self.tiltz = OptimizableVariable(variable_type='fixed', value=tiltz)
         
 
 
@@ -234,20 +227,15 @@ class LocalCoordinates(ClassWithOptimizableVariables):
     
     def calculate(self):
  
-        # TODO: correct comments and make a triple-" comment
+        """
+        tiltThenDecenter=0: decx, decy, decz, tiltx, tilty, tiltz
+        tiltThenDecenter=1: tiltx, tilty, tilty, decx, decy, decz
         
-        # tiltThenDecenter=0: decx, decy, tiltx, tilty, tiltz
-        # tiltThenDecenter=1: tiltx, tilty, tilty, decx, decy        
-        
-        # 0 objectdist angle0
-        # 1 thickness angle1
-        # 2 thickness angle2       
-        
-        # notice negative signs for angles to make sure that for tiltx>0 the
-        # optical points in positive y-direction although the x-axis of the
-        # local coordinate system points INTO the screen
-        # This leads also to a clocking in the mathematical negative direction
-        
+        notice negative signs for angles to make sure that for tiltx>0 the
+        optical points in positive y-direction although the x-axis of the
+        local coordinate system points INTO the screen
+        This leads also to a clocking in the mathematical negative direction
+        """
         tiltx = self.tiltx.evaluate()
         tilty = self.tilty.evaluate()
         tiltz = self.tiltz.evaluate()
@@ -432,10 +420,10 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         self.localbasis, \
         [i.name for i in self.__children])
         return s
-    
-    
-origin = LocalCoordinates()
 
+
+  
+    
 if __name__ == "__main__":
     '''testcase1: undo coordinate break'''
     surfcb1 = LocalCoordinates(name="1", decz=40.0)

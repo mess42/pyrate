@@ -3,6 +3,7 @@
 Pyrate - Optical raytracing based on Python
 
 Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+               and Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
 
 This program is free software; you can redistribute it and/or
@@ -22,12 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
-from ray import RayBundleNew
+from ray import RayBundle
 import optimize
 
 from globalconstants import standard_wavelength
-
-# import FreeCAD
 
 class Material(optimize.ClassWithOptimizableVariables):
     """Abstract base class for materials."""
@@ -43,7 +42,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         self.comment = comment
         self.lc = lc
 
-    def refract(self, previousmaterial, raybundle, intersection, normal, validIndices):
+    def refract(self, raybundle, actualSurface):
         """
         Class describing the interaction of the ray at the surface based on the material.
 
@@ -55,6 +54,20 @@ class Material(optimize.ClassWithOptimizableVariables):
         :return newray: rays after surface interaction ( RayBundle object )
         """
         raise NotImplementedError()
+
+    def reflect(self, raybundle, actualSurface):
+        """
+        Class describing the interaction of the ray at the surface based on the material.
+
+        :param raybundle: Incoming raybundle ( RayBundle object )
+        :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
+        :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
+        :param validIndices: whether the rays did hit the shape correctly (1d numpy array of bool)
+
+        :return newray: rays after surface interaction ( RayBundle object )
+        """
+        raise NotImplementedError()
+
 
     def getEpsilonTensor(self, wave=standard_wavelength):
         """
@@ -147,30 +160,34 @@ class Material(optimize.ClassWithOptimizableVariables):
         raise NotImplementedError()
 
 
-
-class ConstantIndexGlass(Material):
-    """
-    A simple glass defined by a single refractive index.
-    """
+class IsotropicMaterial(Material):
+    
     def __init__(self, lc, n=1.0, name="", comment=""):
-        super(ConstantIndexGlass, self).__init__(lc, name, comment)
+        super(IsotropicMaterial, self).__init__(lc, name, comment)
 
-        self.n = optimize.OptimizableVariable(value=n)
-        self.addVariable("refractive index", self.n)
+    def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
+        raise NotImplementedError()
 
-    def getEpsilonTensor(self, wave=standard_wavelength):
-        return np.eye(3)*self.n()**2
-
-    def calcXiNormalDerivative(self, n, k_inplane, wave=standard_wavelength):
+    def calcXiNormalDerivative(self, x, n, k_inplane, wave=standard_wavelength):
         return np.zeros_like(n)        
         
-    def calcXiKinplaneDerivative(self, n, k_inplane, wave=standard_wavelength):
+    def calcXiKinplaneDerivative(self, x, n, k_inplane, wave=standard_wavelength):
         (xi, valid) = self.calcXi(n, k_inplane, wave=wave)
         return -k_inplane/xi
 
-    def calcXi(self, normal, k_inplane, wave=standard_wavelength):
+    def calcEfield(self, x, n, k, wave=standard_wavelength):
+        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
+        ey = np.zeros_like(k)
+        ey[1,:] =  1.
+        return np.cross(k, ey, axisa=0, axisb=0).T
+
         
-        k2_squared = 4.*math.pi**2/wave**2/3.*np.trace(self.getEpsilonTensor(wave))
+
+    def calcXi(self, x, normal, k_inplane, wave=standard_wavelength):
+        # Depends on x in general: to be compatible with grin materials
+        # and to reduce reimplementation effort
+        
+        k2_squared = 4.*math.pi**2/wave**2/3.*np.trace(self.getEpsilonTensor(None, None, None, wave))
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
         # make total internal reflection invalid
@@ -181,7 +198,7 @@ class ConstantIndexGlass(Material):
         return (xi, valid)
 
 
-    def refractNew(self, raybundle, actualSurface):
+    def refract(self, raybundle, actualSurface):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         
@@ -190,7 +207,7 @@ class ConstantIndexGlass(Material):
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (xi, valid_refraction) = self.calcXi(normal, k_inplane, wave=raybundle.wave)
+        (xi, valid_refraction) = self.calcXi(None, normal, k_inplane, wave=raybundle.wave)
         
         valid = raybundle.valid[-1] * valid_refraction
 
@@ -201,12 +218,35 @@ class ConstantIndexGlass(Material):
         orig = raybundle.x[-1][:, valid]        
         newk = k2[:, valid]
 
-        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
-        ey = np.zeros_like(orig)
-        ey[1,:] =  1.
-        Efield = np.cross(newk, ey, axisa=0, axisb=0).T
+        Efield = self.calcEfield(None, None, newk, wave=raybundle.wave)
 
-        return RayBundleNew(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
+        return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
+
+
+    def reflect(self, raybundle, actualSurface):
+
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
+        
+        globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
+        normal = self.lc.returnGlobalToLocalDirections(globalnormal)
+
+        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
+
+        (xi, valid_refraction) = self.calcXi(None, normal, k_inplane, wave=raybundle.wave)
+        
+        valid = raybundle.valid[-1] * valid_refraction
+
+        k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
+
+        # return ray with new direction and properties of old ray
+        # return only valid rays
+        orig = raybundle.x[-1][:, valid]        
+        newk = k2[:, valid]
+
+        Efield = self.calcEfield(None, None, newk, wave=raybundle.wave)
+        
+        return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
+
 
     def propagate(self, raybundle, nextSurface):
 
@@ -218,32 +258,21 @@ class ConstantIndexGlass(Material):
         :param nextSurface (Surface object)
         """
 
-        #intersection, t, normal, validIndices = \
-        #    nextSurface.shape.intersect(RayBundle(localo, localk, locale, raybundle.rayID, raybundle.wave))
-        # use Poynting direction to calculate rays
+        nextSurface.intersect(raybundle)
 
-        nextSurface.shape.intersectNew(raybundle)
-        
+class ConstantIndexGlass(IsotropicMaterial):
+    """
+    A simple glass defined by a single refractive index.
+    """
+    def __init__(self, lc, n=1.0, name="", comment=""):
+        super(ConstantIndexGlass, self).__init__(lc, name, comment)
 
-        #raybundle.t = t
+        self.n = optimize.OptimizableVariable(value=n)
+        self.addVariable("refractive index", self.n)
 
-        #validIndices *= nextSurface.aperture.arePointsInAperture(intersection[0], intersection[1]) # cutoff at nextSurface aperture
-        # TODO: generalize to apertures in local coordinates
-        
-        #validIndices[0] = True # hail to the chief ray
-
-
-        
-        #globalintersection = nextSurface.lc.returnLocalToGlobalPoints(intersection)
-        #globalnormal = nextSurface.lc.returnLocalToGlobalDirections(normal)
-        
-        
-
-        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
-        # TODO: needs heavy testing
-
-        #raybundle.t = t
             
+    def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
+        return np.eye(3)*self.n()**2
 
 
     def setCoefficients(self, n):
@@ -293,7 +322,7 @@ class ConstantIndexGlass(Material):
 
 
 class ModelGlass(ConstantIndexGlass):
-    def __init__(self, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5), name="", comment=""):
+    def __init__(self, lc, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5), name="", comment=""):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
@@ -301,12 +330,12 @@ class ModelGlass(ConstantIndexGlass):
         
         :param tuple (n0, A, B) of float
         """
-        super(ModelGlass, self).__init__(n0_A_B[0], name, comment)
+        super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0], name=name, comment=comment)
 
 
-        self.n0 = optimize.OptimizableVariable(False, value=n0_A_B[0])
-        self.A = optimize.OptimizableVariable(False, value=n0_A_B[1])
-        self.B = optimize.OptimizableVariable(False, value=n0_A_B[2])
+        self.n0 = optimize.OptimizableVariable(value=n0_A_B[0])
+        self.A = optimize.OptimizableVariable(value=n0_A_B[1])
+        self.B = optimize.OptimizableVariable(value=n0_A_B[2])
         
         self.addVariable("Conrady n0", self.n0)
         self.addVariable("Conrady A", self.A)
@@ -333,6 +362,10 @@ class ModelGlass(ConstantIndexGlass):
         """
         wave = raybundle.wave  # wavelength in um
         return self.n0.evaluate() + self.A.evaluate() / wave + self.B.evaluate() / (wave**3.5)
+
+    def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
+        n = self.n0() + self.A() / wave + self.B() / (wave**3.5)
+        return np.eye(3)*n**2
 
     def calcCoefficientsFrom_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
         """
@@ -379,46 +412,10 @@ class ModelGlass(ConstantIndexGlass):
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
 
-class Mirror(Material):
-    "A mirror material - not sure whether a material class is the right way to implement it."
 
-    def refract(self, raybundle, intersection, normal, previouslyValid):
-
-        abs_k1_normal = np.sum(raybundle.k * normal, axis=0)
-        k_perp = raybundle.k - abs_k1_normal * normal
-        k2 = raybundle.k - 2.0*k_perp
-
-        newk = k2
-        orig = intersection
-
-        return RayBundle(orig, newk, raybundle.rayID, raybundle.wave)
-
-    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [-2.0*curvature, 1.]])  # translation * mirror
-        return abcd
-
-    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
-        abcd = np.dot([
-                       [1, 0, thickness, 0, 0],
-                       [0, 1, 0, thickness, 0],
-                       [0, 0, 1, 0, 0],
-                       [0, 0, 0, 1, 0],
-                       [0, 0, 0, 0, 1]
-                      ],
-                      [
-                       [1, 0, 0, 0, 0],
-                       [0, 1, 0, 0, 0],
-                       [-2.0*curvature, 0, 1., 0, 0],
-                       [0, -2.0*curvature, 0., 1., 0],
-                       [0, 0, 0, 0, 1]
-                      ]
-                      )  # translation * mirror
-        return abcd
-
-
-class GrinMaterial(Material):
-    def __init__(self, fun, dfdx, dfdy, dfdz, ds, energyviolation, bndfunction):
-        super(GrinMaterial, self).__init__()
+class IsotropicGrinMaterial(IsotropicMaterial):
+    def __init__(self, lc, fun, dfdx, dfdy, dfdz, ds, energyviolation, bndfunction, name="", comment=""):
+        super(IsotropicGrinMaterial, self).__init__(lc, name=name, comment=comment)
         self.nfunc = fun
         self.dfdx = dfdx
         self.dfdy = dfdy
@@ -426,10 +423,6 @@ class GrinMaterial(Material):
         self.ds = ds
         self.energyviolation = energyviolation
         self.boundaryfunction = bndfunction
-
-    def refract(self, raybundle, intersection, normal, previouslyValid):
-        # at entrance in material there is no refraction appearing
-        return RayBundle(intersection, raybundle.k, raybundle.rayID, raybundle.wave)
 
 
     def inBoundary(self, x, y, z):
@@ -551,18 +544,18 @@ class GrinMaterial(Material):
         return (positions, velocities, pointstodraw, momentatodraw, energies, phasespace4d, valid)
 
 
-    def propagate(self, actualSurface, nextSurface, raybundle):
-        startq = raybundle.o # linewise x, y, z values
-        startp = raybundle.k
+#    def propagate(self, actualSurface, nextSurface, raybundle):
+#        startq = raybundle.o # linewise x, y, z values
+#        startp = raybundle.k
 
-        (self.finalq, self.finalp, self.pointstodraw, self.momentatodraw, en, ph4d, validindices) = \
-            self.symplecticintegrator(startq,
-                                      startp,
-                                      self.ds,
-                                      0.0,
-                                      actualSurface.getThickness(),
-                                      actualSurface,
-                                      nextSurface)
+#        (self.finalq, self.finalp, self.pointstodraw, self.momentatodraw, en, ph4d, validindices) = \
+#            self.symplecticintegrator(startq,
+#                                      startp,
+#                                      self.ds,
+#                                      0.0,
+#                                      actualSurface.getThickness(),
+#                                      actualSurface,
+#                                      nextSurface)
 
         #for ind, pts in enumerate(self.pointstodraw):
         #    FreeCAD.Console.PrintMessage("prop: " + str(ind) + ": " + str(pts) + "\n")
@@ -587,12 +580,12 @@ class GrinMaterial(Material):
 
         # original start point self.finalq[-1], self.finalp[-1]
 
-        intersection, t, normal, validindicesrefract = \
-            nextSurface.shape.intersect(RayBundle(self.pointstodraw[-1], self.momentatodraw[-1], raybundle.rayID, raybundle.wave))
+#       intersection, t, normal, validindicesrefract = \
+#            nextSurface.shape.intersect(RayBundle(self.pointstodraw[-1], self.momentatodraw[-1], raybundle.rayID, raybundle.wave))
+#
+#        validindices *= validindicesrefract
 
-        validindices *= validindicesrefract
-
-        return intersection, t, normal, validindices
+#        return intersection, t, normal, validindices
         # intersection, t, normal, validindices, propraybundles
         # TODO: Raybundles have to strong dependencies from surfaces. For every surface there is exactly one raybundle.
         # This is not correct for grin media anymore, since a grin medium contains a collection of ray bundles. For every

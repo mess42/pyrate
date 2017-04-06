@@ -94,7 +94,15 @@ class OptimizableVariable(object):
     def changetype(self, vtype, **kwargs):
         self.__var_type = vtype.lower()
         self.evalfunc = self.evaldict[self.var_type]
+        try:        
+            parameter_backup = self.parameters
+        except:
+            parameter_backup = {"value":None}
         self.parameters = kwargs
+        if vtype.lower() in ["variable", "fixed"] \
+            and self.__var_type in ["variable", "fixed"] \
+            and parameter_backup["value"] != None:
+            self.parameters["value"] = parameter_backup["value"]
 
     def setvalue(self, value):
         # TODO: overload assign operator
@@ -318,14 +326,17 @@ class Optimizer(object):
         """
         Optimization function: Scipy.optimize wrapper
         """
+        print(kwargs)
         opts = {}
         steps = kwargs.get("steps", 0.0)
         if steps > 0:
             opts["maxiter"] = steps
+        tol = kwargs.get("tol", 0.)            
+        
         
         x0 = self.classwithoptvariables.getActiveVariableValues()
         print(x0) # TODO: rewrite to log
-        res = minimize(self.MeritFunctionWrapperScipy, x0, args=(), method=kwargs["method"], options=opts)
+        res = minimize(self.MeritFunctionWrapperScipy, x0, args=(), method=kwargs["method"], tol=tol, options=opts)
         print res # TODO: rewrite to log
         self.classwithoptvariables.setActiveVariableValues(res.x)
         return self.classwithoptvariables
@@ -334,7 +345,8 @@ class Optimizer(object):
         """
         Optimization function: direct access to Nelder-Mead algorithm in Scipy.
         """
-        return self.optimizeSciPyInterface(method="Nelder-Mead")
+                
+        return self.optimizeSciPyInterface(method="Nelder-Mead", **kwargs)
 
     def run(self, optimizer="optimizeSciPyNelderMead", steps=0, **kwargs):
         '''
