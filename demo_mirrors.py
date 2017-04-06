@@ -29,6 +29,7 @@ from core import raster
 from core import material
 from core import surfShape
 from core.optical_element import OpticalElement
+from core.optical_element_analysis import OpticalElementAnalysis
 from core.optical_system import OpticalSystem
 from core.surface import Surface
 from core.ray import RayBundle
@@ -36,7 +37,7 @@ from core.ray import RayBundle
 from core.aperture import CircularAperture
 from core.coordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ex, canonical_ey
+from core.globalconstants import canonical_ey
 
 import math
 
@@ -45,9 +46,9 @@ wavelength = 0.5876e-3
 # definition of optical system
 s = OpticalSystem() 
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
+lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2", decz=-50.0, decy=-20, tiltx=math.pi/16), refname=lc1.name)
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2_stop", decz=-50.0, decy=-20, tiltx=math.pi/16), refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=math.pi/8), refname=lc2.name)
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image1", decz=-50, decy=-15, tiltx=-math.pi/16), refname=lc3.name)
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="oapara", decz=-100, decy=-35), refname=lc4.name)
@@ -68,7 +69,7 @@ elem = OpticalElement(lc0, label="TMA")
 
 elem.addMaterial("air", air)
 
-elem.addSurface("stop", stopsurf, (None, None))
+elem.addSurface("object", stopsurf, (None, None))
 elem.addSurface("m1", frontsurf, (None, None))
 elem.addSurface("m2", cementsurf, (None, None))
 elem.addSurface("m3", rearsurf, (None, None))
@@ -94,11 +95,11 @@ ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("TMA", [("stop", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True) ])] 
+sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True) ])] 
 
 sysseq_pilot = [("TMA", 
                  [
-                    ("stop", True, True), 
+                    ("object", True, True), 
                     ("m1", False, True), 
                     ("m2", False, True), 
                     ("m3", False, True), 
@@ -112,37 +113,66 @@ sysseq_pilot = [("TMA",
 
 
 phi = 5.*math.pi/180.0
-phi2 = 0.
+
+obj_dx = 0.1
+obj_dphi = 1.*math.pi/180.0
+
+kwave = 2.*math.pi/wavelength
 
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq)
 
 pilotbundle = RayBundle(
                 x0 = np.array([[0], [0], [0]]), 
-                k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi)], [2.*math.pi/wavelength*math.cos(phi)]]), 
+                k0 = np.array([[0], [kwave*math.sin(phi)], [kwave*math.cos(phi)]]), 
                 Efield0 = np.array([[1], [0], [0]]), wave=wavelength
                 )
 
 pilotbundle2 = RayBundle(
-                x0 = np.array([[0], [0], [0]]), 
-                k0 = np.array([[0], [2.*math.pi/wavelength*math.sin(phi2)], [2.*math.pi/wavelength*math.cos(phi2)]]), 
-                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
+                x0 = np.array([[0, obj_dx, 0, 0, 0], [0, 0, obj_dx, 0, 0], [0, 0, 0, 0, 0]]), 
+                k0 = np.array([[0, 0, 0, kwave*math.sin(obj_dphi), 0], [0, 0, 0, 0, kwave*math.sin(obj_dphi)], [kwave, kwave, kwave, kwave*math.cos(obj_dphi), kwave*math.cos(obj_dphi)]]), 
+                Efield0 = np.array([[1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]), wave=wavelength
                 )
 
 
 pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
-pilotray2 = s.seqtrace(pilotbundle2, sysseq)
+#pilotray2 = s.elements["TMA"].seqtrace(pilotbundle2, sysseq[0][1], air)
 
+oea = OpticalElementAnalysis(s.elements["TMA"])
+
+(pilotray2, matrices) = oea.calculateXYUV(pilotbundle2, sysseq[0][1], air)
+
+# TODO: these dictionary matrices are not compatible with bouncing pilotray and his buddies
+# TODO: tracing from object to image2 (where the focus is), picture looks good
+
+mat = np.dot(matrices[('image2', 'oapara')], 
+             np.dot(matrices[('oapara', 'image1')], 
+                    np.dot(matrices[('image1', 'm3')], 
+                           np.dot(matrices[('m3', 'm2')], 
+                                  np.dot(matrices[('m2', 'm1')], 
+                                         matrices[('m1', 'object')])))))
+alpha = np.arange(0, 360, 10)
+
+pts = np.dot(mat, np.vstack((np.cos(alpha*math.pi/180.0), np.sin(alpha*math.pi/180.0), np.zeros_like(alpha), np.zeros_like(alpha))))
+xf = pts[0]
+yf = pts[1]
 
 fig = plt.figure(1)
-ax = fig.add_subplot(111)
+ax = fig.add_subplot(121)
+ax2 = fig.add_subplot(122)
 
 ax.axis('equal')
+ax2.axis('equal')
+
 ax.set_axis_bgcolor('white')
+
+
 
 phi = 0. #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
+
+ax2.plot(xf, yf, "ro")
 
 print("drawing!")
 r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
