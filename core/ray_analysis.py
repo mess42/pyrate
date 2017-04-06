@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from ray import RayBundle
 
-import math
 
 class RayBundleAnalysis(object):
     def __init__(self, raybundle):
