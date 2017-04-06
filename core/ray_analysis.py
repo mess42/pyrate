@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from ray import RayBundle
 
+
 class RayBundleAnalysis(object):
     def __init__(self, raybundle):
         
@@ -31,12 +32,12 @@ class RayBundleAnalysis(object):
         
     def getCentroidPosition(self):
         """
-        Returns the arithmetic average position of all rays at the origin of the ray bundle.
+        Returns the arithmetic average position of all rays at the end of the ray bundle.
 
         :return centr: centroid position (1d numpy array of 3 floats)
         """
         
-        o = self.raybundle.x[0]
+        o = self.raybundle.x[-1]
         (num_dims, num_points) = np.shape(o)
         centroid = 1.0/num_points * np.sum(o, axis=1)        
         
@@ -45,14 +46,14 @@ class RayBundleAnalysis(object):
     def getRMSspotSize(self, referencePos):
         """
         Returns the root mean square (RMS) deviation of all ray positions
-        with respect to a reference position at the origin of the ray bundle.
+        with respect to a reference position at the end of the ray bundle.
 
         :referencePos: (1d numpy array of 3 floats)
 
         :return rms: RMS spot size (float)
         """
         
-        o = self.raybundle.x[0]
+        o = self.raybundle.x[-1]
         (num_dims, num_points) = np.shape(o)        
         
         delta = o - referencePos.reshape((3, 1)) * np.ones((3, num_points))        
@@ -77,13 +78,20 @@ class RayBundleAnalysis(object):
         :return centr: centroid unit direction vector (1d numpy array of 3 floats)
         """
         # TODO: to be tested and corrected
-        xav = sum(self.rayDir[0][1:])
-        yav = sum(self.rayDir[1][1:])
-        zav = sum(self.rayDir[2][1:])
+        
+        directions = self.raybundle.returnKtoD()[-1]        
 
-        length = sqrt(xav**2 + yav**2 + zav**2)
+        (num_dims, num_rays) = np.shape(directions)        
+        
+        #xav = sum(self.rayDir[0][1:])
+        #yav = sum(self.rayDir[1][1:])
+        #zav = sum(self.rayDir[2][1:])
 
-        return array([xav, yav, zav]) / length
+        com_d = np.sum(directions, axis=1)
+
+        length = np.sqrt(np.sum(com_d**2))
+
+        return com_d / length
 
     def getRMSangluarSize(self, refDir):
         """
@@ -118,5 +126,19 @@ class RayBundleAnalysis(object):
         """
         # TODO: to be tested
         return self.getRMSangluarSize(self.getCentroidDirection())
+
+    def getArcLength(self):
+        """
+        Calculates arc length for all rays.
+        
+        :return Arc length (1d numpy array of float)
+        """
+        ds = np.sqrt(np.sum((self.raybundle.x[1:] - self.raybundle.x[:-1])**2, axis=1)) # arc element lengths for every ray
+        return np.sum(ds, axis=0)
+
+
+
+#if __name__ == "__main__":
+    
 
        
