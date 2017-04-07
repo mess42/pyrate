@@ -39,6 +39,8 @@ from core.coordinates import LocalCoordinates
 
 from core.globalconstants import canonical_ey
 
+from core.helpers import sequence_to_hitlist
+
 import math
 
 wavelength = 0.5876e-3
@@ -110,6 +112,8 @@ sysseq_pilot = [("TMA",
                     ("m2", False, True)
                 ])
                 ] 
+                
+print(sequence_to_hitlist(sysseq_pilot[0][1]))
 
 
 phi = 5.*math.pi/180.0
