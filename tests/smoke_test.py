@@ -22,19 +22,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301, USA.
 """
 
-from nose.tools import with_setup
+from matplotlib.testing.decorators import image_comparison
+from matplotlib import pyplot
+from nose import with_setup
 
 __author__ = 'Thomas Heinze'
 
-def setup_function():
-    """Setup function, which is called before every test."""
-    # we use the matplotlib's do nothing backend for testing
-    # matplotlib/lib/matplotlib/backends/backend_template.py
-    import matplotlib
-    matplotlib.use('Template')
+# we use the matplotlib's do nothing backend for testing
+# matplotlib/lib/matplotlib/backends/backend_template.py
+pyplot.switch_backend('Template')
 
-@with_setup(setup_function)
+@image_comparison(baseline_images=['doublet'], extensions=['png'])
 def test_smoke_doublet():
     """Smoke test based on demo_doublet.py."""
     import demo_doublet
+    assert True
+
+def test_smoke_mirror():
+    """Smoke test based on demo_mirrors.py."""
+    # import demo_mirrors # TODO
     assert True
