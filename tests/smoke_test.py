@@ -38,9 +38,3 @@ def test_smoke_doublet():
     """Smoke test based on demo_doublet.py."""
     import demo_doublet
     assert True
-
-@with_setup(setup_function)
-def test_smoke_mirrors():
-    """Smoke test based on demo_doublet.py."""
-    import demo_mirrors
-    assert True
