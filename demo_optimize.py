@@ -2,9 +2,10 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
-               and Johannes Hartung j.hartung@gmx.net
-               and    Uwe Lippmann  uwe.lippmann@web.de
+Copyright (C) 2017 Moritz Esslinger <moritz.esslinger@web.de>
+               and Johannes Hartung <j.hartung@gmx.net>
+               and     Uwe Lippmann <uwe.lippmann@web.de>
+               and    Thomas Heinze <t.heinze@fn.de>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,7 +33,7 @@ from core.ray import RayPath, RayBundle
 
 from core import plots
 from core.aperture import CircularAperture, BaseAperture
-from core.coordinates import LocalCoordinates
+from core.localcoordinates import LocalCoordinates
 
 from core.globalconstants import standard_wavelength
 

@@ -39,5 +39,9 @@ def test_smoke_doublet():
 
 def test_smoke_mirror():
     """Smoke test based on demo_mirrors.py."""
-    # import demo_mirrors # TODO
+    import demo_mirrors
+    assert True
+def test_smoke_optimize():
+    """Smoke test based on demo_optimize.py."""
+    import demo_optimize
     assert True
