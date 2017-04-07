@@ -552,27 +552,29 @@ In mesoscopically inhomogenous media like  diffractive optical elements and meta
 the boundary conditions hold at each interface between homogeneous materials of the mesoscopic sub-structure.
 
 
-\section{Reflection and refraction of Plane Waves at Planar Surfaces}
+\section{Reflection and Refraction of Plane Waves at Planar Surfaces}
 
 \subsection{Derivation}
 We consider a plane wave incident on a planar boundary between two homogeneous materials.
-The incident plane wave projects a grating on the boundary plane. $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permittivity_1$ are modulated with the in-plane component of the wavevector. 
+The incident plane wave projects a grating on the boundary plane. 
+The fields $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permittivity_1$ are modulated with the in-plane component of the wavevector. 
 \begin{eqnarray}
  \Dfield_{in}, \Efield_{in} &\propto& \exp( i \Wavevector_{in\parallel} \Location)|_{boundary} \\
  \Wavevector_{in\perp} &=& ( \Wavevector_{in} \Vector{n} ) \Vector{n} \\
  \Wavevector_{in\parallel} &=& \Wavevector_{in} - \Wavevector_{in\perp}
 \end{eqnarray}
 where $\Vector{n}$ is the surface normal unit vector.
-From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_1$ and $\Efield_1$, all reflected or refracted modes $\Dfield_2$ and $\Efield_2$ are to be modulated by the same in-plane wavevector component.
+From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_{in}$ and $\Efield_{in}$, 
+all reflected or refracted modes $\Dfield_{m}$ and $\Efield_{m}$ are to be modulated by the same in-plane wavevector component.
 \begin{eqnarray}
-  \Dfield_2, \Efield_2 &\propto& \exp( i \Wavevector_{2\parallel} \Location)|_{boundary} \\
-  \Wavevector_{2\parallel} &=& \Wavevector_{in\parallel}
+  \Dfield_{m}, \Efield_{m} &\propto& \exp( i \Wavevector_{m\parallel} \Location)|_{boundary} \\
+  \Wavevector_{m\parallel} &=& \Wavevector_{in\parallel}
 \end{eqnarray}
 The in-plane wave vector component is conserved.
 To find the reflected and refracted modes, 
 we fix the in-plane wavevector component and search for solutions of the material dispersion
 (equation \ref{eq:generalDispersionEigenEquation}).
-In general, the dispersion is quartic and allows for 4 solutions in each medium (see figure \ref{fig:boundary_wavevectors}).
+In general, the dispersion is quartic and allows for 4 solutions in each medium.
 \begin{figure}
   \centering
    \includegraphics[width=0.5\columnwidth]{boundary_wavevectors}
@@ -580,42 +582,51 @@ In general, the dispersion is quartic and allows for 4 solutions in each medium 
            b) Scenario of a single incident plane wave.}
   \label{fig:boundary_wavevectors}
 \end{figure}
-In each medium, there are 2 solutions transporting energy towards the boundary, and 2 solutions transporting energy from it.
+In each medium, there are 2 solutions transporting energy towards the boundary, 
+and 2 solutions transporting energy from it (see figure \ref{fig:boundary_wavevectors}).
+The modes can be distinguished by analyzing the direction of the Poynting vector relative to the surface normal,
+$\Vector{S}\cdot\Vector{n}>0$ or $\Vector{S}\cdot\Vector{n}<0$.
 In the scenario we consider, we have a single incident plane wave from medium $1$, 
 and we discard the 3 remaining solutions transporting energy towards the boundary.
-In general, one incident plane wave can split up into 2 reflected modes and 2 refracted modes.
-On boundaries between isotropic media, both refracted modes have identical wavevectors and the same direction of energy transport.
-The same holds for the two reflected modes.
+This leaves 5 modes: One incident plane wave splits up into 2 reflected modes and 2 refracted modes.
+We consider the electric fields $\Efield_{1,2}$ on both sides of the boundary
+\begin{subequations}
+\begin{eqnarray}
+ \Efield_1(\Location) &=& \Efield_{in,0} \exp(i \Wavevector_{in} \Location) + \Efield_{r1,0} \exp(i \Wavevector_{r1} \Location) + \Efield_{r2,0} \exp(i \Wavevector_{r2} \Location)  \\
+ \Efield_2(\Location) &=& \Efield_{t1,0} \exp(i \Wavevector_{t1} \Location) + \Efield_{t2,0} \exp(i \Wavevector_{t2} \Location)
+\end{eqnarray}
+\label{eq:modes_on_boundary} 
+\end{subequations}
+
+Each term on the right hand side stands for a mode, represented by its amplitude $\Efield_{0}$ and wavevector $\Wavevector$.
+We consider the incident mode $\Wavevector_{in}$, 
+the two reflected modes $\Wavevector_{r1,2}$,
+and the two refracted or transmitted modes $\Wavevector_{t1,2}$.
+For isotropic media 1, the modes $\Wavevector_{r1,2}$ degenerate. 
+The same holds for $\Wavevector_{t1,2}$ in isotropic media 2.
 
 \subsection{The Law of Refraction}
 Our formulation of the law of refraction and the law of reflection is
 \begin{eqnarray}
- \Efield_1(\Location) &=& \Efield_{in,0} \exp(i \Wavevector_{in} \Location) + \Efield_{r1,0} \exp(i \Wavevector_{r1} \Location) + \Efield_{r2,0} \exp(i \Wavevector_{r2} \Location)  \\
- \Efield_2(\Location) &=& \Efield_{t1,0} \exp(i \Wavevector_{t1} \Location) + \Efield_{t2,0} \exp(i \Wavevector_{t2} \Location) \\
- \Wavevector_{i} &=& \Wavevector_{in\parallel} + \xi_i \Vector{n}\,.\label{eq:xieqn} \\
+ \Wavevector_{m} &=& \Wavevector_{in\parallel} + \xi_m \Vector{n}\,.\label{eq:xieqn}
 \end{eqnarray}
-and holds for planar boundaries between two homogeneous media.
-$\Efield_{in,0}$ is the amplitude of the incoming plane wave, 
-$\Efield_{r12,0}$ the amplitudes of the reflected plane waves in medium 1, 
-and $\Efield_{t12,0}$ the amplitudes of the refracted plane waves in medium 2.
-The wavevectors of each mode $\Wavevector_i$ consists of the conserved in-plane component $\wavenumber_{in\parallel}$ and the out-of-plane component $\xi_i$. 
-The explicit form of the normal component $\xi$ depends 
-on the material dispersion in the respective material, 
-that is on $\permittivity_1$ for the reflected waves, and $\permittivity_2$ for the transmitted waves.
-
+The wavevectors of each mode $\Wavevector_m$ consist of the conserved in-plane component $\wavenumber_{in\parallel}$ and the out-of-plane component $\xi_m$. 
+Solving the material dispersion $\xi$, we find the directions of all refracted and reflected modes.
 Compared to the law of Snellius, this formulation bears the following advantages:
 \begin{itemize}
  \item It does not require the calculation of angles in 3D space, only scalar products.
  \item The incident wavevector can be modelled as a property of the ray. When calculating the refracted wavevector, 
        the dispersion relation in material $\permittivity_1$ is not required.
-       This allows to isolate methods in object-oriented programming.
+       This allows to isolate methods in object-oriented programming and a modular design.
  \item It is not required to implement a different law of refraction for each \emph{pair} of material classes interfacing 
        (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...),
-       but the effort increases linearly with the number of material classes.
- \item We can also calculate with complex valued and anisotropic permittivities.
-       The law of Snellius only coincides with the Maxwell equations for real valued positive refractive indices only.
+       where the number of implementations increases quadratically with the number of material classes.
+       Instead, the effort of solving the material dispersion increases linearly.
+ \item We can calculate with complex valued permittivities, that is, lossy materials.
+       The law of Snellius coincides with the Maxwell equations for real valued positive refractive indices only.
+ \item We can handle anisotropic materials.
 \end{itemize}
-The formulation does not actually solve the problem of refraction, but just forwards it to the problem of finding a solution $\xi$ of the material dispersion. 
+The formulation does not actually solve the problem of refraction, but forwards it to the problem of finding a solution $\xi$ of the material dispersion. 
 This calculation can, for certain types of anisotropic materials, be complicated.
 
 \subsubsection{isotropic media}
@@ -655,8 +666,20 @@ This is a quadratic equation in $\xi$.
  \nonumber
 \end{eqnarray}
 
+\subsection{Fresnel Coefficients}
+Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarizations
+\begin{eqnarray}
+(\Wavevector_{in}, \Wavevector_{r1}, \Wavevector_{r2}, \Wavevector_{t1}, \Wavevector_{t2}) \\
+(\Vector{e}_{in}, \Vector{e}_{r1}, \Vector{e}_{r2}, \Vector{e}_{t1}, \Vector{e}_{t2}) 
+\end{eqnarray}
+The electric fields of each mode $m$
+\begin{eqnarray}
+\Efield_{m} = E_{m,0} \Vector{e}_{m} \exp{i \Wavevector_m \Location}
+\end{eqnarray}
+depends on the scalar amplitude $E_{m,0}$, containing mode strength and retardation.
+We combine equations \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} and yield
 
-
+TODO
 
 
 \chapter{Geometrical Optics}
