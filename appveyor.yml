@@ -23,4 +23,4 @@ install:
   - pip install -r requirements.txt   # install pyrate dependences
 
 test_script:
-  - python -m py.test  # test automation, no coverage (alreay by travis CI)
+  - python -m nose  # test automation, no coverage (alreay by travis CI)
