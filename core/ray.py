@@ -108,14 +108,6 @@ class RayBundle(object):
         return result        
         
         
-    def getArcLength(self):
-        """
-        Calculates arc length for all rays.
-        
-        :return Arc length (1d numpy array of float)
-        """
-        ds = np.sqrt(np.sum((self.x[1:] - self.x[:-1])**2, axis=1)) # arc element lengths for every ray
-        return np.sum(ds, axis=0)
         
     def returnKtoD(self):
         # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
@@ -173,8 +165,11 @@ class RayBundle(object):
 
 class RayPath(object):
     
-    def __init__(self, initialraybundle):
-        self.raybundles = [initialraybundle]
+    def __init__(self, initialraybundle=None):
+        if initialraybundle is None:
+            self.raybundles = []
+        else:
+            self.raybundles = [initialraybundle]
         
     def appendRayBundle(self, raybundle):
         self.raybundles.append(raybundle)

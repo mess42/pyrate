@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from ray import RayBundle
 
+
 class RayBundleAnalysis(object):
     def __init__(self, raybundle):
         
@@ -31,12 +32,12 @@ class RayBundleAnalysis(object):
         
     def getCentroidPosition(self):
         """
-        Returns the arithmetic average position of all rays at the origin of the ray bundle.
+        Returns the arithmetic average position of all rays at the end of the ray bundle.
 
         :return centr: centroid position (1d numpy array of 3 floats)
         """
         
-        o = self.raybundle.x[0]
+        o = self.raybundle.x[-1]
         (num_dims, num_points) = np.shape(o)
         centroid = 1.0/num_points * np.sum(o, axis=1)        
         
@@ -45,14 +46,14 @@ class RayBundleAnalysis(object):
     def getRMSspotSize(self, referencePos):
         """
         Returns the root mean square (RMS) deviation of all ray positions
-        with respect to a reference position at the origin of the ray bundle.
+        with respect to a reference position at the end of the ray bundle.
 
         :referencePos: (1d numpy array of 3 floats)
 
         :return rms: RMS spot size (float)
         """
         
-        o = self.raybundle.x[0]
+        o = self.raybundle.x[-1]
         (num_dims, num_points) = np.shape(o)        
         
         delta = o - referencePos.reshape((3, 1)) * np.ones((3, num_points))        
@@ -66,7 +67,6 @@ class RayBundleAnalysis(object):
 
         :return rms: RMS spot size (float)
         """
-        # TODO: to be tested
         centr = self.getCentroidPosition()
         return self.getRMSspotSize(centr)
 
@@ -76,14 +76,13 @@ class RayBundleAnalysis(object):
 
         :return centr: centroid unit direction vector (1d numpy array of 3 floats)
         """
-        # TODO: to be tested and corrected
-        xav = sum(self.rayDir[0][1:])
-        yav = sum(self.rayDir[1][1:])
-        zav = sum(self.rayDir[2][1:])
+       
+        directions = self.raybundle.returnKtoD()[-1]        
+        (num_dims, num_rays) = np.shape(directions)        
+        com_d = np.sum(directions, axis=1)
+        length = np.sqrt(np.sum(com_d**2))
 
-        length = sqrt(xav**2 + yav**2 + zav**2)
-
-        return array([xav, yav, zav]) / length
+        return com_d / length
 
     def getRMSangluarSize(self, refDir):
         """
@@ -102,12 +101,12 @@ class RayBundleAnalysis(object):
         # sin(angle)**2 approx angle**2 for small deviations from the reference,
         # but for large deviations the definition makes no sense, anyway
 
-        crossX = self.rayDir[1][1:] * refDir[2] - self.rayDir[2][1:] * refDir[1]
-        crossY = self.rayDir[2][1:] * refDir[0] - self.rayDir[0][1:] * refDir[2]
-        crossZ = self.rayDir[0][1:] * refDir[1] - self.rayDir[1][1:] * refDir[0]
-        N = len(crossX)
+        directions = self.raybundle.returnKtoD()[-1]        
+        (num_dims, num_rays) = np.shape(directions)        
 
-        return sqrt(sum(crossX**2 + crossY**2 + crossZ**2) / (N-1.0))
+        cross_product = np.cross(directions, refDir, axisa=0).T
+        
+        return np.arcsin(np.sqrt(np.sum(cross_product**2) / num_rays))
 
     def getRMSangluarSizeCentroid(self):
         """
@@ -119,4 +118,15 @@ class RayBundleAnalysis(object):
         # TODO: to be tested
         return self.getRMSangluarSize(self.getCentroidDirection())
 
-       
+    def getArcLength(self):
+        """
+        Calculates arc length for all rays.
+        
+        :return Arc length (1d numpy array of float)
+        """
+        ds = np.sqrt(np.sum((self.raybundle.x[1:] - self.raybundle.x[:-1])**2, axis=1)) # arc element lengths for every ray
+        return np.sum(ds, axis=0)
+
+
+
+      
