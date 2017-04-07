@@ -34,6 +34,7 @@ from surface import Surface
 from surfShape import Conic
 from globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
 from ray import RayBundle
+from material import ConstantIndexGlass
 
 def build_simple_optical_system(builduplist, matdict):
 
@@ -48,8 +49,11 @@ def build_simple_optical_system(builduplist, matdict):
 
     elem = OpticalElement(lc0, label="stdelem")
     
-    for (key, val) in matdict.iteritem():
-        elem.addMaterial(key, val)
+    for (key, val) in matdict.iteritems():
+        
+        mat = ConstantIndexGlass(lc0, n=val)        
+        
+        elem.addMaterial(key, mat)
     
     refname = lc0.name
     lastmat = None
@@ -57,11 +61,11 @@ def build_simple_optical_system(builduplist, matdict):
         
         lc = s.addLocalCoordinateSystem(LocalCoordinates(name=comment, dez=thickness), refname=refname)
         curv = 0
-        if math.abs(r) > numerical_tolerance:
+        if abs(r) > numerical_tolerance:
             curv = 1./r
         else:
             curv = 0.
-        actsurf = Surface(lc, shape=Conic(lc, curv=curv, conic=cc))
+        actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc))
         elem.addSurface(comment, actsurf, (lastmat, mat))
         
         lastmat = mat
