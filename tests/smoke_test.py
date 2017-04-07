@@ -24,7 +24,6 @@ MA 02110-1301, USA.
 
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot
-from nose import with_setup
 
 __author__ = 'Thomas Heinze'
 
