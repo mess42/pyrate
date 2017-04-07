@@ -50,19 +50,19 @@ s = OpticalSystem()
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2_stop", decz=-50.0, decy=-20, tiltx=math.pi/16), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=math.pi/8), refname=lc2.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=3*math.pi/32), refname=lc2.name)
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image1", decz=-50, decy=-15, tiltx=-math.pi/16), refname=lc3.name)
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="oapara", decz=-100, decy=-35), refname=lc4.name)
 lc5ap = s.addLocalCoordinateSystem(LocalCoordinates(name="oaparaap", decz=0, decy=35), refname=lc5.name)
-lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=55), refname=lc5.name)
+lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=55, tiltx=1*math.pi/32), refname=lc5.name)
 
-stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.001), apert=CircularAperture(lc1, 20.))
-cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-0.001), apert=CircularAperture(lc2, 12.7))
-rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=0.001), apert=CircularAperture(lc3, 12.7))
+objectsurf = Surface(lc0)
+m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01), apert=CircularAperture(lc1, 20.))
+m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01), apert=CircularAperture(lc2, 12.7))
+m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006), apert=CircularAperture(lc3, 12.7))
 image1 = Surface(lc4)
-oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 12.7))
-image2 = Surface(lc6)
+oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 30.0))
+image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 
 air = material.ConstantIndexGlass(lc0, 1.0)
 
@@ -70,10 +70,10 @@ elem = OpticalElement(lc0, label="TMA")
 
 elem.addMaterial("air", air)
 
-elem.addSurface("object", stopsurf, (None, None))
-elem.addSurface("m1", frontsurf, (None, None))
-elem.addSurface("m2", cementsurf, (None, None))
-elem.addSurface("m3", rearsurf, (None, None))
+elem.addSurface("object", objectsurf, (None, None))
+elem.addSurface("m1", m1surf, (None, None))
+elem.addSurface("m2", m2surf, (None, None))
+elem.addSurface("m3", m3surf, (None, None))
 elem.addSurface("image1", image1, (None, None))
 elem.addSurface("oapara", oapara, (None, None))
 elem.addSurface("image2", image2, (None, None))
@@ -136,41 +136,21 @@ pilotbundle2 = RayBundle(
 
 
 pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
-#pilotray2 = s.elements["TMA"].seqtrace(pilotbundle2, sysseq[0][1], air)
 
-(pilotray2, matrices) = s.elements["TMA"].calculateXYUV(pilotbundle2, sysseq[0][1], air)
-
-mat = np.dot(matrices[('image2', 'oapara', 1)], 
-             np.dot(matrices[('oapara', 'image1', 1)], 
-                    np.dot(matrices[('image1', 'm3', 1)], 
-                           np.dot(matrices[('m3', 'm2', 1)], 
-                                  np.dot(matrices[('m2', 'm1', 1)], 
-                                         matrices[('m1', 'object', 1)])))))
-alpha = np.arange(0, 360, 10)
-
-pts = np.dot(mat, np.vstack((np.cos(alpha*math.pi/180.0), np.sin(alpha*math.pi/180.0), np.zeros_like(alpha), np.zeros_like(alpha))))
-xf = pts[0]
-yf = pts[1]
+(pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
 fig = plt.figure(1)
-ax = fig.add_subplot(121)
-ax2 = fig.add_subplot(122)
-
+ax = fig.add_subplot(111)
 ax.axis('equal')
-ax2.axis('equal')
-
 ax.set_axis_bgcolor('white')
-
-
 
 phi = 0. #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-ax2.plot(xf, yf, "ro")
-
 print("drawing!")
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+r2.draw2d(ax, color="blue", plane_normal=pn, up=up)
+r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
 pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
 pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
 for e in s.elements.itervalues():
