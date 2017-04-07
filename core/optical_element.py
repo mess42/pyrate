@@ -98,6 +98,69 @@ class OpticalElement(LocalCoordinatesTreeBase):
             
         return returnmat
 
+    def sequence_to_hitlist(self, seq):
+        """
+        Converts surface sequence of optical element into hitlist which is
+        necessary to distinguish between multiple crossings of the pilot ray
+        between surface boundaries, due to the changed transfer matrices.
+        """
+        surfnames = [name for (name, refract_flag, ordinary_flag) in seq]
+    
+        hitlist_dict = {}
+        
+        hitlist = []    
+        
+        for (sb, se) in zip(surfnames[:-1], surfnames[1:]):
+            
+            hit = hitlist_dict.get((sb, se), 0)
+            hit += 1
+            hitlist_dict[(sb, se)] = hit
+            
+            hitlist.append((sb, se, hit))
+        
+        return hitlist
+
+    def calculateXYUV(self, pilotinitbundle, sequence, background_medium):
+
+        # TODO: needs heavy testing        
+        
+        def reduce_matrix(m):
+            return np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])
+        
+        hitlist = self.sequence_to_hitlist(sequence)        
+        
+        pilotraypath = self.seqtrace(pilotinitbundle, sequence, background_medium)
+        
+        startpilotbundle = pilotraypath.raybundles[:-1]        
+        endpilotbundle = pilotraypath.raybundles[1:]
+
+        XYUVmatrices = {}       
+       
+        for (pb1, pb2, surfhit) in zip(startpilotbundle, endpilotbundle, hitlist):
+            
+            (s1, s2, numhit) = surfhit
+            
+            lcstart = self.surfaces[s1].rootcoordinatesystem
+            lcend = self.surfaces[s2].rootcoordinatesystem            
+            
+            startx = lcstart.returnGlobalToLocalPoints(pb1.x[-1])
+            endx = lcend.returnGlobalToLocalPoints(pb2.x[-1])
+            startk = lcstart.returnGlobalToLocalDirections(pb1.k[-1])
+            endk = lcend.returnGlobalToLocalDirections(pb2.k[-1])
+            
+            startxred = reduce_matrix(startx)
+            endxred = reduce_matrix(endx)
+            startkred = reduce_matrix(startk)
+            endkred = reduce_matrix(endk)
+
+            startmatrix = np.vstack((startxred, startkred))
+            endmatrix = np.vstack((endxred, endkred))
+            transfer = np.dot(endmatrix, np.linalg.inv(startmatrix))
+
+            XYUVmatrices[(s2, s1, numhit)] = transfer
+            XYUVmatrices[(s1, s2, numhit)] = np.linalg.inv(transfer)
+       
+        return (pilotraypath, XYUVmatrices)
      
 
     def seqtrace(self, raybundle, sequence, background_medium):
@@ -129,6 +192,15 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
 
         return rpath
+        
+    
+    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium):
+        
+        rpath = RayPath(raybundle)
+        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium)
 
-
-
+        hitlist = helpers.sequence_to_hitlist(sequence)
+        
+        for (pilotraypathbundle, surfhit) in zip(pilotraypath.raybundles, hitlist):
+            print(pilotraypathbundle.x[-1])
+            print(surfhit)

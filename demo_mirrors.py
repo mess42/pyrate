@@ -40,8 +40,6 @@ from core.localcoordinates import LocalCoordinates
 
 from core.globalconstants import canonical_ey
 
-from core.helpers import sequence_to_hitlist
-
 import math
 
 wavelength = 0.5876e-3
@@ -114,9 +112,6 @@ sysseq_pilot = [("TMA",
                 ])
                 ] 
                 
-print(sequence_to_hitlist(sysseq_pilot[0][1]))
-
-
 phi = 5.*math.pi/180.0
 
 obj_dx = 0.1
@@ -143,19 +138,14 @@ pilotbundle2 = RayBundle(
 pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 #pilotray2 = s.elements["TMA"].seqtrace(pilotbundle2, sysseq[0][1], air)
 
-oea = OpticalElementAnalysis(s.elements["TMA"])
+(pilotray2, matrices) = s.elements["TMA"].calculateXYUV(pilotbundle2, sysseq[0][1], air)
 
-(pilotray2, matrices) = oea.calculateXYUV(pilotbundle2, sysseq[0][1], air)
-
-# TODO: these dictionary matrices are not compatible with bouncing pilotray and his buddies
-# TODO: tracing from object to image2 (where the focus is), picture looks good
-
-mat = np.dot(matrices[('image2', 'oapara')], 
-             np.dot(matrices[('oapara', 'image1')], 
-                    np.dot(matrices[('image1', 'm3')], 
-                           np.dot(matrices[('m3', 'm2')], 
-                                  np.dot(matrices[('m2', 'm1')], 
-                                         matrices[('m1', 'object')])))))
+mat = np.dot(matrices[('image2', 'oapara', 1)], 
+             np.dot(matrices[('oapara', 'image1', 1)], 
+                    np.dot(matrices[('image1', 'm3', 1)], 
+                           np.dot(matrices[('m3', 'm2', 1)], 
+                                  np.dot(matrices[('m2', 'm1', 1)], 
+                                         matrices[('m1', 'object', 1)])))))
 alpha = np.arange(0, 360, 10)
 
 pts = np.dot(mat, np.vstack((np.cos(alpha*math.pi/180.0), np.sin(alpha*math.pi/180.0), np.zeros_like(alpha), np.zeros_like(alpha))))
