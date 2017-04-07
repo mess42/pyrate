@@ -22,13 +22,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301, USA.
 """
 
-def test_smoke_doublet():
-    """Smoke test based on demo_doublet.py."""
+from nose.tools import with_setup
 
+__author__ = 'Thomas Heinze'
+
+def setup_function():
+    """Setup function, which is called before every test."""
     # we use the matplotlib's do nothing backend for testing
     # matplotlib/lib/matplotlib/backends/backend_template.py
     import matplotlib
     matplotlib.use('Template')
 
+@with_setup(setup_function)
+def test_smoke_doublet():
+    """Smoke test based on demo_doublet.py."""
     import demo_doublet
+    assert True
+
+@with_setup(setup_function)
+def test_smoke_mirrors():
+    """Smoke test based on demo_doublet.py."""
+    import demo_mirrors
     assert True

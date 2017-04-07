@@ -24,6 +24,8 @@ MA 02110-1301, USA.
 
 from core.stub import func
 
+__author__ = 'Thomas Heinze'
+
 def test_stub():
     """Test stub."""
     assert func(41) == 42
