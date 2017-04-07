@@ -25,13 +25,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 Here are global convenience and helper functions located.
 """
 import math
+import numpy as np
 
 from optical_system import OpticalSystem
 from localcoordinates import LocalCoordinates
 from optical_element import OpticalElement
 from surface import Surface
 from surfShape import Conic
-from globalconstants import numerical_tolerance
+from globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
+from ray import RayBundle
 
 def build_simple_optical_system(builduplist, matdict):
 
@@ -69,3 +71,20 @@ def build_simple_optical_system(builduplist, matdict):
 
     return s
     
+def build_pilotbundle(lc, (dx, dy), (phix, phiy), wave=standard_wavelength):
+    kwave = 2.*math.pi/wave
+    
+    xloc = np.array([[0, dx, 0, 0, 0], [0, 0, dy, 0, 0], [0, 0, 0, 0, 0]])
+    kloc = np.array([[0, 0, 0, kwave*math.sin(phix), 0], [0, 0, 0, 0, kwave*math.sin(phiy)], [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy)]])
+    Eloc = np.cross(kloc, canonical_ey, axisa=0, axisb=0).T    
+    
+    xglob = lc.returnLocalToGlobalPoints(xloc)
+    kglob = lc.returnLocalToGlobalDirections(kloc)
+    Eglob = lc.returnLocalToGlobalDirections(Eloc)
+    
+    pilotbundle = RayBundle(
+                x0 = xglob, 
+                k0 = kglob, 
+                Efield0 = Eglob, wave=wave
+                )
+    return pilotbundle

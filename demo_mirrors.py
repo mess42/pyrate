@@ -30,7 +30,6 @@ from core import raster
 from core import material
 from core import surfShape
 from core.optical_element import OpticalElement
-from core.optical_element_analysis import OpticalElementAnalysis
 from core.optical_system import OpticalSystem
 from core.surface import Surface
 from core.ray import RayBundle
@@ -41,6 +40,8 @@ from core.localcoordinates import LocalCoordinates
 from core.globalconstants import canonical_ey
 
 import math
+
+import core.helpers
 
 wavelength = 0.5876e-3
 
@@ -128,11 +129,7 @@ pilotbundle = RayBundle(
                 Efield0 = np.array([[1], [0], [0]]), wave=wavelength
                 )
 
-pilotbundle2 = RayBundle(
-                x0 = np.array([[0, obj_dx, 0, 0, 0], [0, 0, obj_dx, 0, 0], [0, 0, 0, 0, 0]]), 
-                k0 = np.array([[0, 0, 0, kwave*math.sin(obj_dphi), 0], [0, 0, 0, 0, kwave*math.sin(obj_dphi)], [kwave, kwave, kwave, kwave*math.cos(obj_dphi), kwave*math.cos(obj_dphi)]]), 
-                Efield0 = np.array([[1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]), wave=wavelength
-                )
+pilotbundle2 = core.helpers.build_pilotbundle(lc0, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
 
 
 pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
