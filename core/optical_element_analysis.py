@@ -21,11 +21,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import numpy as np
+
 
 class OpticalElementAnalysis:
     
     def __init__(self, oe):
         self.opticalelement = oe
         
+    def calcXYUV(self, parthitlist, pilotbundle, fullsequence, background_medium):
+        
+        # FIXME: to many parameters in call, maybe set pilotbundle and background medium in advance        
+        
+        (pilotpath, matrices) = self.opticalelement.calculateXYUV(pilotbundle, fullsequence, background_medium)
+        
+        tmp = np.eye(4)
+        
+        for hit in parthitlist:
+            tmp = np.dot(matrices[hit], tmp)            
 
-
+        return tmp
