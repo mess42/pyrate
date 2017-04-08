@@ -565,10 +565,10 @@ The fields $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permitt
 \end{eqnarray}
 where $\Vector{n}$ is the surface normal unit vector.
 From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_{in}$ and $\Efield_{in}$, 
-all reflected or refracted modes $\Dfield_{m}$ and $\Efield_{m}$ are to be modulated by the same in-plane wavevector component.
+all reflected or refracted modes $M$ are to be modulated by the same in-plane wavevector component.
 \begin{eqnarray}
-  \Dfield_{m}, \Efield_{m} &\propto& \exp( i \Wavevector_{m\parallel} \Location)|_{boundary} \\
-  \Wavevector_{m\parallel} &=& \Wavevector_{in\parallel}
+  \Dfield_{M}, \Efield_{M} &\propto& \exp( i \Wavevector_{M\parallel} \Location)|_{boundary} \\
+  \Wavevector_{M\parallel} &=& \Wavevector_{in\parallel}
 \end{eqnarray}
 The in-plane wave vector component is conserved.
 To find the reflected and refracted modes, 
@@ -608,9 +608,9 @@ The same holds for $\Wavevector_{t1,2}$ in isotropic media 2.
 \subsection{The Law of Refraction}
 Our formulation of the law of refraction and the law of reflection is
 \begin{eqnarray}
- \Wavevector_{m} &=& \Wavevector_{in\parallel} + \xi_m \Vector{n}\,.\label{eq:xieqn}
+ \Wavevector_{M} &=& \Wavevector_{in\parallel} + \xi_M \Vector{n}\,.\label{eq:xieqn}
 \end{eqnarray}
-The wavevectors of each mode $\Wavevector_m$ consist of the conserved in-plane component $\wavenumber_{in\parallel}$ and the out-of-plane component $\xi_m$. 
+The wavevectors of each mode $\Wavevector_M$ consist of the conserved in-plane component $\wavenumber_{in\parallel}$ and the out-of-plane component $\xi_M$. 
 Solving the material dispersion $\xi$, we find the directions of all refracted and reflected modes.
 Compared to the law of Snellius, this formulation bears the following advantages:
 \begin{itemize}
@@ -668,18 +668,28 @@ This is a quadratic equation in $\xi$.
 
 \subsection{Fresnel Coefficients}
 Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarizations
+\begin{subequations}
 \begin{eqnarray}
 (\Wavevector_{in}, \Wavevector_{r1}, \Wavevector_{r2}, \Wavevector_{t1}, \Wavevector_{t2}) \\
-(\Vector{e}_{in}, \Vector{e}_{r1}, \Vector{e}_{r2}, \Vector{e}_{t1}, \Vector{e}_{t2}) 
+(\Vector{e}_{in}, \Vector{e}_{r1}, \Vector{e}_{r2}, \Vector{e}_{t1}, \Vector{e}_{t2})
 \end{eqnarray}
-The electric fields of each mode $m$
+\end{subequations}
+The field of each mode $M \in \{ r1, r2, t1, t2 \}$
 \begin{eqnarray}
-\Efield_{m} = E_{m,0} \Vector{e}_{m} \exp{i \Wavevector_m \Location}
+\Efield_{M} &=& E_{M,0} \Vector{e}_{M} \exp{i \Wavevector_M \Location}
 \end{eqnarray}
-depends on the scalar amplitude $E_{m,0}$, containing mode strength and retardation.
-We combine equations \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} and yield
-
-TODO
+depends on the scalar amplitude $E_{M,0}$, containing mode strength and retardation.
+We combine equations \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} and yield the linear equation system
+\begin{eqnarray}
+ - E_{r1,0} ( \permittivity_1 \Vector{e}_{r1}) \Vector{n} - E_{r2,0} ( \permittivity_1 \Vector{e}_{r2}) \Vector{n} + E_{t1,0} ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n} + E_{t2,0} ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n} &=& \Dfield_{in} \Vector{n} \nonumber \\
+ - E_{r1,0} ( \Vector{e}_{r1} \times \Vector{n} ) - E_{r2,0} ( \Vector{e}_{r2} \times \Vector{n} ) + E_{t1,0} ( \Vector{e}_{t1} \times \Vector{n} ) + E_{t2,0} ( \Vector{e}_{t2} \times \Vector{n} )&=& \Efield_{in} \times \Vector{n} \nonumber \\
+\end{eqnarray}
+%where the vectorial equation is of rank 2. 
+%The fields further must fulfill the energy conservation 
+%\begin{eqnarray}
+% ( \Vector{S}_{in} + \Vector{S}_{r1} + \Vector{S}_{r2} + \Vector{S}_{t1} + \Vector{S}_{t2} ) \Vector{n} &=& 0
+%\end{eqnarray}
+%The Poynting vectors are proportional to a quadratic form of the electric field amplitudes, rendering the system of equations nonlinear (see equation \ref{eq:poyntingvector}).
 
 
 \chapter{Geometrical Optics}
