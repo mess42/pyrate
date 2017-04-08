@@ -45,6 +45,8 @@ def build_simple_optical_system(builduplist, matdict):
     """
     
     s = OpticalSystem() 
+    
+    
     lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
     elem = OpticalElement(lc0, label="stdelem")
@@ -57,9 +59,10 @@ def build_simple_optical_system(builduplist, matdict):
     
     refname = lc0.name
     lastmat = None
+    surflist_for_sequence = []
     for (r, cc, thickness, mat, comment) in builduplist:
         
-        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=comment, dez=thickness), refname=refname)
+        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=comment, decz=thickness), refname=refname)
         curv = 0
         if abs(r) > numerical_tolerance:
             curv = 1./r
@@ -67,13 +70,16 @@ def build_simple_optical_system(builduplist, matdict):
             curv = 0.
         actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc))
         elem.addSurface(comment, actsurf, (lastmat, mat))
+        print("addsurf: %s at material boundary %s" % (comment, (lastmat, mat)))        
         
         lastmat = mat
         refname = lc.name
+        surflist_for_sequence.append((comment, True, True))
             
     s.addElement("stdelem", elem)
+    stdseq = [("stdelem", surflist_for_sequence)]    
 
-    return s
+    return (s, stdseq)
     
 def build_pilotbundle(lc, (dx, dy), (phix, phiy), wave=standard_wavelength):
     kwave = 2.*math.pi/wave

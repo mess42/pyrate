@@ -29,9 +29,8 @@ import math
 from core import material
 from core import surfShape
 from core import optimize
-from core.ray import RayPath, RayBundle
+from core.ray import RayBundle
 
-from core import plots
 from core.aperture import CircularAperture, BaseAperture
 from core.localcoordinates import LocalCoordinates
 
