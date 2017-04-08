@@ -216,7 +216,7 @@ class IsotropicMaterial(Material):
         # return ray with new direction and properties of old ray
         # return only valid rays
         orig = raybundle.x[-1][:, valid]        
-        newk = k2[:, valid]
+        newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
         Efield = self.calcEfield(None, None, newk, wave=raybundle.wave)
 
@@ -241,7 +241,7 @@ class IsotropicMaterial(Material):
         # return ray with new direction and properties of old ray
         # return only valid rays
         orig = raybundle.x[-1][:, valid]        
-        newk = k2[:, valid]
+        newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
         Efield = self.calcEfield(None, None, newk, wave=raybundle.wave)
         
