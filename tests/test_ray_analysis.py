@@ -87,5 +87,18 @@ def test_direction_centroid():
    
     assert np.allclose(centroiddir, np.array([0, 0, 1]))
     
-test_direction_centroid()
-test_arc_length()
+def test_rms_angularsize():
+    
+    k0 = np.zeros((3, 5))
+    k0[2,:] = 1
+    
+    E0 = np.zeros((3, 5))
+    E0[1,:] = 1.
+    
+    raybundle = RayBundle(x0 = np.array([[1, 0, 0, 1, 2], [0, 1, 0, 1, 2], [0, 0, 1, 1, 2]]),
+                          k0 = k0, Efield0 = E0)
+                          
+    rayanalysis = RayBundleAnalysis(raybundle)
+    angularsize = rayanalysis.getRMSangluarSize(np.array([math.sin(1.*math.pi/180.0), 0, math.cos(1.*math.pi/180.0)]))
+   
+    assert np.isclose(angularsize, (1.*math.pi/180.0))

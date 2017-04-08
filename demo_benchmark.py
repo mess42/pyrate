@@ -25,116 +25,89 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-
-
-from core import pupil
-from core import field
-from core import raster
-from core import material
-from core import aim
-from core import surfShape
-from core.optical_system import OpticalSystem, Surface
-from core.ray import RayPath, RayBundle
-
-from core import plots
-from core.aperture import CircularAperture
-from core.coordinates import LocalCoordinates
-
-from globalconstants import standard_wavelength
-
 import math
+
+from core import raster
+from core.ray import RayBundle
+
+from core.globalconstants import standard_wavelength
+
+from core.helpers import build_simple_optical_system
+from core.globalconstants import canonical_ey
 
 wavelength = standard_wavelength
 
 # definition of optical system
-s = OpticalSystem() # objectDistance = 2.0
 
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0)) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0))
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0))
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0))
-lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0))
-lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0))
-lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0))
-lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0))
+mat_dict = {"glass":1.7, "glass2":1.5}
 
 
-s.insertSurface(1, Surface(lc1, surfShape.Conic(curv=1/-5.922), # thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), 
-                            aperture=CircularAperture(0.55)))
+(s, seq) = build_simple_optical_system(
+        [(-5.922, 0, 2.0, "glass", "surf1"),
+         (-3.160, 0, 3.0, None, "surf2"),
+         (15.884, 0, 5.0, "glass", "surf3"),
+        (-12.756, 0, 3.0, None, "surf4"),
+        (0, 0, 3.0, None, "stop"),
+        (3.125, 0, 2.0, "glass2", "surf5"),
+        (1.479, 0, 3.0, None, "surf6"),
+        (0, 0, 19.0, None, "surf7")
+         ], mat_dict)
 
-s.insertSurface(2, Surface(lc2, surfShape.Conic(curv=1/-3.160), # thickness=5.0, 
-                           aperture=CircularAperture(1.0)))
-
-s.insertSurface(3, Surface(lc3, surfShape.Conic(curv=1/15.884), #thickness=3.0,
-                           material=material.ConstantIndexGlass(1.7), 
-                            aperture=CircularAperture(1.3)))
-
-s.insertSurface(4, Surface(lc4, surfShape.Conic(curv=1/-12.756), #thickness=3.0,
-                           aperture=CircularAperture(1.3)))
-
-#s.insertSurface(5, Surface(surfShape.Decenter(dx = 0., dy = 1.), material=material.Tilt(angle=20.*np.pi/180.0, axis='X')))
-
-s.insertSurface(5, Surface(lc5, surfShape.Conic(), #thickness=2.0, 
-                           aperture=CircularAperture(1.01))) # Stop Surface
-
-s.insertSurface(6, Surface(lc6, surfShape.Conic(curv=1/3.125), #thickness=3.0,
-                           material=material.ConstantIndexGlass(1.5), 
-                            aperture=CircularAperture(1.0)))
-
-s.insertSurface(7, Surface(lc7, surfShape.Conic(curv=1/1.479), #thickness=19.0,
-                           aperture=CircularAperture(1.0)))
+nrays = 100000
+nrays_draw = 21
 
 
-s.insertSurface(8, Surface(lc8)) # image
-
+def collimated_bundle(nrays, startz, radius, rast):
+    rstobj = rast
+    (px, py) = rstobj.getGrid(nrays)
+    rpup = radius
+    o = np.vstack((rpup*px, rpup*py, startz*np.ones_like(px)))
+    k = np.zeros_like(o)
+    k[2,:] = 2.*math.pi/wavelength
+    E0 = np.cross(k, canonical_ey, axisa=0, axisb=0).T
+    return (o, k, E0)
 
 # benchmark
 
-# pilot bundle
-
-pts = np.array([[0,0, 0], [0.1, 0.2, 0.3], [0, 0, 0]])
-dirs = np.array([[0,0, 0], [0, 0, 0], [1, 1, 1]])
-
-pilotbundle = RayBundle(pts, dirs, s.surfaces[0].material, np.array([0, 1, 2]), wave=wavelength, pol=[])
-pilotpath = RayPath(pilotbundle, s)
-
-#print([blub.o for blub in pilotpath.raybundles])
-
 # definition of rays
-nray = 1E5 # number of rays
-aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.StopDiameter,
-                                            pupilSizeParameter=0.2,#3.0,
-                                            fieldType= field.ObjectHeight,
-                                            rasterType= raster.RectGrid,
-                                            nray=nray, wavelength=wavelength, stopPosition=5)
-initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
-nray = len(initialBundle.o[0, :])
+#nray = 1E5 # number of rays
+#aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.StopDiameter,
+#                                           pupilSizeParameter=0.2,#3.0,
+#                                            fieldType= field.ObjectHeight,
+#                                            rasterType= raster.RectGrid,
+#                                            nray=nray, wavelength=wavelength, stopPosition=5)
+#initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
+#nray = len(initialBundle.o[0, :])
 
+(x0, k0, E0) = collimated_bundle(nrays, -5., 1., raster.RectGrid())
 t0 = time.clock()
-r = RayPath(initialBundle, s)
-print "benchmark : ", time.clock() - t0, "s for tracing ", nray, " rays through ", len(s.surfaces) - 1, " surfaces."
-print "             That is ", int(round(nray * (len(s.surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second"
+initialraybundle = RayBundle(x0=x0, k0=k0, Efield0=E0)
+raypath = s.seqtrace(initialraybundle, seq)
+print "benchmark : ", time.clock() - t0, "s for tracing ", nrays, " rays through ", len(s.elements["stdelem"].surfaces) - 1, " surfaces."
+print "             That is ", int(round(nrays * (len(s.elements["stdelem"].surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second"
 
 # plot
-aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)
 
-initialBundle2 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
-r2 = RayPath(initialBundle2, s)
+(x0_draw, k0_draw, E0_draw)= collimated_bundle(nrays_draw, -5., 1., raster.MeridionalFan())
+initialraybundle_draw = RayBundle(x0=x0_draw, k0=k0_draw, Efield0=E0_draw)
+raypath_draw = s.seqtrace(initialraybundle_draw, seq)
 
-initialBundle3 = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0.1]), wavelength=wavelength)
-r3 = RayPath(initialBundle3, s)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
-
 ax.axis('equal')
-ax.set_axis_bgcolor('black')
+ax.set_axis_bgcolor('white')
 
-#plots.drawLayout2d(ax, s, [pilotpath])
-plots.drawLayout2d(ax, s, [r2,r3])
 
-print(s.getParaxialPupil( stopPosition=5, ray=initialBundle))
+phi = 0.#math.pi/4
+pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
+up = canonical_ey
+
+raypath_draw.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+for e in s.elements.itervalues():
+    for surfs in e.surfaces.itervalues():
+        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 plt.show()
 

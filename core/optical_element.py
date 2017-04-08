@@ -22,8 +22,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 
-from core.localcoordinatestreebase import LocalCoordinatesTreeBase
-from ray import RayPath
+from localcoordinatestreebase import LocalCoordinatesTreeBase
+from ray import RayPath, RayBundle
+
+import numpy as np
 
 
 class OpticalElement(LocalCoordinatesTreeBase):
@@ -96,6 +98,74 @@ class OpticalElement(LocalCoordinatesTreeBase):
             
         return returnmat
 
+    def sequence_to_hitlist(self, seq):
+        """
+        Converts surface sequence of optical element into hitlist which is
+        necessary to distinguish between multiple crossings of the pilot ray
+        between surface boundaries, due to the changed transfer matrices.
+        """
+        surfnames = [name for (name, refract_flag, ordinary_flag) in seq]
+    
+        hitlist_dict = {}
+        
+        hitlist = []    
+        
+        for (sb, se) in zip(surfnames[:-1], surfnames[1:]):
+            
+            hit = hitlist_dict.get((sb, se), 0)
+            hit += 1
+            hitlist_dict[(sb, se)] = hit
+            
+            hitlist.append((sb, se, hit))
+        
+        return hitlist
+
+    def calculateXYUV(self, pilotinitbundle, sequence, background_medium):
+
+        # TODO: needs heavy testing        
+        
+        def reduce_matrix(m):
+            """
+            Pilot ray is at position 0 (hail to the chief ray) in the pilot bundle.
+            We first subtract the pilot ray and afterwards take the first two lines (x, y) from
+            the components without pilot ray.
+            """
+            return np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])
+        
+        hitlist = self.sequence_to_hitlist(sequence)        
+        
+        pilotraypath = self.seqtrace(pilotinitbundle, sequence, background_medium)
+        
+        startpilotbundle = pilotraypath.raybundles[:-1]        
+        endpilotbundle = pilotraypath.raybundles[1:]
+
+        XYUVmatrices = {}       
+       
+        for (pb1, pb2, surfhit) in zip(startpilotbundle, endpilotbundle, hitlist):
+            
+            (s1, s2, numhit) = surfhit
+            
+            lcstart = self.surfaces[s1].rootcoordinatesystem
+            lcend = self.surfaces[s2].rootcoordinatesystem            
+            
+            startx = lcstart.returnGlobalToLocalPoints(pb1.x[-1])
+            endx = lcend.returnGlobalToLocalPoints(pb2.x[-1])
+            startk = lcstart.returnGlobalToLocalDirections(pb1.k[-1])
+            endk = lcend.returnGlobalToLocalDirections(pb2.k[-1])
+            
+            startxred = reduce_matrix(startx)
+            endxred = reduce_matrix(endx)
+            startkred = reduce_matrix(startk)
+            endkred = reduce_matrix(endk)
+
+            startmatrix = np.vstack((startxred, startkred))
+            endmatrix = np.vstack((endxred, endkred))
+            transfer = np.dot(endmatrix, np.linalg.inv(startmatrix))
+            
+            XYUVmatrices[(s1, s2, numhit)] = transfer
+            XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer)
+       
+        return (pilotraypath, XYUVmatrices)
      
 
     def seqtrace(self, raybundle, sequence, background_medium):
@@ -108,9 +178,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
             
             current_bundle = rpath.raybundles[-1]
             current_surface = self.__surfaces[surfkey]
-            
-            #print(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1)))
-            #print(current_surface.shape.getNormalDerivative(rpath.raybundles[-1].x[-1, :, 0].reshape((3, 1))))
             
             current_material.propagate(current_bundle, current_surface)
             
@@ -127,6 +194,63 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
 
         return rpath
+        
+    
+    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium):
+        
+        rpath = RayPath(raybundle)
+        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium)
 
+        hitlist = self.sequence_to_hitlist(sequence)
+        
+        for (ps, pe, surfhit) in zip(pilotraypath.raybundles[:-1], pilotraypath.raybundles[1:], hitlist):
+            (surf_start_key, surf_end_key, hit) = surfhit
 
+            surf_start = self.__surfaces[surf_start_key]
+            surf_end = self.__surfaces[surf_end_key]
+            
+            x0_glob = rpath.raybundles[-1].x[-1]
+            k0_glob = rpath.raybundles[-1].k[-1]
 
+            newbundle = RayBundle(x0_glob, k0_glob, None, rpath.raybundles[-1].rayID, wave=rpath.raybundles[-1].wave)
+
+            x0 = surf_start.rootcoordinatesystem.returnGlobalToLocalPoints(x0_glob)
+            k0 = surf_start.rootcoordinatesystem.returnGlobalToLocalDirections(k0_glob)
+            
+            px0 = surf_start.rootcoordinatesystem.returnGlobalToLocalPoints(ps.x[-1][:, 0].reshape((3, 1)))
+            pk0 = surf_start.rootcoordinatesystem.returnGlobalToLocalDirections(ps.k[-1][:, 0].reshape((3, 1)))
+
+            px1 = surf_end.rootcoordinatesystem.returnGlobalToLocalPoints(pe.x[-1][:, 0].reshape((3, 1)))
+            pk1 = surf_end.rootcoordinatesystem.returnGlobalToLocalDirections(pe.k[-1][:, 0].reshape((3, 1)))
+
+            
+            dx0 = (x0 - px0)[0:2]
+            dk0 = (k0 - pk0)[0:2]
+            
+            DX0 = np.vstack((dx0, dk0))
+            DX1 = np.dot(matrices[surfhit], DX0)
+            # multiplication is somewhat contra-intuitive
+            # Xend = M("surf2", "surf3", 1) M("surf1", "surf2", 1) X0
+            
+            dx1 = DX1[0:2]
+            dk1 = DX1[2:4]
+            
+            (num_dims, num_pts) = np.shape(dx1)            
+            
+            dx1 = np.vstack((dx1, np.zeros(num_pts)))
+            dk1 = np.vstack((dk1, np.zeros(num_pts)))
+            
+            x1 = surf_end.rootcoordinatesystem.returnLocalToGlobalPoints(dx1 + px1)
+            k1 = surf_end.rootcoordinatesystem.returnLocalToGlobalDirections(dk1 + pk1) 
+
+            newbundle.append(x1, k1, newbundle.Efield[0], np.ones(num_pts, dtype=bool))
+            
+            #surf_end.intersect(newbundle)           
+            
+            # FIXME: leads to changes in the linearized raybundles due to modifications
+            # at the surface boundaries; we have to perform the aperture check ourselves
+            
+            
+            rpath.appendRayBundle(newbundle)
+
+        return (pilotraypath, rpath)

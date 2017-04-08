@@ -13,7 +13,7 @@ install:
   - pip-compile                       # requirements.in -> requirements.txt
   - pip install -r requirements.txt   # install pyrate dependences
 script:
-  - python -m py.test --cov=core  # test automation
+  - python -m nose --with-coverage --cover-package=core  # test automation
 after_success:
-  - coveralls     # submit coverage information to coveralls.io
+  - coveralls     # submit test coverage information to coveralls.io
 
