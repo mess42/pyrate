@@ -113,6 +113,7 @@
 \newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
 \newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
 
+\newcommand{\orderof}[1]{\mathcal{O}(#1)}
 
 
 \begin{document}
@@ -506,7 +507,7 @@ we replace $E_z \rightarrow E_i e_{\eo, i}$ and find
       \scalarEfield_i \overline{\scalarEfield}_i \wavenumber_j
       + \left(\frac{\scalarpermittivity_{\ordi}}{\scalarpermittivity_\eo} - 1\right)
         (\scalarEfield_m e_{\eo,m}) (\wavenumber_n e_{\eo,n}) \overline{\scalarEfield}_j
-  \right]\,.\label{eq:Suniaxialeo}
+  \right]
 \end{eqnarray}
 
 
@@ -1183,23 +1184,149 @@ $D$ is unitless.
 An infinite to infinite system cannot be refocused by adding a finite air distance on either object or image side.
 
 
+\subsection{Pilot Ray Concept}
 
-\subsection{Limits of the ABCD formalism}
-The ABCD formalism allows for very fast calculations and is invaluable in the pre-design stage. 
-However, compared to real ray tracing, it has the following drawbacks:
-\begin{itemize}
- \item It can only describe one ray fan in the meridional plane and requires all rays to stay within this plane. This means that, in general, non-centrosymmetric systems cannot be described within the ABCD formalism.
- \item That is: no freeshape elements, no cylinder lenses, no off-axis parabolic mirrors, no tilted elements, no decentered elements.
- \item The formalism only works for paraxial rays.
- \item Distortion cannot be described.
- \item Aberrations cannot be described, with the exception of chromatic lateral and transversal aberrations.
-\end{itemize}
+\subsubsection{Motivation}
 
-A more precise representation of rays can be achieved by extending the ABCD formalism to 3-dimensional rays.
+The ABCD ansatz allows for very fast calculations and is invaluable in the pre-design stage.
+Its simplicity, however, comes with the restriction to centro-symmetric systems and the need for an optical axis.
 
-\subsection{XYUV formalism} \label{subseq:xyuv_formalism}
+In systems like Offner systems or off-axis parabolic mirrors, the center-of-field chief ray is no more aligned with the axis of rotational symmetry of the surfaces.
+In these systems, it is no longer sufficient to obtain first order properties from the central curvature on the axis of symmetry of each surface.
+In other systems, like freeshape Schiefspiegler telescopes, there is no axis of symmetry at all. 
+Anamorphotic systems, on the other hand, often have an optical axis, but do not have the same effective surface curvature in all meridional planes.
 
-todo
+In this section, we develop a description for the first order properties of optical systems 
+and describe rotationally symmetric and non-symmetric systems with a single formalism.
+It is a formalism for rays close to the center-of-field chief ray, which we call \emph{pilot ray} in the following.
+This pilot ray takes the role of the optical axis in rotationally symmetric systems. 
+By choosing the term pilot ray, we want to avoid confusions with mechanical symmetry axes of sub-systems.
+In many systems, the intial pilot ray direction is perpendicular to the object plane. 
+An exception is found, for example, in Scheimpflug systems.
+
+
+
+\subsubsection{Propagation of rays through an optical system}
+Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
+From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
+The concept is a parabasal approximation around a non-paraxial pilot ray.
+It is a generalization of the ABCD formalism. 
+We describe the vectorial deviation from the pilot ray position and direction.
+We consider near-pilot rays, that have an intersection point and a wavevector close to the pilot ray.
+
+\begin{tabular}{ l | l | l }
+		    & pilot ray & near-pilot ray \\
+& & \\ \hline & & \\
+intersection point  & $\Vector{r}_{pilot}$ & ${\Vector{r}} = \Vector{r}_{pilot} + \Delta\Vector{r}$ \\
+wavevector  & $\Wavevector_{pilot}$ & ${\Wavevector} = \Wavevector_{pilot} + \Delta\Wavevector$ \\
+ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \Delta\Vector{d}$ \\
+surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
+\end{tabular}\\[2ex]
+We represent the propagation of these deviations through the optical system by a propagation operator $\hat{G}$
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
+That is $\hat{G}\Vector{0} = \Vector{0}$.
+In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
+$\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
+The linear terms in $\hat{G}$ can be represented by a matrix,
+and we can express the effect of multiple propagators as the product of its matrices.
+The individual propagators can be, for example, free space propagation or surface refraction.
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot
+ \begin{pmatrix}
+  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+
+In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
+In the following, we discuss the rank of the matrices $\hat{G}$ and the basis of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+
+
+\subsubsection{Near-Pilot Basis Systems}
+
+The deviations may not be chosen freely, but we need to choose
+$\Delta\Vector{r}$, $\Delta\Wavevector$ and $\Delta\Vector{d}$ 
+in a way so that both pilot and near-pilot rays
+have valid properties.
+Intersection points must lay on the surface,
+wavevectors must obey the dispersion relation 
+and ray direction vectors must be of unit length.
+This limits the degrees of freedom for the deviations.
+
+
+\paragraph{Wavevectors}
+Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
+In contrast to the real valued ray directions, wavevectors may be complex valued.
+
+\paragraph{Isotropic, homogenous media.}
+
+The dispersion in isotropic media reads
+\begin{eqnarray}
+ \Wavevector \cdot \Wavevector &=& \Wavevector_{pilot} \cdot \Wavevector_{pilot} = \omega^2 \vacuumpermeability \scalarpermittivity
+\end{eqnarray}
+Near-pilot rays must fulfill
+\begin{eqnarray}
+ \Delta \Wavevector \cdot \Wavevector_{pilot} &=& 0 + 0i
+\end{eqnarray}
+We represent $\Delta \Wavevector$ as
+\begin{eqnarray}
+ \Delta \Wavevector &=& M \Vector{e}_U + N \Vector{e}_V
+\end{eqnarray}
+where $\Vector{e}_U$ and $\Vector{e}_V$ are two real valued, independent unit vectors and $M,N$ are complex valued prefactors.
+
+\paragraph{Anisotropic, homogeneous media.}
+TODO
+
+\paragraph{Inhomogenous media.}
+TODO
+One should consider that the pilot ray does not have \emph{one} direction over all its trajectory.
+
+\paragraph{Intersection points}
+
+We demand that near-pilot intersection points are on the surface.
+In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
+We represent the ray height in this plane by
+
+\begin{eqnarray}
+ \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
+ \label{eq:deltaR_equals_XY}
+\end{eqnarray}
+where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
+
+\subsubsection{Obtaining an XYUV matrix}
+We choose the object sided basis vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
+in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
+as described in the previous section.
+We trace the pilot ray to the final surface 
+and define the near-pilot basis vectors in the final plane $\Vector{e}_{X,fin}, \Vector{e}_{Y,fin}, \Vector{e}_{U,fin}, \Vector{e}_{V,fin}$.
+The propagator for near-pilot rays is the Jacobi matrix
+\begin{eqnarray}
+ \hat{G} &=& 
+ \begin{pmatrix}
+  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial U_{obj}} & \frac{\partial X_{fin}}{\partial V_{obj}} \\[2ex]
+  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial U_{obj}} & \frac{\partial Y_{fin}}{\partial V_{obj}} \\[2ex]
+  \frac{\partial U_{fin}}{\partial X_{obj}} & \frac{\partial U_{fin}}{\partial Y_{obj}} & \frac{\partial U_{fin}}{\partial U_{obj}} & \frac{\partial U_{fin}}{\partial V_{obj}} \\[2ex]
+  \frac{\partial V_{fin}}{\partial X_{obj}} & \frac{\partial V_{fin}}{\partial Y_{obj}} & \frac{\partial V_{fin}}{\partial U_{obj}} & \frac{\partial V_{fin}}{\partial V_{obj}} 
+ \end{pmatrix}
+\end{eqnarray}
+We obtain this matrix by performing Taylor expansions of all propagation, refraction, and coordinate transformation operations around the pilot ray.
+For systems where an explicit calculation is not possible, it can be approximated by differential quotients of real ray traces.
+
+
 
 
 \chapter{Raytracing}
