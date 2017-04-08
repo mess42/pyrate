@@ -61,7 +61,7 @@ class RayBundle(object):
         self.valid = np.ones((1, numray), dtype=bool)
         
         self.wave = wave
-        if Efield0 == [] or len(Efield0) == 0:
+        if Efield0 == None or len(Efield0) == 0:
             self.Efield = np.zeros(newshape)
             self.Efield[:, 1, :] = 1.
         else:
