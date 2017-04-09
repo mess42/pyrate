@@ -680,17 +680,18 @@ The field of each mode $M \in \{ r1, r2, t1, t2 \}$
 \Efield_{M} &=& E_{M,0} \Vector{e}_{M} \exp{i \Wavevector_M \Location}
 \end{eqnarray}
 depends on the scalar amplitude $E_{M,0}$, containing mode strength and retardation.
-We combine equations \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} and yield the linear equation system
-\begin{eqnarray}
- - E_{r1,0} ( \permittivity_1 \Vector{e}_{r1}) \Vector{n} - E_{r2,0} ( \permittivity_1 \Vector{e}_{r2}) \Vector{n} + E_{t1,0} ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n} + E_{t2,0} ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n} &=& \Dfield_{in} \Vector{n} \nonumber \\
- - E_{r1,0} ( \Vector{e}_{r1} \times \Vector{n} ) - E_{r2,0} ( \Vector{e}_{r2} \times \Vector{n} ) + E_{t1,0} ( \Vector{e}_{t1} \times \Vector{n} ) + E_{t2,0} ( \Vector{e}_{t2} \times \Vector{n} )&=& \Efield_{in} \times \Vector{n} \nonumber \\
-\end{eqnarray}
-%where the vectorial equation is of rank 2. 
-%The fields further must fulfill the energy conservation 
-%\begin{eqnarray}
-% ( \Vector{S}_{in} + \Vector{S}_{r1} + \Vector{S}_{r2} + \Vector{S}_{t1} + \Vector{S}_{t2} ) \Vector{n} &=& 0
-%\end{eqnarray}
-%The Poynting vectors are proportional to a quadratic form of the electric field amplitudes, rendering the system of equations nonlinear (see equation \ref{eq:poyntingvector}).
+We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} with this ansatz and yield the linear equation system
+\begingroup \tiny
+\begin{subequations}
+\begin{align}
+   - ( \permittivity_1 \Vector{e}_{r1}) \Vector{n}                 E_{r1,0} &-& ( \permittivity_1 \Vector{e}_{r2}) \Vector{n}                 E_{r2,0} &+& ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n}           E_{t1,0} &+& ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n}           E_{t2,0} &=& \Dfield_{in} \Vector{n} \\
+   - ( \Wavevector_{r1} \times \Vector{e}_{r1} ) \Vector{n}        E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} ) \Vector{n}        E_{r2,0} &+& ( \Wavevector \times \Vector{e}_{t1} ) \Vector{n}        E_{t1,0} &+& ( \Wavevector \times \Vector{e}_{t2} ) \Vector{n}        E_{t2,0} &=& ( \Wavevector_{in} \times \Efield_{in}) \Vector{n} \\
+   - ( \Vector{e}_{r1} \times \Vector{n} )                         E_{r1,0} &-& ( \Vector{e}_{r2} \times \Vector{n} )                         E_{r2,0} &+& ( \Vector{e}_{t1} \times \Vector{n} )                    E_{t1,0} &+& ( \Vector{e}_{t2} \times \Vector{n} )                    E_{t2,0} &=& \Efield_{in} \times \Vector{n} \\
+   - ( \Wavevector_{r1} \times \Vector{e}_{r1} ) \times \Vector{n} E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} ) \times \Vector{n} E_{r2,0} &+& ( \Wavevector \times \Vector{e}_{t1} ) \times \Vector{n} E_{t1,0} &+& ( \Wavevector \times \Vector{e}_{t2} ) \times \Vector{n} E_{t2,0} &=& ( \Wavevector_{in} \times \Efield_{in}) \times \Vector{n} 
+\end{align}
+\end{subequations}
+\endgroup
+The system contains scalar and three-dimensional vectorial equations, but is not of full rank.
 
 
 \chapter{Geometrical Optics}
