@@ -162,7 +162,7 @@ class IsotropicMaterial(Material):
     def refract(self, raybundle, actualSurface):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        
+                
         globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
         normal = self.lc.returnGlobalToLocalDirections(globalnormal)
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])

@@ -33,6 +33,7 @@ import matplotlib.pyplot as plt
 
 from core import raster
 from core.material_grin import IsotropicGrinMaterial
+from core.material import ConstantIndexGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -52,7 +53,7 @@ wavelength = 0.5876e-3
 s = OpticalSystem() 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="obj", decz=0.0), refname=s.rootcoordinatesystem.name)
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=10.0), refname=lc0.name) # objectDist
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=10.0, tiltx=5.*math.pi/180.0), refname=lc0.name) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=20.0, tiltx=10.*math.pi/180.0), refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=10.0), refname=lc2.name)
 
@@ -64,14 +65,17 @@ image = Surface(lc3)
 
 elem = OpticalElement(lc0, label="grinelement")
 
+grin_strength = 0.5
+
+
 def nfunc(x):
-    return 0.5*np.exp(-x[0]**2 - 4.*x[1]**2)+1.0#(2.5 - (x**2 + 100.0*y**4)/10.**2)
+    return grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)+1.0#(2.5 - (x**2 + 100.0*y**4)/10.**2)
 
 def dndx(x):
-    return -2.*x[0]*0.5*np.exp(-x[0]**2 - 4.*x[1]**2)#-2*x/10.**2
+    return -2.*x[0]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)#-2*x/10.**2
 
 def dndy(x):
-    return -2.*4.*x[1]*0.5*np.exp(-x[0]**2 - 4.*x[1]**2) #-100.0*4.0*y**3/10.**2
+    return -2.*4.*x[1]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2) #-100.0*4.0*y**3/10.**2
 
 def dndz(x):
     return np.zeros_like(x[0])
@@ -79,6 +83,7 @@ def dndz(x):
 def bnd(x):
     return x[0]**2 + x[1]**2 < 10.**2
 
+#grinmaterial = ConstantIndexGlass(lc1, 1.0 + grin_strength) 
 grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz, bnd, ds=0.1, energyviolation=0.01)
 
 elem.addMaterial("grin", grinmaterial)

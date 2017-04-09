@@ -65,8 +65,6 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         startpoint = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
         startdirection = self.lc.returnGlobalToLocalDirections(raybundle.returnKtoD()[-1])
 
-        print(startpoint)
-
         ci = [1.0/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),1.0/(2.0*(2.0 - 2.0**(1./3.)))]
         di = [1.0/(2.0 - 2.0**(1./3.)),(-2.0**(1./3.))/((2.0 - 2.0**(1./3.))),1.0/(2.0 - 2.0**(1./3.)),0.0]
 
@@ -135,8 +133,6 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             xglobalnewpos = self.lc.returnLocalToGlobalPoints(newpos)                        
             xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(xglobalnewpos)
 
-            print(xshape[2])
-
             final = (xshape[2] - nextSurface.shape.getSag(xshape[0], xshape[1]) > 0)
             # has ray reached next surface? if yes: mark as final
 
@@ -149,7 +145,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             updatedpos[:,True - final] = newpos[:,True - final]
             updatedvel[:,True - final] = newvel[:,True - final]
 
-            newk = updatedvel/self.nfunc(updatedpos)
+            newk = 2.*math.pi/raybundle.wave*updatedvel/self.nfunc(updatedpos)
             Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))
             kapp = self.lc.returnLocalToGlobalDirections(newk)            
             xapp = self.lc.returnLocalToGlobalPoints(updatedpos)            
@@ -169,8 +165,6 @@ class IsotropicGrinMaterial(IsotropicMaterial):
 
         #for ind, pt in enumerate(pointstodraw):
         #    FreeCAD.Console.PrintMessage("symint: " + str(ind) + ": " + str(pt)+"\n")
-
-        print(energies)
 
         return (positions, velocities, pointstodraw, momentatodraw, energies, valid)
 
