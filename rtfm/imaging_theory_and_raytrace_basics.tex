@@ -680,7 +680,7 @@ The field of each mode $M \in \{ r1, r2, t1, t2 \}$
 \Efield_{M} &=& E_{M,0} \Vector{e}_{M} \exp{i \Wavevector_M \Location}
 \end{eqnarray}
 depends on the scalar amplitude $E_{M,0}$, containing mode strength and retardation.
-We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} with this ansatz and yield the linear equation system
+We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} with this ansatz and yield a linear equation system
 \begingroup \tiny
 \begin{subequations}
 \begin{align}
@@ -692,6 +692,15 @@ We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:mode
 \end{subequations}
 \endgroup
 The system contains scalar and three-dimensional vectorial equations, but is not of full rank.
+All prefactors of the scalar amplitudes $E_{M,0}$ are known, as well as the incident wave properties on the right hand side of the equations.
+This allows us to solve the equation system
+\begin{eqnarray}
+ \begin{pmatrix}
+  E_{r1,0} \\ E_{r2,0} \\ E_{t1,0} \\ E_{t2,0} 
+ \end{pmatrix}
+ &=&
+ TODO
+\end{eqnarray}
 
 
 \chapter{Geometrical Optics}
