@@ -114,10 +114,6 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             positions.append(newpos)
             velocities.append(newvel)
 
-            newk = newvel/self.nfunc(newpos)
-            Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))
-            kapp = self.lc.returnLocalToGlobalDirections(newk)            
-            xapp = self.lc.returnLocalToGlobalPoints(newpos)            
             
             
 
@@ -136,7 +132,8 @@ class IsotropicGrinMaterial(IsotropicMaterial):
                 valid[:] = False # all rays with energy violation are not useful due to integration errors
                 # TODO: report to user via some kind of fancy interface
 
-            xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(xapp)
+            xglobalnewpos = self.lc.returnLocalToGlobalPoints(newpos)                        
+            xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(xglobalnewpos)
 
             print(xshape[2])
 
@@ -151,6 +148,11 @@ class IsotropicGrinMaterial(IsotropicMaterial):
 
             updatedpos[:,True - final] = newpos[:,True - final]
             updatedvel[:,True - final] = newvel[:,True - final]
+
+            newk = updatedvel/self.nfunc(updatedpos)
+            Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))
+            kapp = self.lc.returnLocalToGlobalDirections(newk)            
+            xapp = self.lc.returnLocalToGlobalPoints(updatedpos)            
 
             pointstodraw.append(1.*updatedpos)
             momentatodraw.append(1.*updatedvel)
