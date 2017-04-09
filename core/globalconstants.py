@@ -34,5 +34,5 @@ canonical_ex = np.array([1, 0, 0])
 canonical_ey = np.array([0, 1, 0])
 canonical_ez = np.array([0, 0, 1])
 
-numerical_tolerance = 1e-14
+numerical_tolerance = 1e-17
 
