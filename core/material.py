@@ -69,7 +69,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         raise NotImplementedError()
 
 
-    def getEpsilonTensor(self, wave=standard_wavelength):
+    def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
         """
         Calculate epsilon tensor if needed. (isotropic e.g.) eps = diag(3)*n^2
         
@@ -77,7 +77,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
         
-    def calcXi(self, n, k_inplane, wave=standard_wavelength):
+    def calcXi(self, x, n, k_inplane, wave=standard_wavelength):
         """
         Calculate normal component of k after refraction.
         
@@ -91,11 +91,11 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
         
-    def calcXiNormalDerivative(self, n, k_inplane, wave=standard_wavelength):
+    def calcXiNormalDerivative(self, x, n, k_inplane, wave=standard_wavelength):
         
         raise NotImplementedError()
         
-    def calcXiKinplaneDerivative(self, n, k_inplane, wave=standard_wavelength):
+    def calcXiKinplaneDerivative(self, x, n, k_inplane, wave=standard_wavelength):
 
         raise NotImplementedError()
         
@@ -114,49 +114,12 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
-    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        """
-        Returns an ABCD matrix of the current surface.
-        The matrix is set up in geometric convention for (y, dy/dz) vectors.
-
-        The matrix contains:
-        - paraxial refraction from vacuum through the front surface
-        - paraxial translation through the material
-        - paraxial refraction at the rear surface into vacuum
-
-        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ),
-        this method picks the correct paraxial propagators.
-
-        :param curvature: front surface (self.) curvature on the optical axis (float)
-        :param thickness: material thickness on axis (float)
-        :param nextCurvature: rear surface curvature on the optical axis (float)
-        :param ray: ray bundle to obtain wavelength (RayBundle object)
-        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
-        """
-        raise NotImplementedError()
-
-    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
-        """
-        Returns an XYUV1 (5x5) matrix of the current surface.
-        The matrix is set up in geometric convention for (y, dy/dz) vectors.
-
-        The matrix contains:
-        - paraxial refraction from vacuum through the front surface
-        - paraxial translation through the material
-        - paraxial refraction at the rear surface into vacuum
-
-        Depending on the material type ( isotropic or anisotropic, homogeneous or gradient index, ... ),
-        this method picks the correct paraxial propagators.
-
-        :param curvature: front surface (self.) curvature on the optical axis (float)
-        :param thickness: material thickness on axis (float)
-        :param nextCurvature: rear surface curvature on the optical axis (float)
-        :param ray: ray bundle to obtain wavelength (RayBundle object)
-        :return xyuv1: XYUV1 matrix (2d numpy 5x5 matrix of float)
-        """
-        raise NotImplementedError()
         
     def propagate(self, raybundle, nextSurface):
+        """
+        Propagates raybundle to nextSurface. In the most simple case this
+        just adds the end point at nextSurface intersection to the raybundle
+        """
         raise NotImplementedError()
 
 
@@ -187,7 +150,7 @@ class IsotropicMaterial(Material):
         # Depends on x in general: to be compatible with grin materials
         # and to reduce reimplementation effort
         
-        k2_squared = 4.*math.pi**2/wave**2/3.*np.trace(self.getEpsilonTensor(None, None, None, wave))
+        k2_squared = 4.*math.pi**2/wave**2/3.*np.trace(self.getEpsilonTensor(x, normal, None, wave))
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
         # make total internal reflection invalid
@@ -204,10 +167,11 @@ class IsotropicMaterial(Material):
         
         globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
         normal = self.lc.returnGlobalToLocalDirections(globalnormal)
+        xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (xi, valid_refraction) = self.calcXi(None, normal, k_inplane, wave=raybundle.wave)
+        (xi, valid_refraction) = self.calcXi(xlocal, normal, k_inplane, wave=raybundle.wave)
         
         valid = raybundle.valid[-1] * valid_refraction
 
@@ -218,7 +182,7 @@ class IsotropicMaterial(Material):
         orig = raybundle.x[-1][:, valid]        
         newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
-        Efield = self.calcEfield(None, None, newk, wave=raybundle.wave)
+        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
 
         return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
 
@@ -229,10 +193,11 @@ class IsotropicMaterial(Material):
         
         globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
         normal = self.lc.returnGlobalToLocalDirections(globalnormal)
+        xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (xi, valid_refraction) = self.calcXi(None, normal, k_inplane, wave=raybundle.wave)
+        (xi, valid_refraction) = self.calcXi(xlocal, normal, k_inplane, wave=raybundle.wave)
         
         valid = raybundle.valid[-1] * valid_refraction
 
@@ -243,7 +208,7 @@ class IsotropicMaterial(Material):
         orig = raybundle.x[-1][:, valid]        
         newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
-        Efield = self.calcEfield(None, None, newk, wave=raybundle.wave)
+        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
         
         return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
 
@@ -272,7 +237,13 @@ class ConstantIndexGlass(IsotropicMaterial):
 
             
     def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
-        return np.eye(3)*self.n()**2
+        (num_dims, num_pts) = np.shape(x)
+        mat = np.zeros((num_dims, num_dims, num_pts))
+        mat[0, 0, :] = 1.
+        mat[1, 1, :] = 1.
+        mat[2, 2, :] = 1.
+        
+        return mat*self.n()**2
 
 
     def setCoefficients(self, n):
@@ -285,39 +256,6 @@ class ConstantIndexGlass(IsotropicMaterial):
 
     def getIndex(self, ray):
         return self.n.evaluate()
-
-    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        n = self.getIndex(ray)
-        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
-        abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
-        return abcd
-
-    def getXYUV1Matrix(self, curvature, thickness, nextCurvature, ray):
-        n = self.getIndex(ray)
-        xyuv1 = np.dot([
-                       [1, 0, thickness, 0, 0],
-                       [0, 1, 0, thickness, 0],
-                       [0, 0, 1, 0, 0],
-                       [0, 0, 0, 1, 0],
-                       [0, 0, 0, 0, 1]
-                       ],
-                      [
-                       [1, 0, 0, 0, 0],
-                       [0, 1, 0, 0, 0],
-                       [(1./n-1)*curvature, 0, 1./n, 0, 0],
-                       [0, (1./n-1)*curvature, 0, 1./n, 0],
-                       [0,0,0,0,1]
-                       ]
-                      )  # translation * front
-        xyuv1 = np.dot(
-                      [
-                       [1, 0, 0, 0, 0],
-                       [0, 1, 0, 0, 0],
-                       [(n-1)*nextCurvature, 0, n, 0, 0],
-                       [0, (n-1)*nextCurvature, 0, n, 0],
-                       [0,0,0,0,1]
-                       ], xyuv1)                      # rear * abcd
-        return xyuv1
 
 
 
@@ -411,219 +349,5 @@ class ModelGlass(ConstantIndexGlass):
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
-
-
-class IsotropicGrinMaterial(IsotropicMaterial):
-    def __init__(self, lc, fun, dfdx, dfdy, dfdz, ds, energyviolation, bndfunction, name="", comment=""):
-        super(IsotropicGrinMaterial, self).__init__(lc, name=name, comment=comment)
-        self.nfunc = fun
-        self.dfdx = dfdx
-        self.dfdy = dfdy
-        self.dfdz = dfdz
-        self.ds = ds
-        self.energyviolation = energyviolation
-        self.boundaryfunction = bndfunction
-
-
-    def inBoundary(self, x, y, z):
-        return self.boundaryfunction(x, y, z)
-
-
-    def symplecticintegrator(self, startpoint, startdir, tau, maxzval, offz, actualSurface, nextSurface):
-
-
-
-        ci = [1.0/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),1.0/(2.0*(2.0 - 2.0**(1./3.)))]
-        di = [1.0/(2.0 - 2.0**(1./3.)),(-2.0**(1./3.))/((2.0 - 2.0**(1./3.))),1.0/(2.0 - 2.0**(1./3.)),0.0]
-
-
-        optindstart = self.nfunc(startpoint[0], startpoint[1], startpoint[2] + offz)
-        positions = [1.*startpoint]
-        velocities = [1.*optindstart*startdir]
-
-        energies = []
-        phasespace4d = []
-
-        path = 0.
-
-        loopcount = 0
-
-        valid = np.ones_like(startpoint[0], dtype=bool)
-        final = np.zeros_like(startpoint[0], dtype=bool)
-
-        pointstodraw = []
-        momentatodraw = []
-
-        updatedpos = startpoint
-        updatedvel = velocities[-1]
-
-
-        #updatedpos[2] += offz
-
-        while not all(final): #path < geompathlength: # criterion z>=d, maxsteps oder x**2 + y**2 >= r
-            loopcount += 1
-            lastpos = positions[-1]
-            lastvel = velocities[-1]
-
-
-            #updatedpos = lastpos
-            #updatedpos[:, True - final] = lastpos[:, True - final]
-
-            for i in range(len(ci)):
-                newpos = lastpos + tau*ci[i]*2.0*lastvel
-                newvel = lastvel
-
-                newpos2 = newpos
-
-                optin = self.nfunc(newpos2[0], newpos2[1], newpos2[2] + offz)
-
-                #FreeCAD.Console.PrintMessage("loop, i: "+str(loopcount)+" "+str(i)+"\n")
-                #FreeCAD.Console.PrintMessage("optin: "+str(optin)+"\n")
-                #FreeCAD.Console.PrintMessage("startq: "+str(startpoint)+"\n")
-                #FreeCAD.Console.PrintMessage("newpos: "+str(newpos)+"\n")
-
-                newvel2 = newvel + tau*di[i]*2.0*optin*np.array( \
-                 [self.dfdx(newpos2[0], newpos2[1], newpos2[2] + offz),
-                  self.dfdy(newpos2[0], newpos2[1], newpos2[2] + offz),
-                  self.dfdz(newpos2[0], newpos2[1], newpos2[2] + offz)])
-
-                #FreeCAD.Console.PrintMessage("newvel2: "+str(newvel)+"\n")
-
-
-                lastpos = newpos2
-                lastvel = newvel2
-
-            #path += np.sqrt(((newpos2 - positions[-1])**2).sum())
-
-            positions.append(newpos2)
-            velocities.append(newvel2)
-
-            # validity and finalization check
-
-            totalenergy = np.sum(newvel2**2) - np.sum(optin**2)
-
-            # testing for some critical energyviolation
-            # and invalidate all rays
-
-            if abs(totalenergy) > self.energyviolation:
-                #FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
-                #FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
-                print 'WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n'
-                print 'Please reduce integration step size.\n'
-                valid[:] = False # all rays with energy violation are not useful due to integration errors
-                # TODO: report to user via some kind of fancy interface
-
-            final = (newpos2[2] - nextSurface.shape.getSag(newpos2[0], newpos2[1]) > 0)
-            # has ray reached next surface? if yes: mark as final
-
-            valid[True - self.inBoundary(newpos2[0], newpos2[1], newpos2[2])] = False
-            # has ray hit boundary? mark as invalid
-
-            final[True - valid] += True
-            # all non valid rays are also final
-
-            updatedpos[:,True - final] = newpos2[:,True - final]
-            updatedvel[:,True - final] = newvel2[:,True - final]
-
-            pointstodraw.append(1.*updatedpos)
-            momentatodraw.append(1.*updatedvel)
-
-            # TODO: if pathlength of a certain ray is too long, mark as invalid and final
-
-            # for energy and phase space analysis
-
-            phasespace4d.append(np.array([newpos2[0], newpos2[1], newvel2[0], newvel2[1]]))
-            energies.append(totalenergy)
-
-        # TODO: hier gehts schon in die hose
-        # TODO: somehow the pointstodraw array is overwritten after the integration!
-
-        #for ind, pt in enumerate(pointstodraw):
-        #    FreeCAD.Console.PrintMessage("symint: " + str(ind) + ": " + str(pt)+"\n")
-
-        return (positions, velocities, pointstodraw, momentatodraw, energies, phasespace4d, valid)
-
-
-#    def propagate(self, actualSurface, nextSurface, raybundle):
-#        startq = raybundle.o # linewise x, y, z values
-#        startp = raybundle.k
-
-#        (self.finalq, self.finalp, self.pointstodraw, self.momentatodraw, en, ph4d, validindices) = \
-#            self.symplecticintegrator(startq,
-#                                      startp,
-#                                      self.ds,
-#                                      0.0,
-#                                      actualSurface.getThickness(),
-#                                      actualSurface,
-#                                      nextSurface)
-
-        #for ind, pts in enumerate(self.pointstodraw):
-        #    FreeCAD.Console.PrintMessage("prop: " + str(ind) + ": " + str(pts) + "\n")
-
-        # TODO: z-values are not starting at zero and are therefore not relative to last surface
-        # TODO: starting in intersection points works but not hitting the final surface
-
-
-        #intersection = np.zeros_like(startq) # intersection are intersection points of nextsurface
-        #validindices = np.ones(np.shape(startq)[1], dtype=bool) # validindices are indices of surviving rays at nextsurface
-
-        #t = 1 # t is arc length of last ray
-        #normal = np.zeros_like(startq) # normal is array of normal vectors at nextsurface
-        #FreeCAD.Console.PrintMessage("ENERGY: "+str(en)+"\n finalq: "+str(self.finalq)+"\n finalp: "+str(self.finalp)+"\n")
-
-        # integrate from startq and startp to finalq and finalp and add in every step a raybundle to the final array
-        # if a ray hits the aperture boundary in x,y mark it as invalid
-        # define end loop conditions:
-        # - maximal arc length,
-        # - all valid rays hit nextSurface,
-        # - maximal loops (and all rays not at final surface are marked invalid)
-
-        # original start point self.finalq[-1], self.finalp[-1]
-
-#       intersection, t, normal, validindicesrefract = \
-#            nextSurface.shape.intersect(RayBundle(self.pointstodraw[-1], self.momentatodraw[-1], raybundle.rayID, raybundle.wave))
-#
-#        validindices *= validindicesrefract
-
-#        return intersection, t, normal, validindices
-        # intersection, t, normal, validindices, propraybundles
-        # TODO: Raybundles have to strong dependencies from surfaces. For every surface there is exactly one raybundle.
-        # This is not correct for grin media anymore, since a grin medium contains a collection of ray bundles. For every
-        # integration step one raybundle, but the standard raybundles are only defined with respect to their
-        # corresponding surface.
-
-
-    def getABCDMatrix(self, curvature, thickness, nextCurvature, ray):
-        n = self.nfunc(0.,0.,0.)
-        abcd = np.dot([[1, thickness], [0, 1]], [[1, 0], [(1./n-1)*curvature, 1./n]])  # translation * front
-        abcd = np.dot([[1, 0], [(n-1)*nextCurvature, n]], abcd)                      # rear * abcd
-        return abcd
-
-    def getXYUVMatrix(self, curvature, thickness, nextCurvature, ray):
-        n = self.nfunc(0.,0.,0.)
-        xyuv1 = np.dot([
-                       [1, 0, thickness, 0, 0],
-                       [0, 1, 0, thickness, 0],
-                       [0, 0, 1, 0, 0],
-                       [0, 0, 0, 1, 0],
-                       [0, 0, 0, 0, 1]
-                       ],
-                      [
-                       [1, 0, 0, 0, 0],
-                       [0, 1, 0, 0, 0],
-                       [(1./n-1)*curvature, 0, 1./n, 0, 0],
-                       [0, (1./n-1)*curvature, 0, 1./n, 0],
-                       [0,0,0,0,1]
-                       ]
-                      )  # translation * front
-        xyuv1 = np.dot(
-                      [
-                       [1, 0, 0, 0, 0],
-                       [0, 1, 0, 0, 0],
-                       [(n-1)*nextCurvature, 0, n, 0, 0],
-                       [0, (n-1)*nextCurvature, 0, n, 0],
-                       [0,0,0,0,1]
-                       ], xyuv1)                      # rear * abcd
-        return xyuv1
 
 
