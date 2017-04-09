@@ -136,7 +136,9 @@ class IsotropicGrinMaterial(IsotropicMaterial):
                 valid[:] = False # all rays with energy violation are not useful due to integration errors
                 # TODO: report to user via some kind of fancy interface
 
-            xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(newpos)
+            xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(xapp)
+
+            print(xshape[2])
 
             final = (xshape[2] - nextSurface.shape.getSag(xshape[0], xshape[1]) > 0)
             # has ray reached next surface? if yes: mark as final
@@ -144,9 +146,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             valid[True - self.inBoundary(newpos)] = False
             # has ray hit boundary? mark as invalid
 
-            final[True - valid] += True
-            
-            print(final)    
+            final[True - valid] += True            
             # all non valid rays are also final
 
             updatedpos[:,True - final] = newpos[:,True - final]

@@ -30,9 +30,7 @@ from globalconstants import standard_wavelength
 
 class Material(optimize.ClassWithOptimizableVariables):
     """Abstract base class for materials."""
-    
-    # TODO: material coordinate system to be used by propagate and refract
-    
+        
     def __init__(self, lc, name="", comment=""):
         super(Material, self).__init__()
         """

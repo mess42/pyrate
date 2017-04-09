@@ -52,9 +52,9 @@ wavelength = 0.5876e-3
 s = OpticalSystem() 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="obj", decz=0.0), refname=s.rootcoordinatesystem.name)
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=30.0), refname=lc0.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=10.0), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=50.0), refname=lc2.name)
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=10.0), refname=lc0.name) # objectDist
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=20.0, tiltx=10.*math.pi/180.0), refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=10.0), refname=lc2.name)
 
 
 stopsurf = Surface(lc0)
@@ -79,7 +79,7 @@ def dndz(x):
 def bnd(x):
     return x[0]**2 + x[1]**2 < 10.**2
 
-grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz, bnd, ds=0.01, energyviolation=0.01)
+grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz, bnd, ds=0.1, energyviolation=0.01)
 
 elem.addMaterial("grin", grinmaterial)
 
@@ -91,9 +91,9 @@ elem.addSurface("image", image, (None, None))
 s.addElement("grinelement", elem)
 
 rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(20)
+(px, py) = rstobj.getGrid(21)
 
-rpup = 5
+rpup = 2.5
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 
 k = np.zeros_like(o)

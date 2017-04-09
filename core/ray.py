@@ -141,8 +141,9 @@ class RayBundle(object):
         up = np.column_stack((up for i in np.arange(num_rays)))
         
         ptlist = [self.x[i] for i in np.arange(num_points)]
+        validity = [self.valid[i] for i in np.arange(num_points)]        
         
-        for (pt1, pt2) in zip(ptlist[1:], ptlist[:-1]):
+        for (pt1, pt2, todraw) in zip(ptlist[1:], ptlist[:-1], validity[1:]):
 
             # perform in-plane projection
             pt1inplane = pt1 - np.sum(pt1*plane_normal, axis=0)*plane_normal
@@ -156,8 +157,8 @@ class RayBundle(object):
             zpt1 = np.sum(pt1inplane * ez, axis=0)
             zpt2 = np.sum(pt2inplane * ez, axis=0)
             
-            y = np.vstack((ypt1, ypt2))
-            z = np.vstack((zpt1, zpt2))
+            y = np.vstack((ypt1, ypt2))[:, todraw]
+            z = np.vstack((zpt1, zpt2))[:, todraw]
             ax.plot(z, y, color)            
             
         
