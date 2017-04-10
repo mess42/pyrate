@@ -931,7 +931,7 @@ $\text{d}s/\text{d}\sigma = g(\Vector{q}, \Vector{p})$.
 By using a special form of this transformation $g$ the new Hamiltonian is separable and we
 may use a symplectic scheme like the one mentioned above to integrate the new formulation.
 
-\section{Paraxial and Parabasal Optics}
+\section{Paraxial Optics}
 In paraxial optics, we consider centro-symmetric systems with rays close to the optical axis both in real and angular space. 
 Parabasal optics decribes rays close to a base ray. 
 We describe small fields around the base ray,
@@ -1193,6 +1193,7 @@ $D$ is unitless.
 
 An infinite to infinite system cannot be refocused by adding a finite air distance on either object or image side.
 
+\section{Parabasal Optics}
 
 \subsection{Pilot Ray Concept}
 
@@ -1294,9 +1295,9 @@ Near-pilot rays must fulfill
 \end{eqnarray}
 We represent $\Delta \Wavevector$ as
 \begin{eqnarray}
- \Delta \Wavevector &=& M \Vector{e}_U + N \Vector{e}_V
+ \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
 \end{eqnarray}
-where $\Vector{e}_U$ and $\Vector{e}_V$ are two real valued, independent unit vectors and $M,N$ are complex valued prefactors.
+where $\Vector{e}_U$ and $\Vector{e}_V$ are independent unit vectors and $U,V$ are complex valued prefactors.
 
 \paragraph{Anisotropic, homogeneous media.}
 TODO
@@ -1317,7 +1318,7 @@ We represent the ray height in this plane by
 \end{eqnarray}
 where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 
-\subsubsection{Obtaining an XYUV matrix}
+\subsubsection{XYUV matrices}
 We choose the object sided basis vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
 in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
 as described in the previous section.
@@ -1336,6 +1337,18 @@ The propagator for near-pilot rays is the Jacobi matrix
 We obtain this matrix by performing Taylor expansions of all propagation, refraction, and coordinate transformation operations around the pilot ray.
 For systems where an explicit calculation is not possible, it can be approximated by differential quotients of real ray traces.
 
+\subsubsection{Propagation in homogeneous media}
+In homogeneous media, rays travel along straights. We consider the propagation between 2 parallel planes, 
+separated by a pilot ray geometric path length of $\Delta s$
+\begin{eqnarray}
+ \hat{G}_{prop} &=&
+ \begin{pmatrix}
+  1 & 0 & \frac{\partial^2 X}{\partial s \partial U} \Delta s & \frac{\partial^2 X}{\partial s \partial V} \Delta s \\[2ex]
+  0 & 1 & \frac{\partial^2 Y}{\partial s \partial U} \Delta s & \frac{\partial^2 Y}{\partial s \partial V} \Delta s \\[2ex]
+  0 & 0 & 1 & 0 \\[2ex]
+  0 & 0 & 0 & 1
+ \end{pmatrix}
+\end{eqnarray}
 
 
 
