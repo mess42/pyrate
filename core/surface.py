@@ -95,7 +95,7 @@ class Surface(LocalCoordinatesTreeBase):
         :param raybundle (RayBundle object), gets changed!
         """
         
-        self.shape.intersectNew(raybundle)
+        self.shape.intersect(raybundle)
         
         if remove_rays_outside_aperture:
             globalintersection = raybundle.x[-1]

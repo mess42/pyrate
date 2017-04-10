@@ -258,7 +258,7 @@ class Conic(Shape):
     def getCentralCurvature(self):
         return self.curvature.evaluate()
 
-    def intersectNew(self, raybundle):
+    def intersect(self, raybundle):
         """
         Calculates intersection from raybundle.
         
@@ -302,35 +302,6 @@ class Conic(Shape):
         
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
         
-
-    def intersect(self, raybundle):
-        rayDir = raybundle.d
-
-        r0 = raybundle.o
-        # r0 is raybundle.o in the local coordinate system
-        # rayDir = raybundle.rayDir in the local coordinate system
-        # raybundle itself lives in the global coordinate system
-
-        F = rayDir[2] - self.curvature.evaluate() * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.evaluate()))
-        G = self.curvature.evaluate() * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.evaluate())) - 2 * r0[2]
-        H = - self.curvature.evaluate() - self.conic.evaluate() * self.curvature.evaluate() * rayDir[2]**2
-
-        square = F**2 + H*G
-
-        t = G / (F + np.sqrt(square))
-
-        intersection = r0 + rayDir * t
-
-        # find indices of rays that don't intersect with the sphere
-        validIndices = (square > 0) #*(intersection[0]**2 + intersection[1]**2 <= 10.0**2))
-        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
-        validIndices[0] = True  # hail to the chief
-
-        # Normal
-        normal = self.getNormal( intersection[0], intersection[1] )
-
-        return intersection, t, normal, validIndices
-
 
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
         # this function will be removed soon
