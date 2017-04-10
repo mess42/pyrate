@@ -60,15 +60,14 @@ dropletradius = 0.01
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
 lccomprism = s.addLocalCoordinateSystem(LocalCoordinates(name="dropletcenter", decz=2.*dropletradius), refname=lc0.name)
 
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-dropletradius*1.01), refname=lccomprism.name) # objectDist
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-dropletradius), refname=lccomprism.name) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=dropletradius), refname=lccomprism.name)
 lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-2.*dropletradius), refname=lccomprism.name)
 
 
 stopsurf = Surface(lc0, apert=CircularAperture(lc0, dropletradius))
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./dropletradius, cc=0.01), apert=CircularAperture(lc1, dropletradius))
-rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./dropletradius, cc=0.01), apert=CircularAperture(lc2, dropletradius))
-downsurf = Surface(lc4a, shape=surfShape.Conic(lc4a, curv=-1./dropletradius, cc=0.01), apert=CircularAperture(lc4a, dropletradius))
+frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./dropletradius), apert=CircularAperture(lc1, dropletradius))
+rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./dropletradius), apert=CircularAperture(lc2, dropletradius))
 
 image = Surface(lc3, apert=CircularAperture(lc3, 7.*dropletradius))
 
@@ -89,13 +88,13 @@ elem.addSurface("image", image, (None, None))
 s.addElement("droplet", elem)
 
 rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(50)
+(px, py) = rstobj.getGrid(100)
 
-rpup = dropletradius*0.01
-oy = dropletradius*0.9
+rpup = dropletradius*0.99
+oy = dropletradius*0.0
 o = np.vstack((rpup*px, rpup*py + oy, 0*np.ones_like(px)))
 
-kangle = -10.*deg
+kangle = -0.*deg
 
 kwave_red = 2.*math.pi/wave_red
 k_red = np.zeros_like(o)
@@ -116,7 +115,7 @@ E0_blue = np.cross(k_blue, ey, axisa=0, axisb=0).T
 
 sysseq = [("droplet", [("stop", True, True), ("surf1", True, True), ("surf2", False, True), ("surf1", True, True), ("image", True, True)])]
 
-sysseq2nd = [("droplet", [("stop", True, True), ("surf1", True, True), ("surf2", False, True), ("surf1", False, True), ("surf1", False, True), ("image", True, True)])]
+sysseq2nd = [("droplet", [("stop", True, True), ("surf1", True, True), ("surf2", False, True), ("surf2", True, True), ("image", True, True)])]
 
 
 phi = 5.*math.pi/180.0

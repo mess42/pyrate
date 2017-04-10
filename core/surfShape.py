@@ -286,16 +286,17 @@ class Conic(Shape):
 
         square = F**2 + H*G
         division_part = F + np.sqrt(square)
-
-
-        t_not_infinite = (np.abs(division_part) > numerical_tolerance)
-
-        t = np.where(t_not_infinite, G / division_part, 0.)
+        
+        H_nearly_zero = (np.abs(H) < numerical_tolerance)
+        G_nearly_zero = (np.abs(G) < numerical_tolerance)
+        F_nearly_zero = (np.abs(F) < numerical_tolerance)        
+        
+        t = np.where(H_nearly_zero, G/(2.*F), np.where(G_nearly_zero, -2.*F/H, G / division_part))
 
         intersection = r0 + rayDir * t
 
         # find indices of rays that don't intersect with the sphere
-        validIndices = (square > 0)*t_not_infinite
+        validIndices = (square > 0)*(True - F_nearly_zero)
 
         globalinter = self.lc.returnLocalToGlobalPoints(intersection)
         
