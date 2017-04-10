@@ -108,6 +108,24 @@ class RayBundle(object):
         return result        
         
         
+    def returnLocalComponents(self, lc, num):
+        xloc = lc.returnGlobalToLocalPoints(self.x[num])
+        kloc = lc.returnGlobalToLocalDirections(self.k[num])
+        Eloc = lc.returnGlobalToLocalDirections(self.Efield[num])
+        
+        return (xloc, kloc, Eloc)
+
+    def returnLocalD(self, lc, num):
+        dloc = lc.returnGlobalToLocalDirections(self.returnKtoD()[num])
+        return dloc
+        
+    def appendLocalComponents(self, lc, xloc, kloc, Eloc, valid):
+        xglob = lc.returnLocalToGlobalPoints(xloc)
+        kglob = lc.returnLocalToGlobalDirections(kloc)
+        Eglob = lc.returnLocalToGlobalDirections(Eloc)
+        
+        self.append(xglob, kglob, Eglob, valid)
+        
         
     def returnKtoD(self):
         # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
