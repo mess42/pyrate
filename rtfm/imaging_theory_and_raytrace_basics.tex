@@ -386,6 +386,47 @@ In general, each solution $\Wavevector$ is associated with a certain eigenvector
 that is, a propagation wavector is only valid for a certain polarisation.
 In the following, we search for simplified solutions $\Efield_0$ for special cases of $\permittivity$.
 
+\subsection{Further simpliciation of general eigenvalue equation}
+
+By using the identity
+\begin{align}
+ \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
+\end{align}
+it is possible to rewrite \eqref{eq:generalDispersionEigenEquation} into a form which is more useful.
+\begin{align}
+ 0 = F(\Vector{k}) &= \det (-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij})\nonumber\\ 
+&= \tilde{\omega}^2 \left(\frac{1}{6} \alpha \tilde{\omega}^4 + \tilde{\omega}^2 (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)\,,
+\end{align}
+where $\tilde{\omega} = \omega\sqrt{\mu_0}$, $\alpha = (\text{tr}\permittivity)^3 - 3 (\text{tr}\permittivity) \text{tr}(\permittivity^2) + 2 \text{tr}(\permittivity^3)$,
+$\beta = \permittivity_{ij} k_i k_j$, $\gamma = k_i \permittivity_{i\ell} \permittivity_{\ell j} k_j$. For given $\omega$ this is an equation of fourth order
+for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
+$\Vector{k}$ gives only two terms.
+\begin{align}
+ \frac{\partial F}{\partial k_j} &= \tilde{\omega}^2 
+\left[
+\tilde{\omega}^2
+\left(
+  \permittivity_{ji} (-(\text{tr}\permittivity) k_i + \permittivity_{i\ell} k_\ell)
++ \permittivity_{ij} (-(\text{tr}\permittivity) k_i + \permittivity_{\ell i} k_\ell)
+\right)
++ (\permittivity_{\ell j} + \permittivity_{j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
+\right]
+\end{align}
+For the simplified case $\permittivity_{ij} = \permittivity \delta_{ij}$ the result is well-known:
+\begin{align}
+ F_{\text{isotropic}}(\Vector{k}) &= \permittivity \tilde{\omega}^2 ( -\permittivity \tilde{\omega}^2 + \Vector{k}^2 )^2\,.
+\end{align}
+Also the derivative is simple
+\begin{align}
+ \frac{\partial F_{\text{isotropic}}}{\partial k_j} &= 4 F_{\text{isotropic}}(\Vector{k}) k_j\,.
+\end{align}
+For $F = 0$ the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.
+
+
+
+
+
+
 \subsection{Uniaxial anisotropic, homogeneous media}
 Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
 and a degenerate permittivity along the other two directions in space.
