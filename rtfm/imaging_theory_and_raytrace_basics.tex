@@ -715,26 +715,19 @@ The field of each mode $M \in \{ r1, r2, t1, t2 \}$
 \end{eqnarray}
 depends on the scalar amplitude $E_{M,0}$, containing mode strength and retardation.
 We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} with this ansatz and yield a linear equation system
-\begingroup \tiny
+\begingroup \small
 \begin{subequations}
 \begin{align}
-   - ( \permittivity_1 \Vector{e}_{r1}) \Vector{n}                 E_{r1,0} &-& ( \permittivity_1 \Vector{e}_{r2}) \Vector{n}                 E_{r2,0} &+& ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n}           E_{t1,0} &+& ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n}           E_{t2,0} &=& \Dfield_{in} \Vector{n} \\
-   - ( \Wavevector_{r1} \times \Vector{e}_{r1} ) \Vector{n}        E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} ) \Vector{n}        E_{r2,0} &+& ( \Wavevector \times \Vector{e}_{t1} ) \Vector{n}        E_{t1,0} &+& ( \Wavevector \times \Vector{e}_{t2} ) \Vector{n}        E_{t2,0} &=& ( \Wavevector_{in} \times \Efield_{in}) \Vector{n} \\
-   - ( \Vector{e}_{r1} \times \Vector{n} )                         E_{r1,0} &-& ( \Vector{e}_{r2} \times \Vector{n} )                         E_{r2,0} &+& ( \Vector{e}_{t1} \times \Vector{n} )                    E_{t1,0} &+& ( \Vector{e}_{t2} \times \Vector{n} )                    E_{t2,0} &=& \Efield_{in} \times \Vector{n} \\
-   - ( \Wavevector_{r1} \times \Vector{e}_{r1} ) \times \Vector{n} E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} ) \times \Vector{n} E_{r2,0} &+& ( \Wavevector \times \Vector{e}_{t1} ) \times \Vector{n} E_{t1,0} &+& ( \Wavevector \times \Vector{e}_{t2} ) \times \Vector{n} E_{t2,0} &=& ( \Wavevector_{in} \times \Efield_{in}) \times \Vector{n} 
+   - ( \permittivity_1 \Vector{e}_{r1}) \Vector{n} E_{r1,0} &-& ( \permittivity_1 \Vector{e}_{r2}) \Vector{n} E_{r2,0} &+& ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n} E_{t1,0} &+& ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n} E_{t2,0} &=& \Dfield_{in} \Vector{n} \\
+   - ( \Vector{e}_{r1} \times \Vector{n} )         E_{r1,0} &-& ( \Vector{e}_{r2} \times \Vector{n} )         E_{r2,0} &+& ( \Vector{e}_{t1} \times \Vector{n} )          E_{t1,0} &+& ( \Vector{e}_{t2} \times \Vector{n} )          E_{t2,0} &=& \Efield_{in} \times \Vector{n} \\
+   - ( \Wavevector_{r1} \times \Vector{e}_{r1} )   E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} )   E_{r2,0} &+& ( \Wavevector_{t1} \times \Vector{e}_{t1} )    E_{t1,0} &+& ( \Wavevector_{t2} \times \Vector{e}_{t2} )    E_{t2,0} &=& \Wavevector_{in} \times \Efield_{in}
 \end{align}
 \end{subequations}
 \endgroup
 The system contains scalar and three-dimensional vectorial equations, but is not of full rank.
 All prefactors of the scalar amplitudes $E_{M,0}$ are known, as well as the incident wave properties on the right hand side of the equations.
 This allows us to solve the equation system
-\begin{eqnarray}
- \begin{pmatrix}
-  E_{r1,0} \\ E_{r2,0} \\ E_{t1,0} \\ E_{t2,0} 
- \end{pmatrix}
- &=&
- TODO
-\end{eqnarray}
+
 
 
 \chapter{Geometrical Optics}
