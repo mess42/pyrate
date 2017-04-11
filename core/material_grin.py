@@ -2,9 +2,10 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
-               and Johannes Hartung j.hartung@gmx.net
-               and    Uwe Lippmann  uwe.lippmann@web.de
+Copyright (C) 2017 Moritz Esslinger <moritz.esslinger@web.de>
+               and Johannes Hartung <j.hartung@gmx.net>
+               and     Uwe Lippmann <uwe.lippmann@web.de>
+               and    Thomas Heinze <t.heinze@fn.de>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -136,14 +137,14 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             final = (xshape[2] - nextSurface.shape.getSag(xshape[0], xshape[1]) > 0)
             # has ray reached next surface? if yes: mark as final
 
-            valid[True - self.inBoundary(newpos)] = False
+            valid[True ^ self.inBoundary(newpos)] = False
             # has ray hit boundary? mark as invalid
 
-            final[True - valid] += True            
+            final[True ^ valid] += True            
             # all non valid rays are also final
 
-            updatedpos[:,True - final] = newpos[:,True - final]
-            updatedvel[:,True - final] = newvel[:,True - final]
+            updatedpos[:,True ^ final] = newpos[:,True ^ final]
+            updatedvel[:,True ^ final] = newvel[:,True ^ final]
 
             newk = 2.*math.pi/raybundle.wave*updatedvel/self.nfunc(updatedpos)
             Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))

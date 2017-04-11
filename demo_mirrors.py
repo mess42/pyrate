@@ -185,7 +185,7 @@ pilotbundle2 = core.helpers.build_pilotbundle(lc0, (obj_dx, obj_dx), (obj_dphi, 
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
 ax.axis('equal')
-ax.set_axis_bgcolor('white')
+ax.set_facecolor('white')
 
 
 phi = 0. #math.pi/4

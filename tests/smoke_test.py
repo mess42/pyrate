@@ -1,7 +1,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014 Moritz Esslinger <moritz.esslinger@web.de>
+Copyright (C) 2017 Moritz Esslinger <moritz.esslinger@web.de>
                and Johannes Hartung <j.hartung@gmx.net>
                and     Uwe Lippmann <uwe.lippmann@web.de>
                and    Thomas Heinze <t.heinze@fn.de>
@@ -37,6 +37,10 @@ def test_smoke_doublet():
     import demo_doublet
     assert True
 
+def test_smoke_benchmark():
+    """Smoke test based on demo_benchmark.py."""
+    import demo_benchmark
+    assert True
 def test_smoke_mirror():
     """Smoke test based on demo_mirrors.py."""
     import demo_mirrors
@@ -44,4 +48,16 @@ def test_smoke_mirror():
 def test_smoke_optimize():
     """Smoke test based on demo_optimize.py."""
     import demo_optimize
+    assert True
+def test_smoke_grin():
+    """Smoke test based on demo_grin.py."""
+    import demo_grin
+    assert True
+def test_smoke_prism():
+    """Smoke test based on demo_prism.py."""
+    import demo_prism
+    assert True
+def test_smoke_rainbow():
+    """Smoke test based on demo_rainbow.py."""
+    import demo_rainbow
     assert True
