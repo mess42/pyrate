@@ -1,7 +1,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014 Moritz Esslinger <moritz.esslinger@web.de>
+Copyright (C) 2017 Moritz Esslinger <moritz.esslinger@web.de>
                and Johannes Hartung <j.hartung@gmx.net>
                and     Uwe Lippmann <uwe.lippmann@web.de>
                and    Thomas Heinze <t.heinze@fn.de>

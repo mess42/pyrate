@@ -114,9 +114,9 @@ s.addElement("lenssys", elem)
 #ax2 = fig.add_subplot(212)
 #
 #ax.axis('equal')
-#ax.set_axis_bgcolor('black')
+#ax.set_facecolor('black')
 #ax2.axis('equal')
-#ax2.set_axis_bgcolor('black')
+#ax2.set_facecolor('black')
 #
 #plots.drawLayout2d(ax, s, [r2, r3, r4])
 
@@ -164,7 +164,7 @@ ax2 = fig.add_subplot(212)
 
 ax.axis('equal')
 ax2.axis('equal')
-ax.set_axis_bgcolor('white')
+ax.set_facecolor('white')
 
 phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
