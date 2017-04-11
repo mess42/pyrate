@@ -1353,30 +1353,46 @@ We trace the pilot ray to the final surface
 and define the near-pilot basis vectors in the final plane $\Vector{e}_{X,fin}, \Vector{e}_{Y,fin}, \Vector{e}_{U,fin}, \Vector{e}_{V,fin}$.
 The propagator for near-pilot rays is the Jacobi matrix
 \begin{eqnarray}
- \hat{G} &=& 
  \begin{pmatrix}
-  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial U_{obj}} & \frac{\partial X_{fin}}{\partial V_{obj}} \\[2ex]
-  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial U_{obj}} & \frac{\partial Y_{fin}}{\partial V_{obj}} \\[2ex]
-  \frac{\partial U_{fin}}{\partial X_{obj}} & \frac{\partial U_{fin}}{\partial Y_{obj}} & \frac{\partial U_{fin}}{\partial U_{obj}} & \frac{\partial U_{fin}}{\partial V_{obj}} \\[2ex]
-  \frac{\partial V_{fin}}{\partial X_{obj}} & \frac{\partial V_{fin}}{\partial Y_{obj}} & \frac{\partial V_{fin}}{\partial U_{obj}} & \frac{\partial V_{fin}}{\partial V_{obj}} 
+  X_{fin} \\[2ex] Y_{fin} \\[2ex] \Re U_{fin} \\[2ex] \Im U_{fin} \\[2ex] \Re V_{fin} \\[2ex] \Im V_{fin} 
  \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial \Re U_{obj}} & \frac{\partial X_{fin}}{\partial \Im U_{obj}} & \frac{\partial X_{fin}}{\partial \Re V_{obj}} & \frac{\partial X_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial \Re U_{obj}} & \frac{\partial Y_{fin}}{\partial \Im U_{obj}} & \frac{\partial Y_{fin}}{\partial \Re V_{obj}} & \frac{\partial Y_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Re U_{fin}}{\partial X_{obj}} & \frac{\partial \Re U_{fin}}{\partial Y_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Im U_{fin}}{\partial X_{obj}} & \frac{\partial \Im U_{fin}}{\partial Y_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Re V_{fin}}{\partial X_{obj}} & \frac{\partial \Re V_{fin}}{\partial Y_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Im V_{fin}}{\partial X_{obj}} & \frac{\partial \Im V_{fin}}{\partial Y_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im V_{obj}} \\[2ex]
+ \end{pmatrix}
+ \begin{pmatrix}
+  X_{obj} \\[2ex] Y_{obj} \\[2ex] \Re U_{obj} \\[2ex] \Im U_{obj} \\[2ex] \Re V_{obj} \\[2ex] \Im V_{obj} 
+ \end{pmatrix} \nonumber \\
 \end{eqnarray}
-We obtain this matrix by performing Taylor expansions of all propagation, refraction, and coordinate transformation operations around the pilot ray.
-For systems where an explicit calculation is not possible, it can be approximated by differential quotients of real ray traces.
+We obtain this matrix by multiplying the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations.
+To obtain these atomic matrices, we perform Taylor expansions around the pilot ray.
+For systems where an explicit calculation is not possible
+-- or the operator suffers from laziness --
+it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
 
 \subsubsection{Propagation in homogeneous media}
-In homogeneous media, rays travel along straights. We consider the propagation between 2 parallel planes, 
+In homogeneous media, rays travel along straights.
+That is, wavevector and ray direction do not change.
+We consider the propagation between 2 parallel planes, 
 separated by a pilot ray geometric path length of $\Delta s$
 \begin{eqnarray}
  \hat{G}_{prop} &=&
  \begin{pmatrix}
-  1 & 0 & \frac{\partial^2 X}{\partial s \partial U} \Delta s & \frac{\partial^2 X}{\partial s \partial V} \Delta s \\[2ex]
-  0 & 1 & \frac{\partial^2 Y}{\partial s \partial U} \Delta s & \frac{\partial^2 Y}{\partial s \partial V} \Delta s \\[2ex]
-  0 & 0 & 1 & 0 \\[2ex]
-  0 & 0 & 0 & 1
+  1 & 0 & \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
+  1 & 0 & \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
+  0 & 0 & 1 & 0 & 0 & 0 \\[2ex]
+  0 & 0 & 0 & 1 & 0 & 0 \\[2ex]
+  0 & 0 & 0 & 0 & 1 & 0 \\[2ex]
+  0 & 0 & 0 & 0 & 0 & 1 \\[2ex]  
  \end{pmatrix}
 \end{eqnarray}
 
+\subsection{Interpretation of XYUV matrices}
 
 
 \chapter{Raytracing}
