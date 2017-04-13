@@ -384,27 +384,28 @@ or more explicit
 \end{eqnarray}
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
 that is, a propagation wavector is only valid for a certain polarisation.
-In the following, we search for simplified solutions $\Efield_0$ for special cases of $\permittivity$.
 
-\subsection{Further simpliciation of general eigenvalue equation}
-
-By using the identity
+Nontrivial solutions can be found if the determinant $D$ becomes zero.
+\begin{eqnarray}
+ D &=& \det \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right)
+\end{eqnarray}
+We use the identity
 \begin{align}
  \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
 \end{align}
-it is possible to rewrite \eqref{eq:generalDispersionEigenEquation} into a form which is more useful.
+and rewrite \eqref{eq:generalDispersionEigenEquation} to
 \begin{align}
- 0 = F(\Vector{k}) &= \det (-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij})\nonumber\\ 
-&= \tilde{\omega}^2 \left(\frac{1}{6} \alpha \tilde{\omega}^4 + \tilde{\omega}^2 (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)\,,
+ D(\Vector{k}) 
+ &= \omega^2\vacuumpermeability \left(\frac{1}{6} \alpha \omega^4\vacuumpermeability^2 + \omega^2\vacuumpermeability (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)\,,
 \end{align}
-where $\tilde{\omega} = \omega\sqrt{\mu_0}$, $\alpha = (\text{tr}\permittivity)^3 - 3 (\text{tr}\permittivity) \text{tr}(\permittivity^2) + 2 \text{tr}(\permittivity^3)$,
+where $\alpha = (\text{tr}\permittivity)^3 - 3 (\text{tr}\permittivity) \text{tr}(\permittivity^2) + 2 \text{tr}(\permittivity^3)$,
 $\beta = \permittivity_{ij} k_i k_j$, $\gamma = k_i \permittivity_{i\ell} \permittivity_{\ell j} k_j$. For given $\omega$ this is an equation of fourth order
 for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
 $\Vector{k}$ gives only two terms.
 \begin{align}
- \frac{\partial F}{\partial k_j} &= \tilde{\omega}^2 
+ \frac{\partial D}{\partial k_j} &= \omega^2\vacuumpermeability 
 \left[
-\tilde{\omega}^2
+\omega^2\vacuumpermeability
 \left(
   \permittivity_{ji} (-(\text{tr}\permittivity) k_i + \permittivity_{i\ell} k_\ell)
 + \permittivity_{ij} (-(\text{tr}\permittivity) k_i + \permittivity_{\ell i} k_\ell)
@@ -412,15 +413,7 @@ $\Vector{k}$ gives only two terms.
 + (\permittivity_{\ell j} + \permittivity_{j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
 \right]
 \end{align}
-For the simplified case $\permittivity_{ij} = \permittivity \delta_{ij}$ the result is well-known:
-\begin{align}
- F_{\text{isotropic}}(\Vector{k}) &= \permittivity \tilde{\omega}^2 ( -\permittivity \tilde{\omega}^2 + \Vector{k}^2 )^2\,.
-\end{align}
-Also the derivative is simple
-\begin{align}
- \frac{\partial F_{\text{isotropic}}}{\partial k_j} &= 4 F_{\text{isotropic}}(\Vector{k}) k_j\,.
-\end{align}
-For $F = 0$ the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.
+For $D = 0$, the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.
 
 
 
@@ -722,26 +715,19 @@ The field of each mode $M \in \{ r1, r2, t1, t2 \}$
 \end{eqnarray}
 depends on the scalar amplitude $E_{M,0}$, containing mode strength and retardation.
 We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} with this ansatz and yield a linear equation system
-\begingroup \tiny
+\begingroup \small
 \begin{subequations}
 \begin{align}
-   - ( \permittivity_1 \Vector{e}_{r1}) \Vector{n}                 E_{r1,0} &-& ( \permittivity_1 \Vector{e}_{r2}) \Vector{n}                 E_{r2,0} &+& ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n}           E_{t1,0} &+& ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n}           E_{t2,0} &=& \Dfield_{in} \Vector{n} \\
-   - ( \Wavevector_{r1} \times \Vector{e}_{r1} ) \Vector{n}        E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} ) \Vector{n}        E_{r2,0} &+& ( \Wavevector \times \Vector{e}_{t1} ) \Vector{n}        E_{t1,0} &+& ( \Wavevector \times \Vector{e}_{t2} ) \Vector{n}        E_{t2,0} &=& ( \Wavevector_{in} \times \Efield_{in}) \Vector{n} \\
-   - ( \Vector{e}_{r1} \times \Vector{n} )                         E_{r1,0} &-& ( \Vector{e}_{r2} \times \Vector{n} )                         E_{r2,0} &+& ( \Vector{e}_{t1} \times \Vector{n} )                    E_{t1,0} &+& ( \Vector{e}_{t2} \times \Vector{n} )                    E_{t2,0} &=& \Efield_{in} \times \Vector{n} \\
-   - ( \Wavevector_{r1} \times \Vector{e}_{r1} ) \times \Vector{n} E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} ) \times \Vector{n} E_{r2,0} &+& ( \Wavevector \times \Vector{e}_{t1} ) \times \Vector{n} E_{t1,0} &+& ( \Wavevector \times \Vector{e}_{t2} ) \times \Vector{n} E_{t2,0} &=& ( \Wavevector_{in} \times \Efield_{in}) \times \Vector{n} 
+   - ( \permittivity_1 \Vector{e}_{r1}) \Vector{n} E_{r1,0} &-& ( \permittivity_1 \Vector{e}_{r2}) \Vector{n} E_{r2,0} &+& ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n} E_{t1,0} &+& ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n} E_{t2,0} &=& \Dfield_{in} \Vector{n} \\
+   - ( \Vector{e}_{r1} \times \Vector{n} )         E_{r1,0} &-& ( \Vector{e}_{r2} \times \Vector{n} )         E_{r2,0} &+& ( \Vector{e}_{t1} \times \Vector{n} )          E_{t1,0} &+& ( \Vector{e}_{t2} \times \Vector{n} )          E_{t2,0} &=& \Efield_{in} \times \Vector{n} \\
+   - ( \Wavevector_{r1} \times \Vector{e}_{r1} )   E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} )   E_{r2,0} &+& ( \Wavevector_{t1} \times \Vector{e}_{t1} )    E_{t1,0} &+& ( \Wavevector_{t2} \times \Vector{e}_{t2} )    E_{t2,0} &=& \Wavevector_{in} \times \Efield_{in}
 \end{align}
 \end{subequations}
 \endgroup
 The system contains scalar and three-dimensional vectorial equations, but is not of full rank.
 All prefactors of the scalar amplitudes $E_{M,0}$ are known, as well as the incident wave properties on the right hand side of the equations.
 This allows us to solve the equation system
-\begin{eqnarray}
- \begin{pmatrix}
-  E_{r1,0} \\ E_{r2,0} \\ E_{t1,0} \\ E_{t2,0} 
- \end{pmatrix}
- &=&
- TODO
-\end{eqnarray}
+
 
 
 \chapter{Geometrical Optics}
@@ -1367,30 +1353,46 @@ We trace the pilot ray to the final surface
 and define the near-pilot basis vectors in the final plane $\Vector{e}_{X,fin}, \Vector{e}_{Y,fin}, \Vector{e}_{U,fin}, \Vector{e}_{V,fin}$.
 The propagator for near-pilot rays is the Jacobi matrix
 \begin{eqnarray}
- \hat{G} &=& 
  \begin{pmatrix}
-  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial U_{obj}} & \frac{\partial X_{fin}}{\partial V_{obj}} \\[2ex]
-  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial U_{obj}} & \frac{\partial Y_{fin}}{\partial V_{obj}} \\[2ex]
-  \frac{\partial U_{fin}}{\partial X_{obj}} & \frac{\partial U_{fin}}{\partial Y_{obj}} & \frac{\partial U_{fin}}{\partial U_{obj}} & \frac{\partial U_{fin}}{\partial V_{obj}} \\[2ex]
-  \frac{\partial V_{fin}}{\partial X_{obj}} & \frac{\partial V_{fin}}{\partial Y_{obj}} & \frac{\partial V_{fin}}{\partial U_{obj}} & \frac{\partial V_{fin}}{\partial V_{obj}} 
+  X_{fin} \\[2ex] Y_{fin} \\[2ex] \Re U_{fin} \\[2ex] \Im U_{fin} \\[2ex] \Re V_{fin} \\[2ex] \Im V_{fin} 
  \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial \Re U_{obj}} & \frac{\partial X_{fin}}{\partial \Im U_{obj}} & \frac{\partial X_{fin}}{\partial \Re V_{obj}} & \frac{\partial X_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial \Re U_{obj}} & \frac{\partial Y_{fin}}{\partial \Im U_{obj}} & \frac{\partial Y_{fin}}{\partial \Re V_{obj}} & \frac{\partial Y_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Re U_{fin}}{\partial X_{obj}} & \frac{\partial \Re U_{fin}}{\partial Y_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Im U_{fin}}{\partial X_{obj}} & \frac{\partial \Im U_{fin}}{\partial Y_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Re V_{fin}}{\partial X_{obj}} & \frac{\partial \Re V_{fin}}{\partial Y_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Im V_{fin}}{\partial X_{obj}} & \frac{\partial \Im V_{fin}}{\partial Y_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im V_{obj}} \\[2ex]
+ \end{pmatrix}
+ \begin{pmatrix}
+  X_{obj} \\[2ex] Y_{obj} \\[2ex] \Re U_{obj} \\[2ex] \Im U_{obj} \\[2ex] \Re V_{obj} \\[2ex] \Im V_{obj} 
+ \end{pmatrix} \nonumber \\
 \end{eqnarray}
-We obtain this matrix by performing Taylor expansions of all propagation, refraction, and coordinate transformation operations around the pilot ray.
-For systems where an explicit calculation is not possible, it can be approximated by differential quotients of real ray traces.
+We obtain this matrix by multiplying the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations.
+To obtain these atomic matrices, we perform Taylor expansions around the pilot ray.
+For systems where an explicit calculation is not possible
+-- or the operator suffers from laziness --
+it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
 
 \subsubsection{Propagation in homogeneous media}
-In homogeneous media, rays travel along straights. We consider the propagation between 2 parallel planes, 
+In homogeneous media, rays travel along straights.
+That is, wavevector and ray direction do not change.
+We consider the propagation between 2 parallel planes, 
 separated by a pilot ray geometric path length of $\Delta s$
 \begin{eqnarray}
  \hat{G}_{prop} &=&
  \begin{pmatrix}
-  1 & 0 & \frac{\partial^2 X}{\partial s \partial U} \Delta s & \frac{\partial^2 X}{\partial s \partial V} \Delta s \\[2ex]
-  0 & 1 & \frac{\partial^2 Y}{\partial s \partial U} \Delta s & \frac{\partial^2 Y}{\partial s \partial V} \Delta s \\[2ex]
-  0 & 0 & 1 & 0 \\[2ex]
-  0 & 0 & 0 & 1
+  1 & 0 & \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
+  0 & 1 & \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
+  0 & 0 & 1 & 0 & 0 & 0 \\[2ex]
+  0 & 0 & 0 & 1 & 0 & 0 \\[2ex]
+  0 & 0 & 0 & 0 & 1 & 0 \\[2ex]
+  0 & 0 & 0 & 0 & 0 & 1 \\[2ex]  
  \end{pmatrix}
 \end{eqnarray}
 
+\subsection{Interpretation of XYUV matrices}
 
 
 \chapter{Raytracing}

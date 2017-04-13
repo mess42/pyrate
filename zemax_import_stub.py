@@ -7,8 +7,8 @@ def lines2dict(lines):
     """
     Converts lines of a zmx file into a dictionary
 
-    :param: lines (list of str)
-    :return: dic (dict)
+    :param lines (list of str)
+    :return dic (dict)
     """
     dic = {}    
 
@@ -43,10 +43,10 @@ def readzmx(filename):
     """
     Reads a Zemax file and converts it to a python dictionary.
     
-    @param: filename (str)
+    :param filename (str)
             filename of the .zmx file. May be utf8 or ansi.
             
-    @return: zmxdict (dict)
+    :return zmxdict (dict)
              Dictionary keys are the first 4 characters of each line 
              in the zemax file.
              Dictionary values are lists of lines beginning with that key.
@@ -66,7 +66,29 @@ def readzmx(filename):
         raise Exception("Mixed sequential and NSC Zemax files not supported yet")
         
     return zmxdict
-    
-zmxdict = readzmx("lenssystem.ZMX")
 
-#print zmxdict
+def dictionary_to_translate_parameter_enums():
+    """
+    returns a dictionary what parameter enums mean
+
+    :return dic (dict)
+    """
+    dic = {}
+    dic["COORDBRK"] = {1 : "Decenter X (mm)",
+                       2 : "Decenter Y (mm)",
+                       3 : "Tilt X (deg)",
+                       4 : "Tilt Y (deg)",
+                       5 : "Tilt Z (deg)",
+                       6 : "Order"}
+    dic["EVENASPH"] = {1 : "coefficient for r**2",
+                       2 : "coefficient for r**4",
+                       3 : "coefficient for r**6",
+                       4 : "coefficient for r**8", 
+                       5 : "coefficient for r**10", 
+                       6 : "coefficient for r**12",
+                       7 : "coefficient for r**14",
+                       8 : "coefficient for r**16"}
+    return dic
+
+
+zmxdict = readzmx("lenssystem.ZMX")

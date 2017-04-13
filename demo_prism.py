@@ -31,6 +31,9 @@ If anything breaks, the picture  usually changes.
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+from distutils.version import StrictVersion
+
 
 from core import raster
 from core import material
@@ -124,7 +127,10 @@ fig = plt.figure(1)
 ax = fig.add_subplot(111)
 
 ax.axis('equal')
-ax.set_facecolor('white')
+if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
+    ax.set_axis_bgcolor('white')
+else:
+    ax.set_facecolor('white')
 
 phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
