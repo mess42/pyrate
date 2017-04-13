@@ -26,7 +26,7 @@ import math
 from ray import RayBundle
 import optimize
 
-from globalconstants import standard_wavelength
+from globalconstants import standard_wavelength, eps0
 
 class Material(optimize.ClassWithOptimizableVariables):
     """Abstract base class for materials."""
@@ -148,7 +148,7 @@ class IsotropicMaterial(Material):
         # Depends on x in general: to be compatible with grin materials
         # and to reduce reimplementation effort
         
-        k2_squared = 4.*math.pi**2/wave**2/3.*np.trace(self.getEpsilonTensor(x, normal, None, wave))
+        k2_squared = 4.*math.pi**2/wave**2/(3.*eps0)*np.trace(self.getEpsilonTensor(x, normal, None, wave))
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
         # make total internal reflection invalid
@@ -241,7 +241,7 @@ class ConstantIndexGlass(IsotropicMaterial):
         mat[1, 1, :] = 1.
         mat[2, 2, :] = 1.
         
-        return mat*self.n()**2
+        return mat*eps0*self.n()**2
 
 
     def setCoefficients(self, n):

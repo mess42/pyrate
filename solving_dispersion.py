@@ -6,7 +6,7 @@ Created on Thu Apr 13 19:33:48 2017
 """
 
 import numpy as np
-from core.globalconstants import c0, mu0, standard_wavelength
+from core.globalconstants import c0, mu0, eps0, standard_wavelength
 import math
 
 class Material():
@@ -64,17 +64,17 @@ class Material():
         a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
 
-        p4 = a7*omegabar**2
-        p3 = (2*a10*a7 + a8 + a9)*omegabar**2
-        p2 = (a5 + a4*a7 + 2*a10*(a8 + a9))*omegabar**2 + (a13 - a1*a7)*omegabar**4
-        p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 + (a11 + a12 - a1*(a8 + a9))*omegabar**4
-        p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
-        
-        print(p4)
-        print(p3)        
-        print(p2)        
-        print(p1)        
-        print(p0)        
+        #p4 = a7*omegabar**2
+        #p3 = (2*a10*a7 + a8 + a9)*omegabar**2
+        #p2 = (a5 + a4*a7 + 2*a10*(a8 + a9))*omegabar**2 + (a13 - a1*a7)*omegabar**4
+        #p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 + (a11 + a12 - a1*(a8 + a9))*omegabar**4
+        #p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
+
+        p4 = a7
+        p3 = (2*a10*a7 + a8 + a9)
+        p2 = (a5 + a4*a7 + 2*a10*(a8 + a9)) + (a13 - a1*a7)*omegabar**2
+        p1 = (2*a10*a5 + a4*(a8 + a9)) + (a11 + a12 - a1*(a8 + a9))*omegabar**2
+        p0 = a4*a5 + (-a1*a5 + a6)*omegabar**2 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**4
         
         xiarray = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
@@ -86,7 +86,7 @@ class Material():
         
 if __name__=="__main__":
     
-    m = Material(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
+    m = Material(eps0*np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
     
     x = np.zeros((3, 5))
     n = np.zeros((3, 5))
