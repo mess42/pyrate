@@ -396,7 +396,7 @@ We use the identity
 and rewrite \eqref{eq:generalDispersionEigenEquation} to
 \begin{align}
  D(\Vector{k}) 
- &= \omega^2\vacuumpermeability \left(\frac{1}{6} \alpha \omega^4\vacuumpermeability^2 + \omega^2\vacuumpermeability (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)\,,
+ &= \omega^2\vacuumpermeability \left(\frac{1}{6} \alpha \omega^4\vacuumpermeability^2 + \omega^2\vacuumpermeability (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)\,,\label{eq:determinantinvariant}
 \end{align}
 where $\alpha = (\text{tr}\permittivity)^3 - 3 (\text{tr}\permittivity) \text{tr}(\permittivity^2) + 2 \text{tr}(\permittivity^3)$,
 $\beta = \permittivity_{ij} k_i k_j$, $\gamma = k_i \permittivity_{i\ell} \permittivity_{\ell j} k_j$. For given $\omega$ this is an equation of fourth order
@@ -414,10 +414,6 @@ $\Vector{k}$ gives only two terms.
 \right]
 \end{align}
 For $D = 0$, the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.
-
-
-
-
 
 
 \subsection{Uniaxial anisotropic, homogeneous media}
@@ -700,6 +696,43 @@ This is a quadratic equation in $\xi$.
        - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
  \nonumber
 \end{eqnarray}
+
+\subsubsection{general anisotropic}
+
+Decomposition of $\Vector{k} = \Wavevector_\parallel + \xi \Vector{n}$ in $D(\Wavevector)$ (see \eqref{eq:determinantinvariant}) 
+into in-plane and off-plane part leads to $\tilde{\omega} = \omega \sqrt{\mu_0}$ (dividing two $\tilde{\omega}$ powers)
+\begin{align}
+0 &= \xi ^4 a_7\nonumber\\
+&+\xi ^3 \left[ 2 a_{10} a_7+a_8+a_9\right]\nonumber\\
+&+\xi ^2 \left[\tilde{\omega} ^2 (a_{13}-a_1 a_7)+ 2 a_{10} (a_8+a_9)+a_4 a_7+a_5\right]\nonumber\\
+&+\xi \left[\tilde{\omega}^2 (-a_1 (a_8+a_9)+a_{11}+a_{12})+2 a_{10} a_5+a_4 (a_8+a_9)\right]\nonumber\\
+&+\frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5 
+\end{align}
+with
+\newcommand{\kpa}[1]{{k_{\parallel\,#1}}}
+\begin{subequations}
+\begin{align}
+ a_1 &= \permittivity_{ii} \\
+ a_2 &= \permittivity_{ij}\permittivity_{ji} \\ 
+ a_3 &= \permittivity_{ij}\permittivity_{jk}\permittivity_{ki} \\
+ a_4 &= \kpa{i}\kpa{i} \\
+ a_5 &= \permittivity_{ij} \kpa{i} \kpa{j} \\
+ a_6 &= \permittivity_{ij} \permittivity_{jk} \kpa{i}\kpa{k} \\
+ a_7 &= \permittivity_{ij} n_i n_j \\
+ a_8 &= \permittivity_{ij} \kpa{j} n_i \\
+ a_9 &= \permittivity_{ij} \kpa{i} n_j \\
+ a_{10} &= \kpa{i}n_i = 0\\
+ a_{11} &= \permittivity_{ij} \permittivity_{jk} \kpa{k} n_i \\
+ a_{12} &= \permittivity_{ij} \permittivity_{jk} \kpa{i} n_k \\
+ a_{13} &= \permittivity_{ij} \permittivity_{jk} n_i n_k 
+\end{align}
+\end{subequations}
+
+
+
+
+
+
 
 \subsection{Fresnel Coefficients}
 Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarizations
