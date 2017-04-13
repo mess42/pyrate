@@ -1,8 +1,36 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Apr 13 19:33:48 2017
+Pyrate - Optical raytracing based on Python
 
-@author: demon_ds
+Copyright (C) 2017 Moritz Esslinger <moritz.esslinger@web.de>
+               and Johannes Hartung <j.hartung@gmx.net>
+               and     Uwe Lippmann <uwe.lippmann@web.de>
+               and    Thomas Heinze <t.heinze@fn.de>
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+"""
+
+"""
+Smoke demo for picture checking. This means the result of this file
+is compared with a fixed picture and may not change. That's part of the test.
+If anything breaks, the picture  usually changes.
+"""
+
+"""
+This code snippet should be deleted when the code is implemented into the
+main code base.
 """
 
 import numpy as np
