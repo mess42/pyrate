@@ -2,9 +2,10 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
-               and Johannes Hartung j.hartung@gmx.net
-               and    Uwe Lippmann  uwe.lippmann@web.de
+Copyright (C) 2017 Moritz Esslinger <moritz.esslinger@web.de>
+               and Johannes Hartung <j.hartung@gmx.net>
+               and     Uwe Lippmann <uwe.lippmann@web.de>
+               and    Thomas Heinze <t.heinze@fn.de>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+from distutils.version import StrictVersion
 
 from core import raster
 from core.material_grin import IsotropicGrinMaterial
@@ -111,8 +114,11 @@ fig = plt.figure(1)
 ax = fig.add_subplot(111)
 
 ax.axis('equal')
-ax.set_axis_bgcolor('white')
-
+if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
+    ax.set_axis_bgcolor('white')
+else:
+    ax.set_facecolor('white')
+    
 phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
