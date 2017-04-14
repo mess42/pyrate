@@ -20,12 +20,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from numpy import *
-from numpy.random import *
-
 import math
 import numpy as np
 import pds
+
+# FIXME: Why do we have to cut-off almost all of these rasters to the unit disk?
+# For a further usage of raster object to be used to construct the field this
+# cut-off is probably not longer appropriate
+
 
 class RectGrid(object):
     def __init__(self):
@@ -55,20 +57,20 @@ class RectGrid(object):
 class HexGrid(RectGrid):
     def getGrid(self,nray):
         # the hex grid is split up into two rect grids (Bravais grid + base)
-        nx = int(round(sqrt(2*sqrt(3)*nray/pi) + 1))
-        x1d = linspace(-1,1,nx)
-        y1d = x1d * sqrt(3)
+        nx = int(round(math.sqrt(2*math.sqrt(3)*nray/math.pi) + 1))
+        x1d = np.linspace(-1,1,nx)
+        y1d = x1d * math.sqrt(3)
         dx = x1d[1] - x1d[0]
         dy = y1d[1] - y1d[0]
 
-        xpup1,ypup1 = meshgrid( x1d, y1d )
+        xpup1,ypup1 = np.meshgrid( x1d, y1d )
         xpup2 = xpup1 + 0.5*dx
         ypup2 = ypup1 + 0.5*dy
 
-        xpup1 = reshape(xpup1, nx**2)
-        ypup1 = reshape(ypup1, nx**2)
-        xpup2 = reshape(xpup2, nx**2)
-        ypup2 = reshape(ypup2, nx**2)
+        xpup1 = np.reshape(xpup1, nx**2)
+        ypup1 = np.reshape(ypup1, nx**2)
+        xpup2 = np.reshape(xpup2, nx**2)
+        ypup2 = np.reshape(ypup2, nx**2)
 
 
         ind = ( (xpup1**2 + ypup1**2) <= 1 )
@@ -78,34 +80,27 @@ class HexGrid(RectGrid):
         xpup2 = xpup2[ ind ]
         ypup2 = ypup2[ ind ]
 
-        N1 = len(xpup1)
-        N2 = len(xpup2)
-        xpup = zeros(N1+N2+1, dtype=float)
-        ypup = zeros(N1+N2+1, dtype=float)
-        xpup[arange(N1)+1] = xpup1
-        xpup[N1+arange(N2)+1] = xpup2
-        ypup[arange(N1)+1] = ypup1
-        ypup[N1+arange(N2)+1] = ypup2
+        xpup = np.hstack((xpup1, xpup2))
+        ypup = np.hstack((ypup1, ypup2))
 
-        return xpup,ypup
+        return (xpup, ypup)
 
 class RandomGrid(RectGrid):
     def getGrid(self,nray):
-        xpup = [0.0]
-        ypup = [0.0]
-        for i in arange(nray):
-            xnew = 42
-            ynew = 42
-            while (xnew**2+ynew**2 > 1):
-                xnew = 2*rand()-1
-                ynew = 2*rand()-1
-            xpup.append(xnew)
-            ypup.append(ynew)
-        return array(xpup), array(ypup)
+
+        nraycircle = int( round( nray * 4.0 / math.pi ) )
+
+
+        xpup = 2.*np.random.random(nraycircle) - 1.
+        ypup = 2.*np.random.random(nraycircle) - 1.
+
+        ind = xpup**2 + ypup**2 <= 1.
+
+        return (xpup[ind], ypup[ind])
 
 class PoissonDiskSampling(RectGrid):
     def getGrid(self,nray):
-        nPerDim = int( round( sqrt( nray * 4.0 / pi ) ) )
+        nPerDim = int( round( math.sqrt( nray * 4.0 / math.pi ) ) )
         dx = 1. / nPerDim
 
         obj = pds.Poisson2D(2.0, 2.0, dx, 100) # square [0,1]x[0,1] mean dist= dx, testpoints 30
@@ -114,24 +109,23 @@ class PoissonDiskSampling(RectGrid):
         sample = obj.returnCompleteSample()
         sample = sample
 
-        xs = array(sample[:,0]) - 1.0
-        ys = array(sample[:,1]) - 1.0
+        xs = sample[:,0] - 1.0
+        ys = sample[:,1] - 1.0
 
-        ind = array(xs**2 + ys**2 <= 1)
+        ind = xs**2 + ys**2 <= 1
 
         xpup = xs[ind]
         ypup = ys[ind]
 
-        return xpup, ypup
+        return (xpup, ypup)
 
 class MeridionalFan(RectGrid):
     def getGrid(self,nray, phi=0.):
-        xlin = zeros(nray+1, dtype=float)
-        xlin[arange(nray)+1] = linspace(-1, 1, nray)
-        alpha = phi / 180. * pi
-        xpup = xlin * -sin(alpha)
-        ypup = xlin * cos(alpha)
-        return xpup,ypup
+        xlin = np.linspace(-1, 1, nray)
+        alpha = phi / 180. * math.pi
+        xpup = xlin * -math.sin(alpha)
+        ypup = xlin * math.cos(alpha)
+        return (xpup, ypup)
 
 class SagitalFan(RectGrid):
     def getGrid(self,nray, phi =0.):
@@ -139,14 +133,36 @@ class SagitalFan(RectGrid):
 
 class ChiefAndComa(RectGrid):
     def getGrid(self,nray, phi=0.):
-        alpha= phi / 180. * pi
-        xpup = array([0,0,-sin(alpha),sin(alpha),cos(alpha),-cos(alpha)],dtype=float)
-        ypup = array([0,0,cos(alpha),-cos(alpha),sin(alpha),-sin(alpha)],dtype=float)
+        alpha= phi / 180. * math.pi
+        xpup = np.array([0,0,-math.sin(alpha),math.sin(alpha),math.cos(alpha),-math.cos(alpha)],dtype=float)
+        ypup = np.array([0,0,math.cos(alpha),-math.cos(alpha),math.sin(alpha),-math.sin(alpha)],dtype=float)
         return xpup,ypup
 
 class Single(RectGrid):
     def getGrid(self, nray, xpup=0.0, ypup=0.0):
-        return array([0,xpup]), array([0, ypup])
+        return np.array([xpup]), np.array([ypup])
 
+class CircularGrid(RectGrid):
+    def getGrid(self, nray, requidistant=True):
+        
+        nraysqrt = int(round(math.sqrt(nray)))
+        r = np.linspace(0, 1, num=nraysqrt)
+        if not requidistant:
+            r = np.sqrt(r) # leads to nearly equal size area elements
+        phi = np.linspace(0, 2.*math.pi, num=nraysqrt, endpoint=False)
+        
+        (R, PHI) = np.meshgrid(r, phi)
 
+        xpup = (R*np.cos(PHI)).flatten()
+        ypup = (R*np.sin(PHI)).flatten()
+        
+        return (xpup, ypup)
+        
 
+if __name__=="__main__":
+    import matplotlib.pyplot as plt
+    rrast = CircularGrid()
+    (x, y) = rrast.getGrid(200, requidistant=False)
+    plt.scatter(x, y)
+    plt.show()    
+    
