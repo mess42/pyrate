@@ -23,12 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 """
-Smoke demo for picture checking. This means the result of this file
-is compared with a fixed picture and may not change. That's part of the test.
-If anything breaks, the picture  usually changes.
-"""
-
-"""
 This code snippet should be deleted when the code is implemented into the
 main code base.
 """
