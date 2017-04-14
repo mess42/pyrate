@@ -148,7 +148,7 @@ class SurfaceObject(AbstractObserver):
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
-            shapeclass = Conic(curv=curv, cc=cc)
+            shapeclass = Conic(LocalCoordinatesLink.lc, curv=curv, cc=cc)
             
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
