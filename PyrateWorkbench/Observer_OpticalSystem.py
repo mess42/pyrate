@@ -33,7 +33,8 @@ import numpy as np
 from core import material
 from core import surfShape
 
-from core.optical_system import OpticalSystem, Surface
+from core.optical_system import OpticalSystem
+from core.surface import Surface
 from core.observers import AbstractObserver
 from core.coordinates import LocalCoordinates
 from core.aperture import CircularAperture
@@ -119,7 +120,7 @@ class OpticalSystemObserver(AbstractObserver):
         obj.addProperty("App::PropertyPythonObject", 
                         "coords", 
                         "OS", 
-                        "os coords interface").coords = LC(None, obj.osclass.globalcoordinatesystem, doc, self.__coordinatesgroup)
+                        "os coords interface").coords = LC(None, obj.osclass.rootcoordinatesystem, doc, self.__coordinatesgroup)
         obj.addProperty("App::PropertyFloatList",
                         "wavelengths",
                         "OS",
