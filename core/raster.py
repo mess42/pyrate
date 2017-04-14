@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from numpy import *
 from numpy.random import *
 
+import math
+import numpy as np
 import pds
 
 class RectGrid(object):
@@ -34,32 +36,21 @@ class RectGrid(object):
 
         :param nray: desired number of rays. Return may deviate, especially for small nray. (int)
 
-        :return xpup: normalized pupil x coordinates in [-1,1]. (1d numpy array of approx (nray+1) floats)
-                      xpup[0] is the chief ray; xpup[1:] is the grid of length nray
-        :return ypup: normalized pupil y coordinates in [-1,1]. (1d numpy array of approx (nray+1) floats)
+        :return xpup: normalized pupil x coordinates in [-1,1]. (1d numpy array of approx (nray) floats)
+        :return ypup: normalized pupil y coordinates in [-1,1]. (1d numpy array of approx (nray) floats)
         """
-        nPerDim = int( round( sqrt( nray * 4.0 / pi ) ) )
+        nPerDim = int( round( math.sqrt( nray * 4.0 / math.pi ) ) )
         dx = 1. / nPerDim
-        x1d = linspace(-1+.25*dx,1-.25*dx,nPerDim)
-        #print "nperdim: ", nPerDim
-        #print "dx: ", dx
-        #print x1d
+        x1d = np.linspace(-1+.25*dx,1-.25*dx,nPerDim)
 
-        (xpup2, ypup2) = meshgrid( x1d, x1d )
+        (xpup, ypup) = np.meshgrid( x1d, x1d )
 
-        xpup2 = reshape(xpup2,nPerDim**2)
-        ypup2 = reshape(ypup2,nPerDim**2)
+        xpup = np.reshape(xpup, nPerDim**2)
+        ypup = np.reshape(ypup, nPerDim**2)
 
-        ind = array(( (xpup2**2 + ypup2**2) <= 1 ))
+        ind = np.array(( (xpup**2 + ypup**2) <= 1 ))
 
-        xpup = zeros(sum(ind)+1, dtype=float)
-        ypup = zeros(sum(ind)+1, dtype=float)
-        selectedind = arange(sum(ind))
-
-        xpup[selectedind+1] = xpup2[ ind ]
-        ypup[selectedind+1] = ypup2[ ind ]
-
-        return xpup,ypup
+        return (xpup[ind], ypup[ind])
 
 class HexGrid(RectGrid):
     def getGrid(self,nray):
