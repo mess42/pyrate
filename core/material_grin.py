@@ -25,9 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 from ray import RayBundle
-import optimize
 
-from globalconstants import standard_wavelength
+from globalconstants import standard_wavelength, eps0
 
 from material import IsotropicMaterial
 
@@ -50,7 +49,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         mat[1, 1, :] = 1.
         mat[2, 2, :] = 1.
         
-        return mat*self.nfunc(x)**2
+        return eps0*mat*self.nfunc(x)**2
 
 
 

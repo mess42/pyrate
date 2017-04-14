@@ -301,7 +301,8 @@ class ModelGlass(ConstantIndexGlass):
 
     def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
         n = self.n0() + self.A() / wave + self.B() / (wave**3.5)
-        return np.eye(3)*n**2
+        # FIXME: shape of epsilon tensor (3x3xN complex)
+        return np.eye(3)*eps0*n**2
 
     def calcCoefficientsFrom_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
         """
