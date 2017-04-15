@@ -356,7 +356,7 @@ This is a differential equation with constant coefficients, so we use the ansatz
 \end{eqnarray}
 where the $\Efield_0$ contains polarisation, electric field amplitude and harmonic time dependence. We find the eigenvalue equation [setting $\partial_j \to i k_j$, notice $\permittivity_{ij}$ constant]
 \begin{align}
- \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_{j\,0} &= 0 \,.
+ \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\,.
 \end{align}
 or more explicit
 \begin{eqnarray}
@@ -706,7 +706,7 @@ into in-plane and off-plane part leads to $\tilde{\omega} = \omega \sqrt{\mu_0}$
 &+\xi ^3 \left[ 2 a_{10} a_7+a_8+a_9\right]\nonumber\\
 &+\xi ^2 \left[\tilde{\omega} ^2 (a_{13}-a_1 a_7)+ 2 a_{10} (a_8+a_9)+a_4 a_7+a_5\right]\nonumber\\
 &+\xi \left[\tilde{\omega}^2 (-a_1 (a_8+a_9)+a_{11}+a_{12})+2 a_{10} a_5+a_4 (a_8+a_9)\right]\nonumber\\
-&+\frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5 
+&+\frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5 \label{eq:xianisotropic}
 \end{align}
 with
 \newcommand{\kpa}[1]{{k_{\parallel\,#1}}}
@@ -806,6 +806,7 @@ Same argument is valid for $(\Vector{n}\times\Wavevector_\parallel)$ component a
 \end{align}
 Therefore the final matrix equations are given by
 \begin{subequations}
+\label{eq:fresnelfinal}
 \begin{align}
   \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
   \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
@@ -814,7 +815,22 @@ Therefore the final matrix equations are given by
 \end{align}
 \end{subequations}
 \remark{needs check!}
-
+For calculating the Fresnel coefficients one needs both materials at once, see \eqref{eq:fresnelfinaldn}. The calculation of the behaviour at the material boundary is
+done like the following:
+\begin{enumerate}
+ \item Calculate $\xi_{\beta\alpha}$ from determinant polynomial \eqref{eq:xianisotropic}
+ \item Construct $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$
+ \item Calculate eigen vectors of propagator matrix $-k_{\beta\alpha\,i} k_{\beta\alpha\,j} + \delta_{ij} \Wavevector_{\beta\alpha}^2 + \omega^2 \mu_0 \permittivity_{\alpha\,ij}$ \eqref{eq:generalDispersionEigenEquationindex}
+ \item From $\xi$s, eigen vectors and field strengths calculate Fresnel coefficients \eqref{eq:fresnelfinal}
+\end{enumerate}
+\remark{is it possible to feed the appropriate tensor values 
+into the raybundle to obtain them during refraction? 
+This would also be useful for calculating the optical path length.
+The philosophy would be: raytracer tells raypath about surfaces/materials where to go. 
+raypath is traced and throughout tracing it gets its global eps-tensor from material by 
+using the propagation procedure. This is only an aux construction for Fresnel and OPD.
+For calculating the OPD in grin media this construction would also be nice.
+}
 
 
 
