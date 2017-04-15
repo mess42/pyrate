@@ -775,32 +775,24 @@ We will introduce some short hand notation to be able to compress the equations 
   \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\Vector{e}_{\beta\alpha} \times \Vector{n} ) E_{\beta\alpha,0} &= \Efield_{in} \times \Vector{n} \\
   \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) E_{\beta\alpha,0} &=  \Wavevector_{in} \times \Efield_{in}
 \end{align}
-The symbol $(\mp)$ represents the signs in front of the different parts of the sum starting most left and switching after the second term.
-Let's start with the last point from the remarks:
+The symbol $(\mp)$ represents the signs in front of the different parts of the sum starting most left and switching after the second term. To decompose
+all equations into the appropriate components, the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), $\Wavevector_\parallel$
+(which is conserved) and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$.
+
+Therefore we perform the following steps:
+\begin{enumerate}
+ \item Decomposition of the last two equations into appropriate inplane components
+ \item Rearrangement of all equations into two off-plane equations and two in-plane equations
+\end{enumerate}
+First of all we decompose the last equation in the wavevector
 \begin{align}
- ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) E_{\beta\alpha,0} &= -( \Vector{e}_{\beta\alpha} \times \Wavevector_{\beta\alpha} ) E_{\beta\alpha,0} \nonumber\\
- &= -[( \Vector{e}_{\beta\alpha} \times \Wavevector_{\parallel\,\beta\alpha} ) + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \times \Vector{n} )] E_{\beta\alpha,0}
+  \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} = -\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel - \xi_{\beta\alpha} \Vector{e}_{\beta\alpha} \times \Vector{n}
 \end{align}
-Multiplying this equation with $\Vector{n}\times$ and $\Vector{n}\cdot$ respectively leads to the necessary decomposition. We also multiply the second equation with $\Vector{n}\times$
-and get for the whole set:
+From this we get the second off-plane equation by scalar product multiplying with $\Vector{n}$:
 \begin{align}
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\Vector{e}_{\beta\alpha} - (\Vector{e}_{\beta\alpha}\Vector{n})\Vector{n} ) E_{\beta\alpha,0} &= \Efield_{in} - (\Efield_{in}\Vector{n})\Vector{n} \label{eq:fresnelinplane1} \\
-  \sum_{\alpha=1,2\;\beta=r,t} (\pm) [-\Wavevector_{\parallel\,\beta\alpha} (\Vector{e}_{\beta\alpha}\Vector{n}) + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} - (\Vector{e}_{\beta\alpha}\Vector{n})\Vector{n} )] E_{\beta\alpha,0} &=  \Vector{n} \times (\Wavevector_{in} \times \Efield_{in}) \label{eq:fresnelinplane2} \\
-  \sum_{\alpha=1,2\;\beta=r,t} (\pm) [\Vector{n} \cdot ( \Vector{e}_{\beta\alpha} \times \Wavevector_{\parallel\,\beta\alpha} )] E_{\beta\alpha,0} &=  \Vector{n}\cdot(\Wavevector_{in} \times \Efield_{in})
+ \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
 \end{align}
-Equations \eqref{eq:fresnelinplane1} and \eqref{eq:fresnelinplane2} are not independent from each other since they connect inplane components.
-Therefore we may add them up (after multiplying \eqref{eq:fresnelinplane1} by $|\Wavevector_{in}|$ for dimensional reasons) and get a new set of equations.
-\begin{subequations}
- \begin{align}
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \label{eq:fresnelfinaldn} \\  
-  \sum_{\alpha=1,2\;\beta=r,t} (\pm) [\Vector{n} \cdot ( \Vector{e}_{\beta\alpha} \times \Wavevector_{\parallel\,\beta\alpha} )] E_{\beta\alpha,0} &=  \Vector{n}\cdot(\Wavevector_{in} \times \Efield_{in}) \label{eq:fresnelfinalnkE} \\
-  \sum_{\alpha=1,2\;\beta=r,t} (\pm) [-\Wavevector_{\parallel\,\beta\alpha} (\Vector{e}_{\beta\alpha}\Vector{n}) + (\xi_{\beta\alpha} - |\Wavevector_{in}|) ( \Vector{e}_{\beta\alpha} - (\Vector{e}_{\beta\alpha}\Vector{n})\Vector{n} )] E_{\beta\alpha,0} & \nonumber \\
-  =  \Vector{n} \times (\Wavevector_{in} \times \Efield_{in}) - |\Wavevector_{in}|(\Efield_{in} - (\Efield_{in}\Vector{n})\Vector{n}) & \label{eq:fresnelfinalinplane}
- \end{align}
-\end{subequations}
-\remark{needs check! further simplification by taking into account that inplane components of $\Wavevector$ stay constant?}
-\remark{decompose \eqref{eq:fresnelfinalinplane} into $\Wavevector_\parallel$ components and one component perpendicular of it}
+
 
 
 
