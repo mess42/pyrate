@@ -97,6 +97,9 @@ class LC(AbstractObserver):
 
     def getGroup(self):
         return self.__group
+        
+    def getLC(self):
+        return self.__lc
 
     group = property(getGroup)
 

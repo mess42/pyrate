@@ -292,7 +292,7 @@ class OpticalSystemObserver(AbstractObserver):
             for (key_surf, surf) in elem.surfaces.iteritems():
                 so = SurfaceObject(self.__doc, self.__surfacegroup, key_surf, shapetype="", aptype="", lclabel="global", matlabel="Vacuum", surface=surf)
                 SurfaceView(so.getObject().ViewObject)
-                so.getObject().LocalCoordinatesLink = self.__doc.getObject(surf.lc.name) # update local coordinates links
+                so.getObject().LocalCoordinatesLink = self.__doc.getObject(surf.rootcoordinatesystem.name) # update local coordinates links
             
 
     def makeRayBundle(self, raybundle, offset):

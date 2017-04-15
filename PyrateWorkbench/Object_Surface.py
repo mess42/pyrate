@@ -148,7 +148,7 @@ class SurfaceObject(AbstractObserver):
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
-            shapeclass = Conic(LocalCoordinatesLink.lc, curv=curv, cc=cc)
+            shapeclass = Conic(self.__obj.LocalCoordinatesLink.getLC(), curv=curv, cc=cc)
             
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
@@ -226,7 +226,7 @@ class SurfaceObject(AbstractObserver):
     # aperture initialization
 
     def initApBase(self, **kwargs):
-        self.__obj.apertureclass = BaseAperture()
+        self.__obj.apertureclass = BaseAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC())
         
     def initApCircular(self, semidiameter=1.0, tx=0., ty=0., **kwargs):
 
@@ -237,7 +237,7 @@ class SurfaceObject(AbstractObserver):
             tx = apclass.tx
             ty = apclass.ty            
         else:
-            apclass = CircularAperture(semidiameter=semidiameter, tx=tx, ty=ty)        
+            apclass = CircularAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC(), semidiameter=semidiameter, tx=tx, ty=ty)        
 
 
         self.__obj.addProperty("App::PropertyFloat", "semidiameter", "Aperture", "semidiameter").semidiameter = semidiameter
@@ -247,7 +247,7 @@ class SurfaceObject(AbstractObserver):
         self.__obj.apertureclass = apclass
     
     def initApUserDefined(self, **kwargs):
-        self.__obj.apertureclass = BaseAperture()
+        self.__obj.apertureclass = BaseAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC())
         
         
         
