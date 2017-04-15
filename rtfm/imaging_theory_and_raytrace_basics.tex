@@ -777,14 +777,13 @@ We will introduce some short hand notation to be able to compress the equations 
 \end{align}
 The symbol $(\mp)$ represents the signs in front of the different parts of the sum starting most left and switching after the second term. To decompose
 all equations into the appropriate components, the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), $\Wavevector_\parallel$
-(which is conserved) and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$.
-
+(which is conserved) and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$. 
 Therefore we perform the following steps:
 \begin{enumerate}
  \item Decomposition of the last two equations into appropriate inplane components
  \item Rearrangement of all equations into two off-plane equations and two in-plane equations
 \end{enumerate}
-First of all we decompose the last equation in the wavevector
+First of all we decompose the wavevector in the last equation
 \begin{align}
   \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} = -\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel - \xi_{\beta\alpha} \Vector{e}_{\beta\alpha} \times \Vector{n}
 \end{align}
@@ -792,7 +791,29 @@ From this we get the second off-plane equation by scalar product multiplying wit
 \begin{align}
  \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
 \end{align}
-
+Now we multiply both last equations by $\xi_{in} \Wavevector_\parallel$ and $\Wavevector_\parallel$ respectively and decompose $\Wavevector_{in} = \Wavevector_\parallel + \xi_{in} \Vector{n}$,
+\begin{align}
+  \sum_{\alpha=1,2\;\beta=r,t} (\mp) \xi_{in}(\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Efield_{in} \times \Vector{n})\Wavevector_\parallel \\
+  \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( -\xi_{\beta\alpha} (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel) E_{\beta\alpha,0} &=  \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel
+\end{align}
+Adding them both up leads to
+\begin{align}
+  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,.
+\end{align}
+Same argument is valid for $(\Vector{n}\times\Wavevector_\parallel)$ component and therefore leads to
+\begin{align}
+  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0\,.
+\end{align}
+Therefore the final matrix equations are given by
+\begin{subequations}
+\begin{align}
+  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
+  \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
+  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
+  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
+\end{align}
+\end{subequations}
+\remark{needs check!}
 
 
 
