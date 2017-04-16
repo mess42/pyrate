@@ -245,7 +245,7 @@ class OpticalSystemObserver(AbstractObserver):
         surf4 = Surface(lc4, shape=surfShape.Conic(lc4, curv=1/-12.756))
         stopsurf = Surface(lc5)
         surf6 = Surface(lc6, shape=surfShape.Conic(lc6, curv=1/3.125))
-        surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=0.1*1/1.479))
+        surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=1/1.479))
         image = Surface(lc8)
         
         
