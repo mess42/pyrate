@@ -90,6 +90,12 @@ class Shape(ClassWithOptimizableVariables):
         
         raise NotImplementedError()
 
+    def getLocalRayBundleForIntersect(self, raybundle):
+        localo = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+        globald = raybundle.returnKtoD()        
+        locald = self.lc.returnGlobalToLocalDirections(globald[-1])                
+        return (localo, locald)        
+
     def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
         """
         Plots the surface in a matplotlib figure.
@@ -184,7 +190,7 @@ class Conic(Shape):
         h_xy, h_yz, h_zx) ( 2d 6xN numpy array of floats )
         """
         # For the Hessian of a conic section there are no z values needed
-
+        # FIXME: make compatible (3x3xN) with x, y, z (3xN)
 
         curv = self.curvature.evaluate()
         cc = self.conic.evaluate()
@@ -208,6 +214,8 @@ class Conic(Shape):
         :return (3x3 numpy array of float) 
         """
         
+        # FIXME: generalize to (3x3xN) where x, y, z are (3xN)        
+        
         (x, y, z) = (xveclocal[0, 0], xveclocal[1, 0], xveclocal[2, 0])
         rho = self.curvature()
         cc = self.conic()
@@ -223,7 +231,7 @@ class Conic(Shape):
                 [rho*x*(rho*(1+cc)*z - 1.), rho*y*(rho*(1+cc)*z - 1.), 1 - rho**2*(1+cc)*(x**2 + y**2)] 
             ])
         
-        return np.dot(prematrix, innermatrix)
+        return np.einsum('ij...,jk...', prematrix, innermatrix)
 
 
 
@@ -237,11 +245,7 @@ class Conic(Shape):
         :param raybundle (RayBundle object), gets changed!
         """
 
-        localo = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
-        globald = raybundle.returnKtoD()        
-        locald = self.lc.returnGlobalToLocalDirections(globald[-1])                
-
-        rayDir = locald
+        (r0, rayDir) = self.getLocalRayBundleForIntersect(raybundle)
 
         # r0 is raybundle.o in the local coordinate system
         # rayDir = raybundle.rayDir in the local coordinate system
@@ -249,8 +253,6 @@ class Conic(Shape):
 
         # FIXME: G = 0 if start points lie on a conic with the same parameters than
         # the next surface! (e.g.: water drop with internal reflection)
-
-        r0 = localo
 
         F = rayDir[2] - self.curvature.evaluate() * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.evaluate()))
         G = self.curvature.evaluate() * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.evaluate())) - 2 * r0[2]
@@ -281,7 +283,7 @@ class Conic(Shape):
         pass
 
 class Cylinder(Conic):
-    def __init__(self, curv=0.0, cc=0.0):
+    def __init__(self, lc, curv=0.0, cc=0.0):
         """
         Create cylindric conic section surface.
 
@@ -294,11 +296,11 @@ class Cylinder(Conic):
              cc = 1 parabolic
              cc > 1 hyperbolic
         """
-        super(Cylinder, self).__init__()
+        super(Cylinder, self).__init__(lc)
         
-        self.curvature = OptimizableVariable(False, "Variable", value=curv)
+        self.curvature = OptimizableVariable("fixed", value=curv)
         self.addVariable("curvature", self.curvature) #self.createOptimizableVariable("curvature", value=curv, status=False)
-        self.conic = OptimizableVariable(False, "Variable", value=cc)
+        self.conic = OptimizableVariable("fixed", value=cc)
         self.addVariable("conic constant", self.conic) #self.createOptimizableVariable("conic constant", value=cc, status=False)
 
 
@@ -313,9 +315,9 @@ class Cylinder(Conic):
         return self.conic_function( rsquared = y**2 )
 
     def intersect(self, raybundle):
-        rayDir = raybundle.rayDir
 
-        r0 = raybundle.o
+
+        (r0, rayDir) = self.getLocalRayBundleForIntersect(raybundle)
 
         F = rayDir[2] - self.curvature.val * ( rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val))
         G = self.curvature.val * ( r0[1]**2 + r0[2]**2 * (1+self.conic.val)) - 2 * r0[2]
@@ -327,18 +329,14 @@ class Cylinder(Conic):
 
         intersection = r0 + raybundle.rayDir * t
 
-        # find indices of rays that don't intersect with the sphere
-        validIndices = (square > 0) #*(intersection[0]**2 + intersection[1]**2 <= 10.0**2))
-        # finding valid indices due to an aperture is not in responsibility of the surfShape class anymore
-        validIndices[0] = True  # hail to the chief
+        validIndices = (square > 0) # TODO: damping criterion
 
-        # Normal
-        normal = self.getNormal( 0, intersection[1] )
-
-        return intersection, t, normal, validIndices
+        globalinter = self.lc.returnLocalToGlobalPoints(intersection)
+        
+        raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
 
 class FreeShape(Shape):
-    def __init__(self, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10):
+    def __init__(self, lc, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10):
         """
         Freeshape surface defined by abstract function F (either implicitly
         or explicitly) and its x, y, z derivatives
@@ -350,11 +348,11 @@ class FreeShape(Shape):
         :param iterations: convergence parameter
         """
 
-        super(FreeShape, self).__init__()
+        super(FreeShape, self).__init__(lc)
 
         for (name, value) in paramlist:
             self.addVariable(name, \
-                OptimizableVariable(False, "Variable", value=value))        
+                OptimizableVariable("fixed", value=value))        
         
         self.eps = eps
         self.iterations = iterations
@@ -398,9 +396,7 @@ class ExplicitShape(FreeShape):
         return self.F(x, y)
 
     def intersect(self, raybundle):
-        rayDir = raybundle.d
-
-        r0 = raybundle.o
+        (r0, rayDir) = self.getLocalRayBundleForIntersect(raybundle)
 
         t = np.zeros_like(r0[0])
 
@@ -410,15 +406,13 @@ class ExplicitShape(FreeShape):
 
         t = fsolve(Fwrapper, t, args=(r0, rayDir))
 
-        intersection = r0 + rayDir * t
+        globalinter = self.lc.returnLocalToGlobalPoints(r0 + rayDir * t)
+
 
         validIndices = np.ones_like(r0[0], dtype=bool)
-        validIndices[0] = True  # hail to the chief
 
-        # Normal
-        normal = self.getNormal( intersection[0], intersection[1] )
 
-        return intersection, t, normal, validIndices
+        raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
 
 
 class ImplicitShape(FreeShape):
@@ -483,13 +477,14 @@ class Asphere(ExplicitShape):
     """
 
 
-    def __init__(self, curv=0, cc=0, acoeffs=[]):
+    def __init__(self, lc, curv=0, cc=0, acoeffs=[]):
 
         self.numcoefficients = len(acoeffs)
         initacoeffs = [("A"+str(2*i+2), val) for (i, val) in enumerate(acoeffs)]
 
         def sqrtfun(r2):
             (curv, cc, acoeffs) = self.getAsphereParameters()
+            print(curv, cc, acoeffs)            
             return np.sqrt(1 - curv**2*(1+cc)*r2)
             
 
@@ -526,7 +521,7 @@ class Asphere(ExplicitShape):
         def hessaf(x, y, z):
             return np.zeros_like((6, len(x)))
 
-        super(Asphere, self).__init__(af, gradaf, hessaf, \
+        super(Asphere, self).__init__(lc, af, gradaf, hessaf, \
             paramlist=([("curv", curv), ("cc", cc)]+initacoeffs), eps=1e-6, iterations=10)
 
     def getAsphereParameters(self):
@@ -543,6 +538,10 @@ class Asphere(ExplicitShape):
 
 
 if __name__ == "__main__":
+    from localcoordinates import LocalCoordinates
+    from ray import RayBundle
+    from globalconstants import standard_wavelength
+
     def testf(x, y, z):
         return x**3 - y**2*x**6 + z**5
 
@@ -593,10 +592,13 @@ if __name__ == "__main__":
     # it makes sense that external functions cannot access some internal
     # optimizable parameters. if you need access to optimizable parameters
     # derive a class from the appropriate shape classes
-    imsh = ImplicitShape(testf, testfgrad, testfhess, paramlist=[], eps=1e-6, iterations=10)
-    exsh = ExplicitShape(testf2, testf2grad, testf2hess, paramlist=[], eps=1e-6, iterations=10)
 
-    ash = Asphere(1./10., -1., [])
+    lcroot = LocalCoordinates("root")
+
+    imsh = ImplicitShape(lcroot, testf, testfgrad, testfhess, paramlist=[], eps=1e-6, iterations=10)
+    exsh = ExplicitShape(lcroot, testf2, testf2grad, testf2hess, paramlist=[], eps=1e-6, iterations=10)
+
+    ash = Asphere(lcroot, 1./10., -1., [])
 
     x1 = np.array([1,2,3])
     y1 = np.array([4,5,6])
@@ -623,16 +625,20 @@ if __name__ == "__main__":
     #print(testfhess(x, y, z, []))
     #print(imsh.getNormal(x, y))
 
-    class rayfaksim(object):
-        def __init__(self):
-            self.o = np.random.rand(3, 10)
-            self.o[2] = np.zeros_like(self.o[0])
-            self.rayDir = np.zeros((3, 10))
-            self.rayDir[2] = np.ones_like(self.rayDir[0])
+    x0 = np.random.random((3, 1))
+    x0[2] = 0.
 
-    ray = rayfaksim()
+    k0 = np.zeros((3, 1))
+    k0[2] = 2.*math.pi/standard_wavelength        
 
-    (intersection, t, normal, valid) = exsh.intersect(ray)
-    #print(ray.o)
+    ey = np.zeros((3, 1))
+    ey[1] = 1.    
+
+    E0 = np.cross(ey, k0, axis=0)
+
+    ray = RayBundle(x0, k0, E0)
+    exsh.intersect(ray)
+    
+    print(ray.x)
     #print(ray.rayDir)
     #print(t)
