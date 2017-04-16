@@ -86,34 +86,6 @@ class Shape(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
-    def getGlobalNormal(self, xvec):
-        """
-        Calculates Normal in global coordinate system at the appropriate local
-        coordinates.
-        
-        :param xvec (3xN array of float)
-        
-        :return global surface normal (3xN array of float)
-        """
-       
-        xveclocal = self.lc.returnGlobalToLocalPoints(xvec)        
-
-        x = xveclocal[0, :]
-        y = xveclocal[1, :]
-
-        localnormal = self.getNormal(x, y)
-        return self.lc.returnLocalToGlobalDirections(localnormal)
-
-
-    def getGlobalNormalDerivative(self, xvecglobal):
-        xveclocal = self.lc.returnGlobalToLocalPoints(xvecglobal)
-        rotationmatrix = self.lc.localbasis        
-        
-        # TODO: to be tested!!!!!        
-        
-        return np.dot(rotationmatrix, np.dot(rotationmatrix, self.getNormalDerivative(xveclocal)))
-
-
     def getNormalDerivative(self, xveclocal):
         
         raise NotImplementedError()

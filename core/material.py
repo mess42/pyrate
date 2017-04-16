@@ -158,13 +158,17 @@ class IsotropicMaterial(Material):
         
         return (xi, valid)
 
+    def getLocalSurfaceNormal(self, surface, xglob):
+        xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
+        nlocshape = surface.shape.getNormal(xlocshape[0], xlocshape[1])
+        nlocmat = self.lc.returnOtherToActualDirections(nlocshape, surface.shape.lc)
+        return nlocmat
+
 
     def refract(self, raybundle, actualSurface):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-                
-        globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
-        normal = self.lc.returnGlobalToLocalDirections(globalnormal)
+        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
@@ -187,10 +191,8 @@ class IsotropicMaterial(Material):
 
     def reflect(self, raybundle, actualSurface):
 
-        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        
-        globalnormal = actualSurface.shape.getGlobalNormal(raybundle.x[-1])
-        normal = self.lc.returnGlobalToLocalDirections(globalnormal)
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
+        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
