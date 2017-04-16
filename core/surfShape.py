@@ -186,24 +186,17 @@ class Conic(Shape):
         Returns the local Hessian of a conic section (in vertex coordinates).
         :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
         :param y: y coordinates on the conic surface (float or 1d numpy array of floats)
-        :return normal: Hessian in vectorial form (h_xx, h_yy, h_zz,
-        h_xy, h_yz, h_zx) ( 2d 6xN numpy array of floats )
+        :return hessian: Hessian in (3x3xN numpy array of floats)
         """
         # For the Hessian of a conic section there are no z values needed
-        # FIXME: make compatible (3x3xN) with x, y, z (3xN)
 
         curv = self.curvature()
         cc = self.conic()
         (num_pts,) = np.shape(x)
 
-        print("hessian numpts")
-        print(num_pts)
-
         hessian = np.array([[curv, 0, 0], [0, curv, 0], [0, 0, curv*(1+cc)]])
         hessian = np.repeat(hessian[:, :, np.newaxis], num_pts, axis=2)
 
-        print("hessian matrix")
-        print(hessian)
 
         return hessian
 
@@ -211,45 +204,30 @@ class Conic(Shape):
 
     def getNormalDerivative(self, xveclocal):
         """
-        :param xveclocal (3x1 array float), single ray position 
+        :param xveclocal (3xN array float) 
         
-        :return (3x3 numpy array of float) 
+        :return (3x3xN numpy array of float) 
         """
-        
-        # FIXME: generalize to (3x3xN) where x, y, z are (3xN)        
-        
+                
         (x, y, z) = (xveclocal[0], xveclocal[1], xveclocal[2])
         rho = self.curvature()
         cc = self.conic()
 
         (num_dims, num_points) = np.shape(xveclocal)
 
-        print("norm derivative numpts")
-        print(num_points)
-
-
         factor = 1. - cc*rho**2*(x**2 + y**2)
         
         curvmatrix = np.array([[rho, 0, 0], [0, rho, 0], [0, 0, rho*(1.+cc)]])
         curvmatrix = np.repeat(curvmatrix[:, :, np.newaxis], num_points, axis=2)        
         
-        print("curvmatrix")
-        print(curvmatrix)
-        
         prematrix = 1./np.sqrt(factor)*curvmatrix
-        
-        print("prematrix")
-        print(prematrix)
-        
+                
         innermatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_points, axis=2) \
             - 1./factor*np.array([
                 [rho**2*x**2, rho**2*x*y, rho*x*(rho*(1+cc)*z - 1.)],
                 [rho**2*y*x, rho**2*y**2, rho*y*(rho*(1+cc)*z - 1.)],
                 [rho*x*(rho*(1+cc)*z - 1.), rho*y*(rho*(1+cc)*z - 1.), 1 - rho**2*(1+cc)*(x**2 + y**2)] 
             ])
-        
-        print("innermatrix")
-        print(innermatrix[:, :, 0])        
         
         return np.einsum('ij...,jk...', prematrix, innermatrix).T
                 
@@ -531,13 +509,31 @@ class Asphere(ExplicitShape):
             res[1] = -curv*y/sq
             
             for (n, an) in enumerate(acoeffs):          
-                res[0] += -2.*x*(n+1)*an*r2**(2*n)
-                res[1] += -2.*y*(n+1)*an*r2**(2*n)
+                res[0] += -2.*x*(n+1)*an*r2**n
+                res[1] += -2.*y*(n+1)*an*r2**n
             
             return res
 
         def hessaf(x, y, z):
-            return np.zeros_like((6, len(x)))
+            res = np.zeros((3, 3, len(x)))
+
+            (curv, cc, acoeffs) = self.getAsphereParameters()
+            
+            r2 = x**2 + y**2
+            sq = sqrtfun(r2)            
+            
+            maindev = -curv/(2.*sq)
+            maindev2 = -curv**3*(1+cc)/(4.*sq)            
+            
+            for (n, an) in enumerate(acoeffs):
+                maindev += -an*(n+1)*r2**n
+                maindev2 += -an*(n+1)*n*r2**(n-1)
+            
+            res[0, 0] = 2*(2*maindev2*x*x + maindev)
+            res[1, 1] = 2*(2*maindev2*y*y + maindev)
+            res[0, 1] = res[1, 0] = 4*maindev2*x*y
+            
+            return res
 
         super(Asphere, self).__init__(lc, af, gradaf, hessaf, \
             paramlist=([("curv", curv), ("cc", cc)]+initacoeffs), eps=1e-6, iterations=10)
@@ -549,10 +545,6 @@ class Asphere(ExplicitShape):
         
     def getCentralCurvature(self):
         return self.dict_variables["curv"].evaluate()
-
-    # TODO: missing Hessian and gradient
-
-
 
 
 if __name__ == "__main__":
@@ -658,7 +650,7 @@ if __name__ == "__main__":
 
     ray = RayBundle(x0, k0, E0)
     exsh.intersect(ray)
-    
+    print(ash.getHessian(x0[0], x0[1]))
     #print(ray.x)
     #print(ray.rayDir)
     #print(t)
