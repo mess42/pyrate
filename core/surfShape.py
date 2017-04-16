@@ -503,7 +503,6 @@ class Asphere(ExplicitShape):
 
         def sqrtfun(r2):
             (curv, cc, acoeffs) = self.getAsphereParameters()
-            print(curv, cc, acoeffs)            
             return np.sqrt(1 - curv**2*(1+cc)*r2)
             
 
@@ -528,8 +527,8 @@ class Asphere(ExplicitShape):
             
 
             res[2] = np.ones_like(x) # z-component always 1
-            res[0] = curv*x/sq
-            res[1] = curv*y/sq
+            res[0] = -curv*x/sq
+            res[1] = -curv*y/sq
             
             for (n, an) in enumerate(acoeffs):          
                 res[0] += -2.*x*(n+1)*an*r2**(2*n)
