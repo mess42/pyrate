@@ -192,16 +192,18 @@ class Conic(Shape):
         # For the Hessian of a conic section there are no z values needed
         # FIXME: make compatible (3x3xN) with x, y, z (3xN)
 
-        curv = self.curvature.evaluate()
-        cc = self.conic.evaluate()
+        curv = self.curvature()
+        cc = self.conic()
+        (num_pts,) = np.shape(x)
 
-        hessian = np.zeros((6,len(x)), dtype=float)
-        hessian[0] = curv*np.ones_like(x) #xx
-        hessian[1] = curv*np.ones_like(x) #yy
-        hessian[2] = curv * ( 1 + cc )*np.ones_like(x) #zz
-        hessian[3] = np.zeros_like(x) #xy
-        hessian[4] = np.zeros_like(x) #yz
-        hessian[5] = np.zeros_like(x) #zx
+        print("hessian numpts")
+        print(num_pts)
+
+        hessian = np.array([[curv, 0, 0], [0, curv, 0], [0, 0, curv*(1+cc)]])
+        hessian = np.repeat(hessian[:, :, np.newaxis], num_pts, axis=2)
+
+        print("hessian matrix")
+        print(hessian)
 
         return hessian
 
@@ -216,24 +218,41 @@ class Conic(Shape):
         
         # FIXME: generalize to (3x3xN) where x, y, z are (3xN)        
         
-        (x, y, z) = (xveclocal[0, 0], xveclocal[1, 0], xveclocal[2, 0])
+        (x, y, z) = (xveclocal[0], xveclocal[1], xveclocal[2])
         rho = self.curvature()
         cc = self.conic()
 
+        (num_dims, num_points) = np.shape(xveclocal)
+
+        print("norm derivative numpts")
+        print(num_points)
+
+
         factor = 1. - cc*rho**2*(x**2 + y**2)
         
-        prematrix = 1./math.sqrt(factor)*np.array([[rho, 0, 0], [0, rho, 0], [0, 0, rho*(1.+cc)]])
+        curvmatrix = np.array([[rho, 0, 0], [0, rho, 0], [0, 0, rho*(1.+cc)]])
+        curvmatrix = np.repeat(curvmatrix[:, :, np.newaxis], num_points, axis=2)        
         
-        innermatrix = np.eye(3) \
+        print("curvmatrix")
+        print(curvmatrix)
+        
+        prematrix = 1./np.sqrt(factor)*curvmatrix
+        
+        print("prematrix")
+        print(prematrix)
+        
+        innermatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_points, axis=2) \
             - 1./factor*np.array([
                 [rho**2*x**2, rho**2*x*y, rho*x*(rho*(1+cc)*z - 1.)],
                 [rho**2*y*x, rho**2*y**2, rho*y*(rho*(1+cc)*z - 1.)],
                 [rho*x*(rho*(1+cc)*z - 1.), rho*y*(rho*(1+cc)*z - 1.), 1 - rho**2*(1+cc)*(x**2 + y**2)] 
             ])
         
-        return np.einsum('ij...,jk...', prematrix, innermatrix)
-
-
+        print("innermatrix")
+        print(innermatrix[:, :, 0])        
+        
+        return np.einsum('ij...,jk...', prematrix, innermatrix).T
+                
 
     def getCentralCurvature(self):
         return self.curvature.evaluate()
@@ -556,14 +575,14 @@ if __name__ == "__main__":
         return result
 
     def testfhess(x, y, z):
-        result = np.zeros((6, len(x)))
+        result = np.zeros((3, 3, len(x)))
 
-        result[0] = 6.*x - 30.*y**2*x**4
-        result[1] = -2.*x**6
-        result[2] = 20.*z**3
-        result[3] = -12.*y*x**5
-        result[4] = np.zeros_like(x)
-        result[5] = np.zeros_like(x)
+        result[0, 0] = 6.*x - 30.*y**2*x**4
+        result[1, 1] = -2.*x**6
+        result[2, 2] = 20.*z**3
+        result[0, 1] = result[1, 0] = -12.*y*x**5
+        result[1, 2] = result[1, 2] = np.zeros_like(x)
+        result[2, 0] = result[0, 2] = np.zeros_like(x)
 
         return result
 
@@ -625,20 +644,22 @@ if __name__ == "__main__":
     #print(testfhess(x, y, z, []))
     #print(imsh.getNormal(x, y))
 
-    x0 = np.random.random((3, 1))
+    x0 = np.zeros((3, 10))#random.random((3, 10))
     x0[2] = 0.
 
-    k0 = np.zeros((3, 1))
+    k0 = np.zeros((3, 10))
     k0[2] = 2.*math.pi/standard_wavelength        
 
-    ey = np.zeros((3, 1))
+    ey = np.zeros((3, 10))
     ey[1] = 1.    
 
     E0 = np.cross(ey, k0, axis=0)
 
+    conicshape = Conic(lcroot, curv=0.1, cc=0.)
+
     ray = RayBundle(x0, k0, E0)
     exsh.intersect(ray)
     
-    print(ray.x)
+    #print(ray.x)
     #print(ray.rayDir)
     #print(t)
