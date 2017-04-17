@@ -493,7 +493,7 @@ class Asphere(ExplicitShape):
             
             res = curv*r2/(1 + sqrtfun(r2))
             for (n, an) in enumerate(acoeffs):
-                res += an*r2**(2*n+2)
+                res += an*r2**(n+1)
             return res
 
         def gradaf(x, y, z): # gradient for implicit function z - af(x, y) = 0
