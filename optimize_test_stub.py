@@ -47,9 +47,11 @@ class Optimizer:
     def optimizeCoreObject(self, coreobj, meritfunc, updatefunc):
         # For every core object there is a certain user level merit function
         # necessary. Also the updatefunc is necessary, to e.g. update subsystems
+        # during optimization run
         pass
        
     def visit(self, obj):
+        # how to call optimizeCoreObject?
         pass
 
 
@@ -63,12 +65,15 @@ class ScipyOptimizer(Optimizer):
 if __name__ == "__main__":
     co = CoreObject()
 
-    def updatefunc():
+    def updatefunc(coreobj):
         pass
     
-    def meritfunc():
-        pass
+    def meritfunc(coreobj):
+        return (coreobj.dict_variables["X"].evaluate()**2 \
+            + coreobj.dict_variables["Y"].evaluate()**2 - 5.**2)**2#\
+
+    print(meritfunc(co))    
     
-    so = ScipyOptimizer(meritfunc, updatefunc)
+    so = ScipyOptimizer()
     
     co.optimize(so)
