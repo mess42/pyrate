@@ -67,7 +67,6 @@ class CreateSystemTool:
                                           QMessageBox.Yes | QMessageBox.No)
             if result == QMessageBox.Yes:
                 stdmatcatalogue = MaterialCatalogueObject(doc, Group_StandardMaterials_Label)
-                stdmatcatalogue.addMaterial("Mirror", "Mirror")
                 stdmatcatalogue.addMaterial("ConstantIndexGlass", "PMMA", index=1.5)
                 stdmatcatalogue.addMaterial("ConstantIndexGlass", "Vacuum")
                 stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")                
