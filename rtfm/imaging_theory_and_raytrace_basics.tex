@@ -413,7 +413,8 @@ $\Vector{k}$ gives only two terms.
 + (\permittivity_{\ell j} + \permittivity_{j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
 \right]
 \end{align}
-For $D = 0$, the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.
+
+For $D = 0$, the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.\remark{Mo doesn't understand this sentence}
 
 
 \subsection{Uniaxial anisotropic, homogeneous media}
@@ -1097,28 +1098,21 @@ The next leading order for rays with small height and angle is the linear order,
 \end{eqnarray}
 
 Performing the Taylor expansion in linear order, we find the ABCD-Matrices of typical optical elements. 
-% For simplicity, we restrict the examples shown here to homogeneous media that can be described by a real valued refractive index $n$.
 \begin{eqnarray}
  \begin{pmatrix}
   1 & \Delta z \\ 0 & 1
  \end{pmatrix}
  && \textrm{propagation in homogeneous media}
- %
- %
  \\
  \begin{pmatrix}
   1 & 0 \\ \left( \frac{n_1}{n_2} - 1 \right) \frac{1}{R} & \frac{n_1}{n_2}
  \end{pmatrix}
  && \textrm{refraction of a thin surface}
- %
- %
  \\
  \begin{pmatrix}
   1 & 0 \\ -\frac{2}{R} & 1
  \end{pmatrix}
  && \textrm{thin mirror}
- %
- %
  \\
  \begin{pmatrix}
   1 & 0 \\ -\frac{1}{f} & 1
@@ -1164,7 +1158,7 @@ Let's consider we have a given ABCD matrix of an optical system and want to know
   y_{im}^{\,\prime} &=& C y_{obj} + D y_{obj}^{\,\prime}
 \end{eqnarray}
 
-\subsubsection{focal length}
+\subsubsection{Focal Length}
 We consider a collimated ray bundle $y_{obj}^{\,\prime} = 0$.
 We define the image sided paraxial focal length as the distance between image sided principal plane and image.
 In the principal plane, the collimated marginal ray has the height $y_{obj}$ and inclination $y_{im}^{\,\prime}$, bending towards the focal point.
@@ -1204,7 +1198,7 @@ We obtain in close analogy to the image sided focal length
 In systems with classical lens elements only and without immersion, 
 we find equal focal lengths on object and image side. The determinant of the ABCD matrix is then equal to one.
 
-\subsubsection{properties of finite conjguate systems}
+\subsubsection{Finite Conjguate Systems}
 In object sided finite conjugate systems, each point in object space $y_{obj}$ is a field point, 
 emitting a cone of rays $y_{obj}^{\,\prime}$.
 
@@ -1252,7 +1246,7 @@ The magnifictaion $\tilde{A}$ after refocusing is
 
 
 
-\subsubsection{properties of infinite to finite conjguate systems}
+\subsubsection{Infinite to Finite Conjguate Systems}
 In object sided infinite conjugate systems, each direction in object space $y^{\,\prime}_{obj}$ corresponds to a field point, 
 emitting a collimated bundle of rays.
 
@@ -1276,7 +1270,7 @@ In systems with classical lens elements only and no immersion, the determinant o
 \end{eqnarray}
 
 
-\subsubsection{properties of finite to infinite conjguate systems}
+\subsubsection{Finite to Infinite Conjguate Systems}
 In image sided infinite conjugate systems, each point in object space $y_{obj}$ emits a cone of rays, 
 that is collimated by the optical system.
 
@@ -1306,7 +1300,6 @@ In case $D$ is nonzero, we try to fulfill the imaging condition by adding an obj
   C\qquad & C \Delta z_{obj} + D 
  \end{pmatrix}
 \end{eqnarray}
-% 0 = C \Delta z_{obj} + D
 We choose $\Delta z_{obj} = - D / C$.
 The magnifictaion $\tilde{C}$ after shifting the object distance is
 \begin{eqnarray}
@@ -1314,7 +1307,7 @@ The magnifictaion $\tilde{C}$ after shifting the object distance is
 \end{eqnarray}
 
 
-\subsubsection{properties of infinite conjguate systems}
+\subsubsection{Infinite Conjguate Systems}
 In both sided infinite conjugate systems, imaging is achieved if collimated ray bundles are transfered into collimated ray bundles.
 
 \begin{eqnarray}
@@ -1334,7 +1327,7 @@ An infinite to infinite system cannot be refocused by adding a finite air distan
 \subsubsection{Motivation}
 
 The ABCD ansatz allows for very fast calculations and is invaluable in the pre-design stage.
-Its simplicity, however, comes with the restriction to centro-symmetric systems and the need for an optical axis.
+Its simplicity, however, comes with the restriction to meridional rays in centro-symmetric systems and the need for an optical axis.
 
 In systems like Offner systems or off-axis parabolic mirrors, the center-of-field chief ray is no more aligned with the axis of rotational symmetry of the surfaces.
 In these systems, it is no longer sufficient to obtain first order properties from the central curvature on the axis of symmetry of each surface.
@@ -1412,6 +1405,16 @@ wavevectors must obey the dispersion relation
 and ray direction vectors must be of unit length.
 This limits the degrees of freedom for the deviations.
 
+\paragraph{Intersection points}
+
+We demand that near-pilot intersection points are on the surface.
+In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
+We represent the ray height in this plane by
+\begin{eqnarray}
+ \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
+ \label{eq:deltaR_equals_XY}
+\end{eqnarray}
+where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 
 \paragraph{Wavevectors}
 Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
@@ -1427,30 +1430,22 @@ Near-pilot rays must fulfill
 \begin{eqnarray}
  \Delta \Wavevector \cdot \Wavevector_{pilot} &=& 0 + 0i
 \end{eqnarray}
-We represent $\Delta \Wavevector$ as
-\begin{eqnarray}
- \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
-\end{eqnarray}
-where $\Vector{e}_U$ and $\Vector{e}_V$ are independent unit vectors and $U,V$ are complex valued prefactors.
 
 \paragraph{Anisotropic, homogeneous media.}
 TODO
 
-\paragraph{Inhomogenous media.}
-TODO
-One should consider that the pilot ray does not have \emph{one} direction over all its trajectory.
+\paragraph{Wavevector Degrees of Freedom}
+The change of the wavevector $\Delta\Wavevector$ is a 3 dimensional vector of complex numbers, that is, 6 real valued degrees of freedom.
+The dispersion, as discussed in the paragraphs above, is a scalar complex valued equation, imposing 2 real valued constraints.
 
-\paragraph{Intersection points}
-
-We demand that near-pilot intersection points are on the surface.
-In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
-We represent the ray height in this plane by
-
+We represent the remaining degrees of freedom of $\Delta \Wavevector$ as
 \begin{eqnarray}
- \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
- \label{eq:deltaR_equals_XY}
+ \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
 \end{eqnarray}
-where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
+where $\Vector{e}_U$ and $\Vector{e}_V$ are independent basis vectors and $U,V$ are complex valued prefactors.
+\remark{TODO:Check whether this representation is possible also for the general anisotropic case.}
+The basis vectors $\Vector{e}_U, \Vector{e}_V$ are defined up to a complex valued global phase and a roll degree of freedom. 
+
 
 \subsubsection{XYUV matrices}
 We choose the object sided basis vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
@@ -1470,7 +1465,7 @@ The propagator for near-pilot rays is the Jacobi matrix
   \frac{\partial \Re U_{fin}}{\partial X_{obj}} & \frac{\partial \Re U_{fin}}{\partial Y_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im V_{obj}} \\[2ex]
   \frac{\partial \Im U_{fin}}{\partial X_{obj}} & \frac{\partial \Im U_{fin}}{\partial Y_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im V_{obj}} \\[2ex]
   \frac{\partial \Re V_{fin}}{\partial X_{obj}} & \frac{\partial \Re V_{fin}}{\partial Y_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Im V_{fin}}{\partial X_{obj}} & \frac{\partial \Im V_{fin}}{\partial Y_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Im V_{fin}}{\partial X_{obj}} & \frac{\partial \Im V_{fin}}{\partial Y_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im V_{obj}}
  \end{pmatrix}
  \begin{pmatrix}
   X_{obj} \\[2ex] Y_{obj} \\[2ex] \Re U_{obj} \\[2ex] \Im U_{obj} \\[2ex] \Re V_{obj} \\[2ex] \Im V_{obj} 
@@ -1481,6 +1476,27 @@ To obtain these atomic matrices, we perform Taylor expansions around the pilot r
 For systems where an explicit calculation is not possible
 -- or the operator suffers from laziness --
 it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
+
+We abbreviate the coefficients of the propagator by sub-matrices $\hat{A}, \hat{B}, \hat{C}, \hat{D}$, 
+resembling the ABCD formalism.
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_{fin} \\ Y_{fin} \\ \Re U_{fin} \\ \Im U_{fin} \\ \Re V_{fin} \\ \Im V_{fin} 
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  A_{11} & A_{12} & B_{11} & B_{12} & B_{13} & B_{14} \\
+  A_{21} & A_{22} & B_{21} & B_{22} & B_{23} & B_{24} \\
+  C_{11} & C_{12} & D_{11} & D_{12} & D_{13} & D_{14} \\
+  C_{21} & C_{22} & D_{21} & D_{22} & D_{23} & D_{24} \\
+  C_{31} & C_{32} & D_{31} & D_{32} & D_{33} & D_{34} \\
+  C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
+ \end{pmatrix}
+ \begin{pmatrix}
+  X_{obj} \\ Y_{obj} \\ \Re U_{obj} \\ \Im U_{obj} \\ \Re V_{obj} \\ \Im V_{obj} 
+ \end{pmatrix}
+\end{eqnarray}
+
 
 \subsubsection{Propagation in homogeneous media}
 In homogeneous media, rays travel along straights.
@@ -1500,6 +1516,67 @@ separated by a pilot ray geometric path length of $\Delta s$
 \end{eqnarray}
 
 \subsection{Interpretation of XYUV matrices}
+\subsubsection{Focal Length}
+TODO
+
+\subsubsection{Finite Conjugate Systems}
+We define imaging as:
+For a fixed ray starting position $(X,Y)$, there is a fan $(U,V)$ that is propagated on a common point in image space.
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_{im} \\ Y_{im} 
+ \end{pmatrix}
+ &=&
+ \hat{A}
+ \begin{pmatrix}
+  X_{obj} \\ Y_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+or, in other words,
+\begin{eqnarray}
+ \hat{B}
+ \begin{pmatrix}
+  U_{obj} \\ V_{obj}
+ \end{pmatrix}
+ &=& 
+ 0
+\end{eqnarray}
+The matrix $\hat{B}$ is of rank 2, the input vector $(U,V)$ contains 4 independent real valued degrees of freedom.
+That is, we can impose more constraints on the input vector. 
+In the following, we develop these additional requirements.
+
+We consider the plane waves of the pilot ray and a near pilot ray, 
+$\Wavevector_{pilot}$ and $\Wavevector = \Wavevector_{pilot} + U \Vector{e}_U + V \Vector{e}_V$.
+They interfere and form a sinusoidal grating intensity pattern
+\begin{eqnarray}
+ I &=& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
+\end{eqnarray}
+We restrict the locations to the image plane
+\begin{eqnarray}
+ \Location &=& \Location_{pilot} + X \Vector{e}_X + Y \Vector{e}_Y
+\end{eqnarray}
+We desire the modulation depth of the intensity pattern to be independent of position
+\begin{eqnarray}
+ (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R}
+\end{eqnarray}
+%\begin{eqnarray}
+% \Im (U \Vector{e}_U + V \Vector{e}_V)(X \Vector{e}_X + Y \Vector{e}_Y) &=& 0
+%\end{eqnarray}
+Together with the imaging condition, we obtain
+\begin{eqnarray}
+  \begin{pmatrix}
+  B_{11} & B_{12} & B_{13} & B_{14} \\
+  B_{21} & B_{22} & B_{23} & B_{24} \\
+  (\Im \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\
+  (\Im \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
+ \end{pmatrix}
+ \begin{pmatrix}
+  \Re U_{obj} \\ \Im U_{obj} \\ \Re V_{obj} \\ \Im V_{obj} 
+ \end{pmatrix}
+ &=& 0
+\end{eqnarray}
+Nontrivial solutions are found if the determinant vanishes.
 
 
 \chapter{Raytracing}
@@ -1536,7 +1613,7 @@ Depending on the conic constant, the biconic $x$ and $y$ cross sections are a
 
 An invariant or implicit form of the biconic sag equation \eqref{eq:biconic} is given by
 \begin{align}
- (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,\label{eq:implicitbiconic}
+ (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,\label{eq:biconicImplicitSag}
 \end{align}
 where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \rho_x x^2 + \rho_y y^2$. 
 Next we consider the ray straight equation
@@ -1727,7 +1804,6 @@ with $q \in \{ x_0, y_0, z_0, d_x, d_y, d_z \}$
  \frac{\partial t}{\partial q} 
  &=& 
   \frac{t}{G}
-  % \frac{1}{F + \sqrt{F^2 + H G}} 
    \left(
      \frac{\partial G}{\partial q} 
      - t \frac{\partial F}{\partial q}
@@ -1782,8 +1858,6 @@ with the gradients
     0
   \end{pmatrix}
 \end{eqnarray}
-
-These intermediate results will be used to develop the XYUV matrix formalism in subsection \ref{subseq:xyuv_formalism}.
 
 \subsubsection{On the equality of quadratic form and biconic}
 Rotating the coordinate system,
