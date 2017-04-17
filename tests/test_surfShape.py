@@ -51,16 +51,14 @@ def test_conic_sag():
 def test_asphere_sag():
     
     radius = 10.0
-    cc = 0
+    cc = -1.5
+    curv = 1./radius
     a2 = 1e-3
     a4 = -1e-6
     a6 = 1e-8
 
     lc = LocalCoordinates(name="root")    
     
-    radius = 10.0
-    cc = -1.5
-    curv = 1./radius
         
     if cc > -1:
         maxradius = math.sqrt(1./((1+cc)*curv**2))    

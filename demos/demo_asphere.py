@@ -124,8 +124,8 @@ def meritfunctionrms(s):
 backsurf.shape.dict_variables["curv"].changetype("variable")
 backsurf.shape.dict_variables["cc"].changetype("variable")
 # A2 not variable
-# backsurf.shape.dict_variables["A4"].changetype("variable")
-# backsurf.shape.dict_variables["A6"].changetype("variable")
+backsurf.shape.dict_variables["A4"].changetype("variable")
+backsurf.shape.dict_variables["A6"].changetype("variable")
 
 
 optimi = core.optimize.Optimizer(s, meritfunctionrms, osupdate)
