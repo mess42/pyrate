@@ -1513,6 +1513,7 @@ separated by a pilot ray geometric path length of $\Delta s$
   0 & 0 & 0 & 0 & 1 & 0 \\[2ex]
   0 & 0 & 0 & 0 & 0 & 1 \\[2ex]  
  \end{pmatrix}
+ \label{eq:xyuv_propagation_homogeneous}
 \end{eqnarray}
 
 \subsection{Interpretation of XYUV matrices}
@@ -1577,6 +1578,28 @@ Together with the imaging condition, we obtain
  &=& 0
 \end{eqnarray}
 Nontrivial solutions are found if the determinant vanishes.
+In case the determeninant is nonzero, 
+we refocus by inserting a homogeneous material propagation (eq. \ref{eq:xyuv_propagation_homogeneous}) in front of the image plane.
+\begin{eqnarray}
+  \begin{vmatrix}
+  B_{11} + \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & 
+  B_{12} + \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & 
+  B_{13} + \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & 
+  B_{14} + \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
+  B_{21} + \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & 
+  B_{22} + \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & 
+  B_{23} + \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & 
+  B_{24} + \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
+  (\Im \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\[2ex]
+  (\Im \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
+ \end{vmatrix}
+ &=& 0 \nonumber \\
+\end{eqnarray}
+The characteristic polynomial is quadratic in $\Delta s$, so we expect two defocus positions where the determinant vanishes.
+The corresponding eigenvector $(U,V)$ forms a ray fan that is imaged to a point in the image plane.
+Wavevectors with deviations orthogonal to the eigenvector, however, are in general not stigmatically imaged.
+We obtain an anastigmatic line focus.
+In case of degenerate solutions $\Delta s$, changes along both eigenvector directions are stigmatically focused. 
 
 
 \chapter{Raytracing}
