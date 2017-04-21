@@ -344,6 +344,14 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         globaldirs = lcother.returnLocalToGlobalDirections(otherdirs)
         return self.returnGlobalToLocalDirections(globaldirs)
         
+    def returnActualToOtherTensors(self, localtensors, lcother):
+        # TODO: constraint: lcother and self share same root
+        globaltensors = self.returnLocalToGlobalTensorss(localtensors)
+        return lcother.returnGlobalToLocalDirections(globaltensors)
+
+    def returnOtherToActualTensors(self, othertensors, lcother):
+        globaltensors = lcother.returnLocalToGlobalTensors(othertensors)
+        return self.returnGlobalToLocalTensors(globaltensors)
 
 
     def returnLocalToGlobalPoints(self, localpts):
@@ -382,26 +390,26 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         localpts = np.dot(self.localbasis.T, globaldirs)        
         return localpts
         
-    def returnGlobalToLocalTensor(self, globaltensor):
+    def returnGlobalToLocalTensors(self, globaltensor):
         """
         @param: globaldirs (3x3xN numpy array)
         @return: localdirs (3x3xN numpy array)
         """
 
-        # FIXME: non-operational, yet!
-        localtensor = np.einsum('kl...,ki...,lj...', globaltensor, self.localbasis.T, self.localbasis.T).T
+        (num_dims_r, num_dims_c, num_pts) = np.shape(globaltensor)
+        localbasisT = np.repeat(self.localbasis.T[:, :, np.newaxis], num_pts, axis=2)
+        localtensor = np.einsum('lj...,ji...,ki...', localbasisT, globaltensor, localbasisT).T
         return localtensor
 
-    def returnLocalToGlobalTensor(self, localtensor):
+    def returnLocalToGlobalTensors(self, localtensor):
         """
         @param: globaldirs (3x3xN numpy array)
         @return: localdirs (3x3xN numpy array)
         """
 
-        # FIXME: non-operational, yet!        
         (num_dims_r, num_dims_c, num_pts) = np.shape(localtensor)
         localbasis = np.repeat(self.localbasis[:, :, np.newaxis], num_pts, axis=2)
-        globaltensor = np.einsum('ij...,ik...,jl...', localtensor, localbasis, localbasis).T
+        globaltensor = np.einsum('lj...,ji...,ki...', localbasis, localtensor, localbasis).T
         return globaltensor
         
 
@@ -524,15 +532,20 @@ if __name__ == "__main__":
         
         globalvector1 = surfaa1.returnLocalToGlobalDirections(aa1vector1)
         globalvector2 = surfaa1.returnLocalToGlobalDirections(aa1vector2)
-        globaltensor = surfaa1.returnLocalToGlobalTensor(aa1tensor)
+        globaltensor = surfaa1.returnLocalToGlobalTensors(aa1tensor)
         
         scalarprodv1v2global = np.einsum('i...,i...', globalvector1, globalvector2)
         scalarproductaa1global = np.einsum('ij...,i...,j...', globaltensor, globalvector1, globalvector2)
 
         # scalar products have to stay invariant
         
+        print("comparison vector scalar products")
         print(scalarprodv1v2)
         print(scalarprodv1v2global)
 
-
+        print("comparison vector tensor vector scalar products")
+        print(scalarproductaa1)
+        print(scalarproductaa1global)
+        aa1tensorback = surfaa1.returnGlobalToLocalTensors(globaltensor)
+        print(aa1tensorback - aa1tensor)
         
