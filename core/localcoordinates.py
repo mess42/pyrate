@@ -382,6 +382,28 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         localpts = np.dot(self.localbasis.T, globaldirs)        
         return localpts
         
+    def returnGlobalToLocalTensor(self, globaltensor):
+        """
+        @param: globaldirs (3x3xN numpy array)
+        @return: localdirs (3x3xN numpy array)
+        """
+
+        # FIXME: non-operational, yet!
+        localtensor = np.einsum('kl...,ki...,lj...', globaltensor, self.localbasis.T, self.localbasis.T).T
+        return localtensor
+
+    def returnLocalToGlobalTensor(self, localtensor):
+        """
+        @param: globaldirs (3x3xN numpy array)
+        @return: localdirs (3x3xN numpy array)
+        """
+
+        # FIXME: non-operational, yet!        
+        (num_dims_r, num_dims_c, num_pts) = np.shape(localtensor)
+        localbasis = np.repeat(self.localbasis[:, :, np.newaxis], num_pts, axis=2)
+        globaltensor = np.einsum('ij...,ik...,jl...', localtensor, localbasis, localbasis).T
+        return globaltensor
+        
 
     def returnConnectedNames(self):
         lst = [self.name]
@@ -441,7 +463,8 @@ if __name__ == "__main__":
     
     printouttestcase1 = False
     printouttestcase2 = False
-    printouttestcase3 = True
+    printouttestcase3 = False
+    printouttestcase4 = True
     
     if printouttestcase1:
         print(str(surfcb1))
@@ -489,3 +512,27 @@ if __name__ == "__main__":
         surfaa3.tiltz.setvalue(tiltz)
         surfaa3.update()
         print(str(surfaa4) + "\n\n\n")
+
+    if printouttestcase4:
+        
+        aa1vector1 = np.random.random((3, 10))
+        aa1vector2 = np.random.random((3, 10))
+        aa1tensor = np.random.random((3, 3, 10))
+        
+        scalarprodv1v2 = np.einsum('i...,i...', aa1vector1, aa1vector2)
+        scalarproductaa1 = np.einsum('ij...,i...,j...', aa1tensor, aa1vector1, aa1vector2)
+        
+        globalvector1 = surfaa1.returnLocalToGlobalDirections(aa1vector1)
+        globalvector2 = surfaa1.returnLocalToGlobalDirections(aa1vector2)
+        globaltensor = surfaa1.returnLocalToGlobalTensor(aa1tensor)
+        
+        scalarprodv1v2global = np.einsum('i...,i...', globalvector1, globalvector2)
+        scalarproductaa1global = np.einsum('ij...,i...,j...', globaltensor, globalvector1, globalvector2)
+
+        # scalar products have to stay invariant
+        
+        print(scalarprodv1v2)
+        print(scalarprodv1v2global)
+
+
+        
