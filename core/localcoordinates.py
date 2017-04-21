@@ -455,44 +455,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
   
     
 if __name__ == "__main__":
-    '''testcase1: undo coordinate break'''
-    surfcb1 = LocalCoordinates(name="1", decz=40.0)
-    surfcb2 = surfcb1.addChild(LocalCoordinates(name="2", decz=20.0))
-    surfcb3 = surfcb2.addChild(LocalCoordinates(name="3", decy=15.0, tiltx=10.0*math.pi/180.0, tiltThenDecenter=0))
-    surfcb35 = surfcb3.addChild(LocalCoordinates(name="35", decz=-20.0))
-    surfcb4 = surfcb35.addChild(LocalCoordinates(name="4"))
-    surfcb45 = surfcb4.addChild(LocalCoordinates(name="45", decz=+20.0))
-    surfcb5 = surfcb45.addChild(LocalCoordinates(name="5", decy=-15.0, tiltx=-10.0*math.pi/180.0, tiltThenDecenter=1))
-    surfcb6 = surfcb5.addChild(LocalCoordinates(name="6", decz=-20.0))
-    surfcb7 = surfcb6.addChild(LocalCoordinates(name="7"))
-    
-    surfcb8 = surfcb3.addChild(LocalCoordinates(name="8", decx=5.555, decy=3.333, tiltz=1.0, tiltx=1.0))    
-    surfcb9 = surfcb3.addChild(LocalCoordinates(name="9", decx=-5.555, decy=-3.333, tiltz=-1.0, tiltx=-1.0))    
     
     printouttestcase1 = False
     printouttestcase2 = False
     printouttestcase3 = False
     printouttestcase4 = True
     
-    if printouttestcase1:
-        print(str(surfcb1))
-        print(str(surfcb2))
-        print(str(surfcb3))
-        print(str(surfcb35))
-        print(str(surfcb4))
-        print(str(surfcb45))
-        print(str(surfcb5))
-        print(str(surfcb6))
-        print(str(surfcb7))
-        
-        print(surfcb1.returnConnectedNames())
-        print(surfcb1.pprint())
-        
-        o = np.random.random((3,5))
-        print("ORIGINAL")
-        print(o)
-        print("TRANSFORMED")    
-        print(surfcb4.returnGlobalToLocalPoints(surfcb4.returnLocalToGlobalPoints(o)))
     '''testcase2: convert rotation matrix to tilt'''
     surfrt0 = LocalCoordinates("rt0")
     for loop in range(1000):
@@ -511,41 +479,5 @@ if __name__ == "__main__":
     surfaa3 = surfaa2.addChild(LocalCoordinates("aa3", decz=0))
     surfaa4 = surfaa3.addChild(LocalCoordinates("aa4", decz=57.587705))
     
-    if printouttestcase3:    
 
-        print(str(surfaa4) + "\n\n\n")    
-        (tiltx, tilty, tiltz) = surfaa3.calculateAim(surfaa0)
-        surfaa3.tiltx.setvalue(tiltx)
-        surfaa3.tilty.setvalue(tilty)
-        surfaa3.tiltz.setvalue(tiltz)
-        surfaa3.update()
-        print(str(surfaa4) + "\n\n\n")
-
-    if printouttestcase4:
-        
-        aa1vector1 = np.random.random((3, 10))
-        aa1vector2 = np.random.random((3, 10))
-        aa1tensor = np.random.random((3, 3, 10))
-        
-        scalarprodv1v2 = np.einsum('i...,i...', aa1vector1, aa1vector2)
-        scalarproductaa1 = np.einsum('ij...,i...,j...', aa1tensor, aa1vector1, aa1vector2)
-        
-        globalvector1 = surfaa1.returnLocalToGlobalDirections(aa1vector1)
-        globalvector2 = surfaa1.returnLocalToGlobalDirections(aa1vector2)
-        globaltensor = surfaa1.returnLocalToGlobalTensors(aa1tensor)
-        
-        scalarprodv1v2global = np.einsum('i...,i...', globalvector1, globalvector2)
-        scalarproductaa1global = np.einsum('ij...,i...,j...', globaltensor, globalvector1, globalvector2)
-
-        # scalar products have to stay invariant
-        
-        print("comparison vector scalar products")
-        print(scalarprodv1v2)
-        print(scalarprodv1v2global)
-
-        print("comparison vector tensor vector scalar products")
-        print(scalarproductaa1)
-        print(scalarproductaa1global)
-        aa1tensorback = surfaa1.returnGlobalToLocalTensors(globaltensor)
-        print(aa1tensorback - aa1tensor)
         
