@@ -138,7 +138,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             We first subtract the pilot ray and afterwards take the first two lines (x, y) from
             the components without pilot ray.
             """
-            return np.real(np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:]))
+            return (np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])).real
 
         def reduce_matrix_k_imag(m):        
             """
@@ -146,7 +146,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             We first subtract the pilot ray and afterwards take the first two lines (x, y) from
             the components without pilot ray.
             """
-            return np.imag(np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:]))
+            return (np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])).imag
             
         
         hitlist = self.sequence_to_hitlist(sequence)        
@@ -181,6 +181,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
             endmatrix = np.vstack((endxred, endkred_real, endkred_imag))
 
             transfer = np.dot(endmatrix, np.linalg.inv(startmatrix))
+            print("transfer ", surfhit)            
+            print(np.array_str(transfer, precision=5, suppress_small=True))
             # TODO: 6x6 matrices, check whether the imag part is not cuttet somewhere
             
             XYUVmatrices[(s1, s2, numhit)] = transfer
