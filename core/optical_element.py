@@ -165,24 +165,42 @@ class OpticalElement(LocalCoordinatesTreeBase):
             lcstart = self.surfaces[s1].rootcoordinatesystem
             lcend = self.surfaces[s2].rootcoordinatesystem            
             
+            # intersection point before refract/reflect (local coordinates surf1)
             startx = lcstart.returnGlobalToLocalPoints(pb1.x[-1])
-            endx = lcend.returnGlobalToLocalPoints(pb2.x[-1])
             startk = lcstart.returnGlobalToLocalDirections(pb1.k[-1])
+
+            # intersection point after refract/reflect (local coordinate surf1)
+            fspropx = lcstart.returnGlobalToLocalPoints(pb2.x[0])
+            fspropk = lcstart.returnGlobalToLocalDirections(pb2.k[0])
+            
+            # intersection point before refract/reflect (local coordinates surf2)
+            endx = lcend.returnGlobalToLocalPoints(pb2.x[-1])
             endk = lcend.returnGlobalToLocalDirections(pb2.k[-1])
             
             startxred = reduce_matrix_x(startx)
-            endxred = reduce_matrix_x(endx)
             startkred_real = reduce_matrix_k_real(startk)
-            endkred_real = reduce_matrix_k_real(endk)
             startkred_imag = reduce_matrix_k_imag(startk)
+
+            fspropxred = reduce_matrix_x(fspropx)
+            fspropkred_real = reduce_matrix_k_real(fspropk)
+            fspropkred_imag = reduce_matrix_k_imag(fspropk)
+
+            endxred = reduce_matrix_x(endx)
+            endkred_real = reduce_matrix_k_real(endk)
             endkred_imag = reduce_matrix_k_imag(endk)
 
             startmatrix = np.vstack((startxred, startkred_real, startkred_imag))
+            fspropmatrix = np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
             endmatrix = np.vstack((endxred, endkred_real, endkred_imag))
 
+            refractmatrix = np.dot(fspropmatrix, np.linalg.inv(startmatrix))
+            freespacematrix_and_coordtrafo = np.dot(endmatrix, np.linalg.inv(fspropmatrix))
+
             transfer = np.dot(endmatrix, np.linalg.inv(startmatrix))
-            print("transfer ", surfhit)            
-            print(np.array_str(transfer, precision=5, suppress_small=True))
+            print("refract matrix ", surfhit)            
+            print(np.array_str(refractmatrix, precision=5, suppress_small=True))
+            print("freespace + coordinate trafo ", surfhit)            
+            print(np.array_str(freespacematrix_and_coordtrafo, precision=5, suppress_small=True))
             # TODO: 6x6 matrices, check whether the imag part is not cuttet somewhere
             
             XYUVmatrices[(s1, s2, numhit)] = transfer
