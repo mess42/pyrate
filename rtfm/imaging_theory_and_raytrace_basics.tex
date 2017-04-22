@@ -414,7 +414,22 @@ $\Vector{k}$ gives only two terms.
 \right]
 \end{align}
 
-For $D = 0$, the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.\remark{Mo doesn't understand this sentence}
+For $D = 0$, the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.
+\remark{Mo doesn't understand this sentence. Jo thinks, he only calculated that explicitly for the simple isotropic case.}
+This can be easily seen by considering the identity
+\begin{align}
+ D(\Wavevector) = \det A(\Wavevector) &= \exp(\text{tr}\log(A(\Wavevector)))\,.
+\end{align}
+By differentiation of this equation by $\Wavevector$ we obtain
+\begin{align}
+ \frac{\partial D}{\partial k_i} &= \exp(\text{tr}\log(A(\Wavevector))) \text{tr}\left(A^{-1}(\Wavevector) \frac{\partial A(\Wavevector)}{\partial k_i}\right)\,,\nonumber\\
+				  &= D(\Wavevector)\; \text{tr}\left(A^{-1}(\Wavevector) \frac{\partial A(\Wavevector)}{\partial k_i}\right)\,.
+\end{align}
+The last identity comes from differentiating the exponential function and considering the log of a matrix as an infinite series and differentiate every single term.
+As one can see, the derivative of the determinant is proportional to the determinant itself. This means if for some wavevectors $\Wavevector$ the determinant is zero,
+the derivative is also zero.
+
+
 
 
 \subsection{Uniaxial anisotropic, homogeneous media}

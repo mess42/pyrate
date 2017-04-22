@@ -152,6 +152,9 @@ class ClassWithOptimizableVariables(object):
         # for the optimizable variable class it is useful to have some observer links
         # they get informed if variables change their values
 
+    def __call__(self, key):
+        return self.dict_variables.get(key, None)
+
     def setName(self, name):
         if name == "":
             name = str(uuid.uuid4())
@@ -463,8 +466,9 @@ if __name__ == "__main__":
     print("NEW IT FUNCTION3")
     print([v.evaluate() for v in cl2.getAllVariables()])
 
-
     print(os.name)
 
     print(os.dict_variables.items())
 
+    print(os("X"))
+    print(os("Blah"))
