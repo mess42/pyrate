@@ -124,13 +124,30 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
         # TODO: needs heavy testing        
         
-        def reduce_matrix(m):
+        def reduce_matrix_x(m):
             """
             Pilot ray is at position 0 (hail to the chief ray) in the pilot bundle.
             We first subtract the pilot ray and afterwards take the first two lines (x, y) from
             the components without pilot ray.
             """
             return np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])
+        
+        def reduce_matrix_k_real(m):        
+            """
+            Pilot ray is at position 0 (hail to the chief ray) in the pilot bundle.
+            We first subtract the pilot ray and afterwards take the first two lines (x, y) from
+            the components without pilot ray.
+            """
+            return np.real(np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:]))
+
+        def reduce_matrix_k_imag(m):        
+            """
+            Pilot ray is at position 0 (hail to the chief ray) in the pilot bundle.
+            We first subtract the pilot ray and afterwards take the first two lines (x, y) from
+            the components without pilot ray.
+            """
+            return np.imag(np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:]))
+            
         
         hitlist = self.sequence_to_hitlist(sequence)        
         
@@ -153,14 +170,18 @@ class OpticalElement(LocalCoordinatesTreeBase):
             startk = lcstart.returnGlobalToLocalDirections(pb1.k[-1])
             endk = lcend.returnGlobalToLocalDirections(pb2.k[-1])
             
-            startxred = reduce_matrix(startx)
-            endxred = reduce_matrix(endx)
-            startkred = reduce_matrix(startk)
-            endkred = reduce_matrix(endk)
+            startxred = reduce_matrix_x(startx)
+            endxred = reduce_matrix_x(endx)
+            startkred_real = reduce_matrix_k_real(startk)
+            endkred_real = reduce_matrix_k_real(endk)
+            startkred_imag = reduce_matrix_k_imag(startk)
+            endkred_imag = reduce_matrix_k_imag(endk)
 
-            startmatrix = np.vstack((startxred, startkred))
-            endmatrix = np.vstack((endxred, endkred))
+            startmatrix = np.vstack((startxred, startkred_real, startkred_imag))
+            endmatrix = np.vstack((endxred, endkred_real, endkred_imag))
+
             transfer = np.dot(endmatrix, np.linalg.inv(startmatrix))
+            # TODO: 6x6 matrices, check whether the imag part is not cuttet somewhere
             
             XYUVmatrices[(s1, s2, numhit)] = transfer
             XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer)
@@ -225,15 +246,16 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
             
             dx0 = (x0 - px0)[0:2]
-            dk0 = (k0 - pk0)[0:2]
+            dk0_real = (k0 - pk0)[0:2].real
+            dk0_imag = (k0 - pk0)[0:2].imag
             
-            DX0 = np.vstack((dx0, dk0))
+            DX0 = np.vstack((dx0, dk0_real, dk0_imag))
             DX1 = np.dot(matrices[surfhit], DX0)
             # multiplication is somewhat contra-intuitive
             # Xend = M("surf2", "surf3", 1) M("surf1", "surf2", 1) X0
             
             dx1 = DX1[0:2]
-            dk1 = DX1[2:4]
+            dk1 = DX1[2:4] + complex(0, 1)*DX1[4:6]
             
             (num_dims, num_pts) = np.shape(dx1)            
             

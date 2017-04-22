@@ -84,9 +84,16 @@ def build_simple_optical_system(builduplist, matdict):
 def build_pilotbundle(lc, (dx, dy), (phix, phiy), wave=standard_wavelength):
     kwave = 2.*math.pi/wave
     
-    xloc = np.array([[0, dx, 0, 0, 0], [0, 0, dy, 0, 0], [0, 0, 0, 0, 0]])
-    kloc = np.array([[0, 0, 0, kwave*math.sin(phix), 0], [0, 0, 0, 0, kwave*math.sin(phiy)], [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy)]])
-    Eloc = np.cross(kloc, canonical_ey, axisa=0, axisb=0).T    
+    xloc = np.array([[0, dx, 0, 0, 0, 0, 0], [0, 0, dy, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]])
+    kloc = np.array([
+        [0, 0, 0, kwave*math.sin(phix), 0, 1e-3j, 0], 
+         [0, 0, 0, 0, kwave*math.sin(phiy), 0, 1e-3j], 
+          [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy), kwave, kwave]])
+    # calculate kloc by fulfilling certain consistency conditions (e.g.) determinant condition
+    # xi component has to be provided by material
+
+    Eloc = np.cross(kloc, canonical_ey, axisa=0, axisb=0).T
+    # is this correct?
     
     xglob = lc.returnLocalToGlobalPoints(xloc)
     kglob = lc.returnLocalToGlobalDirections(kloc)
