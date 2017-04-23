@@ -235,7 +235,11 @@ We associate $\Efield \currentdensity$ with ohmic losses, that is, the volume de
 Thus, the equation is a continuity equation of energy.
 $\frac{1}{2} \Hfield \Bfield + \frac{1}{2} \Efield \Dfield$ is the energy density stored in a system, 
 and $\Efield \times \Hfield$, which we call Poynting vector $\Vector{S}$, is the areal density of energy flow.
-This equation holds for the real valued Maxwell equations with linear constitutive equations, time harmonic and real valued fields, real valued permeabilities, permittivities and conductivities.
+\begin{eqnarray}
+ \Vector{S} &=& \Efield \times \Hfield
+ \label{eq:definitionOfPoynting}
+\end{eqnarray}
+These equations hold for the real valued Maxwell equations with linear constitutive equations, time harmonic and real valued fields, real valued permeabilities, permittivities and conductivities.
 
 \section{Source-Free Maxwell Equations in Non-Magnetic Materials}
 \label{sec:sourcefreemaxwell}
@@ -300,7 +304,8 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 
 \section{Poynting Vector}\label{sec:Poynting}
 The Poynting vector is the a real density of energy flow. 
-We want the Poynting vector to be real and stay numerically identical to the quantity derived above for the real valued Maxwell equations.
+We want the Poynting vector to be real and stay numerically identical to the quantity derived above 
+for the real valued Maxwell equations in equation \ref{eq:definitionOfPoynting}.
 
 \begin{eqnarray}
  \Vector{S} &=& \Re \Efield \times \Re \Hfield \nonumber \\
@@ -388,12 +393,13 @@ that is, a propagation wavector is only valid for a certain polarisation.
 Nontrivial solutions can be found if the determinant $D$ becomes zero.
 \begin{eqnarray}
  D &=& \det \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right)
+ \label{eq:generalDispersionDeterminant}
 \end{eqnarray}
 We use the identity
 \begin{align}
  \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
 \end{align}
-and rewrite \eqref{eq:generalDispersionEigenEquation} to
+and rewrite \eqref{eq:generalDispersionDeterminant} to
 \begin{align}
  D(\Vector{k}) 
  &= \omega^2\vacuumpermeability \left(\frac{1}{6} \alpha \omega^4\vacuumpermeability^2 + \omega^2\vacuumpermeability (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)\,,\label{eq:determinantinvariant}
