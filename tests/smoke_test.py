@@ -25,8 +25,6 @@ MA 02110-1301, USA.
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot
 
-__author__ = 'Thomas Heinze'
-
 # we use the matplotlib's do nothing backend for testing
 # matplotlib/lib/matplotlib/backends/backend_template.py
 pyplot.switch_backend('Template')
