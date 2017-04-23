@@ -359,11 +359,14 @@ This is a differential equation with constant coefficients, so we use the ansatz
 \begin{eqnarray}
  \Efield(\Location,\omega) &=& \Efield_0(\omega) \exp(i \Wavevector \Location)
 \end{eqnarray}
-where the $\Efield_0$ contains polarisation, electric field amplitude and harmonic time dependence. We find the eigenvalue equation [setting $\partial_j \to i k_j$, notice $\permittivity_{ij}$ constant]
+where the $\Efield_0$ contains polarisation, electric field amplitude and harmonic time dependence.
+With this monochromatic time dependence, $\permittivity_{ij}$ becomes a constant factor 
+and we can replace $\partial_j \to i k_j$. We yield
 \begin{align}
- \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\,.
+ A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\,.
 \end{align}
-or more explicit
+with $A_{ij} = \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right)$.
+More explicit, it reads
 \begin{eqnarray}
 \begin{pmatrix}
  \wavenumber_y^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} 
@@ -387,22 +390,17 @@ or more explicit
 \Efield_0
 &=& 0 \label{eq:generalDispersionEigenEquation}
 \end{eqnarray}
+Nontrivial solutions can be found if the determinant of $\hat{A}$ is zero.
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
 that is, a propagation wavector is only valid for a certain polarisation.
-
-Nontrivial solutions can be found if the determinant $D$ becomes zero.
-\begin{eqnarray}
- D &=& \det \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right)
- \label{eq:generalDispersionDeterminant}
-\end{eqnarray}
 We use the identity
 \begin{align}
  \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
 \end{align}
-and rewrite \eqref{eq:generalDispersionDeterminant} to
+and rewrite the determinant
 \begin{align}
- D(\Vector{k}) 
- &= \omega^2\vacuumpermeability \left(\frac{1}{6} \alpha \omega^4\vacuumpermeability^2 + \omega^2\vacuumpermeability (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)\,,\label{eq:determinantinvariant}
+ \det \hat{A}(\Vector{k}) 
+ &= \omega^2\vacuumpermeability \left(\frac{1}{6} \alpha \omega^4\vacuumpermeability^2 + \omega^2\vacuumpermeability (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
 \end{align}
 where $\alpha = (\text{tr}\permittivity)^3 - 3 (\text{tr}\permittivity) \text{tr}(\permittivity^2) + 2 \text{tr}(\permittivity^3)$,
 $\beta = \permittivity_{ij} k_i k_j$, $\gamma = k_i \permittivity_{i\ell} \permittivity_{\ell j} k_j$. For given $\omega$ this is an equation of fourth order
@@ -706,34 +704,39 @@ The material dispersion of the extraordinary mode, equation \ref{eq:uniaxialAnis
 \end{eqnarray}
 This is a quadratic equation in $\xi$.
 \begin{eqnarray}
- a \xi^2 + b \xi + c &=& 0
+ c_2 \xi^2 + c_1 \xi + c_0 &=& 0
  \\
- a &=& \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Vector{n}\Vector{e}_{\eo})^2
+ c_2 &=& \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Vector{n}\Vector{e}_{\eo})^2
  \nonumber 
  \\
- b &=& 2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo}) (\Vector{n}\Vector{e}_{\eo})
+ c_1 &=& 2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo}) (\Vector{n}\Vector{e}_{\eo})
  \nonumber 
  \\
- c &=& \Wavevector_{1\,\parallel}^2 \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo})^2 
+ c_0 &=& \Wavevector_{1\,\parallel}^2 \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo})^2 
        - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
  \nonumber
 \end{eqnarray}
 
 \subsubsection{general anisotropic}
-
-Decomposition of $\Vector{k} = \Wavevector_\parallel + \xi \Vector{n}$ in $D(\Wavevector)$ (see \eqref{eq:determinantinvariant}) 
-into in-plane and off-plane part leads to $\tilde{\omega} = \omega \sqrt{\mu_0}$ (dividing two $\tilde{\omega}$ powers)
+We start from the general dispersion relation \eqref{eq:determinantinvariant} and decompose $\Wavevector$ into in-plane and off-plane part
+$\Wavevector = \Wavevector_\parallel + \xi \Vector{n}$.
+We divide the equation by $\omega^2 \vacuumpermeability$ and yield
 \begin{align}
-0 &= \xi ^4 a_7\nonumber\\
-&+\xi ^3 \left[ 2 a_{10} a_7+a_8+a_9\right]\nonumber\\
-&+\xi ^2 \left[\tilde{\omega} ^2 (a_{13}-a_1 a_7)+ 2 a_{10} (a_8+a_9)+a_4 a_7+a_5\right]\nonumber\\
-&+\xi \left[\tilde{\omega}^2 (-a_1 (a_8+a_9)+a_{11}+a_{12})+2 a_{10} a_5+a_4 (a_8+a_9)\right]\nonumber\\
-&+\frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5 \label{eq:xianisotropic}
+0 &= c_4 \xi ^4 + c_3 \xi ^3 + c_2 \xi ^2 + c_1 \xi + c_0
+\end{align}
+with
+\begin{align}
+ c_4 &= a_7 \\
+ c_3 &= \left[a_8+a_9\right] \\
+ c_2 &= \left[\tilde{\omega} ^2 (a_{13}-a_1 a_7)+ a_4 a_7+a_5\right] \\
+ c_1 &= \left[\tilde{\omega}^2 (-a_1 (a_8+a_9)+a_{11}+a_{12})+a_4 (a_8+a_9)\right] \\
+ c_0 &= \frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5
 \end{align}
 with
 \newcommand{\kpa}[1]{{k_{\parallel\,#1}}}
 \begin{subequations}
 \begin{align}
+\tilde{\omega} &= \omega \sqrt{\mu_0}\\
  a_1 &= \permittivity_{ii} \\
  a_2 &= \permittivity_{ij}\permittivity_{ji} \\ 
  a_3 &= \permittivity_{ij}\permittivity_{jk}\permittivity_{ki} \\
