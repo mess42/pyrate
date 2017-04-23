@@ -13,7 +13,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
@@ -24,6 +24,8 @@ MA 02110-1301, USA.
 
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot
+
+__author__ = 'Thomas Heinze'
 
 # we use the matplotlib's do nothing backend for testing
 # matplotlib/lib/matplotlib/backends/backend_template.py
