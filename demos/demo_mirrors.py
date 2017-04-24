@@ -131,6 +131,15 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #                )
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
+# two coordinate systems for build_pilotbundle
+# one x, one k
+# kpilot given as unity vector times 2pi/lambda relative to second coordinate system
+# if none given than k = kz
+# k = kcomp unity in determinant => solution => poynting vector
+# scalarproduct poynting vector * k > 0
+# give pilot a polarization lives in k coordinate system
+# <Re k, S> > 0 and <Im k, S> > 0
+
 pilotbundle2 = core.helpers.build_pilotbundle(lc0, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
 (pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
@@ -138,7 +147,7 @@ pilotbundle2 = core.helpers.build_pilotbundle(lc0, (obj_dx, obj_dx), (obj_dphi, 
 
 
 ### TODO:
-### first trys to implement aiming, but the code is somewhat hard to use
+### first tries to implement aiming, but the code is somewhat hard to use
 ### we need to get rid of the pilot ray in every call
 ### we need to convert between XK representation local 3D coordinates and
 ### global raybundle coordinates in a more easy way
