@@ -1480,19 +1480,19 @@ and define the near-pilot basis vectors in the final plane $\Vector{e}_{X,fin}, 
 The propagator for near-pilot rays is the Jacobi matrix
 \begin{eqnarray}
  \begin{pmatrix}
-  X_{fin} \\[2ex] Y_{fin} \\[2ex] \Re U_{fin} \\[2ex] \Im U_{fin} \\[2ex] \Re V_{fin} \\[2ex] \Im V_{fin} 
+  X_{fin} \\[2ex] Y_{fin} \\[2ex] \Re U_{fin}\\[2ex] \Re V_{fin} \\[2ex] \Im U_{fin} \\[2ex] \Im V_{fin} 
  \end{pmatrix}
  &=&
  \begin{pmatrix}
-  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial \Re U_{obj}} & \frac{\partial X_{fin}}{\partial \Im U_{obj}} & \frac{\partial X_{fin}}{\partial \Re V_{obj}} & \frac{\partial X_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial \Re U_{obj}} & \frac{\partial Y_{fin}}{\partial \Im U_{obj}} & \frac{\partial Y_{fin}}{\partial \Re V_{obj}} & \frac{\partial Y_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Re U_{fin}}{\partial X_{obj}} & \frac{\partial \Re U_{fin}}{\partial Y_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Im U_{fin}}{\partial X_{obj}} & \frac{\partial \Im U_{fin}}{\partial Y_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Re V_{fin}}{\partial X_{obj}} & \frac{\partial \Re V_{fin}}{\partial Y_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Im V_{fin}}{\partial X_{obj}} & \frac{\partial \Im V_{fin}}{\partial Y_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im V_{obj}}
+  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial \Re U_{obj}} & \frac{\partial X_{fin}}{\partial \Re V_{obj}} & \frac{\partial X_{fin}}{\partial \Im U_{obj}} & \frac{\partial X_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial \Re U_{obj}} & \frac{\partial Y_{fin}}{\partial \Re V_{obj}} & \frac{\partial Y_{fin}}{\partial \Im U_{obj}} & \frac{\partial Y_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Re U_{fin}}{\partial X_{obj}} & \frac{\partial \Re U_{fin}}{\partial Y_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Re V_{fin}}{\partial X_{obj}} & \frac{\partial \Re V_{fin}}{\partial Y_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Im U_{fin}}{\partial X_{obj}} & \frac{\partial \Im U_{fin}}{\partial Y_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im V_{obj}} \\[2ex]
+  \frac{\partial \Im V_{fin}}{\partial X_{obj}} & \frac{\partial \Im V_{fin}}{\partial Y_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im V_{obj}}
  \end{pmatrix}
  \begin{pmatrix}
-  X_{obj} \\[2ex] Y_{obj} \\[2ex] \Re U_{obj} \\[2ex] \Im U_{obj} \\[2ex] \Re V_{obj} \\[2ex] \Im V_{obj} 
+  X_{obj} \\[2ex] Y_{obj} \\[2ex] \Re U_{obj} \\[2ex] \Re V_{obj} \\[2ex] \Im U_{obj} \\[2ex] \Im V_{obj} 
  \end{pmatrix} \nonumber \\
 \end{eqnarray}
 We obtain this matrix by multiplying the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations.
@@ -1505,7 +1505,7 @@ We abbreviate the coefficients of the propagator by sub-matrices $\hat{A}, \hat{
 resembling the ABCD formalism.
 \begin{eqnarray}
  \begin{pmatrix}
-  X_{fin} \\ Y_{fin} \\ \Re U_{fin} \\ \Im U_{fin} \\ \Re V_{fin} \\ \Im V_{fin} 
+  X_{fin} \\ Y_{fin} \\ \Re U_{fin} \\ \Re V_{fin} \\ \Im U_{fin} \\ \Im V_{fin} 
  \end{pmatrix}
  &=&
  \begin{pmatrix}
@@ -1517,7 +1517,7 @@ resembling the ABCD formalism.
   C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
  \end{pmatrix}
  \begin{pmatrix}
-  X_{obj} \\ Y_{obj} \\ \Re U_{obj} \\ \Im U_{obj} \\ \Re V_{obj} \\ \Im V_{obj} 
+  X_{obj} \\ Y_{obj} \\ \Re U_{obj} \\ \Re V_{obj} \\ \Im U_{obj} \\ \Im V_{obj} 
  \end{pmatrix}
 \end{eqnarray}
 
@@ -1530,8 +1530,8 @@ separated by a pilot ray geometric path length of $\Delta s$
 \begin{eqnarray}
  \hat{G}_{prop} &=&
  \begin{pmatrix}
-  1 & 0 & \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
-  0 & 1 & \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
+  1 & 0 & \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
+  0 & 1 & \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
   0 & 0 & 1 & 0 & 0 & 0 \\[2ex]
   0 & 0 & 0 & 1 & 0 & 0 \\[2ex]
   0 & 0 & 0 & 0 & 1 & 0 \\[2ex]
@@ -1593,11 +1593,11 @@ Together with the imaging condition, we obtain
   \begin{pmatrix}
   B_{11} & B_{12} & B_{13} & B_{14} \\
   B_{21} & B_{22} & B_{23} & B_{24} \\
-  (\Im \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\
-  (\Im \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
+  (\Im \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\
+  (\Im \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
  \end{pmatrix}
  \begin{pmatrix}
-  \Re U_{obj} \\ \Im U_{obj} \\ \Re V_{obj} \\ \Im V_{obj} 
+  \Re U_{obj} \\ \Re V_{obj} \\ \Im U_{obj} \\ \Im V_{obj} 
  \end{pmatrix}
  &=& 0
 \end{eqnarray}
@@ -1607,15 +1607,15 @@ we refocus by inserting a homogeneous material propagation (eq. \ref{eq:xyuv_pro
 \begin{eqnarray}
   \begin{vmatrix}
   B_{11} + \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & 
-  B_{12} + \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & 
-  B_{13} + \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & 
+  B_{12} + \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & 
+  B_{13} + \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & 
   B_{14} + \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
   B_{21} + \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & 
-  B_{22} + \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & 
-  B_{23} + \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & 
+  B_{22} + \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & 
+  B_{23} + \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & 
   B_{24} + \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
-  (\Im \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\[2ex]
-  (\Im \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
+  (\Im \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\[2ex]
+  (\Im \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
  \end{vmatrix}
  &=& 0 \nonumber \\
 \end{eqnarray}
