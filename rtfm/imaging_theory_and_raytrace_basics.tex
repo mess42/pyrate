@@ -726,10 +726,10 @@ We divide the equation by $\omega^2 \vacuumpermeability$ and yield
 \end{align}
 with
 \begin{align}
- c_4 &= a_7 \\
+ c_4 &= \permittivity_{ij} n_i n_j \\
  c_3 &= \left[a_8+a_9\right] \\
- c_2 &= \left[\tilde{\omega} ^2 (a_{13}-a_1 a_7)+ a_4 a_7+a_5\right] \\
- c_1 &= \left[\tilde{\omega}^2 (-a_1 (a_8+a_9)+a_{11}+a_{12})+a_4 (a_8+a_9)\right] \\
+ c_2 &= \left[\tilde{\omega} ^2 (a_{13}-a_1 c_4)+ a_4 c_4+a_5\right] \\
+ c_1 &= \left[\tilde{\omega}^2 (-a_1 c_3 + a_{11}+a_{12})+a_4 c_3\right] \\
  c_0 &= \frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5
 \end{align}
 with
@@ -743,10 +743,8 @@ with
  a_4 &= \kpa{i}\kpa{i} \\
  a_5 &= \permittivity_{ij} \kpa{i} \kpa{j} \\
  a_6 &= \permittivity_{ij} \permittivity_{jk} \kpa{i}\kpa{k} \\
- a_7 &= \permittivity_{ij} n_i n_j \\
  a_8 &= \permittivity_{ij} \kpa{j} n_i \\
  a_9 &= \permittivity_{ij} \kpa{i} n_j \\
- a_{10} &= \kpa{i}n_i = 0\\
  a_{11} &= \permittivity_{ij} \permittivity_{jk} \kpa{k} n_i \\
  a_{12} &= \permittivity_{ij} \permittivity_{jk} \kpa{i} n_k \\
  a_{13} &= \permittivity_{ij} \permittivity_{jk} n_i n_k 
@@ -772,7 +770,7 @@ The field of each mode $M \in \{ r1, r2, t1, t2 \}$
 \Efield_{M} &=& E_{M,0} \Vector{e}_{M} \exp{i \Wavevector_M \Location}
 \end{eqnarray}
 depends on the scalar amplitude $E_{M,0}$, containing mode strength and retardation.
-We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} with this ansatz and yield a linear equation system
+We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:modes_on_boundary} with this ansatz and yield an equation system
 \begingroup \small
 \begin{subequations}
 \begin{align}
@@ -782,27 +780,24 @@ We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:mode
 \end{align}
 \end{subequations}
 \endgroup
-The system contains scalar and three-dimensional vectorial equations, but is not of full rank.
-All prefactors of the scalar amplitudes $E_{M,0}$ are known, as well as the incident wave properties on the right hand side of the equations.
-This allows us to solve the equation system.
-
-To reduce the equations into a useful form we first enumerate some properties of them:
-\begin{itemize}
- \item \eqref{eq:fresneldn} is scalar and only describes an off-plane component
- \item \eqref{eq:fresnelEcrossn} is vectorial and only describes in-plane components (and therefore only two independent DOF)
- \item \eqref{eq:fresnelkE} consists of both, in-plane and off-plane components
- \item If one rearranges the cross products in \eqref{eq:fresnelkE} the other way around and decomposes the $\Wavevector_\alpha$ into in-plane and off-plane components this
-      equation could be split up into a scalar part and an in-plane part which could be combined with \eqref{eq:fresnelEcrossn}
-\end{itemize}
-We will introduce some short hand notation to be able to compress the equations in a more handy form:
+All prefactors $\permittivity, \Vector{e}, \Wavevector, \Vector{n}$ are known, 
+as well as the incident wave properties on the right hand side of the equations.
+Our goal is to solve this linear equation system for the amplitudes $E_{M,0}$. 
+First, we abbreviate the system to a more handy form:
 \begin{align}
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\Vector{e}_{\beta\alpha} \times \Vector{n} ) E_{\beta\alpha,0} &= \Efield_{in} \times \Vector{n} \\
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) E_{\beta\alpha,0} &=  \Wavevector_{in} \times \Efield_{in}
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) E_{\beta\alpha,0} &= \Efield_{in} \times \Vector{n} \\
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) E_{\beta\alpha,0} &=  \Wavevector_{in} \times \Efield_{in}
 \end{align}
-The symbol $(\mp)$ represents the signs in front of the different parts of the sum starting most left and switching after the second term. To decompose
-all equations into the appropriate components, the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), $\Wavevector_\parallel$
-(which is conserved) and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$. 
+where $\zeta_\beta = 1 - 2\delta_{\beta,r}$ is the sign of each coefficient.
+$\zeta$ is one for transmitted terms and minus one for reflected ones.
+
+If one rearranges the cross products in \eqref{eq:fresnelkE} the other way around and decomposes the $\Wavevector_\alpha$ into in-plane and off-plane components this
+equation could be split up into a scalar part and an in-plane part which could be combined with \eqref{eq:fresnelEcrossn}
+To decompose all equations into the appropriate components, 
+the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), 
+$\Wavevector_\parallel$ (which is conserved) 
+and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$. 
 Therefore we perform the following steps:
 \begin{enumerate}
  \item Decomposition of the last two equations into appropriate inplane components
@@ -814,29 +809,29 @@ First of all we decompose the wavevector in the last equation
 \end{align}
 From this we get the second off-plane equation by scalar product multiplying with $\Vector{n}$:
 \begin{align}
- \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
+ \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
 \end{align}
 Now we multiply both last equations by $\xi_{in} \Wavevector_\parallel$ and $\Wavevector_\parallel$ respectively and decompose $\Wavevector_{in} = \Wavevector_\parallel + \xi_{in} \Vector{n}$,
 \begin{align}
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) \xi_{in}(\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Efield_{in} \times \Vector{n})\Wavevector_\parallel \\
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( -\xi_{\beta\alpha} (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel) E_{\beta\alpha,0} &=  \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta \xi_{in}(\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Efield_{in} \times \Vector{n})\Wavevector_\parallel \\
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta ( -\xi_{\beta\alpha} (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel) E_{\beta\alpha,0} &=  \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel
 \end{align}
 Adding them both up leads to
 \begin{align}
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,.
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,.
 \end{align}
 Same argument is valid for $(\Vector{n}\times\Wavevector_\parallel)$ component and therefore leads to
 \begin{align}
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0\,.
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0\,.
 \end{align}
 Therefore the final matrix equations are given by
 \begin{subequations}
 \label{eq:fresnelfinal}
 \begin{align}
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
-  \sum_{\alpha=1,2\;\beta=r,t} (\mp) (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
+  \sum_{\alpha=1,2\;\beta=r,t} \zeta_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
 \end{align}
 \end{subequations}
 \remark{needs check!}
