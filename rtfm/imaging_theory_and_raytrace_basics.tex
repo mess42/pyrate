@@ -787,9 +787,8 @@ We have 7 scalar equations, and only 4 unknowns.
 The system, however, is not of full rank.
 Before solving the system, we need to reduce the number of equations.
 
-First, we abbreviate the system to a more handy form.
-We split up the mode label $M$ into two indices $\alpha=1,2$ and $\beta=r,t$.
-This allows us to write
+First, we split up the mode label $M$ into two indices $\alpha=1,2$ and $\beta=r,t$.
+This allows us to abbreviate the equation system to
 \begin{subequations}
   \begin{align}
     \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}                   \label{eq:FresnelSystemEq1} \\
@@ -799,112 +798,127 @@ This allows us to write
 \end{subequations}
 where $\varsigma$ represents the sign of each term.
 $\varsigma_t=1$ for transmitted terms and $\varsigma_r=-1$ for reflected ones.
-For now, we keep equation \eqref{eq:FresnelSystemEq1} as it is. 
-Instead, we manipulate the latter two vectorial equations \eqref{eq:FresnelSystemEq2} and \eqref{eq:FresnelSystemEq3}.
-We decompose both equations into their components along the orthogonal directions of $\Vector{n}$, $\Wavevector_\parallel$, and $\Vector{n} \times \Wavevector_\parallel$.
-From \eqref{eq:FresnelSystemEq2}, we obtain
+We introduce a basis, consisting of the directions of $\Vector{n}$, $\Wavevector_\parallel$, and $\Vector{n} \times \Wavevector_\parallel$.
+We decompose both vectorial equation in this basis and obtain
 \begin{subequations}
   \begin{align}
-    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \label{eq:FresnelSystemEq2componentparallel} \\
-    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \label{eq:FresnelSystemEq2componentcross}
-  \end{align}
-and from \eqref{eq:FresnelSystemEq3}
-  \begin{align}
-    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n} \label{eq:FresnelSystemEq3componentn} \\
-    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel) \label{eq:FresnelSystemEq3componentcross}
+    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    0 &= 0 \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n} \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Wavevector_\parallel \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
   \end{align}
 \end{subequations}
-First, we simplify the first $(\Vector{n} \times \Wavevector_\parallel)$ equation.
-We apply the triple product rule and the Gra\ss mann identity
-\begin{eqnarray}
-  (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) &=& \Vector{e}_{\beta\alpha} \Wavevector_\parallel 
-\end{eqnarray}
-
-Now for the two triple product equations.
-We decompose the wavevectors into their normal and in-plane component
-$\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$.
-From \eqref{eq:FresnelSystemEq3componentn} we yield 
-\begin{eqnarray}
-    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta ( \Wavevector_{\parallel} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{\parallel} \times \Efield_{in})\Vector{n} 
-\end{eqnarray}
-
-We see that \eqref{eq:FresnelSystemEq2componentparallel} and \eqref{eq:FresnelSystemEq3componentn} are linearly dependent.
-We can remove one of both.
-The remaining equations are
+We represent wavevectors as $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$, yielding
 \begin{subequations}
- \begin{eqnarray}
-    \sum_{\alpha=1,2\;\beta=r,t} & \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-    \sum_{\alpha=1,2\;\beta=r,t} & \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\
-    \sum_{\alpha=1,2\;\beta=r,t} & \varsigma_\beta (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) E_{\beta\alpha,0} &= \Efield_{in} \Wavevector_\parallel \\
-    \sum_{\alpha=1,2\;\beta=r,t} & \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)    
- \end{eqnarray}
+  \begin{align}
+    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \label{eq:fresnelFirstTripleProduct}\\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
+    \varsigma_\beta ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})\Vector{n} \label{eq:fresnelSecondTripleProduct}\\
+    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel \\
+    \varsigma_\beta 
+        \left(
+          ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) 
+          (\Vector{n} \times \Wavevector_\parallel) 
+          +
+          \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) 
+          (\Vector{n} \times \Wavevector_\parallel)           
+        \right)
+        E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+  \end{align}
 \end{subequations}
+Permuting the triple products, one sees that \eqref{eq:fresnelFirstTripleProduct} and \eqref{eq:fresnelSecondTripleProduct} are linearly dependent.
+We decide to remove \eqref{eq:fresnelFirstTripleProduct} from our equation system.
+\begin{subequations}
+  \begin{align}
+    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
+    \varsigma_\beta ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})\Vector{n} \label{eq:fresnelSecondTripleProduct}\\
+    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel \\
+    \varsigma_\beta 
+        \left(
+          ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) 
+          (\Vector{n} \times \Wavevector_\parallel) 
+          +
+          \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) 
+          (\Vector{n} \times \Wavevector_\parallel)           
+        \right)
+        E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+  \end{align}
+\end{subequations}
+\remark{I don't see which equations are still dependent, so it is allowed to go from 5 to 4 equations.}
 
-TODO: explain that they are independent. Are they ?
 
-%If one rearranges the cross products in \eqref{eq:fresnelkE} the other way around and decomposes the $\Wavevector_\alpha$ into in-plane and off-plane components this
-%equation could be split up into a scalar part and an in-plane part which could be combined with \eqref{eq:fresnelEcrossn}
-%To decompose all equations into the appropriate components, 
-%the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), 
-%$\Wavevector_\parallel$ (which is conserved) 
-%and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$. 
-%Therefore we perform the following steps:
-%\begin{enumerate}
-% \item Decomposition of the last two equations into appropriate inplane components
-% \item Rearrangement of all equations into two off-plane equations and two in-plane equations
-%\end{enumerate}
-%First of all we decompose the wavevector in the last equation
-%\begin{align}
-%  \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} = -\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel - \xi_{\beta\alpha} \Vector{e}_{\beta\alpha} \times \Vector{n}
-%\end{align}
-%From this we get the second off-plane equation by scalar product multiplying with $\Vector{n}$:
-%\begin{align}
-% \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
-%\end{align}
-%Now we multiply both last equations by $\xi_{in} \Wavevector_\parallel$ and $\Wavevector_\parallel$ respectively and decompose $\Wavevector_{in} = \Wavevector_\parallel + \xi_{in} \Vector{n}$,
-%\begin{align}
-%  \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta \xi_{in}(\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Efield_{in} \times \Vector{n})\Wavevector_\parallel \\
-%  \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta ( -\xi_{\beta\alpha} (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel) E_{\beta\alpha,0} &=  \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel
-%\end{align}
-%Adding them both up leads to
-%\begin{align}
-%  \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,.
-%\end{align}
-%Same argument is valid for $(\Vector{n}\times\Wavevector_\parallel)$ component and therefore leads to
-%\begin{align}
-%  \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0\,.
-%\end{align}
-%Therefore the final matrix equations are given by
-%\begin{subequations}
-%\label{eq:fresnelfinal}
-%\begin{align}
-%  \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
-%  \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
-%  \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
-%  \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
-%\end{align}
-%\end{subequations}
-%\remark{needs check!}
-For calculating the Fresnel coefficients one needs both materials at once, see \eqref{eq:fresnelfinaldn}. The calculation of the behaviour at the material boundary is
-done like the following:
+
+If one rearranges the cross products in \eqref{eq:fresnelkE} the other way around and decomposes the $\Wavevector_\alpha$ into in-plane and off-plane components this
+equation could be split up into a scalar part and an in-plane part which could be combined with \eqref{eq:fresnelEcrossn}
+To decompose all equations into the appropriate components, 
+the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), 
+$\Wavevector_\parallel$ (which is conserved) 
+and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$. 
+Therefore we perform the following steps:
 \begin{enumerate}
- \item Calculate $\xi_{\beta\alpha}$ from determinant polynomial \eqref{eq:xianisotropic}
- \item Construct $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$
- \item Calculate eigen vectors of propagator matrix $-k_{\beta\alpha\,i} k_{\beta\alpha\,j} + \delta_{ij} \Wavevector_{\beta\alpha}^2 + \omega^2 \mu_0 \permittivity_{\alpha\,ij}$ \eqref{eq:generalDispersionEigenEquationindex}
- \item From $\xi$s, eigen vectors and field strengths calculate Fresnel coefficients \eqref{eq:fresnelfinal}
+ \item Decomposition of the last two equations into appropriate inplane components
+ \item Rearrangement of all equations into two off-plane equations and two in-plane equations
 \end{enumerate}
-\remark{is it possible to feed the appropriate tensor values 
-into the raybundle to obtain them during refraction? 
-This would also be useful for calculating the optical path length.
-The philosophy would be: raytracer tells raypath about surfaces/materials where to go. 
-raypath is traced and throughout tracing it gets its global eps-tensor from material by 
-using the propagation procedure. This is only an aux construction for Fresnel and OPD.
-For calculating the OPD in grin media this construction would also be nice.
+First of all we decompose the wavevector in the last equation
+\begin{align}
+  \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} = -\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel - \xi_{\beta\alpha} \Vector{e}_{\beta\alpha} \times \Vector{n}
+\end{align}
+From this we get the second off-plane equation by scalar product multiplying with $\Vector{n}$:
+\begin{align}
+ \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
+\end{align}
+Now we multiply both last equations by $\xi_{in} \Wavevector_\parallel$ and $\Wavevector_\parallel$ respectively and decompose $\Wavevector_{in} = \Wavevector_\parallel + \xi_{in} \Vector{n}$,
+\begin{align}
+  \varsigma_\beta \xi_{in}(\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Efield_{in} \times \Vector{n})\Wavevector_\parallel \\
+  \varsigma_\beta ( -\xi_{\beta\alpha} (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel) E_{\beta\alpha,0} &=  \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel
+\end{align}
+Adding them both up leads to
+\begin{align}
+  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,.
+\end{align}
+Same argument is valid for $(\Vector{n}\times\Wavevector_\parallel)$ component and therefore leads to
+\begin{align}
+  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0\,.
+\end{align}
+Therefore the final matrix equations are given by
+\begin{subequations}
+\label{eq:fresnelfinal}
+\begin{align}
+  \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
+  \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
+  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
+  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
+\end{align}
+\end{subequations}
+\remark{needs check whether these 4 equations are independent !}
+
+\subsection{Summary}
+We can calculate reflection and refraction wavevectors and their Fresnel coefficients the following way:
+\begin{enumerate}
+ \item Intersect ray with surface, determine local surface normal $\Vector{n}$ and incident in-plane wavevector component $\Wavevector_\parallel$
+ \item Calculate all 4 wavevector solutions $\xi$ for the conserved in-plane wavevector component $\Wavevector_\parallel$ 
+       according to material dispersion \eqref{eq:generalDispersionEigenEquationindex} in each material
+ \item For each solution $\xi$, calculate the eigen-polarisation $\Vector{e}_{\beta\alpha}$ and corresponding $\Dfield$-field $\permittivity_{\alpha} \Vector{e}_{\beta\alpha}$.
+       The eigen-polarisations are the eigenvectors of the dispersion relation \eqref{eq:generalDispersionEigenEquationindex}.
+ \item Construct refracted and reflected wavevectors $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$
+ \item Choose 2 the solutions in each material $\alpha$ carrying energy away from the surface
+       \remark{todo: consider the case of gain media}
+ \item From $\xi$s, eigen vectors and incident ray properties calculate the Fresnel coefficients \eqref{eq:fresnelfinal}.
+       The Fresnel coefficients determine the amplitude of each mode $\beta\alpha$ and thus the amount of energy transferred into each mode.
+\end{enumerate}
+\remark{
+  implementation suggestion: The ray asks the opticalSystem to perform a raytrace.
+  The opticalSystem asks the opticalElement to perform a raytrace within the element.
+  During that, the opticalElement must perform (several) refractions. 
+  The opticalElement knows both materials of the refraction surface. 
+  Both materials must independently solve their dispersion relation and provide $\Wavevector, \Vector{e}, \permittivity\Vector{e}$.
+  The opticalElement chooses 2 out of 4 modes from each material and combines the data from both materials to the Fresnel equation system.
 }
-
-
-
-
 
 
 \chapter{Geometrical Optics}
