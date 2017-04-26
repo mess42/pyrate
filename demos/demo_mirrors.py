@@ -131,16 +131,8 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #                )
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
-# two coordinate systems for build_pilotbundle
-# one x, one k
-# kpilot given as unity vector times 2pi/lambda relative to second coordinate system
-# if none given than k = kz
-# k = kcomp unity in determinant => solution => poynting vector
-# scalarproduct poynting vector * k > 0
-# give pilot a polarization lives in k coordinate system
-# <Re k, S> > 0 and <Im k, S> > 0
 
-pilotbundle2 = core.helpers.build_pilotbundle(lc0, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
+pilotbundle2 = core.helpers.build_pilotbundle(lc0, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
 (pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
 
