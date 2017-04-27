@@ -349,11 +349,13 @@ In general, the direction of the Poynting vector is the real projection of a wei
 \section{Plane Wave Solutions and Dispersion}
 \subsection{The general anisotropic homgeneous case}
 We consider a homogeneous material $\permittivity(\Location) = const.$ We apply the Nabla curl operatur on the Maxwell curl equation for the electric field
-($\partial_i \partial_i =: \Delta$ the Laplacian)
+($\partial_i \partial_i =: \Delta$ the Laplacian). We also factor out a permittivity of the vacuum from the permittivity tensor 
+$\permittivity_{ij} \to  \vacuumpermittivity \permittivity_{ij}$ and introduce the ``vacuum wave number''
+$k_0 := \frac{2\pi}{\lambda_0} = \frac{\omega}{c} = \omega \sqrt{\vacuumpermeability  \vacuumpermittivity}$.
 \begin{eqnarray}
   \Nabla \times ( \Nabla \times \Efield ) &=& \Nabla \times ( i \omega \vacuumpermeability \Hfield ) 
   \\
-  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
+  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k} = -k_0^2 \permittivity_{jk} \scalarEfield_{k}
 \end{eqnarray}
 This is a differential equation with constant coefficients, so we use the ansatz
 \begin{eqnarray}
@@ -365,7 +367,7 @@ and we can replace $\partial_j \to i k_j$. We yield
 \begin{align}
  A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\,.
 \end{align}
-with $A_{ij} = \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right)$.
+with $A_{ij} = \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + k_0^2 \permittivity_{ij} \right)$.
 More explicit, it reads
 \begin{eqnarray}
 \begin{pmatrix}
@@ -400,16 +402,16 @@ We use the identity
 and rewrite the determinant
 \begin{align}
  \det \hat{A}(\Vector{k}) 
- &= \omega^2\vacuumpermeability \left(\frac{1}{6} \alpha \omega^4\vacuumpermeability^2 + \omega^2\vacuumpermeability (-\beta \text{tr}\permittivity + \gamma) + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
+ &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\permittivity + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
 \end{align}
 where $\alpha = (\text{tr}\permittivity)^3 - 3 (\text{tr}\permittivity) \text{tr}(\permittivity^2) + 2 \text{tr}(\permittivity^3)$,
 $\beta = \permittivity_{ij} k_i k_j$, $\gamma = k_i \permittivity_{i\ell} \permittivity_{\ell j} k_j$. For given $\omega$ this is an equation of fourth order
 for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
 $\Vector{k}$ gives only two terms.
 \begin{align}
- \frac{\partial D}{\partial k_j} &= \omega^2\vacuumpermeability 
+ \frac{\partial D}{\partial k_j} &= k_0^2 
 \left[
-\omega^2\vacuumpermeability
+k_0^2
 \left(
   \permittivity_{ji} (-(\text{tr}\permittivity) k_i + \permittivity_{i\ell} k_\ell)
 + \permittivity_{ij} (-(\text{tr}\permittivity) k_i + \permittivity_{\ell i} k_\ell)
@@ -417,24 +419,6 @@ $\Vector{k}$ gives only two terms.
 + (\permittivity_{\ell j} + \permittivity_{j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
 \right]
 \end{align}
-
-For $D = 0$, the derivative is automatically also identical to zero and stays zero, even if $\Vector{k}$ changes.
-\remark{Mo doesn't understand this sentence. Jo thinks, he only calculated that explicitly for the simple isotropic case.}
-This can be easily seen by considering the identity
-\begin{align}
- D(\Wavevector) = \det A(\Wavevector) &= \exp(\text{tr}\log(A(\Wavevector)))\,.
-\end{align}
-By differentiation of this equation by $\Wavevector$ we obtain
-\begin{align}
- \frac{\partial D}{\partial k_i} &= \exp(\text{tr}\log(A(\Wavevector))) \text{tr}\left(A^{-1}(\Wavevector) \frac{\partial A(\Wavevector)}{\partial k_i}\right)\,,\nonumber\\
-				  &= D(\Wavevector)\; \text{tr}\left(A^{-1}(\Wavevector) \frac{\partial A(\Wavevector)}{\partial k_i}\right)\,.
-\end{align}
-The last identity comes from differentiating the exponential function and considering the log of a matrix as an infinite series and differentiate every single term.
-As one can see, the derivative of the determinant is proportional to the determinant itself. This means if for some wavevectors $\Wavevector$ the determinant is zero,
-the derivative is also zero.
-
-
-
 
 \subsection{Uniaxial anisotropic, homogeneous media}
 Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
@@ -577,7 +561,7 @@ For plane waves in isotropic media, the Poynting vector becomes
 
 We introduce the refractive index $n$ as
 \begin{eqnarray}
- \Wavevector^2 &=& \omega^2 \vacuumpermeability \vacuumpermittivity n^2 \\
+ \Wavevector^2 &=& k_0^2 n^2 \\
  n &=& \pm \sqrt{ \frac{\scalarpermittivity}{\vacuumpermittivity} }
 \end{eqnarray}
 In general, there are two roots. 
@@ -682,7 +666,7 @@ This calculation can, for certain types of anisotropic materials, be complicated
 
 \subsubsection{isotropic media}
 \begin{align}
- \xi = \sqrt{\omega^2 \mu_0 \epsilon_2 - \Wavevector_{1\,\parallel}^2}
+ \xi = \sqrt{k_0^2 \epsilon_2 - \Wavevector_{1\,\parallel}^2}
 \end{align}
 
 where $\Wavevector_{1\,\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself.

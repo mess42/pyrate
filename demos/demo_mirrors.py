@@ -131,14 +131,15 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #                )
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
-pilotbundle2 = core.helpers.build_pilotbundle(lc0, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
+
+pilotbundle2 = core.helpers.build_pilotbundle(lc0, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
 (pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
 
 
 
 ### TODO:
-### first trys to implement aiming, but the code is somewhat hard to use
+### first tries to implement aiming, but the code is somewhat hard to use
 ### we need to get rid of the pilot ray in every call
 ### we need to convert between XK representation local 3D coordinates and
 ### global raybundle coordinates in a more easy way
