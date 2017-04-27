@@ -93,7 +93,7 @@ class Material():
         p4 = a7
         p3 = a8 + a9
         p2 = a5 + a4*a7 + (a13 - a1*a7)*k0**2
-        p1 = a4*(a8 + a9) + (a11 + a12 - a1*(a8 + a9))*k0**2
+        p1 = a4*p3 + (a11 + a12 - a1*p3)*k0**2
         p0 = a4*a5 + (-a1*a5 + a6)*k0**2 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
         
         xiarray = np.zeros((4, num_pts), dtype=complex)

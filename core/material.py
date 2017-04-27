@@ -70,6 +70,47 @@ class Material(optimize.ClassWithOptimizableVariables):
         :return epsilon (3x3xN numpy array of complex)
         """
         raise NotImplementedError()
+        
+    def calcKfromUnitVector(self, x, e, wave=standard_wavelength):
+        """
+        Calculate k from dispersion and real unit vector 
+        in general anisotropic materials.
+        
+        :param x (3xN numpy array of float) 
+                position vector
+        :param e (3xN numpy array of float) 
+                real direction vector
+        
+        :return k tuple of (4xN numpy array of complex) 
+                
+        """
+        
+        (num_dims, num_pts) = np.shape(x)
+
+        k0 = 2.*math.pi/wave
+        
+        eps = self.getEpsilonTensor(x)
+
+        a1 = np.einsum('ii...', eps)        
+        a2 = np.einsum('ij...,ji...', eps, eps)
+        a3 = np.einsum('ij...,jk...,ki...', eps, eps, eps)
+        a4 = np.einsum('ij...,i...,j...', eps, e, e)        
+        a5 = np.einsum('ij...,jk...,i...,k...', eps, eps, e, e)
+
+        p2 = (-a4*a1 + a5)*k0**2
+        p0 = 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
+        
+        kappaarray = np.zeros((4, num_pts), dtype=complex)
+
+        for i in np.arange(num_pts):       
+            polycoeffs = [a4[i], 0, p2[i], 0, p0[i]]
+            kappaarray[:, i] = np.roots(polycoeffs)
+
+        kvectors = np.repeat(kappaarray[:, np.newaxis, :], 3, axis=1)*e
+        
+        return kvectors
+        
+        
 
     def calcXi(self, x, n, kpa, wave=standard_wavelength):
         """
@@ -133,7 +174,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         p4 = a7
         p3 = a8 + a9
         p2 = a5 + a4*a7 + (a13 - a1*a7)*k0**2
-        p1 = a4*(a8 + a9) + (a11 + a12 - a1*(a8 + a9))*k0**2
+        p1 = a4*p3 + (a11 + a12 - a1*p3)*k0**2
         p0 = a4*a5 + (-a1*a5 + a6)*k0**2 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
         
         xiarray = np.zeros((4, num_pts), dtype=complex)
