@@ -42,14 +42,14 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         self.boundaryfunction = bndfunction
 
 
-    def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
+    def getEpsilonTensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)
         mat = np.zeros((num_dims, num_dims, num_pts))
         mat[0, 0, :] = 1.
         mat[1, 1, :] = 1.
         mat[2, 2, :] = 1.
         
-        return eps0*mat*self.nfunc(x)**2
+        return mat*self.nfunc(x)**2
 
 
 
