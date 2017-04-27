@@ -80,24 +80,69 @@ def build_simple_optical_system(builduplist, matdict):
     stdseq = [("stdelem", surflist_for_sequence)]    
 
     return (s, stdseq)
+
+
+# two coordinate systems for build_pilotbundle
+# one x, one k
+# kpilot given as unity vector times 2pi/lambda relative to second coordinate system
+# if none given than k = kz
+# k = kcomp unity in determinant => solution => poynting vector
+# scalarproduct poynting vector * k > 0
+# give pilot a polarization lives in k coordinate system
+# <Re k, S> > 0 and <Im k, S> > 0
+
     
-def build_pilotbundle(lc, (dx, dy), (phix, phiy), wave=standard_wavelength):
+def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, lck=None, wave=standard_wavelength):
+
+    
+
+    if lck is None:
+        lck = lcobj
+    if kunitvector is None:
+        # standard direction is in z in lck
+        kunitvector = np.array([0, 0, 1])
+    if Elock is None:
+        # standard polarization is in x in lck
+        Elock = np.array([1, 0, 0])
+    
+    
+    
     kwave = 2.*math.pi/wave
+
+    xlocx = np.array([
+                        [0, dx, 0, 0, 0, 0, 0], 
+                        [0, 0, dy, 0, 0, 0, 0], 
+                        [0, 0, 0, 0, 0, 0, 0]])
+
+    (num_dim, num_pilot_points) = np.shape(xlocx)
+
+    kunitvector = kunitvector[:, np.newaxis]
+    # transform unit vector into correct form    
     
-    xloc = np.array([[0, dx, 0, 0, 0, 0, 0], [0, 0, dy, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]])
-    kloc = np.array([
-        [0, 0, 0, kwave*math.sin(phix), 0, 1e-3j, 0], 
-         [0, 0, 0, 0, kwave*math.sin(phiy), 0, 1e-3j], 
-          [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy), kwave, kwave]])
+    Elock = np.repeat(Elock[:, np.newaxis], num_pilot_points, axis=1)
+    # copy E-field polarization
+    
+    # calculate all quantities in material coordinate system    
+    
+    xlocmat = mat.lc.returnOtherToActualPoints(xlocx, lcobj)
+    kunitmat = mat.lc.returnOtherToActualDirections(kunitvector, lck)
+    #epsmat = mat.getEpsilonTensor(xlocmat[:, :, 0], None, None, wavelength=wave)
+    
+    
+    klock = np.array([
+          [0, 0, 0, kwave*math.sin(phix), 0, 1e-3j, 0], 
+          [0, 0, 0, 0, kwave*math.sin(phiy), 0, 1e-3j], 
+          [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy), kwave, kwave]]
+    )
     # calculate kloc by fulfilling certain consistency conditions (e.g.) determinant condition
     # xi component has to be provided by material
 
-    Eloc = np.cross(kloc, canonical_ey, axisa=0, axisb=0).T
-    # is this correct?
-    
-    xglob = lc.returnLocalToGlobalPoints(xloc)
-    kglob = lc.returnLocalToGlobalDirections(kloc)
-    Eglob = lc.returnLocalToGlobalDirections(Eloc)
+    klocmat = mat.lc.returnOtherToActualDirections(klock, lck)
+
+   
+    xglob = lcobj.returnLocalToGlobalPoints(xlocx)
+    kglob = lck.returnLocalToGlobalDirections(klock)
+    Eglob = lck.returnLocalToGlobalDirections(Elock)
     
     pilotbundle = RayBundle(
                 x0 = xglob, 

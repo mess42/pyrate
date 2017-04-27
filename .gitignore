@@ -8,3 +8,4 @@
 *.log
 *.out
 result_images/
+.hypothesis/
