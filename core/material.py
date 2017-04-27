@@ -259,7 +259,7 @@ class ConstantIndexGlass(IsotropicMaterial):
 
 
 
-class ModelGlass(ConstantIndexGlass):
+class ModelGlass(IsotropicMaterial):
     def __init__(self, lc, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5), name="", comment=""):
         """
         Set glass properties from the Conrady dispersion model.
