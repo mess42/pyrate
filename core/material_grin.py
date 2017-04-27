@@ -26,7 +26,7 @@ import numpy as np
 import math
 from ray import RayBundle
 
-from globalconstants import standard_wavelength, eps0
+from globalconstants import standard_wavelength
 
 from material import IsotropicMaterial
 

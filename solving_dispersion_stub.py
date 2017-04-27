@@ -42,12 +42,11 @@ class Material():
         
         return np.repeat(self.eps[:, :, np.newaxis], num_points, axis=2)
         
-    def deteqn(self, x, n, kpa, wave=standard_wavelength):
+    def calcXi(self, x, n, kpa, wave=standard_wavelength):
 
         (num_dims, num_pts) = np.shape(kpa)
 
-        omega = 2.*math.pi*c0/wave
-        omegabar = omega*math.sqrt(mu0)
+        k0 = 2.*math.pi/wave
         
         eps = self.getEpsTensor(x, kpa)
         
@@ -81,7 +80,6 @@ class Material():
         a7 = np.einsum('ij...,i...,j...', eps, n, n)        
         a8 = np.einsum('ij...,j...,i...', eps, kpa, n)
         a9 = np.einsum('ij...,i...,j...', eps, kpa, n)
-        a10 = np.einsum('i...,i...', kpa, n)
         a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa, n)
         a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
@@ -93,10 +91,10 @@ class Material():
         #p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
 
         p4 = a7
-        p3 = (2*a10*a7 + a8 + a9)
-        p2 = (a5 + a4*a7 + 2*a10*(a8 + a9)) + (a13 - a1*a7)*omegabar**2
-        p1 = (2*a10*a5 + a4*(a8 + a9)) + (a11 + a12 - a1*(a8 + a9))*omegabar**2
-        p0 = a4*a5 + (-a1*a5 + a6)*omegabar**2 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**4
+        p3 = a8 + a9
+        p2 = a5 + a4*a7 + (a13 - a1*a7)*k0**2
+        p1 = a4*(a8 + a9) + (a11 + a12 - a1*(a8 + a9))*k0**2
+        p0 = a4*a5 + (-a1*a5 + a6)*k0**2 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
         
         xiarray = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
@@ -108,7 +106,7 @@ class Material():
         
 if __name__=="__main__":
     
-    m = Material(eps0*np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
+    m = Material(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
     
     x = np.zeros((3, 5))
     n = np.zeros((3, 5))
@@ -118,7 +116,8 @@ if __name__=="__main__":
     k[2,:] = 2.*math.pi/standard_wavelength
     kinplane = k - np.sum(n*k, axis=0)*n    
     
-    xis = m.deteqn(x, n, kinplane)
+    xis = m.calcXi(x, n, kinplane)
+
+    print(np.array_str(xis, suppress_small=True))
+    print(np.array_str(k[2, :], suppress_small=True))
     
-    print(xis)
-    print(k[2,:])

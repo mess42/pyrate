@@ -45,9 +45,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         Class describing the interaction of the ray at the surface based on the material.
 
         :param raybundle: Incoming raybundle ( RayBundle object )
-        :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
-        :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
-        :param validIndices: whether the rays did hit the shape correctly (1d numpy array of bool)
+        :param actualSurface: refracting surface ( Surface object )
 
         :return newray: rays after surface interaction ( RayBundle object )
         """
@@ -58,9 +56,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         Class describing the interaction of the ray at the surface based on the material.
 
         :param raybundle: Incoming raybundle ( RayBundle object )
-        :param intersection: Intersection point with the surface ( 2d numpy 3xN array of float )
-        :param normal: Normal vector at the intersection point ( 2d numpy 3xN array of float )
-        :param validIndices: whether the rays did hit the shape correctly (1d numpy array of bool)
+        :param actualSurface: reflecting surface ( Surface object )
 
         :return newray: rays after surface interaction ( RayBundle object )
         """
@@ -71,13 +67,88 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         Calculate epsilon tensor if needed. (isotropic e.g.) eps = diag(3)*n^2
         
-        :return epsilon (3x3 numpy array of complex)
+        :return epsilon (3x3xN numpy array of complex)
         """
         raise NotImplementedError()
+
+    def calcXi(self, x, n, kpa, wave=standard_wavelength):
+        """
+        Calculate normal component of k after refraction in general anisotropic materials.
+        
+        :param n (3xN numpy array of float) 
+                normal of surface in local coordinates
+        :param kpa (3xN numpy array of float) 
+                incoming wave vector inplane component in local coordinates
+        
+        :return xi tuple of (4xN numpy array of complex) 
+                
+        """
+
+        (num_dims, num_pts) = np.shape(kpa)
+
+        k0 = 2.*math.pi/wave
+        
+        eps = self.getEpsilonTensor(x)
+        
+        """
+        {{a1 -> Scalar[eps[i, -i]], 
+          a2 -> Scalar[eps[i, i1]*eps[-i1, -i]], 
+          a3 -> Scalar[eps[i, i1]*eps[-i1, i2]*eps[-i2, -i]], 
+          a4 -> Scalar[kpa[-i]*kpa[i]], 
+          a5 -> Scalar[eps[i, i1]*kpa[-i]*kpa[-i1]], 
+          a6 -> Scalar[eps[i, i1]*eps[-i1, i2]*kpa[-i]*kpa[-i2]], 
+          a7 -> Scalar[eps[i, i1]*nx1[-i]*nx1[-i1]], 
+          a8 -> Scalar[eps[i, i1]*kpa[-i1]*nx1[-i]], 
+          a9 -> Scalar[eps[i, i1]*kpa[-i]*nx1[-i1]], 
+          a10 -> Scalar[kpa[i]*nx1[-i]], 
+          a11 -> Scalar[eps[i, i1]*eps[-i1, i2]*kpa[-i2]*nx1[-i]], 
+          a12 -> Scalar[eps[i, i1]*eps[-i1, i2]*kpa[-i]*nx1[-i2]], 
+          a13 -> Scalar[eps[i, i1]*eps[-i1, i2]*nx1[-i]*nx1[-i2]]}}
+          
+          poly = a4*a5*omega^2 + (-(a1*a5) + a6)*omega^4 + ((a1^3 - 3*a1*a2 + 2*a3)*omega^6)/6 + 
+          ((2*a10*a5 + a4*(a8 + a9))*omega^2 + (a11 + a12 - a1*(a8 + a9))*omega^4)*xi + 
+          ((a5 + a4*a7 + 2*a10*(a8 + a9))*omega^2 + (a13 - a1*a7)*omega^4)*xi^2 + 
+          (2*a10*a7 + a8 + a9)*omega^2*xi^3 + a7*omega^2*xi^4     
+        """
+
+        a1 = np.einsum('ii...', eps)        
+        a2 = np.einsum('ij...,ji...', eps, eps)
+        a3 = np.einsum('ij...,jk...,ki...', eps, eps, eps)
+        a4 = np.einsum('i...,i...', kpa, kpa)
+        a5 = np.einsum('ij...,i...,j...', eps, kpa, kpa)
+        a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, kpa)
+        a7 = np.einsum('ij...,i...,j...', eps, n, n)        
+        a8 = np.einsum('ij...,j...,i...', eps, kpa, n)
+        a9 = np.einsum('ij...,i...,j...', eps, kpa, n)
+        a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa, n)
+        a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
+        a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
+
+        #p4 = a7*omegabar**2
+        #p3 = (2*a10*a7 + a8 + a9)*omegabar**2
+        #p2 = (a5 + a4*a7 + 2*a10*(a8 + a9))*omegabar**2 + (a13 - a1*a7)*omegabar**4
+        #p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 + (a11 + a12 - a1*(a8 + a9))*omegabar**4
+        #p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
+
+        p4 = a7
+        p3 = a8 + a9
+        p2 = a5 + a4*a7 + (a13 - a1*a7)*k0**2
+        p1 = a4*(a8 + a9) + (a11 + a12 - a1*(a8 + a9))*k0**2
+        p0 = a4*a5 + (-a1*a5 + a6)*k0**2 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
+        
+        xiarray = np.zeros((4, num_pts), dtype=complex)
+        for i in np.arange(num_pts):       
+            polycoeffs = [p4[i], p3[i], p2[i], p1[i], p0[i]]
+            roots = np.roots(polycoeffs)
+            # TODO: check whether last part is necessary, in general a7 != 0
+            xiarray[:, i] = np.pad(roots, (0, 4 - roots.shape[0]), 'constant', constant_values=(np.nan,))
+            
+        return xiarray
+
         
     def calcXiIsotropic(self, x, n, k_inplane, wave=standard_wavelength):
         """
-        Calculate normal component of k after refraction.
+        Calculate normal component of k after refraction in isotropic materials.
         
         :param n (3xN numpy array of float) 
                 normal of surface in local coordinates
