@@ -504,11 +504,5 @@ class ModelGlass(IsotropicMaterial):
             print "Warning: Schott Code must be a 6 digit positive integer number. Substituting invalid number with N-BK7."
             nd = 1.51680
             vd = 64.17
-<<<<<<< HEAD
         self.calcCoefficientsFrom_nd_vd(nd, vd)
 
-
-
-=======
-        self.calcCoefficientsFrom_nd_vd(nd, vd)
->>>>>>> dc7c553d0b9be8b04e10a307e636475008c94eed
