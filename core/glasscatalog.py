@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import yaml
 import numpy as np
 import scipy.interpolate
+from material import IsotropicMaterial
 
 class refractiveindex_dot_info_glasscatalog(object):
     def __init__(self, database_basepath):
@@ -252,6 +253,28 @@ class IndexFormulaContainer(object):
         """
         return self.__dispFunction(1000 * wavelength)
                 
+class CatalogMaterial(IsotropicMaterial):
+    def __init__(self, lc, glassname = "N-BK7", comment=""):
+        raise NotImplementedError()
+
+    def setDispersionFormula(self, glassName):
+        raise NotImplementedError()
+
+    def getIndex(self, raybundle):
+        raise NotImplementedError()
+
+    def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
+        raise NotImplementedError()
+
+    def findGlassCloseTo_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
+        raise NotImplementedError()
+        
+    def findGlassCloseTo_nd_vd(self, nd=1.51680, vd=64.17):
+        raise NotImplementedError()
+
+    def findGlassFromSchottCode(self, schottCode=517642):
+        raise NotImplementedError()
+
 
 if __name__ == "__main__":
 
