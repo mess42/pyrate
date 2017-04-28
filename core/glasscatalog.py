@@ -69,30 +69,7 @@ class refractiveindex_dot_info_glasscatalog(object):
 
         data = self.read_yml_file(ymlfilename)
         return data
-        
-    def getDispersionFunctions(self, shelf, book, page):
-        data = self.getMaterialData(shelf, book, page)["DATA"]
-
-        if len(data) > 2:
-            raise Exception("Max 2 entries for dispersion allowed - n and k.")
-        
-        nk = []
-        for i in np.arange(len(data)): # i=0 is n  ;  i=1 is k
-            dispersionDict = data[i]
-            typ= dispersionDict["type"]            
-            if dispersionDict["type"].startswith("tabulated"):
-                coeff = dispersionDict["data"].split("\n")[:-1]
-                for j in np.arange(len(coeff)):
-                    coeff[j] = coeff[j].split()
-            else:
-                coeff = dispersionDict["coefficients"].split()
-            coeff = np.array(coeff, dtype=float)
-            nk.append(IndexFormulaContainer(typ, coeff))
-        return nk              
-        
-        #raise NotImplementedError()
-        return data
-            
+                    
     def read_yml_file(self, ymlfilename):
         """
         Reads a .yml file and converts it into python data types.
@@ -141,6 +118,15 @@ class refractiveindex_dot_info_glasscatalog(object):
             for bookname in lib[shelfname]["content"]:
                 lib[shelfname]["content"][bookname]["content"]= self.list2dict(lib[shelfname]["content"][bookname]["content"], "PAGE")
         return lib
+
+    def findGlassCloseTo_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
+        raise NotImplementedError()
+        
+    def findGlassCloseTo_nd_vd(self, nd=1.51680, vd=64.17):
+        raise NotImplementedError()
+
+    def findGlassFromSchottCode(self, schottCode=517642):
+        raise NotImplementedError()
 
 
 
@@ -257,24 +243,35 @@ class CatalogMaterial(IsotropicMaterial):
     def __init__(self, lc, glassname = "N-BK7", comment=""):
         raise NotImplementedError()
 
-    def setDispersionFormula(self, glassName):
-        raise NotImplementedError()
 
     def getIndex(self, raybundle):
         raise NotImplementedError()
 
-    def getEpsilonTensor(self, x, n, k, wave=standard_wavelength):
+
+    def getEpsilon(self, x, wave):
         raise NotImplementedError()
 
-    def findGlassCloseTo_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
-        raise NotImplementedError()
+
+    def setDispersionFunctions(self, ymldict):
+        data = ymldict["DATA"]
+
+        if len(data) > 2:
+            raise Exception("Max 2 entries for dispersion allowed - n and k.")
         
-    def findGlassCloseTo_nd_vd(self, nd=1.51680, vd=64.17):
-        raise NotImplementedError()
-
-    def findGlassFromSchottCode(self, schottCode=517642):
-        raise NotImplementedError()
-
+        nk = []
+        for i in np.arange(len(data)): # i=0 is n  ;  i=1 is k
+            dispersionDict = data[i]
+            typ= dispersionDict["type"]            
+            if dispersionDict["type"].startswith("tabulated"):
+                coeff = dispersionDict["data"].split("\n")[:-1]
+                for j in np.arange(len(coeff)):
+                    coeff[j] = coeff[j].split()
+            else:
+                coeff = dispersionDict["coefficients"].split()
+            coeff = np.array(coeff, dtype=float)
+            nk.append(IndexFormulaContainer(typ, coeff))
+        raise notImplementedError()             
+        
 
 if __name__ == "__main__":
 
