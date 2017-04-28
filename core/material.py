@@ -189,8 +189,19 @@ class IsotropicMaterial(Material):
     def __init__(self, lc, n=1.0, name="", comment=""):
         super(IsotropicMaterial, self).__init__(lc, name, comment)
 
+
     def getEpsilonTensor(self, x, wave=standard_wavelength):
+        (num_dims, num_pts) = np.shape(x)
+        mat = np.zeros((num_dims, num_dims, num_pts))
+        mat[0, 0, :] = 1.
+        mat[1, 1, :] = 1.
+        mat[2, 2, :] = 1.
+        return mat*self.getEpsilon(x, wave)
+
+
+    def getEpsilon(self,x,wave):
         raise NotImplementedError()
+
 
     def calcEfield(self, x, n, k, wave=standard_wavelength):
         # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
@@ -198,13 +209,12 @@ class IsotropicMaterial(Material):
         ey[1,:] =  1.
         return np.cross(k, ey, axisa=0, axisb=0).T
 
-        
 
     def calcXiIsotropic(self, x, normal, k_inplane, wave=standard_wavelength):
         # Depends on x in general: to be compatible with grin materials
         # and to reduce reimplementation effort
         
-        k2_squared = 4.*math.pi**2/wave**2/(3.)*np.trace(self.getEpsilonTensor(x, wave))
+        k2_squared = 4.*math.pi**2 / ( wave**2 * self.getEpsilon(x, wave) )
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
         # make total internal reflection invalid
@@ -213,6 +223,7 @@ class IsotropicMaterial(Material):
         xi = np.sqrt(square)
         
         return (xi, valid)
+
 
     def getLocalSurfaceNormal(self, surface, xglob):
         xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
@@ -291,16 +302,6 @@ class ConstantIndexGlass(IsotropicMaterial):
         self.n = optimize.OptimizableVariable(value=n)
         self.addVariable("refractive index", self.n)
 
-            
-    def getEpsilonTensor(self, x, wave=standard_wavelength):
-        (num_dims, num_pts) = np.shape(x)
-        mat = np.zeros((num_dims, num_dims, num_pts))
-        mat[0, 0, :] = 1.
-        mat[1, 1, :] = 1.
-        mat[2, 2, :] = 1.
-        
-        return mat*self.n()**2
-
 
     def setCoefficients(self, n):
         """
@@ -309,6 +310,11 @@ class ConstantIndexGlass(IsotropicMaterial):
         :param n: refractive index (float)
         """
         self.n.val = n
+
+
+    def getEpsilon(self, x, wave):
+        return self.n.evaluate()**2
+
 
     def getIndex(self, ray):
         return self.n.evaluate()
@@ -346,6 +352,7 @@ class ModelGlass(IsotropicMaterial):
         self.A.setvalue(n0_A_B[1])
         self.B.setvalue(n0_A_B[2])
 
+
     def getIndex(self, raybundle):
         """
         Private routine for all isotropic materials obeying the Snell law of refraction.
@@ -357,17 +364,11 @@ class ModelGlass(IsotropicMaterial):
         wave = raybundle.wave  # wavelength in um
         return self.n0.evaluate() + self.A.evaluate() / wave + self.B.evaluate() / (wave**3.5)
 
-    def getEpsilonTensor(self, x, wave=standard_wavelength):
-        n = self.n0() + self.A() / wave + self.B() / (wave**3.5)
 
-        (num_dims, num_pts) = np.shape(x)
-        mat = np.zeros((num_dims, num_dims, num_pts))
-        mat[0, 0, :] = 1.
-        mat[1, 1, :] = 1.
-        mat[2, 2, :] = 1.
-                
-        
-        return mat*n**2
+    def getEpsilon(self, x, wave=standard_wavelength):        
+        n = self.n0() + self.A() / wave + self.B() / (wave**3.5)                
+        return n**2
+
 
     def calcCoefficientsFrom_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
         """
