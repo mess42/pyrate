@@ -197,7 +197,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, kpa)
         a7 = np.einsum('ij...,i...,j...', eps, n, n)        
         a8 = np.einsum('ij...,j...,i...', eps, kpa, n)
-        a9 = np.einsum('ij...,i...,j...', eps, kpa, n)
+        a9 = np.einsum('ij...,i...,j...', eps, n, kpa)
         a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa, n)
         a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
@@ -208,11 +208,24 @@ class Material(optimize.ClassWithOptimizableVariables):
         #p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 + (a11 + a12 - a1*(a8 + a9))*omegabar**4
         #p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
 
-        p4 = a7
-        p3 = a8 + a9
-        p2 = a5 + a4*a7 + (a13 - a1*a7)*k0**2
-        p1 = a4*p3 + (a11 + a12 - a1*p3)*k0**2
-        p0 = a4*a5 + (-a1*a5 + a6)*k0**2 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
+        p4 = a7*k0**2
+        p3 = (a8 + a9)*k0**2
+        p2 = (a5 + a4*a7)*k0**2 + (a13 - a1*a7)*k0**4
+        p1 = a4*p3*k0**2 + (a11 + a12 - a1*p3)*k0**4
+        p0 = a4*a5*k0**2 + (-a1*a5 + a6)*k0**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**6
+        
+        print(a1)        
+        print(a2)        
+        print(a3)        
+        print(a4)        
+        print(a5)        
+        print(a6)        
+        print(a7)        
+        print(a8)        
+        print(a9)        
+        print(a11)        
+        print(a12)        
+        print(a13)        
         
         xiarray = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
@@ -493,21 +506,4 @@ class ModelGlass(IsotropicMaterial):
         self.calcCoefficientsFrom_nd_vd(nd, vd)
 
 
-if __name__=="__main__":
-    from localcoordinates import LocalCoordinates
-    lc = LocalCoordinates("1")
-    m = ConstantIndexGlass(lc, 1.0)
-    
-    x = np.zeros((3, 5))
-    n = np.zeros((3, 5))
-    n[2, :] = 1.    
-    
-    kpa = np.zeros((3, 5))
-    phi = 0.*math.pi/180.0
-    k0 = 2.*math.pi/standard_wavelength
 
-    kpa[0, :] = k0*math.cos(phi)
-    kpa[1, :] = k0*math.sin(phi)
-    
-    
-    print(m.calcEigenvectors(x, n, kpa, wave=standard_wavelength))
