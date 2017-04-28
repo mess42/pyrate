@@ -211,7 +211,6 @@ class IsotropicMaterial(Material):
         :return (xi, valid) tuple of (3x1 numpy array of complex, 
                 3x1 numpy array of bool)
         """
-        raise NotImplementedError()
         
         k2_squared = 4.*math.pi**2 / wave**2 * self.getEpsilon(x, wave)
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
