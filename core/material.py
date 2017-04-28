@@ -145,21 +145,6 @@ class Material(optimize.ClassWithOptimizableVariables):
             
         return xiarray
 
-        
-    def calcXiIsotropic(self, x, n, k_inplane, wave=standard_wavelength):
-        """
-        Calculate normal component of k after refraction in isotropic materials.
-        
-        :param n (3xN numpy array of float) 
-                normal of surface in local coordinates
-        :param k_inplane (3xN numpy array of float) 
-                incoming wave vector inplane component in local coordinates
-        
-        :return (xi, valid) tuple of (3x1 numpy array of complex, 
-                3x1 numpy array of bool)
-        """
-        raise NotImplementedError()
-        
     
     def setCoefficients(self, coefficients):
         """
@@ -210,9 +195,23 @@ class IsotropicMaterial(Material):
         return np.cross(k, ey, axisa=0, axisb=0).T
 
 
-    def calcXiIsotropic(self, x, normal, k_inplane, wave=standard_wavelength):
-        # Depends on x in general: to be compatible with grin materials
-        # and to reduce reimplementation effort
+    def calcXi(self, x, normal, k_inplane, wave=standard_wavelength):
+        return self.calcXiIsotropic(x, normal, k_inplane, wave=standard_wavelength)
+        
+        
+    def calcXiIsotropic(self, x, n, k_inplane, wave=standard_wavelength):
+        """
+        Calculate normal component of k after refraction in isotropic materials.
+        
+        :param n (3xN numpy array of float) 
+                normal of surface in local coordinates
+        :param k_inplane (3xN numpy array of float) 
+                incoming wave vector inplane component in local coordinates
+        
+        :return (xi, valid) tuple of (3x1 numpy array of complex, 
+                3x1 numpy array of bool)
+        """
+        raise NotImplementedError()
         
         k2_squared = 4.*math.pi**2 / wave**2 * self.getEpsilon(x, wave)
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
@@ -386,6 +385,7 @@ class ModelGlass(IsotropicMaterial):
 
         self.setCoefficients((n0, A, B))
 
+
     def calcCoefficientsFrom_nd_vd(self, nd=1.51680, vd=64.17):
         """
         Calculates the dispersion formula coefficients, assuming the glass on the normal line.
@@ -396,6 +396,7 @@ class ModelGlass(IsotropicMaterial):
 
         PgF = 0.6438 - 0.001682 * vd
         self.calcCoefficientsFrom_nd_vd_PgF(nd, vd, PgF)
+
 
     def calcCoefficientsFromSchottCode(self, schottCode=517642):
         """
@@ -414,5 +415,3 @@ class ModelGlass(IsotropicMaterial):
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
-
-
