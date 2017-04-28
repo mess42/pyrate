@@ -46,7 +46,7 @@ def test_anisotropic_xi_calculation():
     
     # FIXME: determinantenformel mit spuren checken!
     
-    print(m.calcXi(x, n, kpa, wave=wave))
+    print(m.calcXiAnisotropic(x, n, kpa, wave=wave))
     
 if __name__=="__main__":
     test_anisotropic_xi_calculation()

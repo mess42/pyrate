@@ -149,7 +149,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         
         
 
-    def calcXi(self, x, n, kpa, wave=standard_wavelength):
+    def calcXiAnisotropic(self, x, n, kpa, wave=standard_wavelength):
         """
         Calculate normal component of k after refraction in general anisotropic materials.
         
