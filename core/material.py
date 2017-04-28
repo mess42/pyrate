@@ -110,6 +110,40 @@ class Material(optimize.ClassWithOptimizableVariables):
         
         return kvectors
         
+    def calcEigenvectors(self, x, n, kpa, wave=standard_wavelength):
+        # TODO: needs heavy testing        
+        """
+        Calculate eigen vectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
+        
+        :param n (3xN numpy array of float) 
+                normal of surface in local coordinates
+        :param kpa (3xN numpy array of float) 
+                incoming wave vector inplane component in local coordinates
+        
+        :return xi tuple of (4xN numpy array of complex) 
+                
+        """
+
+        (num_dims, num_pts) = np.shape(kpa)
+        k0 = 2.*math.pi/wave
+        eps = self.getEpsilonTensor(x)
+        xis = self.calcXi(x, n, kpa, wave=wave)
+        eigenvectors = np.zeros((4, 3, 3, num_pts), dtype=complex)
+        # xi number, eigv number, eigv 3xN
+        
+        for i in range(4):
+            k = kpa + xis[i]*n
+            propagator = -np.sum(k*k, axis=0)*np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+            for j in range(num_pts):
+                propagator[:, :, j] += np.outer(k[:, j], k[:, j])
+            propagator += k0**2*eps
+            (w, v) = np.linalg.eig(propagator.T) 
+            # cannot use 3x3xN, eig needs Nx3x3
+        
+            eigenvectors[i, :, :, :] = v.T
+            
+        return eigenvectors
+        
         
 
     def calcXi(self, x, n, kpa, wave=standard_wavelength):
@@ -456,3 +490,21 @@ class ModelGlass(ConstantIndexGlass):
         self.calcCoefficientsFrom_nd_vd(nd, vd)
 
 
+if __name__=="__main__":
+    from localcoordinates import LocalCoordinates
+    lc = LocalCoordinates("1")
+    m = ConstantIndexGlass(lc, 1.0)
+    
+    x = np.zeros((3, 5))
+    n = np.zeros((3, 5))
+    n[2, :] = 1.    
+    
+    kpa = np.zeros((3, 5))
+    phi = 25.*math.pi/180.0
+    k0 = 2.*math.pi/standard_wavelength
+
+    kpa[0, :] = k0*math.cos(phi)
+    kpa[1, :] = k0*math.sin(phi)
+    
+    
+    print(m.calcEigenvectors(x, n, kpa, wave=standard_wavelength))
