@@ -214,7 +214,7 @@ class IsotropicMaterial(Material):
         # Depends on x in general: to be compatible with grin materials
         # and to reduce reimplementation effort
         
-        k2_squared = 4.*math.pi**2 / ( wave**2 * self.getEpsilon(x, wave) )
+        k2_squared = 4.*math.pi**2 / wave**2 * self.getEpsilon(x, wave)
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
         # make total internal reflection invalid
