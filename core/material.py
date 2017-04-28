@@ -139,8 +139,11 @@ class Material(optimize.ClassWithOptimizableVariables):
             propagator += k0**2*eps
             (w, v) = np.linalg.eig(propagator.T) 
             # cannot use 3x3xN, eig needs Nx3x3
-        
             eigenvectors[i, :, :, :] = v.T
+            print(np.linalg.det(propagator.T))
+            # if xis are eigen values of the propagator, then det = 0
+            print(w.T)            
+            # TODO: we only need two polarization vectors (which?)
             
         return eigenvectors
         
@@ -500,7 +503,7 @@ if __name__=="__main__":
     n[2, :] = 1.    
     
     kpa = np.zeros((3, 5))
-    phi = 25.*math.pi/180.0
+    phi = 0.*math.pi/180.0
     k0 = 2.*math.pi/standard_wavelength
 
     kpa[0, :] = k0*math.cos(phi)
