@@ -146,22 +146,6 @@ class Material(optimize.ClassWithOptimizableVariables):
             
         return xiarray
 
-    
-    def setCoefficients(self, coefficients):
-        """
-        Sets the dispersion coefficients of a glass (if any)
-
-        :param coefficients: float or list or numpy array of float
-        """
-        raise NotImplementedError()
-
-
-    def getCoefficients(self):
-        """
-        Returns the dispersion coefficients of a glass
-        """
-        raise NotImplementedError()
-
         
     def propagate(self, raybundle, nextSurface):
         """
@@ -183,10 +167,10 @@ class IsotropicMaterial(Material):
         mat[0, 0, :] = 1.
         mat[1, 1, :] = 1.
         mat[2, 2, :] = 1.
-        return mat*self.getEpsilon(x, wave)
+        return mat*self.getIsotropicEpsilon(x, wave)
 
 
-    def getEpsilon(self,x,wave):
+    def getIsotropicEpsilon(self,x,wave):
         return self.getIndex(x,wave)**2
 
 
@@ -218,7 +202,7 @@ class IsotropicMaterial(Material):
                 3x1 numpy array of bool)
         """
         
-        k2_squared = 4.*math.pi**2 / wave**2 * self.getEpsilon(x, wave)
+        k2_squared = 4.*math.pi**2 / wave**2 * self.getIsotropicEpsilon(x, wave)
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
         # make total internal reflection invalid
@@ -308,15 +292,6 @@ class ConstantIndexGlass(IsotropicMaterial):
         self.addVariable("refractive index", self.n)
 
 
-    def setCoefficients(self, n):
-        """
-        Sets the refractive index.
-
-        :param n: refractive index (float)
-        """
-        self.n.val = n
-
-
     def getIndex(self, x, wave):
         return self.n.evaluate()
 
@@ -341,17 +316,6 @@ class ModelGlass(IsotropicMaterial):
         self.addVariable("Conrady n0", self.n0)
         self.addVariable("Conrady A", self.A)
         self.addVariable("Conrady B", self.B)
-
-
-    def setCoefficients(self, n0_A_B):
-        """
-        Sets the coefficients of the Conrady model.
-
-        :param n0_A_B: coefficients (list or 1d numpy array of 3 floats)
-        """
-        self.n0.setvalue(n0_A_B[0])
-        self.A.setvalue(n0_A_B[1])
-        self.B.setvalue(n0_A_B[2])
 
 
     def getIndex(self, x, wave):
@@ -379,7 +343,9 @@ class ModelGlass(IsotropicMaterial):
         A = (1.87513751845 * nF_minus_nC - B * 15.2203074842)*1e-3
         n0 = nd - 1.70194862906e3 * A - 6.43150432188*(1e3**3.5) * B
 
-        self.setCoefficients((n0, A, B))
+        self.n0.setvalue(n0_A_B[0])
+        self.A.setvalue(n0_A_B[1])
+        self.B.setvalue(n0_A_B[2])
 
 
     def calcCoefficientsFrom_nd_vd(self, nd=1.51680, vd=64.17):
