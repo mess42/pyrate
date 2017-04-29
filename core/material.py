@@ -71,6 +71,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
+
     def calcXi(self, x, n, kpa, wave=standard_wavelength):
         """
         Calculate normal component of k after refraction in general anisotropic materials.
@@ -154,6 +155,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
+
     def getCoefficients(self):
         """
         Returns the dispersion coefficients of a glass
@@ -185,6 +187,10 @@ class IsotropicMaterial(Material):
 
 
     def getEpsilon(self,x,wave):
+        return self.getIndex(x,wave)**2
+
+
+    def getIndex(self,x,wave):
         raise NotImplementedError()
 
 
@@ -290,6 +296,7 @@ class IsotropicMaterial(Material):
 
         nextSurface.intersect(raybundle)
 
+
 class ConstantIndexGlass(IsotropicMaterial):
     """
     A simple glass defined by a single refractive index.
@@ -310,11 +317,7 @@ class ConstantIndexGlass(IsotropicMaterial):
         self.n.val = n
 
 
-    def getEpsilon(self, x, wave):
-        return self.n.evaluate()**2
-
-
-    def getIndex(self, ray):
+    def getIndex(self, x, wave):
         return self.n.evaluate()
 
 
@@ -351,7 +354,7 @@ class ModelGlass(IsotropicMaterial):
         self.B.setvalue(n0_A_B[2])
 
 
-    def getIndex(self, raybundle):
+    def getIndex(self, x, wave):
         """
         Private routine for all isotropic materials obeying the Snell law of refraction.
 
@@ -359,13 +362,7 @@ class ModelGlass(IsotropicMaterial):
 
         :return index: refractive index at respective wavelength (float)
         """
-        wave = raybundle.wave  # wavelength in um
         return self.n0.evaluate() + self.A.evaluate() / wave + self.B.evaluate() / (wave**3.5)
-
-
-    def getEpsilon(self, x, wave=standard_wavelength):        
-        n = self.n0() + self.A() / wave + self.B() / (wave**3.5)                
-        return n**2
 
 
     def calcCoefficientsFrom_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
