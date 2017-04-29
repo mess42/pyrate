@@ -230,7 +230,7 @@ class IndexFormulaContainer(object):
         else:
             raise Exception("Bad dispersion function type: "+str(typ))
             
-    def getDispersion(self, wavelength):
+    def getIndex(self, wavelength):
         """
         :param wavelength: (float)
                wavelength in mm
@@ -240,25 +240,35 @@ class IndexFormulaContainer(object):
         return self.__dispFunction(1000 * wavelength)
                 
 class CatalogMaterial(IsotropicMaterial):
-    def __init__(self, lc, glassname = "N-BK7", comment=""):
-        raise NotImplementedError()
+    def __init__(self, lc, ymldict, name = "", comment=""):
+        """
+        Material from the refractiveindex.info database.
+        
+        :param ymldict: (dict)
+                dictionary from a refractiveindex.info page yml file.
+        :param name: (str)
+        :param comment: (str)
+        
+        example:        
+            import yaml                
+            f = open("n-bk7.yml")        
+            ymldict = yaml.safe_load(f)
+            f.close()
+            bk7 = CatalogMaterial(lc, ymldict)
+        """
 
+        super(CatalogMaterial, self).__init__(lc, name, comment)
 
-    def getIndex(self, raybundle):
-        raise NotImplementedError()
+        self.setMaterialFromYMLDict(ymldict)
+        
 
-
-    def getEpsilon(self, x, wave):
-        raise NotImplementedError()
-
-
-    def setDispersionFunctions(self, ymldict):
+    def setMaterialFromYMLDict(self, ymldict):
         data = ymldict["DATA"]
 
         if len(data) > 2:
             raise Exception("Max 2 entries for dispersion allowed - n and k.")
         
-        nk = []
+        self.nk = []
         for i in np.arange(len(data)): # i=0 is n  ;  i=1 is k
             dispersionDict = data[i]
             typ= dispersionDict["type"]            
@@ -269,8 +279,13 @@ class CatalogMaterial(IsotropicMaterial):
             else:
                 coeff = dispersionDict["coefficients"].split()
             coeff = np.array(coeff, dtype=float)
-            nk.append(IndexFormulaContainer(typ, coeff))
-        raise notImplementedError()             
+            self.nk.append(IndexFormulaContainer(typ, coeff))
+
+    def getIndex(self, x, wave):
+        n = 0
+        for dispFun in self.nk:
+            n += dispFun.getIndex(wave)
+        return n
         
 
 if __name__ == "__main__":
