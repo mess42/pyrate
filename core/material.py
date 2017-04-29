@@ -63,6 +63,8 @@ class Material(optimize.ClassWithOptimizableVariables):
         raise NotImplementedError()
 
 
+class MaxwellMaterial(Material):
+
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         """
         Calculate epsilon tensor if needed. (isotropic e.g.) eps = diag(3)*n^2
@@ -251,7 +253,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         raise NotImplementedError()
 
 
-class IsotropicMaterial(Material):
+class IsotropicMaterial(MaxwellMaterial):
     
     def __init__(self, lc, n=1.0, name="", comment=""):
         super(IsotropicMaterial, self).__init__(lc, name, comment)
@@ -439,9 +441,9 @@ class ModelGlass(IsotropicMaterial):
         A = (1.87513751845 * nF_minus_nC - B * 15.2203074842)*1e-3
         n0 = nd - 1.70194862906e3 * A - 6.43150432188*(1e3**3.5) * B
 
-        self.n0.setvalue(n0_A_B[0])
-        self.A.setvalue(n0_A_B[1])
-        self.B.setvalue(n0_A_B[2])
+        self.n0.setvalue(n0)
+        self.A.setvalue(B)
+        self.B.setvalue(A)
 
 
     def calcCoefficientsFrom_nd_vd(self, nd=1.51680, vd=64.17):
