@@ -233,7 +233,13 @@ class Material(optimize.ClassWithOptimizableVariables):
             roots = np.roots(polycoeffs)
             # TODO: check whether last part is necessary, in general a7 != 0
             xiarray[:, i] = np.pad(roots, (0, 4 - roots.shape[0]), 'constant', constant_values=(np.nan,))
+
+        for i in range(4):
+            print(xiarray[i])
+            print(p4*xiarray[i]**4 + p3*xiarray[i]**3 + p2*xiarray[i]**2 + p1*xiarray[i] + p0)
             
+        
+        
         return xiarray
 
     
