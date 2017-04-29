@@ -70,9 +70,86 @@ class Material(optimize.ClassWithOptimizableVariables):
         :return epsilon (3x3xN numpy array of complex)
         """
         raise NotImplementedError()
+        
+    def calcKfromUnitVector(self, x, e, wave=standard_wavelength):
+        """
+        Calculate k from dispersion and real unit vector 
+        in general anisotropic materials.
+        
+        :param x (3xN numpy array of float) 
+                position vector
+        :param e (3xN numpy array of float) 
+                real direction vector
+        
+        :return k tuple of (4xN numpy array of complex) 
+                
+        """
+        
+        (num_dims, num_pts) = np.shape(x)
 
+        k0 = 2.*math.pi/wave
+        
+        eps = self.getEpsilonTensor(x)
 
-    def calcXi(self, x, n, kpa, wave=standard_wavelength):
+        a1 = np.einsum('ii...', eps)        
+        a2 = np.einsum('ij...,ji...', eps, eps)
+        a3 = np.einsum('ij...,jk...,ki...', eps, eps, eps)
+        a4 = np.einsum('ij...,i...,j...', eps, e, e)        
+        a5 = np.einsum('ij...,jk...,i...,k...', eps, eps, e, e)
+
+        p2 = (-a4*a1 + a5)*k0**2
+        p0 = 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
+        
+        kappaarray = np.zeros((4, num_pts), dtype=complex)
+
+        for i in np.arange(num_pts):       
+            polycoeffs = [a4[i], 0, p2[i], 0, p0[i]]
+            kappaarray[:, i] = np.roots(polycoeffs)
+
+        kvectors = np.repeat(kappaarray[:, np.newaxis, :], 3, axis=1)*e
+        
+        return kvectors
+        
+    def calcEigenvectors(self, x, n, kpa, wave=standard_wavelength):
+        # TODO: needs heavy testing        
+        """
+        Calculate eigen vectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
+        
+        :param n (3xN numpy array of float) 
+                normal of surface in local coordinates
+        :param kpa (3xN numpy array of float) 
+                incoming wave vector inplane component in local coordinates
+        
+        :return xi tuple of (4xN numpy array of complex) 
+                
+        """
+
+        (num_dims, num_pts) = np.shape(kpa)
+        k0 = 2.*math.pi/wave
+        eps = self.getEpsilonTensor(x)
+        xis = self.calcXi(x, n, kpa, wave=wave)
+        eigenvectors = np.zeros((4, 3, 3, num_pts), dtype=complex)
+        # xi number, eigv number, eigv 3xN
+        
+        for i in range(4):
+            k = kpa + xis[i]*n
+            propagator = -np.sum(k*k, axis=0)*np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+            for j in range(num_pts):
+                propagator[:, :, j] += np.outer(k[:, j], k[:, j])
+            propagator += k0**2*eps
+            (w, v) = np.linalg.eig(propagator.T) 
+            # cannot use 3x3xN, eig needs Nx3x3
+            eigenvectors[i, :, :, :] = v.T
+            print(np.linalg.det(propagator.T))
+            # if xis are eigen values of the propagator, then det = 0
+            print(w.T)            
+            # TODO: we only need two polarization vectors (which?)
+            
+        return eigenvectors
+        
+        
+
+    def calcXiAnisotropic(self, x, n, kpa, wave=standard_wavelength):
         """
         Calculate normal component of k after refraction in general anisotropic materials.
         
@@ -120,7 +197,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, kpa)
         a7 = np.einsum('ij...,i...,j...', eps, n, n)        
         a8 = np.einsum('ij...,j...,i...', eps, kpa, n)
-        a9 = np.einsum('ij...,i...,j...', eps, kpa, n)
+        a9 = np.einsum('ij...,i...,j...', eps, n, kpa)
         a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa, n)
         a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
@@ -131,11 +208,24 @@ class Material(optimize.ClassWithOptimizableVariables):
         #p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 + (a11 + a12 - a1*(a8 + a9))*omegabar**4
         #p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
 
-        p4 = a7
-        p3 = a8 + a9
-        p2 = a5 + a4*a7 + (a13 - a1*a7)*k0**2
-        p1 = a4*(a8 + a9) + (a11 + a12 - a1*(a8 + a9))*k0**2
-        p0 = a4*a5 + (-a1*a5 + a6)*k0**2 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
+        p4 = a7*k0**2
+        p3 = (a8 + a9)*k0**2
+        p2 = (a5 + a4*a7)*k0**2 + (a13 - a1*a7)*k0**4
+        p1 = a4*p3*k0**2 + (a11 + a12 - a1*p3)*k0**4
+        p0 = a4*a5*k0**2 + (-a1*a5 + a6)*k0**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**6
+        
+        print(a1)        
+        print(a2)        
+        print(a3)        
+        print(a4)        
+        print(a5)        
+        print(a6)        
+        print(a7)        
+        print(a8)        
+        print(a9)        
+        print(a11)        
+        print(a12)        
+        print(a13)        
         
         xiarray = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
@@ -377,3 +467,4 @@ class ModelGlass(IsotropicMaterial):
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
+

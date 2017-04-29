@@ -92,7 +92,7 @@ def build_simple_optical_system(builduplist, matdict):
 # <Re k, S> > 0 and <Im k, S> > 0
 
     
-def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, lck=None, wave=standard_wavelength):
+def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
 
     
 
@@ -101,6 +101,8 @@ def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvecto
     if kunitvector is None:
         # standard direction is in z in lck
         kunitvector = np.array([0, 0, 1])
+    if kup is None:
+        kup = np.array([0, 1, 0])
     if Elock is None:
         # standard polarization is in x in lck
         Elock = np.array([1, 0, 0])
@@ -126,8 +128,13 @@ def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvecto
     
     xlocmat = mat.lc.returnOtherToActualPoints(xlocx, lcobj)
     kunitmat = mat.lc.returnOtherToActualDirections(kunitvector, lck)
-    #epsmat = mat.getEpsilonTensor(xlocmat[:, :, 0], None, None, wavelength=wave)
     
+    kvectorsmat = mat.calcKfromUnitVector(xlocmat[:, 0][:, np.newaxis], kunitmat)
+    
+    dklock = np.array([[kwave, 0, complex(0, kwave), 0],
+                       [0, kwave, 0, complex(0, kwave)],
+                       [0, 0, 0, 0]])
+    dklocmat = mat.lc.returnOtherToActualDirections(dklock, lck)
     
     klock = np.array([
           [0, 0, 0, kwave*math.sin(phix), 0, 1e-3j, 0], 
