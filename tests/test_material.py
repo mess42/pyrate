@@ -24,30 +24,55 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 from core.localcoordinates import LocalCoordinates
-from core.material import ConstantIndexGlass
+from core.material import AnisotropicMaterial
 from core.globalconstants import standard_wavelength
 
 def test_anisotropic_xi_calculation():
     lc = LocalCoordinates("1")
-    m = ConstantIndexGlass(lc, 1.0)
-    wave = standard_wavelength    
     
-    x = np.zeros((3, 5))
+    myeps = np.random.random((3, 3))
+    ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
+        tuple(myeps)
+    
+    print(myeps)
+    print('epsxx: ', epsxx)    
+    print('epsxy: ', epsxy)    
+    print('epsxz: ', epsxz)    
+    print('epsyx: ', epsyx)    
+    print('epsyy: ', epsyy)    
+    print('epsyz: ', epsyz)    
+    print('epszx: ', epszx)    
+    print('epszy: ', epszy)    
+    print('epszz: ', epszz)    
+    
+    m = AnisotropicMaterial(lc, myeps)
+    
     n = np.zeros((3, 5))
     n[2, :] = 1.    
     
-    kpa = np.zeros((3, 5))
-    phi = np.linspace(0, 360, 5, endpoint=False)*math.pi/180.0
-    print(phi)
-    k0 = 2.*math.pi/wave
+    x = np.zeros((3, 5))
+    kpa = np.random.random((3, 5))
+    kpa[2, :] = 0.
 
-    kpa[0, :] = k0*np.cos(phi)
-    kpa[1, :] = k0*np.sin(phi)
+    (p4v, p3v, p2v, p1v, p0v) = m.calcXiPolynomial(x, kpa, n)
+
+
+    p4 = epszz
+    p3 = (epsxz + epszx)*kpa[0, :] + (epsyz + epszy)*kpa[1, :]
+    #p2 = -2*ind**2*(-1 + ind**2)
+    #p1 = 0.
+    #p0 = ind**2*(-1 + ind**2)**2
     
-    # FIXME: determinantenformel mit spuren checken!
-    
-    print(m.calcXiAnisotropic(x, n, kpa, wave=wave))
-    
+    print("ana p4", p4)    
+    print("code p4", p4v)
+   
+    print("ana p3", p3)    
+    print("code p3", p3v)
+    #print("p2", p2)    
+    #print("p1", p1)    
+    #print("p0", p0)    
+
+  
 if __name__=="__main__":
     test_anisotropic_xi_calculation()
 
