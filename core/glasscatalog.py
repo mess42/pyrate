@@ -51,25 +51,43 @@ class refractiveindex_dot_info_glasscatalog(object):
         self.database_basepath = database_basepath
         self.librarydict = self.read_library(database_basepath + "/library.yml")
         
+        
     def getShelves(self):
+        """
+        lists all shelves of the database.
+
+        :return shelves: (list of str)
+        """
         return self.librarydict.keys()
+
         
     def getBooks(self, shelf):
+        """
+        Lists all books of a given shelf in the database.
+        
+        :param shelf: (str)
+        
+        :return books: (list of str)
+        """
         return self.librarydict[shelf]["content"].keys()
+
         
     def getPages(self, shelf, book):
+        """
+        Lists all pages of a given book in the database.
+        
+        :param shelf: (str)
+        :param book: (str)
+        
+        :return pages: (list of str)
+        """
         return self.librarydict[shelf]["content"][book]["content"].keys()
+
     
     def getPageLongName(self, shelf, book, page):
         return self.librarydict[shelf]["content"][book]["content"][page]["name"]
 
-    def getMaterialData(self, shelf, book, page):
-        ymlfilename  = database_basepath + "/"
-        ymlfilename += self.librarydict[shelf]["content"][book]["content"][page]["path"]
 
-        data = self.read_yml_file(ymlfilename)
-        return data
-                    
     def read_yml_file(self, ymlfilename):
         """
         Reads a .yml file and converts it into python data types.
@@ -81,6 +99,7 @@ class refractiveindex_dot_info_glasscatalog(object):
         data = yaml.safe_load(f)
         f.close()
         return data
+
 
     def list2dict(self, yaml_list, namekey):
         """
@@ -119,15 +138,54 @@ class refractiveindex_dot_info_glasscatalog(object):
                 lib[shelfname]["content"][bookname]["content"]= self.list2dict(lib[shelfname]["content"][bookname]["content"], "PAGE")
         return lib
 
-    def findGlassCloseTo_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
+
+    def getMaterialDict(self, shelf, book, page):
+        """
+        Reads and returns a page of the refractiveindex.info database.
+        
+        :param shelf: (str)
+        :param book:  (str)
+        :param page:  (str)
+         
+        :return ymldict: (dict)
+        """
+        ymlfilename  = database_basepath + "/"
+        ymlfilename += self.librarydict[shelf]["content"][book]["content"][page]["path"]
+
+        data = self.read_yml_file(ymlfilename)
+        return data
+                    
+                    
+    def getMaterialDictCloseTo_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
+        """
+        Search a material close to given parameters.
+        """
         raise NotImplementedError()
         
-    def findGlassCloseTo_nd_vd(self, nd=1.51680, vd=64.17):
+        
+    def getMaterialDictCloseTo_nd_vd(self, nd=1.51680, vd=64.17):
+        """
+        Search a material close to given parameters.
+        """
         raise NotImplementedError()
 
-    def findGlassFromSchottCode(self, schottCode=517642):
+
+    def getMaterialDictFromSchottCode(self, schottCode=517642):
+        """
+        Identify and return a material from a given material code.
+        """
         raise NotImplementedError()
 
+
+    def getMaterialDictFromShortName(self, glassName):
+        """
+        Identify and return a material from a given short name.
+        
+        Imagine you know a glass name, like 'BK7' or 'LaK35',
+        but don't know the shelf, book and page in the 
+        refractiveindex.info database.
+        """
+        raise NotImplementedError()
 
 
 class IndexFormulaContainer(object):
@@ -146,6 +204,7 @@ class IndexFormulaContainer(object):
                  yml-database. It'll be fine. )
         """
         self.setDispFunction(typ, coeff)
+
         
     def setDispFunction(self, typ, coeff):
         self.coeff = coeff
@@ -230,6 +289,7 @@ class IndexFormulaContainer(object):
         else:
             raise Exception("Bad dispersion function type: "+str(typ))
             
+
     def getIndex(self, wavelength):
         """
         :param wavelength: (float)
@@ -238,6 +298,7 @@ class IndexFormulaContainer(object):
                refractive index real part
         """
         return self.__dispFunction(1000 * wavelength)
+
                 
 class CatalogMaterial(IsotropicMaterial):
     def __init__(self, lc, ymldict, name = "", comment=""):
@@ -263,6 +324,12 @@ class CatalogMaterial(IsotropicMaterial):
         
 
     def setMaterialFromYMLDict(self, ymldict):
+        """
+        extracts the dispersion from refractiveindex.info page yml file
+
+        :param ymldict: (dict)
+                dictionary from a refractiveindex.info page yml file.
+        """
         data = ymldict["DATA"]
 
         if len(data) > 2:
@@ -280,6 +347,7 @@ class CatalogMaterial(IsotropicMaterial):
                 coeff = dispersionDict["coefficients"].split()
             coeff = np.array(coeff, dtype=float)
             self.nk.append(IndexFormulaContainer(typ, coeff))
+
 
     def getIndex(self, x, wave):
         n = 0
@@ -303,9 +371,9 @@ if __name__ == "__main__":
     print "Long name of SCHOTT page is:", gcat.getPageLongName(shelf = "glass", book = "BK7", page = "SCHOTT")
     print ""
     
-    schottNBK7 = gcat.getDispersionFunctions(shelf = "glass", book = "BK7", page = "SCHOTT")
-    print "nd = ", schottNBK7[0].getDispersion(587.6E-6)
-    print "k  = ", schottNBK7[1].getDispersion(587.6E-6)
+    #schottNBK7 = gcat.getDispersionFunctions(shelf = "glass", book = "BK7", page = "SCHOTT")
+    #print "nd = ", schottNBK7[0].getDispersion(587.6E-6)
+    #print "k  = ", schottNBK7[1].getDispersion(587.6E-6)
 
 
 
