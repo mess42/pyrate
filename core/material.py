@@ -133,20 +133,23 @@ class MaxwellMaterial(Material):
         eigenvectors = np.zeros((4, 3, 3, num_pts), dtype=complex)
         # xi number, eigv number, eigv 3xN
         
+        # LU decomposition as a function of xi?        
+        
         for i in range(4):
+            # eigen value problem xi^2 Pmatrix + xi KNmatrix + Rmatrix
+            # build up 6x6 generalized linear ev problem
+            # (xi [[P, 0], [0, 1]] + [[KN, R], [-1, 0]])*[[xi X], [X]] = 0
             k = kpa + xis[i]*n
-            propagator = -np.sum(k*k, axis=0)*np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
-            for j in range(num_pts):
-                propagator[:, :, j] += np.outer(k[:, j], k[:, j])
-            propagator += k0**2*eps
-            (w, v) = np.linalg.eig(propagator.T) 
-            # cannot use 3x3xN, eig needs Nx3x3
-            eigenvectors[i, :, :, :] = v.T
-            print(np.linalg.det(propagator.T))
-            # if xis are eigen values of the propagator, then det = 0
-            print(w.T)            
-            # TODO: we only need two polarization vectors (which?)
             
+            #Pmatrix = -np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+            
+            #KNmatrix = np.zeros((3, 3, num_pts))            
+            
+            for j in range(num_pts):
+                #KNmatrix[:, :, j] += np.outer(kpa[:, j], k[:, j])
+                #propagator[:, :, j] += np.outer(k[:, j], k[:, j])
+                pass
+
         return eigenvectors
         
         
