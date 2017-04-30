@@ -22,7 +22,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import numpy as np
-import math
 from core.localcoordinates import LocalCoordinates
 from core.material import AnisotropicMaterial
 

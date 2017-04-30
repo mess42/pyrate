@@ -215,7 +215,12 @@ class MaxwellMaterial(Material):
 
         return (p4, p3, p2, p1, p0)
 
-    def calcXiAnisotropic(self, x, n, kpa_nonnorm, wave=standard_wavelength):
+    def calcXiDet(self, xi_norm, x, kpa_norm, n):
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, kpa_norm, n)
+        
+        return p4*xi_norm**4 + p3*xi_norm**3 + p2*xi_norm**2 + p1*xi_norm + p0
+
+    def calcXiAnisotropic(self, x, n, kpa, wave=standard_wavelength):
         """
         Calculate normal component of k after refraction in general anisotropic materials.
         
@@ -228,32 +233,22 @@ class MaxwellMaterial(Material):
                 
         """
 
-        (num_dims, num_pts) = np.shape(kpa_nonnorm)
+        (num_dims, num_pts) = np.shape(kpa)
 
         k0 = 2.*math.pi/wave
-        kpa = kpa_nonnorm/k0
+        kpa_norm = kpa/k0
         
         
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, kpa, n)
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, kpa_norm, n)
 
-        def calcDet(xi_nonnorm):
-            xi = xi_nonnorm/k0
-            return p4*xi**4 + p3*xi**3 + p2*xi**2 + p1*xi + p0 
-        
-        
         xiarray = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
             polycoeffs = [p4[i], p3[i], p2[i], p1[i], p0[i]]
             roots = np.roots(polycoeffs)
             xiarray[:, i] = roots
+        
         xiarray = k0*xiarray
 
-        print("p4", p4)
-        print("p3", p3)
-        print("p2", p2)
-        print("p1", p1)
-        print("p0", p0)
-       
         return xiarray
 
         
