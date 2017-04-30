@@ -26,6 +26,7 @@ import yaml
 import numpy as np
 import scipy.interpolate
 from material import IsotropicMaterial
+from globalconstants import Fline, dline, Cline
 
 class refractiveindex_dot_info_glasscatalog(object):
     def __init__(self, database_basepath):
@@ -51,7 +52,12 @@ class refractiveindex_dot_info_glasscatalog(object):
         self.database_basepath = database_basepath
         self.librarydict = self.read_library(database_basepath + "/library.yml")
         
+        #for sh in self.getShelves():
+        #    for bo in self.getBooks(shelf=sh):
+        #        for pa in self.getPages(shelf=sh, book=bo):
+        #            print self.librarydict[sh]["content"][bo]["content"][pa]
         
+       
     def getShelves(self):
         """
         lists all shelves of the database.
@@ -119,6 +125,7 @@ class refractiveindex_dot_info_glasscatalog(object):
                 xname = x.pop(namekey)
                 newdict[xname] = x
         return newdict
+    
     
     def read_library(self, library_yml_filename):
         """
@@ -189,7 +196,7 @@ class refractiveindex_dot_info_glasscatalog(object):
 
 
 class IndexFormulaContainer(object):
-    def __init__(self, typ, coeff):
+    def __init__(self, typ, coeff, waverange):
         """
         Stores refractive index formula and coefficients.
         
@@ -199,11 +206,12 @@ class IndexFormulaContainer(object):
         :param coeff: (numpy array of float)
                index formula coefficients
                Coefficients must be according to refractiveindex.info scheme.
-               An in units of micrometers.
-               ( Just copy numbers unchanged from the refractiveindex.info
-                 yml-database. It'll be fine. )
+               And in refractiveindex.info units (um)
+        :param waverange: (1d numpy array of float)
+               minimum and maximum wavelength in refractiveindex.info units (um)
         """
         self.setDispFunction(typ, coeff)
+        self.waverange = waverange
 
         
     def setDispFunction(self, typ, coeff):
@@ -297,7 +305,19 @@ class IndexFormulaContainer(object):
         :return n: (float)
                refractive index real part
         """
-        return self.__dispFunction(1000 * wavelength)
+        wave_um = 1000 * wavelength # wavelength in um
+        # The refractiveindex.info database uses units of um 
+        # for its dispersion formulas.
+        # It would be a huge effort to rewrite the whole database,
+        # so we leave the database as it is and adapt 
+        # the pyrate wavelength in mm to fit the dispersion formulas.
+        
+        # TODO: this is an if statement in a time-critical place
+        if wave_um < self.waverange[0] or wave_um > self.waverange[1]:
+            raise Exception("wavelength out of range")
+        
+        n = self.__dispFunction(wave_um)
+        return n
 
                 
 class CatalogMaterial(IsotropicMaterial):
@@ -320,22 +340,12 @@ class CatalogMaterial(IsotropicMaterial):
 
         super(CatalogMaterial, self).__init__(lc, name, comment)
 
-        self.setMaterialFromYMLDict(ymldict)
-        
-
-    def setMaterialFromYMLDict(self, ymldict):
-        """
-        extracts the dispersion from refractiveindex.info page yml file
-
-        :param ymldict: (dict)
-                dictionary from a refractiveindex.info page yml file.
-        """
         data = ymldict["DATA"]
-
+        
         if len(data) > 2:
             raise Exception("Max 2 entries for dispersion allowed - n and k.")
         
-        self.nk = []
+        self.__nk = []
         for i in np.arange(len(data)): # i=0 is n  ;  i=1 is k
             dispersionDict = data[i]
             typ= dispersionDict["type"]            
@@ -343,15 +353,17 @@ class CatalogMaterial(IsotropicMaterial):
                 coeff = dispersionDict["data"].split("\n")[:-1]
                 for j in np.arange(len(coeff)):
                     coeff[j] = coeff[j].split()
+                coeff = np.array( coeff, dtype=float)
+                rang  = np.array( [ min(coeff[:,0]), max(coeff[:,0]) ] )
             else:
-                coeff = dispersionDict["coefficients"].split()
-            coeff = np.array(coeff, dtype=float)
-            self.nk.append(IndexFormulaContainer(typ, coeff))
+                coeff = np.array( dispersionDict["coefficients"].split(), dtype=float)
+                rang  = np.array( dispersionDict["range"].split(), dtype=float)
+            self.__nk.append(IndexFormulaContainer(typ, coeff, rang))
 
 
     def getIndex(self, x, wave):
         n = 0
-        for dispFun in self.nk:
+        for dispFun in self.__nk:
             n += dispFun.getIndex(wave)
         return n
         
@@ -359,22 +371,30 @@ class CatalogMaterial(IsotropicMaterial):
 if __name__ == "__main__":
 
     database_basepath = "refractiveindex.info-database/database"     
+    shelf = "glass"
+    book  = "BK7"
+    page  = "SCHOTT"    
     
     gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
     
     print "Shelves:", gcat.getShelves()
     print ""
-    print "Books in Shelf glass:", gcat.getBooks(shelf = "glass")
+    print "Books in Shelf glass:", gcat.getBooks(shelf = shelf)
     print ""    
-    print "Pages in BK7 book:", gcat.getPages(shelf = "glass", book="BK7")
+    print "Pages in BK7 book:", gcat.getPages(shelf = shelf, book=book)
     print ""
-    print "Long name of SCHOTT page is:", gcat.getPageLongName(shelf = "glass", book = "BK7", page = "SCHOTT")
+    print "Long name of SCHOTT page is:", gcat.getPageLongName(shelf = shelf, book = book, page = page)
     print ""
     
-    #schottNBK7 = gcat.getDispersionFunctions(shelf = "glass", book = "BK7", page = "SCHOTT")
-    #print "nd = ", schottNBK7[0].getDispersion(587.6E-6)
-    #print "k  = ", schottNBK7[1].getDispersion(587.6E-6)
+    schottNBK7dict = gcat.getMaterialDict(shelf, book, page)
+    schottNBK7 = CatalogMaterial(None, schottNBK7dict)
 
+    nF = schottNBK7.getIndex(0, Fline)
+    nd = schottNBK7.getIndex(0, dline)
+    nC = schottNBK7.getIndex(0, Cline)
+    
+    print "nd = ", nd
+    print "vd = ", (nd-1) / (nF-nC)
 
 
 
