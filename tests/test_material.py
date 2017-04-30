@@ -27,11 +27,11 @@ from core.material import AnisotropicMaterial
 
 def test_anisotropic_xi_calculation_polynomial():
     '''
-    Random epsilon tensor, Random k vector and n unit vector in z direction
-    lead to the same polynomial coefficients for eigenvalue equation from
+    Random epsilon tensor, Random k vector and n unit vector in z direction.
+    Polynomial coefficients for eigenvalue equation from
     the numerical calculations via np.einsum and the analytical expressions
-    given below (p4a, ..., p0a). The test should work for real and complex
-    epsilon and k values.
+    given below (p4a, ..., p0a) should be identical. The test should work 
+    for real and complex epsilon and k values.
     '''
     lc = LocalCoordinates("1")
     
@@ -52,7 +52,7 @@ def test_anisotropic_xi_calculation_polynomial():
     kx = kpa[0]
     ky = kpa[1]
 
-    (p4v, p3v, p2v, p1v, p0v) = m.calcXiPolynomial(x, kpa, n)
+    (p4v, p3v, p2v, p1v, p0v) = m.calcXiPolynomial(x, n, kpa)
 
     # TODO: Maybe generalize to arbitrary n vectors
 
@@ -86,3 +86,92 @@ def test_anisotropic_xi_calculation_polynomial():
     should_be_zero_0 = p0a - p0v    
     assert np.allclose(should_be_zero_0, 0)    
     
+def test_anisotropic_xi_calculation_det():
+    '''
+    Random epsilon tensor, Random k vector and n unit vector in z direction.
+    Determinant of the propagator the numerical calculations 
+    via np.einsum and the analytical expression given below should coincide.
+    The test should work for real and complex epsilon and k values.
+    '''
+    lc = LocalCoordinates("1")
+    
+    myeps = np.random.random((3, 3)) + complex(0, 1)*np.random.random((3, 3))
+    ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
+        tuple(myeps)
+    
+    m = AnisotropicMaterial(lc, myeps)
+    
+    n = np.zeros((3, 5))
+    n[2, :] = 1.    
+    
+    x = np.zeros((3, 5))
+    k = np.random.random((3, 5)) + complex(0, 1)*np.random.random((3, 5))
+    xi = np.random.random((5,)) + complex(0, 1)*np.random.random((5,))    
+    
+    
+    kpa = k - np.sum(n * k, axis=0)*n
+
+    kx = kpa[0]
+    ky = kpa[1]
+
+    # TODO: Maybe generalize to arbitrary n vectors
+
+    
+
+    det_analytical = xi**4*epszz \
+                    + xi**3*((epsxz + epszx)*kx + (epsyz + epszy)*ky)\
+                    + xi**2*(epsxz*epszx + epsyz*epszy - (epsxx + epsyy)*epszz\
+                        + (epsxx + epszz)*kx**2 + (epsxy + epsyx)*kx*ky\
+                        + (epsyy + epszz)*ky**2)\
+                    + xi*((epsxz + epszx)*kx**3\
+                        + (epsxz*epsyx + epsxy*epszx - epsxx*(epsyz + epszy))*ky\
+                        + (epsyz + epszy)*kx**2*ky + (epsyz + epszy)*ky**3\
+                        + kx*(-(epsxz*epsyy) + epsxy*epsyz - epsyy*epszx\
+                            + epsyx*epszy + (epsxz + epszx)*ky**2))\
+                    -(epsxz*epsyy*epszx) + epsxy*epsyz*epszx\
+                    + epsxz*epsyx*epszy - epsxx*epsyz*epszy\
+                    - epsxy*epsyx*epszz + epsxx*epsyy*epszz + epsxx*kx**4\
+                    + (epsxy + epsyx)*kx**3*ky \
+                    + (epsxy*epsyx - epsxx*epsyy + epsyz*epszy - epsyy*epszz)*ky**2 \
+                    + epsyy*ky**4 + kx**2*(epsxy*epsyx + epsxz*epszx \
+                        - epsxx*(epsyy + epszz) + (epsxx + epsyy)*ky**2)\
+                    + kx*((epsyz*epszx + epsxz*epszy \
+                        - (epsxy + epsyx)*epszz)*ky + (epsxy + epsyx)*ky**3)
+                        
+    should_be_zero = det_analytical - m.calcXiDet(xi, x, n, kpa)
+    assert np.allclose(should_be_zero, 0)
+
+
+def test_anisotropic_xi_calculation_polynomial_zeros():
+    '''
+    Random epsilon tensor, random k vector and random n unit vector.
+    Check whether the roots calculated give really zero for the determinant.
+    The test should work for real and complex epsilon and k values.
+    '''
+    lc = LocalCoordinates("1")
+    
+    myeps = np.random.random((3, 3)) + complex(0, 1)*np.random.random((3, 3))
+    ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
+        tuple(myeps)
+    
+    m = AnisotropicMaterial(lc, myeps)
+    
+    n = np.random.random((3, 5))
+    n = n/np.sqrt(np.sum(n*n, axis=0))
+    
+    x = np.zeros((3, 5))
+    k = np.random.random((3, 5)) + complex(0, 1)*np.random.random((3, 5))
+    
+    kpa = k - np.sum(n * k, axis=0)*n
+
+
+    should_be_zero = np.ones((4, 5), dtype=complex)
+    xiarray = m.calcXiNormZeros(x, n, kpa)
+    for i in range(4):
+        should_be_zero[i, :] = m.calcXiDet(xiarray[i], x, n, kpa)
+    
+    assert np.allclose(should_be_zero, 0)
+    
+    
+if __name__=="__main__":
+    test_anisotropic_xi_calculation_polynomial_zeros()

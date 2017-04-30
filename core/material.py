@@ -150,7 +150,7 @@ class MaxwellMaterial(Material):
         return eigenvectors
         
         
-    def calcXiPolynomial(self, x, kpa, n):
+    def calcXiPolynomial(self, x, n, kpa):
         """
         calc Xi polynomial for normalized kpa (=kpa/k0).
         zeros of polynomial are xi/k0. The advantage:
@@ -215,10 +215,24 @@ class MaxwellMaterial(Material):
 
         return (p4, p3, p2, p1, p0)
 
-    def calcXiDet(self, xi_norm, x, kpa_norm, n):
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, kpa_norm, n)
+    def calcXiDet(self, xi_norm, x, n, kpa_norm):
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, n, kpa_norm)
         
         return p4*xi_norm**4 + p3*xi_norm**3 + p2*xi_norm**2 + p1*xi_norm + p0
+
+    def calcXiNormZeros(self, x, n, kpa_norm):
+        (num_dims, num_pts) = np.shape(kpa_norm)
+
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, n, kpa_norm)
+
+        xizeros = np.zeros((4, num_pts), dtype=complex)
+        for i in np.arange(num_pts):       
+            polycoeffs = [p4[i], p3[i], p2[i], p1[i], p0[i]]
+            roots = np.roots(polycoeffs)
+            xizeros[:, i] = roots
+        return xizeros
+        
+        
 
     def calcXiAnisotropic(self, x, n, kpa, wave=standard_wavelength):
         """
@@ -238,18 +252,7 @@ class MaxwellMaterial(Material):
         k0 = 2.*math.pi/wave
         kpa_norm = kpa/k0
         
-        
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, kpa_norm, n)
-
-        xiarray = np.zeros((4, num_pts), dtype=complex)
-        for i in np.arange(num_pts):       
-            polycoeffs = [p4[i], p3[i], p2[i], p1[i], p0[i]]
-            roots = np.roots(polycoeffs)
-            xiarray[:, i] = roots
-        
-        xiarray = k0*xiarray
-
-        return xiarray
+        return k0*self.calcXiNormZeros(x, kpa_norm, n)
 
         
     def propagate(self, raybundle, nextSurface):
