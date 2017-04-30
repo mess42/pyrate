@@ -811,28 +811,32 @@ We represent wavevectors as $\Wavevector_{\beta\alpha} = \Wavevector_\parallel +
           \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) 
           (\Vector{n} \times \Wavevector_\parallel)           
         \right)
-        E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+        E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel) + \xi_{in} (\Vector{n} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
   \end{align}
 \end{subequations}
 Permuting the triple products, one sees that \eqref{eq:fresnelFirstTripleProduct} and \eqref{eq:fresnelSecondTripleProduct} are linearly dependent.
-We decide to remove \eqref{eq:fresnelFirstTripleProduct} from our equation system.
+We decide to remove \eqref{eq:fresnelSecondTripleProduct} from our equation system.
+We evaluate
+\begin{eqnarray}
+  ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel)            &=& - (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) \\
+  ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) &=& - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} )
+\end{eqnarray}
+and obtain
 \begin{subequations}
   \begin{align}
     \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
-    \varsigma_\beta ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})\Vector{n} \label{eq:fresnelSecondTripleProduct}\\
-    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\ 
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) E_{\beta\alpha,0} &= \Efield_{in} \Wavevector_\parallel \\
+    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} ( \Efield_{in} \times \Vector{n} )\Wavevector_\parallel \\
     \varsigma_\beta 
         \left(
-          ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) 
-          (\Vector{n} \times \Wavevector_\parallel) 
-          +
-          \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) 
-          (\Vector{n} \times \Wavevector_\parallel)           
+          - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} ) 
+          + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Wavevector_\parallel)           
         \right)
-        E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+        E_{\beta\alpha,0} &= - (\Wavevector_\parallel \Wavevector_\parallel) (\Efield_{in}\Vector{n} ) + \xi_{in} (\Efield_{in} \Wavevector_\parallel)
   \end{align}
 \end{subequations}
+
 \remark{I don't see which equations are still dependent, so it is allowed to go from 5 to 4 equations.}
 
 
