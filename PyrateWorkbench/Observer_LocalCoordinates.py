@@ -31,7 +31,7 @@ from PySide.QtGui import QInputDialog
 from PySide.QtGui import QLineEdit
 
 import FreeCADGui, FreeCAD, Part
-from core.coordinates import LocalCoordinates
+from core.localcoordinates import LocalCoordinates
 from core.observers import AbstractObserver
 
 from Interface_Checks import *
