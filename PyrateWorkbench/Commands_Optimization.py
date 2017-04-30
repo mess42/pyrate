@@ -9,7 +9,7 @@ import FreeCAD
 import FreeCADGui
 
 
-from core import merit
+#from core import merit
 from core import optimize
 
 from Observer_OpticalSystem import OpticalSystemObserver
@@ -56,10 +56,10 @@ class StartOptimizationCommand:
 
         # optimization
 
-        OSinterface.os = \
-        optimize.optimizeNewton1D(OSinterface.os,
-                                  merit.mySimpleDumpRMSSpotSizeMeritFunction, iterations=numsteps, dx=delta
-                                  )
+        #OSinterface.os = \
+        #optimize.optimizeNewton1D(OSinterface.os,
+        #                          merit.mySimpleDumpRMSSpotSizeMeritFunction, iterations=numsteps, dx=delta
+        #                          )
         # update
         # TODO: organize in PyrateInterface class
 
