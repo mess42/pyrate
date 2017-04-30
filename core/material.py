@@ -188,7 +188,7 @@ class MaxwellMaterial(Material):
         a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, kpa)
         a7 = np.einsum('ij...,i...,j...', eps, n, n)        
         a8 = np.einsum('ij...,j...,i...', eps, kpa, n)
-        a9 = np.einsum('ij...,i...,j...', eps, n, kpa)
+        a9 = np.einsum('ij...,i...,j...', eps, kpa, n)
         a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa, n)
         a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
@@ -212,14 +212,7 @@ class MaxwellMaterial(Material):
         p2 = (a5 + a4*a7) + (a13 - a1*a7)
         p1 = a4*p3 + (a11 + a12 - a1*p3)
         p0 = a4*a5 + (-a1*a5 + a6) + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)
-        
-        print(eps)
-        print("kpa", kpa)
-        print("a8", a8)
-        print("a9", a9)        
-        
-        # FIXME: a8 and a9 may not be equal in general        
-        
+
         return (p4, p3, p2, p1, p0)
 
     def calcXiAnisotropic(self, x, n, kpa_nonnorm, wave=standard_wavelength):

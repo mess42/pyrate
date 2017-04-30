@@ -90,6 +90,12 @@ class Material():
         #p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 + (a11 + a12 - a1*(a8 + a9))*omegabar**4
         #p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
 
+        print(eps)
+        print(kpa)
+        print(n)
+        print(a8)
+        print(a9)
+
         p4 = a7
         p3 = a8 + a9
         p2 = a5 + a4*a7 + (a13 - a1*a7)*k0**2
@@ -106,18 +112,21 @@ class Material():
         
 if __name__=="__main__":
     
-    m = Material(np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
+    myeps = np.random.random((3, 3))    
+    
+    m = Material(myeps)
     
     x = np.zeros((3, 5))
     n = np.zeros((3, 5))
     n[2,:] = 1.
     
-    k = np.zeros((3, 5))
+    #k = np.zeros((3, 5))
+    k = np.random.random((3, 5))
     k[2,:] = 2.*math.pi/standard_wavelength
     kinplane = k - np.sum(n*k, axis=0)*n    
     
     xis = m.calcXi(x, n, kinplane)
 
-    print(np.array_str(xis, suppress_small=True))
-    print(np.array_str(k[2, :], suppress_small=True))
+    #print(np.array_str(xis, suppress_small=True))
+    #print(np.array_str(k[2, :], suppress_small=True))
     
