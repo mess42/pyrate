@@ -25,6 +25,7 @@ import numpy as np
 import math
 from ray import RayBundle
 import optimize
+import scipy.linalg as sla
 
 from globalconstants import standard_wavelength, eps0
 
@@ -61,6 +62,14 @@ class Material(optimize.ClassWithOptimizableVariables):
         :return newray: rays after surface interaction ( RayBundle object )
         """
         raise NotImplementedError()
+        
+    def propagate(self, raybundle, nextSurface):
+        """
+        Propagates raybundle to nextSurface. In the most simple case this
+        just adds the end point at nextSurface intersection to the raybundle
+        """
+        raise NotImplementedError()
+
 
 
 class MaxwellMaterial(Material):
@@ -112,7 +121,7 @@ class MaxwellMaterial(Material):
         
         return kvectors
         
-    def calcEigenvectors(self, x, n, kpa, wave=standard_wavelength):
+    def calcXiEigenvectors(self, x, n, kpa_norm):
         # TODO: needs heavy testing        
         """
         Calculate eigen vectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
@@ -126,29 +135,47 @@ class MaxwellMaterial(Material):
                 
         """
 
-        (num_dims, num_pts) = np.shape(kpa)
-        k0 = 2.*math.pi/wave
+        (num_dims, num_pts) = np.shape(kpa_norm)
         eps = self.getEpsilonTensor(x)
-        xis = self.calcXi(x, n, kpa, wave=wave)
+
         eigenvectors = np.zeros((4, 3, 3, num_pts), dtype=complex)
         # xi number, eigv number, eigv 3xN
         
         # LU decomposition as a function of xi?        
         
-        for i in range(4):
-            # eigen value problem xi^2 Pmatrix + xi KNmatrix + Rmatrix
-            # build up 6x6 generalized linear ev problem
-            # (xi [[P, 0], [0, 1]] + [[KN, R], [-1, 0]])*[[xi X], [X]] = 0
-            k = kpa + xis[i]*n
-            
-            #Pmatrix = -np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
-            
-            #KNmatrix = np.zeros((3, 3, num_pts))            
-            
-            for j in range(num_pts):
-                #KNmatrix[:, :, j] += np.outer(kpa[:, j], k[:, j])
-                #propagator[:, :, j] += np.outer(k[:, j], k[:, j])
-                pass
+        # eigen value problem xi^2 M + xi C + K
+        # build up 6x6 generalized linear ev problem
+        # (xi [[M, 0], [0, 1]] + [[C, K], [-1, 0]])*[[xi X], [X]] = 0
+        # M_ij = -delta_ij + n_i n_j
+        # C_ij = n_i kpa_j + n_j kpa_i
+        # K_ij = -kpa_i kpa_j + eps_ij
+        
+        IdMatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+        ZeroMatrix = np.zeros((3, 3, num_pts), dtype=complex)        
+
+        Mmatrix = -IdMatrix
+        Kmatrix = eps
+        Cmatrix = np.copy(ZeroMatrix)        
+        
+        for j in range(num_pts):
+            Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
+            Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) + np.outer(n[:, j], kpa_norm[:, j])
+            Kmatrix[:, :, j] += -np.outer(kpa_norm[:, j], kpa_norm[:, j])
+
+        Amatrix6x6 = np.vstack(
+                    (np.hstack((Cmatrix, Kmatrix)),
+                     np.hstack((-IdMatrix, ZeroMatrix)))
+                )
+        Bmatrix6x6 = np.vstack(
+                    (np.hstack((Mmatrix, ZeroMatrix)),
+                     np.hstack((ZeroMatrix, IdMatrix)))
+                )
+        
+        xiarray = self.calcXiNormZeros(x, n, kpa_norm)
+        print(xiarray)
+        for j in range(num_pts):
+            (w, vl) = sla.eig(Amatrix6x6[:, :, j], Bmatrix6x6[:, :, j])
+            print(str(w))
 
         return eigenvectors
         
@@ -258,12 +285,6 @@ class MaxwellMaterial(Material):
         return k0*self.calcXiNormZeros(x, kpa_norm, n)
 
         
-    def propagate(self, raybundle, nextSurface):
-        """
-        Propagates raybundle to nextSurface. In the most simple case this
-        just adds the end point at nextSurface intersection to the raybundle
-        """
-        raise NotImplementedError()
 
 
 class IsotropicMaterial(MaxwellMaterial):

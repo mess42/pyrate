@@ -171,7 +171,26 @@ def test_anisotropic_xi_calculation_polynomial_zeros():
         should_be_zero[i, :] = m.calcXiDet(xiarray[i], x, n, kpa)
     
     assert np.allclose(should_be_zero, 0)
+
+def test_anisotropic_xi_eigenvectors():
+    lc = LocalCoordinates("1")
     
+    myeps = np.random.random((3, 3)) + complex(0, 1)*np.random.random((3, 3))
+    ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
+        tuple(myeps)
+    
+    m = AnisotropicMaterial(lc, myeps)
+    
+    n = np.random.random((3, 1))
+    n = n/np.sqrt(np.sum(n*n, axis=0))
+    
+    x = np.zeros((3, 1))
+    k = np.random.random((3, 1)) + complex(0, 1)*np.random.random((3, 1))
+    
+    kpa = k - np.sum(n * k, axis=0)*n
+    
+    m.calcXiEigenvectors(x, n, kpa)
+        
     
 if __name__=="__main__":
-    test_anisotropic_xi_calculation_polynomial_zeros()
+    test_anisotropic_xi_eigenvectors()
