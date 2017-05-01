@@ -183,6 +183,8 @@ def test_anisotropic_xi_eigenvectors():
     
     n = np.random.random((3, 1))
     n = n/np.sqrt(np.sum(n*n, axis=0))
+    #n = np.zeros((3, 1))
+    #n[2, :] = 1    
     
     x = np.zeros((3, 1))
     k = np.random.random((3, 1)) + complex(0, 1)*np.random.random((3, 1))

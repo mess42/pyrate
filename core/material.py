@@ -166,16 +166,30 @@ class MaxwellMaterial(Material):
                     (np.hstack((Cmatrix, Kmatrix)),
                      np.hstack((-IdMatrix, ZeroMatrix)))
                 )
-        Bmatrix6x6 = np.vstack(
+        Bmatrix6x6 = -np.vstack(
                     (np.hstack((Mmatrix, ZeroMatrix)),
                      np.hstack((ZeroMatrix, IdMatrix)))
                 )
         
         xiarray = self.calcXiNormZeros(x, n, kpa_norm)
-        print(xiarray)
         for j in range(num_pts):
-            (w, vl) = sla.eig(Amatrix6x6[:, :, j], Bmatrix6x6[:, :, j])
-            print(str(w))
+            (w, vr) = sla.eig(Amatrix6x6[:, :, j], b=Bmatrix6x6[:, :, j])
+
+            for k in range(6):
+                evr = vr[:, k].reshape(6, 1)
+                print(np.dot(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j], evr[3:]))
+                print(np.linalg.det(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j]))            
+                print(np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*w[k]))            
+                            
+            
+            print(np.array_str(w))
+            #print(np.array_str(Amatrix6x6[:, :, j], precision=2, suppress_small=True))
+            #print(np.array_str(Bmatrix6x6[:, :, j], precision=2, suppress_small=True))
+            print(self.calcXiDet(w[3], x, n, kpa_norm))            
+            print(np.linalg.det(Mmatrix[:, :, j]*xiarray[0, j]**2 + Cmatrix[:, :, j]*xiarray[0, j] + Kmatrix[:, :, j]))            
+        
+        print(xiarray)
+            
 
         return eigenvectors
         
