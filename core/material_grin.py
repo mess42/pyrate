@@ -51,7 +51,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         
         return mat*self.nfunc(x)**2
 
-    def getEpsilon(self, x, wave=standard_wavelength):
+    def getIndex(self, x, wave=standard_wavelength):
         return self.nfunc(x)**2
 
     def returnLocalDtoK(self, d, wave=standard_wavelength):

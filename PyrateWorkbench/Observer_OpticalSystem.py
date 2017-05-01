@@ -42,7 +42,7 @@ from core.aperture import CircularAperture
 
 from core import pupil
 from core import raster
-from core import aim
+#from core import aim
 from core import ray
 
 # freecad modules

@@ -63,6 +63,8 @@ class Material(optimize.ClassWithOptimizableVariables):
         raise NotImplementedError()
 
 
+class MaxwellMaterial(Material):
+
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         """
         Calculate epsilon tensor if needed. (isotropic e.g.) eps = diag(3)*n^2
@@ -131,43 +133,32 @@ class Material(optimize.ClassWithOptimizableVariables):
         eigenvectors = np.zeros((4, 3, 3, num_pts), dtype=complex)
         # xi number, eigv number, eigv 3xN
         
+        # LU decomposition as a function of xi?        
+        
         for i in range(4):
+            # eigen value problem xi^2 Pmatrix + xi KNmatrix + Rmatrix
+            # build up 6x6 generalized linear ev problem
+            # (xi [[P, 0], [0, 1]] + [[KN, R], [-1, 0]])*[[xi X], [X]] = 0
             k = kpa + xis[i]*n
-            propagator = -np.sum(k*k, axis=0)*np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
-            for j in range(num_pts):
-                propagator[:, :, j] += np.outer(k[:, j], k[:, j])
-            propagator += k0**2*eps
-            (w, v) = np.linalg.eig(propagator.T) 
-            # cannot use 3x3xN, eig needs Nx3x3
-            eigenvectors[i, :, :, :] = v.T
-            print(np.linalg.det(propagator.T))
-            # if xis are eigen values of the propagator, then det = 0
-            print(w.T)            
-            # TODO: we only need two polarization vectors (which?)
             
+            #Pmatrix = -np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+            
+            #KNmatrix = np.zeros((3, 3, num_pts))            
+            
+            for j in range(num_pts):
+                #KNmatrix[:, :, j] += np.outer(kpa[:, j], k[:, j])
+                #propagator[:, :, j] += np.outer(k[:, j], k[:, j])
+                pass
+
         return eigenvectors
         
         
-
-    def calcXiAnisotropic(self, x, n, kpa, wave=standard_wavelength):
+    def calcXiPolynomial(self, x, n, kpa):
         """
-        Calculate normal component of k after refraction in general anisotropic materials.
-        
-        :param n (3xN numpy array of float) 
-                normal of surface in local coordinates
-        :param kpa (3xN numpy array of float) 
-                incoming wave vector inplane component in local coordinates
-        
-        :return xi tuple of (4xN numpy array of complex) 
-                
+        calc Xi polynomial for normalized kpa (=kpa/k0).
+        zeros of polynomial are xi/k0. The advantage:
+        For different wave lengths you only have to calc the polynomial once.
         """
-
-        (num_dims, num_pts) = np.shape(kpa)
-
-        k0 = 2.*math.pi/wave
-        
-        eps = self.getEpsilonTensor(x)
-        
         """
         {{a1 -> Scalar[eps[i, -i]], 
           a2 -> Scalar[eps[i, i1]*eps[-i1, -i]], 
@@ -189,6 +180,9 @@ class Material(optimize.ClassWithOptimizableVariables):
           (2*a10*a7 + a8 + a9)*omega^2*xi^3 + a7*omega^2*xi^4     
         """
 
+        eps = self.getEpsilonTensor(x)
+
+
         a1 = np.einsum('ii...', eps)        
         a2 = np.einsum('ij...,ji...', eps, eps)
         a3 = np.einsum('ij...,jk...,ki...', eps, eps, eps)
@@ -197,7 +191,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, kpa)
         a7 = np.einsum('ij...,i...,j...', eps, n, n)        
         a8 = np.einsum('ij...,j...,i...', eps, kpa, n)
-        a9 = np.einsum('ij...,i...,j...', eps, n, kpa)
+        a9 = np.einsum('ij...,i...,j...', eps, kpa, n)
         a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa, n)
         a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
@@ -208,33 +202,60 @@ class Material(optimize.ClassWithOptimizableVariables):
         #p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 + (a11 + a12 - a1*(a8 + a9))*omegabar**4
         #p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
 
-        p4 = a7*k0**2
-        p3 = (a8 + a9)*k0**2
-        p2 = (a5 + a4*a7)*k0**2 + (a13 - a1*a7)*k0**4
-        p1 = a4*p3*k0**2 + (a11 + a12 - a1*p3)*k0**4
-        p0 = a4*a5*k0**2 + (-a1*a5 + a6)*k0**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**6
+        # no normalizing of kpa
+        #p4 = a7*k0**2
+        #p3 = (a8 + a9)*k0**2
+        #p2 = (a5 + a4*a7)*k0**2 + (a13 - a1*a7)*k0**4
+        #p1 = a4*p3*k0**2 + (a11 + a12 - a1*p3)*k0**4
+        #p0 = a4*a5*k0**2 + (-a1*a5 + a6)*k0**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**6
+
+        # for normalized kpa
+        p4 = a7
+        p3 = a8 + a9
+        p2 = (a5 + a4*a7) + (a13 - a1*a7)
+        p1 = a4*p3 + (a11 + a12 - a1*p3)
+        p0 = a4*a5 + (-a1*a5 + a6) + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)
+
+        return (p4, p3, p2, p1, p0)
+
+    def calcXiDet(self, xi_norm, x, n, kpa_norm):
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, n, kpa_norm)
         
-        print(a1)        
-        print(a2)        
-        print(a3)        
-        print(a4)        
-        print(a5)        
-        print(a6)        
-        print(a7)        
-        print(a8)        
-        print(a9)        
-        print(a11)        
-        print(a12)        
-        print(a13)        
-        
-        xiarray = np.zeros((4, num_pts), dtype=complex)
+        return p4*xi_norm**4 + p3*xi_norm**3 + p2*xi_norm**2 + p1*xi_norm + p0
+
+    def calcXiNormZeros(self, x, n, kpa_norm):
+        (num_dims, num_pts) = np.shape(kpa_norm)
+
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, n, kpa_norm)
+
+        xizeros = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
             polycoeffs = [p4[i], p3[i], p2[i], p1[i], p0[i]]
             roots = np.roots(polycoeffs)
-            # TODO: check whether last part is necessary, in general a7 != 0
-            xiarray[:, i] = np.pad(roots, (0, 4 - roots.shape[0]), 'constant', constant_values=(np.nan,))
-            
-        return xiarray
+            xizeros[:, i] = roots
+        return xizeros
+        
+        
+
+    def calcXiAnisotropic(self, x, n, kpa, wave=standard_wavelength):
+        """
+        Calculate normal component of k after refraction in general anisotropic materials.
+        
+        :param n (3xN numpy array of float) 
+                normal of surface in local coordinates
+        :param kpa (3xN numpy array of float) 
+                incoming wave vector inplane component in local coordinates
+        
+        :return xi tuple of (4xN numpy array of complex) 
+                
+        """
+
+        (num_dims, num_pts) = np.shape(kpa)
+
+        k0 = 2.*math.pi/wave
+        kpa_norm = kpa/k0
+        
+        return k0*self.calcXiNormZeros(x, kpa_norm, n)
 
         
     def propagate(self, raybundle, nextSurface):
@@ -245,7 +266,7 @@ class Material(optimize.ClassWithOptimizableVariables):
         raise NotImplementedError()
 
 
-class IsotropicMaterial(Material):
+class IsotropicMaterial(MaxwellMaterial):
     
     def __init__(self, lc, n=1.0, name="", comment=""):
         super(IsotropicMaterial, self).__init__(lc, name, comment)
@@ -433,9 +454,9 @@ class ModelGlass(IsotropicMaterial):
         A = (1.87513751845 * nF_minus_nC - B * 15.2203074842)*1e-3
         n0 = nd - 1.70194862906e3 * A - 6.43150432188*(1e3**3.5) * B
 
-        self.n0.setvalue(n0_A_B[0])
-        self.A.setvalue(n0_A_B[1])
-        self.B.setvalue(n0_A_B[2])
+        self.n0.setvalue(n0)
+        self.A.setvalue(B)
+        self.B.setvalue(A)
 
 
     def calcCoefficientsFrom_nd_vd(self, nd=1.51680, vd=64.17):
@@ -468,3 +489,15 @@ class ModelGlass(IsotropicMaterial):
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
 
+class AnisotropicMaterial(MaxwellMaterial):
+    
+    def __init__(self, lc, epstensor, name="", comment=""):
+        super(AnisotropicMaterial, self).__init__(lc, name=name, comment=comment)
+        
+        self.epstensor = epstensor
+    
+    def getEpsilonTensor(self, x, wave=standard_wavelength):
+        
+        (num_dims, num_pts) = np.shape(x)
+        
+        return np.repeat(self.epstensor[:, :, np.newaxis], num_pts, axis=2)
