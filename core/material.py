@@ -160,7 +160,8 @@ class MaxwellMaterial(Material):
         for j in range(num_pts):
             Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
             Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) + np.outer(n[:, j], kpa_norm[:, j])
-            Kmatrix[:, :, j] += -np.outer(kpa_norm[:, j], kpa_norm[:, j])
+            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*np.eye(3)\
+                    + np.outer(kpa_norm[:, j], kpa_norm[:, j])
 
         Amatrix6x6 = np.vstack(
                     (np.hstack((Cmatrix, Kmatrix)),
