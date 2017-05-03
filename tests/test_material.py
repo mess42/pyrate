@@ -22,6 +22,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import numpy as np
+import sympy
 from core.localcoordinates import LocalCoordinates
 from core.material import AnisotropicMaterial
 
@@ -197,35 +198,28 @@ def test_anisotropic_xi_eigenvectors():
     m.calcXiEigenvectors(x, n, kpa)
     
     # sympy check with analytical solution
-    try:
-        import sympy
-        kx, ky, xi = sympy.symbols('k_x k_y xi')
-        exx, exy, exz, eyx, eyy, eyz, ezx, ezy, ezz \
-            = sympy.symbols('e_xx e_xy e_xz e_yx e_yy e_yz e_zx e_zy e_zz')
+    kx, ky, xi = sympy.symbols('k_x k_y xi')
+    exx, exy, exz, eyx, eyy, eyz, ezx, ezy, ezz \
+        = sympy.symbols('e_xx e_xy e_xz e_yx e_yy e_yz e_zx e_zy e_zz')
         
-        #eps = Matrix([[exx, exy, exz], [eyx, eyy, eyz], [ezx, ezy, ezz]])
-        eps = sympy.Matrix([[exx, exy, 0], [eyx, eyy, 0], [0, 0, ezz]])
-        v = sympy.Matrix([[kx, ky, xi]])
-        m = -(v*v.T)[0]*sympy.eye(3) + v.T*v + eps
-        detm = m.det().collect(xi)
+    #eps = Matrix([[exx, exy, exz], [eyx, eyy, eyz], [ezx, ezy, ezz]])
+    eps = sympy.Matrix([[exx, exy, 0], [eyx, eyy, 0], [0, 0, ezz]])
+    v = sympy.Matrix([[kx, ky, xi]])
+    m = -(v*v.T)[0]*sympy.eye(3) + v.T*v + eps
+    detm = m.det().collect(xi)
         
-        soldetm = sympy.solve(detm, xi)
-        subsdict = {
-            kx:kpa[0, 0],
-            ky:kpa[1,0],
-            exx:epsxx,
-            exy:epsxy,
-            eyx:epsyx,
-            eyy:epsyy,
-            ezz:epszz,
-            }
-        for sol in soldetm:
-            print(sol.evalf(subs=subsdict))
-    except:
-        pass
-    else:
-        pass
-    
+    soldetm = sympy.solve(detm, xi)
+    subsdict = {
+        kx:kpa[0, 0],
+        ky:kpa[1,0],
+        exx:epsxx,
+        exy:epsxy,
+        eyx:epsyx,
+        eyy:epsyy,
+        ezz:epszz,
+        }
+    for sol in soldetm:
+        print(sol.evalf(subs=subsdict))
     
 if __name__=="__main__":
     test_anisotropic_xi_eigenvectors()
