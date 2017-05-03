@@ -122,40 +122,53 @@ class MaxwellMaterial(Material):
         return kvectors
         
     def calcXiEigenvectors(self, x, n, kpa_norm):
-        # TODO: needs heavy testing        
         """
-        Calculate eigen vectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
+        Calculate eigenvalues and 
+        eigenvectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
+        (in terms of dimensionless k-components)
         
+        :param x (3xN numpy array of float) 
+                points where to evaluate eps tensor in local material coordinates
         :param n (3xN numpy array of float) 
                 normal of surface in local coordinates
         :param kpa (3xN numpy array of float) 
                 incoming wave vector inplane component in local coordinates
         
-        :return xi tuple of (4xN numpy array of complex) 
+        :return (xi, eigenvectors): xi (6xN numpy array of complex);
+                eigenvectors (6x3x3xN numpy array of complex)
                 
         """
 
         (num_dims, num_pts) = np.shape(kpa_norm)
         eps = self.getEpsilonTensor(x)
 
-        eigenvectors = np.zeros((4, 3, 3, num_pts), dtype=complex)
-        # xi number, eigv number, eigv 3xN
+        eigenvectors = np.zeros((6, 3, num_pts), dtype=complex)
+        # xi number, eigv 3xN
         
-        # LU decomposition as a function of xi?        
-        
-        # eigen value problem xi^2 M + xi C + K
-        # build up 6x6 generalized linear ev problem
+        # quadratic eigenvalue problem (xi^2 M + xi C + K) e = 0
+        # build up 6x6 matrices for generalized linear ev problem
         # (xi [[M, 0], [0, 1]] + [[C, K], [-1, 0]])*[[xi X], [X]] = 0
         # M_ij = -delta_ij + n_i n_j
         # C_ij = n_i kpa_j + n_j kpa_i
-        # K_ij = -kpa_i kpa_j + eps_ij
+        # K_ij = -kpa^2 delta_ij + kpa_i kpa_j + eps_ij
+        # M has due to its projector property obviously 2 zero modes
+        # Therefore it is not invertible and therefore the generalized
+        # linear EVP has two infinite solutions. There are only 4 finite
+        # complex solutions.
+        
+        # TODO: consistency checks
+        # a) det(generalized eigenvalue problem) = 0
+        # b) det(quadratic eigenvalue problem) = 0
+        # c) (quadratic eigenvalue problem) ev = 0
+        # d) calcXidet(eigenvalues) = 0
+        # e) eigenvalue_analytical = eigenvalues_numerical
         
         IdMatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
         ZeroMatrix = np.zeros((3, 3, num_pts), dtype=complex)        
 
-        Mmatrix = -IdMatrix
-        Kmatrix = eps
-        Cmatrix = np.copy(ZeroMatrix)        
+        Mmatrix = -np.copy(IdMatrix)
+        Kmatrix = np.copy(eps)
+        Cmatrix = np.copy(ZeroMatrix)
         
         for j in range(num_pts):
             Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
