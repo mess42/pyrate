@@ -239,7 +239,7 @@ and $\Efield \times \Hfield$, which we call Poynting vector $\Vector{S}$, is the
  \Vector{S} &=& \Efield \times \Hfield
  \label{eq:definitionOfPoynting}
 \end{eqnarray}
-These equations hold for the real valued Maxwell equations with linear constitutive equations, time harmonic and real valued fields, real valued permeabilities, permittivities and conductivities.
+We discuss the Poynting vector in more detail in section \ref{sec:Poynting}, after introducing complex valued notation.
 
 \section{Source-Free Maxwell Equations in Non-Magnetic Materials}
 \label{sec:sourcefreemaxwell}
@@ -252,8 +252,9 @@ We associate the real part of $F$ with physically measureable quantities.
 Via the time harmonic factor $\exp(-i \omega t)$, the imaginary part of the fields will become real at other instances in time.
 Complex valued amplitudes $\Vector{F}_0$ express magnitude and phase retardation of the fields.
 All equations linear in $\Efield,\Dfield,\Hfield,\Bfield$ remain valid also for the newly introduced complex valued fields.
-Care has to be taken with quadratic equations, containing terms like for example $\Efield \times \Hfield$, $\Hfield \Bfield$, or $\Efield \Dfield$,
-as the (measurable) real part of the square of a complex number differs from that of a real one (e.g. it may become negative).
+Care has to be taken with quadratic equations, 
+containing terms like for example $\Efield \times \Hfield$, $\Hfield \Bfield$, or $\Efield \Dfield$,
+as the square of a real number differs from that of a complex one -- e.g. it may become negative.
 
 We assume all materials are non-magnetic at the optical frequency $\omega$, that is $\permeability(\omega) = \vacuumpermeability$. 
 Effects like the Magneto-Optical Kerr Effect (MOKE) stem from the deflection of oscillating electrons in a static (DC) magnetic field and are typically modeled by off-diagonal elements in the permittivity tensor, not the permeability.
@@ -330,7 +331,7 @@ and via the Gra\ss mann identity
 \begin{eqnarray}
   \timeavg{\Vector{S}}_j &=&  \Re \frac{ \overline{\scalarEfield}_i \partial_j \scalarEfield_i - \overline{\scalarEfield}_j \partial_i \scalarEfield_i }{2 i \omega \vacuumpermeability}
 \end{eqnarray}
-The last term which contains the divergence of $\Efield$ vanishes in vacuum or isotropic, homogeneous media.
+The term $\partial_i \scalarEfield_i$ -- the divergence of the elctric field -- vanishes in isotropic, homogeneous media.
 Assuming a plane wave expansion of $\Efield = \Vector{A} \exp(i \scpm{\Vector{k}}{\Location})$, we find
 \begin{eqnarray}
   \partial_j E_i &=& i\,k_j E_i\,,
@@ -349,9 +350,7 @@ In general, the direction of the Poynting vector is the real projection of a wei
 \section{Plane Wave Solutions and Dispersion}
 \subsection{The general anisotropic homgeneous case}
 We consider a homogeneous material $\permittivity(\Location) = const.$ We apply the Nabla curl operatur on the Maxwell curl equation for the electric field
-($\partial_i \partial_i =: \Delta$ the Laplacian). We also factor out a permittivity of the vacuum from the permittivity tensor 
-$\permittivity_{ij} \to  \vacuumpermittivity \permittivity_{ij}$ and introduce the ``vacuum wave number''
-$k_0 := \frac{2\pi}{\lambda_0} = \frac{\omega}{c} = \omega \sqrt{\vacuumpermeability  \vacuumpermittivity}$.
+($\partial_i \partial_i =: \Delta$ the Laplacian). 
 \begin{eqnarray}
   \Nabla \times ( \Nabla \times \Efield ) &=& \Nabla \times ( i \omega \vacuumpermeability \Hfield ) 
   \\
@@ -399,6 +398,9 @@ We use the identity
 \begin{align}
  \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
 \end{align}
+We also factor out a permittivity of the vacuum from the permittivity tensor 
+$\permittivity_{ij} \to  \vacuumpermittivity \permittivity_{ij}$ and introduce the ``vacuum wave number''
+$k_0 := \frac{2\pi}{\lambda_0} = \frac{\omega}{c} = \omega \sqrt{\vacuumpermeability  \vacuumpermittivity}$.
 and rewrite the determinant
 \begin{align}
  \det \hat{A}(\Vector{k}) 
@@ -468,6 +470,7 @@ The eigenvalue equation \ref{eq:generalDispersionEigenEquation} simplifies to
 
 The equation system splits up into a coupled system of $\scalarEfield_x$ and $\scalarEfield_z$ , and an independent equation for $\scalarEfield_y$
 
+\begin{subequations}
 \begin{align}
 \begin{pmatrix}
  \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} 
@@ -487,6 +490,7 @@ The equation system splits up into a coupled system of $\scalarEfield_x$ and $\s
 \\
 \begin{pmatrix} \wavenumber_x^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \end{pmatrix} \scalarEfield_y &= 0\,.
 \end{align}
+\end{subequations}
 
 We call the solutions of the equation for $\scalarEfield_y$ ordinary mode, and of the coupled system extraordinary mode.
 We find the following eigenvalues and eigenvectors:
@@ -501,11 +505,12 @@ We have a nontrivial solution for the electric field in $y$-direction.
 \begin{eqnarray}
  \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} 
  \\
- \Efield &\propto& \Vector{e}_y
+ \Efield &\propto& \Vector{e}_{eo} \times \Wavevector
 \end{eqnarray}
-For the ordinary mode, $\Wavevector$ and $\Efield$ are orthogonal, so the Poynting vector points in the direction of the real part of $\Wavevector$,
+For the ordinary mode, $\Efield$ is orthogonal on both $\Wavevector$ and the extraordinary direction.
+The Poynting vector points in the direction of the real part of $\Wavevector$,
 \begin{eqnarray}
- \timeavg{\Vector{S}}_\ordi = \frac{ |\scalarEfield_y|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector\,.\label{eq:Suniaxialordi}
+ \timeavg{\Vector{S}}_\ordi = \frac{ |\scalarEfield|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector\,.\label{eq:Suniaxialordi}
 \end{eqnarray}
 
 
@@ -516,6 +521,7 @@ For the ordinary mode, $\Wavevector$ and $\Efield$ are orthogonal, so the Poynti
   \\
   \scalarEfield_x \scalarpermittivity_{\ordi} \wavenumber_x &=& -  \scalarEfield_z \scalarpermittivity_{\eo} \wavenumber_z \label{eq:divDuniaxial}
 \end{eqnarray}
+
 The Poynting vector from \eqref{eq:poyntingvector} is given by
 \begin{eqnarray}
  \timeavg{\Vector{S}}_j &=&  \Re\frac{1}{2 \omega \vacuumpermeability}\left[ (|\scalarEfield_x|^2 + |\scalarEfield_z|^2) \delta_{j\ell}  - \overline{\scalarEfield}_j \scalarEfield_\ell \right] k_\ell\,.
@@ -826,8 +832,8 @@ and obtain
   \begin{align}
     \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
     \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\ 
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) E_{\beta\alpha,0} &= \Efield_{in} \Wavevector_\parallel \\
     \varsigma_\beta \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} ( \Efield_{in} \times \Vector{n} )\Wavevector_\parallel \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) E_{\beta\alpha,0} &= \Efield_{in} \Wavevector_\parallel \\
     \varsigma_\beta 
         \left(
           - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} ) 
