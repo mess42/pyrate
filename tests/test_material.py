@@ -22,6 +22,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import numpy as np
+import sympy
 from core.localcoordinates import LocalCoordinates
 from core.material import AnisotropicMaterial
 
@@ -171,7 +172,54 @@ def test_anisotropic_xi_calculation_polynomial_zeros():
         should_be_zero[i, :] = m.calcXiDet(xiarray[i], x, n, kpa)
     
     assert np.allclose(should_be_zero, 0)
+
+def test_anisotropic_xi_eigenvectors():
+    lc = LocalCoordinates("1")
     
+    myeps = np.zeros((3, 3), dtype=complex)
+    myeps[0:2, 0:2] = np.random.random((2, 2)) + complex(0, 1)*np.random.random((2, 2))
+    myeps[2, 2] = np.random.random() + complex(0, 1)*np.random.random()
+    #np.random.random((3, 3)) + complex(0, 1)*np.random.random((3, 3))
+    ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
+        tuple(myeps)
+    
+    m = AnisotropicMaterial(lc, myeps)
+    
+    #n = np.random.random((3, 1))
+    #n = n/np.sqrt(np.sum(n*n, axis=0))
+    n = np.zeros((3, 1))
+    n[2, :] = 1    
+    
+    x = np.zeros((3, 1))
+    k = np.random.random((3, 1)) + complex(0, 1)*np.random.random((3, 1))
+    
+    kpa = k - np.sum(n * k, axis=0)*n
+    
+    m.calcXiEigenvectors(x, n, kpa)
+    
+    # sympy check with analytical solution
+    kx, ky, xi = sympy.symbols('k_x k_y xi')
+    exx, exy, exz, eyx, eyy, eyz, ezx, ezy, ezz \
+        = sympy.symbols('e_xx e_xy e_xz e_yx e_yy e_yz e_zx e_zy e_zz')
+        
+    #eps = Matrix([[exx, exy, exz], [eyx, eyy, eyz], [ezx, ezy, ezz]])
+    eps = sympy.Matrix([[exx, exy, 0], [eyx, eyy, 0], [0, 0, ezz]])
+    v = sympy.Matrix([[kx, ky, xi]])
+    m = -(v*v.T)[0]*sympy.eye(3) + v.T*v + eps
+    detm = m.det().collect(xi)
+        
+    soldetm = sympy.solve(detm, xi)
+    subsdict = {
+        kx:kpa[0, 0],
+        ky:kpa[1,0],
+        exx:epsxx,
+        exy:epsxy,
+        eyx:epsyx,
+        eyy:epsyy,
+        ezz:epszz,
+        }
+    for sol in soldetm:
+        print(sol.evalf(subs=subsdict))
     
 if __name__=="__main__":
-    test_anisotropic_xi_calculation_polynomial_zeros()
+    test_anisotropic_xi_eigenvectors()
