@@ -21,7 +21,7 @@ You need Python 2.x with NumPy, SciPy, and matplotlib installed to run pyrate.
 
 In Ubuntu, Mint and Debian you can use:
 
-    $ sudo apt-get install python python-numpy python-scipy python-matplotlib
+    $ sudo apt-get install python python-numpy python-scipy python-matplotlib python-yaml
 
 If you want to run mypy on the project, you need also Python 3.x with mypy
 installed.
