@@ -25,6 +25,7 @@ import numpy as np
 import math
 from ray import RayBundle
 import optimize
+import scipy.linalg as sla
 
 from globalconstants import standard_wavelength, eps0
 
@@ -61,6 +62,14 @@ class Material(optimize.ClassWithOptimizableVariables):
         :return newray: rays after surface interaction ( RayBundle object )
         """
         raise NotImplementedError()
+        
+    def propagate(self, raybundle, nextSurface):
+        """
+        Propagates raybundle to nextSurface. In the most simple case this
+        just adds the end point at nextSurface intersection to the raybundle
+        """
+        raise NotImplementedError()
+
 
 
 class MaxwellMaterial(Material):
@@ -112,43 +121,89 @@ class MaxwellMaterial(Material):
         
         return kvectors
         
-    def calcEigenvectors(self, x, n, kpa, wave=standard_wavelength):
-        # TODO: needs heavy testing        
+    def calcXiEigenvectors(self, x, n, kpa_norm):
         """
-        Calculate eigen vectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
+        Calculate eigenvalues and 
+        eigenvectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
+        (in terms of dimensionless k-components)
         
+        :param x (3xN numpy array of float) 
+                points where to evaluate eps tensor in local material coordinates
         :param n (3xN numpy array of float) 
                 normal of surface in local coordinates
         :param kpa (3xN numpy array of float) 
                 incoming wave vector inplane component in local coordinates
         
-        :return xi tuple of (4xN numpy array of complex) 
+        :return (xi, eigenvectors): xi (6xN numpy array of complex);
+                eigenvectors (6x3x3xN numpy array of complex)
                 
         """
 
-        (num_dims, num_pts) = np.shape(kpa)
-        k0 = 2.*math.pi/wave
+        (num_dims, num_pts) = np.shape(kpa_norm)
         eps = self.getEpsilonTensor(x)
-        xis = self.calcXi(x, n, kpa, wave=wave)
-        eigenvectors = np.zeros((4, 3, 3, num_pts), dtype=complex)
-        # xi number, eigv number, eigv 3xN
+
+        eigenvectors = np.zeros((6, 3, num_pts), dtype=complex)
+        # xi number, eigv 3xN
         
-        # LU decomposition as a function of xi?        
+        # quadratic eigenvalue problem (xi^2 M + xi C + K) e = 0
+        # build up 6x6 matrices for generalized linear ev problem
+        # (xi [[M, 0], [0, 1]] + [[C, K], [-1, 0]])*[[xi X], [X]] = 0
+        # M_ij = -delta_ij + n_i n_j
+        # C_ij = n_i kpa_j + n_j kpa_i
+        # K_ij = -kpa^2 delta_ij + kpa_i kpa_j + eps_ij
+        # M has due to its projector property obviously 2 zero modes
+        # Therefore it is not invertible and therefore the generalized
+        # linear EVP has two infinite solutions. There are only 4 finite
+        # complex solutions.
         
-        for i in range(4):
-            # eigen value problem xi^2 Pmatrix + xi KNmatrix + Rmatrix
-            # build up 6x6 generalized linear ev problem
-            # (xi [[P, 0], [0, 1]] + [[KN, R], [-1, 0]])*[[xi X], [X]] = 0
-            k = kpa + xis[i]*n
+        # TODO: consistency checks
+        # a) det(generalized eigenvalue problem) = 0
+        # b) det(quadratic eigenvalue problem) = 0
+        # c) (quadratic eigenvalue problem) ev = 0
+        # d) calcXidet(eigenvalues) = 0
+        # e) eigenvalue_analytical = eigenvalues_numerical
+        
+        IdMatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+        ZeroMatrix = np.zeros((3, 3, num_pts), dtype=complex)        
+
+        Mmatrix = -np.copy(IdMatrix)
+        Kmatrix = np.copy(eps)
+        Cmatrix = np.copy(ZeroMatrix)
+        
+        for j in range(num_pts):
+            Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
+            Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) + np.outer(n[:, j], kpa_norm[:, j])
+            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*np.eye(3)\
+                    + np.outer(kpa_norm[:, j], kpa_norm[:, j])
+
+        Amatrix6x6 = np.vstack(
+                    (np.hstack((Cmatrix, Kmatrix)),
+                     np.hstack((-IdMatrix, ZeroMatrix)))
+                )
+        Bmatrix6x6 = -np.vstack(
+                    (np.hstack((Mmatrix, ZeroMatrix)),
+                     np.hstack((ZeroMatrix, IdMatrix)))
+                )
+        
+        xiarray = self.calcXiNormZeros(x, n, kpa_norm)
+        for j in range(num_pts):
+            (w, vr) = sla.eig(Amatrix6x6[:, :, j], b=Bmatrix6x6[:, :, j])
+
+            for k in range(6):
+                evr = vr[:, k].reshape(6, 1)
+                print(np.dot(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j], evr[3:]))
+                print(np.linalg.det(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j]))            
+                print(np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*w[k]))            
+                            
             
-            #Pmatrix = -np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+            print(np.array_str(w))
+            #print(np.array_str(Amatrix6x6[:, :, j], precision=2, suppress_small=True))
+            #print(np.array_str(Bmatrix6x6[:, :, j], precision=2, suppress_small=True))
+            print(self.calcXiDet(w[3], x, n, kpa_norm))            
+            print(np.linalg.det(Mmatrix[:, :, j]*xiarray[0, j]**2 + Cmatrix[:, :, j]*xiarray[0, j] + Kmatrix[:, :, j]))            
+        
+        print(xiarray)
             
-            #KNmatrix = np.zeros((3, 3, num_pts))            
-            
-            for j in range(num_pts):
-                #KNmatrix[:, :, j] += np.outer(kpa[:, j], k[:, j])
-                #propagator[:, :, j] += np.outer(k[:, j], k[:, j])
-                pass
 
         return eigenvectors
         
@@ -258,12 +313,6 @@ class MaxwellMaterial(Material):
         return k0*self.calcXiNormZeros(x, kpa_norm, n)
 
         
-    def propagate(self, raybundle, nextSurface):
-        """
-        Propagates raybundle to nextSurface. In the most simple case this
-        just adds the end point at nextSurface intersection to the raybundle
-        """
-        raise NotImplementedError()
 
 
 class IsotropicMaterial(MaxwellMaterial):

@@ -1,5 +1,6 @@
 numpy # pyrate dependency
 scipy # pyrate dependency
+sympy # pyrate dependency
 matplotlib # pyrate dependency
 nose # test automation
 hypothesis # quickcheck
