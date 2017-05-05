@@ -173,7 +173,15 @@ def test_anisotropic_xi_calculation_polynomial_zeros():
     
     assert np.allclose(should_be_zero, 0)
 
-def test_anisotropic_xi_eigenvectors():
+        # TODO: consistency checks
+        # a) det(generalized eigenvalue problem) = 0
+        # b) det(quadratic eigenvalue problem) = 0
+        # c) (quadratic eigenvalue problem) ev = 0
+        # d) calcXidet(eigenvalues) = 0
+        # e) eigenvalue_analytical = eigenvalues_numerical
+
+
+def test_anisotropic_xi_eigenvalues():
     lc = LocalCoordinates("1")
     
     myeps = np.zeros((3, 3), dtype=complex)
@@ -195,7 +203,26 @@ def test_anisotropic_xi_eigenvectors():
     
     kpa = k - np.sum(n * k, axis=0)*n
     
-    m.calcXiEigenvectors(x, n, kpa)
+    (eigenvalues, eigenvectors) = m.calcXiEigenvectors(x, n, kpa)
+
+    xiarray = m.calcXiNormZeros(x, n, kpa)
+    
+    
+#            for k in range(6):
+#                evr = vr[:, k].reshape(6, 1)
+#                print(np.dot(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j], evr[3:]))
+#                print(np.linalg.det(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j]))            
+#                print(np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*w[k]))            
+#                            
+#            
+#            print(np.array_str(w))
+#            #print(np.array_str(Amatrix6x6[:, :, j], precision=2, suppress_small=True))
+#            #print(np.array_str(Bmatrix6x6[:, :, j], precision=2, suppress_small=True))
+#            print(self.calcXiDet(w[3], x, n, kpa_norm))            
+#            print(np.linalg.det(Mmatrix[:, :, j]*xiarray[0, j]**2 + Cmatrix[:, :, j]*xiarray[0, j] + Kmatrix[:, :, j]))            
+#        
+#        print(xiarray)
+
     
     # sympy check with analytical solution
     kx, ky, xi = sympy.symbols('k_x k_y xi')
@@ -211,15 +238,17 @@ def test_anisotropic_xi_eigenvectors():
     soldetm = sympy.solve(detm, xi)
     subsdict = {
         kx:kpa[0, 0],
-        ky:kpa[1,0],
+        ky:kpa[1, 0],
         exx:epsxx,
         exy:epsxy,
         eyx:epsyx,
         eyy:epsyy,
         ezz:epszz,
+        sympy.I:complex(0, 1)
         }
-    for sol in soldetm:
-        print(sol.evalf(subs=subsdict))
+    print(np.array([sol.evalf(subs=subsdict) for sol in soldetm]))
+    print(xiarray)
+    print(eigenvalues)
     
 if __name__=="__main__":
-    test_anisotropic_xi_eigenvectors()
+    test_anisotropic_xi_eigenvalues()

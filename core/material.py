@@ -121,30 +121,11 @@ class MaxwellMaterial(Material):
         
         return kvectors
         
-    def calcXiEigenvectors(self, x, n, kpa_norm):
-        """
-        Calculate eigenvalues and 
-        eigenvectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
-        (in terms of dimensionless k-components)
-        
-        :param x (3xN numpy array of float) 
-                points where to evaluate eps tensor in local material coordinates
-        :param n (3xN numpy array of float) 
-                normal of surface in local coordinates
-        :param kpa (3xN numpy array of float) 
-                incoming wave vector inplane component in local coordinates
-        
-        :return (xi, eigenvectors): xi (6xN numpy array of complex);
-                eigenvectors (6x3x3xN numpy array of complex)
-                
-        """
+    def calcXiQEVMatrices(self, x, n, kpa_norm):
 
         (num_dims, num_pts) = np.shape(kpa_norm)
         eps = self.getEpsilonTensor(x)
 
-        eigenvectors = np.zeros((6, 3, num_pts), dtype=complex)
-        # xi number, eigv 3xN
-        
         # quadratic eigenvalue problem (xi^2 M + xi C + K) e = 0
         # build up 6x6 matrices for generalized linear ev problem
         # (xi [[M, 0], [0, 1]] + [[C, K], [-1, 0]])*[[xi X], [X]] = 0
@@ -155,13 +136,7 @@ class MaxwellMaterial(Material):
         # Therefore it is not invertible and therefore the generalized
         # linear EVP has two infinite solutions. There are only 4 finite
         # complex solutions.
-        
-        # TODO: consistency checks
-        # a) det(generalized eigenvalue problem) = 0
-        # b) det(quadratic eigenvalue problem) = 0
-        # c) (quadratic eigenvalue problem) ev = 0
-        # d) calcXidet(eigenvalues) = 0
-        # e) eigenvalue_analytical = eigenvalues_numerical
+ 
         
         IdMatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
         ZeroMatrix = np.zeros((3, 3, num_pts), dtype=complex)        
@@ -185,27 +160,43 @@ class MaxwellMaterial(Material):
                      np.hstack((ZeroMatrix, IdMatrix)))
                 )
         
-        xiarray = self.calcXiNormZeros(x, n, kpa_norm)
+        return ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix))
+
+
+        
+    def calcXiEigenvectors(self, x, n, kpa_norm):
+        """
+        Calculate eigenvalues and 
+        eigenvectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
+        (in terms of dimensionless k-components)
+        
+        :param x (3xN numpy array of float) 
+                points where to evaluate eps tensor in local material coordinates
+        :param n (3xN numpy array of float) 
+                normal of surface in local coordinates
+        :param kpa (3xN numpy array of float) 
+                incoming wave vector inplane component in local coordinates
+        
+        :return (xi, eigenvectors): xi (6xN numpy array of complex);
+                eigenvectors (6x3x3xN numpy array of complex)
+                
+        """
+
+        (num_dims, num_pts) = np.shape(kpa_norm)
+
+        eigenvectors = np.zeros((6, 3, num_pts), dtype=complex)
+        eigenvalues = np.zeros((6, num_pts), dtype=complex)
+        # xi number, eigv 3xN
+        
+        ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) = self.calcXiQEVMatrices(x, n, kpa_norm)
+        
         for j in range(num_pts):
             (w, vr) = sla.eig(Amatrix6x6[:, :, j], b=Bmatrix6x6[:, :, j])
 
-            for k in range(6):
-                evr = vr[:, k].reshape(6, 1)
-                print(np.dot(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j], evr[3:]))
-                print(np.linalg.det(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j]))            
-                print(np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*w[k]))            
-                            
-            
-            print(np.array_str(w))
-            #print(np.array_str(Amatrix6x6[:, :, j], precision=2, suppress_small=True))
-            #print(np.array_str(Bmatrix6x6[:, :, j], precision=2, suppress_small=True))
-            print(self.calcXiDet(w[3], x, n, kpa_norm))            
-            print(np.linalg.det(Mmatrix[:, :, j]*xiarray[0, j]**2 + Cmatrix[:, :, j]*xiarray[0, j] + Kmatrix[:, :, j]))            
-        
-        print(xiarray)
-            
+            eigenvalues[:, j] = np.copy(w)
+            eigenvectors[:, :, j] = (vr.T)[:, 3:]
 
-        return eigenvectors
+        return (eigenvalues, eigenvectors)
         
         
     def calcXiPolynomial(self, x, n, kpa):
