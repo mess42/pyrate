@@ -184,14 +184,18 @@ class MaxwellMaterial(Material):
 
         (num_dims, num_pts) = np.shape(kpa_norm)
 
-        eigenvectors = np.zeros((6, 3, num_pts), dtype=complex)
-        eigenvalues = np.zeros((6, num_pts), dtype=complex)
+        eigenvectors = np.zeros((4, 3, num_pts), dtype=complex)
+        eigenvalues = np.zeros((4, num_pts), dtype=complex)
         # xi number, eigv 3xN
         
         ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) = self.calcXiQEVMatrices(x, n, kpa_norm)
         
         for j in range(num_pts):
             (w, vr) = sla.eig(Amatrix6x6[:, :, j], b=Bmatrix6x6[:, :, j])
+
+            wfinite = np.isfinite(w)
+            w = w[wfinite]
+            vr = vr[:, wfinite]
 
             eigenvalues[:, j] = np.copy(w)
             eigenvectors[:, :, j] = (vr.T)[:, 3:]

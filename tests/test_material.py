@@ -247,8 +247,8 @@ def test_anisotropic_xi_eigenvalues():
         sympy.I:complex(0, 1)
         }
     print(np.array([sol.evalf(subs=subsdict) for sol in soldetm]))
-    print(xiarray)
-    print(eigenvalues)
+    print(np.sort(xiarray[:, 0]))
+    print(np.sort(eigenvalues[:, 0]))
     
 if __name__=="__main__":
     test_anisotropic_xi_eigenvalues()
