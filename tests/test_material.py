@@ -90,8 +90,8 @@ def test_anisotropic_xi_calculation_polynomial():
 def test_anisotropic_xi_calculation_det():
     '''
     Random epsilon tensor, Random k vector and n unit vector in z direction.
-    Determinant of the propagator the numerical calculations 
-    via np.einsum and the analytical expression given below should coincide.
+    Determinant of the propagator from numerical calculations 
+    via np.einsum and from analytical expression given below should coincide.
     The test should work for real and complex epsilon and k values.
     '''
     lc = LocalCoordinates("1")
@@ -173,15 +173,12 @@ def test_anisotropic_xi_calculation_polynomial_zeros():
     
     assert np.allclose(should_be_zero, 0)
 
-        # TODO: consistency checks
-        # a) det(generalized eigenvalue problem) = 0
-        # b) det(quadratic eigenvalue problem) = 0
-        # c) (quadratic eigenvalue problem) ev = 0
-        # d) calcXidet(eigenvalues) = 0
-        # e) eigenvalue_analytical = eigenvalues_numerical
-
-
 def test_anisotropic_xi_eigenvalues():
+    """
+    Comparison of eigenvalue calculation for xi from random complex material
+    data. Comparing polynomial calculation from determinant, from quadratic
+    eigenvalue problem and analytical calculation from sympy.
+    """
     lc = LocalCoordinates("1")
     
     myeps = np.zeros((3, 3), dtype=complex)
@@ -208,22 +205,6 @@ def test_anisotropic_xi_eigenvalues():
     xiarray = m.calcXiNormZeros(x, n, kpa)
     
     
-#            for k in range(6):
-#                evr = vr[:, k].reshape(6, 1)
-#                print(np.dot(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j], evr[3:]))
-#                print(np.linalg.det(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j]))            
-#                print(np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*w[k]))            
-#                            
-#            
-#            print(np.array_str(w))
-#            #print(np.array_str(Amatrix6x6[:, :, j], precision=2, suppress_small=True))
-#            #print(np.array_str(Bmatrix6x6[:, :, j], precision=2, suppress_small=True))
-#            print(self.calcXiDet(w[3], x, n, kpa_norm))            
-#            print(np.linalg.det(Mmatrix[:, :, j]*xiarray[0, j]**2 + Cmatrix[:, :, j]*xiarray[0, j] + Kmatrix[:, :, j]))            
-#        
-#        print(xiarray)
-
-    
     # sympy check with analytical solution
     kx, ky, xi = sympy.symbols('k_x k_y xi')
     exx, exy, exz, eyx, eyy, eyz, ezx, ezy, ezz \
@@ -246,9 +227,101 @@ def test_anisotropic_xi_eigenvalues():
         ezz:epszz,
         sympy.I:complex(0, 1)
         }
-    print(np.array([sol.evalf(subs=subsdict) for sol in soldetm]))
-    print(np.sort(xiarray[:, 0]))
-    print(np.sort(eigenvalues[:, 0]))
+    analytical_solution = np.sort_complex(np.array([sol.evalf(subs=subsdict) for sol in soldetm], dtype=complex))
+    numerical_solution1 = np.sort_complex(xiarray[:, 0])
+    numerical_solution2 = np.sort_complex(eigenvalues[:, 0])
+    
+    assert np.allclose(analytical_solution - numerical_solution1, 0)
+    assert np.allclose(analytical_solution - numerical_solution2, 0)
+
+def test_anisotropic_xi_determinants():
+    """
+    Check whether xi zeros from polynomial fulfill the QEVP and the 
+    associated GLEVP. This also verifies whether A6x6 and B6x6 are
+    constructed correctly.
+    """
+    lc = LocalCoordinates("1")
+    
+    myeps = np.random.random((3, 3)) + complex(0, 1)*np.random.random((3, 3))
+    ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
+        tuple(myeps)
+    
+    m = AnisotropicMaterial(lc, myeps)
+    
+    n = np.random.random((3, 5))
+    n = n/np.sqrt(np.sum(n*n, axis=0))
+    
+    x = np.zeros((3, 5))
+    k = np.random.random((3, 5)) + complex(0, 1)*np.random.random((3, 5))
+    
+    kpa = k - np.sum(n * k, axis=0)*n
+
+    xiarray = m.calcXiNormZeros(x, n, kpa)
+
+    ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) = m.calcXiQEVMatrices(x, n, kpa)
+
+    should_be_zero_1 = np.ones((4, 5), dtype=complex)
+    should_be_zero_2 = np.ones((4, 5), dtype=complex)
+    for j in range(5):
+        for xi_num in range(4):
+            should_be_zero_1[xi_num, j] = np.linalg.det(Mmatrix[:, :, j]*xiarray[xi_num, j]**2 + Cmatrix[:, :, j]*xiarray[xi_num, j] + Kmatrix[:, :, j])
+            should_be_zero_2[xi_num, j] = np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*xiarray[xi_num, j])
+
+    assert np.allclose(should_be_zero_1, 0)
+    assert np.allclose(should_be_zero_2, 0)    
+
+def test_anisotropic_xi_eigenvectors():
+    """
+    Check whether eigenvectors fulfill the QEVP.
+    """
+    lc = LocalCoordinates("1")
+    
+    myeps = np.random.random((3, 3)) + complex(0, 1)*np.random.random((3, 3))
+    ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
+        tuple(myeps)
+    
+    m = AnisotropicMaterial(lc, myeps)
+    
+    n = np.random.random((3, 5))
+    n = n/np.sqrt(np.sum(n*n, axis=0))
+    
+    x = np.zeros((3, 5))
+    k = np.random.random((3, 5)) + complex(0, 1)*np.random.random((3, 5))
+    
+    kpa = k - np.sum(n * k, axis=0)*n
+    
+    ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) \
+        = m.calcXiQEVMatrices(x, n, kpa)
+    (eigenvalues, eigenvectors) = m.calcXiEigenvectors(x, n, kpa)
+
+    #print(eigenvalues)
+
+    should_be_zero = np.ones((4, 3, 5), dtype=complex)
+    for j in range(5):
+        for k in range(4):
+            should_be_zero[k, :, j] = np.dot(Mmatrix[:, :, j]*eigenvalues[k, j]**2 + Cmatrix[:, :, j]*eigenvalues[k, j] + Kmatrix[:, :, j], eigenvectors[k, :, j])
+            
+    assert np.allclose(should_be_zero, 0)
+
+# TODO: consistency checks
+# c) (quadratic eigenvalue problem) ev = 0
+
+
+#            for k in range(6):
+#                evr = vr[:, k].reshape(6, 1)
+#                print(np.dot(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j], evr[3:]))
+#                print(np.linalg.det(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j]))            
+#                print(np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*w[k]))            
+#                            
+#            
+#            print(np.array_str(w))
+#            #print(np.array_str(Amatrix6x6[:, :, j], precision=2, suppress_small=True))
+#            #print(np.array_str(Bmatrix6x6[:, :, j], precision=2, suppress_small=True))
+#            print(self.calcXiDet(w[3], x, n, kpa_norm))            
+#            print(np.linalg.det(Mmatrix[:, :, j]*xiarray[0, j]**2 + Cmatrix[:, :, j]*xiarray[0, j] + Kmatrix[:, :, j]))            
+#        
+#        print(xiarray)
+    
     
 if __name__=="__main__":
-    test_anisotropic_xi_eigenvalues()
+    test_anisotropic_xi_eigenvectors()
