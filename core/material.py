@@ -121,7 +121,7 @@ class MaxwellMaterial(Material):
         
         return kvectors
         
-    def calcXiQEVMatrices(self, x, n, kpa_norm):
+    def calcXiQEVMatricesNorm(self, x, n, kpa_norm):
 
         (num_dims, num_pts) = np.shape(kpa_norm)
         eps = self.getEpsilonTensor(x)
@@ -164,7 +164,7 @@ class MaxwellMaterial(Material):
 
 
         
-    def calcXiEigenvectors(self, x, n, kpa_norm):
+    def calcXiEigenvectorsNorm(self, x, n, kpa_norm):
         """
         Calculate eigenvalues and 
         eigenvectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
@@ -189,7 +189,7 @@ class MaxwellMaterial(Material):
         # xi number, eigv 3xN
         
         ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) \
-            = self.calcXiQEVMatrices(x, n, kpa_norm)
+            = self.calcXiQEVMatricesNorm(x, n, kpa_norm)
 
         for j in range(num_pts):
             (w, vr) = sla.eig(Amatrix6x6[:, :, j], b=Bmatrix6x6[:, :, j])
@@ -214,7 +214,7 @@ class MaxwellMaterial(Material):
         return (eigenvalues, eigenvectors)
         
         
-    def calcXiPolynomial(self, x, n, kpa):
+    def calcXiPolynomialNorm(self, x, n, kpa_norm):
         """
         calc Xi polynomial for normalized kpa (=kpa/k0).
         zeros of polynomial are xi/k0. The advantage:
@@ -247,14 +247,14 @@ class MaxwellMaterial(Material):
         a1 = np.einsum('ii...', eps)        
         a2 = np.einsum('ij...,ji...', eps, eps)
         a3 = np.einsum('ij...,jk...,ki...', eps, eps, eps)
-        a4 = np.einsum('i...,i...', kpa, kpa)
-        a5 = np.einsum('ij...,i...,j...', eps, kpa, kpa)
-        a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, kpa)
+        a4 = np.einsum('i...,i...', kpa_norm, kpa_norm)
+        a5 = np.einsum('ij...,i...,j...', eps, kpa_norm, kpa_norm)
+        a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa_norm, kpa_norm)
         a7 = np.einsum('ij...,i...,j...', eps, n, n)        
-        a8 = np.einsum('ij...,j...,i...', eps, kpa, n)
-        a9 = np.einsum('ij...,i...,j...', eps, kpa, n)
-        a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa, n)
-        a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
+        a8 = np.einsum('ij...,j...,i...', eps, kpa_norm, n)
+        a9 = np.einsum('ij...,i...,j...', eps, kpa_norm, n)
+        a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa_norm, n)
+        a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa_norm, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
 
         #p4 = a7*omegabar**2
@@ -279,15 +279,15 @@ class MaxwellMaterial(Material):
 
         return (p4, p3, p2, p1, p0)
 
-    def calcXiDet(self, xi_norm, x, n, kpa_norm):
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, n, kpa_norm)
+    def calcXiDetNorm(self, xi_norm, x, n, kpa_norm):
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomialNorm(x, n, kpa_norm)
         
         return p4*xi_norm**4 + p3*xi_norm**3 + p2*xi_norm**2 + p1*xi_norm + p0
 
     def calcXiNormZeros(self, x, n, kpa_norm):
         (num_dims, num_pts) = np.shape(kpa_norm)
 
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, n, kpa_norm)
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomialNorm(x, n, kpa_norm)
 
         xizeros = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
@@ -316,7 +316,19 @@ class MaxwellMaterial(Material):
         k0 = 2.*math.pi/wave
         kpa_norm = kpa/k0
         
-        return k0*self.calcXiNormZeros(x, kpa_norm, n)
+        return k0*self.calcXiNormZeros(x, n, kpa_norm)
+        
+    def calcXiEigenvectors(self, x, n, kpa, wave=standard_wavelength):
+
+        (num_dims, num_pts) = np.shape(kpa)
+
+        k0 = 2.*math.pi/wave
+        kpa_norm = kpa/k0
+        
+        (eigenvals, eigenvectors) = self.calcXiEigenvectorsNorm(x, n, kpa_norm)
+        
+        return (k0*eigenvals, eigenvectors)
+        
 
         
 
