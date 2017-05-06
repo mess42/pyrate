@@ -25,26 +25,51 @@ from scipy.optimize import minimize
 import numpy as np
 
 class Backend(object):
+    """
+    Base class for the optimization backend. Performs one full optimization run.
+    Eats 1D numpy array as starting value. Spits out 1D numpy array as final
+    value. Needs to know an optimization function which converts the 1D
+    numpy array into the real valued function which is to be optimized.
+    """
+    
     
     def __init__(self, **kwargs):
-        
+        """
+        kwargs is everything which is known at initialization time and needed
+        by the optimization backend        
+        """        
         self.options = kwargs
 
     def init(self, func):
+        """
+        Tells backend which function to optimize (usually if coupled to
+        optimizer this is a merit function wrapper)
+        """
         self.func = func
         
     def run(self, x0):
+        """
+        Performs optimization. Start value is x0. Has to return xfinal.
+        """
         
         raise NotImplementedError()
 
 
 class ScipyBackend(Backend):
+    """
+    Uses scipy for optimization.
+    """
     
     def run(self, x0):
         res = minimize(self.func, x0, args=(), **self.options)
         return res.x
         
 class Newton1DBackend(Backend):
+    """
+    Uses 1D Newton approach for optimization. Does not need scipy.
+    Is only intended as failsafe solution.
+    """
+    
     
     def run(self, x0):
         
