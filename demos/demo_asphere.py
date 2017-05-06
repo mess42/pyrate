@@ -43,7 +43,8 @@ from core.localcoordinates import LocalCoordinates
 
 from core.globalconstants import canonical_ey
 
-import core.optimize
+from core.optimize import Optimizer
+from core.optimize_backends import ScipyBackend
 
 import math
 
@@ -127,9 +128,9 @@ backsurf.shape.dict_variables["cc"].changetype("variable")
 backsurf.shape.dict_variables["A4"].changetype("variable")
 backsurf.shape.dict_variables["A6"].changetype("variable")
 
-
-optimi = core.optimize.Optimizer(s, meritfunctionrms, osupdate)
-s = optimi.optimizeSciPyNelderMead()
+opt_backend = ScipyBackend(method='Nelder-Mead', tol=1e-9)
+optimi = Optimizer(s, meritfunctionrms, opt_backend, updatefunction=osupdate)
+s = optimi.run()
 
 r2 = s.seqtrace(initialbundle, sysseq)
 
