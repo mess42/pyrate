@@ -173,15 +173,12 @@ def test_anisotropic_xi_calculation_polynomial_zeros():
     
     assert np.allclose(should_be_zero, 0)
 
-        # TODO: consistency checks
-        # a) det(generalized eigenvalue problem) = 0
-        # b) det(quadratic eigenvalue problem) = 0
-        # c) (quadratic eigenvalue problem) ev = 0
-        # d) calcXidet(eigenvalues) = 0
-        # e) eigenvalue_analytical = eigenvalues_numerical
-
-
 def test_anisotropic_xi_eigenvalues():
+    """
+    Comparison of eigenvalue calculation for xi from random complex material
+    data. Comparing polynomial calculation from determinant, from quadratic
+    eigenvalue problem and analytical calculation from sympy.
+    """
     lc = LocalCoordinates("1")
     
     myeps = np.zeros((3, 3), dtype=complex)
@@ -252,6 +249,46 @@ def test_anisotropic_xi_eigenvalues():
     
     assert np.allclose(analytical_solution - numerical_solution1, 0)
     assert np.allclose(analytical_solution - numerical_solution2, 0)
+
+# TODO: consistency checks
+# c) (quadratic eigenvalue problem) ev = 0
+
+
+def test_anisotropic_xi_determinants():
+    """
+    Check whether xi zeros from polynomial fulfill the QEVP and the 
+    associated GLEVP. This also verifies whether A6x6 and B6x6 are
+    constructed correctly.
+    """
+    lc = LocalCoordinates("1")
+    
+    myeps = np.random.random((3, 3)) + complex(0, 1)*np.random.random((3, 3))
+    ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
+        tuple(myeps)
+    
+    m = AnisotropicMaterial(lc, myeps)
+    
+    n = np.random.random((3, 5))
+    n = n/np.sqrt(np.sum(n*n, axis=0))
+    
+    x = np.zeros((3, 5))
+    k = np.random.random((3, 5)) + complex(0, 1)*np.random.random((3, 5))
+    
+    kpa = k - np.sum(n * k, axis=0)*n
+
+    xiarray = m.calcXiNormZeros(x, n, kpa)
+
+    ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) = m.calcXiQEVMatrices(x, n, kpa)
+
+    should_be_zero_1 = np.ones((4, 5), dtype=complex)
+    should_be_zero_2 = np.ones((4, 5), dtype=complex)
+    for j in range(5):
+        for xi_num in range(4):
+            should_be_zero_1[xi_num, j] = np.linalg.det(Mmatrix[:, :, j]*xiarray[xi_num, j]**2 + Cmatrix[:, :, j]*xiarray[xi_num, j] + Kmatrix[:, :, j])
+            should_be_zero_2[xi_num, j] = np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*xiarray[xi_num, j])
+
+    assert np.allclose(should_be_zero_1, 0)
+    assert np.allclose(should_be_zero_2, 0)    
     
 if __name__=="__main__":
-    test_anisotropic_xi_eigenvalues()
+    test_anisotropic_xi_determinants()
