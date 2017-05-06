@@ -53,7 +53,7 @@ def test_anisotropic_xi_calculation_polynomial():
     kx = kpa[0]
     ky = kpa[1]
 
-    (p4v, p3v, p2v, p1v, p0v) = m.calcXiPolynomial(x, n, kpa)
+    (p4v, p3v, p2v, p1v, p0v) = m.calcXiPolynomialNorm(x, n, kpa)
 
     # TODO: Maybe generalize to arbitrary n vectors
 
@@ -139,7 +139,7 @@ def test_anisotropic_xi_calculation_det():
                     + kx*((epsyz*epszx + epsxz*epszy \
                         - (epsxy + epsyx)*epszz)*ky + (epsxy + epsyx)*ky**3)
                         
-    should_be_zero = det_analytical - m.calcXiDet(xi, x, n, kpa)
+    should_be_zero = det_analytical - m.calcXiDetNorm(xi, x, n, kpa)
     assert np.allclose(should_be_zero, 0)
 
 
@@ -169,7 +169,7 @@ def test_anisotropic_xi_calculation_polynomial_zeros():
     should_be_zero = np.ones((4, 5), dtype=complex)
     xiarray = m.calcXiNormZeros(x, n, kpa)
     for i in range(4):
-        should_be_zero[i, :] = m.calcXiDet(xiarray[i], x, n, kpa)
+        should_be_zero[i, :] = m.calcXiDetNorm(xiarray[i], x, n, kpa)
     
     assert np.allclose(should_be_zero, 0)
 
@@ -200,7 +200,7 @@ def test_anisotropic_xi_eigenvalues():
     
     kpa = k - np.sum(n * k, axis=0)*n
     
-    (eigenvalues, eigenvectors) = m.calcXiEigenvectors(x, n, kpa)
+    (eigenvalues, eigenvectors) = m.calcXiEigenvectorsNorm(x, n, kpa)
 
     xiarray = m.calcXiNormZeros(x, n, kpa)
     
@@ -258,7 +258,8 @@ def test_anisotropic_xi_determinants():
 
     xiarray = m.calcXiNormZeros(x, n, kpa)
 
-    ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) = m.calcXiQEVMatrices(x, n, kpa)
+    ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) \
+        = m.calcXiQEVMatricesNorm(x, n, kpa)
 
     should_be_zero_1 = np.ones((4, 5), dtype=complex)
     should_be_zero_2 = np.ones((4, 5), dtype=complex)
@@ -291,8 +292,8 @@ def test_anisotropic_xi_eigenvectors():
     kpa = k - np.sum(n * k, axis=0)*n
     
     ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) \
-        = m.calcXiQEVMatrices(x, n, kpa)
-    (eigenvalues, eigenvectors) = m.calcXiEigenvectors(x, n, kpa)
+        = m.calcXiQEVMatricesNorm(x, n, kpa)
+    (eigenvalues, eigenvectors) = m.calcXiEigenvectorsNorm(x, n, kpa)
 
     #print(eigenvalues)
 
@@ -303,25 +304,11 @@ def test_anisotropic_xi_eigenvectors():
             
     assert np.allclose(should_be_zero, 0)
 
-# TODO: consistency checks
-# c) (quadratic eigenvalue problem) ev = 0
-
-
-#            for k in range(6):
-#                evr = vr[:, k].reshape(6, 1)
-#                print(np.dot(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j], evr[3:]))
-#                print(np.linalg.det(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j]))            
-#                print(np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*w[k]))            
-#                            
-#            
-#            print(np.array_str(w))
-#            #print(np.array_str(Amatrix6x6[:, :, j], precision=2, suppress_small=True))
-#            #print(np.array_str(Bmatrix6x6[:, :, j], precision=2, suppress_small=True))
-#            print(self.calcXiDet(w[3], x, n, kpa_norm))            
-#            print(np.linalg.det(Mmatrix[:, :, j]*xiarray[0, j]**2 + Cmatrix[:, :, j]*xiarray[0, j] + Kmatrix[:, :, j]))            
-#        
-#        print(xiarray)
-    
     
 if __name__=="__main__":
+    test_anisotropic_xi_calculation_polynomial()
+    test_anisotropic_xi_calculation_det()
+    test_anisotropic_xi_calculation_polynomial_zeros()
+    test_anisotropic_xi_eigenvalues()
+    test_anisotropic_xi_determinants()
     test_anisotropic_xi_eigenvectors()
