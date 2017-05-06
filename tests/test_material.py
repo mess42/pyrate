@@ -90,8 +90,8 @@ def test_anisotropic_xi_calculation_polynomial():
 def test_anisotropic_xi_calculation_det():
     '''
     Random epsilon tensor, Random k vector and n unit vector in z direction.
-    Determinant of the propagator the numerical calculations 
-    via np.einsum and the analytical expression given below should coincide.
+    Determinant of the propagator from numerical calculations 
+    via np.einsum and from analytical expression given below should coincide.
     The test should work for real and complex epsilon and k values.
     '''
     lc = LocalCoordinates("1")
@@ -246,9 +246,12 @@ def test_anisotropic_xi_eigenvalues():
         ezz:epszz,
         sympy.I:complex(0, 1)
         }
-    print(np.array([sol.evalf(subs=subsdict) for sol in soldetm]))
-    print(np.sort(xiarray[:, 0]))
-    print(np.sort(eigenvalues[:, 0]))
+    analytical_solution = np.sort(np.array([sol.evalf(subs=subsdict) for sol in soldetm], dtype=complex))
+    numerical_solution1 = np.sort(xiarray[:, 0])
+    numerical_solution2 = np.sort(eigenvalues[:, 0])
+    
+    assert np.allclose(analytical_solution - numerical_solution1, 0)
+    assert np.allclose(analytical_solution - numerical_solution2, 0)
     
 if __name__=="__main__":
     test_anisotropic_xi_eigenvalues()
