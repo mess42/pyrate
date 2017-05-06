@@ -32,7 +32,7 @@ import math
 from core import material
 from core import surfShape
 from core.optimize import Optimizer
-from core.optimize_backends import ScipyBackend
+from core.optimize_backends import ScipyBackend, Newton1DBackend
 from core.ray import RayBundle
 
 from core.aperture import CircularAperture, BaseAperture
@@ -241,6 +241,7 @@ def meritfunctionrms(s):
     return res
 
 opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
+#opt_backend = Newton1DBackend(dx=1e-6, iterations=100)
 optimi = Optimizer(s, \
                     meritfunctionrms, \
                     backend=opt_backend, \
