@@ -177,8 +177,8 @@ class MaxwellMaterial(Material):
         :param kpa (3xN numpy array of float) 
                 incoming wave vector inplane component in local coordinates
         
-        :return (xi, eigenvectors): xi (6xN numpy array of complex);
-                eigenvectors (6x3x3xN numpy array of complex)
+        :return (xi, eigenvectors): xi (4xN numpy array of complex);
+                eigenvectors (4x3xN numpy array of complex)
                 
         """
 
@@ -188,14 +188,25 @@ class MaxwellMaterial(Material):
         eigenvalues = np.zeros((4, num_pts), dtype=complex)
         # xi number, eigv 3xN
         
-        ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) = self.calcXiQEVMatrices(x, n, kpa_norm)
-        
+        ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) \
+            = self.calcXiQEVMatrices(x, n, kpa_norm)
+
         for j in range(num_pts):
             (w, vr) = sla.eig(Amatrix6x6[:, :, j], b=Bmatrix6x6[:, :, j])
+
+            # first remove infinite parts
+            # then sort w for abs value
+            # then remove the largest values until len(w) = 4
 
             wfinite = np.isfinite(w)
             w = w[wfinite]
             vr = vr[:, wfinite]
+
+            if len(w) > 4:
+                to_remove = len(w) - 4
+                sorted_indices = np.abs(w).argsort()
+                w = w[sorted_indices][:-to_remove]
+                vr = vr[:, sorted_indices][:, :-to_remove]
 
             eigenvalues[:, j] = np.copy(w)
             eigenvectors[:, :, j] = (vr.T)[:, 3:]
