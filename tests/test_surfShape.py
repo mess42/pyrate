@@ -22,40 +22,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA  02110-1301, USA.
 """
 
+import math
 from hypothesis import given
-from hypothesis.strategies import floats, integers
+from hypothesis.strategies import floats
 from hypothesis.extra.numpy import arrays
 import numpy as np
-import math
 from core.surfShape import Conic, Asphere
 from core.localcoordinates import LocalCoordinates
 
-@given(rnd_data=arrays(np.float, (2,10), elements=floats(0,1)))
+@given(rnd_data=arrays(np.float, (2, 10), elements=floats(0, 1)))
 def test_conic_sag(rnd_data):
     """
     Computation of conic saq equals explicit calculation.
     """
-    lc = LocalCoordinates(name="root")    
+    lc1 = LocalCoordinates(name="root")
     radius = 10.0
     cc = -1.5
     curv = 1./radius
     maxradius = math.sqrt(1./((1+cc)*curv**2)) if cc > -1 else radius
-    pts = (2*rnd_data-1.)*maxradius    
+    pts = (2*rnd_data-1.)*maxradius
     x = pts[0]
     y = pts[1]
-    shape = Conic(lc, curv=curv, cc=cc)    
-    z = shape.getSag(x, y)    
+    shape = Conic(lc1, curv=curv, cc=cc)
+    z = shape.getSag(x, y)
     # comparison with explicitly entered formula
     assert np.allclose(z,
                        (curv*(x**2+y**2)/
                         (1.+np.sqrt(1.-(1.+cc)*curv**2*(x**2+y**2)))))
 
-@given(rnd_data=arrays(np.float, (2,10), elements=floats(0,1)))
+@given(rnd_data=arrays(np.float, (2, 10), elements=floats(0, 1)))
 def test_asphere_sag(rnd_data):
     """
     Computation of asphere saq equals explicit calculation.
     """
-    lc = LocalCoordinates(name="root")    
+    lc1 = LocalCoordinates(name="root")
     radius = 10.0
     cc = -1.5
     curv = 1./radius
@@ -63,13 +63,13 @@ def test_asphere_sag(rnd_data):
     a4 = -1e-6
     a6 = 1e-8
     maxradius = math.sqrt(1./((1+cc)*curv**2)) if cc > -1 else radius
-    pts = (2*rnd_data-1.)*maxradius    
+    pts = (2*rnd_data-1.)*maxradius
     x = pts[0]
     y = pts[1]
-    shape = Asphere(lc, curv=curv, cc=cc, acoeffs=[a2, a4, a6])    
+    shape = Asphere(lc1, curv=curv, cc=cc, acoeffs=[a2, a4, a6])
     z = shape.getSag(x, y)
     # comparison with explicitly entered formula
     comparison = (curv*(x**2+y**2)/
-                  (1.+ np.sqrt(1.-(1.+cc)*curv**2*(x**2+y**2)))+ 
+                  (1.+ np.sqrt(1.-(1.+cc)*curv**2*(x**2+y**2)))+
                   a2*(x**2+y**2)+a4*(x**2+y**2)**2+a6*(x**2+y**2)**3)
     assert np.allclose(z, comparison)
