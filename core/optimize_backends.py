@@ -85,6 +85,9 @@ class Newton1DBackend(Backend):
 
         
             x0 = xfinal
+            
+            #print("iteration %d merit value: %f" % (i, self.func(x0)))            
+            
             while np.all(retries):
                 
                 retrycount += 1
@@ -103,9 +106,6 @@ class Newton1DBackend(Backend):
                 xfinal = varvalue2
                 merit2 = self.func(varvalue2)
 
-                print(n, m, varvalue0, varvalue1, varvalue2)
-
-                
                 guard = 0                
                 while merit2 > merit0 and np.all(np.abs(varvalue2 - varvalue0)) > dx and guard < 1000:
                     varvalue2 = 0.5*(varvalue2 + varvalue0)

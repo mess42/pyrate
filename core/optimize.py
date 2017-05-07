@@ -255,18 +255,28 @@ class Optimizer(object):
     parameters is possible.
     '''
     def __init__(self, classwithoptvariables, meritfunction, backend, updatefunction=None):
+
+        def noupdate(cl):
+            pass
+        
         super(Optimizer, self).__init__()
         self.classwithoptvariables = classwithoptvariables
         self.meritfunction = meritfunction # function to minimize
+        if updatefunction is None:
+            updatefunction = noupdate
         self.updatefunction = updatefunction # function to be called to update classwithoptvariables
-        self.backend = backend # eats vector performs optimization, returns vector
+        self.setBackend(backend) # eats vector performs optimization, returns vector
         # scipy Nelder-Mead, scipy ..., evolutionary, genetic, ...        
-        
-        self.backend.init(self.MeritFunctionWrapper)        
-        
+       
         self.meritparameters = {}
         self.updateparameters = {}
         self.log = "" # for logging
+
+    def setBackend(self, backend):
+        self.__backend = backend
+        self.__backend.init(self.MeritFunctionWrapper)
+
+    backend = property(fget=None, fset=setBackend)
 
     def MeritFunctionWrapper(self, x):
         """
@@ -289,116 +299,10 @@ class Optimizer(object):
         x0 = self.classwithoptvariables.getActiveValues()
         self.log += "initial x: " + str(x0) + '\n'
         self.log += "initial merit: " + str(self.MeritFunctionWrapper(x0)) + "\n"
-        xfinal = self.backend.run(x0)
+        xfinal = self.__backend.run(x0)
         self.log += "final x: " + str(xfinal) + '\n'
         self.log += "final merit: " + str(self.MeritFunctionWrapper(xfinal)) + "\n"
         self.classwithoptvariables.setActiveValues(xfinal)
         # TODO: do not change original classwithoptvariables
         return self.classwithoptvariables
 
-# TODO: move into tests section
-
-if __name__ == "__main__":
-    class ExampleSubClass(ClassWithOptimizableVariables):
-        def __init__(self):
-            self.a = 10.
-
-    class ExampleSuperClass(ClassWithOptimizableVariables):
-        def __init__(self):
-            super(ExampleSuperClass, self).__init__()
-            self.b = 20.
-            self.c = ClassWithOptimizableVariables()
-            self.c.addVariable("blubberbla", OptimizableVariable("Variable", value=5.0))
-            self.addVariable("blubberdieblub", OptimizableVariable("Variable", value=10.0))
-
-
-    class ExampleOS(ClassWithOptimizableVariables):
-        def __init__(self):
-            super(ExampleOS, self).__init__()
-            self.addVariable("X", OptimizableVariable("Fixed", value=3.0))
-            self.addVariable("Y", OptimizableVariable("Variable", value=20.0))
-            self.addVariable("Z",
-                         OptimizableVariable("Pickup",
-                                             function=lambda x, y: x**2 + y**2,
-                                             args=(self.dict_variables["X"], self.dict_variables["Y"])))
-
-
-    def testmerit(s):
-        return (s.dict_variables["X"].evaluate()**2 \
-            + s.dict_variables["Y"].evaluate()**2 - 5.**2)**2#\
-            #+ s.dict_variables["Z"].evaluate()**2
-
-
-    def f(p, q):
-        return p + q
-
-    p = OptimizableVariable("Variable", value="glass1")
-    q = OptimizableVariable("Variable", value="glass2")
-    r = OptimizableVariable("Pickup", function=f, args=(p, q))
-    s = OptimizableVariable("External", function=f, args=(1.0, 6.0))
-    print("print p variable")
-    print p
-    print p.__dict__
-    print p.evaluate()
-    print("print q variable")
-    print q
-    print q.__dict__
-    print q.evaluate()
-    print("print r variable")
-    print r
-    print r.__dict__
-    print r.evaluate()
-    print("print s variable")
-    print s
-    print s.__dict__
-    print s.evaluate()
-    p.setvalue("glass5") # TODO: assignment operator overloading
-    q.setvalue("glass6") # TODO: should behave different for Variable or Solve
-    print r.evaluate()
-    r.parameters["function"] = lambda x, y: x*3 + y*4
-    print r.evaluate()
-
-    cl = ClassWithOptimizableVariables()
-    cl.addVariable("var1", p)
-    cl.addVariable("var2", q)
-    cl.addVariable("var3", r)
-    print cl.__dict__
-    print cl.getAllVariables()
-    print cl.getAllValues()
-    lst = cl.getActiveVariables()
-    print lst[0].evaluate()
-    lst[0].setvalue("blublub")
-    print cl.getAllValues()
-    print cl.getActiveValues()
-
-    cl2 = ExampleSuperClass()
-    print cl2.__dict__
-    print cl2.getAllVariables()
-    print cl2.getAllValues()
-
-    os = ExampleOS()
-    print os.dict_variables["X"]
-    print os.dict_variables["Y"]
-    
-    def optnonupdate(s):
-        pass
-
-    optimi = Optimizer(os, testmerit, backend=ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}), updatefunction=optnonupdate)
-    optimi.run()
-    print os.dict_variables["X"]
-    print os.dict_variables["Y"]
-    print os.dict_variables["Z"].evaluate()
-    
-    print("NEW IT FUNCTION1")
-    print([v.evaluate() for v in os.getAllVariables()])
-    print("NEW IT FUNCTION2")
-    print([v.evaluate() for v in cl.getAllVariables()])
-    print("NEW IT FUNCTION3")
-    print([v.evaluate() for v in cl2.getAllVariables()])
-
-    print(os.name)
-
-    print(os.dict_variables.items())
-
-    print(os("X"))
-    print(os("Blah"))
