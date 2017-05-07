@@ -81,7 +81,19 @@ class MaxwellMaterial(Material):
         :return epsilon (3x3xN numpy array of complex)
         """
         raise NotImplementedError()
+      
+    def calcPoytingVector(self, k, Efield, wave=standard_wavelength):
+        # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
+    
+        (num_dim, num_pts) = np.shape(k)
         
+        S = np.zeros((num_dim, num_pts), dtype=float)
+        S = np.real(
+            np.einsum("i...,i...", np.conj(Efield), Efield)*np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2) 
+            - np.einsum("i...,i...", k, Efield)*k)
+        return S
+    
+    
     def calcKfromUnitVector(self, x, e, wave=standard_wavelength):
         """
         Calculate k from dispersion and real unit vector 
@@ -329,6 +341,11 @@ class MaxwellMaterial(Material):
         
         return (k0*eigenvals, eigenvectors)
         
+    def getLocalSurfaceNormal(self, surface, xglob):
+        xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
+        nlocshape = surface.shape.getNormal(xlocshape[0], xlocshape[1])
+        nlocmat = self.lc.returnOtherToActualDirections(nlocshape, surface.shape.lc)
+        return nlocmat
 
         
 
@@ -389,13 +406,6 @@ class IsotropicMaterial(MaxwellMaterial):
         xi = np.sqrt(square)
         
         return (xi, valid)
-
-
-    def getLocalSurfaceNormal(self, surface, xglob):
-        xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
-        nlocshape = surface.shape.getNormal(xlocshape[0], xlocshape[1])
-        nlocmat = self.lc.returnOtherToActualDirections(nlocshape, surface.shape.lc)
-        return nlocmat
 
 
     def refract(self, raybundle, actualSurface):
