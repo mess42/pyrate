@@ -117,3 +117,96 @@ class Newton1DBackend(Backend):
                 
         return xfinal
         
+class ParticleSwarmBackend(Backend):
+    
+    # TODO: box restriktionen pro dimension
+    
+    def run(self, x0):
+
+        class particle:
+            
+            def __init__(self, x0, v0):
+                self.x = x0
+                self.v = v0
+                self.pb = x0
+        
+        initcube = self.options.get("cube", np.vstack((-np.ones(np.shape(x0)), np.ones(np.shape(x0)))))
+        cubedelta = initcube[1] - initcube[0]
+        num_particles = self.options.get("num_particles", 10)
+        max_velocities = self.options.get("max_velocities", 0.1*np.ones(np.shape(x0)))
+        tol = self.options.get("tol", 1e-3)
+        max_iters = self.options.get("iterations", 100)
+        
+        particle_list = [
+            particle(x0 + initcube[0] + np.random.random(np.shape(x0))*cubedelta,
+                     max_velocities*(1. - 2.*np.random.random(np.shape(x0)))) for i in range(num_particles)]        
+
+        termination = False
+        
+        def bestglobalpos():
+            result = np.copy(particle_list[0].x)
+            for p in particle_list:
+                if self.func(p.x) < self.func(result):
+                    result = np.copy(p.x)
+            return result
+            
+       
+        c1 = self.options.get("c1", 2.0)
+        c2 = self.options.get("c2", 2.0)        
+        
+        iters = 0        
+        
+        result = np.zeros(np.shape(x0))
+        
+        
+        while not termination and iters < max_iters:
+            iters += 1
+            pg = bestglobalpos()
+
+            phi = c1 + c2
+            chi =  2./np.abs(2. - phi - np.sqrt(phi**2 - 4.*phi))   
+
+
+            particle_com = np.zeros(np.shape(x0))
+
+            
+            for p in particle_list:
+                if self.func(p.x) < self.func(p.pb):
+                    p.pb = p.x
+                    
+                r1 = np.random.random()
+                r2 = np.random.random()
+                
+                
+                p.v = chi*(p.v + c1*r1*(p.pb - p.x) + c2*r2*(pg - p.x))
+                p.x = p.x + p.v
+           
+                particle_com += p.x/num_particles
+
+            particle_rms = 0
+            for p in particle_list:
+                particle_rms += np.sum((p.x - particle_com)**2)/num_particles
+            
+            particle_rms = np.sqrt(particle_rms)
+            
+            termination = particle_rms < tol
+            
+            result = pg
+        
+        return result
+        
+            
+
+        
+if __name__=="__main__":
+
+    def fun(x):
+        return ((x[0] - 1)**2 + (x[1] - 2)**2 - 25)**2
+    
+    p = ParticleSwarmBackend(cube=np.array([[-10, -10], [10, 10]]), c1=2.1, c2=2.1)
+    p.func = fun
+    
+    
+    xfinal = p.run(np.array([20, 20]))
+    
+    print(xfinal)
