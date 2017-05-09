@@ -119,7 +119,12 @@ class Newton1DBackend(Backend):
         
 class ParticleSwarmBackend(Backend):
     
-    # TODO: box restriktionen pro dimension
+    # TODO: box restrictions per dimension
+    # use t: (-oo, oo) -> (pL, pU): x -> pL + (pU - pL)/(1 + exp(-x/|pU - pL|))
+    # inverse: d: (pL, pU) -> (-oo, oo): p -> log((-p + p_L)/(p - p_U))*Abs(p_L - p_U)
+    # FIXME: maybe this could be generalized to OptimizableVariable, type restricted
+    # the idea is to transform restricted variables to unrestricted before evaluation 
+    # in optimization backend to only use unrestricted variables there
     
     def run(self, x0):
 
