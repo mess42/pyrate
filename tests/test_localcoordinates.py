@@ -29,161 +29,182 @@ from hypothesis.extra.numpy import arrays
 import numpy as np
 from core.localcoordinates import LocalCoordinates
 
-@given(param=integers())
-def test_quickcheck(param):
+# pylint: disable=no-value-for-parameter
+@given(parameter=integers())
+def test_quickcheck(parameter):
     """Quickcheck stub using hypothesis framework."""
-    assert param == param
+    assert parameter == parameter
 
-@given(rnd_x=floats(0, 1), rnd_y=floats(0, 1), rnd_z=floats(0, 1),
-       rnd_tx=floats(0, 1), rnd_ty=floats(0, 1), rnd_tz=floats(0, 1),
-       xloc=arrays(np.float, (3, 10), elements=floats(0, 1)))
-def test_transform_points(rnd_x, rnd_y, rnd_z, rnd_tx, rnd_ty, rnd_tz, xloc):
+# pylint: disable=no-value-for-parameter
+@given(float1=floats(0, 1), float2=floats(0, 1), float3=floats(0, 1),
+       float4=floats(0, 1), float5=floats(0, 1), float6=floats(0, 1),
+       array1=arrays(np.float, (3, 10), elements=floats(0, 1)),
+       array2=arrays(np.float, (3, 10), elements=floats(0, 1)),
+       array3=arrays(np.float, (3, 3, 10), elements=floats(0, 1)),
+       array4=arrays(np.float, (3, 3, 10), elements=floats(0, 1)))
+def test_localcoordinates(float1, float2, float3, float4, float5, float6,
+                          array1, array2, array3, array4):
+    """
+    Tests for local coordinate systems.
+    """
+    transform_points(float1, float2, float3, float4, float5, float6, array1)
+    transform_directions(float1, float2, float3, float4, float5, float6,
+                         array1)
+    transform_tensors(float1, float2, float3, float4, float5, float6, array3)
+    inverse_coordinate(float1, float2, float3, float4, float5, float6)
+    directions_scalarproduct(float1, float2, float3, float4, float5, float6,
+                             array1, array2)
+    tensors_scalarproduct(float1, float2, float3, float4, float5, float6,
+                          array1, array2, array3, array4)
+
+def transform_points(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
+                     local_points):
     """
     Sequential local/global and back transformation yields original point.
     """
-    lc1 = LocalCoordinates(name="1",
-                           decx=100.*(2.*rnd_x-1.),
-                           decy=100.*(2.*rnd_y-1.),
-                           decz=100.*(2.*rnd_z-1.),
-                           tiltx=2.*math.pi*rnd_tx,
-                           tilty=2.*math.pi*rnd_ty,
-                           tiltz=2.*math.pi*rnd_tz)
-    xglob = lc1.returnLocalToGlobalPoints(xloc)
-    xloc2 = lc1.returnGlobalToLocalPoints(xglob)
-    assert np.allclose(xloc2-xloc, 0)
+    coordinate_system = LocalCoordinates(name="1",
+                                         decx=100.*(2.*dec_x-1.),
+                                         decy=100.*(2.*dec_y-1.),
+                                         decz=100.*(2.*dec_z-1.),
+                                         tiltx=2.*math.pi*tilt_x,
+                                         tilty=2.*math.pi*tilt_y,
+                                         tiltz=2.*math.pi*tilt_z)
+    global_points = coordinate_system.returnLocalToGlobalPoints(local_points)
+    local_points2 = coordinate_system.returnGlobalToLocalPoints(global_points)
+    assert np.allclose(local_points2-local_points, 0)
 
-@given(rnd_x=floats(0, 1), rnd_y=floats(0, 1), rnd_z=floats(0, 1),
-       rnd_tx=floats(0, 1), rnd_ty=floats(0, 1), rnd_tz=floats(0, 1),
-       vloc=arrays(np.float, (3, 10), elements=floats(0, 1)))
-def test_transform_directions(rnd_x, rnd_y, rnd_z, rnd_tx, rnd_ty, rnd_tz,
-                              vloc):
+def transform_directions(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
+                         local_directions):
     """
     Sequential local/global and back transformation yields original vector.
     """
-    lc1 = LocalCoordinates(name="1",
-                           decx=100.*(2.*rnd_x-1.),
-                           decy=100.*(2.*rnd_y-1.),
-                           decz=100.*(2.*rnd_z-1.),
-                           tiltx=2.*math.pi*rnd_tx,
-                           tilty=2.*math.pi*rnd_ty,
-                           tiltz=2.*math.pi*rnd_tz)
-    vglob = lc1.returnLocalToGlobalDirections(vloc)
-    vloc2 = lc1.returnGlobalToLocalDirections(vglob)
-    assert np.allclose(vloc2-vloc, 0)
+    system = LocalCoordinates(name="1",
+                              decx=100.*(2.*dec_x-1.),
+                              decy=100.*(2.*dec_y-1.),
+                              decz=100.*(2.*dec_z-1.),
+                              tiltx=2.*math.pi*tilt_x,
+                              tilty=2.*math.pi*tilt_y,
+                              tiltz=2.*math.pi*tilt_z)
+    global_directions = system.returnLocalToGlobalDirections(local_directions)
+    local_directions2 = system.returnGlobalToLocalDirections(global_directions)
+    assert np.allclose(local_directions2-local_directions, 0)
 
-@given(rnd_x=floats(0, 1), rnd_y=floats(0, 1), rnd_z=floats(0, 1),
-       rnd_tx=floats(0, 1), rnd_ty=floats(0, 1), rnd_tz=floats(0, 1),
-       tloc=arrays(np.float, (3, 3, 10), elements=floats(0, 1)))
-def test_transform_tensors(rnd_x, rnd_y, rnd_z, rnd_tx, rnd_ty, rnd_tz, tloc):
+def transform_tensors(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
+                      local_tensor):
     """
     Sequential local/global and back transformation yields original tensor.
     """
-    lc1 = LocalCoordinates(name="1",
-                           decx=100.*(2.*rnd_x-1.),
-                           decy=100.*(2.*rnd_y-1.),
-                           decz=100.*(2.*rnd_z-1.),
-                           tiltx=2.*math.pi*rnd_tx,
-                           tilty=2.*math.pi*rnd_ty,
-                           tiltz=2.*math.pi*rnd_tz)
-    tglob = lc1.returnLocalToGlobalTensors(tloc)
-    tloc2 = lc1.returnGlobalToLocalTensors(tglob)
-    assert np.allclose(tloc2-tloc, 0)
+    system = LocalCoordinates(name="1",
+                              decx=100.*(2.*dec_x-1.),
+                              decy=100.*(2.*dec_y-1.),
+                              decz=100.*(2.*dec_z-1.),
+                              tiltx=2.*math.pi*tilt_x,
+                              tilty=2.*math.pi*tilt_y,
+                              tiltz=2.*math.pi*tilt_z)
+    global_tensor = system.returnLocalToGlobalTensors(local_tensor)
+    local_tensor2 = system.returnGlobalToLocalTensors(global_tensor)
+    assert np.allclose(local_tensor2-local_tensor, 0)
 
-@given(rnd_x=floats(0, 1), rnd_y=floats(0, 1), rnd_z=floats(0, 1),
-       rnd_tx=floats(0, 1), rnd_ty=floats(0, 1), rnd_tz=floats(0, 1),
-       v1loc=arrays(np.float, (3, 10), elements=floats(0, 1)),
-       v2loc=arrays(np.float, (3, 10), elements=floats(0, 1)))
-def test_directions_scalarproduct(rnd_x, rnd_y, rnd_z, rnd_tx, rnd_ty, rnd_tz,
-                                  v1loc, v2loc):
+def directions_scalarproduct(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
+                             local1, local2):
     """
     Two vectors have same scalar product in two different coordinate systems.
     """
-    lc1 = LocalCoordinates(name="1",
-                           decx=100.*(2.*rnd_x-1.),
-                           decy=100.*(2.*rnd_y-1.),
-                           decz=100.*(2.*rnd_z-1.),
-                           tiltx=2.*math.pi*rnd_tx,
-                           tilty=2.*math.pi*rnd_ty,
-                           tiltz=2.*math.pi*rnd_tz)
-    v1glob = lc1.returnLocalToGlobalDirections(v1loc)
-    v2glob = lc1.returnLocalToGlobalDirections(v2loc)
-    scalarprodv1v2loc = np.einsum('i...,i...', v1loc, v2loc)
-    scalarprodv1v2glob = np.einsum('i...,i...', v1glob, v2glob)
-    assert np.allclose(scalarprodv1v2loc-scalarprodv1v2glob, 0)
+    system = LocalCoordinates(name="1",
+                              decx=100.*(2.*dec_x-1.),
+                              decy=100.*(2.*dec_y-1.),
+                              decz=100.*(2.*dec_z-1.),
+                              tiltx=2.*math.pi*tilt_x,
+                              tilty=2.*math.pi*tilt_y,
+                              tiltz=2.*math.pi*tilt_z)
+    global1 = system.returnLocalToGlobalDirections(local1)
+    global2 = system.returnLocalToGlobalDirections(local2)
+    scalarproduct_local = np.einsum('i...,i...', local1, local2)
+    scalarproduct_global = np.einsum('i...,i...', global1, global2)
+    assert np.allclose(scalarproduct_local-scalarproduct_global, 0)
 
-@given(rnd_x=floats(0, 1), rnd_y=floats(0, 1), rnd_z=floats(0, 1),
-       rnd_tx=floats(0, 1), rnd_ty=floats(0, 1), rnd_tz=floats(0, 1),
-       v1loc=arrays(np.float, (3, 10), elements=floats(0, 1)),
-       v2loc=arrays(np.float, (3, 10), elements=floats(0, 1)),
-       t1loc=arrays(np.float, (3, 3, 10), elements=floats(0, 1)),
-       t2loc=arrays(np.float, (3, 3, 10), elements=floats(0, 1)))
-def test_tensors_scalarproduct(rnd_x, rnd_y, rnd_z, rnd_tx, rnd_ty, rnd_tz,
-                               v1loc, v2loc, t1loc, t2loc):
+def tensors_scalarproduct(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
+                          directions1, directions2, tensor1, tensor2):
     """
     Vectors/tensors have same contractions in different coordinate systems.
     """
-    lc1 = LocalCoordinates(name="1",
-                           decx=100.*(2.*rnd_x-1.),
-                           decy=100.*(2.*rnd_y-1.),
-                           decz=100.*(2.*rnd_z-1.),
-                           tiltx=2.*math.pi*rnd_tx,
-                           tilty=2.*math.pi*rnd_ty,
-                           tiltz=2.*math.pi*rnd_tz)
-    v1glob = lc1.returnLocalToGlobalDirections(v1loc)
-    v2glob = lc1.returnLocalToGlobalDirections(v2loc)
-    t1glob = lc1.returnLocalToGlobalTensors(t1loc)
-    t2glob = lc1.returnLocalToGlobalTensors(t2loc)
+    system = LocalCoordinates(name="1",
+                              decx=100.*(2.*dec_x-1.),
+                              decy=100.*(2.*dec_y-1.),
+                              decz=100.*(2.*dec_z-1.),
+                              tiltx=2.*math.pi*tilt_x,
+                              tilty=2.*math.pi*tilt_y,
+                              tiltz=2.*math.pi*tilt_z)
+    global_directions1 = system.returnLocalToGlobalDirections(directions1)
+    global_directions2 = system.returnLocalToGlobalDirections(directions2)
+    global_tensor1 = system.returnLocalToGlobalTensors(tensor1)
+    global_tensor2 = system.returnLocalToGlobalTensors(tensor2)
+
     # check whether a transformation between coordinate
     # systems changes indeed the components
     # assert np.any(t1glob - t1loc != 0) FIXME: currently breaks
     # assert np.any(t2glob - t2loc != 0) FIXME: currently breaks
     # assert np.any(v1glob - v1loc != 0) FIXME: currently breaks
     # assert np.any(v2glob - v2loc != 0) FIXME: currently breaks
-    # test trace of tensor
-    aaa0 = (np.trace(t1glob, axis1=0, axis2=1)-
-            np.trace(t1loc, axis1=0, axis2=1))
-    assert np.allclose(aaa0, 0)
-    # test t1 t2 tensor contraction
-    aaa1 = (np.einsum('ij...,ij...', t1glob, t2glob)-
-            np.einsum('ij...,ij...', t1loc, t2loc))
-    assert np.allclose(aaa1, 0)
-    # test v1 t1 v2
-    aaa2 = (np.einsum('i...,ij...,j...', v1glob, t1glob, v2glob)-
-            np.einsum('i...,ij...,j...', v1loc, t1loc, v2loc))
-    assert np.allclose(aaa2, 0)
-    # test v1 t1 t2 v2
-    aaa3 = (np.einsum('i...,ij...,jk...,k...', v1glob, t1glob, t2glob, v2glob)-
-            np.einsum('i...,ij...,jk...,k...', v1loc, t1loc, t2loc, v2loc))
-    assert np.allclose(aaa3, 0)
 
-@given(rnd_x=floats(0, 1), rnd_y=floats(0, 1), rnd_z=floats(0, 1),
-       rnd_tx=floats(0, 1), rnd_ty=floats(0, 1), rnd_tz=floats(0, 1))
-def test_inverse_coordinate(rnd_x, rnd_y, rnd_z, rnd_tx, rnd_ty, rnd_tz):
+    # test trace of tensor
+    assert np.allclose((np.trace(global_tensor1, axis1=0, axis2=1)-
+                        np.trace(tensor1, axis1=0, axis2=1)),
+                       0)
+    # test t1 t2 tensor contraction
+    assert np.allclose((np.einsum('ij...,ij...',
+                                  global_tensor1, global_tensor2)-
+                        np.einsum('ij...,ij...', tensor1, tensor2)),
+                       0)
+    # test v1 t1 v2
+    assert np.allclose((np.einsum('i...,ij...,j...',
+                                  global_directions1,
+                                  global_tensor1,
+                                  global_directions2)-
+                        np.einsum('i...,ij...,j...',
+                                  directions1,
+                                  tensor1,
+                                  directions2)),
+                       0)
+    # test v1 t1 t2 v2
+    assert np.allclose((np.einsum('i...,ij...,jk...,k...',
+                                  global_directions1,
+                                  global_tensor1,
+                                  global_tensor2,
+                                  global_directions2)-
+                        np.einsum('i...,ij...,jk...,k...',
+                                  directions1,
+                                  tensor1,
+                                  tensor2,
+                                  directions2)),
+                       0)
+
+def inverse_coordinate(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z):
     """
-    TODO.
+    TODO
     """
-    decx = 100.*(2.*rnd_x-1.)
-    decy = 100.*(2.*rnd_y-1.)
-    decz = 100.*(2.*rnd_z-1.)
-    tiltx = 2.*math.pi*rnd_tx
-    tilty = 2.*math.pi*rnd_ty
-    tiltz = 2.*math.pi*rnd_tz
-    lc1 = LocalCoordinates(name="1")
-    lc2 = lc1.addChild(LocalCoordinates(name="2"))
-    lc3 = lc2.addChild(LocalCoordinates(name="3",
-                                        decx=decx,
-                                        decy=decy,
-                                        decz=decz,
-                                        tiltx=tiltx,
-                                        tilty=tilty,
-                                        tiltz=tiltz,
-                                        tiltThenDecenter=0))
-    lc4 = lc3.addChild(LocalCoordinates(name="4",
-                                        decx=-decx,
-                                        decy=-decy,
-                                        decz=-decz,
-                                        tiltx=-tiltx,
-                                        tilty=-tilty,
-                                        tiltz=-tiltz,
-                                        tiltThenDecenter=1))
-    assert np.allclose(lc4.globalcoordinates, 0)
+    dec_x = 100.*(2.*dec_x-1.)
+    dec_y = 100.*(2.*dec_y-1.)
+    dec_z = 100.*(2.*dec_z-1.)
+    tilt_x = 2.*math.pi*tilt_x
+    tilt_y = 2.*math.pi*tilt_y
+    tilt_z = 2.*math.pi*tilt_z
+    system1 = LocalCoordinates(name="1")
+    system2 = system1.addChild(LocalCoordinates(name="2"))
+    system3 = system2.addChild(LocalCoordinates(name="3",
+                                                decx=dec_x,
+                                                decy=dec_y,
+                                                decz=dec_z,
+                                                tiltx=tilt_x,
+                                                tilty=tilt_y,
+                                                tiltz=tilt_z,
+                                                tiltThenDecenter=0))
+    system4 = system3.addChild(LocalCoordinates(name="4",
+                                                decx=-dec_x,
+                                                decy=-dec_y,
+                                                decz=-dec_z,
+                                                tiltx=-tilt_x,
+                                                tilty=-tilt_y,
+                                                tiltz=-tilt_z,
+                                                tiltThenDecenter=1))
+    assert np.allclose(system4.globalcoordinates, 0)
