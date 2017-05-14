@@ -790,98 +790,51 @@ This allows us to abbreviate the equation system to
 \end{subequations}
 where $\varsigma$ represents the sign of each term.
 $\varsigma_t=1$ for transmitted terms and $\varsigma_r=-1$ for reflected ones.
-We introduce a basis, consisting of the directions of $\Vector{n}$, $\Wavevector_\parallel$, and $\Vector{n} \times \Wavevector_\parallel$.
+We introduce a cartesian basis, 
+consisting of the directions of the normal direction $\Vector{n}$, 
+and two in-plane directions $\Vector{e}_X$ and $\Vector{e}_Y$.
 We decompose both vectorial equation in this basis and obtain
 \begin{subequations}
   \begin{align}
     \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
     0 &= 0 \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n} \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Wavevector_\parallel \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_X \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_Y \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n} \label{eq:fresnelTripleProductSubEq}\\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
-We represent wavevectors as $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$, yielding
+We represent wavevectors as 
+$\Wavevector_{\beta\alpha} = \wavenumber_{X} \Vector{e}_X + \wavenumber_{Y} \Vector{e}_Y + \xi_{\beta\alpha} \Vector{n}$
+and permute the triple product in \eqref{eq:fresnelTripleProductSubEq}, yielding
 \begin{subequations}
   \begin{align}
     \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \label{eq:fresnelFirstTripleProduct}\\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
-    \varsigma_\beta ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})\Vector{n} \label{eq:fresnelSecondTripleProduct}\\
-    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel \\
-    \varsigma_\beta 
-        \left(
-          ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) 
-          (\Vector{n} \times \Wavevector_\parallel) 
-          +
-          \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) 
-          (\Vector{n} \times \Wavevector_\parallel)           
-        \right)
-        E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel) + \xi_{in} (\Vector{n} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_X \label{eq:fresnelXEq}\\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_Y \label{eq:fresnelYEq}\\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_{\parallel} E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_{\parallel} \label{eq:fresnelParallelEq}\\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_Y \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X  + \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_X \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y  + \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
-Permuting the triple products, one sees that \eqref{eq:fresnelFirstTripleProduct} and \eqref{eq:fresnelSecondTripleProduct} are linearly dependent.
-We decide to remove \eqref{eq:fresnelSecondTripleProduct} from our equation system.
-We evaluate
-\begin{eqnarray}
-  ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel)            &=& - (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) \\
-  ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) &=& - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} )
-\end{eqnarray}
-and obtain
+One can see that \eqref{eq:fresnelParallelEq} is a linear combination of \eqref{eq:fresnelXEq} and \eqref{eq:fresnelYEq},
+so we remove this redundant equation.
+Our coordinate system is cartesian, so we employ $\Vector{e}_X \times \Vector{e}_Y = \Vector{n}$ and get rid of the cross products
 \begin{subequations}
   \begin{align}
     \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\ 
-    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} ( \Efield_{in} \times \Vector{n} )\Wavevector_\parallel \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) E_{\beta\alpha,0} &= \Efield_{in} \Wavevector_\parallel \\
-    \varsigma_\beta 
-        \left(
-          - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} ) 
-          + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Wavevector_\parallel)           
-        \right)
-        E_{\beta\alpha,0} &= - (\Wavevector_\parallel \Wavevector_\parallel) (\Efield_{in}\Vector{n} ) + \xi_{in} (\Efield_{in} \Wavevector_\parallel)
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left(-\wavenumber_X ( \Vector{e}_{\beta\alpha} \Vector{n} )  + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
 
-\remark{I don't see which equations are still dependent, so it is allowed to go from 5 to 4 equations.}
 
 
 
-If one rearranges the cross products in \eqref{eq:fresnelkE} the other way around and decomposes the $\Wavevector_\alpha$ into in-plane and off-plane components this
-equation could be split up into a scalar part and an in-plane part which could be combined with \eqref{eq:fresnelEcrossn}
-To decompose all equations into the appropriate components, 
-the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), 
-$\Wavevector_\parallel$ (which is conserved) 
-and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$. 
-Therefore we perform the following steps:
-\begin{enumerate}
- \item Decomposition of the last two equations into appropriate inplane components
- \item Rearrangement of all equations into two off-plane equations and two in-plane equations
-\end{enumerate}
-First of all we decompose the wavevector in the last equation
-\begin{align}
-  \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} = -\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel - \xi_{\beta\alpha} \Vector{e}_{\beta\alpha} \times \Vector{n}
-\end{align}
-From this we get the second off-plane equation by scalar product multiplying with $\Vector{n}$:
-\begin{align}
- \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
-\end{align}
-Now we multiply both last equations by $\xi_{in} \Wavevector_\parallel$ and $\Wavevector_\parallel$ respectively and decompose $\Wavevector_{in} = \Wavevector_\parallel + \xi_{in} \Vector{n}$,
-\begin{align}
-  \varsigma_\beta \xi_{in}(\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Efield_{in} \times \Vector{n})\Wavevector_\parallel \\
-  \varsigma_\beta ( -\xi_{\beta\alpha} (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel) E_{\beta\alpha,0} &=  \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel
-\end{align}
-Adding them both up leads to
-\begin{align}
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,.
-\end{align}
-Same argument is valid for $(\Vector{n}\times\Wavevector_\parallel)$ component and therefore leads to
-\begin{align}
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0\,.
-\end{align}
-Therefore the final matrix equations are given by
+
 \begin{subequations}
 \label{eq:fresnelfinal}
 \begin{align}
