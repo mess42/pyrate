@@ -43,7 +43,8 @@ from core.localcoordinates import LocalCoordinates
 
 from core.globalconstants import canonical_ey
 
-import core.optimize
+from core.optimize import Optimizer
+from core.optimize_backends import ScipyBackend
 
 import math
 
@@ -102,12 +103,6 @@ initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 #initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=121)
 
-def osnone(s):
-    pass
-
-def osupdate(s):
-    pass
-
 def meritfunctionrms(s):
     initialbundle_local = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
     rpath = s.seqtrace(initialbundle_local, sysseq)
@@ -127,9 +122,9 @@ backsurf.shape.dict_variables["cc"].changetype("variable")
 backsurf.shape.dict_variables["A4"].changetype("variable")
 backsurf.shape.dict_variables["A6"].changetype("variable")
 
-
-optimi = core.optimize.Optimizer(s, meritfunctionrms, osupdate)
-s = optimi.optimizeSciPyNelderMead()
+opt_backend = ScipyBackend(method='Nelder-Mead', tol=1e-9)
+optimi = Optimizer(s, meritfunctionrms, opt_backend)
+s = optimi.run()
 
 r2 = s.seqtrace(initialbundle, sysseq)
 

@@ -81,7 +81,19 @@ class MaxwellMaterial(Material):
         :return epsilon (3x3xN numpy array of complex)
         """
         raise NotImplementedError()
+      
+    def calcPoytingVector(self, k, Efield, wave=standard_wavelength):
+        # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
+    
+        (num_dim, num_pts) = np.shape(k)
         
+        S = np.zeros((num_dim, num_pts), dtype=float)
+        S = np.real(
+            np.einsum("i...,i...", np.conj(Efield), Efield)*np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2) 
+            - np.einsum("i...,i...", k, Efield)*k)
+        return S
+    
+    
     def calcKfromUnitVector(self, x, e, wave=standard_wavelength):
         """
         Calculate k from dispersion and real unit vector 
@@ -121,30 +133,11 @@ class MaxwellMaterial(Material):
         
         return kvectors
         
-    def calcXiEigenvectors(self, x, n, kpa_norm):
-        """
-        Calculate eigenvalues and 
-        eigenvectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
-        (in terms of dimensionless k-components)
-        
-        :param x (3xN numpy array of float) 
-                points where to evaluate eps tensor in local material coordinates
-        :param n (3xN numpy array of float) 
-                normal of surface in local coordinates
-        :param kpa (3xN numpy array of float) 
-                incoming wave vector inplane component in local coordinates
-        
-        :return (xi, eigenvectors): xi (6xN numpy array of complex);
-                eigenvectors (6x3x3xN numpy array of complex)
-                
-        """
+    def calcXiQEVMatricesNorm(self, x, n, kpa_norm):
 
         (num_dims, num_pts) = np.shape(kpa_norm)
         eps = self.getEpsilonTensor(x)
 
-        eigenvectors = np.zeros((6, 3, num_pts), dtype=complex)
-        # xi number, eigv 3xN
-        
         # quadratic eigenvalue problem (xi^2 M + xi C + K) e = 0
         # build up 6x6 matrices for generalized linear ev problem
         # (xi [[M, 0], [0, 1]] + [[C, K], [-1, 0]])*[[xi X], [X]] = 0
@@ -155,13 +148,7 @@ class MaxwellMaterial(Material):
         # Therefore it is not invertible and therefore the generalized
         # linear EVP has two infinite solutions. There are only 4 finite
         # complex solutions.
-        
-        # TODO: consistency checks
-        # a) det(generalized eigenvalue problem) = 0
-        # b) det(quadratic eigenvalue problem) = 0
-        # c) (quadratic eigenvalue problem) ev = 0
-        # d) calcXidet(eigenvalues) = 0
-        # e) eigenvalue_analytical = eigenvalues_numerical
+ 
         
         IdMatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
         ZeroMatrix = np.zeros((3, 3, num_pts), dtype=complex)        
@@ -185,30 +172,61 @@ class MaxwellMaterial(Material):
                      np.hstack((ZeroMatrix, IdMatrix)))
                 )
         
-        xiarray = self.calcXiNormZeros(x, n, kpa_norm)
+        return ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix))
+
+
+        
+    def calcXiEigenvectorsNorm(self, x, n, kpa_norm):
+        """
+        Calculate eigenvalues and 
+        eigenvectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
+        (in terms of dimensionless k-components)
+        
+        :param x (3xN numpy array of float) 
+                points where to evaluate eps tensor in local material coordinates
+        :param n (3xN numpy array of float) 
+                normal of surface in local coordinates
+        :param kpa (3xN numpy array of float) 
+                incoming wave vector inplane component in local coordinates
+        
+        :return (xi, eigenvectors): xi (4xN numpy array of complex);
+                eigenvectors (4x3xN numpy array of complex)
+                
+        """
+
+        (num_dims, num_pts) = np.shape(kpa_norm)
+
+        eigenvectors = np.zeros((4, 3, num_pts), dtype=complex)
+        eigenvalues = np.zeros((4, num_pts), dtype=complex)
+        # xi number, eigv 3xN
+        
+        ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) \
+            = self.calcXiQEVMatricesNorm(x, n, kpa_norm)
+
         for j in range(num_pts):
             (w, vr) = sla.eig(Amatrix6x6[:, :, j], b=Bmatrix6x6[:, :, j])
 
-            for k in range(6):
-                evr = vr[:, k].reshape(6, 1)
-                print(np.dot(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j], evr[3:]))
-                print(np.linalg.det(Mmatrix[:, :, j]*w[k]**2 + Cmatrix[:, :, j]*w[k] + Kmatrix[:, :, j]))            
-                print(np.linalg.det(Amatrix6x6[:, :, j] - Bmatrix6x6[:, :, j]*w[k]))            
-                            
-            
-            print(np.array_str(w))
-            #print(np.array_str(Amatrix6x6[:, :, j], precision=2, suppress_small=True))
-            #print(np.array_str(Bmatrix6x6[:, :, j], precision=2, suppress_small=True))
-            print(self.calcXiDet(w[3], x, n, kpa_norm))            
-            print(np.linalg.det(Mmatrix[:, :, j]*xiarray[0, j]**2 + Cmatrix[:, :, j]*xiarray[0, j] + Kmatrix[:, :, j]))            
-        
-        print(xiarray)
-            
+            # first remove infinite parts
+            # then sort w for abs value
+            # then remove the largest values until len(w) = 4
 
-        return eigenvectors
+            wfinite = np.isfinite(w)
+            w = w[wfinite]
+            vr = vr[:, wfinite]
+
+            if len(w) > 4:
+                to_remove = len(w) - 4
+                sorted_indices = np.abs(w).argsort()
+                w = w[sorted_indices][:-to_remove]
+                vr = vr[:, sorted_indices][:, :-to_remove]
+
+            eigenvalues[:, j] = np.copy(w)
+            eigenvectors[:, :, j] = (vr.T)[:, 3:]
+
+        return (eigenvalues, eigenvectors)
         
         
-    def calcXiPolynomial(self, x, n, kpa):
+    def calcXiPolynomialNorm(self, x, n, kpa_norm):
         """
         calc Xi polynomial for normalized kpa (=kpa/k0).
         zeros of polynomial are xi/k0. The advantage:
@@ -241,14 +259,14 @@ class MaxwellMaterial(Material):
         a1 = np.einsum('ii...', eps)        
         a2 = np.einsum('ij...,ji...', eps, eps)
         a3 = np.einsum('ij...,jk...,ki...', eps, eps, eps)
-        a4 = np.einsum('i...,i...', kpa, kpa)
-        a5 = np.einsum('ij...,i...,j...', eps, kpa, kpa)
-        a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, kpa)
+        a4 = np.einsum('i...,i...', kpa_norm, kpa_norm)
+        a5 = np.einsum('ij...,i...,j...', eps, kpa_norm, kpa_norm)
+        a6 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa_norm, kpa_norm)
         a7 = np.einsum('ij...,i...,j...', eps, n, n)        
-        a8 = np.einsum('ij...,j...,i...', eps, kpa, n)
-        a9 = np.einsum('ij...,i...,j...', eps, kpa, n)
-        a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa, n)
-        a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa, n)
+        a8 = np.einsum('ij...,j...,i...', eps, kpa_norm, n)
+        a9 = np.einsum('ij...,i...,j...', eps, kpa_norm, n)
+        a11 = np.einsum('ij...,jk...,k...,i...', eps, eps, kpa_norm, n)
+        a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa_norm, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
 
         #p4 = a7*omegabar**2
@@ -273,15 +291,15 @@ class MaxwellMaterial(Material):
 
         return (p4, p3, p2, p1, p0)
 
-    def calcXiDet(self, xi_norm, x, n, kpa_norm):
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, n, kpa_norm)
+    def calcXiDetNorm(self, xi_norm, x, n, kpa_norm):
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomialNorm(x, n, kpa_norm)
         
         return p4*xi_norm**4 + p3*xi_norm**3 + p2*xi_norm**2 + p1*xi_norm + p0
 
     def calcXiNormZeros(self, x, n, kpa_norm):
         (num_dims, num_pts) = np.shape(kpa_norm)
 
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomial(x, n, kpa_norm)
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomialNorm(x, n, kpa_norm)
 
         xizeros = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
@@ -310,7 +328,24 @@ class MaxwellMaterial(Material):
         k0 = 2.*math.pi/wave
         kpa_norm = kpa/k0
         
-        return k0*self.calcXiNormZeros(x, kpa_norm, n)
+        return k0*self.calcXiNormZeros(x, n, kpa_norm)
+        
+    def calcXiEigenvectors(self, x, n, kpa, wave=standard_wavelength):
+
+        (num_dims, num_pts) = np.shape(kpa)
+
+        k0 = 2.*math.pi/wave
+        kpa_norm = kpa/k0
+        
+        (eigenvals, eigenvectors) = self.calcXiEigenvectorsNorm(x, n, kpa_norm)
+        
+        return (k0*eigenvals, eigenvectors)
+        
+    def getLocalSurfaceNormal(self, surface, xglob):
+        xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
+        nlocshape = surface.shape.getNormal(xlocshape[0], xlocshape[1])
+        nlocmat = self.lc.returnOtherToActualDirections(nlocshape, surface.shape.lc)
+        return nlocmat
 
         
 
@@ -371,13 +406,6 @@ class IsotropicMaterial(MaxwellMaterial):
         xi = np.sqrt(square)
         
         return (xi, valid)
-
-
-    def getLocalSurfaceNormal(self, surface, xglob):
-        xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
-        nlocshape = surface.shape.getNormal(xlocshape[0], xlocshape[1])
-        nlocmat = self.lc.returnOtherToActualDirections(nlocshape, surface.shape.lc)
-        return nlocmat
 
 
     def refract(self, raybundle, actualSurface):

@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-from scipy.optimize import minimize
 import uuid
 
 class OptimizableVariable(object):
@@ -218,34 +217,6 @@ class ClassWithOptimizableVariables(object):
         return lst
 
 
-    def getAllVariablesOld(self):
-        """
-        Conversion of dict into list of Variables. These are only references to the objects in dict.
-        Therefore all changes to them directly affects the dictionary in the class.
-        """
-        # if there are sub classes which are inherited from ClassWith... append their getAllVariables()
-        # since these are also containing references to the objects in their respective dicts there should
-        # not be any problem that there are copies created
-
-        lst_of_vars = self.dict_variables.values()
-        lst_of_attributes_which_are_class_with_opt_vars = \
-            filter(lambda x: isinstance(x, ClassWithOptimizableVariables), \
-                self.__dict__.values())
-
-        #id vergleich!
-
-        for list_vars in \
-            filter(lambda x: isinstance(x, list) or isinstance(x, tuple), \
-                self.__dict__.values()):
-            for a in list_vars:
-                if isinstance(a, ClassWithOptimizableVariables):
-                    lst_of_vars.extend(a.getAllVariables())
-
-        for a in lst_of_attributes_which_are_class_with_opt_vars:
-            lst_of_vars.extend(a.getAllVariables())
-
-        return lst_of_vars
-
     def getAllValues(self):
         """
         For fast evaluation of value vector
@@ -259,14 +230,6 @@ class ClassWithOptimizableVariables(object):
         original dictionary in the class
         """
         return [x for x in self.getAllVariables() if x.var_type == "variable"]
-        #return filter(lambda x: x.var_type == "variable", self.getAllVariables())
-
-    def getActiveVariablesIsWriteable(self):
-        """
-        Returns a np.array of bools which is True for a variable and False for a pickup or external,
-        since they cannot be modified. The length of this vector is the same as for getActiveVariables()
-        """
-        return self.getActiveVariables()
 
 
     def getActiveValues(self):
@@ -282,19 +245,8 @@ class ClassWithOptimizableVariables(object):
         for i, var in enumerate(self.getActiveVariables()):
             var.setvalue(x[i])
 
-    def getActiveVariableValues(self):
-        """
-        Function to get all values from active variables into one large np.array.
-        """
-        return self.getActiveValues()
 
-    def setActiveVariableValues(self, x):
-        """
-        Function to set all values of active variables to the values in the large np.array x.
-        """
-        for i, var in enumerate(self.getActiveVariablesIsWriteable()):
-            var.setvalue(x[i])
-
+        
 
 class Optimizer(object):
     '''
@@ -302,173 +254,55 @@ class Optimizer(object):
     attachment of other meritfunctions or other update functions with other
     parameters is possible.
     '''
-    def __init__(self, classwithoptvariables, meritfunction, updatefunction, meritparameters={}, updateparameters={}):
+    def __init__(self, classwithoptvariables, meritfunction, backend, updatefunction=None):
+
+        def noupdate(cl):
+            pass
+        
         super(Optimizer, self).__init__()
         self.classwithoptvariables = classwithoptvariables
-        self.meritfunction = meritfunction
-        self.updatefunction = updatefunction
-        self.meritparameters = meritparameters
-        self.updateparameters = updateparameters
+        self.meritfunction = meritfunction # function to minimize
+        if updatefunction is None:
+            updatefunction = noupdate
+        self.updatefunction = updatefunction # function to be called to update classwithoptvariables
+        self.setBackend(backend) # eats vector performs optimization, returns vector
+        # scipy Nelder-Mead, scipy ..., evolutionary, genetic, ...        
+       
+        self.meritparameters = {}
+        self.updateparameters = {}
         self.log = "" # for logging
 
-    def MeritFunctionWrapperScipy(self, x): #, s, meritfunction, func):
+    def setBackend(self, backend):
+        self.__backend = backend
+        self.__backend.init(self.MeritFunctionWrapper)
+
+    backend = property(fget=None, fset=setBackend)
+
+    def MeritFunctionWrapper(self, x):
         """
-        Merit function wrapper for scipy optimize. Notice that x and length of active values must have the same size
+        Merit function wrapper for backend. 
+        Notice that x and length of active values must have the same size
     
         :param x (np.array): active variable values
-        :param s (ClassWithOptimizableVariables): system to be optimized
         :param meritfunction (function): meritfunction depending on s
     
         :return value of the merit function
         """
-        self.classwithoptvariables.setActiveVariableValues(x)
+        self.classwithoptvariables.setActiveValues(x)
         self.updatefunction(self.classwithoptvariables, **self.updateparameters)    
         return self.meritfunction(self.classwithoptvariables, **self.meritparameters)
 
-    def optimizeSciPyInterface(self, **kwargs):
-        """
-        Optimization function: Scipy.optimize wrapper
-        """
-        print(kwargs)
-        opts = {}
-        steps = kwargs.get("steps", 0.0)
-        if steps > 0:
-            opts["maxiter"] = steps
-        tol = kwargs.get("tol", 0.)            
-        
-        
-        x0 = self.classwithoptvariables.getActiveVariableValues()
-        print(x0) # TODO: rewrite to log
-        res = minimize(self.MeritFunctionWrapperScipy, x0, args=(), method=kwargs["method"], tol=tol, options=opts)
-        print res # TODO: rewrite to log
-        self.classwithoptvariables.setActiveVariableValues(res.x)
-        return self.classwithoptvariables
-
-    def optimizeSciPyNelderMead(self, **kwargs):
-        """
-        Optimization function: direct access to Nelder-Mead algorithm in Scipy.
-        """
-                
-        return self.optimizeSciPyInterface(method="Nelder-Mead", **kwargs)
-
-    def run(self, optimizer="optimizeSciPyNelderMead", steps=0, **kwargs):
+    def run(self):
         '''
         Funtion to perform a certain number of optimization steps.
         '''
-        eval("self." + optimizer)(steps=steps, **kwargs)
+        x0 = self.classwithoptvariables.getActiveValues()
+        self.log += "initial x: " + str(x0) + '\n'
+        self.log += "initial merit: " + str(self.MeritFunctionWrapper(x0)) + "\n"
+        xfinal = self.__backend.run(x0)
+        self.log += "final x: " + str(xfinal) + '\n'
+        self.log += "final merit: " + str(self.MeritFunctionWrapper(xfinal)) + "\n"
+        self.classwithoptvariables.setActiveValues(xfinal)
+        # TODO: do not change original classwithoptvariables
+        return self.classwithoptvariables
 
-
-
-def optimizeNewton1D(s, meritfunction, dx, iterations=1):
-    """
-    Optimization function: Newton1D
-    """
-    pass
-
-
-if __name__ == "__main__":
-    class ExampleSubClass(ClassWithOptimizableVariables):
-        def __init__(self):
-            self.a = 10.
-
-    class ExampleSuperClass(ClassWithOptimizableVariables):
-        def __init__(self):
-            super(ExampleSuperClass, self).__init__()
-            self.b = 20.
-            self.c = ClassWithOptimizableVariables()
-            self.c.addVariable("blubberbla", OptimizableVariable("Variable", value=5.0))
-            self.addVariable("blubberdieblub", OptimizableVariable("Variable", value=10.0))
-
-
-    class ExampleOS(ClassWithOptimizableVariables):
-        def __init__(self):
-            super(ExampleOS, self).__init__()
-            self.addVariable("X", OptimizableVariable("Fixed", value=3.0))
-            self.addVariable("Y", OptimizableVariable("Variable", value=20.0))
-            self.addVariable("Z",
-                         OptimizableVariable("Pickup",
-                                             function=lambda x, y: x**2 + y**2,
-                                             args=(self.dict_variables["X"], self.dict_variables["Y"])))
-
-
-    def testmerit(s):
-        return (s.dict_variables["X"].evaluate()**2 \
-            + s.dict_variables["Y"].evaluate()**2 - 5.**2)**2#\
-            #+ s.dict_variables["Z"].evaluate()**2
-
-
-    def f(p, q):
-        return p + q
-
-    p = OptimizableVariable("Variable", value="glass1")
-    q = OptimizableVariable("Variable", value="glass2")
-    r = OptimizableVariable("Pickup", function=f, args=(p, q))
-    s = OptimizableVariable("External", function=f, args=(1.0, 6.0))
-    print("print p variable")
-    print p
-    print p.__dict__
-    print p.evaluate()
-    print("print q variable")
-    print q
-    print q.__dict__
-    print q.evaluate()
-    print("print r variable")
-    print r
-    print r.__dict__
-    print r.evaluate()
-    print("print s variable")
-    print s
-    print s.__dict__
-    print s.evaluate()
-    p.setvalue("glass5") # TODO: assignment operator overloading
-    q.setvalue("glass6") # TODO: should behave different for Variable or Solve
-    print r.evaluate()
-    r.parameters["function"] = lambda x, y: x*3 + y*4
-    print r.evaluate()
-
-    cl = ClassWithOptimizableVariables()
-    cl.addVariable("var1", p)
-    cl.addVariable("var2", q)
-    cl.addVariable("var3", r)
-    print cl.__dict__
-    print cl.getAllVariables()
-    print cl.getAllValues()
-    lst = cl.getActiveVariables()
-    print lst[0].evaluate()
-    lst[0].setvalue("blublub")
-    print cl.getAllValues()
-    print cl.getActiveValues()
-
-    cl2 = ExampleSuperClass()
-    print cl2.__dict__
-    print cl2.getAllVariables()
-    print cl2.getAllValues()
-
-    os = ExampleOS()
-    print os.dict_variables["X"]
-    print os.dict_variables["Y"]
-    
-    def optnonupdate(s):
-        pass
-
-    optimi = Optimizer(os, testmerit, optnonupdate)
-    optimi.optimizeSciPyNelderMead()
-    #optimi.run("optimizeSciPyNelderMead", steps=1)
-    #optimizeSciPyNelderMead(os, testmerit, function=optnonupdate)
-    print os.dict_variables["X"]
-    print os.dict_variables["Y"]
-    print os.dict_variables["Z"].evaluate()
-    
-    print("NEW IT FUNCTION1")
-    print([v.evaluate() for v in os.getAllVariables()])
-    print("NEW IT FUNCTION2")
-    print([v.evaluate() for v in cl.getAllVariables()])
-    print("NEW IT FUNCTION3")
-    print([v.evaluate() for v in cl2.getAllVariables()])
-
-    print(os.name)
-
-    print(os.dict_variables.items())
-
-    print(os("X"))
-    print(os("Blah"))

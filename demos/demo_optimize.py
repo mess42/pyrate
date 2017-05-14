@@ -31,7 +31,8 @@ import math
 
 from core import material
 from core import surfShape
-from core import optimize
+from core.optimize import Optimizer
+from core.optimize_backends import ScipyBackend, Newton1DBackend
 from core.ray import RayBundle
 
 from core.aperture import CircularAperture, BaseAperture
@@ -239,9 +240,14 @@ def meritfunctionrms(s):
     print(res)
     return res
 
-
-optimi = optimize.Optimizer(s, meritfunctionrms, osupdate)
-s = optimi.optimizeSciPyNelderMead()
+opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
+#opt_backend = Newton1DBackend(dx=1e-6, iterations=100)
+optimi = Optimizer(s, \
+                    meritfunctionrms, \
+                    backend=opt_backend, \
+                    updatefunction=osupdate)
+s = optimi.run()
+print(optimi.log)
 
 r2 = s.seqtrace(initialbundle, sysseq) # trace again
 print("drawing!")
