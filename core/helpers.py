@@ -27,7 +27,7 @@ Here are global convenience and helper functions located.
 import math
 import numpy as np
 
-import optical_system
+from optical_system import OpticalSystem
 import localcoordinates
 from optical_element import OpticalElement
 from surface import Surface
@@ -35,6 +35,7 @@ from surfShape import Conic
 from globalconstants import numerical_tolerance, canonical_ey, canonical_ex, standard_wavelength
 from ray import RayBundle
 from material import ConstantIndexGlass
+from helpers_math import rodrigues, random_rotation_matrix
 
 def build_simple_optical_system(builduplist, matdict):
 
@@ -44,7 +45,7 @@ def build_simple_optical_system(builduplist, matdict):
     via a material dict {"matname": ConstantIndexGlass(1.5), ...}
     """
     
-    s = optical_systen.OpticalSystem() 
+    s = OpticalSystem() 
     
     
     lc0 = s.addLocalCoordinateSystem(localcoordinates.LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
@@ -92,49 +93,6 @@ def build_simple_optical_system(builduplist, matdict):
 # <Re k, S> > 0 and <Im k, S> > 0
 
 
-def rodrigues(angle, a):
-    ''' 
-    returns numpy matrix from Rodrigues formula.
-    
-    @param: (float) angle in radians
-    @param: (numpy (3x1)) axis of rotation (unit vector)
-    
-    @return: (numpy (3x3)) matrix of rotation
-    '''
-    mat = np.array(\
-        [[    0, -a[2],  a[1]],\
-         [ a[2],     0, -a[0]],\
-         [-a[1],  a[0],    0]]\
-         )
-    return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
-
-
-def random_unitary_matrix(n):
-    rnd = np.random.randn(n*n).reshape((n, n)) + complex(0, 1)*np.random.randn(n*n).reshape((n, n))
-    (q, r) = np.linalg.qr(rnd)
-    return q
-    
-def random_unitary_matrix_sample(n, m):
-    rnd = np.random.randn(n*n).reshape((n, n, m)) + complex(0, 1)*np.random.randn(n*n).reshape((n, n, m))
-    q = np.zeros_like(rnd, dtype=complex)
-    for j in range(m):
-        (ql, r) = np.linalg.qr(rnd[:, :, j])
-        q[:, :, j]= ql
-    return q
-    
-    
-def random_rotation_matrix(n):
-    rnd = np.random.randn(n*n).reshape((n, n))
-    (q, r) = np.linalg.qr(rnd)
-    return q
-
-def random_rotation_matrix_sample(n, m):
-    rnd = np.random.randn(n*n).reshape((n, n, m))
-    q = np.zeros_like(rnd)
-    for j in range(m):
-        (ql, r) = np.linalg.qr(rnd[:, :, j])
-        q[:, :, j]= ql
-    return q
 
     
 def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
@@ -223,6 +181,9 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     
     dkix = np.cross(canonical_ey, (-2*ki + complex(0, 1)*kr)[:, 0])[:, np.newaxis]
     dkiy = np.cross((-2*ki + complex(0, 1)*kr)[:, 0], canonical_ex)[:, np.newaxis]    
+    
+    print("det derivative")
+    print(mat.calcDetDerivativePropagatorNorm(krotx))
     
     if np.linalg.norm(ki) < 1e-8: # pure real kvector_base
         pass

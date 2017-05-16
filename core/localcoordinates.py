@@ -30,7 +30,7 @@ import math
 import random
 import uuid
 
-import helpers
+from helpers_math import rodrigues
 
 from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
@@ -145,9 +145,9 @@ class LocalCoordinates(ClassWithOptimizableVariables):
     
     def calculateMatrixFromTilt(self, tiltx, tilty, tiltz, tiltThenDecenter=0):
         if tiltThenDecenter == 0:
-            res = np.dot(helpers.rodrigues(tiltz, [0, 0, 1]), np.dot(helpers.rodrigues(tilty, [0, 1, 0]), helpers.rodrigues(tiltx, [1, 0, 0])))
+            res = np.dot(rodrigues(tiltz, [0, 0, 1]), np.dot(rodrigues(tilty, [0, 1, 0]), rodrigues(tiltx, [1, 0, 0])))
         else:
-            res = np.dot(helpers.rodrigues(tiltx, [1, 0, 0]), np.dot(helpers.rodrigues(tilty, [0, 1, 0]), helpers.rodrigues(tiltz, [0, 0, 1])))
+            res = np.dot(rodrigues(tiltx, [1, 0, 0]), np.dot(rodrigues(tilty, [0, 1, 0]), rodrigues(tiltz, [0, 0, 1])))
         return res
         
     def FactorMatrixXYZ(self, mat):
