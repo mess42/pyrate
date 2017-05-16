@@ -30,6 +30,8 @@ import math
 import random
 import uuid
 
+import helpers
+
 from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
 class LocalCoordinates(ClassWithOptimizableVariables):
@@ -140,27 +142,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         return childlc
     
 
-    def rodrigues(self, angle, a):
-        ''' 
-        returns numpy matrix from Rodrigues formula.
-        
-        @param: (float) angle in radians
-        @param: (numpy (3x1)) axis of rotation (unit vector)
-        
-        @return: (numpy (3x3)) matrix of rotation
-        '''
-        mat = np.array(\
-            [[    0, -a[2],  a[1]],\
-             [ a[2],     0, -a[0]],\
-             [-a[1],  a[0],    0]]\
-             )
-        return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
     
     def calculateMatrixFromTilt(self, tiltx, tilty, tiltz, tiltThenDecenter=0):
         if tiltThenDecenter == 0:
-            res = np.dot(self.rodrigues(tiltz, [0, 0, 1]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltx, [1, 0, 0])))
+            res = np.dot(helpers.rodrigues(tiltz, [0, 0, 1]), np.dot(helpers.rodrigues(tilty, [0, 1, 0]), helpers.rodrigues(tiltx, [1, 0, 0])))
         else:
-            res = np.dot(self.rodrigues(tiltx, [1, 0, 0]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltz, [0, 0, 1])))
+            res = np.dot(helpers.rodrigues(tiltx, [1, 0, 0]), np.dot(helpers.rodrigues(tilty, [0, 1, 0]), helpers.rodrigues(tiltz, [0, 0, 1])))
         return res
         
     def FactorMatrixXYZ(self, mat):

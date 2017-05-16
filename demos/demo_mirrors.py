@@ -132,7 +132,7 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
 
-pilotbundle2 = core.helpers.build_pilotbundle(lc0, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
+pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
 (pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
 
@@ -200,7 +200,7 @@ phi = 0. #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-print("drawing!")
+#print("drawing!")
 r2.draw2d(ax, color="blue", plane_normal=pn, up=up)
 r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
 #r4.draw2d(ax, color="pink", plane_normal=pn, up=up)

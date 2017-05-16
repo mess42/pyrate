@@ -27,12 +27,12 @@ Here are global convenience and helper functions located.
 import math
 import numpy as np
 
-from optical_system import OpticalSystem
-from localcoordinates import LocalCoordinates
+import optical_system
+import localcoordinates
 from optical_element import OpticalElement
 from surface import Surface
 from surfShape import Conic
-from globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
+from globalconstants import numerical_tolerance, canonical_ey, canonical_ex, standard_wavelength
 from ray import RayBundle
 from material import ConstantIndexGlass
 
@@ -44,10 +44,10 @@ def build_simple_optical_system(builduplist, matdict):
     via a material dict {"matname": ConstantIndexGlass(1.5), ...}
     """
     
-    s = OpticalSystem() 
+    s = optical_systen.OpticalSystem() 
     
     
-    lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+    lc0 = s.addLocalCoordinateSystem(localcoordinates.LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
     elem = OpticalElement(lc0, label="stdelem")
     
@@ -62,7 +62,7 @@ def build_simple_optical_system(builduplist, matdict):
     surflist_for_sequence = []
     for (r, cc, thickness, mat, comment) in builduplist:
         
-        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=comment, decz=thickness), refname=refname)
+        lc = s.addLocalCoordinateSystem(localcoordinates.LocalCoordinates(name=comment, decz=thickness), refname=refname)
         curv = 0
         if abs(r) > numerical_tolerance:
             curv = 1./r
@@ -91,10 +91,55 @@ def build_simple_optical_system(builduplist, matdict):
 # give pilot a polarization lives in k coordinate system
 # <Re k, S> > 0 and <Im k, S> > 0
 
+
+def rodrigues(angle, a):
+    ''' 
+    returns numpy matrix from Rodrigues formula.
     
-def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
+    @param: (float) angle in radians
+    @param: (numpy (3x1)) axis of rotation (unit vector)
+    
+    @return: (numpy (3x3)) matrix of rotation
+    '''
+    mat = np.array(\
+        [[    0, -a[2],  a[1]],\
+         [ a[2],     0, -a[0]],\
+         [-a[1],  a[0],    0]]\
+         )
+    return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
+
+
+def random_unitary_matrix(n):
+    rnd = np.random.randn(n*n).reshape((n, n)) + complex(0, 1)*np.random.randn(n*n).reshape((n, n))
+    (q, r) = np.linalg.qr(rnd)
+    return q
+    
+def random_unitary_matrix_sample(n, m):
+    rnd = np.random.randn(n*n).reshape((n, n, m)) + complex(0, 1)*np.random.randn(n*n).reshape((n, n, m))
+    q = np.zeros_like(rnd, dtype=complex)
+    for j in range(m):
+        (ql, r) = np.linalg.qr(rnd[:, :, j])
+        q[:, :, j]= ql
+    return q
+    
+    
+def random_rotation_matrix(n):
+    rnd = np.random.randn(n*n).reshape((n, n))
+    (q, r) = np.linalg.qr(rnd)
+    return q
+
+def random_rotation_matrix_sample(n, m):
+    rnd = np.random.randn(n*n).reshape((n, n, m))
+    q = np.zeros_like(rnd)
+    for j in range(m):
+        (ql, r) = np.linalg.qr(rnd[:, :, j])
+        q[:, :, j]= ql
+    return q
 
     
+def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
+
+    lcobj = surfobj.rootcoordinatesystem
 
     if lck is None:
         lck = lcobj
@@ -103,6 +148,9 @@ def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvecto
         kunitvector = np.array([0, 0, 1])
     if kup is None:
         kup = np.array([0, 1, 0])
+   
+    kright = np.cross(kup, kunitvector)
+    
     if Elock is None:
         # standard polarization is in x in lck
         Elock = np.array([1, 0, 0])
@@ -129,7 +177,70 @@ def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvecto
     xlocmat = mat.lc.returnOtherToActualPoints(xlocx, lcobj)
     kunitmat = mat.lc.returnOtherToActualDirections(kunitvector, lck)
     
-    kvectorsmat = mat.calcKfromUnitVector(xlocmat[:, 0][:, np.newaxis], kunitmat)
+    kvectorsmat = mat.calcKNormfromUnitVector(xlocmat[:, 0][:, np.newaxis], kunitmat)
+    print(kvectorsmat)
+    print(Elock)
+
+    get_kvector = np.ones((4,), dtype=bool)
+    for i in range(4):
+        Svectorsmat = mat.calcPoytingVectorNorm(kvectorsmat[i], Elock[:, 0, np.newaxis])    
+        scalarproduct = np.einsum("i...,i...", Svectorsmat, kvectorsmat[i])[0]
+        get_kvector[i] = np.real(scalarproduct) > 0 and np.imag(scalarproduct) >= 0
+    print(kvectorsmat)
+
+    kvector_base = kvectorsmat[get_kvector][0][:]
+    unitaryrandom = random_rotation_matrix(3)    
+    print(np.dot(np.conj(unitaryrandom).T, unitaryrandom))    
+    
+    kvector_base_turned = np.dot(unitaryrandom, kvector_base)
+    print(kvector_base)
+    print(kvector_base_turned)
+        
+    print("det: ", mat.calcDetPropagatorNorm(kvector_base))
+    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned))
+    print("det: ", mat.calcDetPropagatorNorm(complex(0, 1)*kvector_base_turned))
+
+    # unitary transformations are changing the determinant result,
+    # while standard SO(n) rotations are not (to be tested!)
+    # to get an invariant square of k (i.e. rotated with SO(n))
+    # kr^2 - ki^2 = const and scalar(kr, ki) = const
+    # what about ki = 0 like for k ~ e_z?
+    # falls ki vorher nicht da war und dann auftaucht: kr einkuerzen
+
+    kr = np.real(kvector_base)
+    ki = np.imag(kvector_base)
+    
+    krotx = np.dot(rodrigues(phix, [1, 0, 0]), kvector_base)
+    kroty = np.dot(rodrigues(phix, [0, 1, 0]), kvector_base)    
+
+    print("kr")
+    print(kr)
+    print("ki")
+    print(ki)
+    
+    print("orthogonal vector")
+    print((-2*ki + complex(0, 1)*kr)[:, 0])    
+    
+    dkix = np.cross(canonical_ey, (-2*ki + complex(0, 1)*kr)[:, 0])[:, np.newaxis]
+    dkiy = np.cross((-2*ki + complex(0, 1)*kr)[:, 0], canonical_ex)[:, np.newaxis]    
+    
+    if np.linalg.norm(ki) < 1e-8: # pure real kvector_base
+        pass
+    
+    print("krotx")
+    print(krotx)
+    print("kroty")
+    print(kroty)
+    print("dkix")
+    print(dkix)
+    print("dkiy")
+    print(dkiy)
+    
+    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned + dkix))
+    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned + dkiy))
+    print("det: ", mat.calcDetPropagatorNorm(krotx))
+    print("det: ", mat.calcDetPropagatorNorm(kroty))
+    
     
     dklock = np.array([[kwave, 0, complex(0, kwave), 0],
                        [0, kwave, 0, complex(0, kwave)],
