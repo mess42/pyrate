@@ -831,6 +831,40 @@ Our coordinate system is cartesian, so we employ $\Vector{e}_X \times \Vector{e}
   \end{align}
 \end{subequations}
 
+\subsection{Fresnel (to do part)}
+
+The Fresnel section is not complete yet.
+What is left to do:
+\begin{itemize}
+ \item Proove that out of these 5 equations, at most 4 are independent.
+       In this case, the system is not overdetermined and there are mathematical solutions.
+       The fact that refraction and reflection occurs in reality is a strong indication for the existence of solutions.
+       Before proving, it could be necessary to find a relation between $\permittivity_\beta \Vector{e}_{\beta\alpha}$ and $\xi_{\beta\alpha}$.
+ \item Proove that the remaining 4 equations are linearly independent.
+       This means the solution is unique.
+       In reality, a unique solution is established, measureable with a powermeter.
+ \item Derive the special case of isotropic materials and compare to textbook Fresnel coefficients (plausibility check). 
+ \item fullSimplify() the system of 4 equations -- after all proofs are done.
+ \item Find a description of the system that is well conditioned.
+       Special cases like normal and close-to-normal incidence should be covered in a numerically stable and precise manner.
+       Grazing incidence does not have to be stable, other parts of the code are also not.
+       To achieve this, linear combinations of the remaining 4 formulas are to be found.
+ \item fun fact: for isotropic materials and normal incidence, 
+       the first equation about the normal component of $\Dfield$
+       reduces to $0=0$. Maybe this equation is a candidate to kick out of the system of 4 equations.
+ \item Calculate the energy distribution between the modes.
+ \item Show that the solution obeys energy conservation (plausibility check). 
+ \item Consider what to do if an isotropic material interfaces another material.
+       In an isotropic material, both modes $\alpha$ have a generate wavevector $\Wavevector_{\beta\alpha}$,
+       and thus linear combinations of both eigen-polarisations $\Vector{e}_{\beta\alpha}$ are also valid solutions.
+       One can choose the polarisation $\Vector{e}_{\beta 1}$ in a way that the amplitude of the other mode vanishes.
+       Or we use the general routine with any polarisation eigenvectors and sum up the field vectors afterwards.
+       This way, we do not have to split up the ray into two modes $\alpha$
+       and conserve the full information in a single ray.
+       Classcial raytracing only uses isotropic materials, 
+       and the increase in number of rays with the current model is exponential, 
+       so a clever solution for isotropic-anisotropic and isotropic-isotropic interfaces would help to increase speed.
+\end{itemize}
 
 
 
