@@ -435,6 +435,27 @@ k_0^2
 &+ (\permittivity_{rel\,\ell j} + \permittivity_{rel\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
 \big]
 \end{align}
+\remark{the rel index makes the formulas unnecessary complicated to read. I would prefer some initial comment on this and then only talk about $\permittivity$}
+For an expansion around some vector which fulfills the dispersion relation
+\begin{align}
+  D(\Vector{k} + \Delta \Vector{k}) &= D(\Vector{k}) + \frac{\partial D}{\partial k_j}(\Vector{k}) \Delta k_j + \frac{1}{2} \frac{\partial^2 D}{\partial k_i \partial k_j}(\Vector{k}) \Delta k_i \Delta k_j\,,
+\end{align}
+it may also be useful to know the second derivative since the first term may already vanish:
+\begin{align}
+ \frac{\partial^2 D}{\partial k_i \partial k_j} &= 
+k_0^4 \biggl[
+  \permittivity_{\ell i} \permittivity_{j \ell} 
++ \permittivity_{\ell j} \permittivity_{i \ell}
+- (\permittivity_{ij} + \permittivity_{ji}) (\text{tr}\permittivity)
+\biggr] \nonumber\\ 
+&+ k_0^2 \biggl[
+  (\permittivity_{ij} + \permittivity_{ji})\Wavevector^2
++ 2 \delta_{ij} \beta
++ 2 k_\ell ((\permittivity_{\ell i}  + \permittivity_{i \ell}) k_j + (\permittivity_{\ell j} + \permittivity_{j \ell}) k_i)
+\biggr]\,.
+\end{align}
+As you can see this matrix is fully symmetric how it is expected from mixed vector derivatives.
+
 
 \subsection{Uniaxial anisotropic, homogeneous media}
 Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
