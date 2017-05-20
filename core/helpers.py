@@ -184,7 +184,20 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     
     print("det derivative")
     print(mat.calcDetDerivativePropagatorNorm(krotx))
+    print("det 2nd derivative")
+    der2nd = mat.calcDet2ndDerivativePropagatorNorm(krotx)
+    print(der2nd) # matrix somehow wrong oriented (is Nx3x3 insteadt of 3x3xN)
+    print(np.shape(der2nd))
+    (ev, evec) = np.linalg.eig(der2nd[0, :, :])
+    print(ev)
+    print(evec)        
+
+    dkix = 1e-3*evec[1, :, np.newaxis]
+    dkiy = 1e-3*evec[2, :, np.newaxis]
     
+    # absolute value of dkix, dkiy?
+    
+        
     if np.linalg.norm(ki) < 1e-8: # pure real kvector_base
         pass
     

@@ -393,6 +393,41 @@ class MaxwellMaterial(Material):
     def calcDetDerivativePropagatorNorm(self, k_norm):
         return self.calcDetDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm)
 
+    def calcDet2ndDerivativePropagatorNormX(self, x, k_norm):
+        eps = self.getEpsilonTensor(x)        
+        (num_dims, num_dims, num_pts) = np.shape(eps)        
+        
+        tre = np.einsum('ii...', eps)
+        k2 = np.einsum('i...,i...', k_norm, k_norm)
+        beta = np.einsum('ij...,i...,j...', eps, k_norm, k_norm)
+        
+        first = np.einsum("li...,jl...", eps, eps)
+        second = np.einsum("lj...,il...", eps, eps)
+        third = -np.einsum("ij...,ll...", eps, eps)
+        fourth = -np.einsum("ji...,ll...", eps, eps)
+
+        k04part = first + second + third + fourth
+
+        fifth = np.einsum("ij..., l..., l...", eps, k_norm, k_norm)
+        sixth = np.einsum("ji..., l..., l...", eps, k_norm, k_norm)
+
+        delta_mat = np.repeat(np.eye(num_dims)[:, :, np.newaxis], num_pts, axis=2).T
+
+        seventh = 2*delta_mat*beta
+        
+        eigth = 2*np.einsum("li...,l...,j...", eps, k_norm, k_norm)
+        nineth = 2*np.einsum("il...,l...,j...", eps, k_norm, k_norm)
+        tenth = 2*np.einsum("lj...,l...,i...", eps, k_norm, k_norm)
+        eleventh = 2*np.einsum("jl...,l...,i...", eps, k_norm, k_norm)
+
+        k02part = fifth + sixth + seventh + eigth + nineth + tenth + eleventh
+
+        res = k02part + k04part
+
+        return res        
+
+    def calcDet2ndDerivativePropagatorNorm(self, k_norm):
+        return self.calcDet2ndDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm)
         
     def getLocalSurfaceNormal(self, surface, xglob):
         xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
