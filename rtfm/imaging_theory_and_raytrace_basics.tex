@@ -1663,7 +1663,7 @@ We restrict the locations to the image plane
 \end{eqnarray}
 We desire the modulation depth of the intensity pattern to be independent of position
 \begin{eqnarray}
- (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R}
+ (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
 \end{eqnarray}
 %\begin{eqnarray}
 % \Im (U \Vector{e}_U + V \Vector{e}_V)(X \Vector{e}_X + Y \Vector{e}_Y) &=& 0
@@ -1683,27 +1683,81 @@ Together with the imaging condition, we obtain
 \end{eqnarray}
 Nontrivial solutions are found if the determinant vanishes.
 In case the determeninant is nonzero, 
-we refocus by inserting a homogeneous material propagation (eq. \ref{eq:xyuv_propagation_homogeneous}) in front of the image plane.
+we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} in front of the image plane.
 \begin{eqnarray}
   \begin{vmatrix}
-  B_{11} + \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & 
-  B_{12} + \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & 
-  B_{13} + \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & 
-  B_{14} + \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
-  B_{21} + \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & 
-  B_{22} + \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & 
-  B_{23} + \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & 
-  B_{24} + \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
-  (\Im \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\[2ex]
+  \tilde{B}_{11} & \tilde{B}_{12} & \tilde{B}_{13} & \tilde{B}_{14} \\
+  \tilde{B}_{21} & \tilde{B}_{22} & \tilde{B}_{23} & \tilde{B}_{24} \\
+  (\Im \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\
   (\Im \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
  \end{vmatrix}
- &=& 0 \nonumber \\
+ &=& 0
+\end{eqnarray}
+with
+\begin{eqnarray} 
+ \tilde{B}_{11} &=& B_{11} + 
+                    \left(
+                        \frac{\partial^2 X}{\partial s \partial \Re U} D_{11} 
+                      + \frac{\partial^2 X}{\partial s \partial \Re V} D_{21}
+                      + \frac{\partial^2 X}{\partial s \partial \Im U} D_{31}
+                      + \frac{\partial^2 X}{\partial s \partial \Im V} D_{41}
+                    \right) \Delta s
+ \nonumber \\
 \end{eqnarray}
 The characteristic polynomial is quadratic in $\Delta s$, so we expect two defocus positions where the determinant vanishes.
-The corresponding eigenvector $(U,V)$ forms a ray fan that is imaged to a point in the image plane.
-Wavevectors with deviations orthogonal to the eigenvector, however, are in general not stigmatically imaged.
-We obtain an anastigmatic line focus.
-In case of degenerate solutions $\Delta s$, changes along both eigenvector directions are stigmatically focused. 
+Both defocus values come with a corresponding eigenvector $(U_{eigen},V_{eigen})$.
+Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in the image plane.
+We define $(U_{\perp},V_{\perp})$ as the direction orthogonal to the eigenvector, 
+that also forms a real grating in the object plane, and thus obeys \eqref{eq:xyuvRealGratingConstraint}.
+
+We start a light cone around an arbitrary near-pilot object position
+\begin{eqnarray}
+  \begin{pmatrix}
+    U \\ V
+  \end{pmatrix}
+  &=& a 
+  \begin{pmatrix}
+    U_{eigen} \\ V_{eigen}       
+  \end{pmatrix}
+  + b 
+  \begin{pmatrix}
+     U_{\perp} \\ V_{\perp} 
+  \end{pmatrix}
+\end{eqnarray}
+where $a,b$ are real valued coefficients.
+Only the orthogonal components of $U$ and $V$ contribute to the image position
+\begin{eqnarray}
+ \begin{pmatrix}
+    X_{im} \\ Y_{im}  
+ \end{pmatrix}
+ &=&
+ \hat{\tilde{A}} 
+ \begin{pmatrix}
+   X \\ Y 
+ \end{pmatrix}
+ + b \hat{\tilde{B}} 
+ \begin{pmatrix}
+   U_{\perp} \\V_{\perp} 
+ \end{pmatrix}
+\end{eqnarray}
+
+\paragraph{First case: both $\Delta s$ are degenerate.}
+In this case, both directions that obey \eqref{eq:xyuvRealGratingConstraint} are mapped onto the same point at the same time, so
+\begin{eqnarray}
+ \hat{\tilde{B}} 
+ \begin{pmatrix}
+   U_{\perp} \\V_{\perp} 
+ \end{pmatrix}
+ &=& 0
+\end{eqnarray}
+The light cone is focused to a point in the image plane.
+The classical image condition is fulfilled.
+
+\paragraph{Second case: the $\Delta s$ are unique.}
+The cone originating from the object point is imaged to a line in the image.
+We have an astigmatic line focus.
+
+The line direction is TODO.
 
 
 \chapter{Raytracing}
