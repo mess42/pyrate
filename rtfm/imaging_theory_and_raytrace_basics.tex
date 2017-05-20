@@ -83,14 +83,10 @@
 \newcommand\scalarBfield{B}
 \newcommand\scalarHfield{H}
 \newcommand\scalarDfield{D}
-\newcommand\scalarTipfield{T}
-\newcommand\scalarSamplefield{S}
-\newcommand\scalarDipolarmoment{p}
 \newcommand\Efield{\Vector{\scalarEfield}}
 \newcommand\Bfield{\Vector{\scalarBfield}}
 \newcommand\Hfield{\Vector{\scalarHfield}}
 \newcommand\Dfield{\Vector{\scalarDfield}}
-\newcommand\Dipolarmoment{\Vector{\scalarDipolarmoment}}
 
 \newcommand\permeability{\Tensor{\mu}}
 \newcommand\vacuumpermeability{\mu_{\vacuum}}
@@ -101,12 +97,16 @@
 \newcommand\conductivity{\Tensor{\sigma}}
 \newcommand\susceptibility{\Tensor{\chi}}
 \newcommand\currentdensity{\Vector{j}}
-\newcommand\Current{\Vector{I}}
 \newcommand\chargedensity{\rho}
 \newcommand\PoyntingVector{\Vector{S}}
 
 \newcommand\ordi{\text{ord}}
 \newcommand\eo{\text{eo}}
+
+\newcommand\materialone{I}
+\newcommand\materialtwo{{II}}
+
+\newcommand{\kpa}[1]{{\wavenumber_{\parallel\,#1}}}
 
 \newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
 
@@ -304,7 +304,7 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \end{subequations}
 
 \section{Poynting Vector}\label{sec:Poynting}
-The Poynting vector is the a real density of energy flow. 
+The Poynting vector is the areal density of energy flow. 
 We want the Poynting vector to be real and stay numerically identical to the quantity derived above 
 for the real valued Maxwell equations in equation \ref{eq:definitionOfPoynting}.
 
@@ -392,34 +392,48 @@ More explicit, it reads
 &=& 0 \label{eq:generalDispersionEigenEquation}
 \end{eqnarray}
 Nontrivial solutions can be found if the determinant of $\hat{A}$ is zero.
+We call wavevectors $\Wavevector$ for which the deterimant vanishes a solution of the dispersion relation.
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
 that is, a propagation wavector is only valid for a certain polarisation.
+
+\paragraph{Determining one component of $\Wavevector$.}
+
+The wavevector is a three-dimensional, complex valued quantity.
+In the following sections, however, 
+we often face problems where 2 of the 3 components are already fixed and the third component is to be determined.
+Without loss of generality, we rotate $\permittivity$ 
+to a cartesian system in which $\wavenumber_x$ and $\wavenumber_y$ are the known components and $\wavenumber_z$ is unknown.
+The resulting characteristic polynomial of $\hat{A}$ is a quartic equation in $\wavenumber_z$.
+That is, we expect up to four different solutions for $\wavenumber_z$.
+
+\paragraph{Some algebra for later use.}
 We use the identity
 \begin{align}
  \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
 \end{align}
 We also factor out a permittivity of the vacuum from the permittivity tensor 
-$\permittivity_{ij} \to  \vacuumpermittivity \permittivity_{ij}$ and introduce the ``vacuum wave number''
+$\permittivity_{ij} =  \vacuumpermittivity \permittivity_{rel\,ij}$ and introduce the ``vacuum wave number''
 $k_0 := \frac{2\pi}{\lambda_0} = \frac{\omega}{c} = \omega \sqrt{\vacuumpermeability  \vacuumpermittivity}$.
 and rewrite the determinant
 \begin{align}
  \det \hat{A}(\Vector{k}) 
- &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\permittivity + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
+ &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\permittivity_{rel} + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
 \end{align}
-where $\alpha = (\text{tr}\permittivity)^3 - 3 (\text{tr}\permittivity) \text{tr}(\permittivity^2) + 2 \text{tr}(\permittivity^3)$,
-$\beta = \permittivity_{ij} k_i k_j$, $\gamma = k_i \permittivity_{i\ell} \permittivity_{\ell j} k_j$. For given $\omega$ this is an equation of fourth order
+where $\alpha = (\text{tr}\permittivity_{rel})^3 - 3 (\text{tr}\permittivity_{rel}) \text{tr}(\permittivity_{rel}^2) + 2 \text{tr}(\permittivity_{rel}^3)$,
+$\beta = \permittivity_{rel\,ij} k_i k_j$, $\gamma = k_i \permittivity_{rel\,i\ell} \permittivity_{rel\,\ell j} k_j$. For given $\omega$ this is an equation of fourth order
 for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
 $\Vector{k}$ gives only two terms.
 \begin{align}
  \frac{\partial D}{\partial k_j} &= k_0^2 
-\left[
+\big[
 k_0^2
 \left(
-  \permittivity_{ji} (-(\text{tr}\permittivity) k_i + \permittivity_{i\ell} k_\ell)
-+ \permittivity_{ij} (-(\text{tr}\permittivity) k_i + \permittivity_{\ell i} k_\ell)
-\right)
-+ (\permittivity_{\ell j} + \permittivity_{j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
-\right]
+  \permittivity_{rel\,ji} (-(\text{tr}\permittivity_{rel}) k_i + \permittivity_{rel\,i\ell} k_\ell)
++ \permittivity_{rel\,ij} (-(\text{tr}\permittivity_{rel}) k_i + \permittivity_{rel\,\ell i} k_\ell)
+\right) +
+\nonumber \\
+&+ (\permittivity_{rel\,\ell j} + \permittivity_{rel\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
+\big]
 \end{align}
 
 \subsection{Uniaxial anisotropic, homogeneous media}
@@ -573,17 +587,44 @@ We introduce the refractive index $n$ as
 In general, there are two roots. 
 The choice of the root does not change anything in optics based on the Maxwell equations, as the permittivity is the only physically relevant quantity.
 
+\subsubsection{On so-called negative index materials}
+In literature, often a different behaviour is assigned to positive and negative refractive indices.
+It requires some introduction to explain what is commonly referred to as \emph{negative index material}.
 
+Some people artificially craft mesoscopically structured materials, referred to as meta-materials.
+They simulate or measure the propagation of electromagnetic fields through this material.
+Often, a material-air interface is considered under normal incidence of a plane wave.
+Upon incidence, some light enters the material.
+The propagation through the microscopically inhomogeneous material is approximated with a single plane wave.
+The functional dependence of the plane wave direction on the incident direction is determined in the near-normal limit.
+This dependence is compared to the Snellius law of refraction, with the refractive index as fitting parameter.
+For specially crafted materials, we need negative refractive indices for this empirical fit.
 
+The formulas in this manual cannot be used with negative indices in the sense of the above paragraph, 
+for the following reasons:
+\begin{itemize}
+ \item Assuming two interfacing homogeneous materials, 
+       the Snellius law of refraction between two refractive indices of opposite sign
+       violates the surface boundary conditions.
+       (meta-materials are not homogeneous)
+ \item Meta-materials often have no isotropic refractive index, 
+       but require a tensorial relation between $\Efield$ and $\Dfield$.
+ \item Often, ohmic losses in meta-materials are not considered when fitting a real number on the data.
+ \item Many meta-materials show strong deviation from the assumed law of refraction for incident light not normal to the surface.
+\end{itemize}
+
+The reduction of complex structured materials to a single real number requires great caution in interpretation.
+A safe way to describe meta-materials are Maxwell-exact solvers for electromagnetic fields, 
+as long as a permittivity can be defined for every point in space.
 
 \section{Boundary Conditions}
-Considering two media $\permittivity_1$ and $\permittivity_2$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
+Considering two media $\permittivity_\materialone$ and $\permittivity_\materialtwo$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
 \begin{subequations}
 \begin{eqnarray}
- ( \Dfield_2 - \Dfield_1 ) \Vector{n} &=& 0 \\
- ( \Bfield_2 - \Bfield_1 ) \Vector{n} &=& 0 \\
- \Vector{n} \times ( \Efield_2 - \Efield_1 ) &=& 0 \\
- \Vector{n} \times ( \Hfield_2 - \Hfield_1 ) &=& 0 
+ ( \Dfield_\materialtwo - \Dfield_\materialone ) \Vector{n} &=& 0 \\
+ ( \Bfield_\materialtwo - \Bfield_\materialone ) \Vector{n} &=& 0 \\
+ \Vector{n} \times ( \Efield_\materialtwo - \Efield_\materialone ) &=& 0 \\
+ \Vector{n} \times ( \Hfield_\materialtwo - \Hfield_\materialone ) &=& 0 
 \end{eqnarray}
 \label{eq:boundary_conditions} 
 \end{subequations}
@@ -598,7 +639,7 @@ the boundary conditions hold at each interface between homogeneous materials of 
 \subsection{Derivation}
 We consider a plane wave incident on a planar boundary between two homogeneous materials.
 The incident plane wave projects a grating on the boundary plane. 
-The fields $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permittivity_1$ are modulated with the in-plane component of the wavevector. 
+The fields $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permittivity_\materialone$ are modulated with the in-plane component of the wavevector. 
 \begin{eqnarray}
  \Dfield_{in}, \Efield_{in} &\propto& \exp( i \Wavevector_{in\parallel} \Location)|_{boundary} \\
  \Wavevector_{in\perp} &=& ( \Wavevector_{in} \Vector{n} ) \Vector{n} \\
@@ -627,14 +668,14 @@ In each medium, there are 2 solutions transporting energy towards the boundary,
 and 2 solutions transporting energy from it (see figure \ref{fig:boundary_wavevectors}).
 The modes can be distinguished by analyzing the direction of the Poynting vector relative to the surface normal,
 $\Vector{S}\cdot\Vector{n}>0$ or $\Vector{S}\cdot\Vector{n}<0$.
-In the scenario we consider, we have a single incident plane wave from medium $1$, 
+In the scenario we consider, we have a single incident plane wave from medium $\materialone$, 
 and we discard the 3 remaining solutions transporting energy towards the boundary.
 This leaves 5 modes: One incident plane wave splits up into 2 reflected modes and 2 refracted modes.
-We consider the electric fields $\Efield_{1,2}$ on both sides of the boundary
+We consider the electric fields $\Efield_{\materialone,\materialtwo}$ on both sides of the boundary
 \begin{subequations}
 \begin{eqnarray}
- \Efield_1(\Location) &=& \Efield_{in,0} \exp(i \Wavevector_{in} \Location) + \Efield_{r1,0} \exp(i \Wavevector_{r1} \Location) + \Efield_{r2,0} \exp(i \Wavevector_{r2} \Location)  \\
- \Efield_2(\Location) &=& \Efield_{t1,0} \exp(i \Wavevector_{t1} \Location) + \Efield_{t2,0} \exp(i \Wavevector_{t2} \Location)
+ \Efield_\materialone(\Location) &=& \Efield_{in,0} \exp(i \Wavevector_{in} \Location) + \Efield_{r1,0} \exp(i \Wavevector_{r1} \Location) + \Efield_{r2,0} \exp(i \Wavevector_{r2} \Location)  \\
+ \Efield_\materialtwo(\Location) &=& \Efield_{t1,0} \exp(i \Wavevector_{t1} \Location) + \Efield_{t2,0} \exp(i \Wavevector_{t2} \Location)
 \end{eqnarray}
 \label{eq:modes_on_boundary} 
 \end{subequations}
@@ -643,8 +684,8 @@ Each term on the right hand side stands for a mode, represented by its amplitude
 We consider the incident mode $\Wavevector_{in}$, 
 the two reflected modes $\Wavevector_{r1,2}$,
 and the two refracted or transmitted modes $\Wavevector_{t1,2}$.
-For isotropic media 1, the modes $\Wavevector_{r1,2}$ degenerate. 
-The same holds for $\Wavevector_{t1,2}$ in isotropic media 2.
+For isotropic media $\materialone$, the wavevectors $\Wavevector_{r1,2}$ are degenerate. 
+The same holds for $\Wavevector_{t1,2}$ in isotropic media $\materialtwo$.
 
 \subsection{The Law of Refraction}
 Our formulation of the law of refraction and the law of reflection is
@@ -657,7 +698,7 @@ Compared to the law of Snellius, this formulation bears the following advantages
 \begin{itemize}
  \item It does not require the calculation of angles in 3D space, only scalar products.
  \item The incident wavevector can be modelled as a property of the ray. When calculating the refracted wavevector, 
-       the dispersion relation in material $\permittivity_1$ is not required.
+       the dispersion relation in material $\permittivity_\materialone$ is not required.
        This allows to isolate methods in object-oriented programming and a modular design.
  \item It is not required to implement a different law of refraction for each \emph{pair} of material classes interfacing 
        (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...),
@@ -672,12 +713,12 @@ This calculation can, for certain types of anisotropic materials, be complicated
 
 \subsubsection{isotropic media}
 \begin{align}
- \xi = \sqrt{k_0^2 \epsilon_2 - \Wavevector_{1\,\parallel}^2}
+ \xi = \pm \sqrt{\omega^2 \vacuumpermeability \epsilon_\materialtwo - \Wavevector_{\parallel}^2}
 \end{align}
 
-where $\Wavevector_{1\,\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself.
-It is not the absolute of the wavevector component and may be complex valued for lossy materials.
-
+where $\Wavevector_{\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself, 
+not the absolute square of the wavevector component.
+The sign of the solution is to be chosen depending on whether the mode shall transport energy towards or away from the interface.
 
 \subsubsection{uniaxial anisotropic}
 The ordinary mode behaves like the isotropic solution.
@@ -688,8 +729,8 @@ The material dispersion of the extraordinary mode, equation \ref{eq:uniaxialAnis
  + \wavenumber_{z}^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
  &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
  \\
- (\Wavevector_{1\,\parallel}^2 + \xi^2) \scalarpermittivity_{\ordi} 
- + (\Wavevector_{1\,\parallel} \Vector{e}_{\eo} + \xi \Vector{n}\Vector{e}_{\eo})^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
+ (\Wavevector_{\parallel}^2 + \xi^2) \scalarpermittivity_{\ordi} 
+ + (\Wavevector_{\parallel} \Vector{e}_{\eo} + \xi \Vector{n}\Vector{e}_{\eo})^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
  &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo}  
 \end{eqnarray}
 This is a quadratic equation in $\xi$.
@@ -699,10 +740,10 @@ This is a quadratic equation in $\xi$.
  c_2 &=& \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Vector{n}\Vector{e}_{\eo})^2
  \nonumber 
  \\
- c_1 &=& 2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo}) (\Vector{n}\Vector{e}_{\eo})
+ c_1 &=& 2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{\parallel} \Vector{e}_{\eo}) (\Vector{n}\Vector{e}_{\eo})
  \nonumber 
  \\
- c_0 &=& \Wavevector_{1\,\parallel}^2 \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo})^2 
+ c_0 &=& \Wavevector_{\parallel}^2 \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{\parallel} \Vector{e}_{\eo})^2 
        - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
  \nonumber
 \end{eqnarray}
@@ -723,7 +764,6 @@ with
  c_0 &= \frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5
 \end{align}
 with
-\newcommand{\kpa}[1]{{k_{\parallel\,#1}}}
 \begin{subequations}
 \begin{align}
 \tilde{\omega} &= \omega \sqrt{\mu_0}\\
@@ -764,7 +804,7 @@ We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:mode
 \begingroup \small
 \begin{subequations}
 \begin{align}
-   - ( \permittivity_1 \Vector{e}_{r1}) \Vector{n} E_{r1,0} &-& ( \permittivity_1 \Vector{e}_{r2}) \Vector{n} E_{r2,0} &+& ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n} E_{t1,0} &+& ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n} E_{t2,0} &=& \Dfield_{in} \Vector{n} \label{eq:fresneldn}\\
+   - ( \permittivity_\materialone \Vector{e}_{r1}) \Vector{n} E_{r1,0} &-& ( \permittivity_\materialone \Vector{e}_{r2}) \Vector{n} E_{r2,0} &+& ( \permittivity_\materialtwo \Vector{e}_{t1} ) \Vector{n} E_{t1,0} &+& ( \permittivity_\materialtwo \Vector{e}_{t2} ) \Vector{n} E_{t2,0} &=& \Dfield_{in} \Vector{n} \label{eq:fresneldn}\\
    - ( \Vector{e}_{r1} \times \Vector{n} )         E_{r1,0} &-& ( \Vector{e}_{r2} \times \Vector{n} )         E_{r2,0} &+& ( \Vector{e}_{t1} \times \Vector{n} )          E_{t1,0} &+& ( \Vector{e}_{t2} \times \Vector{n} )          E_{t2,0} &=& \Efield_{in} \times \Vector{n} \label{eq:fresnelEcrossn} \\
    - ( \Wavevector_{r1} \times \Vector{e}_{r1} )   E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} )   E_{r2,0} &+& ( \Wavevector_{t1} \times \Vector{e}_{t1} )    E_{t1,0} &+& ( \Wavevector_{t2} \times \Vector{e}_{t2} )    E_{t2,0} &=& \Wavevector_{in} \times \Efield_{in} \label{eq:fresnelkE}
 \end{align}
@@ -781,109 +821,96 @@ First, we split up the mode label $M$ into two indices $\alpha=1,2$ and $\beta=r
 This allows us to abbreviate the equation system to
 \begin{subequations}
   \begin{align}
-    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}                   \label{eq:FresnelSystemEq1} \\
+    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}                   \label{eq:FresnelSystemEq1} \\
     \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) E_{\beta\alpha,0} &= \Efield_{in} \times \Vector{n}                        \label{eq:FresnelSystemEq2} \\
     \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) E_{\beta\alpha,0} &=  \Wavevector_{in} \times \Efield_{in} \label{eq:FresnelSystemEq3}
   \end{align}
 \end{subequations}
 where $\varsigma$ represents the sign of each term.
 $\varsigma_t=1$ for transmitted terms and $\varsigma_r=-1$ for reflected ones.
-We introduce a basis, consisting of the directions of $\Vector{n}$, $\Wavevector_\parallel$, and $\Vector{n} \times \Wavevector_\parallel$.
+We introduce a cartesian basis, 
+consisting of the directions of the normal direction $\Vector{n}$, 
+and two in-plane directions $\Vector{e}_X$ and $\Vector{e}_Y$.
 We decompose both vectorial equation in this basis and obtain
 \begin{subequations}
   \begin{align}
-    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
     0 &= 0 \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n} \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Wavevector_\parallel \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_X \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_Y \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n} \label{eq:fresnelTripleProductSubEq}\\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
-We represent wavevectors as $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$, yielding
+We represent wavevectors as 
+$\Wavevector_{\beta\alpha} = \wavenumber_{X} \Vector{e}_X + \wavenumber_{Y} \Vector{e}_Y + \xi_{\beta\alpha} \Vector{n}$
+and permute the triple product in \eqref{eq:fresnelTripleProductSubEq}, yielding
 \begin{subequations}
   \begin{align}
-    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \label{eq:fresnelFirstTripleProduct}\\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
-    \varsigma_\beta ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})\Vector{n} \label{eq:fresnelSecondTripleProduct}\\
-    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel \\
-    \varsigma_\beta 
-        \left(
-          ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) 
-          (\Vector{n} \times \Wavevector_\parallel) 
-          +
-          \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) 
-          (\Vector{n} \times \Wavevector_\parallel)           
-        \right)
-        E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel) + \xi_{in} (\Vector{n} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_X \label{eq:fresnelXEq}\\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_Y \label{eq:fresnelYEq}\\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_{\parallel} E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_{\parallel} \label{eq:fresnelParallelEq}\\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_Y \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X  + \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_X \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y  + \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
-Permuting the triple products, one sees that \eqref{eq:fresnelFirstTripleProduct} and \eqref{eq:fresnelSecondTripleProduct} are linearly dependent.
-We decide to remove \eqref{eq:fresnelSecondTripleProduct} from our equation system.
-We evaluate
-\begin{eqnarray}
-  ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel)            &=& - (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) \\
-  ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) &=& - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} )
-\end{eqnarray}
-and obtain
+One can see that \eqref{eq:fresnelParallelEq} is a linear combination of \eqref{eq:fresnelXEq} and \eqref{eq:fresnelYEq},
+so we remove this redundant equation.
+Our coordinate system is cartesian, so we employ $\Vector{e}_X \times \Vector{e}_Y = \Vector{n}$ and get rid of the cross products
 \begin{subequations}
   \begin{align}
-    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\ 
-    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} ( \Efield_{in} \times \Vector{n} )\Wavevector_\parallel \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) E_{\beta\alpha,0} &= \Efield_{in} \Wavevector_\parallel \\
-    \varsigma_\beta 
-        \left(
-          - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} ) 
-          + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Wavevector_\parallel)           
-        \right)
-        E_{\beta\alpha,0} &= - (\Wavevector_\parallel \Wavevector_\parallel) (\Efield_{in}\Vector{n} ) + \xi_{in} (\Efield_{in} \Wavevector_\parallel)
+    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left(-\wavenumber_X ( \Vector{e}_{\beta\alpha} \Vector{n} )  + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
 
-\remark{I don't see which equations are still dependent, so it is allowed to go from 5 to 4 equations.}
+\subsection{Fresnel (to do part)}
+
+The Fresnel section is not complete yet.
+What is left to do:
+\begin{itemize}
+ \item Proove that out of these 5 equations, at most 4 are independent.
+       In this case, the system is not overdetermined and there are mathematical solutions.
+       The fact that refraction and reflection occurs in reality is a strong indication for the existence of solutions.
+       Before proving, it could be necessary to find a relation between $\permittivity_\beta \Vector{e}_{\beta\alpha}$ and $\xi_{\beta\alpha}$.
+ \item Proove that the remaining 4 equations are linearly independent.
+       This means the solution is unique.
+       In reality, a unique solution is established, measureable with a powermeter.
+ \item Derive the special case of isotropic materials and compare to textbook Fresnel coefficients (plausibility check). 
+ \item fullSimplify() the system of 4 equations -- after all proofs are done.
+ \item Find a description of the system that is well conditioned.
+       Special cases like normal and close-to-normal incidence should be covered in a numerically stable and precise manner.
+       Grazing incidence does not have to be stable, other parts of the code are also not.
+       To achieve this, linear combinations of the remaining 4 formulas are to be found.
+ \item fun fact: for isotropic materials and normal incidence, 
+       the first equation about the normal component of $\Dfield$
+       reduces to $0=0$. Maybe this equation is a candidate to kick out of the system of 4 equations.
+ \item Calculate the energy distribution between the modes.
+ \item Show that the solution obeys energy conservation (plausibility check). 
+ \item Consider what to do if an isotropic material interfaces another material.
+       In an isotropic material, both modes $\alpha$ have a generate wavevector $\Wavevector_{\beta\alpha}$,
+       and thus linear combinations of both eigen-polarisations $\Vector{e}_{\beta\alpha}$ are also valid solutions.
+       One can choose the polarisation $\Vector{e}_{\beta 1}$ in a way that the amplitude of the other mode vanishes.
+       Or we use the general routine with any polarisation eigenvectors and sum up the field vectors afterwards.
+       This way, we do not have to split up the ray into two modes $\alpha$
+       and conserve the full information in a single ray.
+       Classcial raytracing only uses isotropic materials, 
+       and the increase in number of rays with the current model is exponential, 
+       so a clever solution for isotropic-anisotropic and isotropic-isotropic interfaces would help to increase speed.
+\end{itemize}
 
 
 
-If one rearranges the cross products in \eqref{eq:fresnelkE} the other way around and decomposes the $\Wavevector_\alpha$ into in-plane and off-plane components this
-equation could be split up into a scalar part and an in-plane part which could be combined with \eqref{eq:fresnelEcrossn}
-To decompose all equations into the appropriate components, 
-the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), 
-$\Wavevector_\parallel$ (which is conserved) 
-and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$. 
-Therefore we perform the following steps:
-\begin{enumerate}
- \item Decomposition of the last two equations into appropriate inplane components
- \item Rearrangement of all equations into two off-plane equations and two in-plane equations
-\end{enumerate}
-First of all we decompose the wavevector in the last equation
-\begin{align}
-  \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} = -\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel - \xi_{\beta\alpha} \Vector{e}_{\beta\alpha} \times \Vector{n}
-\end{align}
-From this we get the second off-plane equation by scalar product multiplying with $\Vector{n}$:
-\begin{align}
- \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
-\end{align}
-Now we multiply both last equations by $\xi_{in} \Wavevector_\parallel$ and $\Wavevector_\parallel$ respectively and decompose $\Wavevector_{in} = \Wavevector_\parallel + \xi_{in} \Vector{n}$,
-\begin{align}
-  \varsigma_\beta \xi_{in}(\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Efield_{in} \times \Vector{n})\Wavevector_\parallel \\
-  \varsigma_\beta ( -\xi_{\beta\alpha} (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel) E_{\beta\alpha,0} &=  \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel
-\end{align}
-Adding them both up leads to
-\begin{align}
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,.
-\end{align}
-Same argument is valid for $(\Vector{n}\times\Wavevector_\parallel)$ component and therefore leads to
-\begin{align}
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0\,.
-\end{align}
-Therefore the final matrix equations are given by
+
 \begin{subequations}
 \label{eq:fresnelfinal}
 \begin{align}
-  \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
+  \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
   \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
   \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
   \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
