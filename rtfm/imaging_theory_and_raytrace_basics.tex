@@ -304,7 +304,7 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \end{subequations}
 
 \section{Poynting Vector}\label{sec:Poynting}
-The Poynting vector is the a real density of energy flow. 
+The Poynting vector is the areal density of energy flow. 
 We want the Poynting vector to be real and stay numerically identical to the quantity derived above 
 for the real valued Maxwell equations in equation \ref{eq:definitionOfPoynting}.
 
@@ -392,10 +392,21 @@ More explicit, it reads
 &=& 0 \label{eq:generalDispersionEigenEquation}
 \end{eqnarray}
 Nontrivial solutions can be found if the determinant of $\hat{A}$ is zero.
+We call wavevectors $\Wavevector$ for which the deterimant vanishes a solution of the dispersion relation.
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
 that is, a propagation wavector is only valid for a certain polarisation.
 
-With this result, we perform some algebraic steps for later use.
+\paragraph{Determining one component of $\Wavevector$.}
+
+The wavevector is a three-dimensional, complex valued quantity.
+In the following sections, however, 
+we often face problems where 2 of the 3 components are already fixed and the third component is to be determined.
+Without loss of generality, we rotate $\permittivity$ 
+to a cartesian system in which $\wavenumber_x$ and $\wavenumber_y$ are the known components and $\wavenumber_z$ is unknown.
+The resulting characteristic polynomial of $\hat{A}$ is a quartic equation in $\wavenumber_z$.
+That is, we expect up to four different solutions for $\wavenumber_z$.
+
+\paragraph{Some algebra for later use.}
 We use the identity
 \begin{align}
  \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
@@ -576,8 +587,35 @@ We introduce the refractive index $n$ as
 In general, there are two roots. 
 The choice of the root does not change anything in optics based on the Maxwell equations, as the permittivity is the only physically relevant quantity.
 
+\subsubsection{On so-called negative index materials}
+In literature, often a different behaviour is assigned to positive and negative refractive indices.
+It requires some introduction to explain what is commonly referred to as \emph{negative index material}.
 
+Some people artificially craft mesoscopically structured materials, referred to as meta-materials.
+They simulate or measure the propagation of electromagnetic fields through this material.
+Often, a material-air interface is considered under normal incidence of a plane wave.
+Upon incidence, some light enters the material.
+The propagation through the microscopically inhomogeneous material is approximated with a single plane wave.
+The functional dependence of the plane wave direction on the incident direction is determined in the near-normal limit.
+This dependence is compared to the Snellius law of refraction, with the refractive index as fitting parameter.
+For specially crafted materials, we need negative refractive indices for this empirical fit.
 
+The formulas in this manual cannot be used with negative indices in the sense of the above paragraph, 
+for the following reasons:
+\begin{itemize}
+ \item Assuming two interfacing homogeneous materials, 
+       the Snellius law of refraction between two refractive indices of opposite sign
+       violates the surface boundary conditions.
+       (meta-materials are not homogeneous)
+ \item Meta-materials often have no isotropic refractive index, 
+       but require a tensorial relation between $\Efield$ and $\Dfield$.
+ \item Often, ohmic losses in meta-materials are not considered when fitting a real number on the data.
+ \item Many meta-materials show strong deviation from the assumed law of refraction for incident light not normal to the surface.
+\end{itemize}
+
+The reduction of complex structured materials to a single real number requires great caution in interpretation.
+A safe way to describe meta-materials are Maxwell-exact solvers for electromagnetic fields, 
+as long as a permittivity can be defined for every point in space.
 
 \section{Boundary Conditions}
 Considering two media $\permittivity_\materialone$ and $\permittivity_\materialtwo$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
@@ -646,7 +684,7 @@ Each term on the right hand side stands for a mode, represented by its amplitude
 We consider the incident mode $\Wavevector_{in}$, 
 the two reflected modes $\Wavevector_{r1,2}$,
 and the two refracted or transmitted modes $\Wavevector_{t1,2}$.
-For isotropic media $\materialone$, the modes $\Wavevector_{r1,2}$ degenerate. 
+For isotropic media $\materialone$, the wavevectors $\Wavevector_{r1,2}$ are degenerate. 
 The same holds for $\Wavevector_{t1,2}$ in isotropic media $\materialtwo$.
 
 \subsection{The Law of Refraction}
@@ -675,12 +713,12 @@ This calculation can, for certain types of anisotropic materials, be complicated
 
 \subsubsection{isotropic media}
 \begin{align}
- \xi = \sqrt{\omega^2 \vacuumpermeability \epsilon_\materialtwo - \Wavevector_{\parallel}^2}
+ \xi = \pm \sqrt{\omega^2 \vacuumpermeability \epsilon_\materialtwo - \Wavevector_{\parallel}^2}
 \end{align}
 
-where $\Wavevector_{\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself.
-It is not the absolute of the wavevector component and may be complex valued for lossy materials.
-
+where $\Wavevector_{\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself, 
+not the absolute square of the wavevector component.
+The sign of the solution is to be chosen depending on whether the mode shall transport energy towards or away from the interface.
 
 \subsubsection{uniaxial anisotropic}
 The ordinary mode behaves like the isotropic solution.
