@@ -21,7 +21,121 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+"""
+This file demonstrates the coupling between an object of the
+core code of pyrate (CoreObject) and its FreeCAD representation
+(FreeCAD_CoreObject). It is used as basis of the discussion
+about the interface between both code parts.
+
+At the moment the philosophy is the following:
+CoreObject is independent of FreeCAD_CoreObject due to decoupling
+of script code from frontend code. Communication between both
+takes place via an observer interface. FreeCAD_CoreObject is the
+observer of Core_Object, which is appropriate. The problem is
+that we actually have three objects involved. The third object
+is the FreeCAD object which is created in the TreeView and which
+carrys the properties to be coupled to CoreObject. Therefore
+FreeCAD_CoreObject somehow takes the role of the coupling element
+between both. Question is: Is it possible to design the coupling
+between object in TreeView and CoreObject in a reusable, simple
+to use manner? From my point of view the variant given below is
+too tightly coupled.
+"""
+
 import math
 import numpy as np
 
+from core.optimize import ClassWithOptimizableVariables, OptimizableVariable
+from core.observers import AbstractObserver
 
+class CoreObject(ClassWithOptimizableVariables):
+    
+    def __init__(self, value, name=""):
+        super(CoreObject, self).__init__(name=name)
+        self.myvar = OptimizableVariable("fixed", value=value)
+        self.addVariable("myvar", self.myvar)
+        
+    def makeSomething(self):
+        self.myvar.setvalue(np.random.random())
+        # after setting myvar to a new value, inform observers
+        self.informObservers()
+
+class FreeCAD_CoreObject(AbstractObserver):
+    # Derivation from AbstractObserver to maintain connection
+    # from CoreObject to this FreeCAD frontend object    
+    
+    # The code is mainly taken from
+    # https://freecadweb.org/wiki/Scripted_objects
+    
+    def __init__(self, doc):
+        # doc is freecad document; may be ActiveDocument
+        # first create object in FreeCAD tree
+
+        '''Add some custom properties to our CoreObject feature'''
+
+        self.__obj = doc.addObject("App::FeaturePython","CoreObject")
+        self.__obj.addProperty("App::PropertyFloat","myvar","CoreObject","myvar of CoreObject").myvar=1.0
+        self.__obj.Proxy = self
+        
+        self.__coreobj = CoreObject(self.__obj.myvar)
+        # init core object which is attached to FC object
+        self.__coreobj.appendObservers([self])
+        # add observer
+    
+    #########################
+    # functions which are not necessary for FC object feature
+    #########################
+    
+    def makeSomething(self):
+        '''Call makeSomething of attached core object'''
+        self.__coreobj.makeSomething()
+        
+    def getvalue(self):
+        return self.__coreobj.myvar()
+   
+    def informAboutUpdate(self):
+        '''Transmit change in core object into FreeCAD object'''
+        self.__obj.myvar = self.__coreobj.myvar()
+
+    #########################
+    # functions which are necessary for FC object feature
+    #########################
+
+    def onChanged(self, fp, prop):
+        '''Do something when a property has changed'''
+
+        if prop == 'myvar':
+            '''Transmit myvar to coreobj'''
+            self.__coreobj("myvar").setvalue(fp.myvar)
+        FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
+ 
+    def execute(self, fp):
+        '''Do something when doing a recomputation, this method is mandatory'''
+        FreeCAD.Console.PrintMessage("Recompute Python Core Object feature\n")
+
+    def __getstate__(self):
+        '''For JSON frontend of FreeCAD'''
+        return None
+ 
+    def __setstate__(self,state):
+        '''For JSON frontend of FreeCAD'''
+        return None
+
+
+def makeCoreObject():
+    # typical calling code for FreeCAD object classes
+    doc = FreeCAD.newDocument() # create new document
+    FreeCAD_CoreObject(doc) # create object in document via constructor
+
+makeCoreObject() 
+
+# choose current directory as macro directory in FreeCAD
+# run .py file as macro
+# then there should be a new document with CoreObject object
+# run the following code in FreeCAD console
+#>>> doc = FreeCAD.ActiveDocument
+#>>> obj = doc.CoreObject
+#>>> obj.Proxy.makeSomething()
+#>>> obj.Proxy.makeSomething()
+#>>> obj.Proxy.makeSomething()
+#>>> obj.Proxy.getvalue()
