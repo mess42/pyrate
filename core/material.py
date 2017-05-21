@@ -143,6 +143,93 @@ class MaxwellMaterial(Material):
         kvectors = np.repeat(kappaarray[:, np.newaxis, :], 3, axis=1)*e
         
         return kvectors
+
+
+    def calcKNormfromDirectionVector(self, x, kd):
+        """
+        Calculate k from dispersion direction vector 
+        in general anisotropic materials.
+        
+        :param x (3xN numpy array of float) 
+                position vector
+        :param kd (3xN numpy array of complex) 
+                direction vector
+        
+        :return k tuple of (4xN numpy array of complex) 
+                
+        """
+        
+        (num_dims, num_pts) = np.shape(x)
+        
+        eps = self.getEpsilonTensor(x)
+
+        a1 = np.einsum('ii...', eps)        
+        a2 = np.einsum('ij...,ji...', eps, eps)
+        a3 = np.einsum('ij...,jk...,ki...', eps, eps, eps)
+        a4 = np.einsum('ij...,i...,j...', eps, kd, kd)        
+        a5 = np.einsum('ij...,jk...,i...,k...', eps, eps, kd, kd)
+        a6 = np.einsum('i...,i...', kd, kd)
+
+        p4 = a4*a6        
+        p2 = (-a4*a1 + a5)#*k0**2 # remove k0?
+        p0 = 1./6.*(a1**3 - 3*a1*a2 + 2*a3)#*k0**4
+        
+        kappaarray = np.zeros((4, num_pts), dtype=complex)
+
+        for i in np.arange(num_pts):       
+            polycoeffs = [p4[i], 0, p2[i], 0, p0[i]]
+            kappaarray[:, i] = np.roots(polycoeffs)
+
+        kvectors = np.repeat(kappaarray[:, np.newaxis, :], 3, axis=1)*kd
+        
+        return kvectors
+
+
+    def calcKNormfromKNormAndDeviationDirectionVector(self, x, k, kd):
+        """
+        Calculate k from dispersion direction vector 
+        in general anisotropic materials.
+        
+        :param x (3xN numpy array of float) 
+                position vector
+        :param e (3xN numpy array of float) 
+                real direction vector
+        
+        :return k tuple of (4xN numpy array of complex) 
+                
+        """
+        
+        (num_dims, num_pts) = np.shape(x)
+        
+        eps = self.getEpsilonTensor(x)
+
+        a1 = np.einsum('i...,i...', kd, kd)
+        a2 = np.einsum('i...,j...,ij...', kd, kd, eps)
+        a3 = np.einsum('i...,i...', kd, k)
+        a4plusa5 = np.einsum('i...,j...,ij...', kd, k, eps) + np.einsum('i...,j...,ij...', k, kd, eps)
+        a6 = np.einsum('i...,j...,ik...,kj...', kd, kd, eps, eps)
+        a8minusa7 = np.einsum('i...,i...', k, k) - np.einsum('ii...', eps)        
+        a9 = np.einsum('i...,j...,ij...', k, k, eps)
+        a10 = np.einsum('i...,ik...,kj...,j...', kd, eps, eps, k)
+        a11 = np.einsum('i...,ki...,jk...,j...', kd, eps, eps, k)        
+
+        p3 = a1*a2
+        p2 = 2*a2*a3 + a1*a4plusa5
+        p1 = a1*a9 + a8minusa7*a2 + a6 + 2*a3*a4plusa5
+        p0 = 2*a3*a9 + a8minusa7*a4plusa5 + a10 + a11 
+        
+        kappaarray = np.zeros((3, num_pts), dtype=complex)
+
+        for i in np.arange(num_pts):       
+            polycoeffs = [p3[i], p2[i], p1[i], p0[i]]
+            kappaarray[:, i] = np.roots(polycoeffs)
+
+        print(kappaarray)
+
+        kvectors = k + (np.repeat(kappaarray[:, np.newaxis, :], 3, axis=1)*kd)
+        
+        return kvectors
+
         
     def calcXiQEVMatricesNorm(self, x, n, kpa_norm):
 
@@ -377,16 +464,16 @@ class MaxwellMaterial(Material):
         beta = np.einsum('ij...,i...,j...', eps, k_norm, k_norm)
 
 
-        first = -np.einsum("i...,ji...", k_norm, eps)*tre
-        second = -np.einsum("i...,ij...", k_norm, eps)*tre
+        first = -np.einsum("i...,ji...,kk...", k_norm, eps, eps)
+        second = -np.einsum("i...,ij...,kk...", k_norm, eps, eps)
                 
         third = np.einsum('ji...,il...,l...', eps, eps, k_norm)
         fourth = np.einsum('ij...,li...,l...', eps, eps, k_norm)        
         
-        fifth = np.einsum('lj...,l...', eps, k_norm)*k2
-        sixth = np.einsum('jl...,l...', eps, k_norm)*k2
+        fifth = np.einsum('lj...,l...,k...,k...', eps, k_norm, k_norm, k_norm)
+        sixth = np.einsum('jl...,l...,k...,k...', eps, k_norm, k_norm, k_norm)
         
-        seventh = 2*beta*k_norm.T
+        seventh = 2*np.einsum("ij...,i...,j...,k...", eps, k_norm, k_norm, k_norm) #2*beta*k_norm.T
                 
         return (first + second + third + fourth + fifth + sixth + seventh).T
 
@@ -411,9 +498,9 @@ class MaxwellMaterial(Material):
         fifth = np.einsum("ij..., l..., l...", eps, k_norm, k_norm)
         sixth = np.einsum("ji..., l..., l...", eps, k_norm, k_norm)
 
-        delta_mat = np.repeat(np.eye(num_dims)[:, :, np.newaxis], num_pts, axis=2).T
+        delta_mat = np.repeat(np.eye(num_dims)[:, :, np.newaxis], num_pts, axis=2)
 
-        seventh = 2*delta_mat*beta
+        seventh = 2*np.einsum("ij...,kl...,k...,l...", delta_mat, eps, k_norm, k_norm)
         
         eigth = 2*np.einsum("li...,l...,j...", eps, k_norm, k_norm)
         nineth = 2*np.einsum("il...,l...,j...", eps, k_norm, k_norm)
