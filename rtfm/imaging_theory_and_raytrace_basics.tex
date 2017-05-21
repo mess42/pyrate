@@ -587,35 +587,8 @@ We introduce the refractive index $n$ as
 In general, there are two roots. 
 The choice of the root does not change anything in optics based on the Maxwell equations, as the permittivity is the only physically relevant quantity.
 
-\subsubsection{On so-called negative index materials}
-In literature, often a different behaviour is assigned to positive and negative refractive indices.
-It requires some introduction to explain what is commonly referred to as \emph{negative index material}.
-
-Some people artificially craft mesoscopically structured materials, referred to as meta-materials.
-They simulate or measure the propagation of electromagnetic fields through this material.
-Often, a material-air interface is considered under normal incidence of a plane wave.
-Upon incidence, some light enters the material.
-The propagation through the microscopically inhomogeneous material is approximated with a single plane wave.
-The functional dependence of the plane wave direction on the incident direction is determined in the near-normal limit.
-This dependence is compared to the Snellius law of refraction, with the refractive index as fitting parameter.
-For specially crafted materials, we need negative refractive indices for this empirical fit.
-
-The formulas in this manual cannot be used with negative indices in the sense of the above paragraph, 
-for the following reasons:
-\begin{itemize}
- \item Assuming two interfacing homogeneous materials, 
-       the Snellius law of refraction between two refractive indices of opposite sign
-       violates the surface boundary conditions.
-       (meta-materials are not homogeneous)
- \item Meta-materials often have no isotropic refractive index, 
-       but require a tensorial relation between $\Efield$ and $\Dfield$.
- \item Often, ohmic losses in meta-materials are not considered when fitting a real number on the data.
- \item Many meta-materials show strong deviation from the assumed law of refraction for incident light not normal to the surface.
-\end{itemize}
-
-The reduction of complex structured materials to a single real number requires great caution in interpretation.
-A safe way to describe meta-materials are Maxwell-exact solvers for electromagnetic fields, 
-as long as a permittivity can be defined for every point in space.
+There is a convention to indicate negative permeability and negative permittivity with a negative sign of the index.
+\remark{TODO: rewrite all formulas for non-vacuum permeabilities}
 
 \section{Boundary Conditions}
 Considering two media $\permittivity_\materialone$ and $\permittivity_\materialtwo$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
