@@ -81,20 +81,33 @@ class MaxwellMaterial(Material):
         :return epsilon (3x3xN numpy array of complex)
         """
         raise NotImplementedError()
-      
+    
     def calcPoytingVector(self, k, Efield, wave=standard_wavelength):
+        
+        k0 =  2.*math.pi/wave
+        
+        # maybe include also pre factor        
+        
+        return self.calcPoytingVectorNorm(k/k0, Efield)
+    
+    
+    def calcPoytingVectorNorm(self, k_norm, Efield):
         # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
     
-        (num_dim, num_pts) = np.shape(k)
-        
+        (num_dim, num_pts) = np.shape(k_norm)
+                
         S = np.zeros((num_dim, num_pts), dtype=float)
         S = np.real(
-            np.einsum("i...,i...", np.conj(Efield), Efield)*np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2) 
-            - np.einsum("i...,i...", k, Efield)*k)
+            np.einsum("i...,i...", np.conj(Efield), Efield)*k_norm 
+            - np.einsum("i...,i...", k_norm, Efield)*np.conj(Efield))
         return S
     
-    
     def calcKfromUnitVector(self, x, e, wave=standard_wavelength):
+        k0 = 2.*math.pi/wave
+
+        return k0*self.calcKNormfromUnitVector(x, e)
+    
+    def calcKNormfromUnitVector(self, x, e):
         """
         Calculate k from dispersion and real unit vector 
         in general anisotropic materials.
@@ -109,8 +122,6 @@ class MaxwellMaterial(Material):
         """
         
         (num_dims, num_pts) = np.shape(x)
-
-        k0 = 2.*math.pi/wave
         
         eps = self.getEpsilonTensor(x)
 
@@ -120,8 +131,8 @@ class MaxwellMaterial(Material):
         a4 = np.einsum('ij...,i...,j...', eps, e, e)        
         a5 = np.einsum('ij...,jk...,i...,k...', eps, eps, e, e)
 
-        p2 = (-a4*a1 + a5)*k0**2
-        p0 = 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*k0**4
+        p2 = (-a4*a1 + a5)#*k0**2 # remove k0?
+        p0 = 1./6.*(a1**3 - 3*a1*a2 + 2*a3)#*k0**4
         
         kappaarray = np.zeros((4, num_pts), dtype=complex)
 
@@ -340,6 +351,83 @@ class MaxwellMaterial(Material):
         (eigenvals, eigenvectors) = self.calcXiEigenvectorsNorm(x, n, kpa_norm)
         
         return (k0*eigenvals, eigenvectors)
+
+    def calcDetPropagatorNormX(self, x, k_norm):
+        (num_dim, num_pts) = np.shape(k_norm)
+
+        Propagator = np.zeros((num_dim, num_dim, num_pts), dtype=complex)    
+        dets = np.zeros(num_pts, dtype=complex)
+        
+        for j in range(num_pts):
+            Propagator[:, :, j] = -np.dot(k_norm[:, j], k_norm[:, j])*np.eye(num_dim) +\
+                    np.outer(k_norm[:, j], k_norm[:, j]) + self.getEpsilonTensor(x)[:, :, j]
+            dets[j] = np.linalg.det(Propagator[:, :, j])
+        return dets
+        
+    def calcDetPropagatorNorm(self, k_norm):
+        return self.calcDetPropagatorNormX(np.zeros_like(k_norm), k_norm)
+        
+        
+    def calcDetDerivativePropagatorNormX(self, x, k_norm):
+        
+        eps = self.getEpsilonTensor(x)
+
+        tre = np.einsum('ii...', eps)
+        k2 = np.einsum('i...,i...', k_norm, k_norm)
+        beta = np.einsum('ij...,i...,j...', eps, k_norm, k_norm)
+
+
+        first = -np.einsum("i...,ji...", k_norm, eps)*tre
+        second = -np.einsum("i...,ij...", k_norm, eps)*tre
+                
+        third = np.einsum('ji...,il...,l...', eps, eps, k_norm)
+        fourth = np.einsum('ij...,li...,l...', eps, eps, k_norm)        
+        
+        fifth = np.einsum('lj...,l...', eps, k_norm)*k2
+        sixth = np.einsum('jl...,l...', eps, k_norm)*k2
+        
+        seventh = 2*beta*k_norm.T
+                
+        return (first + second + third + fourth + fifth + sixth + seventh).T
+
+    def calcDetDerivativePropagatorNorm(self, k_norm):
+        return self.calcDetDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm)
+
+    def calcDet2ndDerivativePropagatorNormX(self, x, k_norm):
+        eps = self.getEpsilonTensor(x)        
+        (num_dims, num_dims, num_pts) = np.shape(eps)        
+        
+        tre = np.einsum('ii...', eps)
+        k2 = np.einsum('i...,i...', k_norm, k_norm)
+        beta = np.einsum('ij...,i...,j...', eps, k_norm, k_norm)
+        
+        first = np.einsum("li...,jl...", eps, eps)
+        second = np.einsum("lj...,il...", eps, eps)
+        third = -np.einsum("ij...,ll...", eps, eps)
+        fourth = -np.einsum("ji...,ll...", eps, eps)
+
+        k04part = first + second + third + fourth
+
+        fifth = np.einsum("ij..., l..., l...", eps, k_norm, k_norm)
+        sixth = np.einsum("ji..., l..., l...", eps, k_norm, k_norm)
+
+        delta_mat = np.repeat(np.eye(num_dims)[:, :, np.newaxis], num_pts, axis=2).T
+
+        seventh = 2*delta_mat*beta
+        
+        eigth = 2*np.einsum("li...,l...,j...", eps, k_norm, k_norm)
+        nineth = 2*np.einsum("il...,l...,j...", eps, k_norm, k_norm)
+        tenth = 2*np.einsum("lj...,l...,i...", eps, k_norm, k_norm)
+        eleventh = 2*np.einsum("jl...,l...,i...", eps, k_norm, k_norm)
+
+        k02part = fifth + sixth + seventh + eigth + nineth + tenth + eleventh
+
+        res = k02part + k04part
+
+        return res        
+
+    def calcDet2ndDerivativePropagatorNorm(self, k_norm):
+        return self.calcDet2ndDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm)
         
     def getLocalSurfaceNormal(self, surface, xglob):
         xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)

@@ -28,13 +28,14 @@ import math
 import numpy as np
 
 from optical_system import OpticalSystem
-from localcoordinates import LocalCoordinates
+import localcoordinates
 from optical_element import OpticalElement
 from surface import Surface
 from surfShape import Conic
-from globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
+from globalconstants import numerical_tolerance, canonical_ey, canonical_ex, standard_wavelength
 from ray import RayBundle
 from material import ConstantIndexGlass
+from helpers_math import rodrigues, random_rotation_matrix
 
 def build_simple_optical_system(builduplist, matdict):
 
@@ -47,7 +48,7 @@ def build_simple_optical_system(builduplist, matdict):
     s = OpticalSystem() 
     
     
-    lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+    lc0 = s.addLocalCoordinateSystem(localcoordinates.LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
     elem = OpticalElement(lc0, label="stdelem")
     
@@ -62,7 +63,7 @@ def build_simple_optical_system(builduplist, matdict):
     surflist_for_sequence = []
     for (r, cc, thickness, mat, comment) in builduplist:
         
-        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=comment, decz=thickness), refname=refname)
+        lc = s.addLocalCoordinateSystem(localcoordinates.LocalCoordinates(name=comment, decz=thickness), refname=refname)
         curv = 0
         if abs(r) > numerical_tolerance:
             curv = 1./r
@@ -91,10 +92,12 @@ def build_simple_optical_system(builduplist, matdict):
 # give pilot a polarization lives in k coordinate system
 # <Re k, S> > 0 and <Im k, S> > 0
 
-    
-def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
+
 
     
+def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
+
+    lcobj = surfobj.rootcoordinatesystem
 
     if lck is None:
         lck = lcobj
@@ -103,6 +106,9 @@ def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvecto
         kunitvector = np.array([0, 0, 1])
     if kup is None:
         kup = np.array([0, 1, 0])
+   
+    kright = np.cross(kup, kunitvector)
+    
     if Elock is None:
         # standard polarization is in x in lck
         Elock = np.array([1, 0, 0])
@@ -129,7 +135,86 @@ def build_pilotbundle(lcobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvecto
     xlocmat = mat.lc.returnOtherToActualPoints(xlocx, lcobj)
     kunitmat = mat.lc.returnOtherToActualDirections(kunitvector, lck)
     
-    kvectorsmat = mat.calcKfromUnitVector(xlocmat[:, 0][:, np.newaxis], kunitmat)
+    kvectorsmat = mat.calcKNormfromUnitVector(xlocmat[:, 0][:, np.newaxis], kunitmat)
+    print(kvectorsmat)
+    print(Elock)
+
+    get_kvector = np.ones((4,), dtype=bool)
+    for i in range(4):
+        Svectorsmat = mat.calcPoytingVectorNorm(kvectorsmat[i], Elock[:, 0, np.newaxis])    
+        scalarproduct = np.einsum("i...,i...", Svectorsmat, kvectorsmat[i])[0]
+        get_kvector[i] = np.real(scalarproduct) > 0 and np.imag(scalarproduct) >= 0
+    print(kvectorsmat)
+
+    kvector_base = kvectorsmat[get_kvector][0][:]
+    unitaryrandom = random_rotation_matrix(3)    
+    print(np.dot(np.conj(unitaryrandom).T, unitaryrandom))    
+    
+    kvector_base_turned = np.dot(unitaryrandom, kvector_base)
+    print(kvector_base)
+    print(kvector_base_turned)
+        
+    print("det: ", mat.calcDetPropagatorNorm(kvector_base))
+    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned))
+    print("det: ", mat.calcDetPropagatorNorm(complex(0, 1)*kvector_base_turned))
+
+    # unitary transformations are changing the determinant result,
+    # while standard SO(n) rotations are not (to be tested!)
+    # to get an invariant square of k (i.e. rotated with SO(n))
+    # kr^2 - ki^2 = const and scalar(kr, ki) = const
+    # what about ki = 0 like for k ~ e_z?
+    # falls ki vorher nicht da war und dann auftaucht: kr einkuerzen
+
+    kr = np.real(kvector_base)
+    ki = np.imag(kvector_base)
+    
+    krotx = np.dot(rodrigues(phix, [1, 0, 0]), kvector_base)
+    kroty = np.dot(rodrigues(phix, [0, 1, 0]), kvector_base)    
+
+    print("kr")
+    print(kr)
+    print("ki")
+    print(ki)
+    
+    print("orthogonal vector")
+    print((-2*ki + complex(0, 1)*kr)[:, 0])    
+    
+    dkix = np.cross(canonical_ey, (-2*ki + complex(0, 1)*kr)[:, 0])[:, np.newaxis]
+    dkiy = np.cross((-2*ki + complex(0, 1)*kr)[:, 0], canonical_ex)[:, np.newaxis]    
+    
+    print("det derivative")
+    print(mat.calcDetDerivativePropagatorNorm(krotx))
+    print("det 2nd derivative")
+    der2nd = mat.calcDet2ndDerivativePropagatorNorm(krotx)
+    print(der2nd) # matrix somehow wrong oriented (is Nx3x3 insteadt of 3x3xN)
+    print(np.shape(der2nd))
+    (ev, evec) = np.linalg.eig(der2nd[0, :, :])
+    print(ev)
+    print(evec)        
+
+    dkix = 1e-3*evec[1, :, np.newaxis]
+    dkiy = 1e-3*evec[2, :, np.newaxis]
+    
+    # absolute value of dkix, dkiy?
+    
+        
+    if np.linalg.norm(ki) < 1e-8: # pure real kvector_base
+        pass
+    
+    print("krotx")
+    print(krotx)
+    print("kroty")
+    print(kroty)
+    print("dkix")
+    print(dkix)
+    print("dkiy")
+    print(dkiy)
+    
+    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned + dkix))
+    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned + dkiy))
+    print("det: ", mat.calcDetPropagatorNorm(krotx))
+    print("det: ", mat.calcDetPropagatorNorm(kroty))
+    
     
     dklock = np.array([[kwave, 0, complex(0, kwave), 0],
                        [0, kwave, 0, complex(0, kwave)],
