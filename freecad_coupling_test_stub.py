@@ -45,6 +45,8 @@ too tightly coupled.
 import math
 import numpy as np
 
+import FreeCAD
+
 from core.optimize import ClassWithOptimizableVariables, OptimizableVariable
 from core.observers import AbstractObserver
 
