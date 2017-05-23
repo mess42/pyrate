@@ -28,6 +28,28 @@ from core.globalconstants import canonical_ex, canonical_ey
 from core.material import AnisotropicMaterial
 from core.localcoordinates import LocalCoordinates
 
+def choose_nearest(kvec, kvecs_new):
+    tol = 1e-6
+    (kvec_dim, kvec_len) = np.shape(kvec)
+    (kvec_new_no, kvec_new_dim, kvec_new_len) = np.shape(kvecs_new)
+    
+    res = np.zeros_like(kvec)    
+    
+    if kvec_new_dim == kvec_dim and kvec_len == kvec_new_len:
+        for j in range(kvec_len):
+            diff_comparison = 1e10
+            choosing_index = 0
+            for i in range(kvec_new_no):
+                vdiff = kvecs_new[i, :, j] - kvec[:, j]
+                hermite_abs_square = np.dot(np.conj(vdiff), vdiff)
+                if  hermite_abs_square < diff_comparison and hermite_abs_square > tol:
+                    choosing_index = i
+                    diff_comparison = hermite_abs_square
+            res[:, j] = kvecs_new[choosing_index, :, j]
+    return res
+                
+        
+
 if __name__=="__main__":
     
     num_pts = 1    
@@ -55,7 +77,7 @@ if __name__=="__main__":
         print(rotationrandom)
         rnd_units_turned = np.einsum("ij...,j...", rotationrandom, rnd_units).T
 
-        kvec_turned = mat.calcKNormfromUnitVector(np.zeros((3, num_pts)), rnd_units)[0]
+        kvec_turned = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, num_pts)), rnd_units_turned))
 
         print(kvec)
         print(kvec_turned)
@@ -73,15 +95,9 @@ if __name__=="__main__":
         dky_dir = np.cross(ex, dDdk, axisa=0, axisb=0).T
         dkx_dir = np.cross(ey, dDdk, axisa=0, axisb=0).T
         
-        dkx_all = mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, dkx_dir)       
-        dky_all = mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, dky_dir)       
-        
-        for i in range(3):        
-            print(np.sqrt(np.sum((dkx_all[i] - kvec)*np.conj(dkx_all[i] - kvec))))        
-        
-        dkx = dkx_all[1]
-        dky = dky_all[1]
-        
+        dkx = choose_nearest(kvec, mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, dkx_dir))       
+        dky = choose_nearest(kvec, mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, dky_dir))       
+                
         print("det: ", mat.calcDetPropagatorNorm(dkx))
         print("det: ", mat.calcDetPropagatorNorm(dky))
         
