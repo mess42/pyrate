@@ -1696,52 +1696,66 @@ with
  \tilde{B}_{ij} &=& B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \Delta s
  \nonumber \\
 \end{eqnarray}
-The characteristic polynomial is quadratic in $\Delta s$, so we expect two defocus positions where the determinant vanishes.
-Both defocus values $\Delta s_{1,2}$ come with a corresponding eigenvector $\Vector{K}_{eig\,1,2}$.
+We are interested in solutions $\Delta s$ for which the determinant vanishes.
+This problem is similar to an eigenvalue problem, so we call the solutions $\Delta s$ quasi-eigenvalues.
+The characteristic polnomial of the 4 by 4 matrix, however, is only of quadratic degree.
+The defocus values $\Delta s_{1,2}$ are quasi-eigenvalues and come with a corresponding quasi-eigenvector $\Vector{K}_{qeig\,1,2}$.
 Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in the image plane.
 We start a light cone around an arbitrary near-pilot object position
 \begin{eqnarray}
- \Vector{K}_{obj} &=& a_1 \Vector{K}_{eig\,1} + a_2 \Vector{K}_{eig\,2}
+ \Vector{K}_{obj} &=& p_1 \Vector{K}_{qeig\,1} + p_2 \Vector{K}_{qeig\,2}
 \end{eqnarray}
-where $a$ are real valued coefficients.
+where $p$ are real valued coefficients, representing aiming at different pupil positions.
 
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + a_i \hat{\tilde{B}}(\Delta s) \Vector{K}_{eig\,i} 
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_i \hat{\tilde{B}}(\Delta s) \Vector{K}_{qeig\,i} 
 \end{eqnarray}
 
 We assume to be in the first eigen-distance, $\Delta s = \Delta s_1$.
 
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + a_1 \underbrace{\hat{\tilde{B}}(\Delta s_1) \Vector{K}_{eig\,1}}_0  + a_2 \hat{\tilde{B}}(\Delta s_1) \Vector{K}_{eig\,2} 
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_1 \underbrace{\hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,1}}_0  + p_2 \hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,2} 
 \end{eqnarray}
 
 \paragraph{First case: both $\Delta s$ are degenerate.}
 In this case, both eigenvectors vanish with the same $\Delta s$
 \begin{eqnarray}
- \hat{\tilde{B}}(\Delta s_1 = \Delta s_2) \Vector{K}_{eig\,2}  = 0
+ \hat{\tilde{B}}(\Delta s_1 = \Delta s_2) \Vector{K}_{qeig\,2}  = 0
 \end{eqnarray}
 The equation reduces to
 \begin{eqnarray}
  \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj}
 \end{eqnarray}
-Rays deviating from the pilot in any linear combination of the eigen-directions $\Vector{K}_{eig\,1,2}$ are mapped onto the same point.
+Rays deviating from the pilot in any linear combination of the eigen-directions $\Vector{K}_{qeig\,1,2}$ are mapped onto the same point.
 The classical image condition is fulfilled.
+It may, however, still be anamorphotic.
+We use the eigenvalues of the matrix $\hat{\tilde{A}}$ as the 2 magnifications of the system.
 
 \paragraph{Second case: the $\Delta s$ are unique.}
-In this case, the second eigenvector creates a nonzero contribution
+In this case, the second eigenvector creates a nonzero contribution,
 \begin{eqnarray}
- \hat{\tilde{B}}(\Delta s_1) \Vector{K}_{eig\,2} = \Vector{R}_{line} &\neq& 0
+ \hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,2} = \Vector{R}_{line} &\neq& 0
 \end{eqnarray}
 which we abbreviate as $\Vector{R}_{line}$.
 The imaging equation becomes
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + a_2 \Vector{R}_{line}  
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_2 \Vector{R}_{line}  
 \end{eqnarray}
 
 A point-like object is mapped to a line in image space.
-On lines parallel to $\Vector{R}_{line}$, 
-an intensity detector cannot distinguish the contribution of object position and $a_2$ to the final image position.
+Changing the image position parallel to $\Vector{R}_{line}$, 
+an intensity detector cannot distinguish the contribution of object and pupil position to the final image position.
+On the other hand, any change in image position perpendicular to the line focus $\Vector{R}_{line}$
+distinctively originates from a change in object position $\Vector{R}_{obj}$
+and we have astigmatic imaging.
+One could now be tempted to define the object positions based on the orthogonality on $\Vector{R}_{line}$ as 
+$\Vector{R}_{obj} = \hat{\tilde{A}}^{-1} (Y_{line}; - X_{line})$.
+This, however, turns out as a numerically instable choice for systems with small astigmatism $\lim (\Delta s_2 - \Delta s_1) \to 0$.
+The object positions $\Vector{R}_{obj\,1,2}$ for imaging under each defocus value would approach zero with this calculation method, 
+and ray aiming by a linear combination of both would become instable.
 
+Ideally, we would like to have a calculation method that works for stigmatic as well as for weakly and strongly astigmatic systems.
+TODO
 
 \chapter{Raytracing}
 
