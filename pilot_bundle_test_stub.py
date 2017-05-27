@@ -131,7 +131,8 @@ if __name__=="__main__":
     print(dkx)
     print(dky)
 
-
+    print("det 1st derivative absolute value")
+    print(np.sqrt(np.sum(np.conj(dDdk)*dDdk, axis=0)))
     print("det 2nd derivative")
     
     der2nd = mat.calcDet2ndDerivativePropagatorNorm(kvec)
@@ -140,7 +141,7 @@ if __name__=="__main__":
         (ev, evec) = np.linalg.eig(der2nd[:, :, i])
         print(ev)
         eigenvecs[:, :, i] = evec[np.abs(ev) < 1e-3]
-        print(evec)
+    print(eigenvecs)
 
     # TODO: transfer from 1 surf to another, extract 1st order properties
     # of transfer (automated differentiation)    
