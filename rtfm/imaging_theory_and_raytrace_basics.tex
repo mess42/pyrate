@@ -608,35 +608,8 @@ We introduce the refractive index $n$ as
 In general, there are two roots. 
 The choice of the root does not change anything in optics based on the Maxwell equations, as the permittivity is the only physically relevant quantity.
 
-\subsubsection{On so-called negative index materials}
-In literature, often a different behaviour is assigned to positive and negative refractive indices.
-It requires some introduction to explain what is commonly referred to as \emph{negative index material}.
-
-Some people artificially craft mesoscopically structured materials, referred to as meta-materials.
-They simulate or measure the propagation of electromagnetic fields through this material.
-Often, a material-air interface is considered under normal incidence of a plane wave.
-Upon incidence, some light enters the material.
-The propagation through the microscopically inhomogeneous material is approximated with a single plane wave.
-The functional dependence of the plane wave direction on the incident direction is determined in the near-normal limit.
-This dependence is compared to the Snellius law of refraction, with the refractive index as fitting parameter.
-For specially crafted materials, we need negative refractive indices for this empirical fit.
-
-The formulas in this manual cannot be used with negative indices in the sense of the above paragraph, 
-for the following reasons:
-\begin{itemize}
- \item Assuming two interfacing homogeneous materials, 
-       the Snellius law of refraction between two refractive indices of opposite sign
-       violates the surface boundary conditions.
-       (meta-materials are not homogeneous)
- \item Meta-materials often have no isotropic refractive index, 
-       but require a tensorial relation between $\Efield$ and $\Dfield$.
- \item Often, ohmic losses in meta-materials are not considered when fitting a real number on the data.
- \item Many meta-materials show strong deviation from the assumed law of refraction for incident light not normal to the surface.
-\end{itemize}
-
-The reduction of complex structured materials to a single real number requires great caution in interpretation.
-A safe way to describe meta-materials are Maxwell-exact solvers for electromagnetic fields, 
-as long as a permittivity can be defined for every point in space.
+There is a convention to indicate negative permeability and negative permittivity with a negative sign of the index.
+\remark{TODO: rewrite all formulas for non-vacuum permeabilities}
 
 \section{Boundary Conditions}
 Considering two media $\permittivity_\materialone$ and $\permittivity_\materialtwo$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
@@ -1622,6 +1595,22 @@ resembling the ABCD formalism.
  \end{pmatrix}
 \end{eqnarray}
 
+We split the input vector into two sub-vectors
+\begin{eqnarray}
+ \Vector{R} &=&
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \Vector{K} &=&
+ \begin{pmatrix}
+  \Re U \\ \Re V \\ \Im U \\ \Im V 
+ \end{pmatrix}
+ \\
+ \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
+ \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
+\end{eqnarray}
+
 
 \subsubsection{Propagation in homogeneous media}
 In homogeneous media, rays travel along straights.
@@ -1647,28 +1636,16 @@ TODO
 
 \subsubsection{Finite Conjugate Systems}
 We define imaging as:
-For a fixed ray starting position $(X,Y)$, there is a fan $(U,V)$ that is propagated on a common point in image space.
+For a fixed ray starting position $\Vector{R}_{obj}$, there is a fan $\Vector{K}_{obj}$ that is propagated on a common point in image space.
 
 \begin{eqnarray}
- \begin{pmatrix}
-  X_{im} \\ Y_{im} 
- \end{pmatrix}
- &=&
- \hat{A}
- \begin{pmatrix}
-  X_{obj} \\ Y_{obj}
- \end{pmatrix}
+ \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj}
 \end{eqnarray}
 or, in other words,
 \begin{eqnarray}
- \hat{B}
- \begin{pmatrix}
-  U_{obj} \\ V_{obj}
- \end{pmatrix}
- &=& 
- 0
+ \hat{B} \cdot \Vector{K}_{obj} &=& 0
 \end{eqnarray}
-The matrix $\hat{B}$ is of rank 2, the input vector $(U,V)$ contains 4 independent real valued degrees of freedom.
+The matrix $\hat{B}$ is of rank 2, the input vector $\Vector{K}$ contains 4 independent real valued degrees of freedom.
 That is, we can impose more constraints on the input vector. 
 In the following, we develop these additional requirements.
 
@@ -1716,70 +1693,69 @@ we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propag
 \end{eqnarray}
 with
 \begin{eqnarray} 
- \tilde{B}_{11} &=& B_{11} + 
-                    \left(
-                        \frac{\partial^2 X}{\partial s \partial \Re U} D_{11} 
-                      + \frac{\partial^2 X}{\partial s \partial \Re V} D_{21}
-                      + \frac{\partial^2 X}{\partial s \partial \Im U} D_{31}
-                      + \frac{\partial^2 X}{\partial s \partial \Im V} D_{41}
-                    \right) \Delta s
+ \tilde{B}_{ij} &=& B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \Delta s
  \nonumber \\
 \end{eqnarray}
-The characteristic polynomial is quadratic in $\Delta s$, so we expect two defocus positions where the determinant vanishes.
-Both defocus values come with a corresponding eigenvector $(U_{eigen},V_{eigen})$.
+We are interested in solutions $\Delta s$ for which the determinant vanishes.
+This problem is similar to an eigenvalue problem, so we call the solutions $\Delta s$ quasi-eigenvalues.
+The characteristic polnomial of the 4 by 4 matrix, however, is only of quadratic degree.
+The defocus values $\Delta s_{1,2}$ are quasi-eigenvalues and come with a corresponding quasi-eigenvector $\Vector{K}_{qeig\,1,2}$.
 Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in the image plane.
-We define $(U_{\perp},V_{\perp})$ as the direction orthogonal to the eigenvector, 
-that also forms a real grating in the object plane, and thus obeys \eqref{eq:xyuvRealGratingConstraint}.
-
 We start a light cone around an arbitrary near-pilot object position
 \begin{eqnarray}
-  \begin{pmatrix}
-    U \\ V
-  \end{pmatrix}
-  &=& a 
-  \begin{pmatrix}
-    U_{eigen} \\ V_{eigen}       
-  \end{pmatrix}
-  + b 
-  \begin{pmatrix}
-     U_{\perp} \\ V_{\perp} 
-  \end{pmatrix}
+ \Vector{K}_{obj} &=& p_1 \Vector{K}_{qeig\,1} + p_2 \Vector{K}_{qeig\,2}
 \end{eqnarray}
-where $a,b$ are real valued coefficients.
-Only the orthogonal components of $U$ and $V$ contribute to the image position
+where $p$ are real valued coefficients, representing aiming at different pupil positions.
+
 \begin{eqnarray}
- \begin{pmatrix}
-    X_{im} \\ Y_{im}  
- \end{pmatrix}
- &=&
- \hat{\tilde{A}} 
- \begin{pmatrix}
-   X \\ Y 
- \end{pmatrix}
- + b \hat{\tilde{B}} 
- \begin{pmatrix}
-   U_{\perp} \\V_{\perp} 
- \end{pmatrix}
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_i \hat{\tilde{B}}(\Delta s) \Vector{K}_{qeig\,i} 
+\end{eqnarray}
+
+We assume to be in the first eigen-distance, $\Delta s = \Delta s_1$.
+
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_1 \underbrace{\hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,1}}_0  + p_2 \hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,2} 
 \end{eqnarray}
 
 \paragraph{First case: both $\Delta s$ are degenerate.}
-In this case, both directions that obey \eqref{eq:xyuvRealGratingConstraint} are mapped onto the same point at the same time, so
+In this case, both eigenvectors vanish with the same $\Delta s$
 \begin{eqnarray}
- \hat{\tilde{B}} 
- \begin{pmatrix}
-   U_{\perp} \\V_{\perp} 
- \end{pmatrix}
- &=& 0
+ \hat{\tilde{B}}(\Delta s_1 = \Delta s_2) \Vector{K}_{qeig\,2}  = 0
 \end{eqnarray}
-The light cone is focused to a point in the image plane.
+The equation reduces to
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj}
+\end{eqnarray}
+Rays deviating from the pilot in any linear combination of the eigen-directions $\Vector{K}_{qeig\,1,2}$ are mapped onto the same point.
 The classical image condition is fulfilled.
+It may, however, still be anamorphotic.
+We use the eigenvalues of the matrix $\hat{\tilde{A}}$ as the 2 magnifications of the system.
 
 \paragraph{Second case: the $\Delta s$ are unique.}
-The cone originating from the object point is imaged to a line in the image.
-We have an astigmatic line focus.
+In this case, the second eigenvector creates a nonzero contribution,
+\begin{eqnarray}
+ \hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,2} = \Vector{R}_{line} &\neq& 0
+\end{eqnarray}
+which we abbreviate as $\Vector{R}_{line}$.
+The imaging equation becomes
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_2 \Vector{R}_{line}  
+\end{eqnarray}
 
-The line direction is TODO.
+A point-like object is mapped to a line in image space.
+Changing the image position parallel to $\Vector{R}_{line}$, 
+an intensity detector cannot distinguish the contribution of object and pupil position to the final image position.
+On the other hand, any change in image position perpendicular to the line focus $\Vector{R}_{line}$
+distinctively originates from a change in object position $\Vector{R}_{obj}$
+and we have astigmatic imaging.
+One could now be tempted to define the object positions based on the orthogonality on $\Vector{R}_{line}$ as 
+$\Vector{R}_{obj} = \hat{\tilde{A}}^{-1} (Y_{line}; - X_{line})$.
+This, however, turns out as a numerically instable choice for systems with small astigmatism $\lim (\Delta s_2 - \Delta s_1) \to 0$.
+The object positions $\Vector{R}_{obj\,1,2}$ for imaging under each defocus value would approach zero with this calculation method, 
+and ray aiming by a linear combination of both would become instable.
 
+Ideally, we would like to have a calculation method that works for stigmatic as well as for weakly and strongly astigmatic systems.
+TODO
 
 \chapter{Raytracing}
 
