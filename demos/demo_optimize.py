@@ -32,7 +32,7 @@ import math
 from core import material
 from core import surfShape
 from core.optimize import Optimizer
-from core.optimize_backends import ScipyBackend, Newton1DBackend
+from core.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
 from core.ray import RayBundle
 
 from core.aperture import CircularAperture, BaseAperture
@@ -215,12 +215,21 @@ for e in s.elements.itervalues():
         surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
         #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
-s.elements["lenssys"].surfaces["surf2"].shape.curvature.changetype("variable")
-s.elements["lenssys"].surfaces["surf3"].shape.curvature.changetype("variable")
-s.elements["lenssys"].surfaces["surf4"].shape.curvature.changetype("variable")
-s.elements["lenssys"].surfaces["surf6"].shape.curvature.changetype("variable")
-s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx.changetype("variable")
-
+curv2 = s.elements["lenssys"].surfaces["surf2"].shape.curvature
+curv2.changetype("variable")
+curv2.set_interval(-0.35, 0.35)
+curv3 = s.elements["lenssys"].surfaces["surf3"].shape.curvature
+curv3.changetype("variable")
+curv3.set_interval(-0.35, 0.35)
+curv4 = s.elements["lenssys"].surfaces["surf4"].shape.curvature
+curv4.changetype("variable")
+curv4.set_interval(-0.35, 0.35)
+curv6 = s.elements["lenssys"].surfaces["surf6"].shape.curvature
+curv6.changetype("variable")
+curv6.set_interval(-0.35, 0.35)
+tltx_var = s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx
+tltx_var.changetype("variable")
+tltx_var.set_interval(-3.*math.pi/180., 3.*math.pi/180.)
 
 def osnone(s):
     pass
@@ -235,13 +244,15 @@ def meritfunctionrms(s):
     x = rpath.raybundles[-1].x[-1, 0, :]
     y = rpath.raybundles[-1].x[-1, 1, :]
     
-    res = np.sum(x**2 + y**2)
+    res = np.sum(x**2 + y**2) + 10.*math.exp(-len(x))
     
-    print(res)
+    print("tlt: ", tltx_var())    
+    print("res: ", res)
     return res
 
-opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
+#opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
 #opt_backend = Newton1DBackend(dx=1e-6, iterations=100)
+opt_backend = ParticleSwarmBackend(c1=2.2, c2=2.1)
 optimi = Optimizer(s, \
                     meritfunctionrms, \
                     backend=opt_backend, \

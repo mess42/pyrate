@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+import math
 import uuid
 
 class OptimizableVariable(object):
@@ -71,14 +72,8 @@ class OptimizableVariable(object):
         self.changetype(variable_type)
         self.parameters = kwargs
 
-        # TODO: status variable for "pickup" and "external"
-        # TODO: either status variable is important or not
-        # TODO: most simple solution -> ignore status variable for "pickup" and "external"
-        # TODO: more complex solution -> use status variable to update initial_value and return its value
-        # in evaluate()
-
         self.initial_value = self.evaluate()
-
+        self.set_interval(None, None)
 
 
     def __str__(self, *args, **kwargs):
@@ -89,6 +84,26 @@ class OptimizableVariable(object):
 
     var_type = property(fget=getVarType)
 
+    def set_interval(self, left=None, right=None):
+        """
+        Interval transform from finite to infinite and back.
+        The reason for this is that the optimizer backend has
+        only to deal with infinite range variables and the user
+        can transparently change the interval. The idea and
+        verification is (up to a slight change in the 
+        transformation) taken from:
+        M. Roeber, "Multikriterielle Optimierungsverfahren fuer
+        rechenzeitintensive technische Aufgabenstellungen",
+        Diploma Thesis, Technische Universitaet Chemnitz, 
+        2010-03-31
+        """
+        # TODO: fine-tune for one-sided intervals
+        if left is None and right is None:
+            self.transform = lambda x: x
+            self.inv_transform = lambda x: x
+        else:
+            self.inv_transform = lambda x: left + (right - left)/(1. + math.exp(-x/math.fabs(right - left)))
+            self.transform = lambda x: math.log((-x + left)/(x - right))*math.fabs(left - right)
 
     def changetype(self, vtype, **kwargs):
         self.__var_type = vtype.lower()
@@ -135,6 +150,19 @@ class OptimizableVariable(object):
         
     def __call__(self):
         return self.evaluate()
+        
+    def evaluate_transformed(self):
+        '''
+        Transform variable value from finite interval to infinite IR before evaluation
+        '''
+        return self.transform(self.evaluate())
+        
+    def setvalue_transformed(self, value_transformed):
+        '''
+        Transform value back from infinite IR before setting value
+        '''
+        value = self.inv_transform(value_transformed)
+        self.setvalue(value)
         
 class ClassWithOptimizableVariables(object):
     """
@@ -245,8 +273,16 @@ class ClassWithOptimizableVariables(object):
         for i, var in enumerate(self.getActiveVariables()):
             var.setvalue(x[i])
 
+    def getActiveTransformedValues(self):
+        return np.array([a.evaluate_transformed() for a in self.getActiveVariables()])
 
-        
+    def setActiveTransformedValues(self, x):
+        """
+        Function to set all values of active variables to the values in the large np.array x.
+        """
+        for i, var in enumerate(self.getActiveVariables()):
+            var.setvalue_transformed(x[i])
+
 
 class Optimizer(object):
     '''
@@ -288,7 +324,7 @@ class Optimizer(object):
     
         :return value of the merit function
         """
-        self.classwithoptvariables.setActiveValues(x)
+        self.classwithoptvariables.setActiveTransformedValues(x)
         self.updatefunction(self.classwithoptvariables, **self.updateparameters)    
         return self.meritfunction(self.classwithoptvariables, **self.meritparameters)
 
@@ -296,13 +332,13 @@ class Optimizer(object):
         '''
         Funtion to perform a certain number of optimization steps.
         '''
-        x0 = self.classwithoptvariables.getActiveValues()
+        x0 = self.classwithoptvariables.getActiveTransformedValues()
         self.log += "initial x: " + str(x0) + '\n'
         self.log += "initial merit: " + str(self.MeritFunctionWrapper(x0)) + "\n"
         xfinal = self.__backend.run(x0)
         self.log += "final x: " + str(xfinal) + '\n'
         self.log += "final merit: " + str(self.MeritFunctionWrapper(xfinal)) + "\n"
-        self.classwithoptvariables.setActiveValues(xfinal)
+        self.classwithoptvariables.setActiveTransformedValues(xfinal)
         # TODO: do not change original classwithoptvariables
         return self.classwithoptvariables
 
