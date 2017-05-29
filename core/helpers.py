@@ -188,7 +188,7 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     der2nd = mat.calcDet2ndDerivativePropagatorNorm(krotx)
     print(der2nd) # matrix somehow wrong oriented (is Nx3x3 insteadt of 3x3xN)
     print(np.shape(der2nd))
-    (ev, evec) = np.linalg.eig(der2nd[0, :, :])
+    (ev, evec) = np.linalg.eig(der2nd[:, :, 0])
     print(ev)
     print(evec)        
 
