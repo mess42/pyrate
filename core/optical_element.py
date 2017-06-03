@@ -186,6 +186,12 @@ class OpticalElement(LocalCoordinatesTreeBase):
             # intersection point before refract/reflect (local coordinates surf2)
             endx = lcend.returnGlobalToLocalPoints(pb2.x[-1])
             endk = lcend.returnGlobalToLocalDirections(pb2.k[-1])
+
+            print("startx: ", startx)
+            print("startk: ", startk)
+            print("endx: ", endx)
+            print("endk: ", endk)
+            
             
             startxred = reduce_matrix_x(startx)
             startkred = reduce_matrix_k(startk)
@@ -242,6 +248,17 @@ class OpticalElement(LocalCoordinatesTreeBase):
                 coordinatetrafomatrix4x4 = np.dot(endmatrix4x4, np.linalg.inv(endmatrix_lcstart4x4))
 
                 transfer4x4 = np.dot(endmatrix4x4, np.linalg.inv(startmatrix4x4))
+
+                print("SA: ", startmatrix4x4[0:2, 0:2])
+                print("EA: ", endmatrix4x4[0:2, 0:2])
+                print("SB: ", startmatrix4x4[0:2, 2:4])
+                print("EB: ", endmatrix4x4[0:2, 2:4])
+                sc = startmatrix4x4[2:4, 0:2]
+                sd = endmatrix4x4[2:4, 2:4]
+                print("SC: ", sc)
+                print("SD: ", sd)
+                print("SD^-1 SC: ", np.dot(np.linalg.inv(sd), sc))
+
 
                 print("refract matrix 4x4", surfhit)            
                 print(np.array_str(refractmatrix4x4, precision=5, suppress_small=True))
