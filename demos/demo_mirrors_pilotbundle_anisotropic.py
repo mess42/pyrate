@@ -69,7 +69,13 @@ image1 = Surface(lc4)
 oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 30.0))
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 
-air = material.ConstantIndexGlass(lc0, 1.0 + 1j)
+rnd_data1 = np.random.random((3, 3)) #np.eye(3)
+rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
+
+lc = LocalCoordinates("1")
+myeps = rnd_data1 + complex(0, 1)*rnd_data2
+
+air = material.AnisotropicMaterial(lc0, myeps)
 
 elem = OpticalElement(lc0, label="TMA")
 
@@ -135,57 +141,6 @@ r2 = s.seqtrace(initialbundle, sysseq)
 pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
 (pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
-
-
-
-### TODO:
-### first tries to implement aiming, but the code is somewhat hard to use
-### we need to get rid of the pilot ray in every call
-### we need to convert between XK representation local 3D coordinates and
-### global raybundle coordinates in a more easy way
-###
-#oea = OpticalElementAnalysis(s.elements["TMA"])
-#
-#xyuvobjectstop = oea.calcXYUV([("object", "m1", 1), ("m1", "m2", 1)], pilotbundle2, sysseq[0][1], air)
-#
-#Axyuv = xyuvobjectstop[0:2, 0:2]
-#Bxyuv = xyuvobjectstop[0:2, 2:4]
-#Cxyuv = xyuvobjectstop[2:4, 0:2]
-#Dxyuv = xyuvobjectstop[2:4, 2:4]
-#
-#
-#
-#alpha = np.linspace(0, 360, 20)*math.pi/180.
-#pts = np.vstack((8.*np.cos(alpha), 8.*np.sin(alpha), np.zeros_like(alpha), np.zeros_like(alpha)))
-#ptsXY = pts[0:2]
-#
-#kobj = np.dot(np.linalg.inv(Bxyuv), ptsXY)
-#
-#ptsobj = np.dot(np.linalg.inv(xyuvobjectstop), pts)
-#
-#
-#
-#xobj = ptsobj[0]
-#yobj = ptsobj[1]
-#
-#kxobj = kobj[0]
-#kyobj = kobj[1]
-#
-#o = np.vstack((xobj, yobj, np.zeros_like(xobj)))
-#k = np.zeros_like(o)
-#k[0,:] = kxobj
-#k[1,:] = kyobj
-#k[2,:] = np.sqrt((2.*math.pi/wavelength)**2 - kxobj**2 - kyobj**2)
-#
-#ey = np.zeros_like(o)
-#ey[1,:] =  1.
-#
-#E0 = np.cross(k, ey, axisa=0, axisb=0).T
-#initialbundle = RayBundle(x0=lc0.returnLocalToGlobalPoints(o), k0=lc0.returnLocalToGlobalDirections(k), Efield0=lc0.returnLocalToGlobalDirections(E0), wave=wavelength)
-#r4 = s.seqtrace(initialbundle, sysseq)
-
-
-
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
 ax.axis('equal')
@@ -193,8 +148,6 @@ if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
     ax.set_axis_bgcolor('white')
 else:
     ax.set_facecolor('white')
-
-
 
 phi = 0. #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
@@ -212,4 +165,3 @@ for e in s.elements.itervalues():
         #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 plt.show()
-

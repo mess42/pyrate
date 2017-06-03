@@ -29,7 +29,7 @@ from core.material import AnisotropicMaterial
 from core.localcoordinates import LocalCoordinates
 
 def choose_nearest(kvec, kvecs_new):
-    tol = 1e-6
+    tol = 1e-3
     (kvec_dim, kvec_len) = np.shape(kvec)
     (kvec_new_no, kvec_new_dim, kvec_new_len) = np.shape(kvecs_new)
     
@@ -53,8 +53,11 @@ def choose_nearest(kvec, kvecs_new):
 if __name__=="__main__":
     
     num_pts = 1    
-    rnd_vecs = np.random.randn(3, num_pts) #np.zeros((3, num_pts))#
-    #rnd_vecs[2, :] = 1
+    #rnd_vecs = np.random.randn(3, num_pts)
+
+    rnd_vecs = np.zeros((3, num_pts))
+    rnd_vecs[2, :] = 1
+
     rnd_units = rnd_vecs/np.linalg.norm(rnd_vecs, axis=0)
 
     #rnd_data1 = np.random.random((3, 3)) #np.eye(3)
@@ -132,16 +135,29 @@ if __name__=="__main__":
     print(dky)
 
     print("det 1st derivative absolute value")
-    print(np.sqrt(np.sum(np.conj(dDdk)*dDdk, axis=0)))
+    dDdkabsvalue = np.sqrt(np.sum(np.conj(dDdk)*dDdk, axis=0))
+    print(dDdkabsvalue)
     print("det 2nd derivative")
     
-    der2nd = mat.calcDet2ndDerivativePropagatorNorm(kvec)
-    eigenvecs = np.zeros((2, 3, num_pts), dtype=complex)
-    for i in range(num_pts):
-        (ev, evec) = np.linalg.eig(der2nd[:, :, i])
-        print(ev)
-        eigenvecs[:, :, i] = evec[np.abs(ev) < 1e-3]
-    print(eigenvecs)
+    if np.all(dDdkabsvalue < 1e-3):
+        
+        der2nd = mat.calcDet2ndDerivativePropagatorNorm(kvec)
+        print(der2nd)
+        eigenvecs = np.zeros((2, 3, num_pts), dtype=complex)
+        for i in range(num_pts):
+            (ev, evec) = np.linalg.eig(der2nd[:, :, i])
+            print(ev)
+            eigenvecs[:, :, i] = evec[np.abs(ev) < 1e-3]
+    
+        dkx_iso = choose_nearest(kvec, mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, eigenvecs[0]))       
+        dky_iso = choose_nearest(kvec, mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, eigenvecs[1]))       
+    
+        print(dkx_iso)
+        print(dky_iso)
+    
+        print("det dkx_iso: ", mat.calcDetPropagatorNorm(dkx_iso))
+        print("det dky_iso: ", mat.calcDetPropagatorNorm(dky_iso))
+
 
     # TODO: transfer from 1 surf to another, extract 1st order properties
     # of transfer (automated differentiation)    

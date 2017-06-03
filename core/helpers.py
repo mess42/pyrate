@@ -93,6 +93,25 @@ def build_simple_optical_system(builduplist, matdict):
 # <Re k, S> > 0 and <Im k, S> > 0
 
 
+def choose_nearest(kvec, kvecs_new):
+    tol = 1e-3
+    (kvec_dim, kvec_len) = np.shape(kvec)
+    (kvec_new_no, kvec_new_dim, kvec_new_len) = np.shape(kvecs_new)
+    
+    res = np.zeros_like(kvec)    
+    
+    if kvec_new_dim == kvec_dim and kvec_len == kvec_new_len:
+        for j in range(kvec_len):
+            diff_comparison = 1e10
+            choosing_index = 0
+            for i in range(kvec_new_no):
+                vdiff = kvecs_new[i, :, j] - kvec[:, j]
+                hermite_abs_square = np.dot(np.conj(vdiff), vdiff)
+                if  hermite_abs_square < diff_comparison and hermite_abs_square > tol:
+                    choosing_index = i
+                    diff_comparison = hermite_abs_square
+            res[:, j] = kvecs_new[choosing_index, :, j]
+    return res
 
     
 def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
@@ -117,10 +136,18 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     
     kwave = 2.*math.pi/wave
 
+    # 6x6
+    #xlocx = np.array([
+    #                    [0, dx, 0, 0, 0, 0, 0], 
+    #                    [0, 0, dy, 0, 0, 0, 0], 
+    #                    [0, 0, 0, 0, 0, 0, 0]])
+
+    # 4x4
     xlocx = np.array([
-                        [0, dx, 0, 0, 0, 0, 0], 
-                        [0, 0, dy, 0, 0, 0, 0], 
-                        [0, 0, 0, 0, 0, 0, 0]])
+                        [0, dx, 0, 0, 0], 
+                        [0, 0, dy, 0, 0], 
+                        [0, 0, 0, 0, 0]])
+
 
     (num_dim, num_pilot_points) = np.shape(xlocx)
 
@@ -136,96 +163,63 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     kunitmat = mat.lc.returnOtherToActualDirections(kunitvector, lck)
     
     kvectorsmat = mat.calcKNormfromUnitVector(xlocmat[:, 0][:, np.newaxis], kunitmat)
-    print(kvectorsmat)
-    print(Elock)
+    
+    # 6x6    
+    #klock = np.array([
+    #      [0, 0, 0, kwave*math.sin(phix), 0, 1e-3j, 0], 
+    #      [0, 0, 0, 0, kwave*math.sin(phiy), 0, 1e-3j], 
+    #      [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy), kwave, kwave]]
+    #)
 
-    get_kvector = np.ones((4,), dtype=bool)
+    mat_ez = np.zeros((3, 1))
+    mat_ez[2, :] = 1
+    
+    sol_choice = np.zeros(4, dtype=bool)
+    efield = Elock[:, :1] # do not reduce shape
+
+
     for i in range(4):
-        Svectorsmat = mat.calcPoytingVectorNorm(kvectorsmat[i], Elock[:, 0, np.newaxis])    
-        scalarproduct = np.einsum("i...,i...", Svectorsmat, kvectorsmat[i])[0]
-        get_kvector[i] = np.real(scalarproduct) > 0 and np.imag(scalarproduct) >= 0
-    print(kvectorsmat)
+        print("solution n0 %d" % (i,))
+        kvecsol = np.copy(kvectorsmat[i])
 
-    kvector_base = kvectorsmat[get_kvector][0][:]
-    unitaryrandom = random_rotation_matrix(3)    
-    print(np.dot(np.conj(unitaryrandom).T, unitaryrandom))    
-    
-    kvector_base_turned = np.dot(unitaryrandom, kvector_base)
-    print(kvector_base)
-    print(kvector_base_turned)
+        Svec = mat.calcPoytingVectorNorm(kvecsol, efield)
+        SvecDir = Svec/np.linalg.norm(Svec, axis=0)
+        scalar_product = np.sum(mat_ez*SvecDir, axis=0)
+        sol_choice[i] = scalar_product > 0
+        print("scalar product between S and local z direction: %f" % (scalar_product, ))
         
-    print("det: ", mat.calcDetPropagatorNorm(kvector_base))
-    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned))
-    print("det: ", mat.calcDetPropagatorNorm(complex(0, 1)*kvector_base_turned))
+    kvec = kvectorsmat[sol_choice][0]
+    print("Kvector without 2pi/lambda")
+    print(kvec)
 
-    # unitary transformations are changing the determinant result,
-    # while standard SO(n) rotations are not (to be tested!)
-    # to get an invariant square of k (i.e. rotated with SO(n))
-    # kr^2 - ki^2 = const and scalar(kr, ki) = const
-    # what about ki = 0 like for k ~ e_z?
-    # falls ki vorher nicht da war und dann auftaucht: kr einkuerzen
+    
+    rotx = rodrigues(phix, [1, 0, 0])
+    roty = rodrigues(phiy, [0, 1, 0])        
+            
+    rnd_units_rx = np.einsum("ij...,j...", rotx, kunitmat).T
+    rnd_units_ry = np.einsum("ij...,j...", roty, kunitmat).T
 
-    kr = np.real(kvector_base)
-    ki = np.imag(kvector_base)
-    
-    krotx = np.dot(rodrigues(phix, [1, 0, 0]), kvector_base)
-    kroty = np.dot(rodrigues(phix, [0, 1, 0]), kvector_base)    
 
-    print("kr")
-    print(kr)
-    print("ki")
-    print(ki)
-    
-    print("orthogonal vector")
-    print((-2*ki + complex(0, 1)*kr)[:, 0])    
-    
-    dkix = np.cross(canonical_ey, (-2*ki + complex(0, 1)*kr)[:, 0])[:, np.newaxis]
-    dkiy = np.cross((-2*ki + complex(0, 1)*kr)[:, 0], canonical_ex)[:, np.newaxis]    
-    
-    print("det derivative")
-    print(mat.calcDetDerivativePropagatorNorm(krotx))
-    print("det 2nd derivative")
-    der2nd = mat.calcDet2ndDerivativePropagatorNorm(krotx)
-    print(der2nd) # matrix somehow wrong oriented (is Nx3x3 insteadt of 3x3xN)
-    print(np.shape(der2nd))
-    (ev, evec) = np.linalg.eig(der2nd[:, :, 0])
-    print(ev)
-    print(evec)        
+    kvec_turned_x = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, 1)), rnd_units_rx))
+    kvec_turned_y = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, 1)), rnd_units_ry))
 
-    dkix = 1e-3*evec[1, :, np.newaxis]
-    dkiy = 1e-3*evec[2, :, np.newaxis]
+    print(kvec_turned_x)
+    print(kvec_turned_y)
+
+
+    # 4x4
+
+    klock = kwave*np.hstack((kvec, kvec, kvec, kvec_turned_x, kvec_turned_y))
     
-    # absolute value of dkix, dkiy?
+    print(np.array_str(klock, precision=5, suppress_small=True))
     
-        
-    if np.linalg.norm(ki) < 1e-8: # pure real kvector_base
-        pass
-    
-    print("krotx")
-    print(krotx)
-    print("kroty")
-    print(kroty)
-    print("dkix")
-    print(dkix)
-    print("dkiy")
-    print(dkiy)
-    
-    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned + dkix))
-    print("det: ", mat.calcDetPropagatorNorm(kvector_base_turned + dkiy))
-    print("det: ", mat.calcDetPropagatorNorm(krotx))
-    print("det: ", mat.calcDetPropagatorNorm(kroty))
-    
-    
-    dklock = np.array([[kwave, 0, complex(0, kwave), 0],
-                       [0, kwave, 0, complex(0, kwave)],
-                       [0, 0, 0, 0]])
-    dklocmat = mat.lc.returnOtherToActualDirections(dklock, lck)
-    
-    klock = np.array([
-          [0, 0, 0, kwave*math.sin(phix), 0, 1e-3j, 0], 
-          [0, 0, 0, 0, kwave*math.sin(phiy), 0, 1e-3j], 
-          [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy), kwave, kwave]]
-    )
+    #klock = np.array([
+    #      [0, 0, 0, kwave*math.sin(phix), 0], 
+    #      [0, 0, 0, 0, kwave*math.sin(phiy)], 
+    #      [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy)]]
+    #)
+
+
     # calculate kloc by fulfilling certain consistency conditions (e.g.) determinant condition
     # xi component has to be provided by material
 
