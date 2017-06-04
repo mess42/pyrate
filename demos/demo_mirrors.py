@@ -69,7 +69,7 @@ image1 = Surface(lc4)
 oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 30.0))
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 
-air = material.ConstantIndexGlass(lc0, 1.0 + 1j)
+air = material.ConstantIndexGlass(lc0, 1.0)
 
 elem = OpticalElement(lc0, label="TMA")
 
