@@ -153,7 +153,7 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     
     use5point4x4 = False # use 5 point or bestfit for estimating linear transfer matrices    
 
-    nunits_cone_mat = generate_cone(kunitvector, 2, 100000)
+    nunits_cone_mat = generate_cone(kunitvector, 2, 1000000)
 
     
     if not use5point4x4:
