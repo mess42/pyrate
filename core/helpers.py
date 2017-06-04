@@ -128,14 +128,7 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
 
         x = centerx + dx*(1. - 2.*np.random.random(num_pts - 1))
         y = centery + dy*(1. - 2.*np.random.random(num_pts - 1))
-        
-        #x = centerx + dx*np.linspace(-1., 1., num_pts)
-        #y = centery + dy*np.linspace(-1., 1., num_pts)
-        
-        #x = x[np.abs(x - centerx) > 1e-10] # dirty work around for removing the 0 entries
-        #y = y[np.abs(y - centery) > 1e-10]
-        
-        
+                        
         z = np.zeros_like(x)
         
         res = np.vstack((x, y, z))

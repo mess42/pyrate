@@ -120,7 +120,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
         
         return hitlist
 
-    def calculateXYUV(self, pilotinitbundle, sequence, background_medium):
+    def calculateXYUV(self, pilotinitbundle, sequence, background_medium, use6x6=True):
 
         # TODO: needs heavy testing        
         
@@ -160,11 +160,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
         endpilotbundle = pilotraypath.raybundles[1:]
 
         XYUVmatrices = {}
-        
-        use6x6 = False # True is 6x6 matrices, False is 4x4
-        
-        
-       
+                
+               
         for (pb1, pb2, surfhit) in zip(startpilotbundle, endpilotbundle, hitlist):
             
             (s1, s2, numhit) = surfhit
@@ -210,6 +207,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             (num_dims, num_pts) = np.shape(startx) # check shape            
             
             if num_pts == 5:
+                print("inversion algo for 5 points")                
                 if use6x6:
                     startmatrix6x6 = np.vstack((startxred, startkred_real, startkred_imag))
                     fspropmatrix6x6 = np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
@@ -267,32 +265,49 @@ class OpticalElement(LocalCoordinatesTreeBase):
                     XYUVmatrices[(s1, s2, numhit)] = transfer4x4
                     XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)
             else: # if num_pts != 5
-            
-                X = np.vstack((startxred, startkred))
-                Y = np.vstack((endxred, endkred))
-                
-                XX = np.einsum('ij, kj', X, X).T
-                YX = np.einsum('ij, kj', X, Y).T
-                
-                transfer4x4 = np.dot(YX, np.linalg.inv(XX))
-                
-                print("XX 4x4")                
-                print(XX)
-                print("YX 4x4")                
-                print(YX)
-                print("XXD 2x2")
-                print(XX[2:4, 2:4])
-                print("XXC 2x2")
-                print(XX[2:4, 0:2])
-                
-                # may we remove the imaginary parts from the upper left 2x2 matrix?
-                transfer4x4[0:2, 0:2] = transfer4x4[0:2, 0:2].real
+                print("best fit algo")                
+                if use6x6:
+                    X = np.vstack((startxred, startkred_real, startkred_imag))
+                    Y = np.vstack((endxred, endkred_real, endkred_imag))
 
-                print("transfermatrix 4x4")                
-                print(transfer4x4)
-                
-                XYUVmatrices[(s1, s2, numhit)] = transfer4x4
-                XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)
+                    XX = np.einsum('ij, kj', X, X).T
+                    YX = np.einsum('ij, kj', X, Y).T
+                    
+                    transfer6x6 = np.dot(YX, np.linalg.inv(XX))
+
+                    print("transfermatrix 6x6")                
+                    print(np.array_str(transfer6x6, precision=5, suppress_small=True))
+                    
+                    XYUVmatrices[(s1, s2, numhit)] = transfer6x6
+                    XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer6x6)
+
+
+                else:
+                    X = np.vstack((startxred, startkred))
+                    Y = np.vstack((endxred, endkred))
+                    
+                    XX = np.einsum('ij, kj', X, X).T
+                    YX = np.einsum('ij, kj', X, Y).T
+                    
+                    transfer4x4 = np.dot(YX, np.linalg.inv(XX))
+                    
+                    print("XX 4x4")                
+                    print(XX)
+                    print("YX 4x4")                
+                    print(YX)
+                    print("XXD 2x2")
+                    print(XX[2:4, 2:4])
+                    print("XXC 2x2")
+                    print(XX[2:4, 0:2])
+                    
+                    # may we remove the imaginary parts from the upper left 2x2 matrix?
+                    transfer4x4[0:2, 0:2] = transfer4x4[0:2, 0:2].real
+    
+                    print("transfermatrix 4x4")                
+                    print(transfer4x4)
+                    
+                    XYUVmatrices[(s1, s2, numhit)] = transfer4x4
+                    XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)
        
         return (pilotraypath, XYUVmatrices)
      
@@ -325,10 +340,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
         return rpath
         
     
-    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium):
+    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, use6x6=True):
         
         rpath = RayPath(raybundle)
-        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium)
+        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, use6x6=use6x6)
 
         hitlist = self.sequence_to_hitlist(sequence)
         
@@ -351,8 +366,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
             px1 = surf_end.rootcoordinatesystem.returnGlobalToLocalPoints(pe.x[-1][:, 0].reshape((3, 1)))
             pk1 = surf_end.rootcoordinatesystem.returnGlobalToLocalDirections(pe.k[-1][:, 0].reshape((3, 1)))
-
-            use6x6 = False            
             
             dx0 = (x0 - px0)[0:2]
             if use6x6:
