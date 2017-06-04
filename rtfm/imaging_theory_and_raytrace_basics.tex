@@ -1597,7 +1597,7 @@ resembling the ABCD formalism.
 
 We split the input vector into two sub-vectors
 \begin{eqnarray}
- \Vector{R} &=&
+ \Vector{H} &=&
  \begin{pmatrix}
   X \\ Y
  \end{pmatrix}
@@ -1607,8 +1607,8 @@ We split the input vector into two sub-vectors
   \Re U \\ \Re V \\ \Im U \\ \Im V 
  \end{pmatrix}
  \\
- \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
- \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
+ \Vector{H}_{fin} &=& \hat{A} \cdot \Vector{H}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
+ \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{H}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
 \end{eqnarray}
 
 
@@ -1635,127 +1635,77 @@ separated by a pilot ray geometric path length of $\Delta s$
 TODO
 
 \subsubsection{Finite Conjugate Systems}
-We define imaging as:
-For a fixed ray starting position $\Vector{R}_{obj}$, there is a fan $\Vector{K}_{obj}$ that is propagated on a common point in image space.
-
+We define a ray fan to be imaged, 
+if for a common ray starting position $\Vector{H}_{obj}$, all multiples of a
+ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj}
+ \Vector{H}_{im} &=& \hat{A} \cdot \Vector{H}_{obj}
 \end{eqnarray}
 or, in other words,
 \begin{eqnarray}
  \hat{B} \cdot \Vector{K}_{obj} &=& 0
 \end{eqnarray}
 The matrix $\hat{B}$ is of rank 2, the input vector $\Vector{K}$ contains 4 independent real valued degrees of freedom.
-That is, we can impose more constraints on the input vector. 
-In the following, we develop these additional requirements.
-
+We can impose more constraints on the input vector. 
 We consider the plane waves of the pilot ray and a near pilot ray, 
 $\Wavevector_{pilot}$ and $\Wavevector = \Wavevector_{pilot} + U \Vector{e}_U + V \Vector{e}_V$.
 They interfere and form a sinusoidal grating intensity pattern
 \begin{eqnarray}
  I &=& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
 \end{eqnarray}
-We restrict the locations to the image plane
-\begin{eqnarray}
- \Location &=& \Location_{pilot} + X \Vector{e}_X + Y \Vector{e}_Y
-\end{eqnarray}
 We desire the modulation depth of the intensity pattern to be independent of position
 \begin{eqnarray}
  (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
 \end{eqnarray}
-%\begin{eqnarray}
-% \Im (U \Vector{e}_U + V \Vector{e}_V)(X \Vector{e}_X + Y \Vector{e}_Y) &=& 0
-%\end{eqnarray}
-Together with the imaging condition, we obtain
+This shall hold for all positions $\Vector{H}=(X,Y)$, so
 \begin{eqnarray}
-  \begin{pmatrix}
-  B_{11} & B_{12} & B_{13} & B_{14} \\
-  B_{21} & B_{22} & B_{23} & B_{24} \\
-  (\Im \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\
-  (\Im \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
+ \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_X ) &=& 0 \\
+ \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_Y ) &=& 0
+\end{eqnarray}
+We find 2 independent solutions $\Vector{K} = (\Re U, \Re V, \Im U, \Im V)$ that form real gratings in the object plane.
+We choose the solutions in an orthogonal manner $\Vector{K}_1 \cdot \Vector{K}_2 = 0$.
+All wavevector deviations must be constructed as linear combinations of them.
+\begin{eqnarray}
+ \Delta \Wavevector &=& P_1 \Vector{K}_1 + P_2 \Vector{K}_2
+\end{eqnarray}
+We call $P_{1,2} \in \mathbb{R}$ the pupil coordinates. The are not normalized and may be arbitrarily scaled.
+Our imaging condition reduces to
+\begin{eqnarray}
+ \hat{B}
+ \begin{pmatrix}
+ K_{1,1} & K_{1,2} \\
+ K_{2,1} & K_{2,2} \\
+ K_{3,1} & K_{3,2} \\
+ K_{4,1} & K_{4,2} \\ 
  \end{pmatrix}
  \begin{pmatrix}
-  \Re U_{obj} \\ \Re V_{obj} \\ \Im U_{obj} \\ \Im V_{obj} 
+ P_1 \\ P_2 
  \end{pmatrix}
  &=& 0
 \end{eqnarray}
-Nontrivial solutions are found if the determinant vanishes.
+Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{K}_1, \Vector{K}_2)$ vanishes.
 In case the determeninant is nonzero, 
-we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} in front of the image plane.
-\begin{eqnarray}
-  \begin{vmatrix}
-  \tilde{B}_{11} & \tilde{B}_{12} & \tilde{B}_{13} & \tilde{B}_{14} \\
-  \tilde{B}_{21} & \tilde{B}_{22} & \tilde{B}_{23} & \tilde{B}_{24} \\
-  (\Im \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\
-  (\Im \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
- \end{vmatrix}
- &=& 0
-\end{eqnarray}
-with
+we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} by a distance $\Delta s$ 
+in front of the image plane.
+We obtain the matrix $\hat{\tilde{B}}$ of the imaging system after refocus and projection on our 2 wavevector solutions
 \begin{eqnarray} 
- \tilde{B}_{ij} &=& B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \Delta s
- \nonumber \\
+ \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) K_{j,n}
+\end{eqnarray}
+The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
+The imaging condition becomes
+\begin{eqnarray}
+ \hat{\tilde{B}}(\Delta s) \Vector{P} &=& 0
 \end{eqnarray}
 We are interested in solutions $\Delta s$ for which the determinant vanishes.
 This problem is similar to an eigenvalue problem, so we call the solutions $\Delta s$ quasi-eigenvalues.
-The characteristic polnomial of the 4 by 4 matrix, however, is only of quadratic degree.
-The defocus values $\Delta s_{1,2}$ are quasi-eigenvalues and come with a corresponding quasi-eigenvector $\Vector{K}_{qeig\,1,2}$.
-Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in the image plane.
-We start a light cone around an arbitrary near-pilot object position
-\begin{eqnarray}
- \Vector{K}_{obj} &=& p_1 \Vector{K}_{qeig\,1} + p_2 \Vector{K}_{qeig\,2}
-\end{eqnarray}
-where $p$ are real valued coefficients, representing aiming at different pupil positions.
+The characteristic polynomial is quadratic in $\Delta s$.
+The defocus values $\Delta s_{1,2}$ are quasi-eigenvalues 
+and come with a corresponding quasi-eigenvector $\Vector{P}_{qeig\,1,2}$ or $\Vector{K}_{qeig\,1,2}$ , respectively.
+Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in image plane, 
+if the corresponding eigen-defocus is applied.
 
-\begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_i \hat{\tilde{B}}(\Delta s) \Vector{K}_{qeig\,i} 
-\end{eqnarray}
 
-We assume to be in the first eigen-distance, $\Delta s = \Delta s_1$.
 
-\begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_1 \underbrace{\hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,1}}_0  + p_2 \hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,2} 
-\end{eqnarray}
-
-\paragraph{First case: both $\Delta s$ are degenerate.}
-In this case, both eigenvectors vanish with the same $\Delta s$
-\begin{eqnarray}
- \hat{\tilde{B}}(\Delta s_1 = \Delta s_2) \Vector{K}_{qeig\,2}  = 0
-\end{eqnarray}
-The equation reduces to
-\begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj}
-\end{eqnarray}
-Rays deviating from the pilot in any linear combination of the eigen-directions $\Vector{K}_{qeig\,1,2}$ are mapped onto the same point.
-The classical image condition is fulfilled.
-It may, however, still be anamorphotic.
-We use the eigenvalues of the matrix $\hat{\tilde{A}}$ as the 2 magnifications of the system.
-
-\paragraph{Second case: the $\Delta s$ are unique.}
-In this case, the second eigenvector creates a nonzero contribution,
-\begin{eqnarray}
- \hat{\tilde{B}}(\Delta s_1) \Vector{K}_{qeig\,2} = \Vector{R}_{line} &\neq& 0
-\end{eqnarray}
-which we abbreviate as $\Vector{R}_{line}$.
-The imaging equation becomes
-\begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}} \Vector{R}_{obj} + p_2 \Vector{R}_{line}  
-\end{eqnarray}
-
-A point-like object is mapped to a line in image space.
-Changing the image position parallel to $\Vector{R}_{line}$, 
-an intensity detector cannot distinguish the contribution of object and pupil position to the final image position.
-On the other hand, any change in image position perpendicular to the line focus $\Vector{R}_{line}$
-distinctively originates from a change in object position $\Vector{R}_{obj}$
-and we have astigmatic imaging.
-One could now be tempted to define the object positions based on the orthogonality on $\Vector{R}_{line}$ as 
-$\Vector{R}_{obj} = \hat{\tilde{A}}^{-1} (Y_{line}; - X_{line})$.
-This, however, turns out as a numerically instable choice for systems with small astigmatism $\lim (\Delta s_2 - \Delta s_1) \to 0$.
-The object positions $\Vector{R}_{obj\,1,2}$ for imaging under each defocus value would approach zero with this calculation method, 
-and ray aiming by a linear combination of both would become instable.
-
-Ideally, we would like to have a calculation method that works for stigmatic as well as for weakly and strongly astigmatic systems.
-TODO
 
 \chapter{Raytracing}
 
