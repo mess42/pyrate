@@ -753,3 +753,66 @@ class AnisotropicMaterial(MaxwellMaterial):
         (num_dims, num_pts) = np.shape(x)
         
         return np.repeat(self.epstensor[:, :, np.newaxis], num_pts, axis=2)
+
+    #########################################
+    # first dummy implementations to get anisotropic material running
+    #########################################
+
+    def calcEfield(self, x, n, k, wave=standard_wavelength):
+        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
+        ey = np.zeros_like(k)
+        ey[1,:] =  1.
+        return np.cross(k, ey, axisa=0, axisb=0).T
+
+
+    def propagate(self, raybundle, nextSurface):
+
+        """
+        Propagates through material until nextSurface.
+        Has to check for aperture (TODO). Changes raybundle!
+        
+        :param raybundle (RayBundle object), gets changed!
+        :param nextSurface (Surface object)
+        """
+
+        nextSurface.intersect(raybundle)
+
+    def refract(self, raybundle, actualSurface):
+
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
+        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
+        xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+
+        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
+
+        xi = self.calcXiAnisotropic(xlocal, normal, k_inplane, wave=raybundle.wave)[1]
+                
+        k2 = k_inplane + xi * normal
+
+        orig = raybundle.x[-1]        
+        newk = self.lc.returnLocalToGlobalDirections(k2)
+
+        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
+
+        return RayBundle(orig, newk, Efield, raybundle.rayID, raybundle.wave)
+
+    def reflect(self, raybundle, actualSurface):
+
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
+        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
+        xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+
+        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
+
+        xi = self.calcXiAnisotropic(xlocal, normal, k_inplane, wave=raybundle.wave)[0]
+        
+        k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
+
+        # return ray with new direction and properties of old ray
+        # return only valid rays
+        orig = raybundle.x[-1]        
+        newk = self.lc.returnLocalToGlobalDirections(k2)
+
+        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
+        
+        return RayBundle(orig, newk, Efield, raybundle.rayID, raybundle.wave)

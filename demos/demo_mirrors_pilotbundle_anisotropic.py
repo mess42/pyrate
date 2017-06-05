@@ -49,8 +49,15 @@ import core.helpers
 
 wavelength = 0.5876e-3
 
+rnd_data1 = np.random.random((3, 3)) #np.eye(3)
+rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
+lc = LocalCoordinates("1")
+myeps = rnd_data1 + complex(0, 1)*rnd_data2
+crystal = material.AnisotropicMaterial(lc, myeps)
+
+
 # definition of optical system
-s = OpticalSystem() 
+s = OpticalSystem(matbackground=crystal) 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
@@ -69,17 +76,10 @@ image1 = Surface(lc4)
 oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 30.0))
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 
-rnd_data1 = np.random.random((3, 3)) #np.eye(3)
-rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
-
-lc = LocalCoordinates("1")
-myeps = rnd_data1 + complex(0, 1)*rnd_data2
-
-air = material.AnisotropicMaterial(lc0, myeps)
 
 elem = OpticalElement(lc0, label="TMA")
 
-elem.addMaterial("air", air)
+#elem.addMaterial("crystal", crystal)
 
 elem.addSurface("object", objectsurf, (None, None))
 elem.addSurface("m1", m1surf, (None, None))
@@ -139,7 +139,7 @@ r2 = s.seqtrace(initialbundle, sysseq)
 
 kw = 5*math.pi/180.
 
-pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]))
+pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]))
 (pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
 fig = plt.figure(1)
