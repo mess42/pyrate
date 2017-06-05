@@ -1687,8 +1687,9 @@ Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{K}_1
 In case the determeninant is nonzero, 
 we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} by a distance $\Delta s$ 
 in front of the image plane.
-We obtain the matrix $\hat{\tilde{B}}$ of the imaging system after refocus and projection on our 2 wavevector solutions
-\begin{eqnarray} 
+We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
+\begin{eqnarray}
+ \tilde{A} &=& TODO \\
  \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) K_{j,n}
 \end{eqnarray}
 The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
@@ -1703,6 +1704,76 @@ The defocus values $\Delta s_{1,2}$ are quasi-eigenvalues
 and come with a corresponding quasi-eigenvector $\Vector{P}_{qeig\,1,2}$ or $\Vector{K}_{qeig\,1,2}$ , respectively.
 Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in image plane, 
 if the corresponding eigen-defocus is applied.
+
+\paragraph{First case: both $\Delta s$ are degenerate -- the stigmatic case.}
+In this case, both pupil directions are eigen-directions in the common focus position.
+\begin{eqnarray}
+ \hat{\tilde{B}} \Vector{P}_{qeig\,1} &=& 0 \\
+ \hat{\tilde{B}} \Vector{P}_{qeig\,2} &=& 0
+\end{eqnarray}
+The imaging equation simplifies to
+\begin{eqnarray}
+ \Vector{H}_{im} &=& \hat{\tilde{A}} \Vector{H}_{obj} + 0
+\end{eqnarray}
+Stigmatic imaging is achieved for field coordinates in both directions $X,Y$ or its linear combinations at the same time.
+
+\paragraph{Second case: both $\Delta s$ are unique -- the astigmatic case.}
+We are interested in the magnification in both image planes. 
+Without loss of generality, we choose $\Delta s = \Delta s_1$.
+The imaging equation is
+\begin{eqnarray}
+ \Vector{H}_{im} &=& \hat{\tilde{A}} \Vector{H}_{obj} + \hat{\tilde{B}} \Vector{P}_{obj} \\
+ \Vector{H}_{im} &=& \hat{\tilde{A}} \Vector{H}_{obj} + \hat{\tilde{B}} \Vector{P}_{\perp1}
+\end{eqnarray}
+where $\Vector{P}_{\perp1}$ is the pupil coordinate component perpendicular to the eigenvector $1$.
+\begin{eqnarray}
+ \Vector{P}_{\perp1} &=& \frac{ \Vector{P}_{obj} - (\Vector{P}_{obj} \Vector{P}_{qeig\,1}) \Vector{P}_{qeig\,1}}
+                              { \Vector{P}_{qeig\,1} \cdot \Vector{P}_{qeig\,1} }
+\end{eqnarray}
+Starting with a 2 dimensional angular cone $\Vector{P}_{obj}$ from a fixed object location, 
+we find a line along $\hat{\tilde{B}} \Vector{P}_{\perp1}$ in the image.
+Along such a line, an intensity detector is unable to discriminate object points.
+In order to achieve imaging, we must choose our object coordinates perpendicular to the line,
+\begin{eqnarray}
+ \left( \hat{\tilde{A}} \Vector{H}_{obj} \right)
+ \cdot
+ \left( \hat{\tilde{B}} \Vector{P}_{\perp1} \right) 
+ &=& 0
+\end{eqnarray}
+leaving a one-dimensional image direction $\Vector{H}_{obj}$.
+In the weakly astigmatic case, $\lim \Delta s_1 \to \Delta s_2$, 
+we find $\hat{\tilde{B}} \Vector{P}_{\perp1} \to 0$ 
+and the calculation of object directions becomes numerically unstable.
+While in the limit any direction $\Vector{H}_{obj}(\Delta s_1)$ works, 
+we need to make sure that the second direction $\Vector{H}_{obj}(\Delta s_2)$ is linearly independent.
+To solve this instability, we apply the rule of de l'H\^{o}pital and calculate the derivatives $\partial/\partial \Delta s$.
+\begin{eqnarray}
+ \Vector{H}_{astig} &=& 
+   \hat{\tilde{A}}^{-1}
+   \begin{pmatrix}
+     0 & 1 \\
+    -1 & 0
+   \end{pmatrix}
+   \left( \hat{\tilde{B}} \Vector{P}_{\perp1} \right) 
+ \\
+ \Vector{H}_{stig} &=&
+   \frac{\partial \hat{\tilde{A}}^{-1}}{\partial \Delta s}
+   \begin{pmatrix}
+     0 & 1 \\
+    -1 & 0
+   \end{pmatrix}
+   \left( \hat{\tilde{B}} \Vector{P}_{\perp1} \right) 
+   +
+   \hat{\tilde{A}}^{-1}
+   \begin{pmatrix}
+     0 & 1 \\
+    -1 & 0
+   \end{pmatrix}
+   \left( \frac{\partial \hat{\tilde{B}}}{\partial \Delta s} \Vector{P}_{\perp1} \right)
+\end{eqnarray}
+
+\remark{TODO: automatically choose one option; maybe by calculating the stigmatic solution 
+and projecting it on the astigmatic direction; in the stigmatic case, the scalar product will vanish and the projection leaves the input untouched.}
 
 
 
