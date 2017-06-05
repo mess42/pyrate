@@ -511,7 +511,7 @@ class MaxwellMaterial(Material):
 
         res = k02part + k04part
 
-        return res        
+        return res.T        
 
     def calcDet2ndDerivativePropagatorNorm(self, k_norm):
         return self.calcDet2ndDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm)
