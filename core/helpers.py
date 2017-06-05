@@ -116,7 +116,7 @@ def choose_nearest(kvec, kvecs_new):
     
 def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
 
-    def generate_cone(direction_vec, lim_angle, start_num_pts):
+    def generate_cone_random(direction_vec, lim_angle, start_num_pts):
         direction_vec_copy = np.repeat(direction_vec[:, np.newaxis], start_num_pts, axis=1)
         nunit = np.random.randn(3, start_num_pts)
         nunit = nunit/np.linalg.norm(nunit, axis=0)
@@ -124,7 +124,70 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
         angles = np.arccos(np.sum(nunit*direction_vec_copy, axis=0))*180./np.pi
         return np.hstack((direction_vec[:, np.newaxis], nunit[:, np.abs(angles) < lim_angle]))
 
-    def generate_xy_distribution((centerx, centery), (dx, dy), num_pts):
+    def generate_cone_bilinear(direction_vec, lim_angle, start_num_pts):
+        phi = np.arctan2(direction_vec[1], direction_vec[0])
+        theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
+        print(phi)
+        print(theta)
+        num_samp = np.ceil(np.sqrt(start_num_pts))
+        alpha = np.linspace(-lim_angle, 0, num_samp, endpoint=False)*np.pi/180.
+        angle = np.linspace(0, 2.*np.pi, num_samp, endpoint=False)
+        
+        (Alpha, Angle) = np.meshgrid(alpha, angle)
+        
+        X = np.cos(Angle)*np.sin(Alpha)
+        Y = np.sin(Angle)*np.sin(Alpha)
+        Z = np.cos(Alpha)        
+        
+        x = X.reshape((1, num_samp*num_samp))
+        y = Y.reshape((1, num_samp*num_samp))
+        z = Z.reshape((1, num_samp*num_samp))
+        
+        res = np.vstack((x, y, z))
+        
+        rotz = rodrigues(-phi, [0, 0, 1])
+        rottheta = rodrigues(-theta, [1, 0, 0])
+
+        finalrot = np.dot(rottheta, rotz)
+
+        res = np.dot(finalrot, res)        
+        
+        return np.hstack((direction_vec[:, np.newaxis], res))
+        
+        return res
+
+    def generate_xy_bilinear((centerx, centery), (dx, dy), num_pts):
+
+        lefthandside = np.round(np.sqrt(num_pts)/2)
+        righthandside = np.round(np.sqrt(num_pts)/2)
+        
+        lspace = np.hstack(
+            (np.linspace(-1, 0, lefthandside, endpoint=False), 
+             np.linspace(1, 0, righthandside, endpoint=False)
+             )
+             )
+             
+        matrixdim = int((lefthandside + righthandside)**2)
+
+        x = centerx + dx*lspace
+        y = centery + dy*lspace
+        
+        (X, Y) = np.meshgrid(x, y)
+        
+        xv = X.reshape((matrixdim,))    
+        yv = Y.reshape((matrixdim,))
+        
+        xv = xv[0:num_pts-1]
+        yv = yv[0:num_pts-1]
+                        
+        zv = np.zeros_like(xv)
+        
+        res = np.vstack((xv, yv, zv))
+        
+        return np.hstack((np.array([[centerx], [centery], [0]]), res))
+
+
+    def generate_xy_random((centerx, centery), (dx, dy), num_pts):
 
         x = centerx + dx*(1. - 2.*np.random.random(num_pts - 1))
         y = centery + dy*(1. - 2.*np.random.random(num_pts - 1))
@@ -153,12 +216,14 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     
     use5point4x4 = False # use 5 point or bestfit for estimating linear transfer matrices    
 
-    nunits_cone_mat = generate_cone(kunitvector, 2, 1000000)
+    nunits_cone_mat = generate_cone_bilinear(kunitvector, 2, 20)
+
+    #nunits_cone_mat = generate_cone_random(kunitvector, 2, 1000000)
 
     
     if not use5point4x4:
         (num_dim, num_pilot_points) = np.shape(nunits_cone_mat)
-        xlocx = generate_xy_distribution((0.0, 0.0), (0.1, 0.1), num_pilot_points)
+        xlocx = generate_xy_bilinear((0.0, 0.0), (0.1, 0.1), num_pilot_points)
     else:
         # 6x6
         #xlocx = np.array([
@@ -209,8 +274,10 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     #      [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy), kwave, kwave]]
     #)
 
-    mat_ez = np.zeros((3, 1))
-    mat_ez[2, :] = 1
+    obj_ez = np.zeros((3, 1))
+    obj_ez[2, :] = 1
+    
+    mat_ez = mat.lc.returnOtherToActualDirections(obj_ez, lcobj)    
     
     sol_choice = np.zeros(4, dtype=bool)
     efield = Elocmat[:, :1] # do not reduce shape
@@ -229,48 +296,11 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     kvec = kvectorsmat[sol_choice][0]
 
     kvectorsref = np.repeat(kvec, num_pilot_points, axis=1)
-
-#    mat_ez2 = np.zeros_like(kunitmat2)
-#    mat_ez2[2, :] = 1
-#    
-#    scalar_product2 = np.zeros((4, num_pilot_points))
-#
-#    for i in range(4):
-#        print("solution n0 %d" % (i,))
-#        kvecsol = np.copy(kvectorsmat2[i])
-#        
-#        Svec = mat.calcPoytingVectorNorm(kvecsol, Elocmat)
-#        SvecDir = Svec/np.linalg.norm(Svec, axis=0)
-#        scalar_product2[i, :] = np.sum(mat_ez2*SvecDir, axis=0)
-#        
-#    max_scalar_products = np.argmax(scalar_product2, axis=0)
     
     kvecsol_final = np.zeros_like(kunitmat2, dtype=complex)
-    
-    #for i in range(num_pilot_points):
-    #    kvecsol_final[:, i] = kvectorsmat2[max_scalar_products[i], :, i]
-    
-    #print(np.shape(kvectorsref))
-    #print(np.shape(kvectorsmat2))
     kvecsol_final = choose_nearest(kvectorsref, kvectorsmat2)
     
-    #print(kvecsol_final)
-
-
-    #print("Kvector without 2pi/lambda")
-    #print(kvec)
-
     
-    rotx = rodrigues(phix, [1, 0, 0])
-    roty = rodrigues(phiy, [0, 1, 0])        
-            
-    rnd_units_rx = np.einsum("ij...,j...", rotx, kunitmat).T
-    rnd_units_ry = np.einsum("ij...,j...", roty, kunitmat).T
-
-
-    kvec_turned_x = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, 1)), rnd_units_rx))
-    kvec_turned_y = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, 1)), rnd_units_ry))
-
     #print(kvec_turned_x)
     #print(kvec_turned_y)
 
@@ -278,17 +308,31 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     # 4x4
 
     if use5point4x4:
+        rotx = rodrigues(phix, [1, 0, 0])
+        roty = rodrigues(phiy, [0, 1, 0])        
+                
+        rnd_units_rx = np.einsum("ij...,j...", rotx, kunitmat).T
+        rnd_units_ry = np.einsum("ij...,j...", roty, kunitmat).T
+    
+    
+        kvec_turned_x = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, 1)), rnd_units_rx))
+        kvec_turned_y = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, 1)), rnd_units_ry))
+
+
+        #klock = np.array([
+        #      [0, 0, 0, kwave*math.sin(phix), 0], 
+        #      [0, 0, 0, 0, kwave*math.sin(phiy)], 
+        #      [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy)]]
+        #)
+
+
         klocmat = kwave*np.hstack((kvec, kvec, kvec, kvec_turned_x, kvec_turned_y))
+
+
     else:
         klocmat = kwave*kvecsol_final
     
-    #print(np.array_str(klocmat, precision=5, suppress_small=True))
     
-    #klock = np.array([
-    #      [0, 0, 0, kwave*math.sin(phix), 0], 
-    #      [0, 0, 0, 0, kwave*math.sin(phiy)], 
-    #      [kwave, kwave, kwave, kwave*math.cos(phix), kwave*math.cos(phiy)]]
-    #)
 
 
     # calculate kloc by fulfilling certain consistency conditions (e.g.) determinant condition

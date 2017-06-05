@@ -137,8 +137,9 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #                )
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
+kw = 5*math.pi/180.
 
-pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
+pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]))
 (pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
 fig = plt.figure(1)
