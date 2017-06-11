@@ -95,15 +95,21 @@ s.addElement("TMA", elem)
 print(s.rootcoordinatesystem.pprint())
 
 rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(11)
+(px, py) = rstobj.getGrid(5)
 
 rpup = 10
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-k = np.zeros_like(o)
-k[2,:] = 2.*math.pi/wavelength
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
+ke = np.zeros_like(o)
+ke[2,:] = 1.
+
+(k_sorted, E_sorted) = crystal.sortKEField(np.zeros_like(o), ke, np.zeros_like(o), ke, wave=wavelength)
+
+k = k_sorted[3, :, :].copy()
+E0 = E_sorted[3, :, :].copy()
+
+print(k)
+print(E0)
+print(crystal.calcPoytingVector(k, E0, wave=wavelength))
 
 sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True) ])] 
 
@@ -141,7 +147,7 @@ r2 = s.seqtrace(initialbundle, sysseq)
 kw = 5*math.pi/180.
 
 pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]))
-#(pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
+(pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
@@ -156,8 +162,8 @@ pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
 r2.draw2d(ax, color="blue", plane_normal=pn, up=up)
-#r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
-#pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
+r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
+pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.

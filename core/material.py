@@ -653,7 +653,7 @@ class IsotropicMaterial(MaxwellMaterial):
         valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
         k2 = k_inplane + xi * normal
-        
+
         # return ray with new direction and properties of old ray
         # return only valid rays
         orig = raybundle.x[-1][:, valid]        
@@ -850,6 +850,7 @@ class AnisotropicMaterial(MaxwellMaterial):
         k2 = np.hstack((k2_sorted[2], k2_sorted[3]))
 
         e2 = np.hstack((e2_sorted[2], e2_sorted[3]))
+
         newids = np.hstack((raybundle.rayID, raybundle.rayID))
 
         orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
@@ -876,8 +877,12 @@ class AnisotropicMaterial(MaxwellMaterial):
         (k2_sorted, e2_sorted) = self.sortKEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
 
         # 2 vectors with smallest scalarproduct of S with n
-        k2 = np.hstack((k2_sorted[0], k2_sorted[1]))
-        e2 = np.hstack((e2_sorted[0], e2_sorted[1]))
+
+        # TODO: negative sign due to compatibility with z-direction of
+        # coordinate decenter
+
+        k2 = -np.hstack((k2_sorted[0], k2_sorted[1]))
+        e2 = -np.hstack((e2_sorted[0], e2_sorted[1]))
         newids = np.hstack((raybundle.rayID, raybundle.rayID))
 
         orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
