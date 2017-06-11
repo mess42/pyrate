@@ -26,6 +26,7 @@ import math
 from ray import RayBundle
 import optimize
 import scipy.linalg as sla
+import helpers_math
 
 from globalconstants import standard_wavelength, eps0
 
@@ -643,11 +644,13 @@ class IsotropicMaterial(MaxwellMaterial):
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
+        valid_normals = helpers_math.checkfinite(normal)
+
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
         (xi, valid_refraction) = self.calcXiIsotropic(xlocal, normal, k_inplane, wave=raybundle.wave)
         
-        valid = raybundle.valid[-1] * valid_refraction
+        valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
         k2 = k_inplane + xi * normal
         
@@ -669,11 +672,15 @@ class IsotropicMaterial(MaxwellMaterial):
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
+        valid_normals = helpers_math.checkfinite(normal)
+        # normals or sag values could either be nan or infinite
+        # TODO: remove those normals from calculation
+
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
         (xi, valid_refraction) = self.calcXiIsotropic(xlocal, normal, k_inplane, wave=raybundle.wave)
         
-        valid = raybundle.valid[-1] * valid_refraction
+        valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
         k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
 
@@ -810,10 +817,6 @@ class AnisotropicMaterial(MaxwellMaterial):
         
         return np.repeat(self.epstensor[:, :, np.newaxis], num_pts, axis=2)
 
-    #########################################
-    # first dummy implementations to get anisotropic material running
-    #########################################
-
     def propagate(self, raybundle, nextSurface):
 
         """
@@ -831,6 +834,13 @@ class AnisotropicMaterial(MaxwellMaterial):
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+
+        valid_x = helpers_math.checkfinite(xlocal)
+        valid_normals = helpers_math.checkfinite(normal)
+
+        #xlocal[:, valid_x ^ True] = 0.0        
+        #normal[:, valid_normals ^ True] = 0.0
+        #normal[2, valid_normals ^ True] = 1.0
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
@@ -853,6 +863,13 @@ class AnisotropicMaterial(MaxwellMaterial):
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+
+        valid_x = helpers_math.checkfinite(xlocal)
+        valid_normals = helpers_math.checkfinite(normal)
+
+        #xlocal[:, valid_x ^ True] = 0.0        
+        #normal[:, valid_normals ^ True] = 0.0
+        #normal[2, valid_normals ^ True] = 1.0
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 

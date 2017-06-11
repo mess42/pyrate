@@ -28,6 +28,14 @@ This file holds mathematical auxiliary functions to prevent circular imports
 import numpy as np
 import math
 
+def checkfinite(vec):
+    """
+    Checks whether some vector vec (dim x N) is finite. If one element is not
+    finite return False
+    """
+    return np.any(np.isfinite(vec) ^ True, axis=0) ^ True
+
+
 def rodrigues(angle, a):
     ''' 
     returns numpy matrix from Rodrigues formula.
