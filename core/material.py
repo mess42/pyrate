@@ -281,8 +281,6 @@ class MaxwellMaterial(Material):
             polycoeffs = [p3[i], p2[i], p1[i], p0[i]]
             kappaarray[:, i] = np.roots(polycoeffs)
 
-        print(kappaarray)
-
         kvectors = k + (np.repeat(kappaarray[:, np.newaxis, :], 3, axis=1)*kd)
         
         return kvectors
@@ -493,7 +491,6 @@ class MaxwellMaterial(Material):
         kpa_norm = kpa/k0
         
         (eigenvals, eigenvectors) = self.calcXiEigenvectorsNorm(x, n, kpa_norm)
-        
         return (k0*eigenvals, eigenvectors)
 
     def calcDetPropagatorNormX(self, x, k_norm):
@@ -653,12 +650,14 @@ class IsotropicMaterial(MaxwellMaterial):
         valid = raybundle.valid[-1] * valid_refraction
 
         k2 = k_inplane + xi * normal
-
+        
         # return ray with new direction and properties of old ray
         # return only valid rays
         orig = raybundle.x[-1][:, valid]        
         newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
+        # E field calculation wrong: xlocal, normal, newk in different
+        # coordinate systems
         Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
 
         return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
@@ -815,13 +814,6 @@ class AnisotropicMaterial(MaxwellMaterial):
     # first dummy implementations to get anisotropic material running
     #########################################
 
-    def calcEfield(self, x, n, k, wave=standard_wavelength):
-        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
-        ey = np.zeros_like(k)
-        ey[1,:] =  1.
-        return np.cross(k, ey, axisa=0, axisb=0).T
-
-
     def propagate(self, raybundle, nextSurface):
 
         """
@@ -846,6 +838,7 @@ class AnisotropicMaterial(MaxwellMaterial):
 
         # 2 vectors with largest scalarproduct of S with n
         k2 = np.hstack((k2_sorted[2], k2_sorted[3]))
+
         e2 = np.hstack((e2_sorted[2], e2_sorted[3]))
         newids = np.hstack((raybundle.rayID, raybundle.rayID))
 

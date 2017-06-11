@@ -91,7 +91,7 @@ myeps2 = 1.6727**2*np.eye(3)
 #myeps2 = rnd_data3 + complex(0, 1)*rnd_data4
 
 crystal1 = material.AnisotropicMaterial(lc1, myeps1)
-crystal2 = material.AnisotropicMaterial(lc2, myeps1)
+crystal2 = material.AnisotropicMaterial(lc2, myeps2)
 
 
 elem.addMaterial("crystal1", crystal1)
@@ -106,7 +106,7 @@ elem.addSurface("image", image, (None, None))
 s.addElement("AC254-100", elem)
 
 rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(20)
+(px, py) = rstobj.getGrid(10)
 
 rpup = 11.43
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
