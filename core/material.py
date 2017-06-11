@@ -305,7 +305,7 @@ class MaxwellMaterial(Material):
         # complex solutions.
  
         
-        IdMatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+        IdMatrix = np.repeat(np.eye(3, dtype=complex)[:, :, np.newaxis], num_pts, axis=2)
         ZeroMatrix = np.zeros((3, 3, num_pts), dtype=complex)        
 
         Mmatrix = -np.copy(IdMatrix)
@@ -315,7 +315,7 @@ class MaxwellMaterial(Material):
         for j in range(num_pts):
             Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
             Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) + np.outer(n[:, j], kpa_norm[:, j])
-            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*np.eye(3)\
+            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*np.eye(3, dtype=complex)\
                     + np.outer(kpa_norm[:, j], kpa_norm[:, j])
 
         Amatrix6x6 = np.vstack(
@@ -855,8 +855,9 @@ class AnisotropicMaterial(MaxwellMaterial):
 
         orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
         newk = self.lc.returnLocalToGlobalDirections(k2)
+        newe = self.lc.returnLocalToGlobalDirections(e2)
 
-        return RayBundle(orig, newk, e2, newids, raybundle.wave)
+        return RayBundle(orig, newk, newe, newids, raybundle.wave)
 
     def reflect(self, raybundle, actualSurface):
 
