@@ -50,9 +50,19 @@ import core.helpers
 wavelength = 0.5876e-3
 
 # definition of optical system
+
+#v = np.ones(3)# + 0.001*np.random.random(3)
+#myeps = np.diag(v)
+
+
 s = OpticalSystem() 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+
+#air = material.AnisotropicMaterial(lc0, myeps)  # tests for anisotropic mirror
+#air = material.ConstantIndexGlass(lc0, 1.0)
+s.material_background = air
+
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2_stop", decz=-50.0, decy=-20, tiltx=math.pi/16), refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=3*math.pi/32), refname=lc2.name)
@@ -71,7 +81,6 @@ oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=Circu
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 image3 = Surface(lc7, apert=CircularAperture(lc7, 20.0))
 
-air = material.ConstantIndexGlass(lc0, 1.0)
 
 elem = OpticalElement(lc0, label="TMA")
 
