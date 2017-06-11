@@ -95,7 +95,7 @@ class MaxwellMaterial(Material):
         return (k_norm_4, efield_4)
     
     
-    def sortKNormEField(self, x, n, kpa_norm, e):
+    def sortKnormEField(self, x, n, kpa_norm, e):
         """
         Sort k_norm and E-field solutions by their scalar products.
         (Those come from the solution of the quadratic eigenvalue problem.)
@@ -111,11 +111,34 @@ class MaxwellMaterial(Material):
         
         """
         
+        (num_dims, num_pts) = np.shape(n)        
+
         (k_norm_4, Efield_4) = self.calcKnormEfield(x, n, kpa_norm)
-        print(k_norm_4)
-        print(Efield_4)
-        return (k_norm_4, Efield_4)
-    
+        
+        k_norm_4_sorted = np.zeros_like(k_norm_4)
+        Efield_4_sorted = np.zeros_like(Efield_4)
+        Sn_scalarproduct = np.zeros((4, num_pts))        
+        
+        
+        for i in range(4):
+            Si = self.calcPoytingVectorNorm(k_norm_4[i, :, :], Efield_4[i, :, :])
+            Sn_scalarproduct[i, :] = np.sum(Si*e, axis=0)
+        
+        Sn_scalarproduct_argsort = Sn_scalarproduct.argsort(axis=0)
+        for i in range(num_pts):
+            k_norm_4_sorted[:, :, i] = k_norm_4[Sn_scalarproduct_argsort[:, i], :, i] 
+            Efield_4_sorted[:, :, i] = Efield_4[Sn_scalarproduct_argsort[:, i], :, i] 
+            
+        return (k_norm_4_sorted, Efield_4_sorted)
+
+    def sortKEField(self, x, n, kpa, e, wave=standard_wavelength):
+        
+        k0 =  2.*math.pi/wave
+        
+        (k, E) = self.sortKnormEField(x, n, kpa/k0, e)
+        
+        return (k0*k, E)
+   
     def calcPoytingVector(self, k, Efield, wave=standard_wavelength):
         
         k0 =  2.*math.pi/wave
@@ -819,16 +842,21 @@ class AnisotropicMaterial(MaxwellMaterial):
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        xi = self.calcXiAnisotropic(xlocal, normal, k_inplane, wave=raybundle.wave)[1]
-                
-        k2 = k_inplane + xi * normal
+        (k2_sorted, e2_sorted) = self.sortKEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
 
-        orig = raybundle.x[-1]        
+        #xi = self.calcXiAnisotropic(xlocal, normal, k_inplane, wave=raybundle.wave)[1]
+                
+        #k2 = k_inplane + xi * normal
+
+        # 2 vectors with largest scalarproduct of S with n
+        k2 = np.hstack((k2_sorted[2], k2_sorted[3]))
+        e2 = np.hstack((e2_sorted[2], e2_sorted[3]))
+        newids = np.hstack((raybundle.rayID, raybundle.rayID))
+
+        orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
         newk = self.lc.returnLocalToGlobalDirections(k2)
 
-        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
-
-        return RayBundle(orig, newk, Efield, raybundle.rayID, raybundle.wave)
+        return RayBundle(orig, newk, e2, newids, raybundle.wave)
 
     def reflect(self, raybundle, actualSurface):
 
