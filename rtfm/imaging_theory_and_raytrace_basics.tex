@@ -354,7 +354,7 @@ We consider a homogeneous material $\permittivity(\Location) = const.$ We apply 
 \begin{eqnarray}
   \Nabla \times ( \Nabla \times \Efield ) &=& \Nabla \times ( i \omega \vacuumpermeability \Hfield ) 
   \\
-  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k} = -k_0^2 \permittivity_{jk} \scalarEfield_{k}
+  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
 \end{eqnarray}
 This is a differential equation with constant coefficients, so we use the ansatz
 \begin{eqnarray}
@@ -364,9 +364,9 @@ where the $\Efield_0$ contains polarisation, electric field amplitude and harmon
 With this monochromatic time dependence, $\permittivity_{ij}$ becomes a constant factor 
 and we can replace $\partial_j \to i k_j$. We yield
 \begin{align}
- A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\,.
-\end{align}
-with $A_{ij} = \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + k_0^2 \permittivity_{ij} \right)$.
+ A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\\
+ A_{ij}          &= \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \vacuumpermeability \permittivity_{ij} \right)
+ \end{align}
 More explicit, it reads
 \begin{eqnarray}
 \begin{pmatrix}
@@ -413,14 +413,16 @@ We use the identity
 \end{align}
 We also factor out a permittivity of the vacuum from the permittivity tensor 
 $\permittivity_{ij} =  \vacuumpermittivity \permittivity_{rel\,ij}$ and introduce the ``vacuum wave number''
-$k_0 := \frac{2\pi}{\lambda_0} = \frac{\omega}{c} = \omega \sqrt{\vacuumpermeability  \vacuumpermittivity}$.
+$\wavenumber_0 := \omega \sqrt{\vacuumpermeability  \vacuumpermittivity} = \frac{2\pi}{\lambda_0} = \frac{\omega}{c}$. 
 and rewrite the determinant
 \begin{align}
  \det \hat{A}(\Vector{k}) 
  &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\permittivity_{rel} + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
 \end{align}
 where $\alpha = (\text{tr}\permittivity_{rel})^3 - 3 (\text{tr}\permittivity_{rel}) \text{tr}(\permittivity_{rel}^2) + 2 \text{tr}(\permittivity_{rel}^3)$,
-$\beta = \permittivity_{rel\,ij} k_i k_j$, $\gamma = k_i \permittivity_{rel\,i\ell} \permittivity_{rel\,\ell j} k_j$. For given $\omega$ this is an equation of fourth order
+$\beta = \permittivity_{rel\,ij} k_i k_j$, 
+$\gamma = k_i \permittivity_{rel\,i\ell} \permittivity_{rel\,\ell j} k_j$. 
+For given $\omega$ this is an equation of fourth order
 for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
 $\Vector{k}$ gives only two terms.
 \begin{align}
@@ -855,35 +857,81 @@ so we remove this redundant equation.
 Our coordinate system is cartesian, so we employ $\Vector{e}_X \times \Vector{e}_Y = \Vector{n}$ and get rid of the cross products
 \begin{subequations}
   \begin{align}
-    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \label{eq:fresnelLastToSkip}\\
     \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
     \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
     \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
     \varsigma_\beta \left(-\wavenumber_X ( \Vector{e}_{\beta\alpha} \Vector{n} )  + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
+We use the Helmholtz equation \eqref{eq:generalDispersionEigenEquationindex}
+\begin{eqnarray}
+ \forall \alpha, \beta : \omega^2 \vacuumpermeability \scalarpermittivity_{\beta ij} \Vector{e}_{\beta \alpha j} 
+ &=&
+ \left(
+   \wavenumber_m \wavenumber_m \delta_{ni}
+   -
+   \wavenumber_i \wavenumber_n
+ \right)
+ \Vector{e}_{\beta \alpha n} 
+\end{eqnarray}
+on the first equation \eqref{eq:fresnelLastToSkip} and multiply the last two equations 
+with $\wavenumber_Y$ and $-\wavenumber_X$, respectively.
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta  \left(   \wavenumber_m \wavenumber_m \delta_{ij} - \wavenumber_i \wavenumber_j   \right) e_{\beta\alpha j} n_i E_{\beta\alpha,0} &= \omega^2 \vacuumpermeability \Dfield_{in} \Vector{n} \\
+%    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+%    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+%    \varsigma_\beta \left( \wavenumber_Y^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_Y \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &=  \wavenumber_Y (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+%    \varsigma_\beta \left( \wavenumber_X^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_X \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -\wavenumber_X (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
+%  \end{align}
+%\end{subequations}
+\begin{subequations}
+  \begin{align*}
+    \varsigma_\beta \left( ( \wavenumber_X^2 + \wavenumber_Y^2 ) (\Vector{e}_{\beta\alpha} \Vector{n}) - \xi_{\beta\alpha} \wavenumber_X (\Vector{e}_{\beta\alpha} \Vector{e}_X) - \xi_{\beta\alpha} \wavenumber_Y (\Vector{e}_{\beta\alpha} \Vector{e}_Y  \right) E_{\beta\alpha,0} &= \omega^2 \vacuumpermeability \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_Y^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_Y \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &=  \wavenumber_Y (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_X^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_X \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -\wavenumber_X (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y 
+  \end{align*}
+\end{subequations}
+The first equation is the sum of the last two, so we may remove any of these three from our system of equations.
+But which one is best to choose ?
+
+We consider the first equation, \eqref{eq:fresnelLastToSkip}, in the special case of isotropic materials and normal incidence,
+$\Wavevector_{in} \propto \Vector{n}$.
+In this case, both (conserved) in-plane components $\wavenumber_X, \wavenumber_Y$ are zero for all modes.
+From the Coulomb law in isotropic materials, $\scalarpermittivity \Nabla \Efield = 0$, we conclude that 
+all modes $\Vector{e}_{\beta\alpha}$ are orthogonal to the wavevector and thus to the surface normal,
+$\Vector{e}_{\beta\alpha} \Vector{n} = 0$.
+I this special case, equation \eqref{eq:fresnelLastToSkip} reduces to
+\begin{eqnarray*}
+ 0 &=& 0
+\end{eqnarray*}
+which is of limited help in solving the system. 
+The special case we chose is quite common, for example as pilot ray in all centro-symmetric systems made of glass.
+Thus we decide to remove equation \eqref{eq:fresnelLastToSkip} and yield our final system
+\begin{subequations}
+  \begin{align}
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y \\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
+  \end{align}
+\end{subequations}
+
+
 
 \subsection{Fresnel (to do part)}
 
-The Fresnel section is not complete yet.
 What is left to do:
 \begin{itemize}
- \item Proove that out of these 5 equations, at most 4 are independent.
-       In this case, the system is not overdetermined and there are mathematical solutions.
-       The fact that refraction and reflection occurs in reality is a strong indication for the existence of solutions.
-       Before proving, it could be necessary to find a relation between $\permittivity_\beta \Vector{e}_{\beta\alpha}$ and $\xi_{\beta\alpha}$.
- \item Proove that the remaining 4 equations are linearly independent.
-       This means the solution is unique.
-       In reality, a unique solution is established, measureable with a powermeter.
  \item Derive the special case of isotropic materials and compare to textbook Fresnel coefficients (plausibility check). 
  \item fullSimplify() the system of 4 equations -- after all proofs are done.
  \item Find a description of the system that is well conditioned.
        Special cases like normal and close-to-normal incidence should be covered in a numerically stable and precise manner.
        Grazing incidence does not have to be stable, other parts of the code are also not.
        To achieve this, linear combinations of the remaining 4 formulas are to be found.
- \item fun fact: for isotropic materials and normal incidence, 
-       the first equation about the normal component of $\Dfield$
-       reduces to $0=0$. Maybe this equation is a candidate to kick out of the system of 4 equations.
  \item Calculate the energy distribution between the modes.
  \item Show that the solution obeys energy conservation (plausibility check). 
  \item Consider what to do if an isotropic material interfaces another material.
@@ -898,19 +946,6 @@ What is left to do:
        so a clever solution for isotropic-anisotropic and isotropic-isotropic interfaces would help to increase speed.
 \end{itemize}
 
-
-
-
-\begin{subequations}
-\label{eq:fresnelfinal}
-\begin{align}
-  \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
-  \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
-\end{align}
-\end{subequations}
-\remark{needs check whether these 4 equations are independent !}
 
 \subsection{Summary}
 We can calculate reflection and refraction wavevectors and their Fresnel coefficients the following way:
@@ -1690,7 +1725,7 @@ in front of the image plane.
 We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
 \begin{eqnarray}
  \tilde{A} &=& TODO \\
- \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) K_{j,n}
+ \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 H_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) K_{j,n}
 \end{eqnarray}
 The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
 The imaging condition becomes
