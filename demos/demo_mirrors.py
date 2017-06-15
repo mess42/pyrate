@@ -60,6 +60,7 @@ lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image1", decz=-50, decy=
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="oapara", decz=-100, decy=-35), refname=lc4.name)
 lc5ap = s.addLocalCoordinateSystem(LocalCoordinates(name="oaparaap", decz=0, decy=35), refname=lc5.name)
 lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=55, tiltx=1*math.pi/32), refname=lc5.name)
+lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="image3", decz=5), refname=lc6.name)
 
 objectsurf = Surface(lc0)
 m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01), apert=CircularAperture(lc1, 20.))
@@ -68,6 +69,7 @@ m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006), apert=CircularApe
 image1 = Surface(lc4)
 oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 30.0))
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
+image3 = Surface(lc7, apert=CircularAperture(lc7, 20.0))
 
 air = material.ConstantIndexGlass(lc0, 1.0)
 
@@ -82,6 +84,7 @@ elem.addSurface("m3", m3surf, (None, None))
 elem.addSurface("image1", image1, (None, None))
 elem.addSurface("oapara", oapara, (None, None))
 elem.addSurface("image2", image2, (None, None))
+elem.addSurface("image3", image3, (None, None))
 
 s.addElement("TMA", elem)
 
@@ -98,7 +101,7 @@ ey = np.zeros_like(o)
 ey[1,:] =  1.
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True) ])] 
+sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True), ("image3", True, True) ])] 
 
 sysseq_pilot = [("TMA", 
                  [

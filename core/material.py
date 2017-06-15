@@ -82,6 +82,40 @@ class MaxwellMaterial(Material):
         """
         raise NotImplementedError()
     
+    def calcKnormEfield(self, x, n, kpa_norm):
+        (xi_4, efield_4) = self.calcXiEigenvectorsNorm(x, n, kpa_norm)
+        
+        # xi_4: 4xN
+        # efield_4: 4x3xN
+        
+        k_norm_4 = np.zeros_like(efield_4)        
+        for i in range(4):
+            k_norm_4[i, :, :] = kpa_norm + xi_4[i, :]*n
+            
+        return (k_norm_4, efield_4)
+    
+    
+    def sortKNormEField(self, x, n, kpa_norm, e):
+        """
+        Sort k_norm and E-field solutions by their scalar products.
+        (Those come from the solution of the quadratic eigenvalue problem.)
+        
+        first two elements <S, e> > 0 (first min|<E, e>|, last max|<E, e>|)
+        last two elements <S, e> < 0  (first min|<E, e>|, last max|<E, e>|)      
+        
+        min|<E, e>| means s-polarization
+        max|<E, e>| means p-polarization        
+        
+        :param k_norm_4 (4x3xN array of complex)
+        :param Efield_4 (4x3xN array of complex)
+        
+        """
+        
+        (k_norm_4, Efield_4) = self.calcKnormEfield(x, n, kpa_norm)
+        print(k_norm_4)
+        print(Efield_4)
+        return (k_norm_4, Efield_4)
+    
     def calcPoytingVector(self, k, Efield, wave=standard_wavelength):
         
         k0 =  2.*math.pi/wave
@@ -753,3 +787,66 @@ class AnisotropicMaterial(MaxwellMaterial):
         (num_dims, num_pts) = np.shape(x)
         
         return np.repeat(self.epstensor[:, :, np.newaxis], num_pts, axis=2)
+
+    #########################################
+    # first dummy implementations to get anisotropic material running
+    #########################################
+
+    def calcEfield(self, x, n, k, wave=standard_wavelength):
+        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
+        ey = np.zeros_like(k)
+        ey[1,:] =  1.
+        return np.cross(k, ey, axisa=0, axisb=0).T
+
+
+    def propagate(self, raybundle, nextSurface):
+
+        """
+        Propagates through material until nextSurface.
+        Has to check for aperture (TODO). Changes raybundle!
+        
+        :param raybundle (RayBundle object), gets changed!
+        :param nextSurface (Surface object)
+        """
+
+        nextSurface.intersect(raybundle)
+
+    def refract(self, raybundle, actualSurface):
+
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
+        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
+        xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+
+        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
+
+        xi = self.calcXiAnisotropic(xlocal, normal, k_inplane, wave=raybundle.wave)[1]
+                
+        k2 = k_inplane + xi * normal
+
+        orig = raybundle.x[-1]        
+        newk = self.lc.returnLocalToGlobalDirections(k2)
+
+        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
+
+        return RayBundle(orig, newk, Efield, raybundle.rayID, raybundle.wave)
+
+    def reflect(self, raybundle, actualSurface):
+
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
+        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
+        xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+
+        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
+
+        xi = self.calcXiAnisotropic(xlocal, normal, k_inplane, wave=raybundle.wave)[0]
+        
+        k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
+
+        # return ray with new direction and properties of old ray
+        # return only valid rays
+        orig = raybundle.x[-1]        
+        newk = self.lc.returnLocalToGlobalDirections(k2)
+
+        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
+        
+        return RayBundle(orig, newk, Efield, raybundle.rayID, raybundle.wave)

@@ -77,6 +77,8 @@ if __name__=="__main__":
 
     kvectorsmat = mat.calcKNormfromUnitVector(np.zeros((3, num_pts)), rnd_units)
 
+    mat.sortKNormEField(np.zeros((3, num_pts)), rnd_units, np.zeros((3, num_pts)), rnd_units)
+
     sol_choice = np.zeros(4, dtype=bool)
 
     for i in range(4):
