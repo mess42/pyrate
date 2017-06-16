@@ -638,7 +638,7 @@ class IsotropicMaterial(MaxwellMaterial):
         return (xi, valid)
 
 
-    def refract(self, raybundle, actualSurface):
+    def refract(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
@@ -663,10 +663,10 @@ class IsotropicMaterial(MaxwellMaterial):
         # coordinate systems
         Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
 
-        return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
+        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave),)
 
 
-    def reflect(self, raybundle, actualSurface):
+    def reflect(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
@@ -691,7 +691,7 @@ class IsotropicMaterial(MaxwellMaterial):
 
         Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
         
-        return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
+        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave),)
 
 
     def propagate(self, raybundle, nextSurface):
@@ -829,7 +829,7 @@ class AnisotropicMaterial(MaxwellMaterial):
 
         nextSurface.intersect(raybundle)
 
-    def refract(self, raybundle, actualSurface):
+    def refract(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
@@ -846,20 +846,34 @@ class AnisotropicMaterial(MaxwellMaterial):
 
         (k2_sorted, e2_sorted) = self.sortKEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
 
+        if not splitup:
         # 2 vectors with largest scalarproduct of S with n
-        k2 = np.hstack((k2_sorted[2], k2_sorted[3]))
+            k2 = np.hstack((k2_sorted[2], k2_sorted[3]))
+    
+            e2 = np.hstack((e2_sorted[2], e2_sorted[3]))
+    
+            newids = np.hstack((raybundle.rayID, raybundle.rayID))
+    
+            orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
+            newk = self.lc.returnLocalToGlobalDirections(k2)
+            newe = self.lc.returnLocalToGlobalDirections(e2)
+    
+            return (RayBundle(orig, newk, newe, newids, raybundle.wave, splitted=True),)
+        else:
+            k2_1 = self.lc.returnLocalToGlobalDirections(k2_sorted[2])
+            k2_2 = self.lc.returnLocalToGlobalDirections(k2_sorted[3])
 
-        e2 = np.hstack((e2_sorted[2], e2_sorted[3]))
+            e2_1 = self.lc.returnLocalToGlobalDirections(e2_sorted[2])
+            e2_2 = self.lc.returnLocalToGlobalDirections(e2_sorted[3])
 
-        newids = np.hstack((raybundle.rayID, raybundle.rayID))
+            orig = raybundle.x[-1]
 
-        orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
-        newk = self.lc.returnLocalToGlobalDirections(k2)
-        newe = self.lc.returnLocalToGlobalDirections(e2)
+            return (
+                RayBundle(orig, k2_1, e2_1, raybundle.rayID, raybundle.wave),
+                RayBundle(orig, k2_2, e2_2, raybundle.rayID, raybundle.wave)
+                )
 
-        return RayBundle(orig, newk, newe, newids, raybundle.wave)
-
-    def reflect(self, raybundle, actualSurface):
+    def reflect(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
@@ -881,12 +895,27 @@ class AnisotropicMaterial(MaxwellMaterial):
         # TODO: negative sign due to compatibility with z-direction of
         # coordinate decenter
 
-        k2 = -np.hstack((k2_sorted[0], k2_sorted[1]))
-        e2 = -np.hstack((e2_sorted[0], e2_sorted[1]))
-        newids = np.hstack((raybundle.rayID, raybundle.rayID))
+        if not splitup:
+            k2 = -np.hstack((k2_sorted[0], k2_sorted[1]))
+            e2 = -np.hstack((e2_sorted[0], e2_sorted[1]))
+            newids = np.hstack((raybundle.rayID, raybundle.rayID))
+    
+            orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
+            newk = self.lc.returnLocalToGlobalDirections(k2)
+            newe = self.lc.returnLocalToGlobalDirections(e2)
 
-        orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
-        newk = self.lc.returnLocalToGlobalDirections(k2)
-        newe = self.lc.returnLocalToGlobalDirections(e2)
 
-        return RayBundle(orig, newk, newe, newids, raybundle.wave)
+            return (RayBundle(orig, newk, newe, newids, raybundle.wave, splitted=True),)
+        else:
+            k2_1 = self.lc.returnLocalToGlobalDirections(-k2_sorted[0])
+            k2_2 = self.lc.returnLocalToGlobalDirections(-k2_sorted[1])
+
+            e2_1 = self.lc.returnLocalToGlobalDirections(-e2_sorted[0])
+            e2_2 = self.lc.returnLocalToGlobalDirections(-e2_sorted[1])
+
+            orig = raybundle.x[-1]
+
+            return (
+                RayBundle(orig, k2_1, e2_1, raybundle.rayID, raybundle.wave),
+                RayBundle(orig, k2_2, e2_2, raybundle.rayID, raybundle.wave)
+                )

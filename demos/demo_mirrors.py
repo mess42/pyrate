@@ -213,7 +213,9 @@ pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
 #print("drawing!")
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up)
+for (i, r) in enumerate(r2):
+    print(i)
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
 r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
 #r4.draw2d(ax, color="pink", plane_normal=pn, up=up)
 #pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)

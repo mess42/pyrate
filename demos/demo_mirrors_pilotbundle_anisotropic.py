@@ -161,7 +161,8 @@ phi = 0. #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up)
+for r in r2:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
 r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
 pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
 for e in s.elements.itervalues():

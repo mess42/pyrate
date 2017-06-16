@@ -27,6 +27,7 @@ from material import ConstantIndexGlass
 from localcoordinates import LocalCoordinates
 from localcoordinatestreebase import LocalCoordinatesTreeBase
 from ray import RayPath
+from copy import deepcopy
 
 class OpticalSystem(LocalCoordinatesTreeBase):
     """
@@ -54,17 +55,28 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         self.material_background = matbackground # Background material        
         self.elements = {}
 
-    def seqtrace(self, initialbundle, elementsequence): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+    def seqtrace(self, initialbundle, elementsequence, splitup=False): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
+        rpaths = [rpath]
         for (elem, subseq) in elementsequence:
-            rpath.appendRayPath(self.elements[elem].seqtrace(rpath.raybundles[-1], subseq, self.material_background)) 
-        return rpath
+            raypaths_to_append = self.elements[elem].seqtrace(rpath.raybundles[-1], subseq, self.material_background, splitup=splitup)
+            for rp_append in raypaths_to_append[1:]:
+                rpathprime = deepcopy(rpath)
+                rpathprime.appendRayPath(rp_append)
+                rpaths.append(rpathprime)
+            rpath.appendRayPath(raypaths_to_append[0])
+        return rpaths
             
-    def para_seqtrace(self, pilotbundle, initialbundle, elementsequence): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+    def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
         pilotpath = RayPath(pilotbundle)
-        for (elem, subseq) in elementsequence:
-            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background)
+        if pilotraypathsequence is None:
+            pilotraypathsequence = tuple([0 for i in range(len(elementsequence))])
+            # choose first pilotray in every element by default
+        print("pilot ray path sequence")
+        print(pilotraypathsequence)
+        for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
+            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr)
             rpath.appendRayPath(append_rpath) 
             pilotpath.appendRayPath(append_pilotpath) 
         return (pilotpath, rpath)

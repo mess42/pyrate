@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from localcoordinatestreebase import LocalCoordinatesTreeBase
 from ray import RayPath, RayBundle
 
+from copy import deepcopy
+
 import numpy as np
 
 
@@ -120,7 +122,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
         
         return hitlist
 
-    def calculateXYUV(self, pilotinitbundle, sequence, background_medium, use6x6=True):
+    def calculateXYUV(self, pilotinitbundle, sequence, background_medium, pilotraypath_nr=0, use6x6=True):
 
         # TODO: needs heavy testing        
         
@@ -154,7 +156,11 @@ class OpticalElement(LocalCoordinatesTreeBase):
         
         hitlist = self.sequence_to_hitlist(sequence)        
         
-        pilotraypath = self.seqtrace(pilotinitbundle, sequence, background_medium)
+        pilotraypaths = self.seqtrace(pilotinitbundle, sequence, background_medium, splitup=True)
+        print("found %d pilotraypaths" % (len(pilotraypaths,)))
+        print("selected no %d via pilotraypath_nr parameter" % (pilotraypath_nr,))        
+        # a pilotraypath may not contain an internally splitted raybundle
+        pilotraypath = pilotraypaths[pilotraypath_nr]        
         
         startpilotbundle = pilotraypath.raybundles[:-1]        
         endpilotbundle = pilotraypath.raybundles[1:]
@@ -312,11 +318,12 @@ class OpticalElement(LocalCoordinatesTreeBase):
         return (pilotraypath, XYUVmatrices)
      
 
-    def seqtrace(self, raybundle, sequence, background_medium):
+    def seqtrace(self, raybundle, sequence, background_medium, splitup=False):
         
         current_material = background_medium    
     
         rpath = RayPath(raybundle)    
+        rpaths = [rpath]
     
         for (surfkey, refract_flag, ordinary_flag) in sequence:
             
@@ -329,21 +336,37 @@ class OpticalElement(LocalCoordinatesTreeBase):
             mnmat = self.__materials.get(mnmat, background_medium)
             pnmat = self.__materials.get(pnmat, background_medium)
 
+            # TODO: remove code doubling
             if refract_flag:
                 current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-                rpath.appendRayBundle(current_material.refract(current_bundle, current_surface))
+                #rpath.appendRayBundle(current_material.refract(current_bundle, current_surface)[0])
+                
+                raybundles = current_material.refract(current_bundle, current_surface, splitup=splitup)
+                                        
+                for rb in raybundles[1:]: # if there are more than one return value, copy path
+                   rpathprime = deepcopy(rpath)
+                   rpathprime.appendRayBundle(rb)
+                   rpaths.append(rpathprime)
+                rpath.appendRayBundle(raybundles[0])
             else:
-                rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface))
+                #rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface)[0])
+                raybundles = current_material.reflect(current_bundle, current_surface, splitup=splitup)
+                                    
+                for rb in raybundles[1:]:
+                   rpathprime = deepcopy(rpath)
+                   rpathprime.appendRayBundle(rb)
+                   rpaths.append(rpathprime)
+                rpath.appendRayBundle(raybundles[0])
                 
 
 
-        return rpath
+        return rpaths
         
     
-    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, use6x6=True):
+    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, pilotraypath_nr=0, use6x6=True):
         
         rpath = RayPath(raybundle)
-        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, use6x6=use6x6)
+        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, pilotraypath_nr=pilotraypath_nr, use6x6=use6x6)
 
         hitlist = self.sequence_to_hitlist(sequence)
         
