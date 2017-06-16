@@ -334,7 +334,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             
             rpaths_new = []            
 
-            print("incoming: ", surfkey, rpaths)            
+            #print("incoming: ", surfkey, rpaths)            
 
             current_surface = self.__surfaces[surfkey]
                         
@@ -345,7 +345,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
             # TODO: remove code doubling
             if refract_flag:
                 current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-                print(current_material)                    
                 #rpath.appendRayBundle(current_material.refract(current_bundle, current_surface)[0])
                 for rp in rpaths:
                     current_bundle = rp.raybundles[-1]
@@ -373,8 +372,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
             
             rpaths = rpaths + rpaths_new
             
-            print("newpaths: ", surfkey, rpaths_new)
-            print("outgoing: ", surfkey, rpaths)            
+            #print("newpaths: ", surfkey, rpaths_new)
+            #print("outgoing: ", surfkey, rpaths)            
             
         return rpaths
         
