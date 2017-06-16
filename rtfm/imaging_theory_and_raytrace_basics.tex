@@ -115,6 +115,9 @@
 
 \newcommand{\orderof}[1]{\mathcal{O}(#1)}
 
+\newcommand\ppol{p}
+\newcommand\spol{s}
+\newcommand\normconst{N}
 
 \begin{document}
 
@@ -784,6 +787,7 @@ with
 
 
 \subsection{Fresnel Coefficients}
+\subsubsection{general case}
 Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarizations
 \begin{subequations}
 \begin{eqnarray}
@@ -920,31 +924,372 @@ Thus we decide to remove equation \eqref{eq:fresnelLastToSkip} and yield our fin
   \end{align}
 \end{subequations}
 
+\subsubsection{isotropic media}
+We assume the boundary between two isotropic media.
+Without loss of generality, we rotate our coordinate system so that $\wavenumber_Y = 0$.
+In isotropic media, the modes are orthogonal to the wavevectors $\Vector{e}_{\beta\alpha} \perp \Wavevector_{\beta\alpha}$.
+Both solutions $\alpha$ have a degenerate wavevector.
+We choose the modes $\alpha \in \{ \spol, \ppol \}$
+\begin{eqnarray}
+ \Vector{e}_{\spol} &=& \Vector{e}_Y \\
+ \Vector{e}_{\beta\,\ppol} &=& \frac{\xi_\beta \Vector{e}_X - \wavenumber_X \Vector{n}}{\normconst_\beta} 
+\end{eqnarray}
+where $\normconst_\beta = \sqrt{ \xi_\beta \overline{\xi_\beta} + \wavenumber_X \overline{\wavenumber_X}}$ is a normalization constant, ensuring $|\Vector{e}_{\beta\,\ppol}|=1$.
+In lossless media, the normalization constant $\normconst$ is equal to the refractive index times the vacuum wavenumber
+$\wavenumber_0 n = \sqrt{ \xi_\beta^2 + \wavenumber_X^2}$.
+The equation system simplifies to
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta (\Vector{e}_{\beta \ppol} \Vector{e}_X) E_{\beta \ppol,0} &= \Efield_{in} \Vector{e}_X \\
+%    \varsigma_\beta E_{\beta \spol,0} &= \Efield_{in} \Vector{e}_Y \\
+%    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_{\beta \ppol} \Vector{n} ) - \xi_{\beta} ( \Vector{e}_{\beta \ppol} \Vector{e}_X) \right) E_{\beta\ppol,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y  \\
+%    \varsigma_\beta \left(  - \xi_{\beta} E_{\beta \spol,0} \right) &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
+%  \end{align}
+%\end{subequations}
+\begin{subequations}
+  \begin{align}
+    \varsigma_\beta \frac{\xi_\beta}{\normconst_\beta}  E_{\beta \ppol,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta E_{\beta \spol,0} &= \Efield_{in} \Vector{e}_Y \\
+    - \varsigma_\beta \frac{\xi_\beta^2 + \wavenumber_X^2}{\normconst_\beta} E_{\beta\ppol,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y  \\
+    - \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
+  \end{align}
+\end{subequations}
 
 
-\subsection{Fresnel (to do part)}
 
-What is left to do:
-\begin{itemize}
- \item Derive the special case of isotropic materials and compare to textbook Fresnel coefficients (plausibility check). 
- \item fullSimplify() the system of 4 equations -- after all proofs are done.
- \item Find a description of the system that is well conditioned.
-       Special cases like normal and close-to-normal incidence should be covered in a numerically stable and precise manner.
-       Grazing incidence does not have to be stable, other parts of the code are also not.
-       To achieve this, linear combinations of the remaining 4 formulas are to be found.
- \item Calculate the energy distribution between the modes.
- \item Show that the solution obeys energy conservation (plausibility check). 
- \item Consider what to do if an isotropic material interfaces another material.
-       In an isotropic material, both modes $\alpha$ have a generate wavevector $\Wavevector_{\beta\alpha}$,
-       and thus linear combinations of both eigen-polarisations $\Vector{e}_{\beta\alpha}$ are also valid solutions.
-       One can choose the polarisation $\Vector{e}_{\beta 1}$ in a way that the amplitude of the other mode vanishes.
-       Or we use the general routine with any polarisation eigenvectors and sum up the field vectors afterwards.
-       This way, we do not have to split up the ray into two modes $\alpha$
-       and conserve the full information in a single ray.
-       Classcial raytracing only uses isotropic materials, 
-       and the increase in number of rays with the current model is exponential, 
-       so a clever solution for isotropic-anisotropic and isotropic-isotropic interfaces would help to increase speed.
-\end{itemize}
+\paragraph{s-polarized incidence.}
+We choose s-polarized incident light 
+\begin{eqnarray}
+\Efield_{in} &=& E_{in} \Vector{e}_Y 
+\end{eqnarray}
+and yield
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta \frac{\xi_\beta}{\wavenumber_0 n_\beta}  E_{\beta \ppol,0} &= 0 \\
+%    \varsigma_\beta E_{\beta \spol,0} &= E_{in} \\
+%    \varsigma_\beta \wavenumber_0 n_\beta E_{\beta\ppol,0} &= 0  \\
+%    \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= \xi_{in} E_{in}
+%  \end{align}
+%\end{subequations}
+%\begin{subequations}
+%  \begin{align}
+%    \frac{\xi_t}{\wavenumber_0 n_\materialtwo}  E_{t \ppol,0} 
+%  - \frac{\xi_r}{\wavenumber_0 n_\materialone}  E_{r \ppol,0} &= 0 
+%  \\
+%    E_{t \spol,0} - E_{r \spol,0} &= E_{in} 
+%  \\    
+%    \wavenumber_0 n_\materialtwo E_{t \ppol,0} 
+%  - \wavenumber_0 n_\materialone E_{r \ppol,0} &= 0  
+%  \\
+%    \xi_{t} E_{t \spol,0} 
+%  - \xi_{r} E_{r \spol,0} &= \xi_{in} E_{in}
+%  \end{align}
+%\end{subequations}
+\begin{subequations}
+  \begin{eqnarray}
+    E_{t \ppol,0} &=& 0 \\
+    E_{r \ppol,0} &=& 0 \\ 
+    E_{t \spol,0} &=& \frac{ 2 \xi_{in}        }{\xi_{in} + \xi_t} E_{in} \\
+    E_{r \spol,0} &=& \frac{ \xi_{in} - \xi{t} }{\xi_{in} + \xi_t} E_{in} 
+  \end{eqnarray}
+\end{subequations}
+For lossless media, and the choice of the root $n_\beta > 0$, 
+we replace $\xi_\beta = \wavenumber_0 n_\beta \cos \theta_\beta$, where $\theta$ is the ray direction
+and yield the textbook Fresnel formulas \cite{Jackson, BornWolf}
+\begin{subequations}
+  \begin{eqnarray}
+    E_{t \spol,0} &=& \frac{ 2 n_\materialone \cos \theta_{in} }
+                           { n_\materialone \cos \theta_{in} + n_\materialtwo \cos \theta_t } E_{in}  
+    \\[2ex]
+    E_{r \spol,0} &=& \frac{ n_\materialone \cos \theta_{in} - n_\materialtwo \cos \theta_t }
+                           { n_\materialone \cos \theta_{in} + n_\materialtwo \cos \theta_t } E_{in} 
+  \end{eqnarray}
+\end{subequations}
+
+
+
+\paragraph{p-polarized incidence.}
+We choose p-polarized incident light 
+\begin{eqnarray}
+\Efield_{in} &=& \frac{\xi_{in} \Vector{e}_X - \wavenumber_X \Vector{n}}{\normconst_{in}} E_{in} 
+\end{eqnarray}
+and yield
+\begin{subequations}
+  \begin{align}
+    \varsigma_\beta \frac{\xi_\beta}{\normconst_\beta}  E_{\beta \ppol,0} &= \frac{\xi_{in}}{\normconst_{in}} E_{in} \\
+    \varsigma_\beta E_{\beta \spol,0} &= 0 \\
+    - \varsigma_\beta \frac{\xi_\beta^2 + \wavenumber_X^2}{\normconst_\beta} E_{\beta\ppol,0} &= - \frac{\xi_{in}^2 + \wavenumber_X^2}{\normconst_{in}} E_{in} \\
+    - \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= 0 
+  \end{align}
+\end{subequations}
+\begin{subequations}
+  \begin{align}
+    E_{r \spol,0} &= 0 
+  \\
+    E_{t \spol,0} &= 0 
+  \\
+    \frac{\xi_t}{\normconst_t}  E_{t \ppol,0} 
+    - 
+    \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    &= \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+  \\  
+    \frac{\xi_t^2 + \wavenumber_X^2}{\normconst_t} E_{t \ppol,0} 
+    -
+    \frac{\xi_r^2 + \wavenumber_X^2}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\xi_{in}^2 + \wavenumber_X^2}{\normconst_{in}} E_{in}
+  \end{align}
+\end{subequations}
+\begin{subequations}
+  \begin{align}
+    E_{r \spol,0} &= 0 
+  \\
+    E_{t \spol,0} &= 0 
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\xi_t}
+    \left( 
+      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+      + 
+      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    \right)
+  \\  
+    \frac{\scalarpermittivity_\materialtwo}{\normconst_t} E_{t \ppol,0} 
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}
+  \end{align}
+\end{subequations}
+\begin{align}
+    \frac{\scalarpermittivity_\materialtwo}{\normconst_t} 
+    \left(
+      \frac{\normconst_t}{\xi_t}
+      \left( 
+        \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+        + 
+        \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+      \right)
+    \right) 
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}
+  \\
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t}
+    \left( 
+      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+      + 
+      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    \right)
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
+  \\
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+    + 
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
+  \\
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
+    -
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+  \\
+    E_{r \ppol,0} 
+    &=
+    \frac{
+      \frac{\scalarpermittivity_\materialone}{\normconst_{in}}
+      -
+      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} 
+    }
+    {
+      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}
+      -
+      \frac{\scalarpermittivity_\materialone}{\normconst_r}    
+    }
+    E_{in} 
+  \\  
+    E_{r \ppol,0} 
+    &=
+    \frac{\normconst_r}{\normconst_{in}}
+    \frac{
+      \scalarpermittivity_\materialone
+      -
+      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \xi_{in} 
+    }
+    {
+      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \xi_r
+      -
+      \scalarpermittivity_\materialone 
+    }
+    E_{in} 
+  \\  
+    E_{r \ppol,0} 
+    &=
+    \frac{\normconst_r}{\normconst_{in}}
+    \cdot
+    \frac{
+      \scalarpermittivity_\materialone \xi_t
+      -
+      \scalarpermittivity_\materialtwo \xi_{in} 
+    }
+    {
+      \scalarpermittivity_\materialtwo (- \xi_{in})
+      -
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\  
+    E_{r \ppol,0} 
+    &=
+    \frac{\normconst_r}{\normconst_{in}}
+    \cdot
+    \frac{
+      \scalarpermittivity_\materialtwo \xi_{in} 
+      -
+      \scalarpermittivity_\materialone \xi_t
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\  
+    E_{r \ppol,0} 
+    &=
+    \frac{
+      \scalarpermittivity_\materialtwo \xi_{in} 
+      -
+      \scalarpermittivity_\materialone \xi_t
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\xi_t}
+    \left( 
+      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+      + 
+      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    \right)
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{\xi_{in}}{\xi_t}
+    \left( 
+       E_{in} 
+       -  
+       E_{r \ppol,0} 
+    \right)
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{\xi_{in}}{\xi_t}
+    \left( 
+       E_{in} 
+       -  
+       \frac{
+         \scalarpermittivity_\materialtwo \xi_{in} 
+         -
+         \scalarpermittivity_\materialone \xi_t
+       }
+       {
+         \scalarpermittivity_\materialtwo \xi_{in}
+         +
+         \scalarpermittivity_\materialone \xi_t 
+       }
+       E_{in} 
+    \right)
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{
+      2 \scalarpermittivity_\materialone \xi_{in}
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+\end{align}
+
+\begin{subequations}
+\begin{eqnarray}
+    E_{r \spol,0} &=& 0 \\ 
+    E_{t \spol,0} &=& 0 \\
+    E_{r \ppol,0} 
+    &=&
+    \frac{
+      \scalarpermittivity_\materialtwo \xi_{in} 
+      -
+      \scalarpermittivity_\materialone \xi_t
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\
+    E_{t \ppol,0} 
+    &=& 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{
+      2 \scalarpermittivity_\materialone \xi_{in}
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+\end{eqnarray}
+\end{subequations}
+
+
+For lossless media, and the choice of the root $n_\beta > 0$, 
+we replace $\xi_\beta = \wavenumber_0 n_\beta \cos \theta_\beta$, where $\theta$ is the ray direction
+and yield the textbook Fresnel formulas \cite{Jackson, BornWolf}
+\begin{subequations}
+  \begin{align}
+    E_{r \ppol,0} &= \frac{ n_\materialtwo \cos \theta_{in} - n_\materialone \cos \theta_t }
+                          { n_\materialtwo \cos \theta_{in} + n_\materialone \cos \theta_t } E_{in}
+  \\
+    E_{t \ppol,0} &= \frac{ 2 n_\materialone \cos \theta_{in} }
+                          {   n_\materialtwo \cos \theta_{in} + n_\materialone \cos \theta_t } E_{in}
+  \end{align}
+\end{subequations}
+
+
+
+
+
+
+
+Note that field amplitude and energy flow are not the same.
 
 
 \subsection{Summary}
@@ -953,22 +1298,15 @@ We can calculate reflection and refraction wavevectors and their Fresnel coeffic
  \item Intersect ray with surface, determine local surface normal $\Vector{n}$ and incident in-plane wavevector component $\Wavevector_\parallel$
  \item Calculate all 4 wavevector solutions $\xi$ for the conserved in-plane wavevector component $\Wavevector_\parallel$ 
        according to material dispersion \eqref{eq:generalDispersionEigenEquationindex} in each material
- \item For each solution $\xi$, calculate the eigen-polarisation $\Vector{e}_{\beta\alpha}$ and corresponding $\Dfield$-field $\permittivity_{\alpha} \Vector{e}_{\beta\alpha}$.
+ \item For each solution $\xi$, calculate the eigen-polarisation $\Vector{e}_{\beta\alpha}$.
        The eigen-polarisations are the eigenvectors of the dispersion relation \eqref{eq:generalDispersionEigenEquationindex}.
  \item Construct refracted and reflected wavevectors $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$
  \item Choose 2 the solutions in each material $\alpha$ carrying energy away from the surface
        \remark{todo: consider the case of gain media}
  \item From $\xi$s, eigen vectors and incident ray properties calculate the Fresnel coefficients \eqref{eq:fresnelfinal}.
-       The Fresnel coefficients determine the amplitude of each mode $\beta\alpha$ and thus the amount of energy transferred into each mode.
+       The Fresnel coefficients determine the amplitude of each mode $\beta\alpha$ 
+       and allow to calculate the amount of energy transferred into each mode.
 \end{enumerate}
-\remark{
-  implementation suggestion: The ray asks the opticalSystem to perform a raytrace.
-  The opticalSystem asks the opticalElement to perform a raytrace within the element.
-  During that, the opticalElement must perform (several) refractions. 
-  The opticalElement knows both materials of the refraction surface. 
-  Both materials must independently solve their dispersion relation and provide $\Wavevector, \Vector{e}, \permittivity\Vector{e}$.
-  The opticalElement chooses 2 out of 4 modes from each material and combines the data from both materials to the Fresnel equation system.
-}
 
 
 \chapter{Geometrical Optics}
