@@ -320,31 +320,37 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
     def seqtrace(self, raybundle, sequence, background_medium, splitup=False):
         
+        # FIXME: should depend on a list of RayPath        
+        
         current_material = background_medium    
     
         rpath = RayPath(raybundle)    
         rpaths = [rpath]
     
+        # FIXME: appending on a list which is referenced in a for loop is never a
+        # good idea    
+    
         for (surfkey, refract_flag, ordinary_flag) in sequence:
             
-            rpaths_new = copy(rpaths)            
-            
-            for rp in rpaths:
-            
-                current_bundle = rp.raybundles[-1]
-                current_surface = self.__surfaces[surfkey]
-                
-                current_material.propagate(current_bundle, current_surface)
-                
-                (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
-                mnmat = self.__materials.get(mnmat, background_medium)
-                pnmat = self.__materials.get(pnmat, background_medium)
-    
-                # TODO: remove code doubling
-                if refract_flag:
-                    current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-                    #rpath.appendRayBundle(current_material.refract(current_bundle, current_surface)[0])
-                    
+            rpaths_new = []            
+
+            print("incoming: ", surfkey, rpaths)            
+
+            current_surface = self.__surfaces[surfkey]
+                        
+            (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
+            mnmat = self.__materials.get(mnmat, background_medium)
+            pnmat = self.__materials.get(pnmat, background_medium)
+                        
+            # TODO: remove code doubling
+            if refract_flag:
+                current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
+                print(current_material)                    
+                #rpath.appendRayBundle(current_material.refract(current_bundle, current_surface)[0])
+                for rp in rpaths:
+                    current_bundle = rp.raybundles[-1]
+                    current_material.propagate(current_bundle, current_surface)
+
                     raybundles = current_material.refract(current_bundle, current_surface, splitup=splitup)
                                             
                     for rb in raybundles[1:]: # if there are more than one return value, copy path
@@ -352,8 +358,11 @@ class OpticalElement(LocalCoordinatesTreeBase):
                        rpathprime.appendRayBundle(rb)
                        rpaths_new.append(rpathprime)
                     rp.appendRayBundle(raybundles[0])
-                else:
-                    #rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface)[0])
+            else:
+                #rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface)[0])
+                for rp in rpaths:
+                    current_bundle = rp.raybundles[-1]
+                    current_material.propagate(current_bundle, current_surface)
                     raybundles = current_material.reflect(current_bundle, current_surface, splitup=splitup)
     
                     for rb in raybundles[1:]:
@@ -362,7 +371,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
                        rpaths_new.append(rpathprime)
                     rp.appendRayBundle(raybundles[0])
             
-            rpaths = copy(rpaths_new)
+            rpaths = rpaths + rpaths_new
+            
+            print("newpaths: ", surfkey, rpaths_new)
+            print("outgoing: ", surfkey, rpaths)            
             
         return rpaths
         
