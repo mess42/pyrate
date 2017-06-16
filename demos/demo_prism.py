@@ -136,8 +136,10 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-r_red.draw2d(ax, color="red", plane_normal=pn, up=up) 
-r_blue.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+for r in r_red:
+    r.draw2d(ax, color="red", plane_normal=pn, up=up) 
+for r in r_blue:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():

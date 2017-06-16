@@ -209,7 +209,8 @@ sysseq = [("lenssys", [
             ("image", True, True)])]
 r2 = s.seqtrace(initialbundle, sysseq)
 print("drawing!")
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+for r in r2:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
@@ -239,10 +240,10 @@ def osupdate(s):
 
 def meritfunctionrms(s):
     initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=121)
-    rpath = s.seqtrace(initialbundle, sysseq)
+    rpaths = s.seqtrace(initialbundle, sysseq)
     
-    x = rpath.raybundles[-1].x[-1, 0, :]
-    y = rpath.raybundles[-1].x[-1, 1, :]
+    x = rpaths[0].raybundles[-1].x[-1, 0, :]
+    y = rpaths[0].raybundles[-1].x[-1, 1, :]
     
     res = np.sum(x**2 + y**2) + 10.*math.exp(-len(x))
     
@@ -262,7 +263,8 @@ print(optimi.log)
 
 r2 = s.seqtrace(initialbundle, sysseq) # trace again
 print("drawing!")
-r2.draw2d(ax2, color="blue", plane_normal=pn, up=up) 
+for r in r2:
+    r.draw2d(ax2, color="blue", plane_normal=pn, up=up) 
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.

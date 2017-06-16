@@ -105,11 +105,12 @@ initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 def meritfunctionrms(s):
     initialbundle_local = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-    rpath = s.seqtrace(initialbundle_local, sysseq)
+    rpaths = s.seqtrace(initialbundle_local, sysseq)
     # other constructions lead to fill up of initial bundle with intersection values
     
-    x = rpath.raybundles[-1].x[-1, 0, :]
-    y = rpath.raybundles[-1].x[-1, 1, :]
+    # for glassy asphere only one path necessary
+    x = rpaths[0].raybundles[-1].x[-1, 0, :]
+    y = rpaths[0].raybundles[-1].x[-1, 1, :]
     
     res = np.sum(x**2 + y**2)
     
@@ -142,7 +143,8 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+for r in r2:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
