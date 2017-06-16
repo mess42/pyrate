@@ -205,7 +205,7 @@ class RayPath(object):
             r.draw2d(ax, color=color, plane_normal=plane_normal, up=up)
 
     def containsSplitted(self):
-        return any(self.raybundles.splitted)
+        return any([r.splitted for r in self.raybundles])
         
 
 

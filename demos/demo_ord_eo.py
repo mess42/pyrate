@@ -114,7 +114,9 @@ sysseq = [("crystalelem", [("stop", True, True), ("front", True, True), ("rear",
 phi = 5.*math.pi/180.0
 
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq, splitup=False)
+
+splitup = True
+r2 = s.seqtrace(initialbundle, sysseq, splitup=splitup)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
@@ -129,8 +131,13 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-r2[0].draw2d(ax, color="blue", plane_normal=pn, up=up) 
-#r2[1].draw2d(ax, color="green", plane_normal=pn, up=up) 
+if splitup:
+    r2[0].draw2d(ax, color="blue", plane_normal=pn, up=up) 
+    r2[1].draw2d(ax, color="green", plane_normal=pn, up=up)
+    print("contains splitted? %s" % (r2[0].containsSplitted(),))
+else:
+    r2[0].draw2d(ax, color="blue", plane_normal=pn, up=up) 
+    print("contains splitted? %s" % (r2[0].containsSplitted(),))
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from localcoordinatestreebase import LocalCoordinatesTreeBase
 from ray import RayPath, RayBundle
 
-from copy import deepcopy
+from copy import deepcopy, copy
 
 import numpy as np
 
@@ -327,39 +327,43 @@ class OpticalElement(LocalCoordinatesTreeBase):
     
         for (surfkey, refract_flag, ordinary_flag) in sequence:
             
-            current_bundle = rpath.raybundles[-1]
-            current_surface = self.__surfaces[surfkey]
+            rpaths_new = copy(rpaths)            
             
-            current_material.propagate(current_bundle, current_surface)
+            for rp in rpaths:
             
-            (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
-            mnmat = self.__materials.get(mnmat, background_medium)
-            pnmat = self.__materials.get(pnmat, background_medium)
-
-            # TODO: remove code doubling
-            if refract_flag:
-                current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-                #rpath.appendRayBundle(current_material.refract(current_bundle, current_surface)[0])
+                current_bundle = rp.raybundles[-1]
+                current_surface = self.__surfaces[surfkey]
                 
-                raybundles = current_material.refract(current_bundle, current_surface, splitup=splitup)
-                                        
-                for rb in raybundles[1:]: # if there are more than one return value, copy path
-                   rpathprime = deepcopy(rpath)
-                   rpathprime.appendRayBundle(rb)
-                   rpaths.append(rpathprime)
-                rpath.appendRayBundle(raybundles[0])
-            else:
-                #rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface)[0])
-                raybundles = current_material.reflect(current_bundle, current_surface, splitup=splitup)
-                                    
-                for rb in raybundles[1:]:
-                   rpathprime = deepcopy(rpath)
-                   rpathprime.appendRayBundle(rb)
-                   rpaths.append(rpathprime)
-                rpath.appendRayBundle(raybundles[0])
+                current_material.propagate(current_bundle, current_surface)
                 
-
-
+                (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
+                mnmat = self.__materials.get(mnmat, background_medium)
+                pnmat = self.__materials.get(pnmat, background_medium)
+    
+                # TODO: remove code doubling
+                if refract_flag:
+                    current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
+                    #rpath.appendRayBundle(current_material.refract(current_bundle, current_surface)[0])
+                    
+                    raybundles = current_material.refract(current_bundle, current_surface, splitup=splitup)
+                                            
+                    for rb in raybundles[1:]: # if there are more than one return value, copy path
+                       rpathprime = deepcopy(rp)
+                       rpathprime.appendRayBundle(rb)
+                       rpaths_new.append(rpathprime)
+                    rp.appendRayBundle(raybundles[0])
+                else:
+                    #rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface)[0])
+                    raybundles = current_material.reflect(current_bundle, current_surface, splitup=splitup)
+    
+                    for rb in raybundles[1:]:
+                       rpathprime = deepcopy(rp)
+                       rpathprime.appendRayBundle(rb)
+                       rpaths_new.append(rpathprime)
+                    rp.appendRayBundle(raybundles[0])
+            
+            rpaths = copy(rpaths_new)
+            
         return rpaths
         
     
