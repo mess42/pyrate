@@ -345,6 +345,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
             # TODO: remove code doubling
             if refract_flag:
                 current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
+
+                print("mn", mnmat)
+                print("pn", pnmat)
+                print("cur", current_material)                
                 #rpath.appendRayBundle(current_material.refract(current_bundle, current_surface)[0])
                 for rp in rpaths:
                     current_bundle = rp.raybundles[-1]

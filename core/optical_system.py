@@ -59,16 +59,19 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         rpath = RayPath(initialbundle)
         rpaths = [rpath]
         for (elem, subseq) in elementsequence:
-            # FIXME: incorrect referencing to rpath
-            # an element spits out more than one path in general
-            # therefore the following seqtrace procedures have to trace every 
-            # one of these paths
-            raypaths_to_append = self.elements[elem].seqtrace(rpath.raybundles[-1], subseq, self.material_background, splitup=splitup)
-            for rp_append in raypaths_to_append[1:]:
-                rpathprime = deepcopy(rpath)
-                rpathprime.appendRayPath(rp_append)
-                rpaths.append(rpathprime)
-            rpath.appendRayPath(raypaths_to_append[0])
+            # FIXME: incorrect start reference
+            rpaths_new = []
+            
+            for rp in rpaths:
+                raypaths_to_append = self.elements[elem].seqtrace(rp.raybundles[-1], subseq, self.material_background, splitup=splitup)
+                for rp_append in raypaths_to_append[1:]:
+                    rpathprime = deepcopy(rp)
+                    rpathprime.appendRayPath(rp_append)
+                    rpaths_new.append(rpathprime)
+                rp.appendRayPath(raypaths_to_append[0])
+                
+            rpaths = rpaths + rpaths_new
+        print(rpaths)
         return rpaths
             
     def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]

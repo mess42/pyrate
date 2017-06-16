@@ -108,7 +108,7 @@ E0 = np.cross(k, ey, axisa=0, axisb=0).T
 sysseq = [("grinelement", [("object", True, True), ("surf1", True, True), ("surf2", True, True), ("image", True, True)])]
 
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq)
+r2 = s.seqtrace(initialbundle, sysseq, splitup=False)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
