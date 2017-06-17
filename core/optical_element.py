@@ -332,40 +332,48 @@ class OpticalElement(LocalCoordinatesTreeBase):
     
         for (surfkey, refract_flag, ordinary_flag) in sequence:
             
-            rpaths_new = []            
+            # old: current_bundle = rpath.raybundles[-1]            
+            # old: current_material.propagate(current_bundle, current_surface)
 
-            #print("incoming: ", surfkey, rpaths)            
+            rpaths_new = []            
 
             current_surface = self.__surfaces[surfkey]
                         
             (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
             mnmat = self.__materials.get(mnmat, background_medium)
             pnmat = self.__materials.get(pnmat, background_medium)
+
+            # finalize current_bundles
+            for rp in rpaths:
+                current_bundle = rp.raybundles[-1]
+                current_material.propagate(current_bundle, current_surface)
+                
                         
             # TODO: remove code doubling
             if refract_flag:
+                # old: current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
+                # old: rpath.appendRayBundle(current_material.refract(current_bundle, current_surface))
+                # old: finish
+
                 current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
 
-                print("mn", mnmat)
-                print("pn", pnmat)
-                print("cur", current_material)                
-                #rpath.appendRayBundle(current_material.refract(current_bundle, current_surface)[0])
                 for rp in rpaths:
                     current_bundle = rp.raybundles[-1]
-                    current_material.propagate(current_bundle, current_surface)
-
                     raybundles = current_material.refract(current_bundle, current_surface, splitup=splitup)
                                             
                     for rb in raybundles[1:]: # if there are more than one return value, copy path
-                       rpathprime = deepcopy(rp)
-                       rpathprime.appendRayBundle(rb)
-                       rpaths_new.append(rpathprime)
+                        rpathprime = deepcopy(rp)
+                        rpathprime.appendRayBundle(rb)
+                        rpaths_new.append(rpathprime)
                     rp.appendRayBundle(raybundles[0])
+
+
             else:
-                #rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface)[0])
+                # old: rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface))
+                # old: finish
+            
                 for rp in rpaths:
                     current_bundle = rp.raybundles[-1]
-                    current_material.propagate(current_bundle, current_surface)
                     raybundles = current_material.reflect(current_bundle, current_surface, splitup=splitup)
     
                     for rb in raybundles[1:]:
@@ -375,9 +383,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
                     rp.appendRayBundle(raybundles[0])
             
             rpaths = rpaths + rpaths_new
-            
-            #print("newpaths: ", surfkey, rpaths_new)
-            #print("outgoing: ", surfkey, rpaths)            
             
         return rpaths
         

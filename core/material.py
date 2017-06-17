@@ -703,7 +703,6 @@ class IsotropicMaterial(MaxwellMaterial):
         :param raybundle (RayBundle object), gets changed!
         :param nextSurface (Surface object)
         """
-
         nextSurface.intersect(raybundle)
 
 

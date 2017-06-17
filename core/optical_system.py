@@ -71,7 +71,6 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                 rp.appendRayPath(raypaths_to_append[0])
                 
             rpaths = rpaths + rpaths_new
-        print(rpaths)
         return rpaths
             
     def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
