@@ -128,8 +128,6 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     def generate_cone_bilinear(direction_vec, lim_angle, start_num_pts):
         phi = np.arctan2(direction_vec[1], direction_vec[0])
         theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
-        print(phi)
-        print(theta)
         num_samp = np.ceil(np.sqrt(start_num_pts))
         alpha = np.linspace(-lim_angle, 0, num_samp, endpoint=False)*np.pi/180.
         angle = np.linspace(0, 2.*np.pi, num_samp, endpoint=False)

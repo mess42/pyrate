@@ -59,7 +59,6 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         rpath = RayPath(initialbundle)
         rpaths = [rpath]
         for (elem, subseq) in elementsequence:
-            # FIXME: incorrect start reference
             rpaths_new = []
             
             for rp in rpaths:

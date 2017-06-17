@@ -74,6 +74,13 @@ class Material(optimize.ClassWithOptimizableVariables):
 
 
 class MaxwellMaterial(Material):
+    
+    # TODO: rename procedures according to unified naming scheme
+    # k divided in knorm and k0*knorm
+    # calculation of det, xi, QEV from k_parallel, k_direction
+    # TODO: calculation of QEV from k_direction
+    # sorting E and k according to Poynting vector scalar product with real 
+    # direction vector
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         """
