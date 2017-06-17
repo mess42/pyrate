@@ -115,6 +115,9 @@
 
 \newcommand{\orderof}[1]{\mathcal{O}(#1)}
 
+\newcommand\ppol{p}
+\newcommand\spol{s}
+\newcommand\normconst{N}
 
 \begin{document}
 
@@ -354,7 +357,7 @@ We consider a homogeneous material $\permittivity(\Location) = const.$ We apply 
 \begin{eqnarray}
   \Nabla \times ( \Nabla \times \Efield ) &=& \Nabla \times ( i \omega \vacuumpermeability \Hfield ) 
   \\
-  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k} = -k_0^2 \permittivity_{jk} \scalarEfield_{k}
+  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
 \end{eqnarray}
 This is a differential equation with constant coefficients, so we use the ansatz
 \begin{eqnarray}
@@ -364,9 +367,9 @@ where the $\Efield_0$ contains polarisation, electric field amplitude and harmon
 With this monochromatic time dependence, $\permittivity_{ij}$ becomes a constant factor 
 and we can replace $\partial_j \to i k_j$. We yield
 \begin{align}
- A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\,.
-\end{align}
-with $A_{ij} = \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + k_0^2 \permittivity_{ij} \right)$.
+ A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\\
+ A_{ij}          &= \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \vacuumpermeability \permittivity_{ij} \right)
+ \end{align}
 More explicit, it reads
 \begin{eqnarray}
 \begin{pmatrix}
@@ -413,14 +416,16 @@ We use the identity
 \end{align}
 We also factor out a permittivity of the vacuum from the permittivity tensor 
 $\permittivity_{ij} =  \vacuumpermittivity \permittivity_{rel\,ij}$ and introduce the ``vacuum wave number''
-$k_0 := \frac{2\pi}{\lambda_0} = \frac{\omega}{c} = \omega \sqrt{\vacuumpermeability  \vacuumpermittivity}$.
+$\wavenumber_0 := \omega \sqrt{\vacuumpermeability  \vacuumpermittivity} = \frac{2\pi}{\lambda_0} = \frac{\omega}{c}$. 
 and rewrite the determinant
 \begin{align}
  \det \hat{A}(\Vector{k}) 
  &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\permittivity_{rel} + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
 \end{align}
 where $\alpha = (\text{tr}\permittivity_{rel})^3 - 3 (\text{tr}\permittivity_{rel}) \text{tr}(\permittivity_{rel}^2) + 2 \text{tr}(\permittivity_{rel}^3)$,
-$\beta = \permittivity_{rel\,ij} k_i k_j$, $\gamma = k_i \permittivity_{rel\,i\ell} \permittivity_{rel\,\ell j} k_j$. For given $\omega$ this is an equation of fourth order
+$\beta = \permittivity_{rel\,ij} k_i k_j$, 
+$\gamma = k_i \permittivity_{rel\,i\ell} \permittivity_{rel\,\ell j} k_j$. 
+For given $\omega$ this is an equation of fourth order
 for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
 $\Vector{k}$ gives only two terms.
 \begin{align}
@@ -782,6 +787,7 @@ with
 
 
 \subsection{Fresnel Coefficients}
+\subsubsection{general case}
 Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarizations
 \begin{subequations}
 \begin{eqnarray}
@@ -855,62 +861,436 @@ so we remove this redundant equation.
 Our coordinate system is cartesian, so we employ $\Vector{e}_X \times \Vector{e}_Y = \Vector{n}$ and get rid of the cross products
 \begin{subequations}
   \begin{align}
-    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \label{eq:fresnelLastToSkip}\\
     \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
     \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
     \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
     \varsigma_\beta \left(-\wavenumber_X ( \Vector{e}_{\beta\alpha} \Vector{n} )  + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
+We use the Helmholtz equation \eqref{eq:generalDispersionEigenEquationindex}
+\begin{eqnarray}
+ \forall \alpha, \beta : \omega^2 \vacuumpermeability \scalarpermittivity_{\beta ij} \Vector{e}_{\beta \alpha j} 
+ &=&
+ \left(
+   \wavenumber_m \wavenumber_m \delta_{ni}
+   -
+   \wavenumber_i \wavenumber_n
+ \right)
+ \Vector{e}_{\beta \alpha n} 
+\end{eqnarray}
+on the first equation \eqref{eq:fresnelLastToSkip} and multiply the last two equations 
+with $\wavenumber_Y$ and $-\wavenumber_X$, respectively.
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta  \left(   \wavenumber_m \wavenumber_m \delta_{ij} - \wavenumber_i \wavenumber_j   \right) e_{\beta\alpha j} n_i E_{\beta\alpha,0} &= \omega^2 \vacuumpermeability \Dfield_{in} \Vector{n} \\
+%    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+%    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+%    \varsigma_\beta \left( \wavenumber_Y^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_Y \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &=  \wavenumber_Y (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+%    \varsigma_\beta \left( \wavenumber_X^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_X \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -\wavenumber_X (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
+%  \end{align}
+%\end{subequations}
+\begin{subequations}
+  \begin{align*}
+    \varsigma_\beta \left( ( \wavenumber_X^2 + \wavenumber_Y^2 ) (\Vector{e}_{\beta\alpha} \Vector{n}) - \xi_{\beta\alpha} \wavenumber_X (\Vector{e}_{\beta\alpha} \Vector{e}_X) - \xi_{\beta\alpha} \wavenumber_Y (\Vector{e}_{\beta\alpha} \Vector{e}_Y  \right) E_{\beta\alpha,0} &= \omega^2 \vacuumpermeability \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_Y^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_Y \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &=  \wavenumber_Y (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_X^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_X \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -\wavenumber_X (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y 
+  \end{align*}
+\end{subequations}
+The first equation is the sum of the last two, so we may remove any of these three from our system of equations.
+But which one is best to choose ?
 
-\subsection{Fresnel (to do part)}
+We consider the first equation, \eqref{eq:fresnelLastToSkip}, in the special case of isotropic materials and normal incidence,
+$\Wavevector_{in} \propto \Vector{n}$.
+In this case, both (conserved) in-plane components $\wavenumber_X, \wavenumber_Y$ are zero for all modes.
+From the Coulomb law in isotropic materials, $\scalarpermittivity \Nabla \Efield = 0$, we conclude that 
+all modes $\Vector{e}_{\beta\alpha}$ are orthogonal to the wavevector and thus to the surface normal,
+$\Vector{e}_{\beta\alpha} \Vector{n} = 0$.
+I this special case, equation \eqref{eq:fresnelLastToSkip} reduces to
+\begin{eqnarray*}
+ 0 &=& 0
+\end{eqnarray*}
+which is of limited help in solving the system. 
+The special case we chose is quite common, for example as pilot ray in all centro-symmetric systems made of glass.
+Thus we decide to remove equation \eqref{eq:fresnelLastToSkip} and yield our final system
+\begin{subequations}
+  \begin{align}
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y \\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
+  \end{align}
+\end{subequations}
 
-The Fresnel section is not complete yet.
-What is left to do:
-\begin{itemize}
- \item Proove that out of these 5 equations, at most 4 are independent.
-       In this case, the system is not overdetermined and there are mathematical solutions.
-       The fact that refraction and reflection occurs in reality is a strong indication for the existence of solutions.
-       Before proving, it could be necessary to find a relation between $\permittivity_\beta \Vector{e}_{\beta\alpha}$ and $\xi_{\beta\alpha}$.
- \item Proove that the remaining 4 equations are linearly independent.
-       This means the solution is unique.
-       In reality, a unique solution is established, measureable with a powermeter.
- \item Derive the special case of isotropic materials and compare to textbook Fresnel coefficients (plausibility check). 
- \item fullSimplify() the system of 4 equations -- after all proofs are done.
- \item Find a description of the system that is well conditioned.
-       Special cases like normal and close-to-normal incidence should be covered in a numerically stable and precise manner.
-       Grazing incidence does not have to be stable, other parts of the code are also not.
-       To achieve this, linear combinations of the remaining 4 formulas are to be found.
- \item fun fact: for isotropic materials and normal incidence, 
-       the first equation about the normal component of $\Dfield$
-       reduces to $0=0$. Maybe this equation is a candidate to kick out of the system of 4 equations.
- \item Calculate the energy distribution between the modes.
- \item Show that the solution obeys energy conservation (plausibility check). 
- \item Consider what to do if an isotropic material interfaces another material.
-       In an isotropic material, both modes $\alpha$ have a generate wavevector $\Wavevector_{\beta\alpha}$,
-       and thus linear combinations of both eigen-polarisations $\Vector{e}_{\beta\alpha}$ are also valid solutions.
-       One can choose the polarisation $\Vector{e}_{\beta 1}$ in a way that the amplitude of the other mode vanishes.
-       Or we use the general routine with any polarisation eigenvectors and sum up the field vectors afterwards.
-       This way, we do not have to split up the ray into two modes $\alpha$
-       and conserve the full information in a single ray.
-       Classcial raytracing only uses isotropic materials, 
-       and the increase in number of rays with the current model is exponential, 
-       so a clever solution for isotropic-anisotropic and isotropic-isotropic interfaces would help to increase speed.
-\end{itemize}
+\subsubsection{isotropic media}
+We assume the boundary between two isotropic media.
+Without loss of generality, we rotate our coordinate system so that $\wavenumber_Y = 0$.
+In isotropic media, the modes are orthogonal to the wavevectors $\Vector{e}_{\beta\alpha} \perp \Wavevector_{\beta\alpha}$.
+Both solutions $\alpha$ have a degenerate wavevector.
+We choose the modes $\alpha \in \{ \spol, \ppol \}$
+\begin{eqnarray}
+ \Vector{e}_{\spol} &=& \Vector{e}_Y \\
+ \Vector{e}_{\beta\,\ppol} &=& \frac{\xi_\beta \Vector{e}_X - \wavenumber_X \Vector{n}}{\normconst_\beta} 
+\end{eqnarray}
+where $\normconst_\beta = \sqrt{ \xi_\beta \overline{\xi_\beta} + \wavenumber_X \overline{\wavenumber_X}}$ is a normalization constant, ensuring $|\Vector{e}_{\beta\,\ppol}|=1$.
+In lossless media, the normalization constant $\normconst$ is equal to the refractive index times the vacuum wavenumber
+$\wavenumber_0 n = \sqrt{ \xi_\beta^2 + \wavenumber_X^2}$.
+The equation system simplifies to
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta (\Vector{e}_{\beta \ppol} \Vector{e}_X) E_{\beta \ppol,0} &= \Efield_{in} \Vector{e}_X \\
+%    \varsigma_\beta E_{\beta \spol,0} &= \Efield_{in} \Vector{e}_Y \\
+%    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_{\beta \ppol} \Vector{n} ) - \xi_{\beta} ( \Vector{e}_{\beta \ppol} \Vector{e}_X) \right) E_{\beta\ppol,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y  \\
+%    \varsigma_\beta \left(  - \xi_{\beta} E_{\beta \spol,0} \right) &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
+%  \end{align}
+%\end{subequations}
+\begin{subequations}
+  \begin{align}
+    \varsigma_\beta \frac{\xi_\beta}{\normconst_\beta}  E_{\beta \ppol,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta E_{\beta \spol,0} &= \Efield_{in} \Vector{e}_Y \\
+    - \varsigma_\beta \frac{\xi_\beta^2 + \wavenumber_X^2}{\normconst_\beta} E_{\beta\ppol,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y  \\
+    - \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
+  \end{align}
+\end{subequations}
 
 
 
+\paragraph{s-polarized incidence.}
+We choose s-polarized incident light 
+\begin{eqnarray}
+\Efield_{in} &=& E_{in} \Vector{e}_Y 
+\end{eqnarray}
+and yield
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta \frac{\xi_\beta}{\wavenumber_0 n_\beta}  E_{\beta \ppol,0} &= 0 \\
+%    \varsigma_\beta E_{\beta \spol,0} &= E_{in} \\
+%    \varsigma_\beta \wavenumber_0 n_\beta E_{\beta\ppol,0} &= 0  \\
+%    \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= \xi_{in} E_{in}
+%  \end{align}
+%\end{subequations}
+%\begin{subequations}
+%  \begin{align}
+%    \frac{\xi_t}{\wavenumber_0 n_\materialtwo}  E_{t \ppol,0} 
+%  - \frac{\xi_r}{\wavenumber_0 n_\materialone}  E_{r \ppol,0} &= 0 
+%  \\
+%    E_{t \spol,0} - E_{r \spol,0} &= E_{in} 
+%  \\    
+%    \wavenumber_0 n_\materialtwo E_{t \ppol,0} 
+%  - \wavenumber_0 n_\materialone E_{r \ppol,0} &= 0  
+%  \\
+%    \xi_{t} E_{t \spol,0} 
+%  - \xi_{r} E_{r \spol,0} &= \xi_{in} E_{in}
+%  \end{align}
+%\end{subequations}
+\begin{subequations}
+  \begin{eqnarray}
+    E_{t \ppol,0} &=& 0 \\
+    E_{r \ppol,0} &=& 0 \\ 
+    E_{t \spol,0} &=& \frac{ 2 \xi_{in}        }{\xi_{in} + \xi_t} E_{in} \\
+    E_{r \spol,0} &=& \frac{ \xi_{in} - \xi{t} }{\xi_{in} + \xi_t} E_{in} 
+  \end{eqnarray}
+\end{subequations}
+For lossless media, and the choice of the root $n_\beta > 0$, 
+we replace $\xi_\beta = \wavenumber_0 n_\beta \cos \theta_\beta$, where $\theta$ is the ray direction
+and yield the textbook Fresnel formulas \cite{Jackson, BornWolf}
+\begin{subequations}
+  \begin{eqnarray}
+    E_{t \spol,0} &=& \frac{ 2 n_\materialone \cos \theta_{in} }
+                           { n_\materialone \cos \theta_{in} + n_\materialtwo \cos \theta_t } E_{in}  
+    \\[2ex]
+    E_{r \spol,0} &=& \frac{ n_\materialone \cos \theta_{in} - n_\materialtwo \cos \theta_t }
+                           { n_\materialone \cos \theta_{in} + n_\materialtwo \cos \theta_t } E_{in} 
+  \end{eqnarray}
+\end{subequations}
+
+
+
+\paragraph{p-polarized incidence.}
+We choose p-polarized incident light 
+\begin{eqnarray}
+\Efield_{in} &=& \frac{\xi_{in} \Vector{e}_X - \wavenumber_X \Vector{n}}{\normconst_{in}} E_{in} 
+\end{eqnarray}
+and yield
+\begin{subequations}
+  \begin{align}
+    \varsigma_\beta \frac{\xi_\beta}{\normconst_\beta}  E_{\beta \ppol,0} &= \frac{\xi_{in}}{\normconst_{in}} E_{in} \\
+    \varsigma_\beta E_{\beta \spol,0} &= 0 \\
+    - \varsigma_\beta \frac{\xi_\beta^2 + \wavenumber_X^2}{\normconst_\beta} E_{\beta\ppol,0} &= - \frac{\xi_{in}^2 + \wavenumber_X^2}{\normconst_{in}} E_{in} \\
+    - \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= 0 
+  \end{align}
+\end{subequations}
+\begin{subequations}
+  \begin{align}
+    E_{r \spol,0} &= 0 
+  \\
+    E_{t \spol,0} &= 0 
+  \\
+    \frac{\xi_t}{\normconst_t}  E_{t \ppol,0} 
+    - 
+    \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    &= \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+  \\  
+    \frac{\xi_t^2 + \wavenumber_X^2}{\normconst_t} E_{t \ppol,0} 
+    -
+    \frac{\xi_r^2 + \wavenumber_X^2}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\xi_{in}^2 + \wavenumber_X^2}{\normconst_{in}} E_{in}
+  \end{align}
+\end{subequations}
+\begin{subequations}
+  \begin{align}
+    E_{r \spol,0} &= 0 
+  \\
+    E_{t \spol,0} &= 0 
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\xi_t}
+    \left( 
+      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+      + 
+      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    \right)
+  \\  
+    \frac{\scalarpermittivity_\materialtwo}{\normconst_t} E_{t \ppol,0} 
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}
+  \end{align}
+\end{subequations}
+\begin{align}
+    \frac{\scalarpermittivity_\materialtwo}{\normconst_t} 
+    \left(
+      \frac{\normconst_t}{\xi_t}
+      \left( 
+        \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+        + 
+        \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+      \right)
+    \right) 
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}
+  \\
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t}
+    \left( 
+      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+      + 
+      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    \right)
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
+  \\
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+    + 
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
+  \\
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    -
+    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
+    &=
+    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
+    -
+    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+  \\
+    E_{r \ppol,0} 
+    &=
+    \frac{
+      \frac{\scalarpermittivity_\materialone}{\normconst_{in}}
+      -
+      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} 
+    }
+    {
+      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}
+      -
+      \frac{\scalarpermittivity_\materialone}{\normconst_r}    
+    }
+    E_{in} 
+  \\  
+    E_{r \ppol,0} 
+    &=
+    \frac{\normconst_r}{\normconst_{in}}
+    \frac{
+      \scalarpermittivity_\materialone
+      -
+      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \xi_{in} 
+    }
+    {
+      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \xi_r
+      -
+      \scalarpermittivity_\materialone 
+    }
+    E_{in} 
+  \\  
+    E_{r \ppol,0} 
+    &=
+    \frac{\normconst_r}{\normconst_{in}}
+    \cdot
+    \frac{
+      \scalarpermittivity_\materialone \xi_t
+      -
+      \scalarpermittivity_\materialtwo \xi_{in} 
+    }
+    {
+      \scalarpermittivity_\materialtwo (- \xi_{in})
+      -
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\  
+    E_{r \ppol,0} 
+    &=
+    \frac{\normconst_r}{\normconst_{in}}
+    \cdot
+    \frac{
+      \scalarpermittivity_\materialtwo \xi_{in} 
+      -
+      \scalarpermittivity_\materialone \xi_t
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\  
+    E_{r \ppol,0} 
+    &=
+    \frac{
+      \scalarpermittivity_\materialtwo \xi_{in} 
+      -
+      \scalarpermittivity_\materialone \xi_t
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\xi_t}
+    \left( 
+      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
+      + 
+      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
+    \right)
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{\xi_{in}}{\xi_t}
+    \left( 
+       E_{in} 
+       -  
+       E_{r \ppol,0} 
+    \right)
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{\xi_{in}}{\xi_t}
+    \left( 
+       E_{in} 
+       -  
+       \frac{
+         \scalarpermittivity_\materialtwo \xi_{in} 
+         -
+         \scalarpermittivity_\materialone \xi_t
+       }
+       {
+         \scalarpermittivity_\materialtwo \xi_{in}
+         +
+         \scalarpermittivity_\materialone \xi_t 
+       }
+       E_{in} 
+    \right)
+  \\
+    E_{t \ppol,0} 
+    &= 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{
+      2 \scalarpermittivity_\materialone \xi_{in}
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+\end{align}
 
 \begin{subequations}
-\label{eq:fresnelfinal}
-\begin{align}
-  \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
-  \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
-\end{align}
+\begin{eqnarray}
+    E_{r \spol,0} &=& 0 \\ 
+    E_{t \spol,0} &=& 0 \\
+    E_{r \ppol,0} 
+    &=&
+    \frac{
+      \scalarpermittivity_\materialtwo \xi_{in} 
+      -
+      \scalarpermittivity_\materialone \xi_t
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\
+    E_{t \ppol,0} 
+    &=& 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{
+      2 \scalarpermittivity_\materialone \xi_{in}
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+\end{eqnarray}
 \end{subequations}
-\remark{needs check whether these 4 equations are independent !}
+
+
+For lossless media, and the choice of the root $n_\beta > 0$, 
+we replace $\xi_\beta = \wavenumber_0 n_\beta \cos \theta_\beta$, where $\theta$ is the ray direction
+and yield the textbook Fresnel formulas \cite{Jackson, BornWolf}
+\begin{subequations}
+  \begin{align}
+    E_{r \ppol,0} &= \frac{ n_\materialtwo \cos \theta_{in} - n_\materialone \cos \theta_t }
+                          { n_\materialtwo \cos \theta_{in} + n_\materialone \cos \theta_t } E_{in}
+  \\
+    E_{t \ppol,0} &= \frac{ 2 n_\materialone \cos \theta_{in} }
+                          {   n_\materialtwo \cos \theta_{in} + n_\materialone \cos \theta_t } E_{in}
+  \end{align}
+\end{subequations}
+
+
+
+
+
+
+
+Note that field amplitude and energy flow are not the same.
+
 
 \subsection{Summary}
 We can calculate reflection and refraction wavevectors and their Fresnel coefficients the following way:
@@ -918,22 +1298,15 @@ We can calculate reflection and refraction wavevectors and their Fresnel coeffic
  \item Intersect ray with surface, determine local surface normal $\Vector{n}$ and incident in-plane wavevector component $\Wavevector_\parallel$
  \item Calculate all 4 wavevector solutions $\xi$ for the conserved in-plane wavevector component $\Wavevector_\parallel$ 
        according to material dispersion \eqref{eq:generalDispersionEigenEquationindex} in each material
- \item For each solution $\xi$, calculate the eigen-polarisation $\Vector{e}_{\beta\alpha}$ and corresponding $\Dfield$-field $\permittivity_{\alpha} \Vector{e}_{\beta\alpha}$.
+ \item For each solution $\xi$, calculate the eigen-polarisation $\Vector{e}_{\beta\alpha}$.
        The eigen-polarisations are the eigenvectors of the dispersion relation \eqref{eq:generalDispersionEigenEquationindex}.
  \item Construct refracted and reflected wavevectors $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$
  \item Choose 2 the solutions in each material $\alpha$ carrying energy away from the surface
        \remark{todo: consider the case of gain media}
  \item From $\xi$s, eigen vectors and incident ray properties calculate the Fresnel coefficients \eqref{eq:fresnelfinal}.
-       The Fresnel coefficients determine the amplitude of each mode $\beta\alpha$ and thus the amount of energy transferred into each mode.
+       The Fresnel coefficients determine the amplitude of each mode $\beta\alpha$ 
+       and allow to calculate the amount of energy transferred into each mode.
 \end{enumerate}
-\remark{
-  implementation suggestion: The ray asks the opticalSystem to perform a raytrace.
-  The opticalSystem asks the opticalElement to perform a raytrace within the element.
-  During that, the opticalElement must perform (several) refractions. 
-  The opticalElement knows both materials of the refraction surface. 
-  Both materials must independently solve their dispersion relation and provide $\Wavevector, \Vector{e}, \permittivity\Vector{e}$.
-  The opticalElement chooses 2 out of 4 modes from each material and combines the data from both materials to the Fresnel equation system.
-}
 
 
 \chapter{Geometrical Optics}
@@ -1690,7 +2063,7 @@ in front of the image plane.
 We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
 \begin{eqnarray}
  \tilde{A} &=& TODO \\
- \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) K_{j,n}
+ \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 H_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) K_{j,n}
 \end{eqnarray}
 The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
 The imaging condition becomes
