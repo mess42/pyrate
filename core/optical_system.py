@@ -71,7 +71,9 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                 
             rpaths = rpaths + rpaths_new
         return rpaths
-            
+        
+    # TODO: maybe split up para_seqtrace and calculation of pilotraypath from pilotbundle
+       
     def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None, use6x6=True): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
         pilotpath = RayPath(pilotbundle)
@@ -86,6 +88,10 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             pilotpath.appendRayPath(append_pilotpath) 
         return (pilotpath, rpath)
 
+    # TODO: write method to spitout XYUV(obj->stop)
+    # TODO: further XYUV(stop->image)
+    # TODO: depending on surfoptions "isstop=True"
+    # TODO: isstop may only occur once in optical system
 
 
     def addElement(self, key, element):

@@ -107,10 +107,6 @@ ke[2,:] = 1.
 k = k_sorted[3, :, :].copy()
 E0 = E_sorted[3, :, :].copy()
 
-print(k)
-print(E0)
-print(crystal.calcPoytingVector(k, E0, wave=wavelength))
-
 sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True) ])] 
 
 sysseq_pilot = [("TMA", 

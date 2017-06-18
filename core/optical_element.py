@@ -339,11 +339,11 @@ class OpticalElement(LocalCoordinatesTreeBase):
     
         rpath = RayPath(raybundle)    
         rpaths = [rpath]
-    
-        # FIXME: appending on a list which is referenced in a for loop is never a
-        # good idea    
-    
-        for (surfkey, refract_flag, ordinary_flag) in sequence:
+        
+        # surfoptions is intended to be a comma separated list
+        # of keyword=value pairs        
+        
+        for (surfkey, refract_flag, surfoptions) in sequence:
             
             # old: current_bundle = rpath.raybundles[-1]            
             # old: current_material.propagate(current_bundle, current_surface)
