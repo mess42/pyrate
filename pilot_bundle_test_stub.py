@@ -24,31 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import math
 import numpy as np
 import core.helpers_math
-from core.globalconstants import canonical_ex, canonical_ey
+from core.globalconstants import canonical_ex, canonical_ey, standard_wavelength
 from core.material import AnisotropicMaterial
 from core.localcoordinates import LocalCoordinates
-
-def choose_nearest(kvec, kvecs_new):
-    tol = 1e-3
-    (kvec_dim, kvec_len) = np.shape(kvec)
-    (kvec_new_no, kvec_new_dim, kvec_new_len) = np.shape(kvecs_new)
-    
-    res = np.zeros_like(kvec)    
-    
-    if kvec_new_dim == kvec_dim and kvec_len == kvec_new_len:
-        for j in range(kvec_len):
-            diff_comparison = 1e10
-            choosing_index = 0
-            for i in range(kvec_new_no):
-                vdiff = kvecs_new[i, :, j] - kvec[:, j]
-                hermite_abs_square = np.dot(np.conj(vdiff), vdiff)
-                if  hermite_abs_square < diff_comparison and hermite_abs_square > tol:
-                    choosing_index = i
-                    diff_comparison = hermite_abs_square
-            res[:, j] = kvecs_new[choosing_index, :, j]
-    return res
-                
-        
+from core.helpers import build_pilotbundle2
+from core.surface import Surface        
 
 if __name__=="__main__":
     
@@ -69,100 +49,13 @@ if __name__=="__main__":
     lc = LocalCoordinates("1")
     myeps = rnd_data1 + complex(0, 1)*rnd_data2
 
-    efield = np.zeros((3, num_pts))
-    efield[0, :] = 1
-    mat_ez = np.zeros((3, num_pts))
-    mat_ez[2, :] = 1
     mat = AnisotropicMaterial(lc, myeps)
+    surfobj = Surface(lc)
 
-    kvectorsmat = mat.calcKNormfromUnitVector(np.zeros((3, num_pts)), rnd_units)
+    pilotbundles = build_pilotbundle2(surfobj, mat, (0.1, 0.1), (0.05, 0.05), kunitvector=None, wave=standard_wavelength)
 
-    mat.sortKNormEField(np.zeros((3, num_pts)), rnd_units, np.zeros((3, num_pts)), rnd_units)
-
-    sol_choice = np.zeros(4, dtype=bool)
-
-    for i in range(4):
-        print("solution n0 %d" % (i,))
-        kvecsol = np.copy(kvectorsmat[i])
-
-        Svec = mat.calcPoytingVectorNorm(kvecsol, efield)
-        SvecDir = Svec/np.linalg.norm(Svec, axis=0)
-        scalar_product = np.sum(mat_ez*SvecDir, axis=0)
-        sol_choice[i] = scalar_product > 0
-        print(scalar_product)
-        
-    print(kvectorsmat[sol_choice])
-    kvec = kvectorsmat[sol_choice][0]
-        
-    angx = 5.*math.pi/180.0
-    angy = 5.*math.pi/180.0        
+    fig = plt.figure(1)
+    ax = fig.add_subplot(111)
+    ax.axis('equal')
     
-    rotx = core.helpers_math.rodrigues(angx, [1, 0, 0])
-    roty = core.helpers_math.rodrigues(angy, [0, 1, 0])        
-            
-    rnd_units_rx = np.einsum("ij...,j...", rotx, rnd_units).T
-    rnd_units_ry = np.einsum("ij...,j...", roty, rnd_units).T
-
-
-    kvec_turned_x = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, num_pts)), rnd_units_rx))
-    kvec_turned_y = choose_nearest(kvec, mat.calcKNormfromUnitVector(np.zeros((3, num_pts)), rnd_units_ry))
-
-            
-    print("det derivative")
-    dDdk = mat.calcDetDerivativePropagatorNorm(kvec)
-    print(dDdk)
-    print(np.linalg.norm(dDdk, axis=0))
-    ex = np.repeat(canonical_ex[:, np.newaxis], num_pts, axis=1)
-    ey = np.repeat(canonical_ey[:, np.newaxis], num_pts, axis=1)
-    
-    dky_dir = np.cross(ex, dDdk, axisa=0, axisb=0).T
-    dkx_dir = np.cross(ey, dDdk, axisa=0, axisb=0).T
-    
-    dkx = choose_nearest(kvec, mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, dkx_dir))       
-    dky = choose_nearest(kvec, mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, dky_dir))       
-
-        
-    print("det kvec: ", mat.calcDetPropagatorNorm(kvec))
-    print("det kvec_rot_x: ", mat.calcDetPropagatorNorm(kvec_turned_x))
-    print("det kvec_rot_y: ", mat.calcDetPropagatorNorm(kvec_turned_y))
-    # observation: just rotation only works with isotropic epsilon (which is invariant under rotation)        
-            
-    print("det dkx: ", mat.calcDetPropagatorNorm(dkx))
-    print("det dky: ", mat.calcDetPropagatorNorm(dky))
-    
-    print(kvec)
-    print(kvec_turned_x)
-    print(kvec_turned_y)
-    print(dkx)
-    print(dky)
-
-    print("det 1st derivative absolute value")
-    dDdkabsvalue = np.sqrt(np.sum(np.conj(dDdk)*dDdk, axis=0))
-    print(dDdkabsvalue)
-    print("det 2nd derivative")
-    
-    if np.all(dDdkabsvalue < 1e-3):
-        
-        der2nd = mat.calcDet2ndDerivativePropagatorNorm(kvec)
-        print(der2nd)
-        eigenvecs = np.zeros((2, 3, num_pts), dtype=complex)
-        for i in range(num_pts):
-            (ev, evec) = np.linalg.eig(der2nd[:, :, i])
-            print(ev)
-            eigenvecs[:, :, i] = evec[np.abs(ev) < 1e-3]
-    
-        dkx_iso = choose_nearest(kvec, mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, eigenvecs[0]))       
-        dky_iso = choose_nearest(kvec, mat.calcKNormfromKNormAndDeviationDirectionVector(np.zeros((3, num_pts)), kvec, eigenvecs[1]))       
-    
-        print(dkx_iso)
-        print(dky_iso)
-    
-        print("det dkx_iso: ", mat.calcDetPropagatorNorm(dkx_iso))
-        print("det dky_iso: ", mat.calcDetPropagatorNorm(dky_iso))
-
-
-    # TODO: transfer from 1 surf to another, extract 1st order properties
-    # of transfer (automated differentiation)    
-
-
-
+    pilotbundles[0].draw2d(ax, color="blue")

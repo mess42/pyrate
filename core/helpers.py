@@ -350,3 +350,97 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
                 Efield0 = Eglob, wave=wave
                 )
     return pilotbundle
+
+
+def build_pilotbundle2(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, lck=None, wave=standard_wavelength, num_sampling_points=5):
+
+    """
+    Simplified pilotbundle generation.
+    """
+    
+    # TODO: remove code doubling from material due to sorting of K and E
+    # TODO: check K and E from unit vector (fulfill ev equation?)
+    # TODO: check why there are singular matrices generated in calculateXYUV
+
+    def generate_cone_xy_bilinear(
+        direction_vec, lim_angle, 
+        (centerx, centery), (dx, dy), 
+        num_pts_dir):
+
+        num_pts_lspace = num_pts_dir
+        if num_pts_dir % 2 == 1:
+            num_pts_lspace -= 1
+
+        lspace = np.hstack(
+            (np.linspace(-1, 0, num_pts_lspace/2, endpoint=False), 
+             np.linspace(1, 0, num_pts_lspace/2, endpoint=False)
+             )
+             )
+        lspace = np.hstack((0, lspace))
+        print(lspace)
+
+        x = centerx + dx*lspace
+        y = centery + dy*lspace
+
+        
+        phi = np.arctan2(direction_vec[1], direction_vec[0])
+        theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
+
+        alpha = np.linspace(-lim_angle, 0, num_pts_dir, endpoint=False)*np.pi/180.
+        angle = np.linspace(0, 2.*np.pi, num_pts_dir, endpoint=False)
+        
+        (Alpha, Angle, X, Y) = np.meshgrid(alpha, angle, x, y)
+        Xc = np.cos(Angle)*np.sin(Alpha)
+        Yc = np.sin(Angle)*np.sin(Alpha)
+        Zc = np.cos(Alpha)        
+        
+        start_pts = np.vstack((X.flatten(), Y.flatten(), np.zeros_like(X.flatten())))
+
+        cone = np.vstack((Xc.flatten(), Yc.flatten(), Zc.flatten()))
+
+        rotz = rodrigues(-phi, [0, 0, 1])
+        rottheta = rodrigues(-theta, [1, 0, 0])
+
+        finalrot = np.dot(rottheta, rotz)
+
+        final_cone = np.dot(finalrot, cone)
+
+        return (start_pts, final_cone)        
+
+
+
+    lcobj = surfobj.rootcoordinatesystem
+    if lck is None:
+        lck = lcobj
+    if kunitvector is None:
+        # standard direction is in z in lck
+        kunitvector = np.array([0, 0, 1])
+        
+    cone_angle = 0.5*(phix + phiy)     
+    (xlocobj, kconek) = generate_cone_xy_bilinear(kunitvector, cone_angle, (0.0, 0.0), (dx, dy), num_sampling_points)
+
+    xlocmat = mat.lc.returnOtherToActualPoints(xlocobj, lcobj)
+    kconemat = mat.lc.returnOtherToActualDirections(kconek, lck)
+    xlocsurf = surfobj.shape.lc.returnOtherToActualPoints(xlocobj, lcobj)    
+    surfnormalmat = mat.lc.returnOtherToActualDirections(surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]), surfobj.shape.lc)    
+    
+    (k_4, E_4) = mat.sortKUnitEField(xlocmat, kconemat, surfnormalmat, wave=wave)
+    
+    
+    pilotbundles =[]
+    for j in range(4):
+       
+        xglob = lcobj.returnLocalToGlobalPoints(xlocobj)
+        kglob = mat.lc.returnLocalToGlobalDirections(k_4[j])
+        Eglob = mat.lc.returnLocalToGlobalDirections(E_4[j])
+        
+        print(xglob)
+        print(kglob)
+        print(Eglob)        
+        
+        pilotbundles.append(RayBundle(
+                x0 = xglob, 
+                k0 = kglob, 
+                Efield0 = Eglob, wave=wave
+                ))
+    return pilotbundles

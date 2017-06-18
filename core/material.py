@@ -101,7 +101,18 @@ class MaxwellMaterial(Material):
             k_norm_4[i, :, :] = kpa_norm + xi_4[i, :]*n
             
         return (k_norm_4, efield_4)
-    
+
+    def calcKnormUnitEfield(self, x, e):
+        (k_4, efield_4) = self.calcKEigenvectorsNorm(x, e)
+        
+        # xi_4: 4xN
+        # efield_4: 4x3xN
+        
+        k_norm_4 = np.zeros_like(efield_4)        
+        for i in range(4):
+            k_norm_4[i, :, :] = k_4[i, :]*e
+            
+        return (k_norm_4, efield_4)    
     
     def sortKnormEField(self, x, n, kpa_norm, e):
         """
@@ -110,10 +121,7 @@ class MaxwellMaterial(Material):
         
         first two elements <S, e> > 0 (first min|<E, e>|, last max|<E, e>|)
         last two elements <S, e> < 0  (first min|<E, e>|, last max|<E, e>|)      
-        
-        min|<E, e>| means s-polarization
-        max|<E, e>| means p-polarization        
-        
+                
         :param k_norm_4 (4x3xN array of complex)
         :param Efield_4 (4x3xN array of complex)
         
@@ -139,6 +147,40 @@ class MaxwellMaterial(Material):
             
         return (k_norm_4_sorted, Efield_4_sorted)
 
+    def sortKnormUnitEField(self, x, kd, e):
+        """
+        Sort k_norm and E-field solutions by their scalar products.
+        (Those come from the solution of the quadratic eigenvalue problem.)
+        
+        first two elements <S, e> > 0 (first min|<E, e>|, last max|<E, e>|)
+        last two elements <S, e> < 0  (first min|<E, e>|, last max|<E, e>|)      
+                
+        :param k_norm_4 (4x3xN array of complex)
+        :param Efield_4 (4x3xN array of complex)
+        
+        """
+        
+        (num_dims, num_pts) = np.shape(kd)        
+
+        (k_norm_4, Efield_4) = self.calcKnormUnitEfield(x, kd)
+        
+        k_norm_4_sorted = np.zeros_like(k_norm_4)
+        Efield_4_sorted = np.zeros_like(Efield_4)
+        Sn_scalarproduct = np.zeros((4, num_pts))        
+        
+        
+        for i in range(4):
+            Si = self.calcPoytingVectorNorm(k_norm_4[i, :, :], Efield_4[i, :, :])
+            Sn_scalarproduct[i, :] = np.sum(Si*e, axis=0)
+        
+        Sn_scalarproduct_argsort = Sn_scalarproduct.argsort(axis=0)
+        for i in range(num_pts):
+            k_norm_4_sorted[:, :, i] = k_norm_4[Sn_scalarproduct_argsort[:, i], :, i] 
+            Efield_4_sorted[:, :, i] = Efield_4[Sn_scalarproduct_argsort[:, i], :, i] 
+            
+        return (k_norm_4_sorted, Efield_4_sorted)
+
+
     def sortKEField(self, x, n, kpa, e, wave=standard_wavelength):
         
         k0 =  2.*math.pi/wave
@@ -146,6 +188,15 @@ class MaxwellMaterial(Material):
         (k, E) = self.sortKnormEField(x, n, kpa/k0, e)
         
         return (k0*k, E)
+
+    def sortKUnitEField(self, x, kd, e, wave=standard_wavelength):
+        
+        k0 =  2.*math.pi/wave
+        
+        (k, E) = self.sortKnormUnitEField(x, kd, e)
+        
+        return (k0*k, E)
+
    
     def calcPoytingVector(self, k, Efield, wave=standard_wavelength):
         
@@ -385,7 +436,42 @@ class MaxwellMaterial(Material):
             eigenvectors[:, :, j] = (vr.T)[:, 3:]
 
         return (eigenvalues, eigenvectors)
+
+    def calcKEigenvectorsNorm(self, x, e):
         
+        (num_dims, num_pts) = np.shape(x)
+        eps = self.getEpsilonTensor(x)
+
+        eigenvectors = np.zeros((4, 3, num_pts), dtype=complex)
+        eigenvalues = np.zeros((4, num_pts), dtype=complex)
+        
+        # solve generalized EVP [k^2 (-delta_ij + e_i e_j) + eps_ij] E_j = 0
+        Bmatrix = np.zeros((3, 3, num_pts), dtype=complex)
+        Amatrix = eps
+        for j in range(num_pts):
+            Bmatrix[:, :, j] = -(-np.eye(3) + np.outer(e[:, j], e[:, j]))
+
+        for j in range(num_pts):
+            (w, vr) = sla.eig(Amatrix[:, :, j], b=Bmatrix[:, :, j])
+
+            # first remove infinite parts
+            # then sort w for abs value
+            # then remove the largest values until len(w) = 4
+
+            wfinite = np.isfinite(w)
+            w = w[wfinite]
+            vr = vr[:, wfinite]
+
+            if len(w) > 2:
+                to_remove = len(w) - 2
+                sorted_indices = np.abs(w).argsort()
+                w = w[sorted_indices][:-to_remove]
+                vr = vr[:, sorted_indices][:, :-to_remove]
+
+            eigenvalues[:, j] = np.hstack((np.sqrt(w), -np.sqrt(w)))
+            eigenvectors[:, :, j] = np.vstack((vr.T, vr.T))
+
+        return (eigenvalues, eigenvectors)
         
     def calcXiPolynomialNorm(self, x, n, kpa_norm):
         """

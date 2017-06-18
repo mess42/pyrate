@@ -145,6 +145,7 @@ r2 = s.seqtrace(initialbundle, sysseq)
 
 
 pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
+
 (pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
 
 
