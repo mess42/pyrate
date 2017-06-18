@@ -401,8 +401,6 @@ def build_pilotbundle2(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitve
 
         cone = np.vstack((Xc.flatten(), Yc.flatten(), Zc.flatten()))
 
-        print(cone)
-
         rotz = rodrigues(-phi, [0, 0, 1])
         rottheta = rodrigues(-theta, [1, 0, 0])
 

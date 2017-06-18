@@ -52,8 +52,8 @@ wavelength = 0.5876e-3
 rnd_data1 = np.random.random((3, 3)) #np.eye(3)
 rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
 lc = LocalCoordinates("1")
-#myeps = rnd_data1 + complex(0, 1)*rnd_data2 # aggressive complex choice of myeps
-myeps = np.eye(3) + 0.01*np.random.random((3, 3))
+myeps = np.eye(3) + 0.1*rnd_data1 + 0.01*complex(0, 1)*rnd_data2 # aggressive complex choice of myeps
+#myeps = np.eye(3) + 0.01*np.random.random((3, 3))
 crystal = material.AnisotropicMaterial(lc, myeps)
 
 
