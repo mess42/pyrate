@@ -52,7 +52,7 @@ if __name__=="__main__":
     mat = AnisotropicMaterial(lc, myeps)
     surfobj = Surface(lc)
 
-    pilotbundles = build_pilotbundle2(surfobj, mat, (0.1, 0.1), (0.05, 0.05), kunitvector=None, wave=standard_wavelength)
+    pilotbundles = build_pilotbundle2(surfobj, mat, (0.1, 0.1), (0.05, 0.05), kunitvector=None, wave=standard_wavelength, random_xy=True)
 
     fig = plt.figure(1)
     ax = fig.add_subplot(111)
