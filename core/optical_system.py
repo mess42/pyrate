@@ -72,7 +72,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             rpaths = rpaths + rpaths_new
         return rpaths
             
-    def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+    def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None, use6x6=True): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
         pilotpath = RayPath(pilotbundle)
         if pilotraypathsequence is None:
@@ -81,7 +81,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         print("pilot ray path sequence")
         print(pilotraypathsequence)
         for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
-            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr)
+            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr, use6x6=use6x6)
             rpath.appendRayPath(append_rpath) 
             pilotpath.appendRayPath(append_pilotpath) 
         return (pilotpath, rpath)

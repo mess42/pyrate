@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from localcoordinatestreebase import LocalCoordinatesTreeBase
 from ray import RayPath, RayBundle
+from globalconstants import numerical_tolerance
 
 from copy import deepcopy, copy
 
@@ -267,7 +268,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
                     print(np.array_str(propagatematrix4x4, precision=5, suppress_small=True))
                     print("coordtrafo 4x4", surfhit)            
                     print(np.array_str(coordinatetrafomatrix4x4, precision=5, suppress_small=True))
-                
+                                
                     XYUVmatrices[(s1, s2, numhit)] = transfer4x4
                     XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)
             else: # if num_pts != 5
@@ -276,8 +277,16 @@ class OpticalElement(LocalCoordinatesTreeBase):
                     X = np.vstack((startxred, startkred_real, startkred_imag))
                     Y = np.vstack((endxred, endkred_real, endkred_imag))
 
+                    if np.linalg.norm(startkred_imag) < numerical_tolerance or np.linalg.norm(endkred_imag) < numerical_tolerance:
+                        print("WARNING: start or end matrix contain zero rows: maybe you have a pure real material epsilon. please consider using use6x6=False")
+
                     XX = np.einsum('ij, kj', X, X).T
                     YX = np.einsum('ij, kj', X, Y).T
+                    
+                    print("XX 6x6")                
+                    print(np.array_str(XX, precision=5, suppress_small=True))
+                    print("YX 6x6")                
+                    print(np.array_str(YX, precision=5, suppress_small=True))
                     
                     transfer6x6 = np.dot(YX, np.linalg.inv(XX))
 
@@ -301,16 +310,20 @@ class OpticalElement(LocalCoordinatesTreeBase):
                     print(XX)
                     print("YX 4x4")                
                     print(YX)
-                    print("XXD 2x2")
-                    print(XX[2:4, 2:4])
-                    print("XXC 2x2")
-                    print(XX[2:4, 0:2])
+                    #print("XXD 2x2")
+                    #print(XX[2:4, 2:4])
+                    #print("XXC 2x2")
+                    #print(XX[2:4, 0:2])
                     
                     # may we remove the imaginary parts from the upper left 2x2 matrix?
-                    transfer4x4[0:2, 0:2] = transfer4x4[0:2, 0:2].real
     
                     print("transfermatrix 4x4")                
                     print(transfer4x4)
+
+                    if np.linalg.norm(transfer4x4[0:2, 0:2].imag) > numerical_tolerance:
+                        print("WARNING: the XX transfer part contains imaginary values. please consider using use6x6=True.")
+                        # may not be complex                
+
                     
                     XYUVmatrices[(s1, s2, numhit)] = transfer4x4
                     XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)

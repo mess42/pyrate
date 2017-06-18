@@ -389,13 +389,8 @@ def build_pilotbundle2(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitve
         phi = np.arctan2(direction_vec[1], direction_vec[0])
         theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
 
-        alpha = np.linspace(-lim_angle, 0, num_pts_dir, endpoint=False)*np.pi/180.
+        alpha = np.linspace(-lim_angle, 0, num_pts_dir, endpoint=False)
         angle = np.linspace(0, 2.*np.pi, num_pts_dir, endpoint=False)
-
-        print(len(x))
-        print(len(y))
-        print(len(alpha))
-        print(len(angle))
         
         (Alpha, Angle, X, Y) = np.meshgrid(alpha, angle, x, y)
         Xc = np.cos(Angle)*np.sin(Alpha)
@@ -405,6 +400,8 @@ def build_pilotbundle2(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitve
         start_pts = np.vstack((X.flatten(), Y.flatten(), np.zeros_like(X.flatten())))
 
         cone = np.vstack((Xc.flatten(), Yc.flatten(), Zc.flatten()))
+
+        print(cone)
 
         rotz = rodrigues(-phi, [0, 0, 1])
         rottheta = rodrigues(-theta, [1, 0, 0])
@@ -441,11 +438,7 @@ def build_pilotbundle2(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitve
         xglob = lcobj.returnLocalToGlobalPoints(xlocobj)
         kglob = mat.lc.returnLocalToGlobalDirections(k_4[j])
         Eglob = mat.lc.returnLocalToGlobalDirections(E_4[j])
-        
-        print(xglob)
-        print(kglob)
-        print(Eglob)        
-        
+                
         pilotbundles.append(RayBundle(
                 x0 = xglob, 
                 k0 = kglob, 

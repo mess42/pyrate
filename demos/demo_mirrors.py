@@ -144,9 +144,11 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
 
-pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
+pilotbundles = core.helpers.build_pilotbundle2(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 
-(pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
+rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
+
+(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq, use6x6=False)
 
 
 
@@ -215,12 +217,19 @@ up = canonical_ey
 
 #print("drawing!")
 for (i, r) in enumerate(r2):
-    print(i)
     r.draw2d(ax, color="blue", plane_normal=pn, up=up)
+for r_p in rays_pilot:
+    for (i, r) in enumerate(r_p):    
+        r.draw2d(ax, color="red", plane_normal=pn, up=up)
+
+# not functional due to singular matrices
 r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
+pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
+
 #r4.draw2d(ax, color="pink", plane_normal=pn, up=up)
 #pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
-pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
+
+
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
