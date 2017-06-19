@@ -150,7 +150,11 @@ rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 
 (pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq, use6x6=False)
 
-print(s.extractXYUV(pilotbundles[-1], sysseq, use6x6=False))
+(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=False)
+
+print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
+print(np.array_str(m_stop_img, precision=5, suppress_small=True))
+
 
 
 
