@@ -110,7 +110,7 @@ ey = np.zeros_like(o)
 ey[1,:] =  1.
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("TMA", [("object", True, {}), ("m1", False, {"is_stop":True}), ("m2", False, {}), ("m3", False, {}), ("image1", True, {}), ("oapara", False, {}), ("image2", True, {}), ("image3", True, {}) ])] 
+sysseq = [("TMA", [("object", True, {}), ("m1", False, {}), ("m2", False, {"is_stop":True}), ("m3", False, {}), ("image1", True, {}), ("oapara", False, {}), ("image2", True, {}), ("image3", True, {}) ])] 
 
 sysseq_pilot = [("TMA", 
                  [

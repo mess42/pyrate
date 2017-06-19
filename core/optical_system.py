@@ -73,6 +73,13 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         return rpaths
         
     # TODO: maybe split up para_seqtrace and calculation of pilotraypath from pilotbundle
+    # TODO: therefore split pilotbundle, elementsequence from para_seqtrace
+    """
+    pilotbundle and elementsequence may be used to determine the available pilotrays
+    and the appropriate hitlist for every optical element; further they also make the XYUV matrices available
+    this could be done in one procedure. pilotpath btw may only contain a one-element bundle; the buddies of pilotray
+    are necessary for XYUV matrix calculation but afterwards they may be omitted.
+    """
        
     def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None, use6x6=True): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
@@ -163,13 +170,6 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                 m_stop_img = np.dot(m1, m_stop_img)
             
         return (m_obj_stop, m_stop_img)            
-
-
-
-    # TODO: write method to spitout XYUV(obj->stop)
-    # TODO: further XYUV(stop->image)
-    # TODO: depending on surfoptions "isstop=True"
-    # TODO: isstop may only occur once in optical system
 
 
     def addElement(self, key, element):
