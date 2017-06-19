@@ -88,6 +88,40 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             pilotpath.appendRayPath(append_pilotpath) 
         return (pilotpath, rpath)
 
+    def extractXYUV(self, pilotbundle, elementsequence, pilotraypathsequence=None, use6x6=True):
+        pilotpath = RayPath(pilotbundle)
+        if pilotraypathsequence is None:
+            pilotraypathsequence = tuple([0 for i in range(len(elementsequence))])
+            # choose first pilotray in every element by default
+        print("pilot ray path sequence")
+        print(pilotraypathsequence)
+
+        stops_found = 0
+
+        for (elem, subseq) in elementsequence:
+            for (surfname, refract_flag, options_dict) in subseq:
+                if options_dict.get("is_stop", False):
+                    stops_found += 1
+
+        if stops_found != 1:
+            print("WARNING: %d stops found. need exactly 1!" % (stops_found,))
+            print("Returning None.")
+            return None
+
+        for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
+            #print(subseq)            
+            (hitlist, optionshitlist_dict) = self.elements[elem].sequence_to_hitlist(subseq)
+            # hitlist may contain exactly one stophit
+            
+            (append_pilotpath, elem_matrices) = self.elements[elem].calculateXYUV(pilotpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr, use6x6=use6x6)
+            pilotpath.appendRayPath(append_pilotpath) 
+            
+            print(hitlist)
+            print(optionshitlist_dict)
+
+            print([d1.get("is_stop", False) or d2.get("is_stop", False) for (d1, d2) in [optionshitlist_dict[hit] for hit in hitlist]])            
+            #print(elem_matrices)
+
     # TODO: write method to spitout XYUV(obj->stop)
     # TODO: further XYUV(stop->image)
     # TODO: depending on surfoptions "isstop=True"

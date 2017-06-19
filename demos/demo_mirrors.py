@@ -110,19 +110,19 @@ ey = np.zeros_like(o)
 ey[1,:] =  1.
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True), ("image3", True, True) ])] 
+sysseq = [("TMA", [("object", True, {}), ("m1", False, {"is_stop":True}), ("m2", False, {}), ("m3", False, {}), ("image1", True, {}), ("oapara", False, {}), ("image2", True, {}), ("image3", True, {}) ])] 
 
 sysseq_pilot = [("TMA", 
                  [
-                    ("object", True, True), 
-                    ("m1", False, True), 
-                    ("m2", False, True), 
-                    ("m3", False, True), 
-                    ("m2", False, True),
-                    ("m1", False, True),
-                    ("m2", False, True),
-                    ("m1", False, True),
-                    ("m2", False, True)
+                    ("object", True, {}), 
+                    ("m1", False, {}), 
+                    ("m2", False, {"is_stop":True}), 
+                    ("m3", False, {}), 
+                    ("m2", False, {}),
+                    ("m1", False, {}),
+                    ("m2", False, {}),
+                    ("m1", False, {}),
+                    ("m2", False, {})
                 ])
                 ] 
                 
@@ -150,6 +150,7 @@ rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 
 (pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq, use6x6=False)
 
+s.extractXYUV(pilotbundles[-1], sysseq, use6x6=False)
 
 
 

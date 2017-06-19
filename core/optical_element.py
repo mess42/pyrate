@@ -107,21 +107,24 @@ class OpticalElement(LocalCoordinatesTreeBase):
         necessary to distinguish between multiple crossings of the pilot ray
         between surface boundaries, due to the changed transfer matrices.
         """
-        surfnames = [name for (name, refract_flag, ordinary_flag) in seq]
+        
+        surfnames = [(name, options_dict) for (name, refract_flag, options_dict) in seq]
     
         hitlist_dict = {}
         
-        hitlist = []    
+        hitlist = []
+        optionshitlistdict = {}
         
-        for (sb, se) in zip(surfnames[:-1], surfnames[1:]):
+        for ((sb, optsb), (se, optse)) in zip(surfnames[:-1], surfnames[1:]):
             
             hit = hitlist_dict.get((sb, se), 0)
             hit += 1
             hitlist_dict[(sb, se)] = hit
             
             hitlist.append((sb, se, hit))
+            optionshitlistdict[(sb, se, hit)] = (optsb, optse)
         
-        return hitlist
+        return (hitlist, optionshitlistdict)
 
     def calculateXYUV(self, pilotinitbundle, sequence, background_medium, pilotraypath_nr=0, use6x6=True):
 
@@ -155,7 +158,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             return (np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])).imag
             
         
-        hitlist = self.sequence_to_hitlist(sequence)        
+        (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)        
         
         pilotraypaths = self.seqtrace(pilotinitbundle, sequence, background_medium, splitup=True)
         print("found %d pilotraypaths" % (len(pilotraypaths,)))
@@ -405,7 +408,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
         rpath = RayPath(raybundle)
         (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, pilotraypath_nr=pilotraypath_nr, use6x6=use6x6)
 
-        hitlist = self.sequence_to_hitlist(sequence)
+        (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)
         
         for (ps, pe, surfhit) in zip(pilotraypath.raybundles[:-1], pilotraypath.raybundles[1:], hitlist):
             (surf_start_key, surf_end_key, hit) = surfhit
