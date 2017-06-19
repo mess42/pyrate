@@ -108,6 +108,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             print("Returning None.")
             return None
 
+        lst_matrix_pairs = []
+
         for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
             #print(subseq)            
             (hitlist, optionshitlist_dict) = self.elements[elem].sequence_to_hitlist(subseq)
@@ -116,11 +118,53 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             (append_pilotpath, elem_matrices) = self.elements[elem].calculateXYUV(pilotpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr, use6x6=use6x6)
             pilotpath.appendRayPath(append_pilotpath) 
             
-            print(hitlist)
-            print(optionshitlist_dict)
+            ls1 = []
+            ls2 = []
+            found_stop = False
 
-            print([d1.get("is_stop", False) or d2.get("is_stop", False) for (d1, d2) in [optionshitlist_dict[hit] for hit in hitlist]])            
-            #print(elem_matrices)
+            for h in hitlist:
+                (d1, d2) = optionshitlist_dict[h]
+                if d1.get("is_stop", False) and not d2.get("is_stop", False):
+                    found_stop = True
+                if not found_stop:
+                    ls1.append(elem_matrices[h])
+                else:
+                    ls2.append(elem_matrices[h])
+            
+            if not use6x6:
+                m1 = np.eye(4, dtype=complex)
+                m2 = np.eye(4, dtype=complex)
+            else:
+                m1 = np.eye(6)
+                m2 = np.eye(6)
+                
+            for m in ls1:
+                m1 = np.dot(m, m1)
+            for m in ls2:
+                m2 = np.dot(m, m2)
+
+            lst_matrix_pairs.append((m1, m2, found_stop))
+        
+        if not use6x6:
+            m_obj_stop = np.eye(4, dtype=complex)
+            m_stop_img = np.eye(4, dtype=complex)
+        else:
+            m_obj_stop = np.eye(6)
+            m_stop_img = np.eye(6)
+
+        obj_stop_branch = True
+        for (m1, m2, found_stop) in lst_matrix_pairs:
+            if obj_stop_branch:
+                m_obj_stop = np.dot(m1, m_obj_stop)
+                if found_stop:
+                    m_stop_img = np.dot(m2, m_stop_img)
+                    obj_stop_branch = False
+            else:
+                m_stop_img = np.dot(m1, m_stop_img)
+            
+        return (m_obj_stop, m_stop_img)            
+
+
 
     # TODO: write method to spitout XYUV(obj->stop)
     # TODO: further XYUV(stop->image)
