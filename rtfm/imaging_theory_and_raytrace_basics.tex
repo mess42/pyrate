@@ -90,10 +90,9 @@
 
 \newcommand\permeability{\Tensor{\mu}}
 \newcommand\vacuumpermeability{\mu_{\vacuum}}
-\newcommand\permittivity{\Tensor{\epsilon}}
-\newcommand\generalPermittivity{\Tensor{\tilde\epsilon}}
-\newcommand\vacuumpermittivity{\epsilon_{\vacuum}}
-\newcommand\scalarpermittivity{\epsilon}
+\newcommand\permittivity{\Tensor{\scalarpermittivity}}
+\newcommand\vacuumpermittivity{\scalarpermittivity_{\vacuum}}
+\newcommand\scalarpermittivity{\varepsilon}
 \newcommand\conductivity{\Tensor{\sigma}}
 \newcommand\susceptibility{\Tensor{\chi}}
 \newcommand\currentdensity{\Vector{j}}
@@ -162,7 +161,7 @@ or designs unfit for any particular purpose
 or designs that are unsafe), 
 even if such holder or other party has been advised of the possibility of such damages.
 
-Using this program or its manual do not replace your own investigations and analyses using proper (that is, non-pyrate) sources. 
+Using this program or its manual do not replace your own investigations and analyses using proper (non-pyrate) sources. 
 The copyright holders warn you that on-screen and/or printed versions of this manual may emit bosonic particles at speeds of 299792458\,m/s.
 
 \chapter{Optics from Maxwell Equations}
@@ -407,7 +406,7 @@ we often face problems where 2 of the 3 components are already fixed and the thi
 Without loss of generality, we rotate $\permittivity$ 
 to a cartesian system in which $\wavenumber_x$ and $\wavenumber_y$ are the known components and $\wavenumber_z$ is unknown.
 The resulting characteristic polynomial of $\hat{A}$ is a quartic equation in $\wavenumber_z$.
-That is, we expect up to four different solutions for $\wavenumber_z$.
+We expect up to four different solutions for $\wavenumber_z$.
 
 \paragraph{Some algebra for later use.}
 We use the identity
@@ -702,8 +701,8 @@ Compared to the law of Snellius, this formulation bears the following advantages
  \item It is not required to implement a different law of refraction for each \emph{pair} of material classes interfacing 
        (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...),
        where the number of implementations increases quadratically with the number of material classes.
-       Instead, the effort of solving the material dispersion increases linearly.
- \item We can calculate with complex valued permittivities, that is, lossy materials.
+       Instead, the implementation effort increases linearly.
+ \item We can calculate with complex valued permittivities of lossy materials.
        The law of Snellius coincides with the Maxwell equations for real valued positive refractive indices only.
  \item We can handle anisotropic materials.
 \end{itemize}
@@ -712,7 +711,7 @@ This calculation can, for certain types of anisotropic materials, be complicated
 
 \subsubsection{isotropic media}
 \begin{align}
- \xi = \pm \sqrt{\omega^2 \vacuumpermeability \epsilon_\materialtwo - \Wavevector_{\parallel}^2}
+ \xi = \pm \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_\materialtwo - \Wavevector_{\parallel}^2}
 \end{align}
 
 where $\Wavevector_{\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself, 
@@ -1310,11 +1309,11 @@ We can calculate reflection and refraction wavevectors and their Fresnel coeffic
 
 
 \chapter{Geometrical Optics}
-In geometrical optics, we assume that radiation is propagated in rays, that are thin, collimated beams. 
+In geometrical optics, we assume that radiation is propagated in rays. Rays are thin, collimated beams. 
 We assume that the rims of these beams are negligible compared to the central area. 
-Further we assume that all rays are much smaller than the characteristic length of surface curvatures and 
+Further we assume that all rays are much thinner than the characteristic length of surface curvatures and 
 all surfaces are locally approximated planar on the cross-section area of a ray.
-That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
+Rays act on surfaces like plane waves, and we neglect diffraction effects at the rims of the finite sized beams.
 Even in cases where the assumptions are not completely fulfilled, its accuracy compared to experiments is 
 astonishing and lead to the great success of technical optics.
 However, the optical designer has to check for each calculation whether the ray approximation is justified.
@@ -1349,7 +1348,8 @@ The rays emitted by any non-zero field point that hit the border of the stop are
 A ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
 Often, the chief ray is approximated to be the central ray in the transmitted ray bundle emitted by a field point.
 
-We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
+We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, 
+and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
 
 We divide an optical system in two groups -- elements in front of and behind the stop. 
 We consider both groups of optical elements as systems imaging the stop.
@@ -1365,7 +1365,7 @@ Care has to be taken if the front lens group imaging the stop to the pupil suffe
 
 
 \section{Direction of rays}
-We assume rays propagate along the direction of energy transport, that is, the direction of the Poynting vector.
+We assume rays propagate along the direction of energy transport.
 We assign a unit direction vector $\Vector{d}$ to each ray.
 The direction vector points in the direction of the time averaged Poynting vector.
 \begin{eqnarray}
@@ -1842,8 +1842,8 @@ We represent the propagation of these deviations through the optical system by a
   \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
  \end{pmatrix}
 \end{eqnarray}
-By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
-That is $\hat{G}\Vector{0} = \Vector{0}$.
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray,
+$\hat{G}\Vector{0} = \Vector{0}$.
 In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
 $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
 The linear terms in $\hat{G}$ can be represented by a matrix,
@@ -1987,7 +1987,7 @@ We split the input vector into two sub-vectors
 
 \subsubsection{Propagation in homogeneous media}
 In homogeneous media, rays travel along straights.
-That is, wavevector and ray direction do not change.
+Wavevector and ray direction do not change on the path.
 We consider the propagation between 2 parallel planes, 
 separated by a pilot ray geometric path length of $\Delta s$
 \begin{eqnarray}
@@ -2492,7 +2492,6 @@ in case both principlal curvatures are nonzero. This results in a sag equation
   \Delta z &=& \tilde{a} \Delta x + \tilde{b} \Delta y + \frac{1}{2} \tilde{c} \Delta x^2 + \frac{1}{2} \tilde{e} \Delta y^2
 \end{eqnarray}
 
-That is: 
 After rotating and shifting the coordinate system, the quadratic form is equivalent to a biconic with
 \begin{eqnarray}
  \rho_x &=& \tilde{c} \\
@@ -2630,7 +2629,7 @@ variables more difficult.}
 The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
 Often, the desired size of the pupil is not given explicitly, but the optical designer wants to specify a f-number or a numerical aperture.
 This section deals with the conversion between different pupil and field descriptions and how to find suitable starting positions and directions of rays in the object plane.
-If possible, we prefer a description that is numerically stable for telecentric systems or infinite conjugate systems.
+If possible, we prefer a description which is numerically stable for telecentric systems or infinite conjugate systems.
 
 \subsection{Ray origin for finite conjugate objects}
 For finite conjugate objects, the object plane is part of the optical system. Rays from one field point originate from the same point in the object plane.
