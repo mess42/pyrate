@@ -295,6 +295,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
                     print("transfermatrix 6x6")                
                     print(np.array_str(transfer6x6, precision=5, suppress_small=True))
+                    print("condition number:")
+                    print(np.linalg.cond(transfer6x6))
                     
                     XYUVmatrices[(s1, s2, numhit)] = transfer6x6
                     XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer6x6)
@@ -322,6 +324,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
     
                     print("transfermatrix 4x4")                
                     print(transfer4x4)
+                    print("condition number:")
+                    print(np.linalg.cond(transfer4x4))
 
                     if np.linalg.norm(transfer4x4[0:2, 0:2].imag) > numerical_tolerance:
                         print("WARNING: the XX transfer part contains imaginary values. please consider using use6x6=True.")
