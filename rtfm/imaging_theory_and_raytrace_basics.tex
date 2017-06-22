@@ -88,12 +88,18 @@
 \newcommand\Hfield{\Vector{\scalarHfield}}
 \newcommand\Dfield{\Vector{\scalarDfield}}
 
-\newcommand\permeability{\Tensor{\mu}}
-\newcommand\vacuumpermeability{\mu_{\vacuum}}
-\newcommand\permittivity{\Tensor{\epsilon}}
-\newcommand\generalPermittivity{\Tensor{\tilde\epsilon}}
-\newcommand\vacuumpermittivity{\epsilon_{\vacuum}}
-\newcommand\scalarpermittivity{\epsilon}
+\newcommand\permeability{\Tensor{\scalarpermeability}}
+\newcommand\vacuumpermeability{\scalarpermeability_{\vacuum}}
+\newcommand\scalarpermeability{\mu}
+\newcommand\scalarrelativepermeability{\mu_{rel}}
+\newcommand\relativepermeability{\Tensor{\mu}_{rel}}
+
+\newcommand\permittivity{\Tensor{\scalarpermittivity}}
+\newcommand\vacuumpermittivity{\scalarpermittivity_{\vacuum}}
+\newcommand\scalarrelativepermittivity{\epsilon}
+\newcommand\relativepermittivity{\Tensor{\scalarrelativepermittivity}}
+\newcommand\scalarpermittivity{\varepsilon}
+
 \newcommand\conductivity{\Tensor{\sigma}}
 \newcommand\susceptibility{\Tensor{\chi}}
 \newcommand\currentdensity{\Vector{j}}
@@ -118,6 +124,15 @@
 \newcommand\ppol{p}
 \newcommand\spol{s}
 \newcommand\normconst{N}
+
+\newcommand\kilogram{\textrm{kg}}
+\newcommand\meter{\textrm{m}}
+\newcommand\second{\textrm{s}}
+\newcommand\ampere{\textrm{A}}
+\newcommand\volt{\textrm{V}}
+\newcommand\watt{\textrm{W}}
+\newcommand\tesla{\textrm{T}}
+
 
 \begin{document}
 
@@ -162,7 +177,7 @@ or designs unfit for any particular purpose
 or designs that are unsafe), 
 even if such holder or other party has been advised of the possibility of such damages.
 
-Using this program or its manual do not replace your own investigations and analyses using proper (that is, non-pyrate) sources. 
+Using this program or its manual do not replace your own investigations and analyses using proper (non-pyrate) sources. 
 The copyright holders warn you that on-screen and/or printed versions of this manual may emit bosonic particles at speeds of 299792458\,m/s.
 
 \chapter{Optics from Maxwell Equations}
@@ -193,8 +208,13 @@ and the continuity equation, that follows directly from the Maxwell equations.
 All quantities are real valued. $\permittivity$ is the  electric  permittivity, 
 $\permeability$ the magnetic permeability, 
 and $\conductivity$ the conductivity.
-All material properties are described by unit bearing quantities, i.e., 
-they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. 
+The unit bearing quantities $\permeability, \permittivity$ 
+are linked to the relative properties $\relativepermeability, \relativepermittivity$ via
+the vacuum values
+\begin{eqnarray}
+ \permeability &=& \vacuumpermeability \relativepermeability \\
+ \permittivity &=& \vacuumpermittivity \relativepermittivity
+\end{eqnarray}
 We restrict ourselves to linear constitutive equations, that is, ($\permittivity$, $\permeability$ , $\conductivity$) do not depend on the field strength.
 This limitation excludes treatment of effects like higher harmonic generation, frequency conversion, or wave mixing.
 The Maxwell equations require media in which the constitutive bulk quantities can be assigned to all positions in space.
@@ -407,47 +427,47 @@ we often face problems where 2 of the 3 components are already fixed and the thi
 Without loss of generality, we rotate $\permittivity$ 
 to a cartesian system in which $\wavenumber_x$ and $\wavenumber_y$ are the known components and $\wavenumber_z$ is unknown.
 The resulting characteristic polynomial of $\hat{A}$ is a quartic equation in $\wavenumber_z$.
-That is, we expect up to four different solutions for $\wavenumber_z$.
+We expect up to four different solutions for $\wavenumber_z$.
 
 \paragraph{Some algebra for later use.}
 We use the identity
 \begin{align}
  \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
 \end{align}
-We also factor out a permittivity of the vacuum from the permittivity tensor 
-$\permittivity_{ij} =  \vacuumpermittivity \permittivity_{rel\,ij}$ and introduce the ``vacuum wave number''
-$\wavenumber_0 := \omega \sqrt{\vacuumpermeability  \vacuumpermittivity} = \frac{2\pi}{\lambda_0} = \frac{\omega}{c}$. 
-and rewrite the determinant
+We rewrite the determinant in terms of the relative permittivity $\relativepermittivity$
 \begin{align}
  \det \hat{A}(\Vector{k}) 
- &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\permittivity_{rel} + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
+ &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\relativepermittivity + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
 \end{align}
-where $\alpha = (\text{tr}\permittivity_{rel})^3 - 3 (\text{tr}\permittivity_{rel}) \text{tr}(\permittivity_{rel}^2) + 2 \text{tr}(\permittivity_{rel}^3)$,
-$\beta = \permittivity_{rel\,ij} k_i k_j$, 
-$\gamma = k_i \permittivity_{rel\,i\ell} \permittivity_{rel\,\ell j} k_j$. 
+where $\alpha = (\text{tr}\relativepermittivity)^3 - 3 (\text{tr}\relativepermittivity) \text{tr}(\relativepermittivity^2) + 2 \text{tr}(\relativepermittivity^3)$,
+$\beta = \relativepermittivity_{\,ij} k_i k_j$, 
+$\gamma = k_i \relativepermittivity_{\,i\ell} \relativepermittivity_{\,\ell j} k_j$. 
 For given $\omega$ this is an equation of fourth order
 for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
 $\Vector{k}$ gives only two terms.
 \begin{align}
- \frac{\partial D}{\partial k_j} &= k_0^2 
+ \frac{\partial (\det \hat{A})}{\partial k_j} &= k_0^2 
 \big[
 k_0^2
 \left(
-  \permittivity_{rel\,ji} (-(\text{tr}\permittivity_{rel}) k_i + \permittivity_{rel\,i\ell} k_\ell)
-+ \permittivity_{rel\,ij} (-(\text{tr}\permittivity_{rel}) k_i + \permittivity_{rel\,\ell i} k_\ell)
+  \relativepermittivity_{\,ji} (-(\text{tr}\relativepermittivity) k_i + \relativepermittivity_{\,i\ell} k_\ell)
++ \relativepermittivity_{\,ij} (-(\text{tr}\relativepermittivity) k_i + \relativepermittivity_{\,\ell i} k_\ell)
 \right) +
 \nonumber \\
-&+ (\permittivity_{rel\,\ell j} + \permittivity_{rel\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
+&+ (\relativepermittivity_{\,\ell j} + \relativepermittivity_{\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
 \big]
 \end{align}
-\remark{the rel index makes the formulas unnecessary complicated to read. I would prefer some initial comment on this and then only talk about $\permittivity$}
 For an expansion around some vector which fulfills the dispersion relation
 \begin{align}
-  D(\Vector{k} + \Delta \Vector{k}) &= D(\Vector{k}) + \frac{\partial D}{\partial k_j}(\Vector{k}) \Delta k_j + \frac{1}{2} \frac{\partial^2 D}{\partial k_i \partial k_j}(\Vector{k}) \Delta k_i \Delta k_j\,,
+  \det \hat{A}(\Vector{k} + \Delta \Vector{k}) 
+  &= 
+  \det \hat{A}(\Vector{k}) 
+  + \frac{\partial (\det \hat{A})}{\partial k_j}(\Vector{k}) \Delta k_j 
+  + \frac{1}{2} \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j}(\Vector{k}) \Delta k_i \Delta k_j\,,
 \end{align}
 it may also be useful to know the second derivative since the first term may already vanish:
 \begin{align}
- \frac{\partial^2 D}{\partial k_i \partial k_j} &= 
+ \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j} &= 
 k_0^4 \biggl[
   \permittivity_{\ell i} \permittivity_{j \ell} 
 + \permittivity_{\ell j} \permittivity_{i \ell}
@@ -702,8 +722,8 @@ Compared to the law of Snellius, this formulation bears the following advantages
  \item It is not required to implement a different law of refraction for each \emph{pair} of material classes interfacing 
        (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...),
        where the number of implementations increases quadratically with the number of material classes.
-       Instead, the effort of solving the material dispersion increases linearly.
- \item We can calculate with complex valued permittivities, that is, lossy materials.
+       Instead, the implementation effort increases linearly.
+ \item We can calculate with complex valued permittivities of lossy materials.
        The law of Snellius coincides with the Maxwell equations for real valued positive refractive indices only.
  \item We can handle anisotropic materials.
 \end{itemize}
@@ -712,7 +732,7 @@ This calculation can, for certain types of anisotropic materials, be complicated
 
 \subsubsection{isotropic media}
 \begin{align}
- \xi = \pm \sqrt{\omega^2 \vacuumpermeability \epsilon_\materialtwo - \Wavevector_{\parallel}^2}
+ \xi = \pm \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_\materialtwo - \Wavevector_{\parallel}^2}
 \end{align}
 
 where $\Wavevector_{\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself, 
@@ -1310,11 +1330,11 @@ We can calculate reflection and refraction wavevectors and their Fresnel coeffic
 
 
 \chapter{Geometrical Optics}
-In geometrical optics, we assume that radiation is propagated in rays, that are thin, collimated beams. 
+In geometrical optics, we assume that radiation is propagated in rays. Rays are thin, collimated beams. 
 We assume that the rims of these beams are negligible compared to the central area. 
-Further we assume that all rays are much smaller than the characteristic length of surface curvatures and 
+Further we assume that all rays are much thinner than the characteristic length of surface curvatures and 
 all surfaces are locally approximated planar on the cross-section area of a ray.
-That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
+Rays act on surfaces like plane waves, and we neglect diffraction effects at the rims of the finite sized beams.
 Even in cases where the assumptions are not completely fulfilled, its accuracy compared to experiments is 
 astonishing and lead to the great success of technical optics.
 However, the optical designer has to check for each calculation whether the ray approximation is justified.
@@ -1349,7 +1369,8 @@ The rays emitted by any non-zero field point that hit the border of the stop are
 A ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
 Often, the chief ray is approximated to be the central ray in the transmitted ray bundle emitted by a field point.
 
-We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
+We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, 
+and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
 
 We divide an optical system in two groups -- elements in front of and behind the stop. 
 We consider both groups of optical elements as systems imaging the stop.
@@ -1365,7 +1386,7 @@ Care has to be taken if the front lens group imaging the stop to the pupil suffe
 
 
 \section{Direction of rays}
-We assume rays propagate along the direction of energy transport, that is, the direction of the Poynting vector.
+We assume rays propagate along the direction of energy transport.
 We assign a unit direction vector $\Vector{d}$ to each ray.
 The direction vector points in the direction of the time averaged Poynting vector.
 \begin{eqnarray}
@@ -1842,8 +1863,8 @@ We represent the propagation of these deviations through the optical system by a
   \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
  \end{pmatrix}
 \end{eqnarray}
-By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
-That is $\hat{G}\Vector{0} = \Vector{0}$.
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray,
+$\hat{G}\Vector{0} = \Vector{0}$.
 In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
 $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
 The linear terms in $\hat{G}$ can be represented by a matrix,
@@ -1987,7 +2008,7 @@ We split the input vector into two sub-vectors
 
 \subsubsection{Propagation in homogeneous media}
 In homogeneous media, rays travel along straights.
-That is, wavevector and ray direction do not change.
+Wavevector and ray direction do not change on the path.
 We consider the propagation between 2 parallel planes, 
 separated by a pilot ray geometric path length of $\Delta s$
 \begin{eqnarray}
@@ -2024,7 +2045,7 @@ We consider the plane waves of the pilot ray and a near pilot ray,
 $\Wavevector_{pilot}$ and $\Wavevector = \Wavevector_{pilot} + U \Vector{e}_U + V \Vector{e}_V$.
 They interfere and form a sinusoidal grating intensity pattern
 \begin{eqnarray}
- I &=& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
+ I &\propto& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
 \end{eqnarray}
 We desire the modulation depth of the intensity pattern to be independent of position
 \begin{eqnarray}
@@ -2492,7 +2513,6 @@ in case both principlal curvatures are nonzero. This results in a sag equation
   \Delta z &=& \tilde{a} \Delta x + \tilde{b} \Delta y + \frac{1}{2} \tilde{c} \Delta x^2 + \frac{1}{2} \tilde{e} \Delta y^2
 \end{eqnarray}
 
-That is: 
 After rotating and shifting the coordinate system, the quadratic form is equivalent to a biconic with
 \begin{eqnarray}
  \rho_x &=& \tilde{c} \\
@@ -2630,7 +2650,7 @@ variables more difficult.}
 The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
 Often, the desired size of the pupil is not given explicitly, but the optical designer wants to specify a f-number or a numerical aperture.
 This section deals with the conversion between different pupil and field descriptions and how to find suitable starting positions and directions of rays in the object plane.
-If possible, we prefer a description that is numerically stable for telecentric systems or infinite conjugate systems.
+If possible, we prefer a description which is numerically stable for telecentric systems or infinite conjugate systems.
 
 \subsection{Ray origin for finite conjugate objects}
 For finite conjugate objects, the object plane is part of the optical system. Rays from one field point originate from the same point in the object plane.
@@ -2785,6 +2805,116 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
 \bibliographystyle{unsrt}
 \addcontentsline{toc}{chapter}{Bibliography}
 \bibliography{pyrate}
+
+
+
+\chapter{Nomenclature}
+\begin{tabular}{l|l|l|l}
+ Variable & Description & Type or Value & Unit \\
+ \hline
+ $A$ & element of an ABCD matrix & $\mathbb{R}$ & \\
+ $\hat{A}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & \\
+ $\hat{A}$ & differential operator of the Helmholtz equation & tensor of $\mathbb{C}$ & $\frac{1}{\meter^2}$\\
+ $a$ & polynomial or series coefficients &&\\
+ \hline
+ $\Bfield$ & magnetic flux density & pseudo-vector of $\mathbb{R}$ or $\mathbb{C}$ & $\tesla = \frac{\volt\second}{\meter^2} $\\
+ $B$ & element of an ABCD matrix & $\mathbb{R}$ & \meter \\
+ $\hat{B}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & $\meter^2$ \\
+ \hline
+ $C$ & element of an ABCD matrix & $\mathbb{R}$ & 1/\meter\\
+ $\hat{C}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & 1/$\meter^2$\\
+ $c_0$ & vacuum speed of light & 299792458 & \meter /\second \\
+ $c$ & conic constant && \\
+ $c$ & polynomial or series coefficients && \\
+ \hline
+ $\Dfield$ & electric displacement field & vector of $\mathbb{R}$ or $\mathbb{C}$ & $\frac{\ampere \second}{\meter^2}$\\
+ $D$ & element of an ABCD matrix & $\mathbb{R}$ & \\
+ $\hat{D}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & \\
+ $\Vector{d}$ & unit ray direction & vector of $\mathbb{R}$ or $\mathbb{C}$ & \\
+ \hline
+ $\Efield$ & electric field & vector of $\mathbb{R}$ or $\mathbb{C}$ & \volt /\meter \\
+ $\Vector{e}$ & unit vector & vector of $\mathbb{R}$ or $\mathbb{C}$ & \\
+ \hline
+ $f$ & focal length & $\mathbb{R}$ & \meter \\
+ $F$ & coefficient of intersection equation & $\mathbb{R}$ & \\
+ \hline
+ $\hat{G}$ & ray propagation operator &&\\
+ $G$ & coefficient of intersection equation & $\mathbb{R}$ & \meter\\
+ \hline
+ $\Hfield$ & magnetic field & pseudo-vector of $\mathbb{R}$ or $\mathbb{C}$ & \ampere /\meter \\
+ $\Vector{H}$ & field coordinate & 2D-vector of $\mathbb{R}$ & \meter \\ 
+ $H$ & Hamiltonian of geometric optics && \\
+ $H$ & coefficient of intersection equation & $\mathbb{R}$ & 1/\meter \\
+ \hline
+ $I$ & intensity & $\mathbb{R}_{>0}$ & $\frac{\watt}{\meter^2}$ \\
+ \hline
+ $\currentdensity$ & current density & vector of $\mathbb{R}$ & $\frac{\ampere}{\meter^2}$ \\
+ \hline
+ $\Vector{K}$ & wavevector deviation from pilot & 4D-vector of $\mathbb{R}$ & 1/\meter \\
+ $\Wavevector$ & wavevector & vector of $\mathbb{C}$ & 1/\meter \\
+ \hline
+ $L$ & optical path length & $\mathbb{R}$ & \meter \\
+ $\mathcal{L}$ & Lagrangian of geometric optics &&\\
+\end{tabular}\\
+\begin{tabular}{l|l|l|l}
+ Variable & Description & Type or Value & Unit \\
+ \hline
+ $M$ & mode index &\{ r1, r2, t1, t2 \}&\\
+ \hline
+ $N$ & normalization constant for electric field & $\mathbb{C}$ & \volt /\meter \\
+ \hline
+ $\Vector{n}$ & surface normal unit vector & vector of $\mathbb{R}$ & \\
+ $n$ & refractive index & $\mathbb{C}$ &\\
+ \hline
+ $\Vector{P}$ & pupil coordinates & 2D-vector of $\mathbb{R}$ & 1/\meter \\
+ \hline
+ $R$ & radius of curvature & $\mathbb{R}$ & \meter \\
+ $\Vector{r}$ & location & vector of $\mathbb{R}$ & \meter \\
+ \hline
+ $\Vector{S}$ & Poynting vector & vector of $\mathbb{R}$ & $\frac{\watt}{\meter^2}$\\
+ $s$ & arc length & $\mathbb{R}$ & \meter \\
+ \hline
+ $t$ & time & $\mathbb{R}$ & \second \\
+ $t$ & straight parameter & $\mathbb{R}$ & \meter \\
+ \hline
+ $U,V$ & wavevector deviation from pilot ray & $\mathbb{C}$ & 1/\meter \\
+ \volt & Volt & 1 & $\frac{\textrm{kg\,m}^2}{\textrm{A\,s}^3}$ \\
+ \hline
+ $x,y,z$ & cartesian coordinates & $\mathbb{R}$ & \meter \\
+ $y$ & ABCD ray height & $\mathbb{R}$ & \meter \\
+ $y^{\,\prime}$ & ABCD ray inclination& $\mathbb{R}$ & \\
+ $z$ & surface sag & $\mathbb{R}$ & \meter \\
+ \hline
+ $X,Y$ & coordinates in tangential plane& $\mathbb{R}$ & \meter \\
+ \hline
+ $\alpha$ & mode index & $\{ 1, 2 \}$ & \\
+ \hline 
+ $\beta$ & mode index & $\{ r, t \}$ & \\
+ \hline
+ $\permittivity$ & electric permittivity & tensor of $\mathbb{R}$ or $\mathbb{C}$ & $\frac{\ampere \second}{\volt \meter}$ \\
+ $\vacuumpermittivity$ & electric permittivity of vacuum & $8.8542...\cdot 10^{-12}$ & $\frac{\ampere \second}{\volt \meter}$ \\
+ $\relativepermittivity$ & relative permittivity & tensor of $\mathbb{R}$ or $\mathbb{C}$ & \\
+ \hline
+ $\lambda$ & wavelength & $\mathbb{R}_{>0}$ & \meter \\
+ \hline
+ $\permeability$ & magnetic permeability & tensor of $\mathbb{R}$ & $\frac{\volt \second}{\ampere \meter}$ \\
+ $\vacuumpermeability$ & magnetic permeability of vacuum & $4\pi \cdot 10^{-7}$ & $\frac{\volt \second}{\ampere \meter}$ \\
+ $\relativepermeability$ & relative permeability & tensor of $\mathbb{R}$ & \\
+ \hline
+ $\chargedensity$ & charge density & $\mathbb{R}$ & $\frac{\ampere \second}{\meter^3}$ \\
+ $\rho$ & surface curvature & $\mathbb{R}$ & 1/\meter \\
+ \hline
+ $\conductivity$ & conductivity & tensor of $\mathbb{R}$ & $\frac{\ampere}{\volt\meter}$\\
+ \hline
+ $\varsigma$ & sign prefactor & $\pm 1$ & \\
+ \hline
+ $\theta$ & angle of incidence relative to normal & $\mathbb{R}$ & rad \\
+ \hline
+ $\xi$ & wavevector normal component & $\mathbb{C}$ & 1/\meter \\
+ \hline
+ $\omega$ & angular frequency & $\mathbb{R}_{>0}$ & 1/\second
+\end{tabular}
+
 
 
 
