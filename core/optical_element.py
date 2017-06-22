@@ -125,6 +125,17 @@ class OpticalElement(LocalCoordinatesTreeBase):
             optionshitlistdict[(sb, se, hit)] = (optsb, optse)
         
         return (hitlist, optionshitlistdict)
+        
+    def hitlist_to_sequence(self, (hitlist, optionshitlistdict)):
+        seq = []
+        
+        for (ind, (sb, se, hit)) in enumerate(hitlist):
+            pair = (sb, True, optionshitlistdict[(sb, se, hit)][0])
+            seq.append(pair)
+            if ind == len(hitlist) - 1:
+                pair = (se, True, optionshitlistdict[(sb, se, hit)][1])
+                seq.append(pair)
+        return seq
 
     def calculateXYUV(self, pilotinitbundle, sequence, background_medium, pilotraypath_nr=0, use6x6=True):
 
