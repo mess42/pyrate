@@ -272,9 +272,9 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
 
-    def draw2d(self, ax, vertices=100, color="grey"):
-        for (num, s) in enumerate(self.surfaces):
-            s.draw2d(ax, vertices=vertices, color=color)
+    def draw2d(self, ax, vertices=50, color="grey", **kwargs):
+        for e in self.elements.itervalues():
+            e.draw2d(ax, vertices=vertices, color=color, **kwargs)
             
 
 

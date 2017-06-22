@@ -265,10 +265,9 @@ r2 = s.seqtrace(initialbundle, sysseq) # trace again
 print("drawing!")
 for r in r2:
     r.draw2d(ax2, color="blue", plane_normal=pn, up=up) 
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+
+s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 
 plt.show()

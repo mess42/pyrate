@@ -473,3 +473,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
             rpath.appendRayBundle(newbundle)
 
         return (pilotraypath, rpath)
+        
+        
+    def draw2d(self, ax, color, vertices, **kwargs):
+        for surfs in self.surfaces.itervalues():
+            surfs.draw2d(ax, color=color, vertices=vertices, **kwargs) 
