@@ -111,10 +111,10 @@ E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
 sysseq = [
     ("crystalelem", [
-        ("stop", True, True), 
-        ("front", True, True), 
-        ("rear", False, True), 
-        ("image", True, True)]
+        ("stop", {}), 
+        ("front", {}), 
+        ("rear", {"is_mirror":True}), 
+        ("image", {})]
     )]
 
 phi = 5.*math.pi/180.0

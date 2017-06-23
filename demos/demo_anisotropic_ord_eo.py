@@ -109,7 +109,7 @@ ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("crystalelem", [("stop", True, True), ("front", True, True), ("rear", True, True), ("image", True, True)])]
+sysseq = [("crystalelem", [("stop", {"is_stop":True}), ("front", {}), ("rear", {}), ("image", {})])]
 
 phi = 5.*math.pi/180.0
 

@@ -92,10 +92,10 @@ ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("asph", [("stop", True, True), 
-                    ("front", True, True), 
-                    ("rear", True, True), 
-                    ("image", True, True)])]
+sysseq = [("asph", [("stop", {"is_stop":True}), 
+                    ("front", {}), 
+                    ("rear", {}), 
+                    ("image", {})])]
 
 phi = 5.*math.pi/180.0
 

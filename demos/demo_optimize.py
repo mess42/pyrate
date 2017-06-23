@@ -198,23 +198,21 @@ def generatebundle(openangle=0.01, numrays=11):
 initialbundle = generatebundle(openangle=10.*math.pi/180., numrays=11)
 
 sysseq = [("lenssys", [
-            ("object", True, True), 
-            ("surf1", True, True), 
-            ("surf2", True, True), 
-            ("surf3", True, True), 
-            ("surf4", True, True), 
-            ("stop", True, True), 
-            ("surf6", True, True), 
-            ("surf7", True, True), 
-            ("image", True, True)])]
+            ("object", {}), 
+            ("surf1", {}), 
+            ("surf2", {}), 
+            ("surf3", {}), 
+            ("surf4", {}), 
+            ("stop", {"is_stop":True}), 
+            ("surf6", {}), 
+            ("surf7", {}), 
+            ("image", {})])]
 r2 = s.seqtrace(initialbundle, sysseq)
 print("drawing!")
 for r in r2:
     r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 curv2 = s.elements["lenssys"].surfaces["surf2"].shape.curvature
 curv2.changetype("variable")

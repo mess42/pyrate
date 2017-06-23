@@ -110,7 +110,20 @@ ey = np.zeros_like(o)
 ey[1,:] =  1.
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("TMA", [("object", True, {}), ("m1", False, {}), ("m2", False, {"is_stop":True}), ("m3", False, {}), ("image1", True, {}), ("oapara", False, {}), ("image2", True, {}), ("image3", True, {}) ])] 
+sysseq = [("TMA", 
+           [
+                ("object", {}), 
+                ("m1", {"is_mirror":True}), 
+                ("m2", {"is_stop":True, "is_mirror":True}), 
+                ("m3", {"is_mirror":True}), 
+                ("image1", {}), 
+                ("oapara", {"is_mirror":True}), 
+                ("image2", {}), 
+                ("image3", {}) 
+            ])
+        ] 
+
+# TODO: integrate mirrors (is_mirror:True) also into options dict
 
 sysseq_pilot = [("TMA", 
                  [
@@ -155,7 +168,7 @@ rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
 print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
-
+print(s.sequence_to_hitlist(sysseq))
 
 
 ### TODO:

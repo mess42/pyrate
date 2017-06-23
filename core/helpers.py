@@ -75,7 +75,7 @@ def build_simple_optical_system(builduplist, matdict):
         
         lastmat = mat
         refname = lc.name
-        surflist_for_sequence.append((comment, True, True))
+        surflist_for_sequence.append((comment, {}))
             
     s.addElement("stdelem", elem)
     stdseq = [("stdelem", surflist_for_sequence)]    

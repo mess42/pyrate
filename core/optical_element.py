@@ -108,7 +108,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
         between surface boundaries, due to the changed transfer matrices.
         """
         
-        surfnames = [(name, options_dict) for (name, refract_flag, options_dict) in seq]
+        surfnames = [(name, options_dict) for (name, options_dict) in seq]
     
         hitlist_dict = {}
         
@@ -361,8 +361,9 @@ class OpticalElement(LocalCoordinatesTreeBase):
         # surfoptions is intended to be a comma separated list
         # of keyword=value pairs        
         
-        for (surfkey, refract_flag, surfoptions) in sequence:
+        for (surfkey, surfoptions) in sequence:
             
+            refract_flag = not surfoptions.get("is_mirror", False)
             # old: current_bundle = rpath.raybundles[-1]            
             # old: current_material.propagate(current_bundle, current_surface)
 

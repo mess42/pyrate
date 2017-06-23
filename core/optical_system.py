@@ -95,6 +95,10 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             pilotpath.appendRayPath(append_pilotpath) 
         return (pilotpath, rpath)
 
+    def sequence_to_hitlist(self, elementsequence):
+        return [(elem, self.elements[elem].sequence_to_hitlist(seq)) for (elem, seq) in elementsequence]
+            
+
     def extractXYUV(self, pilotbundle, elementsequence, pilotraypathsequence=None, use6x6=True):
         pilotpath = RayPath(pilotbundle)
         if pilotraypathsequence is None:
@@ -106,7 +110,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         stops_found = 0
 
         for (elem, subseq) in elementsequence:
-            for (surfname, refract_flag, options_dict) in subseq:
+            for (surfname, options_dict) in subseq:
                 if options_dict.get("is_stop", False):
                     stops_found += 1
 

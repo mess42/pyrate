@@ -100,7 +100,7 @@ ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("AC254-100", [("stop", True, True), ("front", True, True), ("cement", True, True), ("rear", True, True), ("image", True, True)])]
+sysseq = [("AC254-100", [("stop", {"is_stop":True}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
 phi = 5.*math.pi/180.0
 

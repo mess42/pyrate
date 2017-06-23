@@ -105,7 +105,7 @@ ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("grinelement", [("object", True, True), ("surf1", True, True), ("surf2", True, True), ("image", True, True)])]
+sysseq = [("grinelement", [("object", {"is_stop":True}), ("surf1", {}), ("surf2", {}), ("image", {})])]
 
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq, splitup=False)

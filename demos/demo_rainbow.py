@@ -116,9 +116,20 @@ ey[1,:] =  1.
 E0_red = np.cross(k_red, ey, axisa=0, axisb=0).T
 E0_blue = np.cross(k_blue, ey, axisa=0, axisb=0).T
 
-sysseq = [("droplet", [("stop", True, True), ("surf1", True, True), ("surf2", False, True), ("surf1", True, True), ("image", True, True)])]
+sysseq = [("droplet", 
+           [
+                ("stop", {"is_stop":True}), 
+                ("surf1", {}), 
+                ("surf2", {"is_mirror":True}), 
+                ("surf1", {}), 
+                ("image", {})])]
 
-sysseq2nd = [("droplet", [("stop", True, True), ("surf1", True, True), ("surf2", False, True), ("surf2", True, True), ("image", True, True)])]
+sysseq2nd = [("droplet", [
+                ("stop", {"is_stop":True}), 
+                ("surf1", {}), 
+                ("surf2", {"is_mirror":True}), 
+                ("surf2", {}), 
+                ("image", {})])]
 
 
 phi = 5.*math.pi/180.0
