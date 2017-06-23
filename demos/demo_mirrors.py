@@ -216,7 +216,7 @@ else:
 
 
 
-phi = math.pi/4
+phi = 0. #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
@@ -227,7 +227,6 @@ for r_p in rays_pilot:
     for (i, r) in enumerate(r_p):    
         r.draw2d(ax, color="red", plane_normal=pn, up=up)
 
-# not functional due to singular matrices
 r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
 pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
 
@@ -235,7 +234,7 @@ pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
 #pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
 
 
-s.draw2d(ax, color="grey", vertices=50, inyzplane=True, plane_normal=pn, up=up) # try for phi=0.
+s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 plt.show()

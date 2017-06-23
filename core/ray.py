@@ -144,7 +144,7 @@ class RayBundle(object):
             d[:,j,:] = S[:,j,:] / absS
         return d
         
-    def draw2d(self, ax, color="blue", plane_normal = canonical_ex, up = canonical_ey):
+    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey):
 
         # normalizing plane_normal, up direction
         plane_normal = plane_normal/np.linalg.norm(plane_normal)
