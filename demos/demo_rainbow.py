@@ -64,15 +64,17 @@ lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refnam
 lccomprism = s.addLocalCoordinateSystem(LocalCoordinates(name="dropletcenter", decz=2.*dropletradius), refname=lc0.name)
 
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-dropletradius), refname=lccomprism.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=dropletradius), refname=lccomprism.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-2.*dropletradius), refname=lccomprism.name)
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=dropletradius+0.0001), refname=lccomprism.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=-dropletradius, tiltx=math.pi), refname=lccomprism.name)
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-2.*dropletradius), refname=lccomprism.name)
 
 
 stopsurf = Surface(lc0, apert=CircularAperture(lc0, dropletradius))
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./dropletradius), apert=CircularAperture(lc1, dropletradius))
-rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./dropletradius), apert=CircularAperture(lc2, dropletradius))
+frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./(10*dropletradius), cc=0.1), apert=CircularAperture(lc1, dropletradius))
+rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./(20*dropletradius)), apert=CircularAperture(lc2, dropletradius))
+frontsurf2 = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./(30*dropletradius), cc=0.01), apert=CircularAperture(lc3, dropletradius))
 
-image = Surface(lc3, apert=CircularAperture(lc3, 7.*dropletradius))
+image = Surface(lc4, apert=CircularAperture(lc4, 7.*dropletradius))
 
 
 elem = OpticalElement(lc0, label="droplet")
@@ -86,6 +88,7 @@ elem.addMaterial("glass", glass)
 elem.addSurface("stop", stopsurf, (None, None))
 elem.addSurface("surf1", frontsurf, (None, "glass"))
 elem.addSurface("surf2", rearsurf, ("glass", None))
+elem.addSurface("surf3", frontsurf2, ("glass", None))
 elem.addSurface("image", image, (None, None))
 
 s.addElement("droplet", elem)
@@ -120,15 +123,15 @@ sysseq = [("droplet",
            [
                 ("stop", {"is_stop":True}), 
                 ("surf1", {}), 
-                ("surf2", {"is_mirror":True}), 
-                ("surf1", {}), 
+                ("surf2", {"is_mirror":True}),
+                ("surf3", {}), 
                 ("image", {})])]
 
 sysseq2nd = [("droplet", [
                 ("stop", {"is_stop":True}), 
                 ("surf1", {}), 
                 ("surf2", {"is_mirror":True}), 
-                ("surf2", {}), 
+                ("surf3", {}), 
                 ("image", {})])]
 
 
@@ -139,8 +142,8 @@ initialbundle_blue = RayBundle(x0=o, k0=k_blue, Efield0=E0_blue, wave=wave_blue)
 r_red = s.seqtrace(initialbundle_red, sysseq)
 r_blue = s.seqtrace(initialbundle_blue, sysseq)
 
-r_red2nd = s.seqtrace(initialbundle_red, sysseq2nd)
-r_blue2nd = s.seqtrace(initialbundle_blue, sysseq2nd)
+#r_red2nd = s.seqtrace(initialbundle_red, sysseq2nd)
+#r_blue2nd = s.seqtrace(initialbundle_blue, sysseq2nd)
 
 
 fig = plt.figure(1)
@@ -162,10 +165,10 @@ for r in r_red:
 for r in r_blue:
     r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 
-for r in r_red2nd:
-    r.draw2d(ax, color="red", plane_normal=pn, up=up) 
-for r in r_blue2nd:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+#for r in r_red2nd:
+#    r.draw2d(ax, color="red", plane_normal=pn, up=up) 
+#for r in r_blue2nd:
+#    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 
 
 s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
