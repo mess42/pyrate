@@ -235,7 +235,7 @@ pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
 #pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
 
 
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+s.draw2d(ax, color="grey", vertices=50, inyzplane=True, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 plt.show()

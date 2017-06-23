@@ -486,6 +486,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
         return (pilotraypath, rpath)
         
         
-    def draw2d(self, ax, color, vertices, **kwargs):
+    def draw2d(self, ax, color="grey", vertices=50, inyzplane=True, **kwargs):
         for surfs in self.surfaces.itervalues():
-            surfs.draw2d(ax, color=color, vertices=vertices, **kwargs) 
+            surfs.draw2d(ax, color=color, vertices=vertices, inyzplane=inyzplane, **kwargs) 
