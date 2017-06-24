@@ -29,7 +29,7 @@ from distutils.version import StrictVersion
 
 import math
 
-from core import material
+from core.material_isotropic import ConstantIndexGlass
 from core import surfShape
 from core.optimize import Optimizer
 from core.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
@@ -74,8 +74,8 @@ image = Surface(lc8)
 
 elem = OpticalElement(lc0, label="lenssystem")
 
-glass = material.ConstantIndexGlass(lc0, n=1.7)
-glass2 = material.ConstantIndexGlass(lc0, n=1.5)
+glass = ConstantIndexGlass(lc0, n=1.7)
+glass2 = ConstantIndexGlass(lc0, n=1.5)
 
 elem.addMaterial("glass", glass)
 elem.addMaterial("glass2", glass2)

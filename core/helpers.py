@@ -34,7 +34,7 @@ from surface import Surface
 from surfShape import Conic
 from globalconstants import numerical_tolerance, canonical_ey, canonical_ex, standard_wavelength
 from ray import RayBundle
-from material import ConstantIndexGlass
+from material_isotropic import ConstantIndexGlass
 from helpers_math import rodrigues, random_rotation_matrix
 
 def build_simple_optical_system(builduplist, matdict):

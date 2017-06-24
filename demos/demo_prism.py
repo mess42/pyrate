@@ -36,7 +36,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_isotropic import ModelGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -76,7 +76,7 @@ image = Surface(lc3)
 
 elem = OpticalElement(lc0, label="prism")
 
-glass = material.ModelGlass(lc1)
+glass = ModelGlass(lc1)
 
 
 elem.addMaterial("glass", glass)

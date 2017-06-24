@@ -37,7 +37,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_anisotropic import AnisotropicMaterial
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -90,8 +90,8 @@ myeps2 = 1.6727**2*np.eye(3)
 #myeps1 = rnd_data1 + complex(0, 1)*rnd_data2
 #myeps2 = rnd_data3 + complex(0, 1)*rnd_data4
 
-crystal1 = material.AnisotropicMaterial(lc1, myeps1)
-crystal2 = material.AnisotropicMaterial(lc2, myeps2)
+crystal1 = AnisotropicMaterial(lc1, myeps1)
+crystal2 = AnisotropicMaterial(lc2, myeps2)
 
 
 elem.addMaterial("crystal1", crystal1)

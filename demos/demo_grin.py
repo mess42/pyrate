@@ -29,7 +29,7 @@ from distutils.version import StrictVersion
 
 from core import raster
 from core.material_grin import IsotropicGrinMaterial
-from core.material import ConstantIndexGlass
+from core.material_isotropic import ConstantIndexGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface

@@ -37,7 +37,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_isotropic import ConstantIndexGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -72,8 +72,8 @@ image = Surface(lc4)
 
 elem = OpticalElement(lc0, label="thorlabs_AC_254-100-A")
 
-bk7 = material.ConstantIndexGlass(lc1, n=1.5168)
-sf5 = material.ConstantIndexGlass(lc2, n=1.6727)
+bk7 = ConstantIndexGlass(lc1, n=1.5168)
+sf5 = ConstantIndexGlass(lc2, n=1.6727)
 
 elem.addMaterial("BK7", bk7)
 elem.addMaterial("SF5", sf5)

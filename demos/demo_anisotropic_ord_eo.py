@@ -37,7 +37,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_anisotropic import AnisotropicMaterial
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -75,7 +75,7 @@ neo = 1.8
 
 myeps = np.array([[no, 0, 0], [0, no, 0], [0, 0, neo]]) 
 
-crystal = material.AnisotropicMaterial(lc1, myeps)
+crystal = AnisotropicMaterial(lc1, myeps)
 
 
 elem.addMaterial("crystal", crystal)

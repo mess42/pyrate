@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import yaml
 import numpy as np
 import scipy.interpolate
-from material import IsotropicMaterial
+from material_isotropic import IsotropicMaterial
 from globalconstants import Fline, dline, Cline
 
 class refractiveindex_dot_info_glasscatalog(object):
@@ -397,7 +397,8 @@ if __name__ == "__main__":
     print "vd = ", (nd-1) / (nF-nC)
 
 
-
+# TODO: glasscatalog readin and from that a material factor which throws out 
+# several materials compliant with your search results
 
 
 

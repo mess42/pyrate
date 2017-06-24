@@ -25,10 +25,11 @@ import math
 import numpy as np
 import core.helpers_math
 from core.globalconstants import canonical_ex, canonical_ey, standard_wavelength
-from core.material import AnisotropicMaterial
+from core.material_anisotropic import AnisotropicMaterial
 from core.localcoordinates import LocalCoordinates
 from core.helpers import build_pilotbundle2
-from core.surface import Surface        
+from core.surface import Surface
+import matplotlib.pyplot as plt        
 
 if __name__=="__main__":
     

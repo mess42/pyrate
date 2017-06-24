@@ -31,7 +31,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_isotropic import ConstantIndexGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -67,7 +67,7 @@ image = Surface(lc3)
 
 elem = OpticalElement(lc0, label="asphereelement")
 
-bk7 = material.ConstantIndexGlass(lc1, n=1.5168)
+bk7 = ConstantIndexGlass(lc1, n=1.5168)
 
 elem.addMaterial("BK7", bk7)
 

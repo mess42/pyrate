@@ -28,7 +28,7 @@ from ray import RayBundle
 
 from globalconstants import standard_wavelength
 
-from material import IsotropicMaterial
+from material_isotropic import IsotropicMaterial
 
 class IsotropicGrinMaterial(IsotropicMaterial):
     def __init__(self, lc, fun, dfdx, dfdy, dfdz, bndfunction, ds, energyviolation, name="", comment=""):
