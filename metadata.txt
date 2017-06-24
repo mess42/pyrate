@@ -1,4 +1,4 @@
 workbenches=Part,Points
 pylibs=numpy,scipy
-optionalpylibs=yaml
+optionalpylibs=yaml,matplotlib
 
