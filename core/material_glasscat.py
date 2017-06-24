@@ -397,7 +397,7 @@ if __name__ == "__main__":
     print "vd = ", (nd-1) / (nF-nC)
 
 
-# TODO: glasscatalog readin and from that a material factor which throws out 
+# TODO: glasscatalog readin and from that a material factory which throws out 
 # several materials compliant with your search results
 
 
