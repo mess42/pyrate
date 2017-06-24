@@ -222,6 +222,13 @@ Single atoms, molecules or nanoscopic structures must be treated quantum-mechani
 
 \section{Energy Conservation}
 We assume the strictly monochromatic case $\Efield,\Dfield,\Hfield,\Bfield, \currentdensity \propto \sin(\omega t + \varphi_0)$ for electrodynamic scenarios only, $\omega \neq 0$.
+We introduce the following constants:
+\begin{align}
+ c_\vacuum &= \frac{1}{\sqrt{\vacuumpermeability\vacuumpermittivity}} & \textrm{vacuum speed of light} \\
+ \wavenumber_\vacuum &= \omega \sqrt{\vacuumpermeability\vacuumpermittivity} = \frac{\omega}{c_\vacuum}& \textrm{vacuum wavenumber} \\
+ \lambda_\vacuum &= \frac{2\pi}{\wavenumber_\vacuum} & \textrm{vacuum wavelength}
+\end{align}
+
 We focus on the term
 \begin{eqnarray}
    \Nabla ( \Efield \times \Hfield )
@@ -281,6 +288,7 @@ as the square of a real number differs from that of a complex one -- e.g. it may
 
 We assume all materials are non-magnetic at the optical frequency $\omega$, that is $\permeability(\omega) = \vacuumpermeability$. 
 Effects like the Magneto-Optical Kerr Effect (MOKE) stem from the deflection of oscillating electrons in a static (DC) magnetic field and are typically modeled by off-diagonal elements in the permittivity tensor, not the permeability.
+Some metamaterials, however, require an non-vacuum permeability to approximate their response with homogeneous material properties. 
 \begin{subequations}
 \begin{eqnarray}
   \Nabla \Dfield &=& \chargedensity 					\\
@@ -925,7 +933,7 @@ But which one is best to choose ?
 We consider the first equation, \eqref{eq:fresnelLastToSkip}, in the special case of isotropic materials and normal incidence,
 $\Wavevector_{in} \propto \Vector{n}$.
 In this case, both (conserved) in-plane components $\wavenumber_X, \wavenumber_Y$ are zero for all modes.
-From the Coulomb law in isotropic materials, $\scalarpermittivity \Nabla \Efield = 0$, we conclude that 
+Applying the Gau\ss\,law \eqref{eq:MaxwellNablaD} to isotropic materials, $\scalarpermittivity \Nabla \Efield = 0$, we conclude that 
 all modes $\Vector{e}_{\beta\alpha}$ are orthogonal to the wavevector and thus to the surface normal,
 $\Vector{e}_{\beta\alpha} \Vector{n} = 0$.
 I this special case, equation \eqref{eq:fresnelLastToSkip} reduces to
@@ -2812,10 +2820,10 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
 \begin{tabular}{l|l|l|l}
  Variable & Description & Type or Value & Unit \\
  \hline
- $A$ & element of an ABCD matrix & $\mathbb{R}$ & \\
- $\hat{A}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & \\
+ $A$ & element of an ABCD matrix & $\mathbb{R}$ & 1 \\
+ $\hat{A}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & 1 \\
  $\hat{A}$ & differential operator of the Helmholtz equation & tensor of $\mathbb{C}$ & $\frac{1}{\meter^2}$\\
- $a$ & polynomial or series coefficients &&\\
+ $a$ & polynomial or series coefficients & $\mathbb{R}$ or $\mathbb{C}$ & varying\\
  \hline
  $\Bfield$ & magnetic flux density & pseudo-vector of $\mathbb{R}$ or $\mathbb{C}$ & $\tesla = \frac{\volt\second}{\meter^2} $\\
  $B$ & element of an ABCD matrix & $\mathbb{R}$ & \meter \\
@@ -2823,20 +2831,20 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  \hline
  $C$ & element of an ABCD matrix & $\mathbb{R}$ & 1/\meter\\
  $\hat{C}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & 1/$\meter^2$\\
- $c_0$ & vacuum speed of light & 299792458 & \meter /\second \\
- $c$ & conic constant && \\
- $c$ & polynomial or series coefficients && \\
+ $c_\vacuum$ & vacuum speed of light & 299792458 & \meter /\second \\
+ $c$ & conic constant & $\mathbb{R}$ & 1 \\
+ $c$ & polynomial or series coefficients & $\mathbb{R}$ or $\mathbb{C}$ & varying\\
  \hline
  $\Dfield$ & electric displacement field & vector of $\mathbb{R}$ or $\mathbb{C}$ & $\frac{\ampere \second}{\meter^2}$\\
- $D$ & element of an ABCD matrix & $\mathbb{R}$ & \\
- $\hat{D}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & \\
- $\Vector{d}$ & unit ray direction & vector of $\mathbb{R}$ or $\mathbb{C}$ & \\
+ $D$ & element of an ABCD matrix & $\mathbb{R}$ & 1\\
+ $\hat{D}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & 1\\
+ $\Vector{d}$ & unit ray direction & vector of $\mathbb{R}$ or $\mathbb{C}$ & 1\\
  \hline
  $\Efield$ & electric field & vector of $\mathbb{R}$ or $\mathbb{C}$ & \volt /\meter \\
- $\Vector{e}$ & unit vector & vector of $\mathbb{R}$ or $\mathbb{C}$ & \\
+ $\Vector{e}$ & unit vector & vector of $\mathbb{R}$ or $\mathbb{C}$ & 1\\
  \hline
  $f$ & focal length & $\mathbb{R}$ & \meter \\
- $F$ & coefficient of intersection equation & $\mathbb{R}$ & \\
+ $F$ & coefficient of intersection equation & $\mathbb{R}$ & 1\\
  \hline
  $\hat{G}$ & ray propagation operator &&\\
  $G$ & coefficient of intersection equation & $\mathbb{R}$ & \meter\\
@@ -2863,8 +2871,8 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  \hline
  $N$ & normalization constant for electric field & $\mathbb{C}$ & \volt /\meter \\
  \hline
- $\Vector{n}$ & surface normal unit vector & vector of $\mathbb{R}$ & \\
- $n$ & refractive index & $\mathbb{C}$ &\\
+ $\Vector{n}$ & surface normal unit vector & vector of $\mathbb{R}$ & 1\\
+ $n$ & refractive index & $\mathbb{C}$ & 1\\
  \hline
  $\Vector{P}$ & pupil coordinates & 2D-vector of $\mathbb{R}$ & 1/\meter \\
  \hline
@@ -2882,7 +2890,7 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  \hline
  $x,y,z$ & cartesian coordinates & $\mathbb{R}$ & \meter \\
  $y$ & ABCD ray height & $\mathbb{R}$ & \meter \\
- $y^{\,\prime}$ & ABCD ray inclination& $\mathbb{R}$ & \\
+ $y^{\,\prime}$ & ABCD ray inclination& $\mathbb{R}$ & 1\\
  $z$ & surface sag & $\mathbb{R}$ & \meter \\
  \hline
  $X,Y$ & coordinates in tangential plane& $\mathbb{R}$ & \meter \\
@@ -2893,13 +2901,13 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  \hline
  $\permittivity$ & electric permittivity & tensor of $\mathbb{R}$ or $\mathbb{C}$ & $\frac{\ampere \second}{\volt \meter}$ \\
  $\vacuumpermittivity$ & electric permittivity of vacuum & $8.8542...\cdot 10^{-12}$ & $\frac{\ampere \second}{\volt \meter}$ \\
- $\relativepermittivity$ & relative permittivity & tensor of $\mathbb{R}$ or $\mathbb{C}$ & \\
+ $\relativepermittivity$ & relative permittivity & tensor of $\mathbb{R}$ or $\mathbb{C}$ & 1\\
  \hline
  $\lambda$ & wavelength & $\mathbb{R}_{>0}$ & \meter \\
  \hline
  $\permeability$ & magnetic permeability & tensor of $\mathbb{R}$ & $\frac{\volt \second}{\ampere \meter}$ \\
  $\vacuumpermeability$ & magnetic permeability of vacuum & $4\pi \cdot 10^{-7}$ & $\frac{\volt \second}{\ampere \meter}$ \\
- $\relativepermeability$ & relative permeability & tensor of $\mathbb{R}$ & \\
+ $\relativepermeability$ & relative permeability & tensor of $\mathbb{R}$ & 1\\
  \hline
  $\chargedensity$ & charge density & $\mathbb{R}$ & $\frac{\ampere \second}{\meter^3}$ \\
  $\rho$ & surface curvature & $\mathbb{R}$ & 1/\meter \\
