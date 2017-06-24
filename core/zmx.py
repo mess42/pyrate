@@ -126,6 +126,9 @@ class ParseZMX(object):
         self.addKeywordToDict(blocklines, "CURV", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, float)
         self.addKeywordToDict(blocklines, "CONI", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, float)
 
+        self.addKeywordToDict(blocklines, "GLAS", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, str)
+        # TODO: there are more parameters to extract
+        
         return paramsdict
 
 
@@ -143,12 +146,16 @@ if __name__ == "__main__":
         print p.returnBlockKeyword(blk)
 
     surfbs = filter(lambda x: p.returnBlockKeyword(x) == "SURF", bs)
+    wavmbs = filter(lambda x: p.returnBlockKeyword(x) == "WAVM", bs)
 
     for blk in surfbs:
         print "----"
         surfres = p.readSurfBlock(blk)
         print surfres #filter(lambda x: x != None, [p.readArgsForKeyword(lin, "SURF", int) for lin in surflines])
 
+    for blk in wavmbs:
+        print "----"
+        print blk
 
 
     #for lin in textlines:
