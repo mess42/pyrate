@@ -106,7 +106,7 @@ class Surface(LocalCoordinatesTreeBase):
             raybundle.valid[-1] = raybundle.valid[-1]*valid
 
 
-    def draw2d(self, ax, vertices=100, inyzplane = True, color="grey", plane_normal = canonical_ex, up = canonical_ey):
+    def draw2d(self, ax, vertices=100, inyzplane=True, color="grey", plane_normal=canonical_ex, up=canonical_ey):
         """
         :param ax (Axis object)
         :param vertices (int), vertices in xy for aperture sampling

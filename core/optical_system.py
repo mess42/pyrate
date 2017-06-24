@@ -27,6 +27,7 @@ from material import ConstantIndexGlass
 from localcoordinates import LocalCoordinates
 from localcoordinatestreebase import LocalCoordinatesTreeBase
 from ray import RayPath
+from copy import deepcopy
 
 class OpticalSystem(LocalCoordinatesTreeBase):
     """
@@ -54,21 +55,125 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         self.material_background = matbackground # Background material        
         self.elements = {}
 
-    def seqtrace(self, initialbundle, elementsequence): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+    def seqtrace(self, initialbundle, elementsequence, splitup=False): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
+        rpaths = [rpath]
         for (elem, subseq) in elementsequence:
-            rpath.appendRayPath(self.elements[elem].seqtrace(rpath.raybundles[-1], subseq, self.material_background)) 
-        return rpath
+            rpaths_new = []
             
-    def para_seqtrace(self, pilotbundle, initialbundle, elementsequence): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+            for rp in rpaths:
+                raypaths_to_append = self.elements[elem].seqtrace(rp.raybundles[-1], subseq, self.material_background, splitup=splitup)
+                for rp_append in raypaths_to_append[1:]:
+                    rpathprime = deepcopy(rp)
+                    rpathprime.appendRayPath(rp_append)
+                    rpaths_new.append(rpathprime)
+                rp.appendRayPath(raypaths_to_append[0])
+                
+            rpaths = rpaths + rpaths_new
+        return rpaths
+        
+    # TODO: maybe split up para_seqtrace and calculation of pilotraypath from pilotbundle
+    # TODO: therefore split pilotbundle, elementsequence from para_seqtrace
+    """
+    pilotbundle and elementsequence may be used to determine the available pilotrays
+    and the appropriate hitlist for every optical element; further they also make the XYUV matrices available
+    this could be done in one procedure. pilotpath btw may only contain a one-element bundle; the buddies of pilotray
+    are necessary for XYUV matrix calculation but afterwards they may be omitted.
+    """
+       
+    def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None, use6x6=True): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
         pilotpath = RayPath(pilotbundle)
-        for (elem, subseq) in elementsequence:
-            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background)
+        if pilotraypathsequence is None:
+            pilotraypathsequence = tuple([0 for i in range(len(elementsequence))])
+            # choose first pilotray in every element by default
+        print("pilot ray path sequence")
+        print(pilotraypathsequence)
+        for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
+            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr, use6x6=use6x6)
             rpath.appendRayPath(append_rpath) 
             pilotpath.appendRayPath(append_pilotpath) 
         return (pilotpath, rpath)
 
+    def sequence_to_hitlist(self, elementsequence):
+        return [(elem, self.elements[elem].sequence_to_hitlist(seq)) for (elem, seq) in elementsequence]
+            
+
+    def extractXYUV(self, pilotbundle, elementsequence, pilotraypathsequence=None, use6x6=True):
+        pilotpath = RayPath(pilotbundle)
+        if pilotraypathsequence is None:
+            pilotraypathsequence = tuple([0 for i in range(len(elementsequence))])
+            # choose first pilotray in every element by default
+        print("pilot ray path sequence")
+        print(pilotraypathsequence)
+
+        stops_found = 0
+
+        for (elem, subseq) in elementsequence:
+            for (surfname, options_dict) in subseq:
+                if options_dict.get("is_stop", False):
+                    stops_found += 1
+
+        if stops_found != 1:
+            print("WARNING: %d stops found. need exactly 1!" % (stops_found,))
+            print("Returning None.")
+            return None
+
+        lst_matrix_pairs = []
+
+        for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
+            #print(subseq)            
+            (hitlist, optionshitlist_dict) = self.elements[elem].sequence_to_hitlist(subseq)
+            # hitlist may contain exactly one stophit
+            
+            (append_pilotpath, elem_matrices) = self.elements[elem].calculateXYUV(pilotpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr, use6x6=use6x6)
+            pilotpath.appendRayPath(append_pilotpath) 
+            
+            ls1 = []
+            ls2 = []
+            found_stop = False
+
+            for h in hitlist:
+                (d1, d2) = optionshitlist_dict[h]
+                if d1.get("is_stop", False) and not d2.get("is_stop", False):
+                    found_stop = True
+                if not found_stop:
+                    ls1.append(elem_matrices[h])
+                else:
+                    ls2.append(elem_matrices[h])
+            
+            if not use6x6:
+                m1 = np.eye(4, dtype=complex)
+                m2 = np.eye(4, dtype=complex)
+            else:
+                m1 = np.eye(6)
+                m2 = np.eye(6)
+                
+            for m in ls1:
+                m1 = np.dot(m, m1)
+            for m in ls2:
+                m2 = np.dot(m, m2)
+
+            lst_matrix_pairs.append((m1, m2, found_stop))
+        
+        if not use6x6:
+            m_obj_stop = np.eye(4, dtype=complex)
+            m_stop_img = np.eye(4, dtype=complex)
+        else:
+            m_obj_stop = np.eye(6)
+            m_stop_img = np.eye(6)
+
+        obj_stop_branch = True
+        for (m1, m2, found_stop) in lst_matrix_pairs:
+            if obj_stop_branch:
+                m_obj_stop = np.dot(m1, m_obj_stop)
+                if found_stop:
+                    m_stop_img = np.dot(m2, m_stop_img)
+                    obj_stop_branch = False
+            else:
+                m_stop_img = np.dot(m1, m_stop_img)
+            
+        return (m_obj_stop, m_stop_img)            
 
 
     def addElement(self, key, element):
@@ -171,9 +276,9 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
 
-    def draw2d(self, ax, vertices=100, color="grey"):
-        for (num, s) in enumerate(self.surfaces):
-            s.draw2d(ax, vertices=vertices, color=color)
+    def draw2d(self, ax, vertices=50, color="grey", inyzplane=True, **kwargs):
+        for e in self.elements.itervalues():
+            e.draw2d(ax, vertices=vertices, color=color, inyzplane=inyzplane, **kwargs)
             
 
 

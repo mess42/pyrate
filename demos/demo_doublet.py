@@ -100,7 +100,7 @@ ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("AC254-100", [("stop", True, True), ("front", True, True), ("cement", True, True), ("rear", True, True), ("image", True, True)])]
+sysseq = [("AC254-100", [("stop", {"is_stop":True}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
 phi = 5.*math.pi/180.0
 
@@ -120,11 +120,11 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+for r in r2:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+
+s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 
 plt.show()

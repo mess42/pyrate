@@ -28,6 +28,38 @@ This file holds mathematical auxiliary functions to prevent circular imports
 import numpy as np
 import math
 
+def checkfinite(vec):
+    """
+    Checks whether some vector vec (dim x N) is finite. If one element is not
+    finite return False
+    """
+    return np.any(np.isfinite(vec) ^ True, axis=0) ^ True
+
+
+def checkEcompatibility2(E, E1, E2, tol=1e-8):
+    """
+    Checks whether E is in the subspace spanned by
+    E1 and E2 by using the determinant.
+    """
+    return np.abs(np.linalg.det(
+                np.concatenate(
+                    (E[:, np.newaxis, :], 
+                     E1[:, np.newaxis, :], 
+                     E2[:, np.newaxis, :]), axis=1).T)) < tol
+
+def checkEcompatibility1(E, E1, orthogen=None, tol=1e-8):
+    """
+    Check linear dependency by introducing another orthogonal vector and
+    calculating the determinant once again.
+    """
+    if orthogen is None:
+        # Choose orthogen randomly on unit sphere
+        orthogen = np.random.randn(*np.shape(E))
+        orthogen = orthogen/np.linalg.norm(orthogen, axis=1)
+    
+    orthoE1 = orthogen - np.sum(orthogen*E1, axis=0)*E1/np.linalg.norm(E1, axis=1)**2
+    return checkEcompatibility2(E, E1, orthoE1, tol=tol)
+
 def rodrigues(angle, a):
     ''' 
     returns numpy matrix from Rodrigues formula.

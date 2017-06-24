@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from localcoordinatestreebase import LocalCoordinatesTreeBase
 from ray import RayPath, RayBundle
+from globalconstants import numerical_tolerance
+
+from copy import deepcopy, copy
 
 import numpy as np
 
@@ -104,23 +107,37 @@ class OpticalElement(LocalCoordinatesTreeBase):
         necessary to distinguish between multiple crossings of the pilot ray
         between surface boundaries, due to the changed transfer matrices.
         """
-        surfnames = [name for (name, refract_flag, ordinary_flag) in seq]
+        
+        surfnames = [(name, options_dict) for (name, options_dict) in seq]
     
         hitlist_dict = {}
         
-        hitlist = []    
+        hitlist = []
+        optionshitlistdict = {}
         
-        for (sb, se) in zip(surfnames[:-1], surfnames[1:]):
+        for ((sb, optsb), (se, optse)) in zip(surfnames[:-1], surfnames[1:]):
             
             hit = hitlist_dict.get((sb, se), 0)
             hit += 1
             hitlist_dict[(sb, se)] = hit
             
             hitlist.append((sb, se, hit))
+            optionshitlistdict[(sb, se, hit)] = (optsb, optse)
         
-        return hitlist
+        return (hitlist, optionshitlistdict)
+        
+    def hitlist_to_sequence(self, (hitlist, optionshitlistdict)):
+        seq = []
+        
+        for (ind, (sb, se, hit)) in enumerate(hitlist):
+            pair = (sb, True, optionshitlistdict[(sb, se, hit)][0])
+            seq.append(pair)
+            if ind == len(hitlist) - 1:
+                pair = (se, True, optionshitlistdict[(sb, se, hit)][1])
+                seq.append(pair)
+        return seq
 
-    def calculateXYUV(self, pilotinitbundle, sequence, background_medium, use6x6=True):
+    def calculateXYUV(self, pilotinitbundle, sequence, background_medium, pilotraypath_nr=0, use6x6=True):
 
         # TODO: needs heavy testing        
         
@@ -152,9 +169,13 @@ class OpticalElement(LocalCoordinatesTreeBase):
             return (np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])).imag
             
         
-        hitlist = self.sequence_to_hitlist(sequence)        
+        (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)        
         
-        pilotraypath = self.seqtrace(pilotinitbundle, sequence, background_medium)
+        pilotraypaths = self.seqtrace(pilotinitbundle, sequence, background_medium, splitup=True)
+        print("found %d pilotraypaths" % (len(pilotraypaths,)))
+        print("selected no %d via pilotraypath_nr parameter" % (pilotraypath_nr,))        
+        # a pilotraypath may not contain an internally splitted raybundle
+        pilotraypath = pilotraypaths[pilotraypath_nr]        
         
         startpilotbundle = pilotraypath.raybundles[:-1]        
         endpilotbundle = pilotraypath.raybundles[1:]
@@ -261,7 +282,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
                     print(np.array_str(propagatematrix4x4, precision=5, suppress_small=True))
                     print("coordtrafo 4x4", surfhit)            
                     print(np.array_str(coordinatetrafomatrix4x4, precision=5, suppress_small=True))
-                
+                                
                     XYUVmatrices[(s1, s2, numhit)] = transfer4x4
                     XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)
             else: # if num_pts != 5
@@ -270,13 +291,23 @@ class OpticalElement(LocalCoordinatesTreeBase):
                     X = np.vstack((startxred, startkred_real, startkred_imag))
                     Y = np.vstack((endxred, endkred_real, endkred_imag))
 
+                    if np.linalg.norm(startkred_imag) < numerical_tolerance or np.linalg.norm(endkred_imag) < numerical_tolerance:
+                        print("WARNING: start or end matrix contain zero rows: maybe you have a pure real material epsilon. please consider using use6x6=False")
+
                     XX = np.einsum('ij, kj', X, X).T
                     YX = np.einsum('ij, kj', X, Y).T
+                    
+                    print("XX 6x6")                
+                    print(np.array_str(XX, precision=5, suppress_small=True))
+                    print("YX 6x6")                
+                    print(np.array_str(YX, precision=5, suppress_small=True))
                     
                     transfer6x6 = np.dot(YX, np.linalg.inv(XX))
 
                     print("transfermatrix 6x6")                
                     print(np.array_str(transfer6x6, precision=5, suppress_small=True))
+                    print("condition number:")
+                    print(np.linalg.cond(transfer6x6))
                     
                     XYUVmatrices[(s1, s2, numhit)] = transfer6x6
                     XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer6x6)
@@ -295,16 +326,22 @@ class OpticalElement(LocalCoordinatesTreeBase):
                     print(XX)
                     print("YX 4x4")                
                     print(YX)
-                    print("XXD 2x2")
-                    print(XX[2:4, 2:4])
-                    print("XXC 2x2")
-                    print(XX[2:4, 0:2])
+                    #print("XXD 2x2")
+                    #print(XX[2:4, 2:4])
+                    #print("XXC 2x2")
+                    #print(XX[2:4, 0:2])
                     
                     # may we remove the imaginary parts from the upper left 2x2 matrix?
-                    transfer4x4[0:2, 0:2] = transfer4x4[0:2, 0:2].real
     
                     print("transfermatrix 4x4")                
                     print(transfer4x4)
+                    print("condition number:")
+                    print(np.linalg.cond(transfer4x4))
+
+                    if np.linalg.norm(transfer4x4[0:2, 0:2].imag) > numerical_tolerance:
+                        print("WARNING: the XX transfer part contains imaginary values. please consider using use6x6=True.")
+                        # may not be complex                
+
                     
                     XYUVmatrices[(s1, s2, numhit)] = transfer4x4
                     XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)
@@ -312,40 +349,82 @@ class OpticalElement(LocalCoordinatesTreeBase):
         return (pilotraypath, XYUVmatrices)
      
 
-    def seqtrace(self, raybundle, sequence, background_medium):
+    def seqtrace(self, raybundle, sequence, background_medium, splitup=False):
+        
+        # FIXME: should depend on a list of RayPath        
         
         current_material = background_medium    
     
         rpath = RayPath(raybundle)    
-    
-        for (surfkey, refract_flag, ordinary_flag) in sequence:
+        rpaths = [rpath]
+        
+        # surfoptions is intended to be a comma separated list
+        # of keyword=value pairs        
+        
+        for (surfkey, surfoptions) in sequence:
             
-            current_bundle = rpath.raybundles[-1]
+            refract_flag = not surfoptions.get("is_mirror", False)
+            # old: current_bundle = rpath.raybundles[-1]            
+            # old: current_material.propagate(current_bundle, current_surface)
+
+            rpaths_new = []            
+
             current_surface = self.__surfaces[surfkey]
-            
-            current_material.propagate(current_bundle, current_surface)
-            
+                        
             (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
             mnmat = self.__materials.get(mnmat, background_medium)
             pnmat = self.__materials.get(pnmat, background_medium)
 
-            if refract_flag:
-                current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-                rpath.appendRayBundle(current_material.refract(current_bundle, current_surface))
-            else:
-                rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface))
+            # finalize current_bundles
+            for rp in rpaths:
+                current_bundle = rp.raybundles[-1]
+                current_material.propagate(current_bundle, current_surface)
                 
+                        
+            # TODO: remove code doubling
+            if refract_flag:
+                # old: current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
+                # old: rpath.appendRayBundle(current_material.refract(current_bundle, current_surface))
+                # old: finish
+
+                current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
+
+                for rp in rpaths:
+                    current_bundle = rp.raybundles[-1]
+                    raybundles = current_material.refract(current_bundle, current_surface, splitup=splitup)
+                                            
+                    for rb in raybundles[1:]: # if there are more than one return value, copy path
+                        rpathprime = deepcopy(rp)
+                        rpathprime.appendRayBundle(rb)
+                        rpaths_new.append(rpathprime)
+                    rp.appendRayBundle(raybundles[0])
 
 
-        return rpath
+            else:
+                # old: rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface))
+                # old: finish
+            
+                for rp in rpaths:
+                    current_bundle = rp.raybundles[-1]
+                    raybundles = current_material.reflect(current_bundle, current_surface, splitup=splitup)
+    
+                    for rb in raybundles[1:]:
+                       rpathprime = deepcopy(rp)
+                       rpathprime.appendRayBundle(rb)
+                       rpaths_new.append(rpathprime)
+                    rp.appendRayBundle(raybundles[0])
+            
+            rpaths = rpaths + rpaths_new
+            
+        return rpaths
         
     
-    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, use6x6=True):
+    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, pilotraypath_nr=0, use6x6=True):
         
         rpath = RayPath(raybundle)
-        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, use6x6=use6x6)
+        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, pilotraypath_nr=pilotraypath_nr, use6x6=use6x6)
 
-        hitlist = self.sequence_to_hitlist(sequence)
+        (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)
         
         for (ps, pe, surfhit) in zip(pilotraypath.raybundles[:-1], pilotraypath.raybundles[1:], hitlist):
             (surf_start_key, surf_end_key, hit) = surfhit
@@ -406,3 +485,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
             rpath.appendRayBundle(newbundle)
 
         return (pilotraypath, rpath)
+        
+        
+    def draw2d(self, ax, color="grey", vertices=50, inyzplane=True, **kwargs):
+        for surfs in self.surfaces.itervalues():
+            surfs.draw2d(ax, color=color, vertices=vertices, inyzplane=inyzplane, **kwargs) 

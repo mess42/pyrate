@@ -26,6 +26,7 @@ import math
 from ray import RayBundle
 import optimize
 import scipy.linalg as sla
+import helpers_math
 
 from globalconstants import standard_wavelength, eps0
 
@@ -73,6 +74,13 @@ class Material(optimize.ClassWithOptimizableVariables):
 
 
 class MaxwellMaterial(Material):
+    
+    # TODO: rename procedures according to unified naming scheme
+    # k divided in knorm and k0*knorm
+    # calculation of det, xi, QEV from k_parallel, k_direction
+    # TODO: calculation of QEV from k_direction
+    # sorting E and k according to Poynting vector scalar product with real 
+    # direction vector
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         """
@@ -93,29 +101,103 @@ class MaxwellMaterial(Material):
             k_norm_4[i, :, :] = kpa_norm + xi_4[i, :]*n
             
         return (k_norm_4, efield_4)
+
+    def calcKnormUnitEfield(self, x, e):
+        (k_4, efield_4) = self.calcKEigenvectorsNorm(x, e)
+        
+        # xi_4: 4xN
+        # efield_4: 4x3xN
+        
+        k_norm_4 = np.zeros_like(efield_4)        
+        for i in range(4):
+            k_norm_4[i, :, :] = k_4[i, :]*e
+            
+        return (k_norm_4, efield_4)    
     
-    
-    def sortKNormEField(self, x, n, kpa_norm, e):
+    def sortKnormEField(self, x, n, kpa_norm, e):
         """
         Sort k_norm and E-field solutions by their scalar products.
         (Those come from the solution of the quadratic eigenvalue problem.)
         
         first two elements <S, e> > 0 (first min|<E, e>|, last max|<E, e>|)
         last two elements <S, e> < 0  (first min|<E, e>|, last max|<E, e>|)      
-        
-        min|<E, e>| means s-polarization
-        max|<E, e>| means p-polarization        
-        
+                
         :param k_norm_4 (4x3xN array of complex)
         :param Efield_4 (4x3xN array of complex)
         
         """
         
+        (num_dims, num_pts) = np.shape(n)        
+
         (k_norm_4, Efield_4) = self.calcKnormEfield(x, n, kpa_norm)
-        print(k_norm_4)
-        print(Efield_4)
-        return (k_norm_4, Efield_4)
-    
+        
+        k_norm_4_sorted = np.zeros_like(k_norm_4)
+        Efield_4_sorted = np.zeros_like(Efield_4)
+        Sn_scalarproduct = np.zeros((4, num_pts))        
+        
+        
+        for i in range(4):
+            Si = self.calcPoytingVectorNorm(k_norm_4[i, :, :], Efield_4[i, :, :])
+            Sn_scalarproduct[i, :] = np.sum(Si*e, axis=0)
+        
+        Sn_scalarproduct_argsort = Sn_scalarproduct.argsort(axis=0)
+        for i in range(num_pts):
+            k_norm_4_sorted[:, :, i] = k_norm_4[Sn_scalarproduct_argsort[:, i], :, i] 
+            Efield_4_sorted[:, :, i] = Efield_4[Sn_scalarproduct_argsort[:, i], :, i] 
+            
+        return (k_norm_4_sorted, Efield_4_sorted)
+
+    def sortKnormUnitEField(self, x, kd, e):
+        """
+        Sort k_norm and E-field solutions by their scalar products.
+        (Those come from the solution of the quadratic eigenvalue problem.)
+        
+        first two elements <S, e> > 0 (first min|<E, e>|, last max|<E, e>|)
+        last two elements <S, e> < 0  (first min|<E, e>|, last max|<E, e>|)      
+                
+        :param k_norm_4 (4x3xN array of complex)
+        :param Efield_4 (4x3xN array of complex)
+        
+        """
+        
+        (num_dims, num_pts) = np.shape(kd)        
+
+        (k_norm_4, Efield_4) = self.calcKnormUnitEfield(x, kd)
+        
+        k_norm_4_sorted = np.zeros_like(k_norm_4)
+        Efield_4_sorted = np.zeros_like(Efield_4)
+        Sn_scalarproduct = np.zeros((4, num_pts))        
+        
+        
+        for i in range(4):
+            Si = self.calcPoytingVectorNorm(k_norm_4[i, :, :], Efield_4[i, :, :])
+            Sn_scalarproduct[i, :] = np.sum(Si*e, axis=0)
+        
+        Sn_scalarproduct_argsort = Sn_scalarproduct.argsort(axis=0)
+        for i in range(num_pts):
+            k_norm_4_sorted[:, :, i] = k_norm_4[Sn_scalarproduct_argsort[:, i], :, i] 
+            Efield_4_sorted[:, :, i] = Efield_4[Sn_scalarproduct_argsort[:, i], :, i] 
+            
+        return (k_norm_4_sorted, Efield_4_sorted)
+
+
+    def sortKEField(self, x, n, kpa, e, wave=standard_wavelength):
+        
+        k0 =  2.*math.pi/wave
+        
+        (k, E) = self.sortKnormEField(x, n, kpa/k0, e)
+        
+        return (k0*k, E)
+
+    def sortKUnitEField(self, x, kd, e, wave=standard_wavelength):
+        
+        k0 =  2.*math.pi/wave
+        
+        (k, E) = self.sortKnormUnitEField(x, kd, e)
+        
+        return (k0*k, E)
+
+   
     def calcPoytingVector(self, k, Efield, wave=standard_wavelength):
         
         k0 =  2.*math.pi/wave
@@ -258,8 +340,6 @@ class MaxwellMaterial(Material):
             polycoeffs = [p3[i], p2[i], p1[i], p0[i]]
             kappaarray[:, i] = np.roots(polycoeffs)
 
-        print(kappaarray)
-
         kvectors = k + (np.repeat(kappaarray[:, np.newaxis, :], 3, axis=1)*kd)
         
         return kvectors
@@ -282,7 +362,7 @@ class MaxwellMaterial(Material):
         # complex solutions.
  
         
-        IdMatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_pts, axis=2)
+        IdMatrix = np.repeat(np.eye(3, dtype=complex)[:, :, np.newaxis], num_pts, axis=2)
         ZeroMatrix = np.zeros((3, 3, num_pts), dtype=complex)        
 
         Mmatrix = -np.copy(IdMatrix)
@@ -292,7 +372,7 @@ class MaxwellMaterial(Material):
         for j in range(num_pts):
             Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
             Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) + np.outer(n[:, j], kpa_norm[:, j])
-            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*np.eye(3)\
+            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*np.eye(3, dtype=complex)\
                     + np.outer(kpa_norm[:, j], kpa_norm[:, j])
 
         Amatrix6x6 = np.vstack(
@@ -356,7 +436,42 @@ class MaxwellMaterial(Material):
             eigenvectors[:, :, j] = (vr.T)[:, 3:]
 
         return (eigenvalues, eigenvectors)
+
+    def calcKEigenvectorsNorm(self, x, e):
         
+        (num_dims, num_pts) = np.shape(x)
+        eps = self.getEpsilonTensor(x)
+
+        eigenvectors = np.zeros((4, 3, num_pts), dtype=complex)
+        eigenvalues = np.zeros((4, num_pts), dtype=complex)
+        
+        # solve generalized EVP [k^2 (-delta_ij + e_i e_j) + eps_ij] E_j = 0
+        Bmatrix = np.zeros((3, 3, num_pts), dtype=complex)
+        Amatrix = eps
+        for j in range(num_pts):
+            Bmatrix[:, :, j] = -(-np.eye(3) + np.outer(e[:, j], e[:, j]))
+
+        for j in range(num_pts):
+            (w, vr) = sla.eig(Amatrix[:, :, j], b=Bmatrix[:, :, j])
+
+            # first remove infinite parts
+            # then sort w for abs value
+            # then remove the largest values until len(w) = 4
+
+            wfinite = np.isfinite(w)
+            w = w[wfinite]
+            vr = vr[:, wfinite]
+
+            if len(w) > 2:
+                to_remove = len(w) - 2
+                sorted_indices = np.abs(w).argsort()
+                w = w[sorted_indices][:-to_remove]
+                vr = vr[:, sorted_indices][:, :-to_remove]
+
+            eigenvalues[:, j] = np.hstack((np.sqrt(w), -np.sqrt(w)))
+            eigenvectors[:, :, j] = np.vstack((vr.T, vr.T))
+
+        return (eigenvalues, eigenvectors)
         
     def calcXiPolynomialNorm(self, x, n, kpa_norm):
         """
@@ -470,7 +585,6 @@ class MaxwellMaterial(Material):
         kpa_norm = kpa/k0
         
         (eigenvals, eigenvectors) = self.calcXiEigenvectorsNorm(x, n, kpa_norm)
-        
         return (k0*eigenvals, eigenvectors)
 
     def calcDetPropagatorNormX(self, x, k_norm):
@@ -617,17 +731,19 @@ class IsotropicMaterial(MaxwellMaterial):
         return (xi, valid)
 
 
-    def refract(self, raybundle, actualSurface):
+    def refract(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
+        valid_normals = helpers_math.checkfinite(normal)
+
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
         (xi, valid_refraction) = self.calcXiIsotropic(xlocal, normal, k_inplane, wave=raybundle.wave)
         
-        valid = raybundle.valid[-1] * valid_refraction
+        valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
         k2 = k_inplane + xi * normal
 
@@ -636,22 +752,28 @@ class IsotropicMaterial(MaxwellMaterial):
         orig = raybundle.x[-1][:, valid]        
         newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
+        # E field calculation wrong: xlocal, normal, newk in different
+        # coordinate systems
         Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
 
-        return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
+        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave),)
 
 
-    def reflect(self, raybundle, actualSurface):
+    def reflect(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
+        valid_normals = helpers_math.checkfinite(normal)
+        # normals or sag values could either be nan or infinite
+        # TODO: remove those normals from calculation
+
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
         (xi, valid_refraction) = self.calcXiIsotropic(xlocal, normal, k_inplane, wave=raybundle.wave)
         
-        valid = raybundle.valid[-1] * valid_refraction
+        valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
         k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
 
@@ -662,7 +784,7 @@ class IsotropicMaterial(MaxwellMaterial):
 
         Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
         
-        return RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave)
+        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave),)
 
 
     def propagate(self, raybundle, nextSurface):
@@ -674,7 +796,6 @@ class IsotropicMaterial(MaxwellMaterial):
         :param raybundle (RayBundle object), gets changed!
         :param nextSurface (Surface object)
         """
-
         nextSurface.intersect(raybundle)
 
 
@@ -788,17 +909,6 @@ class AnisotropicMaterial(MaxwellMaterial):
         
         return np.repeat(self.epstensor[:, :, np.newaxis], num_pts, axis=2)
 
-    #########################################
-    # first dummy implementations to get anisotropic material running
-    #########################################
-
-    def calcEfield(self, x, n, k, wave=standard_wavelength):
-        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
-        ey = np.zeros_like(k)
-        ey[1,:] =  1.
-        return np.cross(k, ey, axisa=0, axisb=0).T
-
-
     def propagate(self, raybundle, nextSurface):
 
         """
@@ -811,42 +921,93 @@ class AnisotropicMaterial(MaxwellMaterial):
 
         nextSurface.intersect(raybundle)
 
-    def refract(self, raybundle, actualSurface):
+    def refract(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
+        valid_x = helpers_math.checkfinite(xlocal)
+        valid_normals = helpers_math.checkfinite(normal)
+
+        #xlocal[:, valid_x ^ True] = 0.0        
+        #normal[:, valid_normals ^ True] = 0.0
+        #normal[2, valid_normals ^ True] = 1.0
+
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        xi = self.calcXiAnisotropic(xlocal, normal, k_inplane, wave=raybundle.wave)[1]
-                
-        k2 = k_inplane + xi * normal
+        (k2_sorted, e2_sorted) = self.sortKEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
 
-        orig = raybundle.x[-1]        
-        newk = self.lc.returnLocalToGlobalDirections(k2)
+        if not splitup:
+        # 2 vectors with largest scalarproduct of S with n
+            k2 = np.hstack((k2_sorted[2], k2_sorted[3]))
+    
+            e2 = np.hstack((e2_sorted[2], e2_sorted[3]))
+    
+            newids = np.hstack((raybundle.rayID, raybundle.rayID))
+    
+            orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
+            newk = self.lc.returnLocalToGlobalDirections(k2)
+            newe = self.lc.returnLocalToGlobalDirections(e2)
+    
+            return (RayBundle(orig, newk, newe, newids, raybundle.wave, splitted=True),)
+        else:
+            k2_1 = self.lc.returnLocalToGlobalDirections(k2_sorted[2])
+            k2_2 = self.lc.returnLocalToGlobalDirections(k2_sorted[3])
 
-        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
+            e2_1 = self.lc.returnLocalToGlobalDirections(e2_sorted[2])
+            e2_2 = self.lc.returnLocalToGlobalDirections(e2_sorted[3])
 
-        return RayBundle(orig, newk, Efield, raybundle.rayID, raybundle.wave)
+            orig = raybundle.x[-1]
 
-    def reflect(self, raybundle, actualSurface):
+            return (
+                RayBundle(orig, k2_1, e2_1, raybundle.rayID, raybundle.wave),
+                RayBundle(orig, k2_2, e2_2, raybundle.rayID, raybundle.wave)
+                )
+
+    def reflect(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
         normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
+        valid_x = helpers_math.checkfinite(xlocal)
+        valid_normals = helpers_math.checkfinite(normal)
+
+        #xlocal[:, valid_x ^ True] = 0.0        
+        #normal[:, valid_normals ^ True] = 0.0
+        #normal[2, valid_normals ^ True] = 1.0
+
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        xi = self.calcXiAnisotropic(xlocal, normal, k_inplane, wave=raybundle.wave)[0]
-        
-        k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
+        (k2_sorted, e2_sorted) = self.sortKEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
 
-        # return ray with new direction and properties of old ray
-        # return only valid rays
-        orig = raybundle.x[-1]        
-        newk = self.lc.returnLocalToGlobalDirections(k2)
+        # 2 vectors with smallest scalarproduct of S with n
 
-        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
-        
-        return RayBundle(orig, newk, Efield, raybundle.rayID, raybundle.wave)
+        # TODO: negative sign due to compatibility with z-direction of
+        # coordinate decenter
+
+        if not splitup:
+            k2 = -np.hstack((k2_sorted[0], k2_sorted[1]))
+            e2 = -np.hstack((e2_sorted[0], e2_sorted[1]))
+            newids = np.hstack((raybundle.rayID, raybundle.rayID))
+    
+            orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))        
+            newk = self.lc.returnLocalToGlobalDirections(k2)
+            newe = self.lc.returnLocalToGlobalDirections(e2)
+
+
+            return (RayBundle(orig, newk, newe, newids, raybundle.wave, splitted=True),)
+        else:
+            k2_1 = self.lc.returnLocalToGlobalDirections(-k2_sorted[0])
+            k2_2 = self.lc.returnLocalToGlobalDirections(-k2_sorted[1])
+
+            e2_1 = self.lc.returnLocalToGlobalDirections(-e2_sorted[0])
+            e2_2 = self.lc.returnLocalToGlobalDirections(-e2_sorted[1])
+
+            orig = raybundle.x[-1]
+
+            return (
+                RayBundle(orig, k2_1, e2_1, raybundle.rayID, raybundle.wave),
+                RayBundle(orig, k2_2, e2_2, raybundle.rayID, raybundle.wave)
+                )

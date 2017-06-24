@@ -52,7 +52,8 @@ wavelength = 0.5876e-3
 rnd_data1 = np.random.random((3, 3)) #np.eye(3)
 rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
 lc = LocalCoordinates("1")
-myeps = rnd_data1 + complex(0, 1)*rnd_data2
+myeps = np.eye(3) + 0.1*rnd_data1 + 0.01*complex(0, 1)*rnd_data2 # aggressive complex choice of myeps
+#myeps = np.eye(3) + 0.01*np.random.random((3, 3))
 crystal = material.AnisotropicMaterial(lc, myeps)
 
 
@@ -71,7 +72,7 @@ lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=55, tiltx=
 objectsurf = Surface(lc0)
 m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01), apert=CircularAperture(lc1, 20.))
 m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01), apert=CircularAperture(lc2, 12.7))
-m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006), apert=CircularAperture(lc3, 12.7))
+m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006), apert=CircularAperture(lc3, 20.7))
 image1 = Surface(lc4)
 oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 30.0))
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
@@ -94,15 +95,17 @@ s.addElement("TMA", elem)
 print(s.rootcoordinatesystem.pprint())
 
 rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(11)
+(px, py) = rstobj.getGrid(5)
 
 rpup = 10
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-k = np.zeros_like(o)
-k[2,:] = 2.*math.pi/wavelength
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
+ke = np.zeros_like(o)
+ke[2,:] = 1.
+
+(k_sorted, E_sorted) = crystal.sortKEField(np.zeros_like(o), ke, np.zeros_like(o), ke, wave=wavelength)
+
+k = k_sorted[3, :, :].copy()
+E0 = E_sorted[3, :, :].copy()
 
 sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True) ])] 
 
@@ -139,8 +142,8 @@ r2 = s.seqtrace(initialbundle, sysseq)
 
 kw = 5*math.pi/180.
 
-pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]))
-(pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
+pilotbundles = core.helpers.build_pilotbundle2(objectsurf, crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]), num_sampling_points=3)
+(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
@@ -154,15 +157,12 @@ phi = 0. #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-#print("drawing!")
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up)
+for r in r2:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
 r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
-#r4.draw2d(ax, color="pink", plane_normal=pn, up=up)
-#pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
 pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+
+s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 plt.show()

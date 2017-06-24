@@ -31,6 +31,7 @@ If anything breaks, the picture  usually changes.
 
 import numpy as np
 import matplotlib.pyplot as plt
+
 import matplotlib
 from distutils.version import StrictVersion
 
@@ -52,80 +53,78 @@ import math
 
 wavelength = 0.5876e-3
 
-wave_red = 0.700e-3
-wave_blue = 0.470e-3
-
 # definition of optical system
 s = OpticalSystem() 
 
-deg = math.pi/180.
-
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
-lccomprism = s.addLocalCoordinateSystem(LocalCoordinates(name="prismcenter", decz=50.0), refname=lc0.name)
-
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-10.0, tiltx=30.*deg), refname=lccomprism.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=10.0, tiltx=-30.*deg), refname=lccomprism.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=50.0), refname=lccomprism.name)
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-1.048), refname=lc0.name) # objectDist
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=4.0), refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=2.5), refname=lc2.name)
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=97.2), refname=lc3.name)
 
 
 stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=0), apert=CircularAperture(lc1, 20.0))
-rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0), apert=CircularAperture(lc2, 20.0))
-image = Surface(lc3)
+frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./62.8), apert=CircularAperture(lc1, 12.7))
+cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./45.7), apert=CircularAperture(lc2, 12.7))
+rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2), apert=CircularAperture(lc3, 12.7))
+image = Surface(lc4)
 
 
-elem = OpticalElement(lc0, label="prism")
+elem = OpticalElement(lc0, label="thorlabs_AC_254-100-A")
 
-glass = material.ModelGlass(lc1)
+rnd_data1 = np.random.random((3, 3)) #np.eye(3)
+rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
+rnd_data3 = np.random.random((3, 3)) #np.eye(3)
+rnd_data4 = np.random.random((3, 3))#np.zeros((3, 3))#
+
+# isotropic tests
+
+#bk7 = material.ConstantIndexGlass(lc1, n=1.5168)
+#sf5 = material.ConstantIndexGlass(lc2, n=1.6727)
+
+myeps1 = 1.5168**2*np.eye(3)
+myeps2 = 1.6727**2*np.eye(3)
+
+# anisotropic materials
+
+#myeps1 = rnd_data1 + complex(0, 1)*rnd_data2
+#myeps2 = rnd_data3 + complex(0, 1)*rnd_data4
+
+crystal1 = material.AnisotropicMaterial(lc1, myeps1)
+crystal2 = material.AnisotropicMaterial(lc2, myeps2)
 
 
-elem.addMaterial("glass", glass)
+elem.addMaterial("crystal1", crystal1)
+elem.addMaterial("crystal2", crystal2)
 
 elem.addSurface("stop", stopsurf, (None, None))
-elem.addSurface("surf1", frontsurf, (None, "glass"))
-elem.addSurface("surf2", rearsurf, ("glass", None))
+elem.addSurface("front", frontsurf, (None, "crystal1"))
+elem.addSurface("cement", cementsurf, ("crystal1", "crystal2"))
+elem.addSurface("rear", rearsurf, ("crystal2", None))
 elem.addSurface("image", image, (None, None))
 
-s.addElement("prism", elem)
+s.addElement("AC254-100", elem)
 
 rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(20)
+(px, py) = rstobj.getGrid(10)
 
-rpup = 5
-oy = -20.0
-o = np.vstack((rpup*px, rpup*py + oy, -5.*np.ones_like(px)))
+rpup = 11.43
+o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 
-kangle = 23.*deg
-
-kwave_red = 2.*math.pi/wave_red
-k_red = np.zeros_like(o)
-k_red[1,:] = kwave_red*math.sin(kangle)
-k_red[2,:] = kwave_red*math.cos(kangle)
-
-kwave_blue = 2.*math.pi/wave_blue
-k_blue = np.zeros_like(o)
-k_blue[1,:] = kwave_blue*math.sin(kangle)
-k_blue[2,:] = kwave_blue*math.cos(kangle)
-
+k = np.zeros_like(o)
+k[2,:] = 2.*math.pi/wavelength
 
 ey = np.zeros_like(o)
 ey[1,:] =  1.
 
-E0_red = np.cross(k_red, ey, axisa=0, axisb=0).T
-E0_blue = np.cross(k_blue, ey, axisa=0, axisb=0).T
+E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("prism", 
-               [("stop", {"is_stop":True}), 
-                ("surf1", {}), 
-                ("surf2", {}), 
-                ("image", {})])]
+sysseq = [("AC254-100", [("stop", {}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
 phi = 5.*math.pi/180.0
 
-initialbundle_red = RayBundle(x0=o, k0=k_red, Efield0=E0_red, wave=wave_red)
-initialbundle_blue = RayBundle(x0=o, k0=k_blue, Efield0=E0_blue, wave=wave_blue)
-r_red = s.seqtrace(initialbundle_red, sysseq)
-r_blue = s.seqtrace(initialbundle_blue, sysseq)
+initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
+r2 = s.seqtrace(initialbundle, sysseq, splitup=True)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
@@ -140,10 +139,8 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-for r in r_red:
-    r.draw2d(ax, color="red", plane_normal=pn, up=up) 
-for r in r_blue:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+r2[0].draw2d(ax, color="blue", plane_normal=pn, up=up) 
+r2[1].draw2d(ax, color="green", plane_normal=pn, up=up) 
 
 s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4

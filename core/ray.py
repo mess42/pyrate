@@ -27,7 +27,7 @@ import math
 from globalconstants import standard_wavelength, canonical_ex, canonical_ey
 
 class RayBundle(object):
-    def __init__(self, x0, k0, Efield0, rayID = [], wave = standard_wavelength):
+    def __init__(self, x0, k0, Efield0, rayID = [], wave = standard_wavelength, splitted=False):
         """
         Class representing a bundle of rays.
 
@@ -43,6 +43,7 @@ class RayBundle(object):
         :param wave: (float) 
                     Wavelength of the radiation in millimeters. 
         """
+        self.splitted = splitted
         numray = np.shape(x0)[1]
         if rayID == [] or len(rayID) == 0:
             rayID = np.arange(numray)
@@ -143,7 +144,7 @@ class RayBundle(object):
             d[:,j,:] = S[:,j,:] / absS
         return d
         
-    def draw2d(self, ax, color="blue", plane_normal = canonical_ex, up = canonical_ey):
+    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey):
 
         # normalizing plane_normal, up direction
         plane_normal = plane_normal/np.linalg.norm(plane_normal)
@@ -203,7 +204,8 @@ class RayPath(object):
         for r in self.raybundles:
             r.draw2d(ax, color=color, plane_normal=plane_normal, up=up)
 
-        
+    def containsSplitted(self):
+        return any([r.splitted for r in self.raybundles])
         
 
 

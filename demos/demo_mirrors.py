@@ -50,9 +50,19 @@ import core.helpers
 wavelength = 0.5876e-3
 
 # definition of optical system
+
+#v = np.ones(3)# + 0.001*np.random.random(3)
+#myeps = np.diag(v)
+
+
 s = OpticalSystem() 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+
+#air = material.AnisotropicMaterial(lc0, myeps)  # tests for anisotropic mirror
+air = material.ConstantIndexGlass(lc0, 1.0)
+s.material_background = air
+
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2_stop", decz=-50.0, decy=-20, tiltx=math.pi/16), refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=3*math.pi/32), refname=lc2.name)
@@ -71,7 +81,6 @@ oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=Circu
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 image3 = Surface(lc7, apert=CircularAperture(lc7, 20.0))
 
-air = material.ConstantIndexGlass(lc0, 1.0)
 
 elem = OpticalElement(lc0, label="TMA")
 
@@ -101,19 +110,32 @@ ey = np.zeros_like(o)
 ey[1,:] =  1.
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True), ("image3", True, True) ])] 
+sysseq = [("TMA", 
+           [
+                ("object", {}), 
+                ("m1", {"is_mirror":True}), 
+                ("m2", {"is_stop":True, "is_mirror":True}), 
+                ("m3", {"is_mirror":True}), 
+                ("image1", {}), 
+                ("oapara", {"is_mirror":True}), 
+                ("image2", {}), 
+                ("image3", {}) 
+            ])
+        ] 
+
+# TODO: integrate mirrors (is_mirror:True) also into options dict
 
 sysseq_pilot = [("TMA", 
                  [
-                    ("object", True, True), 
-                    ("m1", False, True), 
-                    ("m2", False, True), 
-                    ("m3", False, True), 
-                    ("m2", False, True),
-                    ("m1", False, True),
-                    ("m2", False, True),
-                    ("m1", False, True),
-                    ("m2", False, True)
+                    ("object", True, {}), 
+                    ("m1", False, {}), 
+                    ("m2", False, {"is_stop":True}), 
+                    ("m3", False, {}), 
+                    ("m2", False, {}),
+                    ("m1", False, {}),
+                    ("m2", False, {}),
+                    ("m1", False, {}),
+                    ("m2", False, {})
                 ])
                 ] 
                 
@@ -135,10 +157,18 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
 
-pilotbundle2 = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi))
-(pilotray2, r3) = s.para_seqtrace(pilotbundle2, initialbundle, sysseq)
+pilotbundles = core.helpers.build_pilotbundle2(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 
+rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 
+(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq, use6x6=False)
+
+(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=False)
+
+print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
+print(np.array_str(m_stop_img, precision=5, suppress_small=True))
+
+print(s.sequence_to_hitlist(sysseq))
 
 
 ### TODO:
@@ -204,15 +234,21 @@ pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
 #print("drawing!")
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up)
+for (i, r) in enumerate(r2):
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
+for r_p in rays_pilot:
+    for (i, r) in enumerate(r_p):    
+        r.draw2d(ax, color="red", plane_normal=pn, up=up)
+
 r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
+pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
+
 #r4.draw2d(ax, color="pink", plane_normal=pn, up=up)
 #pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
-pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+
+
+s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 plt.show()
 
