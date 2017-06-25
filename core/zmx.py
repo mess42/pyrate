@@ -29,7 +29,7 @@ from localcoordinates import LocalCoordinates
 from surface import Surface
 from surfShape import Conic, Asphere
 from material_isotropic import ConstantIndexGlass
-from aperture import CircularAperture
+from aperture import CircularAperture, RectangularAperture
 from globalconstants import standard_wavelength, numerical_tolerance
 from ray import RayBundle
 
@@ -78,10 +78,27 @@ class ParseZMX(object):
 
         return None
 
+    def readStringForKeyword(self, linestr, keywordstr):
+        stringargs = linestr.split()
+        restargs = stringargs[1:]
+        reststring = " ".join(restargs)
+        if stringargs[0] == keywordstr:
+            return reststring
+        else:
+            return None
+
     def extractArgsForFirstKeywordFromBlock(self, blocklines, keywordstr, *args):
         reslist = filter(lambda x: x != None, [p.readArgsForKeyword(lin, keywordstr, *args) for lin in blocklines])
         if reslist != []:
             res = reslist[0] # get only first appearence
+        else:
+            res = None
+        return res
+        
+    def extractStringForFirstKeywordFromBlock(self, blocklines, keywordstr):
+        reslist = filter(lambda x: x != None, [p.readStringForKeyword(lin, keywordstr) for lin in blocklines])
+        if reslist != []:
+            res = reslist[0]
         else:
             res = None
         return res
@@ -124,13 +141,16 @@ class ParseZMX(object):
         self.addKeywordToDict(blocklines, "DISZ", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, float)
 
         self.addKeywordToDict(blocklines, "DIAM", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, float)
-        self.addKeywordToDict(blocklines, "COMM", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, str)
+        self.addKeywordToDict(blocklines, "COMM", paramsdict, self.extractStringForFirstKeywordFromBlock)
 
         self.addKeywordToDict(blocklines, "CURV", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, float)
         self.addKeywordToDict(blocklines, "CONI", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, float)
 
         self.addKeywordToDict(blocklines, "GLAS", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, str)
         # what are the other parameters in GLAS line?
+
+        self.addKeywordToDict(blocklines, "SQAP", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
+        self.addKeywordToDict(blocklines, "CLAP", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
 
         # rewrite params into dict to better access them
         reconstruct_param = {}        
@@ -199,6 +219,9 @@ class ParseZMX(object):
             surftype = surfres["TYPE"]
             parms = surfres["PARM"]
             
+            sqap = surfres.get("SQAP", None)
+            clap = surfres.get("CLAP", None)
+            
             if not isfinite(thickness):
                 print("infinite object distance!")
                 thickness = 0
@@ -211,11 +234,16 @@ class ParseZMX(object):
                 surf_options_dict["is_mirror"] = True
 
             lc = optical_system.addLocalCoordinateSystem(LocalCoordinates(name=surfname, decz=lastthickness), refname=refname)
-            #ap = CircularAperture(lc, surfres["DIAM"]/2)
+            if sqap is None and clap is None:
+                ap = None
+            elif sqap is not None:
+                ap = RectangularAperture(lc, w=sqap[0]*2, h=sqap[1]*2)
+            elif clap is not None:
+                ap = CircularAperture(lc, semidiameter=clap[1])
 
             if surftype == "STANDARD":
                 print("Standard surface found")                
-                actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc), apert=None)
+                actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc), apert=ap)
             elif surftype == "EVENASPH":
                 # param(1) corresponds to A2*r**2 coefficient in asphere
                 # this is not implemented, yet
@@ -225,7 +253,7 @@ class ParseZMX(object):
                     print("warning: A2 coefficient ignored by our asphere implementation")
                 acoeffs = [parms.get(2+i, 0.0) for i in range(7)]
                 print(acoeffs)
-                actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc, acoeffs=acoeffs), apert=None)
+                actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc, acoeffs=acoeffs), apert=ap)
             elif surftype == "COORDBRK":
                 print("Coordinate break found")
                 """
@@ -246,7 +274,7 @@ class ParseZMX(object):
                 lc.tiltx.setvalue(parms.get(3, 0.0)*math.pi/180.0)
                 lc.tilty.setvalue(parms.get(4, 0.0)*math.pi/180.0)
                 lc.tiltz.setvalue(parms.get(5, 0.0)*math.pi/180.0)
-                lc.tiltThenDecenter = bool(1. - parms.get(6, 0))
+                lc.tiltThenDecenter = bool(parms.get(6, 0))
                 lc.update()
                 actsurf = Surface(lc)
                 
@@ -267,7 +295,7 @@ class ParseZMX(object):
 
 if __name__ == "__main__":
 
-    p = ParseZMX(r"../lenssystem.ZMX", ascii=False)
+    p = ParseZMX(r"../FIELDROTATOR-LECT5.ZMX", ascii=True)
     lctmp = LocalCoordinates("tmp")
 
     #matdict = {}
@@ -278,9 +306,9 @@ if __name__ == "__main__":
 
 
     rstobj = raster.MeridionalFan()
-    (px, py) = rstobj.getGrid(5)
+    (px, py) = rstobj.getGrid(11)
     
-    rpup = 7.5
+    rpup = 4.18e3*0.5 #7.5
     o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
     
     k = np.zeros_like(o)
@@ -310,6 +338,6 @@ if __name__ == "__main__":
     for r in rays:
         r.draw2d(ax, color="blue")
     
-    s.draw2d(ax, color="grey", vertices=50)
+    s.draw2d(ax, color="grey", vertices=50, inyzplane=False)
     
     plt.show()
