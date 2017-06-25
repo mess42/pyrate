@@ -96,22 +96,6 @@ class Shape(ClassWithOptimizableVariables):
         locald = self.lc.returnGlobalToLocalDirections(globald[-1])                
         return (localo, locald)        
 
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
-        """
-        Plots the surface in a matplotlib figure.
-        :param ax: matplotlib subplot handle
-        :param offset: y and z offset (list or 1d numpy array of 2 floats)
-        :param vertices: number of points the polygon representation of the surface contains (int)
-        :param color: surface draw color (str)
-        """
-        raise NotImplementedError()
-
-    def draw3d(self, offset=(0, 0, 0), tilt=(0, 0, 0), color="grey"):
-        """
-        To do: find fancy rendering package
-        """
-        raise NotImplementedError()
-
 
 class Conic(Shape):
     def __init__(self, lc, curv=0.0, cc=0.0):
@@ -273,11 +257,6 @@ class Conic(Shape):
         
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
         
-
-    def draw2d(self, ax, offset=(0, 0), vertices=100, color="grey", ap=None):
-        # this function will be removed soon
-        # drawing responsibility is at Surface class
-        pass
 
 class Cylinder(Conic):
     def __init__(self, lc, curv=0.0, cc=0.0):
