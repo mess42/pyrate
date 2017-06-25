@@ -295,6 +295,9 @@ class ParseZMX(object):
 
 if __name__ == "__main__":
 
+    # download ZMX file from:
+    # http://astro.dur.ac.uk/~rsharp/opticaldesign/Lecture5/
+
     p = ParseZMX(r"../FIELDROTATOR-LECT5.ZMX", ascii=True)
     lctmp = LocalCoordinates("tmp")
 
