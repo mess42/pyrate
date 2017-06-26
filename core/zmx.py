@@ -32,6 +32,8 @@ from surface import Surface
 from surfShape import Conic, Asphere
 from aperture import CircularAperture, RectangularAperture
 
+from globalconstants import numerical_tolerance
+
 
 class ZMXParser(object):
 
