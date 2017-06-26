@@ -26,7 +26,7 @@ from Interface_Checks import *
 from Interface_Identifiers import *
 
 from core.observers import AbstractObserver
-from core.material import ConstantIndexGlass, ModelGlass
+from core.material_isotropic import ConstantIndexGlass, ModelGlass
 from core.material_grin import IsotropicGrinMaterial
 
 import numpy as np
