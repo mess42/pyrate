@@ -22,23 +22,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import codecs
 import re
+import math
 from asyncore import read
+
 from optical_system import OpticalSystem
 from optical_element import OpticalElement
 from localcoordinates import LocalCoordinates
 from surface import Surface
 from surfShape import Conic, Asphere
-from material_isotropic import ConstantIndexGlass
 from aperture import CircularAperture, RectangularAperture
-from globalconstants import standard_wavelength, numerical_tolerance
-from ray import RayBundle
 
-import raster
 
-import matplotlib.pyplot as plt
-from distutils.version import StrictVersion
-
-class ParseZMX(object):
+class ZMXParser(object):
 
 
     def __init__(self, filename, ascii=False):
@@ -88,7 +83,7 @@ class ParseZMX(object):
             return None
 
     def extractArgsForFirstKeywordFromBlock(self, blocklines, keywordstr, *args):
-        reslist = filter(lambda x: x != None, [p.readArgsForKeyword(lin, keywordstr, *args) for lin in blocklines])
+        reslist = filter(lambda x: x != None, [self.readArgsForKeyword(lin, keywordstr, *args) for lin in blocklines])
         if reslist != []:
             res = reslist[0] # get only first appearence
         else:
@@ -96,7 +91,7 @@ class ParseZMX(object):
         return res
         
     def extractStringForFirstKeywordFromBlock(self, blocklines, keywordstr):
-        reslist = filter(lambda x: x != None, [p.readStringForKeyword(lin, keywordstr) for lin in blocklines])
+        reslist = filter(lambda x: x != None, [self.readStringForKeyword(lin, keywordstr) for lin in blocklines])
         if reslist != []:
             res = reslist[0]
         else:
@@ -111,7 +106,7 @@ class ParseZMX(object):
 
 
     def extractArgsForMultipleKeywordFromBlock(self, blocklines, keywordstr, *args):
-        reslist = filter(lambda x: x != None, [p.readArgsForKeyword(lin, keywordstr, *args) for lin in blocklines])
+        reslist = filter(lambda x: x != None, [self.readArgsForKeyword(lin, keywordstr, *args) for lin in blocklines])
         if reslist != []:
             res = reslist # get all appearences
         else:
@@ -222,7 +217,7 @@ class ParseZMX(object):
             sqap = surfres.get("SQAP", None)
             clap = surfres.get("CLAP", None)
             
-            if not isfinite(thickness):
+            if math.isinf(thickness):
                 print("infinite object distance!")
                 thickness = 0
             if stop:
@@ -293,54 +288,3 @@ class ParseZMX(object):
         return (optical_system, seq)
 
 
-if __name__ == "__main__":
-
-    # download ZMX file from:
-    # http://astro.dur.ac.uk/~rsharp/opticaldesign/Lecture5/
-
-    p = ParseZMX(r"../FIELDROTATOR-LECT5.ZMX", ascii=True)
-    lctmp = LocalCoordinates("tmp")
-
-    #matdict = {}
-    matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168)}
-    #matdict = {"LAFN21":ConstantIndexGlass(lctmp, 1.788), "SF53":ConstantIndexGlass(lctmp, 1.72)}    
-
-    (s, seq) = p.createOpticalSystem(matdict)
-
-
-    rstobj = raster.MeridionalFan()
-    (px, py) = rstobj.getGrid(11)
-    
-    rpup = 4.18e3*0.5 #7.5
-    o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-    
-    k = np.zeros_like(o)
-    k[1,:] = 2.*math.pi/standard_wavelength*math.sin(0.0)
-    k[2,:] = 2.*math.pi/standard_wavelength*math.cos(0.0)
-    
-    ey = np.zeros_like(o)
-    ey[1,:] =  1.
-    
-    E0 = np.cross(k, ey, axisa=0, axisb=0).T
-
-    initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=standard_wavelength)
-    rays = s.seqtrace(initialbundle, seq)
-
-
-
-
-    fig = plt.figure(1)
-    ax = fig.add_subplot(111)
-    
-    ax.axis('equal')
-    if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-        ax.set_axis_bgcolor('white')
-    else:
-        ax.set_facecolor('white')
-
-    for r in rays:
-        r.draw2d(ax, color="blue")
-    
-    s.draw2d(ax, color="grey", vertices=50, inyzplane=False)
-    
-    plt.show()
