@@ -29,7 +29,7 @@ from core.ray_analysis import RayBundleAnalysis
 
 def test_centroid():
     """
-    TODO.
+    TODO
     """
     raybundle = RayBundle(x0=np.array([[1, 0, 0, 1, 2],
                                        [0, 1, 0, 1, 2],
@@ -41,7 +41,7 @@ def test_centroid():
 
 def test_rmsspotsize():
     """
-    TODO.
+    TODO
     """
     raybundle = RayBundle(x0=np.array([[1, 0, 0, 1, 2],
                                        [0, 1, 0, 1, 2],
@@ -53,7 +53,7 @@ def test_rmsspotsize():
 
 def test_arc_length():
     """
-    TODO.
+    TODO
     """
     k0 = np.zeros((3, 2))
     E0 = np.zeros((3, 2))
@@ -73,7 +73,7 @@ def test_arc_length():
 
 def test_direction_centroid():
     """
-    TODO.
+    TODO
     """
     k0 = np.zeros((3, 5))
     k0[2, :] = 1
@@ -89,7 +89,7 @@ def test_direction_centroid():
 
 def test_rms_angularsize():
     """
-    TODO.
+    TODO
     """
     k0 = np.zeros((3, 5))
     k0[2, :] = 1
