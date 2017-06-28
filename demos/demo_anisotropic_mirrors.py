@@ -102,7 +102,7 @@ o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 ke = np.zeros_like(o)
 ke[2,:] = 1.
 
-(k_sorted, E_sorted) = crystal.sortKEField(np.zeros_like(o), ke, np.zeros_like(o), ke, wave=wavelength)
+(k_sorted, E_sorted) = crystal.sortKnormEField(np.zeros_like(o), ke, np.zeros_like(o), ke, wave=wavelength)
 
 k = k_sorted[3, :, :].copy()
 E0 = E_sorted[3, :, :].copy()

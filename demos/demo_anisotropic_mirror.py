@@ -96,7 +96,7 @@ phik = 20.*math.pi/180.0
 
 o = np.vstack((np.zeros_like(px), np.zeros_like(px), -5*np.ones_like(px)))
 k = np.zeros_like(o)
-k0 = 2.*math.pi/wavelength
+k0 = 1. #2.*math.pi/wavelength
 k[1, :] = k0*np.sin(phik*py)
 k[2, :] = k0*np.cos(phik*py)
 #o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))

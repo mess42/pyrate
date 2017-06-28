@@ -71,7 +71,7 @@ class AnisotropicMaterial(MaxwellMaterial):
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (k2_sorted, e2_sorted) = self.sortKEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
+        (k2_sorted, e2_sorted) = self.sortKnormEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
 
         if not splitup:
         # 2 vectors with largest scalarproduct of S with n
@@ -115,7 +115,7 @@ class AnisotropicMaterial(MaxwellMaterial):
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (k2_sorted, e2_sorted) = self.sortKEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
+        (k2_sorted, e2_sorted) = self.sortKnormEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
 
         # 2 vectors with smallest scalarproduct of S with n
 
