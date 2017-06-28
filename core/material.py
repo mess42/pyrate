@@ -361,19 +361,21 @@ class MaxwellMaterial(Material):
         # linear EVP has two infinite solutions. There are only 4 finite
         # complex solutions.
  
+        complexidmatrix = np.eye(3, dtype=complex)        
         
-        IdMatrix = np.repeat(np.eye(3, dtype=complex)[:, :, np.newaxis], num_pts, axis=2)
+        IdMatrix = np.repeat(complexidmatrix[:, :, np.newaxis], num_pts, axis=2)
         ZeroMatrix = np.zeros((3, 3, num_pts), dtype=complex)        
 
         Mmatrix = -np.copy(IdMatrix)
-        Kmatrix = np.copy(eps)
+        Kmatrix = np.array(eps, dtype=complex) # if eps is only real we have to cast it to complex
         Cmatrix = np.copy(ZeroMatrix)
+        
+        
         
         for j in range(num_pts):
             Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
             Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) + np.outer(n[:, j], kpa_norm[:, j])
-            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*np.eye(3, dtype=complex)\
-                    + np.outer(kpa_norm[:, j], kpa_norm[:, j])
+            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*complexidmatrix + np.outer(kpa_norm[:, j], kpa_norm[:, j])
 
         Amatrix6x6 = np.vstack(
                     (np.hstack((Cmatrix, Kmatrix)),

@@ -110,8 +110,9 @@ rstobj = raster.MeridionalFan()
 
 rpup = 11.43
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
+oshape = np.shape(o)
 
-k = np.zeros_like(o)
+k = np.zeros(oshape, dtype=complex)
 k[2,:] = 2.*math.pi/wavelength
 
 ey = np.zeros_like(o)
