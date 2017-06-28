@@ -41,7 +41,7 @@ from distutils.version import StrictVersion
 # download ZMX files from e.g.:
 # http://astro.dur.ac.uk/~rsharp/opticaldesign/
 # some good demonstration of coordinate breaks is: FIELDROTATOR-LECT5.ZMX
-print(len(sys.argv))
+
 if len(sys.argv) != 5:
     print("usage:")
     print("python -m demos.demo_zmx file.zmx u|a entrance_pupil_diameter num_rays_for_yfan")
@@ -74,8 +74,8 @@ rpup = enpd*0.5 #7.5
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 
 k = np.zeros_like(o)
-k[1,:] = 2.*math.pi/standard_wavelength*math.sin(0.0)
-k[2,:] = 2.*math.pi/standard_wavelength*math.cos(0.0)
+k[1,:] = math.sin(0.0)
+k[2,:] = math.cos(0.0)
 
 ey = np.zeros_like(o)
 ey[1,:] =  1.
