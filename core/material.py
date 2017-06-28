@@ -666,11 +666,6 @@ class MaxwellMaterial(Material):
     def calcDet2ndDerivativePropagatorNorm(self, k_norm, wave=standard_wavelength):
         return self.calcDet2ndDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm, wave=wave)
         
-    def getLocalSurfaceNormal(self, surface, xglob):
-        xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
-        nlocshape = surface.shape.getNormal(xlocshape[0], xlocshape[1])
-        nlocmat = self.lc.returnOtherToActualDirections(nlocshape, surface.shape.lc)
-        return nlocmat
 
         
 

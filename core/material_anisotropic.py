@@ -59,7 +59,7 @@ class AnisotropicMaterial(MaxwellMaterial):
     def refract(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
+        normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         valid_x = helpers_math.checkfinite(xlocal)
@@ -103,7 +103,7 @@ class AnisotropicMaterial(MaxwellMaterial):
     def reflect(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
-        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
+        normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         valid_x = helpers_math.checkfinite(xlocal)

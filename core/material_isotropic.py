@@ -93,7 +93,7 @@ class IsotropicMaterial(MaxwellMaterial):
     def refract(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
+        normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         valid_normals = helpers_math.checkfinite(normal)
@@ -121,7 +121,7 @@ class IsotropicMaterial(MaxwellMaterial):
     def reflect(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
-        normal = self.getLocalSurfaceNormal(actualSurface, raybundle.x[-1])
+        normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         valid_normals = helpers_math.checkfinite(normal)

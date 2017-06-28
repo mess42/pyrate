@@ -144,6 +144,14 @@ class RayBundle(object):
             d[:,j,:] = S[:,j,:] / absS
         return d
         
+        
+    def getLocalSurfaceNormal(self, surface, material, xglob):
+        xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
+        nlocshape = surface.shape.getNormal(xlocshape[0], xlocshape[1])
+        nlocmat = material.lc.returnOtherToActualDirections(nlocshape, surface.shape.lc)
+        return nlocmat
+
+        
     def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey):
 
         # normalizing plane_normal, up direction
