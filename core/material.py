@@ -90,8 +90,8 @@ class MaxwellMaterial(Material):
         """
         raise NotImplementedError()
     
-    def calcKnormEfield(self, x, n, kpa_norm):
-        (xi_4, efield_4) = self.calcXiEigenvectorsNorm(x, n, kpa_norm)
+    def calcKnormEfield(self, x, n, kpa_norm, wave=standard_wavelength):
+        (xi_4, efield_4) = self.calcXiEigenvectorsNorm(x, n, kpa_norm, wave=wave)
         
         # xi_4: 4xN
         # efield_4: 4x3xN
@@ -102,8 +102,8 @@ class MaxwellMaterial(Material):
             
         return (k_norm_4, efield_4)
 
-    def calcKnormUnitEfield(self, x, e):
-        (k_4, efield_4) = self.calcKEigenvectorsNorm(x, e)
+    def calcKnormUnitEfield(self, x, e, wave=standard_wavelength):
+        (k_4, efield_4) = self.calcKEigenvectorsNorm(x, e, wave=wave)
         
         # xi_4: 4xN
         # efield_4: 4x3xN
@@ -114,7 +114,7 @@ class MaxwellMaterial(Material):
             
         return (k_norm_4, efield_4)    
     
-    def sortKnormEField(self, x, n, kpa_norm, e):
+    def sortKnormEField(self, x, n, kpa_norm, e, wave=standard_wavelength):
         """
         Sort k_norm and E-field solutions by their scalar products.
         (Those come from the solution of the quadratic eigenvalue problem.)
@@ -129,7 +129,7 @@ class MaxwellMaterial(Material):
         
         (num_dims, num_pts) = np.shape(n)        
 
-        (k_norm_4, Efield_4) = self.calcKnormEfield(x, n, kpa_norm)
+        (k_norm_4, Efield_4) = self.calcKnormEfield(x, n, kpa_norm, wave=wave)
         
         k_norm_4_sorted = np.zeros_like(k_norm_4)
         Efield_4_sorted = np.zeros_like(Efield_4)
@@ -147,7 +147,7 @@ class MaxwellMaterial(Material):
             
         return (k_norm_4_sorted, Efield_4_sorted)
 
-    def sortKnormUnitEField(self, x, kd, e):
+    def sortKnormUnitEField(self, x, kd, e, wave=standard_wavelength):
         """
         Sort k_norm and E-field solutions by their scalar products.
         (Those come from the solution of the quadratic eigenvalue problem.)
@@ -162,7 +162,7 @@ class MaxwellMaterial(Material):
         
         (num_dims, num_pts) = np.shape(kd)        
 
-        (k_norm_4, Efield_4) = self.calcKnormUnitEfield(x, kd)
+        (k_norm_4, Efield_4) = self.calcKnormUnitEfield(x, kd, wave=wave)
         
         k_norm_4_sorted = np.zeros_like(k_norm_4)
         Efield_4_sorted = np.zeros_like(Efield_4)
@@ -185,7 +185,7 @@ class MaxwellMaterial(Material):
         
         k0 =  2.*math.pi/wave
         
-        (k, E) = self.sortKnormEField(x, n, kpa/k0, e)
+        (k, E) = self.sortKnormEField(x, n, kpa/k0, e, wave=wave)
         
         return (k0*k, E)
 
@@ -193,7 +193,7 @@ class MaxwellMaterial(Material):
         
         k0 =  2.*math.pi/wave
         
-        (k, E) = self.sortKnormUnitEField(x, kd, e)
+        (k, E) = self.sortKnormUnitEField(x, kd, e, wave=wave)
         
         return (k0*k, E)
 
@@ -221,9 +221,9 @@ class MaxwellMaterial(Material):
     def calcKfromUnitVector(self, x, e, wave=standard_wavelength):
         k0 = 2.*math.pi/wave
 
-        return k0*self.calcKNormfromUnitVector(x, e)
+        return k0*self.calcKNormfromUnitVector(x, e, wave=wave)
     
-    def calcKNormfromUnitVector(self, x, e):
+    def calcKNormfromUnitVector(self, x, e, wave=standard_wavelength):
         """
         Calculate k from dispersion and real unit vector 
         in general anisotropic materials.
@@ -239,7 +239,7 @@ class MaxwellMaterial(Material):
         
         (num_dims, num_pts) = np.shape(x)
         
-        eps = self.getEpsilonTensor(x)
+        eps = self.getEpsilonTensor(x, wave=wave)
 
         a1 = np.einsum('ii...', eps)        
         a2 = np.einsum('ij...,ji...', eps, eps)
@@ -261,7 +261,7 @@ class MaxwellMaterial(Material):
         return kvectors
 
 
-    def calcKNormfromDirectionVector(self, x, kd):
+    def calcKNormfromDirectionVector(self, x, kd, wave=standard_wavelength):
         """
         Calculate k from dispersion direction vector 
         in general anisotropic materials.
@@ -277,7 +277,7 @@ class MaxwellMaterial(Material):
         
         (num_dims, num_pts) = np.shape(x)
         
-        eps = self.getEpsilonTensor(x)
+        eps = self.getEpsilonTensor(x, wave=wave)
 
         a1 = np.einsum('ii...', eps)        
         a2 = np.einsum('ij...,ji...', eps, eps)
@@ -301,7 +301,7 @@ class MaxwellMaterial(Material):
         return kvectors
 
 
-    def calcKNormfromKNormAndDeviationDirectionVector(self, x, k, kd):
+    def calcKNormfromKNormAndDeviationDirectionVector(self, x, k, kd, wave=standard_wavelength):
         """
         Calculate k from dispersion direction vector 
         in general anisotropic materials.
@@ -317,7 +317,7 @@ class MaxwellMaterial(Material):
         
         (num_dims, num_pts) = np.shape(x)
         
-        eps = self.getEpsilonTensor(x)
+        eps = self.getEpsilonTensor(x, wave=wave)
 
         a1 = np.einsum('i...,i...', kd, kd)
         a2 = np.einsum('i...,j...,ij...', kd, kd, eps)
@@ -345,10 +345,10 @@ class MaxwellMaterial(Material):
         return kvectors
 
         
-    def calcXiQEVMatricesNorm(self, x, n, kpa_norm):
+    def calcXiQEVMatricesNorm(self, x, n, kpa_norm, wave=standard_wavelength):
 
         (num_dims, num_pts) = np.shape(kpa_norm)
-        eps = self.getEpsilonTensor(x)
+        eps = self.getEpsilonTensor(x, wave=wave)
 
         # quadratic eigenvalue problem (xi^2 M + xi C + K) e = 0
         # build up 6x6 matrices for generalized linear ev problem
@@ -388,7 +388,7 @@ class MaxwellMaterial(Material):
 
 
         
-    def calcXiEigenvectorsNorm(self, x, n, kpa_norm):
+    def calcXiEigenvectorsNorm(self, x, n, kpa_norm, wave=standard_wavelength):
         """
         Calculate eigenvalues and 
         eigenvectors of propagator -k^2 delta_ij + k_i k_j + k0^2 eps_ij.
@@ -413,7 +413,7 @@ class MaxwellMaterial(Material):
         # xi number, eigv 3xN
         
         ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix)) \
-            = self.calcXiQEVMatricesNorm(x, n, kpa_norm)
+            = self.calcXiQEVMatricesNorm(x, n, kpa_norm, wave=wave)
 
         for j in range(num_pts):
             (w, vr) = sla.eig(Amatrix6x6[:, :, j], b=Bmatrix6x6[:, :, j])
@@ -437,10 +437,10 @@ class MaxwellMaterial(Material):
 
         return (eigenvalues, eigenvectors)
 
-    def calcKEigenvectorsNorm(self, x, e):
+    def calcKEigenvectorsNorm(self, x, e, wave=standard_wavelength):
         
         (num_dims, num_pts) = np.shape(x)
-        eps = self.getEpsilonTensor(x)
+        eps = self.getEpsilonTensor(x, wave=wave)
 
         eigenvectors = np.zeros((4, 3, num_pts), dtype=complex)
         eigenvalues = np.zeros((4, num_pts), dtype=complex)
@@ -473,7 +473,7 @@ class MaxwellMaterial(Material):
 
         return (eigenvalues, eigenvectors)
         
-    def calcXiPolynomialNorm(self, x, n, kpa_norm):
+    def calcXiPolynomialNorm(self, x, n, kpa_norm, wave=standard_wavelength):
         """
         calc Xi polynomial for normalized kpa (=kpa/k0).
         zeros of polynomial are xi/k0. The advantage:
@@ -500,7 +500,7 @@ class MaxwellMaterial(Material):
           (2*a10*a7 + a8 + a9)*omega^2*xi^3 + a7*omega^2*xi^4     
         """
 
-        eps = self.getEpsilonTensor(x)
+        eps = self.getEpsilonTensor(x, wave=wave)
 
 
         a1 = np.einsum('ii...', eps)        
@@ -538,15 +538,15 @@ class MaxwellMaterial(Material):
 
         return (p4, p3, p2, p1, p0)
 
-    def calcXiDetNorm(self, xi_norm, x, n, kpa_norm):
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomialNorm(x, n, kpa_norm)
+    def calcXiDetNorm(self, xi_norm, x, n, kpa_norm, wave=standard_wavelength):
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomialNorm(x, n, kpa_norm, wave=wave)
         
         return p4*xi_norm**4 + p3*xi_norm**3 + p2*xi_norm**2 + p1*xi_norm + p0
 
-    def calcXiNormZeros(self, x, n, kpa_norm):
+    def calcXiNormZeros(self, x, n, kpa_norm, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(kpa_norm)
 
-        (p4, p3, p2, p1, p0) = self.calcXiPolynomialNorm(x, n, kpa_norm)
+        (p4, p3, p2, p1, p0) = self.calcXiPolynomialNorm(x, n, kpa_norm, wave=wave)
 
         xizeros = np.zeros((4, num_pts), dtype=complex)
         for i in np.arange(num_pts):       
@@ -575,7 +575,7 @@ class MaxwellMaterial(Material):
         k0 = 2.*math.pi/wave
         kpa_norm = kpa/k0
         
-        return k0*self.calcXiNormZeros(x, n, kpa_norm)
+        return k0*self.calcXiNormZeros(x, n, kpa_norm, wave=wave)
         
     def calcXiEigenvectors(self, x, n, kpa, wave=standard_wavelength):
 
@@ -584,10 +584,10 @@ class MaxwellMaterial(Material):
         k0 = 2.*math.pi/wave
         kpa_norm = kpa/k0
         
-        (eigenvals, eigenvectors) = self.calcXiEigenvectorsNorm(x, n, kpa_norm)
+        (eigenvals, eigenvectors) = self.calcXiEigenvectorsNorm(x, n, kpa_norm, wave=wave)
         return (k0*eigenvals, eigenvectors)
 
-    def calcDetPropagatorNormX(self, x, k_norm):
+    def calcDetPropagatorNormX(self, x, k_norm, wave=standard_wavelength):
         (num_dim, num_pts) = np.shape(k_norm)
 
         Propagator = np.zeros((num_dim, num_dim, num_pts), dtype=complex)    
@@ -595,17 +595,17 @@ class MaxwellMaterial(Material):
         
         for j in range(num_pts):
             Propagator[:, :, j] = -np.dot(k_norm[:, j], k_norm[:, j])*np.eye(num_dim) +\
-                    np.outer(k_norm[:, j], k_norm[:, j]) + self.getEpsilonTensor(x)[:, :, j]
+                    np.outer(k_norm[:, j], k_norm[:, j]) + self.getEpsilonTensor(x, wave=wave)[:, :, j]
             dets[j] = np.linalg.det(Propagator[:, :, j])
         return dets
         
-    def calcDetPropagatorNorm(self, k_norm):
-        return self.calcDetPropagatorNormX(np.zeros_like(k_norm), k_norm)
+    def calcDetPropagatorNorm(self, k_norm, wave=standard_wavelength):
+        return self.calcDetPropagatorNormX(np.zeros_like(k_norm), k_norm, wave=wave)
         
         
-    def calcDetDerivativePropagatorNormX(self, x, k_norm):
+    def calcDetDerivativePropagatorNormX(self, x, k_norm, wave=standard_wavelength):
         
-        eps = self.getEpsilonTensor(x)
+        eps = self.getEpsilonTensor(x, wave=wave)
 
         tre = np.einsum('ii...', eps)
         k2 = np.einsum('i...,i...', k_norm, k_norm)
@@ -625,11 +625,11 @@ class MaxwellMaterial(Material):
                 
         return (first + second + third + fourth + fifth + sixth + seventh).T
 
-    def calcDetDerivativePropagatorNorm(self, k_norm):
-        return self.calcDetDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm)
+    def calcDetDerivativePropagatorNorm(self, k_norm, wave=standard_wavelength):
+        return self.calcDetDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm, wave=wave)
 
-    def calcDet2ndDerivativePropagatorNormX(self, x, k_norm):
-        eps = self.getEpsilonTensor(x)        
+    def calcDet2ndDerivativePropagatorNormX(self, x, k_norm, wave=standard_wavelength):
+        eps = self.getEpsilonTensor(x, wave=wave)        
         (num_dims, num_dims, num_pts) = np.shape(eps)        
         
         tre = np.einsum('ii...', eps)
@@ -661,8 +661,8 @@ class MaxwellMaterial(Material):
 
         return res.T        
 
-    def calcDet2ndDerivativePropagatorNorm(self, k_norm):
-        return self.calcDet2ndDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm)
+    def calcDet2ndDerivativePropagatorNorm(self, k_norm, wave=standard_wavelength):
+        return self.calcDet2ndDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm, wave=wave)
         
     def getLocalSurfaceNormal(self, surface, xglob):
         xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)

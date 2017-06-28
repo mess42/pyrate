@@ -35,6 +35,8 @@ class AnisotropicMaterial(MaxwellMaterial):
         super(AnisotropicMaterial, self).__init__(lc, name=name, comment=comment)
         
         self.epstensor = epstensor
+        # up to now the material is not dispersive since the epsilon tensor
+        # is not intended to be wave-dependent
     
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         
