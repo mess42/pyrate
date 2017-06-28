@@ -42,11 +42,11 @@ class IsotropicMaterial(MaxwellMaterial):
         mat[0, 0, :] = 1.
         mat[1, 1, :] = 1.
         mat[2, 2, :] = 1.
-        return mat*self.getIsotropicEpsilon(x, wave)
+        return mat*self.getIsotropicEpsilon(x, wave=wave)
 
 
-    def getIsotropicEpsilon(self,x,wave):
-        return self.getIndex(x,wave)**2
+    def getIsotropicEpsilon(self, x, wave=standard_wavelength):
+        return self.getIndex(x, wave=wave)**2
 
 
     def getIndex(self,x,wave):
@@ -61,7 +61,7 @@ class IsotropicMaterial(MaxwellMaterial):
 
 
     def calcXi(self, x, normal, k_inplane, wave=standard_wavelength):
-        return self.calcXiIsotropic(x, normal, k_inplane, wave=standard_wavelength)
+        return self.calcXiIsotropic(x, normal, k_inplane, wave=wave)
         
         
     def calcXiIsotropic(self, x, n, k_inplane, wave=standard_wavelength):
@@ -77,7 +77,9 @@ class IsotropicMaterial(MaxwellMaterial):
                 3x1 numpy array of bool)
         """
         
-        k2_squared = 4.*math.pi**2 / wave**2 * self.getIsotropicEpsilon(x, wave)
+        #k2_squared = 4.*math.pi**2 / wave**2 * self.getIsotropicEpsilon(x, wave=wave)
+        k2_squared = self.getIsotropicEpsilon(x, wave=wave)
+        
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
         # make total internal reflection invalid

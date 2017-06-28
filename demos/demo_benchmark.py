@@ -69,7 +69,7 @@ def collimated_bundle(nrays, startz, radius, rast):
     rpup = radius
     o = np.vstack((rpup*px, rpup*py, startz*np.ones_like(px)))
     k = np.zeros_like(o)
-    k[2,:] = 2.*math.pi/wavelength
+    k[2,:] = 1. #2.*math.pi/wavelength
     E0 = np.cross(k, canonical_ey, axisa=0, axisb=0).T
     return (o, k, E0)
 

@@ -185,8 +185,10 @@ def generatebundle(openangle=0.01, numrays=11):
     
     angles = np.linspace(-openangle, openangle, num=numrays)
     
-    k[1,:] = 2.*math.pi/wavelength*np.sin(angles)
-    k[2,:] = 2.*math.pi/wavelength*np.cos(angles)
+    k0 = 1. #2.*math.pi/wavelength    
+    
+    k[1,:] = k0*np.sin(angles)
+    k[2,:] = k0*np.cos(angles)
     
     ey = np.zeros_like(o)
     ey[1,:] =  1.

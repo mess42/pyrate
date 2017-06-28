@@ -427,7 +427,7 @@ def build_pilotbundle2(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitve
     xlocsurf = surfobj.shape.lc.returnOtherToActualPoints(xlocobj, lcobj)    
     surfnormalmat = mat.lc.returnOtherToActualDirections(surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]), surfobj.shape.lc)    
     
-    (k_4, E_4) = mat.sortKUnitEField(xlocmat, kconemat, surfnormalmat, wave=wave)
+    (k_4, E_4) = mat.sortKnormUnitEField(xlocmat, kconemat, surfnormalmat, wave=wave)
     
     
     pilotbundles =[]

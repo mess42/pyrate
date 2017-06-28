@@ -106,7 +106,7 @@ rstobj = raster.MeridionalFan()
 rpup = 10
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 k = np.zeros_like(o)
-k[2,:] = 2.*math.pi/wavelength
+k[2,:] = 1.0 #2.*math.pi/wavelength
 ey = np.zeros_like(o)
 ey[1,:] =  1.
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
