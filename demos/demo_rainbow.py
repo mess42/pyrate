@@ -35,7 +35,7 @@ import matplotlib
 from distutils.version import StrictVersion
 
 from core import raster
-from core import material
+from core.material_isotropic import ModelGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -79,7 +79,7 @@ image = Surface(lc4, apert=CircularAperture(lc4, 7.*dropletradius))
 
 elem = OpticalElement(lc0, label="droplet")
 
-glass = material.ModelGlass(lc1)
+glass = ModelGlass(lc1)
 glass.calcCoefficientsFrom_nd_vd(1.3236, 55.76)
 #glass = material.ConstantIndexGlass(lc1, 1.3236)
 

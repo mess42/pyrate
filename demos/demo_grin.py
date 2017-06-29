@@ -29,7 +29,7 @@ from distutils.version import StrictVersion
 
 from core import raster
 from core.material_grin import IsotropicGrinMaterial
-from core.material import ConstantIndexGlass
+from core.material_isotropic import ConstantIndexGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -98,7 +98,7 @@ rpup = 2.5
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 
 k = np.zeros_like(o)
-k[2,:] = 2.*math.pi/wavelength
+k[2,:] = 1. #2.*math.pi/wavelength
 
 ey = np.zeros_like(o)
 ey[1,:] =  1.
@@ -124,7 +124,12 @@ pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
 for r in r2:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
+    for rb in r.raybundles:
+        print("x")
+        print(rb.x)
+        print("k")
+        print(rb.k)
 s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 

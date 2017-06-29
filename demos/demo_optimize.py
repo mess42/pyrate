@@ -29,7 +29,7 @@ from distutils.version import StrictVersion
 
 import math
 
-from core import material
+from core.material_isotropic import ConstantIndexGlass
 from core import surfShape
 from core.optimize import Optimizer
 from core.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
@@ -74,8 +74,8 @@ image = Surface(lc8)
 
 elem = OpticalElement(lc0, label="lenssystem")
 
-glass = material.ConstantIndexGlass(lc0, n=1.7)
-glass2 = material.ConstantIndexGlass(lc0, n=1.5)
+glass = ConstantIndexGlass(lc0, n=1.7)
+glass2 = ConstantIndexGlass(lc0, n=1.5)
 
 elem.addMaterial("glass", glass)
 elem.addMaterial("glass2", glass2)
@@ -185,8 +185,10 @@ def generatebundle(openangle=0.01, numrays=11):
     
     angles = np.linspace(-openangle, openangle, num=numrays)
     
-    k[1,:] = 2.*math.pi/wavelength*np.sin(angles)
-    k[2,:] = 2.*math.pi/wavelength*np.cos(angles)
+    k0 = 1. #2.*math.pi/wavelength    
+    
+    k[1,:] = k0*np.sin(angles)
+    k[2,:] = k0*np.cos(angles)
     
     ey = np.zeros_like(o)
     ey[1,:] =  1.

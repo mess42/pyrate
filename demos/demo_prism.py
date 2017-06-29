@@ -36,7 +36,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_isotropic import ModelGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -76,7 +76,7 @@ image = Surface(lc3)
 
 elem = OpticalElement(lc0, label="prism")
 
-glass = material.ModelGlass(lc1)
+glass = ModelGlass(lc1)
 
 
 elem.addMaterial("glass", glass)
@@ -97,12 +97,12 @@ o = np.vstack((rpup*px, rpup*py + oy, -5.*np.ones_like(px)))
 
 kangle = 23.*deg
 
-kwave_red = 2.*math.pi/wave_red
+kwave_red = 1. #2.*math.pi/wave_red
 k_red = np.zeros_like(o)
 k_red[1,:] = kwave_red*math.sin(kangle)
 k_red[2,:] = kwave_red*math.cos(kangle)
 
-kwave_blue = 2.*math.pi/wave_blue
+kwave_blue = 1. #2.*math.pi/wave_blue
 k_blue = np.zeros_like(o)
 k_blue[1,:] = kwave_blue*math.sin(kangle)
 k_blue[2,:] = kwave_blue*math.cos(kangle)

@@ -38,7 +38,7 @@ from core.ray import RayBundle
 
 from core.globalconstants import standard_wavelength
 
-from core.helpers import build_simple_optical_system
+from core.helpers import build_simple_optical_system, collimated_bundle
 from core.globalconstants import canonical_ey
 
 wavelength = standard_wavelength
@@ -62,17 +62,6 @@ mat_dict = {"glass":1.7, "glass2":1.5}
 nrays = 100000
 nrays_draw = 21
 
-
-def collimated_bundle(nrays, startz, radius, rast):
-    rstobj = rast
-    (px, py) = rstobj.getGrid(nrays)
-    rpup = radius
-    o = np.vstack((rpup*px, rpup*py, startz*np.ones_like(px)))
-    k = np.zeros_like(o)
-    k[2,:] = 2.*math.pi/wavelength
-    E0 = np.cross(k, canonical_ey, axisa=0, axisb=0).T
-    return (o, k, E0)
-
 # benchmark
 
 # definition of rays
@@ -85,7 +74,7 @@ def collimated_bundle(nrays, startz, radius, rast):
 #initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
 #nray = len(initialBundle.o[0, :])
 
-(x0, k0, E0) = collimated_bundle(nrays, -5., 1., raster.RectGrid())
+(x0, k0, E0) = collimated_bundle(nrays, -5., 0., 1., raster.RectGrid())
 t0 = time.clock()
 initialraybundle = RayBundle(x0=x0, k0=k0, Efield0=E0)
 raypath = s.seqtrace(initialraybundle, seq)
@@ -94,7 +83,7 @@ print "             That is ", int(round(nrays * (len(s.elements["stdelem"].surf
 
 # plot
 
-(x0_draw, k0_draw, E0_draw)= collimated_bundle(nrays_draw, -5., 1., raster.MeridionalFan())
+(x0_draw, k0_draw, E0_draw)= collimated_bundle(nrays_draw, -5., 0., 1., raster.MeridionalFan())
 initialraybundle_draw = RayBundle(x0=x0_draw, k0=k0_draw, Efield0=E0_draw)
 raypath_draw = s.seqtrace(initialraybundle_draw, seq)
 

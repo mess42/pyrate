@@ -34,7 +34,7 @@ from surface import Surface
 from surfShape import Conic
 from globalconstants import numerical_tolerance, canonical_ey, canonical_ex, standard_wavelength
 from ray import RayBundle
-from material import ConstantIndexGlass
+from material_isotropic import ConstantIndexGlass
 from helpers_math import rodrigues, random_rotation_matrix
 
 def build_simple_optical_system(builduplist, matdict):
@@ -115,7 +115,7 @@ def choose_nearest(kvec, kvecs_new):
     return res
 
     
-def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
+def build_pilotbundleOld(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, kup=None, lck=None, wave=standard_wavelength):
 
     def generate_cone_random(direction_vec, lim_angle, start_num_pts):
         direction_vec_copy = np.repeat(direction_vec[:, np.newaxis], start_num_pts, axis=1)
@@ -352,7 +352,20 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvec
     return pilotbundle
 
 
-def build_pilotbundle2(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, lck=None, wave=standard_wavelength, num_sampling_points=5, random_xy=False):
+def collimated_bundle(nrays, startz, starty, radius, rast):
+    # FIXME: this function does not respect the dispersion relation in the material
+
+    rstobj = rast
+    (px, py) = rstobj.getGrid(nrays)
+    rpup = radius
+    o = np.vstack((rpup*px, rpup*py + starty, startz*np.ones_like(px)))
+    k = np.zeros_like(o)
+    k[2,:] = 1. #2.*math.pi/wavelength
+    E0 = np.cross(k, canonical_ey, axisa=0, axisb=0).T
+    return (o, k, E0)
+
+
+def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, lck=None, wave=standard_wavelength, num_sampling_points=5, random_xy=False):
 
     """
     Simplified pilotbundle generation.
@@ -427,7 +440,7 @@ def build_pilotbundle2(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitve
     xlocsurf = surfobj.shape.lc.returnOtherToActualPoints(xlocobj, lcobj)    
     surfnormalmat = mat.lc.returnOtherToActualDirections(surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]), surfobj.shape.lc)    
     
-    (k_4, E_4) = mat.sortKUnitEField(xlocmat, kconemat, surfnormalmat, wave=wave)
+    (k_4, E_4) = mat.sortKnormUnitEField(xlocmat, kconemat, surfnormalmat, wave=wave)
     
     
     pilotbundles =[]

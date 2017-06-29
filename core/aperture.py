@@ -112,12 +112,12 @@ class RectangularAperture(BaseAperture):
 
 
     def arePointsInAperture(self, x, y):
-        return x >= -self.width*0.5 - self.tx and x <= self.width*0.5 - self.tx and \
-            y >= -self.height*0.5 - self.ty and y <= self.height*0.5 - self.ty
+        return (x >= -self.width*0.5 - self.tx)*(x <= self.width*0.5 - self.tx)* \
+            (y >= -self.height*0.5 - self.ty)*(y <= self.height*0.5 - self.ty)
 
     def getBooleanFunction(self):
-        return (lambda x, y: x >= -self.width*0.5 - self.tx and x <= self.width*0.5 - self.tx and \
-            y >= -self.height*0.5 - self.ty and y <= self.height*0.5 - self.ty)
+        return (lambda x, y: (x >= -self.width*0.5 - self.tx)*(x <= self.width*0.5 - self.tx)* \
+            (y >= -self.height*0.5 - self.ty)*(y <= self.height*0.5 - self.ty))
 
 
 

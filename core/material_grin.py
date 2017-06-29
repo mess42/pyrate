@@ -28,7 +28,7 @@ from ray import RayBundle
 
 from globalconstants import standard_wavelength
 
-from material import IsotropicMaterial
+from material_isotropic import IsotropicMaterial
 
 class IsotropicGrinMaterial(IsotropicMaterial):
     def __init__(self, lc, fun, dfdx, dfdy, dfdz, bndfunction, ds, energyviolation, name="", comment=""):
@@ -146,7 +146,8 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             updatedpos[:,True ^ final] = newpos[:,True ^ final]
             updatedvel[:,True ^ final] = newvel[:,True ^ final]
 
-            newk = 2.*math.pi/raybundle.wave*updatedvel/self.nfunc(updatedpos)
+            k0 = 1. #2.*math.pi/raybundle.wave
+            newk = k0*updatedvel/self.nfunc(updatedpos)
             Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))
             kapp = self.lc.returnLocalToGlobalDirections(newk)            
             xapp = self.lc.returnLocalToGlobalPoints(updatedpos)            

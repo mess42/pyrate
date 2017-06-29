@@ -30,7 +30,7 @@ import math
 
 import numpy as np
 
-from core import material
+from core import material_isotropic
 from core import surfShape
 
 from core.optical_system import OpticalSystem
@@ -251,8 +251,8 @@ class OpticalSystemObserver(AbstractObserver):
         
         elem = OpticalElement(lc0, label="lenssystem")
         
-        glass = material.ConstantIndexGlass(lc0, n=1.7)
-        glass2 = material.ConstantIndexGlass(lc0, n=1.5)
+        glass = material_isotropic.ConstantIndexGlass(lc0, n=1.7)
+        glass2 = material_isotropic.ConstantIndexGlass(lc0, n=1.5)
         
         elem.addMaterial("glass", glass)
         elem.addMaterial("glass2", glass2)

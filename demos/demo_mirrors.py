@@ -30,7 +30,8 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_isotropic import ConstantIndexGlass
+from core.material_anisotropic import AnisotropicMaterial
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.optical_element_analysis import OpticalElementAnalysis
@@ -59,8 +60,8 @@ s = OpticalSystem()
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
-#air = material.AnisotropicMaterial(lc0, myeps)  # tests for anisotropic mirror
-air = material.ConstantIndexGlass(lc0, 1.0)
+#air = AnisotropicMaterial(lc0, myeps)  # tests for anisotropic mirror
+air = ConstantIndexGlass(lc0, 1.0)
 s.material_background = air
 
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
@@ -105,7 +106,7 @@ rstobj = raster.MeridionalFan()
 rpup = 10
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 k = np.zeros_like(o)
-k[2,:] = 2.*math.pi/wavelength
+k[2,:] = 1.0 #2.*math.pi/wavelength
 ey = np.zeros_like(o)
 ey[1,:] =  1.
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
@@ -157,7 +158,7 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
 
-pilotbundles = core.helpers.build_pilotbundle2(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+pilotbundles = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 
 rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 

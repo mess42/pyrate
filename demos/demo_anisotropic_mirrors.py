@@ -30,7 +30,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_anisotropic import AnisotropicMaterial
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.optical_element_analysis import OpticalElementAnalysis
@@ -54,7 +54,7 @@ rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
 lc = LocalCoordinates("1")
 myeps = np.eye(3) + 0.1*rnd_data1 + 0.01*complex(0, 1)*rnd_data2 # aggressive complex choice of myeps
 #myeps = np.eye(3) + 0.01*np.random.random((3, 3))
-crystal = material.AnisotropicMaterial(lc, myeps)
+crystal = AnisotropicMaterial(lc, myeps)
 
 
 # definition of optical system
@@ -102,24 +102,31 @@ o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 ke = np.zeros_like(o)
 ke[2,:] = 1.
 
-(k_sorted, E_sorted) = crystal.sortKEField(np.zeros_like(o), ke, np.zeros_like(o), ke, wave=wavelength)
+(k_sorted, E_sorted) = crystal.sortKnormEField(np.zeros_like(o), ke, np.zeros_like(o), ke, wave=wavelength)
 
 k = k_sorted[3, :, :].copy()
 E0 = E_sorted[3, :, :].copy()
 
-sysseq = [("TMA", [("object", True, True), ("m1", False, True), ("m2", False, True), ("m3", False, True), ("image1", True, True), ("oapara", False, True), ("image2", True, True) ])] 
+sysseq = [("TMA", [
+            ("object", {}), 
+            ("m1", {"is_mirror":True}), 
+            ("m2", {"is_mirror":True}), 
+            ("m3", {"is_mirror":True}), 
+            ("image1", {}), 
+            ("oapara", {"is_mirror":True}), 
+            ("image2", {}) ])] 
 
 sysseq_pilot = [("TMA", 
                  [
-                    ("object", True, True), 
-                    ("m1", False, True), 
-                    ("m2", False, True), 
-                    ("m3", False, True), 
-                    ("m2", False, True),
-                    ("m1", False, True),
-                    ("m2", False, True),
-                    ("m1", False, True),
-                    ("m2", False, True)
+                    ("object", {}), 
+                    ("m1", {"is_mirror":True}), 
+                    ("m2", {"is_mirror":True}), 
+                    ("m3", {"is_mirror":True}), 
+                    ("m2", {"is_mirror":True}),
+                    ("m1", {"is_mirror":True}),
+                    ("m2", {"is_mirror":True}),
+                    ("m1", {"is_mirror":True}),
+                    ("m2", {"is_mirror":True})
                 ])
                 ] 
                 
@@ -142,7 +149,7 @@ r2 = s.seqtrace(initialbundle, sysseq)
 
 kw = 5*math.pi/180.
 
-pilotbundles = core.helpers.build_pilotbundle2(objectsurf, crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]), num_sampling_points=3)
+pilotbundles = core.helpers.build_pilotbundle(objectsurf, crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]), num_sampling_points=3)
 (pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq)
 
 fig = plt.figure(1)
