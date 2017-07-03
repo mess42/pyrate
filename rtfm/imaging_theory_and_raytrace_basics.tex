@@ -9,7 +9,7 @@
 \usepackage{amsfonts}
 \usepackage{xcolor}
 \usepackage{setspace}
-
+\usepackage{dsfont}
 
 % load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
 
@@ -77,6 +77,8 @@
 \newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
 
 \newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
+
+\newcommand\unitmatrix{\mathds{1}}
 
 \newcommand\Greenfunction{\Tensor{G}}
 
@@ -2005,23 +2007,57 @@ We split the input vector into two sub-vectors
 \end{eqnarray}
 
 
-\subsubsection{Propagation in homogeneous media}
-In homogeneous media, rays travel along straights.
-Wavevector and ray direction do not change on the path.
-We consider the propagation between 2 parallel planes, 
-separated by a pilot ray geometric path length of $\Delta s$
+\subsubsection{Example: Normal Propagation Between Parallel Planes in Homogeneous Media}
+We consider the propagation between 2 parallel planes, separated by $\Delta s$.
+We assume the pilot ray is normal to the planes \remark{whatever that means in tensorial complex valued media}.
+We assume the near pilot basis system $\Vector{e}_{X,Y,U,V}$ is the same in both planes.
+\begin{itemize}
+ \item The homogeneous medium does not change ray directions, $\hat{C} = 0, \hat{D} = \unitmatrix$
+ \item Any ray parallel to the pilot has the same object and image ray height, $\hat{A} = \unitmatrix$
+ \item Object direction changes cause a change of image ray height, $\hat{B} \neq 0$
+\end{itemize}
+The coefficients of $\hat{B}$ are found using
+\begin{eqnarray}
+ \Delta \Vector{r} &=& 
+ \left(
+   \frac{\partial \Vector{d}}{\partial \Re \Delta \Wavevector} (\Re \Delta \Wavevector)
+  +\frac{\partial \Vector{d}}{\partial \Im \Delta \Wavevector} (\Im \Delta \Wavevector)
+ \right) \Delta s
+\end{eqnarray}
+And the resulting propagator is
 \begin{eqnarray}
  \hat{G}_{prop} &=&
  \begin{pmatrix}
-  1 & 0 & \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
-  0 & 1 & \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
-  0 & 0 & 1 & 0 & 0 & 0 \\[2ex]
-  0 & 0 & 0 & 1 & 0 & 0 \\[2ex]
-  0 & 0 & 0 & 0 & 1 & 0 \\[2ex]
-  0 & 0 & 0 & 0 & 0 & 1 \\[2ex]  
+  1\qquad&0\qquad& \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
+  0\qquad&1\qquad& \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
+  0\qquad&0\qquad& 1 & 0 & 0 & 0 \\[2ex]
+  0\qquad&0\qquad& 0 & 1 & 0 & 0 \\[2ex]
+  0\qquad&0\qquad& 0 & 0 & 1 & 0 \\[2ex]
+  0\qquad&0\qquad& 0 & 0 & 0 & 1 \\[2ex]  
  \end{pmatrix}
  \label{eq:xyuv_propagation_homogeneous}
 \end{eqnarray}
+In isotropic media, we find $\Vector{d} \propto \Re \Wavevector$, leading to
+\begin{eqnarray}
+ \hat{B}_{iso} &=&
+ \frac{ \Delta s }{| \Re \Wavevector_{pilot} |}
+ \begin{pmatrix}
+  (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X & -(\Im \Vector{e}_U) \Vector{e}_X & -(\Im \Vector{e}_V) \Vector{e}_X \\
+  (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y & -(\Im \Vector{e}_U) \Vector{e}_Y & -(\Im \Vector{e}_V) \Vector{e}_Y
+ \end{pmatrix}
+\end{eqnarray}
+In lossless media, one usually chooses a real valued $\Vector{e}_{U,V}$ base,
+and half of the matrix $\hat{B}$ is zeros.
+Still, it is important to forward the wavevector components 
+$(\Im U) \Vector{e}_U$ and $(\Im V) \Vector{e}_V$
+to the next surface with the $\hat{D}$ matrix, 
+as these wavevector components may become relevant in following materials.
+
+\subsubsection{Example: Basis System Rotation}
+We rotate around the pilot ray position. 
+We do not propagate the pilot ray from a global coordinate point of view.
+Our basis shall be $\Vector{e}_{X,Y,U,V\,1}$ before and $\Vector{e}_{X,Y,U,V\,2}$ after the rotation.
+
 
 \subsection{Interpretation of XYUV matrices}
 \subsubsection{Focal Length}
