@@ -2007,9 +2007,9 @@ We split the input vector into two sub-vectors
 \end{eqnarray}
 
 
-\subsubsection{Example: Normal Propagation Between Parallel Planes in Homogeneous Media}
+\subsubsection{Example: Normal Propagation Between Parallel Planes in Homogeneous Media}\remark{todo:reomve this section once the general one is finished}
 We consider the propagation between 2 parallel planes, separated by $\Delta s$.
-We assume the pilot ray is normal to the planes \remark{whatever that means in tensorial complex valued media}.
+We assume the pilot ray Poynting vector is normal to the planes.
 We assume the near pilot basis system $\Vector{e}_{X,Y,U,V}$ is the same in both planes.
 \begin{itemize}
  \item The homogeneous medium does not change ray directions, $\hat{C} = 0, \hat{D} = \unitmatrix$
@@ -2053,10 +2053,88 @@ $(\Im U) \Vector{e}_U$ and $(\Im V) \Vector{e}_V$
 to the next surface with the $\hat{D}$ matrix, 
 as these wavevector components may become relevant in following materials.
 
-\subsubsection{Example: Basis System Rotation}
-We rotate around the pilot ray position. 
-We do not propagate the pilot ray from a global coordinate point of view.
-Our basis shall be $\Vector{e}_{X,Y,U,V\,1}$ before and $\Vector{e}_{X,Y,U,V\,2}$ after the rotation.
+\subsubsection{Example: Propagation Between Planes in Homogeneous Media}
+We consider two planes 1 and 2.
+We consider a homogeneous medium, a pilot ray $( \Vector{r}_{pilot1}, \Vector{r}_{pilot2}, \Wavevector_{pilot} )$
+and a near pilot ray $( \Vector{r}_{1}, \Vector{r}_{2}, \Wavevector )$. 
+We describe the rays as lines with geometric path length $s$ and a unit direction vector $\Vector{d}$
+\begin{eqnarray}
+ \Vector{r}_{2} &=& \Vector{r}_{1} + \Vector{d} s  \\
+ \Vector{r}_{pilot2} &=& \Vector{r}_{pilot1} + \Vector{d}_{pilot} s_{pilot}
+\end{eqnarray}
+
+\paragraph{The B-Matrix.}
+We consider a ray with the same starting point as the pilot, $\Vector{r}_{1} = \Vector{r}_{pilot1}$. 
+The remaining independent points $\Vector{r}_{1}, \Vector{r}_{2}, \Vector{r}_{pilot2}$ form a 2D triangle in 3D space.
+The triangle has the sides $\Vector{d} s ; \Vector{d}_{pilot} s_{pilot}$ and $\Delta \Vector{r}_2$. 
+Further we know that $\Delta \Vector{r}$ is in the image plane.
+
+\begin{eqnarray}
+  \Delta \Vector{r}_2  &=& \Vector{d} s - \Vector{d}_{pilot} s_{pilot} \\
+  \Delta \Vector{r}_2  &=& X_2 \Vector{e}_{X2} + Y_2 \Vector{e}_{Y2}
+\end{eqnarray}
+We substitute
+\begin{eqnarray}
+ \Vector{d} &=& \Vector{d}_{pilot} + \Delta \Vector{d} \\
+ s &=& s_{pilot} + \Delta s
+\end{eqnarray}
+leading to
+\begin{eqnarray}
+  \Delta \Vector{r}_2  &=& \Vector{d}_{pilot} \Delta s + \Delta \Vector{d} s_{pilot} + \Delta \Vector{d} \Delta s \\
+  \Delta \Vector{r}_2  &=& X_2 \Vector{e}_{X2} + Y_2 \Vector{e}_{Y2}
+\end{eqnarray}
+$\Delta \Vector{d}$ originates from $\Delta \Wavevector$ and can be seen as given quantity.
+The 3 unknowns $X_2 , Y_2 , \Delta s$ can be solved, for example, in a cartesian basis
+\begin{eqnarray}
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & - ( d_{pilotx} + \Delta d_x ) \\
+  e_{X2y} & e_{Y2y} & - ( d_{piloty} + \Delta d_y ) \\
+  e_{X2z} & e_{Y2z} & - ( d_{pilotz} + \Delta d_z ) 
+ \end{pmatrix}^{-1}
+ \Delta \Vector{d} s_{pilot} &=& 
+ \begin{pmatrix}
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix} 
+\end{eqnarray}
+We approximate up to first order in $\Delta \Vector{d}$
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix} 
+ &\approx& s_{pilot}
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & - d_{pilotx} \\
+  e_{X2y} & e_{Y2y} & - d_{piloty} \\
+  e_{X2z} & e_{Y2z} & - d_{pilotz} 
+ \end{pmatrix}^{-1}
+ \begin{pmatrix}
+  \Delta d_x \\ \Delta d_y \\ \Delta d_z
+ \end{pmatrix}
+\end{eqnarray}
+In isotropic media, we find
+\begin{eqnarray}
+ \Delta \Vector{d}_{iso} 
+ &\approx& \frac{\Re \Delta \Wavevector}{|\Re \Wavevector_{pilot}|}
+ \\
+ &\approx&
+  \frac{1}{|\Re \Wavevector_{pilot}|}
+  \left(
+      (\Re U)(\Re \Vector{e}_U)
+    + (\Re V)(\Re \Vector{e}_V)
+    - (\Im U)(\Im \Vector{e}_U)
+    - (\Im V)(\Im \Vector{e}_V)
+  \right) \nonumber
+\end{eqnarray}
+In lossless media, one often chooses a real valued $\Vector{e}_{U,V}$ base,
+and half of the matrix $\hat{B}$ is zeros.
+Still, it is important to forward the wavevector components 
+$(\Im U) \Vector{e}_U$ and $(\Im V) \Vector{e}_V$
+to the next surface with the $\hat{D}$ matrix, 
+as these wavevector components may become relevant in following materials.
+
+\paragraph{The A-Matrix.} todo
+\paragraph{The C-Matrix.} todo
+\paragraph{The D-Matrix.} todo
 
 
 \subsection{Interpretation of XYUV matrices}
