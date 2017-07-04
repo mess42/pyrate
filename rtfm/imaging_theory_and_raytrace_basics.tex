@@ -2007,52 +2007,6 @@ We split the input vector into two sub-vectors
 \end{eqnarray}
 
 
-\subsubsection{Example: Normal Propagation Between Parallel Planes in Homogeneous Media}\remark{todo:reomve this section once the general one is finished}
-We consider the propagation between 2 parallel planes, separated by $\Delta s$.
-We assume the pilot ray Poynting vector is normal to the planes.
-We assume the near pilot basis system $\Vector{e}_{X,Y,U,V}$ is the same in both planes.
-\begin{itemize}
- \item The homogeneous medium does not change ray directions, $\hat{C} = 0, \hat{D} = \unitmatrix$
- \item Any ray parallel to the pilot has the same object and image ray height, $\hat{A} = \unitmatrix$
- \item Object direction changes cause a change of image ray height, $\hat{B} \neq 0$
-\end{itemize}
-The coefficients of $\hat{B}$ are found using
-\begin{eqnarray}
- \Delta \Vector{r} &=& 
- \left(
-   \frac{\partial \Vector{d}}{\partial \Re \Delta \Wavevector} (\Re \Delta \Wavevector)
-  +\frac{\partial \Vector{d}}{\partial \Im \Delta \Wavevector} (\Im \Delta \Wavevector)
- \right) \Delta s
-\end{eqnarray}
-And the resulting propagator is
-\begin{eqnarray}
- \hat{G}_{prop} &=&
- \begin{pmatrix}
-  1\qquad&0\qquad& \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
-  0\qquad&1\qquad& \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
-  0\qquad&0\qquad& 1 & 0 & 0 & 0 \\[2ex]
-  0\qquad&0\qquad& 0 & 1 & 0 & 0 \\[2ex]
-  0\qquad&0\qquad& 0 & 0 & 1 & 0 \\[2ex]
-  0\qquad&0\qquad& 0 & 0 & 0 & 1 \\[2ex]  
- \end{pmatrix}
- \label{eq:xyuv_propagation_homogeneous}
-\end{eqnarray}
-In isotropic media, we find $\Vector{d} \propto \Re \Wavevector$, leading to
-\begin{eqnarray}
- \hat{B}_{iso} &=&
- \frac{ \Delta s }{| \Re \Wavevector_{pilot} |}
- \begin{pmatrix}
-  (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X & -(\Im \Vector{e}_U) \Vector{e}_X & -(\Im \Vector{e}_V) \Vector{e}_X \\
-  (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y & -(\Im \Vector{e}_U) \Vector{e}_Y & -(\Im \Vector{e}_V) \Vector{e}_Y
- \end{pmatrix}
-\end{eqnarray}
-In lossless media, one usually chooses a real valued $\Vector{e}_{U,V}$ base,
-and half of the matrix $\hat{B}$ is zeros.
-Still, it is important to forward the wavevector components 
-$(\Im U) \Vector{e}_U$ and $(\Im V) \Vector{e}_V$
-to the next surface with the $\hat{D}$ matrix, 
-as these wavevector components may become relevant in following materials.
-
 \subsubsection{Example: Propagation Between Planes in Homogeneous Media}
 We consider two planes 1 and 2.
 We consider a homogeneous medium, a pilot ray $( \Vector{r}_{pilot1}, \Vector{r}_{pilot2}, \Wavevector_{pilot} )$
@@ -2062,6 +2016,32 @@ We describe the rays as lines with geometric path length $s$ and a unit directio
  \Vector{r}_{2} &=& \Vector{r}_{1} + \Vector{d} s  \\
  \Vector{r}_{pilot2} &=& \Vector{r}_{pilot1} + \Vector{d}_{pilot} s_{pilot}
 \end{eqnarray}
+
+\paragraph{The A-Matrix.}
+We consider the pilot ray and a ray parallel to it ($U,V=0$).
+\begin{eqnarray}
+ \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
+ X_2 \Vector{e}_{X2} +  Y_2 \Vector{e}_{Y2} - \Delta s \Vector{d}_{pilot} &=&  X_1 \Vector{e}_{X1} +  Y_1 \Vector{e}_{Y1} 
+\end{eqnarray}
+The three unknowns $X_2 , Y_2 \Vector{e}_{Y2} , \Delta s$ can be calculated from this 3-dimensional vector equation.
+One possibility to do so is to employ a cartesian basis $(x,y,z)$ and write
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & d_{pilotx} \\
+  e_{X2y} & e_{Y2y} & d_{piloty} \\
+  e_{X2z} & e_{Y2z} & d_{pilotz}  
+ \end{pmatrix}^{-1}
+ \cdot
+ \left(
+ X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1}
+ \right)
+\end{eqnarray}
+From which we extract the coefficients of the $\hat{A}$ matrix, 
+linking $(X_1,Y_1)$ to $(X_2,Y_2)$.
 
 \paragraph{The B-Matrix.}
 We consider a ray with the same starting point as the pilot, $\Vector{r}_{1} = \Vector{r}_{pilot1}$. 
@@ -2111,6 +2091,7 @@ We approximate up to first order in $\Delta \Vector{d}$
   \Delta d_x \\ \Delta d_y \\ \Delta d_z
  \end{pmatrix}
 \end{eqnarray}
+Now we have to link the wavevector change $\Delta \Wavevector$ to the ray direction change $\Delta \Vector{d}$ in first order.
 In isotropic media, we find
 \begin{eqnarray}
  \Delta \Vector{d}_{iso} 
@@ -2125,6 +2106,48 @@ In isotropic media, we find
     - (\Im V)(\Im \Vector{e}_V)
   \right) \nonumber
 \end{eqnarray}
+
+\paragraph{The C-Matrix.} 
+Two rays that are parallel in plane 1 shall also be parallel in plane 2.
+This means $\hat{C} = 0$.
+
+\paragraph{The D-Matrix.}
+The homogeneous medium shall not change the ray direction.
+However, as the bases $( \Vector{e}_{U1}, \Vector{e}_{V1} )$ and $( \Vector{e}_{U2}, \Vector{e}_{V2} )$
+may differ, the coordinates may also differ.
+
+\begin{eqnarray}
+ \Delta \Wavevector 
+ &=& U_1 \Vector{e}_{U1} + V_1 \Vector{e}_{V1} 
+  =  U_2 \Vector{e}_{U2} + V_2 \Vector{e}_{V2}
+\end{eqnarray}
+
+\paragraph{In the isotropic case with parallel planes and normal pilot ray},
+the matrices simplify. 
+Normal pilot ray means that the pilot Poynting vector is normal.
+We assume identical bases $\Vector{e}_{X,Y,U,V}$ in both planes.
+We collect the sub-matrices $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ and yield
+
+\begin{eqnarray}
+ \hat{G} &=&
+ \begin{pmatrix}
+  1 & 0 & B_{11} & B_{12} & B_{13} & B_{14} \\
+  0 & 1 & B_{21} & B_{22} & B_{23} & B_{24} \\
+  0 & 0 & 1 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 1 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 1  
+ \end{pmatrix}
+ \label{eq:xyuv_propagation_homogeneous}
+\end{eqnarray}
+with\begin{eqnarray}
+ \hat{B} &=&
+ \frac{ s_{pilot} }{| \Re \Wavevector_{pilot} |}
+ \begin{pmatrix}
+  (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X & -(\Im \Vector{e}_U) \Vector{e}_X & -(\Im \Vector{e}_V) \Vector{e}_X \\
+  (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y & -(\Im \Vector{e}_U) \Vector{e}_Y & -(\Im \Vector{e}_V) \Vector{e}_Y
+ \end{pmatrix}
+\end{eqnarray}
 In lossless media, one often chooses a real valued $\Vector{e}_{U,V}$ base,
 and half of the matrix $\hat{B}$ is zeros.
 Still, it is important to forward the wavevector components 
@@ -2132,9 +2155,6 @@ $(\Im U) \Vector{e}_U$ and $(\Im V) \Vector{e}_V$
 to the next surface with the $\hat{D}$ matrix, 
 as these wavevector components may become relevant in following materials.
 
-\paragraph{The A-Matrix.} todo
-\paragraph{The C-Matrix.} todo
-\paragraph{The D-Matrix.} todo
 
 
 \subsection{Interpretation of XYUV matrices}
