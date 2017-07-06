@@ -803,10 +803,6 @@ with
 
 
 
-
-
-
-
 \subsection{Fresnel Coefficients}
 \subsubsection{general case}
 Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarizations
@@ -945,6 +941,11 @@ Thus we decide to remove equation \eqref{eq:fresnelLastToSkip} and yield our fin
   \end{align}
 \end{subequations}
 
+Note that the square or absolute square of the field amplitude $E_{\beta\alpha}$ 
+is \emph{not} the energy flow $\Vector{S}$.
+Waves of equal electric field amplitude in dense flint and light crown glasses have a different Poynting vector magnitude.
+
+
 \subsubsection{isotropic media}
 We assume the boundary between two isotropic media.
 Without loss of generality, we rotate our coordinate system so that $\wavenumber_Y = 0$.
@@ -1035,226 +1036,6 @@ We choose p-polarized incident light
 \Efield_{in} &=& \frac{\xi_{in} \Vector{e}_X - \wavenumber_X \Vector{n}}{\normconst_{in}} E_{in} 
 \end{eqnarray}
 and yield
-\begin{subequations}
-  \begin{align}
-    \varsigma_\beta \frac{\xi_\beta}{\normconst_\beta}  E_{\beta \ppol,0} &= \frac{\xi_{in}}{\normconst_{in}} E_{in} \\
-    \varsigma_\beta E_{\beta \spol,0} &= 0 \\
-    - \varsigma_\beta \frac{\xi_\beta^2 + \wavenumber_X^2}{\normconst_\beta} E_{\beta\ppol,0} &= - \frac{\xi_{in}^2 + \wavenumber_X^2}{\normconst_{in}} E_{in} \\
-    - \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= 0 
-  \end{align}
-\end{subequations}
-\begin{subequations}
-  \begin{align}
-    E_{r \spol,0} &= 0 
-  \\
-    E_{t \spol,0} &= 0 
-  \\
-    \frac{\xi_t}{\normconst_t}  E_{t \ppol,0} 
-    - 
-    \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
-    &= \frac{\xi_{in}}{\normconst_{in}} E_{in} 
-  \\  
-    \frac{\xi_t^2 + \wavenumber_X^2}{\normconst_t} E_{t \ppol,0} 
-    -
-    \frac{\xi_r^2 + \wavenumber_X^2}{\normconst_r} E_{r \ppol,0} 
-    &=
-    \frac{\xi_{in}^2 + \wavenumber_X^2}{\normconst_{in}} E_{in}
-  \end{align}
-\end{subequations}
-\begin{subequations}
-  \begin{align}
-    E_{r \spol,0} &= 0 
-  \\
-    E_{t \spol,0} &= 0 
-  \\
-    E_{t \ppol,0} 
-    &= 
-    \frac{\normconst_t}{\xi_t}
-    \left( 
-      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
-      + 
-      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
-    \right)
-  \\  
-    \frac{\scalarpermittivity_\materialtwo}{\normconst_t} E_{t \ppol,0} 
-    -
-    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
-    &=
-    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}
-  \end{align}
-\end{subequations}
-\begin{align}
-    \frac{\scalarpermittivity_\materialtwo}{\normconst_t} 
-    \left(
-      \frac{\normconst_t}{\xi_t}
-      \left( 
-        \frac{\xi_{in}}{\normconst_{in}} E_{in} 
-        + 
-        \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
-      \right)
-    \right) 
-    -
-    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
-    &=
-    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}
-  \\
-    \frac{\scalarpermittivity_\materialtwo}{\xi_t}
-    \left( 
-      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
-      + 
-      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
-    \right)
-    -
-    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
-    &=
-    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
-  \\
-    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} E_{in} 
-    + 
-    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
-    -
-    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
-    &=
-    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
-  \\
-    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
-    -
-    \frac{\scalarpermittivity_\materialone}{\normconst_r} E_{r \ppol,0} 
-    &=
-    \frac{\scalarpermittivity_\materialone}{\normconst_{in}} E_{in}   
-    -
-    \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} E_{in} 
-  \\
-    E_{r \ppol,0} 
-    &=
-    \frac{
-      \frac{\scalarpermittivity_\materialone}{\normconst_{in}}
-      -
-      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_{in}}{\normconst_{in}} 
-    }
-    {
-      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \frac{\xi_r}{\normconst_r}
-      -
-      \frac{\scalarpermittivity_\materialone}{\normconst_r}    
-    }
-    E_{in} 
-  \\  
-    E_{r \ppol,0} 
-    &=
-    \frac{\normconst_r}{\normconst_{in}}
-    \frac{
-      \scalarpermittivity_\materialone
-      -
-      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \xi_{in} 
-    }
-    {
-      \frac{\scalarpermittivity_\materialtwo}{\xi_t} \xi_r
-      -
-      \scalarpermittivity_\materialone 
-    }
-    E_{in} 
-  \\  
-    E_{r \ppol,0} 
-    &=
-    \frac{\normconst_r}{\normconst_{in}}
-    \cdot
-    \frac{
-      \scalarpermittivity_\materialone \xi_t
-      -
-      \scalarpermittivity_\materialtwo \xi_{in} 
-    }
-    {
-      \scalarpermittivity_\materialtwo (- \xi_{in})
-      -
-      \scalarpermittivity_\materialone \xi_t 
-    }
-    E_{in} 
-  \\  
-    E_{r \ppol,0} 
-    &=
-    \frac{\normconst_r}{\normconst_{in}}
-    \cdot
-    \frac{
-      \scalarpermittivity_\materialtwo \xi_{in} 
-      -
-      \scalarpermittivity_\materialone \xi_t
-    }
-    {
-      \scalarpermittivity_\materialtwo \xi_{in}
-      +
-      \scalarpermittivity_\materialone \xi_t 
-    }
-    E_{in} 
-  \\  
-    E_{r \ppol,0} 
-    &=
-    \frac{
-      \scalarpermittivity_\materialtwo \xi_{in} 
-      -
-      \scalarpermittivity_\materialone \xi_t
-    }
-    {
-      \scalarpermittivity_\materialtwo \xi_{in}
-      +
-      \scalarpermittivity_\materialone \xi_t 
-    }
-    E_{in} 
-  \\
-    E_{t \ppol,0} 
-    &= 
-    \frac{\normconst_t}{\xi_t}
-    \left( 
-      \frac{\xi_{in}}{\normconst_{in}} E_{in} 
-      + 
-      \frac{\xi_r}{\normconst_r}  E_{r \ppol,0} 
-    \right)
-  \\
-    E_{t \ppol,0} 
-    &= 
-    \frac{\normconst_t}{\normconst_{in}}
-    \cdot
-    \frac{\xi_{in}}{\xi_t}
-    \left( 
-       E_{in} 
-       -  
-       E_{r \ppol,0} 
-    \right)
-  \\
-    E_{t \ppol,0} 
-    &= 
-    \frac{\normconst_t}{\normconst_{in}}
-    \cdot
-    \frac{\xi_{in}}{\xi_t}
-    \left( 
-       E_{in} 
-       -  
-       \frac{
-         \scalarpermittivity_\materialtwo \xi_{in} 
-         -
-         \scalarpermittivity_\materialone \xi_t
-       }
-       {
-         \scalarpermittivity_\materialtwo \xi_{in}
-         +
-         \scalarpermittivity_\materialone \xi_t 
-       }
-       E_{in} 
-    \right)
-  \\
-    E_{t \ppol,0} 
-    &= 
-    \frac{\normconst_t}{\normconst_{in}}
-    \cdot
-    \frac{
-      2 \scalarpermittivity_\materialone \xi_{in}
-    }
-    {
-      \scalarpermittivity_\materialtwo \xi_{in}
-      +
-      \scalarpermittivity_\materialone \xi_t 
-    }
-    E_{in} 
-\end{align}
 
 \begin{subequations}
 \begin{eqnarray}
@@ -1303,14 +1084,6 @@ and yield the textbook Fresnel formulas \cite{Jackson, BornWolf}
                           {   n_\materialtwo \cos \theta_{in} + n_\materialone \cos \theta_t } E_{in}
   \end{align}
 \end{subequations}
-
-
-
-
-
-
-
-Note that field amplitude and energy flow are not the same.
 
 
 \subsection{Summary}
