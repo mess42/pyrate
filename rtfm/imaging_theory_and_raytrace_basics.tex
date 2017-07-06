@@ -1815,9 +1815,7 @@ An infinite to infinite system cannot be refocused by adding a finite air distan
 
 \section{Parabasal Optics}
 
-\subsection{Pilot Ray Concept}
-
-\subsubsection{Motivation}
+\subsection{Motivation}
 
 The ABCD ansatz allows for very fast calculations and is invaluable in the pre-design stage.
 Its simplicity, however, comes with the restriction to meridional rays in centro-symmetric systems and the need for an optical axis.
@@ -1835,9 +1833,7 @@ By choosing the term pilot ray, we want to avoid confusions with mechanical symm
 In many systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
-
-
-\subsubsection{Propagation of rays through an optical system}
+\subsection{Pilot Ray Concept}
 Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
 From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
@@ -1887,7 +1883,7 @@ In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest
 In the following, we discuss the rank of the matrices $\hat{G}$ and the basis of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
 
 
-\subsubsection{Near-Pilot Basis Systems}
+\subsection{Near-Pilot Basis Systems}
 
 The deviations may not be chosen freely, but we need to choose
 $\Delta\Vector{r}$, $\Delta\Wavevector$ and $\Delta\Vector{d}$ 
@@ -1898,7 +1894,7 @@ wavevectors must obey the dispersion relation
 and ray direction vectors must be of unit length.
 This limits the degrees of freedom for the deviations.
 
-\paragraph{Intersection points}
+\subsubsection{Intersection points}
 
 We demand that near-pilot intersection points are on the surface.
 In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
@@ -1909,7 +1905,7 @@ We represent the ray height in this plane by
 \end{eqnarray}
 where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 
-\paragraph{Wavevectors}
+\subsubsection{Wavevectors}
 Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
 In contrast to the real valued ray directions, wavevectors may be complex valued.
 
@@ -1940,7 +1936,7 @@ where $\Vector{e}_U$ and $\Vector{e}_V$ are independent basis vectors and $U,V$ 
 The basis vectors $\Vector{e}_U, \Vector{e}_V$ are defined up to a complex valued global phase and a roll degree of freedom. 
 
 
-\subsubsection{XYUV matrices}
+\subsection{XYUV matrices}
 We choose the object sided basis vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
 in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
 as described in the previous section.
@@ -1990,24 +1986,7 @@ resembling the ABCD formalism.
  \end{pmatrix}
 \end{eqnarray}
 
-We split the input vector into two sub-vectors
-\begin{eqnarray}
- \Vector{H} &=&
- \begin{pmatrix}
-  X \\ Y
- \end{pmatrix}
- \\
- \Vector{K} &=&
- \begin{pmatrix}
-  \Re U \\ \Re V \\ \Im U \\ \Im V 
- \end{pmatrix}
- \\
- \Vector{H}_{fin} &=& \hat{A} \cdot \Vector{H}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
- \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{H}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
-\end{eqnarray}
-
-
-\subsubsection{Example: Propagation Between Planes in Homogeneous Media}
+\subsection{Propagation Between Planes in Homogeneous Media}
 We consider two planes 1 and 2.
 We consider a homogeneous medium, a pilot ray $( \Vector{r}_{pilot1}, \Vector{r}_{pilot2}, \Wavevector_{pilot} )$
 and a near pilot ray $( \Vector{r}_{1}, \Vector{r}_{2}, \Wavevector )$. 
@@ -2017,7 +1996,7 @@ We describe the rays as lines with geometric path length $s$ and a unit directio
  \Vector{r}_{pilot2} &=& \Vector{r}_{pilot1} + \Vector{d}_{pilot} s_{pilot}
 \end{eqnarray}
 
-\paragraph{The A-Matrix.}
+\subsubsection{The A-Matrix.}
 We consider the pilot ray and a ray parallel to it ($U,V=0$).
 \begin{eqnarray}
  \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
@@ -2043,7 +2022,7 @@ One possibility to do so is to employ a cartesian basis $(x,y,z)$ and write
 From which we extract the coefficients of the $\hat{A}$ matrix, 
 linking $(X_1,Y_1)$ to $(X_2,Y_2)$.
 
-\paragraph{The B-Matrix.}
+\subsubsection{The B-Matrix.}
 We consider a ray with the same starting point as the pilot, $\Vector{r}_{1} = \Vector{r}_{pilot1}$. 
 The remaining independent points $\Vector{r}_{1}, \Vector{r}_{2}, \Vector{r}_{pilot2}$ form a 2D triangle in 3D space.
 The triangle has the sides $\Vector{d} s ; \Vector{d}_{pilot} s_{pilot}$ and $\Delta \Vector{r}_2$. 
@@ -2107,11 +2086,13 @@ In isotropic media, we find
   \right) \nonumber
 \end{eqnarray}
 
-\paragraph{The C-Matrix.} 
+\remark{todo: general case}
+
+\subsubsection{The C-Matrix.} 
 Two rays that are parallel in plane 1 shall also be parallel in plane 2.
 This means $\hat{C} = 0$.
 
-\paragraph{The D-Matrix.}
+\subsubsection{The D-Matrix.}
 The homogeneous medium shall not change the ray direction.
 However, as the bases $( \Vector{e}_{U1}, \Vector{e}_{V1} )$ and $( \Vector{e}_{U2}, \Vector{e}_{V2} )$
 may differ, the coordinates may also differ.
@@ -2122,10 +2103,9 @@ may differ, the coordinates may also differ.
   =  U_2 \Vector{e}_{U2} + V_2 \Vector{e}_{V2}
 \end{eqnarray}
 
-\paragraph{In the isotropic case with parallel planes and normal pilot ray},
-the matrices simplify. 
-Normal pilot ray means that the pilot Poynting vector is normal.
-We assume identical bases $\Vector{e}_{X,Y,U,V}$ in both planes.
+\subsubsection{Example}
+We assume two parallel planes and identical bases $\Vector{e}_{X,Y,U,V}$ in both planes. 
+The pilot ray Poynting vector shall be normal to the planes.
 We collect the sub-matrices $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ and yield
 
 \begin{eqnarray}
@@ -2155,9 +2135,83 @@ $(\Im U) \Vector{e}_U$ and $(\Im V) \Vector{e}_V$
 to the next surface with the $\hat{D}$ matrix, 
 as these wavevector components may become relevant in following materials.
 
+\subsection{Propagation Between Curved Surfaces}
+Curvature sag is an effect quadratic in $\Delta \Vector{r}$, 
+and is neglected in the (linear) parabasal formalism.
+The intersection points can be modeled using the tangential plane.
+
+\subsection{Refraction}
+We assume two parallel, overlaying planes 1,2 just in front of and behind a refracting surface.
+Both planes shall have identical bases $\Vector{e}_{X,Y}$.
+In general, it is not possible to find identical basis vectors $\Vector{e}_{U,V}$ in both planes.
+
+\subsubsection{A and B-Matrix}
+The infinitessimal propagation length through the surface does not change the ray height
+\begin{eqnarray}
+ \hat{A} &=& \unitmatrix \\
+ \hat{B} &=& 0
+\end{eqnarray}
+
+\subsubsection{C and D-Matrix}
+First, we consider the in-plane wavevector component $\Wavevector_\parallel$.
+This component is conserved during refraction.
+\begin{eqnarray}
+ \Wavevector_{\parallel2} 
+ &=& \Wavevector_{\parallel1} \\
+ &=& \Wavevector_1 - (\Wavevector_1 \Vector{n}) \Vector{n} \\
+ \wavenumber_{\parallel2i}
+ &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} - ( \wavenumber_{pilot1j} + \Delta \wavenumber_{1j} )( n_{pilotj} + \Delta n_j )( n_{piloti} + \Delta n_i )
+ \\
+ &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} +\nonumber \\
+ &&- \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
+ &&- \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
+ &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti} \nonumber\\
+ &&- \Delta \wavenumber_{1j} \Delta n_j n_{piloti} \nonumber\\
+ &&- \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i \nonumber\\
+ &&- \Delta \wavenumber_{1j} n_{pilotj} \Delta n_i \nonumber\\
+ &&- \wavenumber_{pilot1j}   \Delta n_j \Delta n_i \nonumber\\
+ &&- \Delta \wavenumber_{1j} \Delta n_j \Delta n_i
+\end{eqnarray}
+In our linear approximation, we neglect quadratic forms ($\Delta \Vector{n}^2$) or mixed terms ($\Delta \Wavevector \Delta \Vector{n}$)
+\begin{eqnarray}
+ \wavenumber_{\parallel2i}
+ &=& 
+ \wavenumber_{pilot1i} - \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
+ &&+ \Delta \wavenumber_{1i} 
+   - \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
+ &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti}
+   - \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i
+\end{eqnarray}
+\begin{eqnarray}
+ \wavenumber_{\parallel2i}
+ &=& 
+ \wavenumber_{\parallel pilot1i} \nonumber\\
+ &&+ ( \delta_{ij} -  n_{piloti} n_{pilotj} ) \Delta \wavenumber_{1j} \nonumber\\
+ &&- ( n_{piloti} \wavenumber_{pilot1j} + \wavenumber_{pilot1m}   n_{pilotm} \delta_{ij}) \Delta n_j
+\end{eqnarray}
+
+TODO
 
 
 \subsection{Interpretation of XYUV matrices}
+
+We split the input vector into two sub-vectors
+\begin{eqnarray}
+ \Vector{H} &=&
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \Vector{K} &=&
+ \begin{pmatrix}
+  \Re U \\ \Re V \\ \Im U \\ \Im V 
+ \end{pmatrix}
+ \\
+ \Vector{H}_{fin} &=& \hat{A} \cdot \Vector{H}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
+ \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{H}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
+\end{eqnarray}
+
+
 \subsubsection{Focal Length}
 TODO
 
