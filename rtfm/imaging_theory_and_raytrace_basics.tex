@@ -1696,6 +1696,9 @@ Near-pilot rays must fulfill
 \paragraph{Anisotropic, homogeneous media.}
 TODO
 
+There still is a roll degree of freedom inside the $\Vector{e}_U, \Vector{e}_V$ plane.
+One possibility to fix that degree of freedom is \eqref{eq:eUeVVectors}.
+
 \paragraph{Wavevector Degrees of Freedom}
 The change of the wavevector $\Delta\Wavevector$ is a 3 dimensional vector of complex numbers, that is, 6 real valued degrees of freedom.
 The dispersion, as discussed in the paragraphs above, is a scalar complex valued equation, imposing 2 real valued constraints.
@@ -1769,7 +1772,7 @@ We describe the rays as lines with geometric path length $s$ and a unit directio
  \Vector{r}_{pilot2} &=& \Vector{r}_{pilot1} + \Vector{d}_{pilot} s_{pilot}
 \end{eqnarray}
 
-\subsubsection{The A-Matrix.}
+\subsubsection{The A-Matrix}
 We consider the pilot ray and a ray parallel to it ($U,V=0$).
 \begin{eqnarray}
  \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
@@ -1795,7 +1798,7 @@ One possibility to do so is to employ a cartesian basis $(x,y,z)$ and write
 From which we extract the coefficients of the $\hat{A}$ matrix, 
 linking $(X_1,Y_1)$ to $(X_2,Y_2)$.
 
-\subsubsection{The B-Matrix.}
+\subsubsection{The B-Matrix}
 We consider a ray with the same starting point as the pilot, $\Vector{r}_{1} = \Vector{r}_{pilot1}$. 
 The remaining independent points $\Vector{r}_{1}, \Vector{r}_{2}, \Vector{r}_{pilot2}$ form a 2D triangle in 3D space.
 The triangle has the sides $\Vector{d} s ; \Vector{d}_{pilot} s_{pilot}$ and $\Delta \Vector{r}_2$. 
@@ -1859,13 +1862,13 @@ In isotropic media, we find
   \right) \nonumber
 \end{eqnarray}
 
-\remark{todo: general case}
+\remark{todo: general case, maybe in ray dir section}
 
-\subsubsection{The C-Matrix.} 
+\subsubsection{The C-Matrix} 
 Two rays that are parallel in plane 1 shall also be parallel in plane 2.
 This means $\hat{C} = 0$.
 
-\subsubsection{The D-Matrix.}
+\subsubsection{The D-Matrix}
 The homogeneous medium shall not change the ray direction.
 However, as the bases $( \Vector{e}_{U1}, \Vector{e}_{V1} )$ and $( \Vector{e}_{U2}, \Vector{e}_{V2} )$
 may differ, the coordinates may also differ.
@@ -1911,7 +1914,7 @@ as these wavevector components may become relevant in following materials.
 \subsection{Propagation Between Curved Surfaces}
 Curvature sag is an effect quadratic in $\Delta \Vector{r}$, 
 and is neglected in the (linear) parabasal formalism.
-The intersection points can be modeled using the tangential plane.
+The intersection points can be approximated using the tangential plane.
 
 \subsection{Refraction}
 We assume two parallel, overlaying planes 1,2 just in front of and behind a refracting surface.
@@ -1934,33 +1937,131 @@ This component is conserved during refraction.
  &=& \Wavevector_1 - (\Wavevector_1 \Vector{n}) \Vector{n} \\
  \wavenumber_{\parallel2i}
  &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} - ( \wavenumber_{pilot1j} + \Delta \wavenumber_{1j} )( n_{pilotj} + \Delta n_j )( n_{piloti} + \Delta n_i )
- \\
- &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} +\nonumber \\
- &&- \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
- &&- \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
- &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti} \nonumber\\
- &&- \Delta \wavenumber_{1j} \Delta n_j n_{piloti} \nonumber\\
- &&- \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i \nonumber\\
- &&- \Delta \wavenumber_{1j} n_{pilotj} \Delta n_i \nonumber\\
- &&- \wavenumber_{pilot1j}   \Delta n_j \Delta n_i \nonumber\\
- &&- \Delta \wavenumber_{1j} \Delta n_j \Delta n_i
+% \\
+% &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} +\nonumber \\
+% &&- \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
+% &&- \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti} \nonumber\\
+% &&- \Delta \wavenumber_{1j} \Delta n_j n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i \nonumber\\
+% &&- \Delta \wavenumber_{1j} n_{pilotj} \Delta n_i \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j \Delta n_i \nonumber\\
+% &&- \Delta \wavenumber_{1j} \Delta n_j \Delta n_i
 \end{eqnarray}
 In our linear approximation, we neglect quadratic forms ($\Delta \Vector{n}^2$) or mixed terms ($\Delta \Wavevector \Delta \Vector{n}$)
-\begin{eqnarray}
- \wavenumber_{\parallel2i}
- &=& 
- \wavenumber_{pilot1i} - \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
- &&+ \Delta \wavenumber_{1i} 
-   - \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
- &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti}
-   - \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i
-\end{eqnarray}
+%\begin{eqnarray}
+% \wavenumber_{\parallel2i}
+% &=& 
+% \wavenumber_{pilot1i} - \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
+% &&+ \Delta \wavenumber_{1i} 
+%   - \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti}
+%   - \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i
+%\end{eqnarray}
 \begin{eqnarray}
  \wavenumber_{\parallel2i}
  &=& 
  \wavenumber_{\parallel pilot1i} \nonumber\\
  &&+ ( \delta_{ij} -  n_{piloti} n_{pilotj} ) \Delta \wavenumber_{1j} \nonumber\\
  &&- ( n_{piloti} \wavenumber_{pilot1j} + \wavenumber_{pilot1m}   n_{pilotm} \delta_{ij}) \Delta n_j
+\end{eqnarray}
+We apply this intermediate result on the full wavevector of the near-pilot ray after refraction
+\begin{eqnarray}
+ \Wavevector_2 &=& \Wavevector_{\parallel} + \xi_2(\Wavevector_{\parallel}) \Vector{n} \\
+ \Wavevector_2 &=& \Wavevector_{\parallel}
+                 + \left(
+                     \xi_{2 pilot} +
+                     \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_{\Wavevector_{\parallel pilot}}
+                     \cdot \Delta \Wavevector_{\parallel}
+                   \right)
+                   \left(
+                     \Vector{n}_{pilot} + \Delta \Vector{n} 
+                   \right)
+ \\ 
+% \wavenumber_{2i}
+% &=& 
+% \wavenumber_{2pilot i} 
+% + \xi_{2 pilot} \Delta n_i
+% + \left( 
+%     \delta_{ij}
+%     + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+%   \right) \Delta \wavenumber_{\parallel j}
+% \\
+% \Delta \wavenumber_{\parallel j}
+% &=&  ( \delta_{jl} -  n_{pilot j} n_{pilot l} ) \Delta \wavenumber_{1l} \nonumber\\
+% &&- ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) \Delta n_l
+% \\
+ \wavenumber_{2i}
+ &=& 
+ \wavenumber_{2pilot i} \nonumber \\
+ &&+ \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( \delta_{jl} -  n_{pilot j} n_{pilot l} ) \Delta \wavenumber_{1l} \nonumber\\
+ &&+ \Bigg[
+     \xi_{2 pilot} \delta_{il} \nonumber\\
+ &&\quad- 
+     \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) 
+   \Bigg] \Delta n_l
+\end{eqnarray}
+
+\subsubsection{The C-Matrix}
+We consider rays intersecting the surface at the pilot interesction position $(X,Y) = 0$.
+The surface normal for all these rays is the pilot surface normal $\Delta \Vector{n} = 0$.
+We introduce the ($3\times3$) matrix $\hat{M}$ as
+\begin{eqnarray}
+ \Delta \wavenumber_{2i} &=& M_{il} \Delta \wavenumber_{1l} \\
+ M_{il}
+ &=& 
+ \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+ \right) 
+ ( \delta_{jl} -  n_{pilot j} n_{pilot l} )
+\end{eqnarray}
+Lengthy coordinate transfroms can be avoided by choosing
+\begin{subequations} \label{eq:eUeVVectors}
+  \begin{eqnarray}
+    \Vector{e}_{U2} &=& \frac{ \hat{M} \Vector{e}_{U1} }{\sqrt{ (\hat{M} \Vector{e}_{U1})\cdot \overline{(\hat{M} \Vector{e}_{U1})} }} \\
+    \Vector{e}_{V2} &=& \frac{ \hat{M} \Vector{e}_{V1} }{\sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }}
+  \end{eqnarray}
+\end{subequations}
+leading to
+\begin{eqnarray}
+ \hat{C} &=&
+ \begin{pmatrix}
+  c_1 & 0 \\
+  0 & c_2 \\
+  c_1 & 0 \\
+  0 & c_2
+ \end{pmatrix}
+ \\
+ c_1 &=& \sqrt{ (\hat{M} \Vector{e}_{U1})\cdot \overline{(\hat{M} \Vector{e}_{U1})} } \\
+ c_2 &=& \sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }
+\end{eqnarray}
+For the unit vectors chosen above \eqref{eq:eUeVVectors}, the matrix is only half populated 
+and symmetric between real and imaginary entries.
+
+\subsubsection{The D-Matrix}
+We consider rays parallel to the pilot ray, $(U,V) = 0$.
+We introduce the ($3\times3$) matrix $\hat{\tilde{M}}$ as
+\begin{eqnarray}
+ \Delta \wavenumber_{2i} &=& \tilde{M}_{il} \Delta n_l \\
+ \tilde{M}_{il} &=&
+ \Bigg[
+     \xi_{2 pilot} \delta_{il} \nonumber\\
+ &&- 
+     \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) 
+   \Bigg] \Delta n_l
 \end{eqnarray}
 
 TODO
@@ -2820,6 +2921,7 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  Variable & Description & Type or Value & Unit \\
  \hline
  $M$ & mode index &\{ r1, r2, t1, t2 \}&\\
+ $\hat{M}$ & matrix &&\\
  \hline
  $N$ & normalization constant for electric field & $\mathbb{C}$ & \volt /\meter \\
  \hline
