@@ -2061,6 +2061,15 @@ We consider rays parallel to the pilot ray, $(U,V) = 0$.
      ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) 
    \Bigg] \Delta n_l
 \end{eqnarray}
+We assume a surface with local curvatures $\rho_{XX}, \rho_{XY}, \rho_{YY}$ in our coordinate system
+$(\Vector{e}_X, \Vector{e}_Y, \Vector{n}_{pilot})$ according to equation \eqref{eq:quadratic_form_sag}.
+The surface normal is (see \eqref{eq:quadratic_form_near_axis_normal})
+\begin{eqnarray}
+ \Vector{n} &\approx& 
+ \Vector{n}_{pilot}
+ - (\rho_{XX} X + \rho_{XY} Y) \Vector{e}_X
+ - (\rho_{YY} Y + \rho_{XY} X) \Vector{e}_Y
+\end{eqnarray}
 
 TODO
 
@@ -2355,63 +2364,47 @@ As it plays an important role for the parabasal approximation, we treat this sha
 
 
 \begin{eqnarray}
- z(x,y) &=& a x + b y + \frac{1}{2} c x^2 + \frac{1}{2} \delta x y + \frac{1}{2} e y^2
+ z(x,y) &=& \frac{1}{2} \rho_{xx} x^2 + \rho_{xy} x y + \frac{1}{2} \rho_{yy} y^2
+ \label{eq:quadratic_form_sag}
 \end{eqnarray}
-The parameters $a,b,c,\delta,e$ are real valued. 
-$a$ and $b$ shift the surface vertex, leaving $z(\Vector{0})=0$, and lead to an inclined tangential plane at the origin.
-$c$, $\delta$ and $e$ represent the surface curvature. 
-A nonzero $\delta$ parameter denotes a nonzero rotation of the principal axes of the paraboloid with respect to the $x$ and $y$ axes.
-%
-%
-%\begin{eqnarray}
-% 0 &=& a x + b y - z + \frac{1}{2} c x^2 + \frac{1}{2} \delta x y + \frac{1}{2} e y^2 \\
-% 0 &=& a (x_0 + d_x t) \nonumber \\
-%   &&  + b (y_0 + d_y t) \nonumber \\
-%   &&  -   (z_0 + d_z t) \nonumber \\
-%   &&  + \frac{1}{2} c (x_0 + d_x t)^2 \nonumber \\
-%   &&  + \frac{1}{2} \delta (x_0 + d_x t) (y_0 + d_y t) \nonumber \\
-%   &&  + \frac{1}{2} e (y_0 + d_y t)^2 \\
-% 0 &=& a x_0 + a d_x t \nonumber \\
-%   &&  + b y_0 + b d_y t \nonumber \\
-%   &&  - z_0 - d_z t \nonumber \\
-%   &&  + \frac{1}{2} c x_0^2 + c x_0 d_x t + \frac{1}{2} c d_x^2 t^2 \nonumber \\
-%   &&  + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + \frac{1}{2} \delta d_x d_y t^2 \nonumber \\
-%   &&  + \frac{1}{2} e y_0^2 + e y_0 d_y t + \frac{1}{2} e d_y^2 t^2 \\
-% 0 &=& \frac{1}{2} c d_x^2 t^2 + \frac{1}{2} \delta d_x d_y t^2 + \frac{1}{2} e d_y^2 t^2 \nonumber \\
-%   && + a d_x t + b d_y t - d_z t + c x_0 d_x t + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + e y_0 d_y t \nonumber \\
-%   && + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2
-%\end{eqnarray}
-%We compare to
-%\begin{eqnarray}
-%  H t^2 + 2 F t - G &=& 0
-%\end{eqnarray}
-%and find
-%\begin{eqnarray}
-% - \frac{1}{2} H t^2  &=& \frac{1}{2} c d_x^2 t^2 + \frac{1}{2} \delta d_x d_y t^2 + \frac{1}{2} e d_y^2 t^2   \\
-% - F t  &=& + a d_x t + b d_y t - d_z t + c x_0 d_x t + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + e y_0 d_y t   \\
-% + \frac{1}{2} G      &=&  + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2
-%\end{eqnarray}
-%
-%\begin{eqnarray}
-% - F   &=& + a d_x  + b d_y  - d_z  + c x_0 d_x  + \frac{1}{2} \delta x_0 d_y  + \frac{1}{2} \delta y_0 d_x  + e y_0 d_y    \\
-% + \frac{1}{2} G      &=&  + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2 \\
-% - \frac{1}{2} H &=& \frac{1}{2} c d_x^2 + \frac{1}{2} \delta d_x d_y + \frac{1}{2} e d_y^2 
-%\end{eqnarray}
-%
-%\begin{eqnarray}
-% - F   &=& + a d_x  + b d_y  - d_z  + c x_0 d_x  + \frac{1}{2} \delta x_0 d_y  + \frac{1}{2} \delta y_0 d_x  + e y_0 d_y    \\
-% + G      &=&  2 a x_0 + 2 b y_0 - 2 z_0 + c x_0^2 + \delta x_0 y_0 + e y_0^2 \\
-% - H &=& c d_x^2 + \delta d_x d_y + e d_y^2 
-%\end{eqnarray}
-%
+The surface curvature parameters $\rho_{xx},\rho_{xy},\rho_{yy}$ are real valued. 
+A nonzero $\rho_{xy}$ parameter denotes a nonzero rotation of the principal axes of the paraboloid with respect to the $x$ and $y$ axes.
 The solution of the intersection with the straight equation is
 \begin{eqnarray}
- F &=& d_z - a d_x - b d_y - \left( c x_0 d_x + \delta \left( \frac{1}{2} x_0 d_y + \frac{1}{2} y_0 d_x \right)  + e y_0 d_y \right)   \\
- G &=&  2 a x_0 + 2 b y_0 - 2 z_0 + c x_0^2 + \delta x_0 y_0 + e y_0^2 \\
- H &=& - \left( c d_x^2 + \delta d_x d_y + e d_y^2 \right) \\
+ F &=& d_z - \left( \rho_{xx} x_0 d_x + \rho_{xy} \left( x_0 d_y + y_0 d_x \right)  + \rho_{yy} y_0 d_y \right)   \\
+ G &=& - 2 z_0 + \rho_{xx} x_0^2 + 2 \rho_{xy} x_0 y_0 + \rho_{yy} y_0^2 \\
+ H &=& - \left( \rho_{xx} d_x^2 +  2 \rho_{xy} d_x d_y + \rho_{yy} d_y^2 \right) \\
  t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
  \label{eq:quadratic_form_t}
 \end{eqnarray}
+
+\subsubsection{Surface Normal}
+The surface normal of a quadratic form surface is
+\begin{eqnarray}
+ \Vector{n} &=& 
+ \frac{1}{
+    \sqrt{1 + (\rho_{xx} x + \rho_{xy} y)^2 + (\rho_{yy} y + \rho_{xy} x)^2 }
+ } 
+ \begin{pmatrix}
+   - \rho_{xx} x - \rho_{xy} y \\
+   - \rho_{yy} y - \rho_{xy} x \\
+   1
+ \end{pmatrix}
+\end{eqnarray}
+In the limit of rays close to the origin, $\lim (x,y) \rightarrow 0$, 
+we perform a Taylor expansion in first order
+\begin{eqnarray}
+ \Vector{n} &\approx& 
+ \begin{pmatrix}
+   - \rho_{xx} x - \rho_{xy} y \\
+   - \rho_{yy} y - \rho_{xy} x \\
+   1
+ \end{pmatrix}
+ \label{eq:quadratic_form_near_axis_normal}
+\end{eqnarray}
+
+
+
 
 \subsubsection{Quadratic Form as a Special Case of Biconic}
 Rotating the coordinate system,
@@ -2419,70 +2412,30 @@ Rotating the coordinate system,
  x &=& \tilde{x} \cos(\phi) - \tilde{y} \sin(\phi) \\
  y &=& \tilde{x} \sin(\phi) + \tilde{y} \cos(\phi)
 \end{eqnarray}
-one can represent the quadratic form in its principal axes system, eliminating the $\delta x y$ term. 
+one can represent the quadratic form in its principal axes system, eliminating the $\rho_{xy} x y$ term. 
 The principal axes of $\tilde{x}$ and $\tilde{y}$ are orthogonal.
 %\begin{eqnarray}
-% \sin^2(\phi) &=& \frac{1}{2} \pm \sqrt{\frac{1}{4} - \frac{\delta^2}{4 \delta^2 + 4 (c-e)^2 } } \\
-% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{1 - \frac{\delta^2}{\delta^2 + (c-e)^2 } } \\ 
-% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(c-e)^2}{\delta^2 + (c-e)^2 } } \\ 
+% \sin^2(\phi) &=& \frac{1}{2} \pm \sqrt{\frac{1}{4} - \frac{(2 \rho_{xy})^2}{4 (2 \rho_{xy})^2 + 4 (\rho_{xx}-\rho_{yy})^2 } } \\
+% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{1 - \frac{(2 \rho_{xy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } } \\ 
+% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(\rho_{xx}-\rho_{yy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } } \\ 
 %\end{eqnarray}
 \begin{eqnarray}
- z &=& \tilde{a} \tilde{x} + \tilde{b} \tilde{y} + \frac{1}{2} \tilde{c} \tilde{x}^2 + \frac{1}{2} \tilde{e} \tilde{y}^2
+ z &=& \frac{1}{2} \tilde{\rho}_{xx} \tilde{x}^2 + \frac{1}{2} \tilde{\rho}_{yy} \tilde{y}^2
 \end{eqnarray}
 with
 \begin{eqnarray}
- \tilde{a} &=& a \cos(\phi) + b \sin(\phi) \\
- \tilde{b} &=& -a \sin(\phi) + b \cos(\phi) \\
- \tilde{c} &=& a \cos^2(\phi) + b \sin(\phi) \cos(\phi) + c \sin^2(\phi) \\
- \tilde{e} &=& a \sin^2(\phi) - b \sin(\phi) \cos(\phi) + c \cos^2(\phi) \\
- \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(c-e)^2}{\delta^2 + (c-e)^2 } }
+ \tilde{\rho}_{xx} &=& \rho_{xx} \sin^2(\phi) + \rho_{yy} \cos^2(\phi)\\
+ \tilde{\rho}_{yy} &=& \rho_{xx} \cos^2(\phi) - \rho_{yy} \sin^2(\phi)\\
+ \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(\rho_{xx}-\rho_{yy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } }
 \end{eqnarray}
-The term under square root is nonnegative for real valued $c,\delta,e$. 
-Next we shift our coordinate system
+The term under square root is nonnegative for real valued $\rho_{xx},\rho_{xy},\rho_{yy}$. 
+After rotating the coordinate system, the quadratic form is equivalent to a biconic with
 \begin{eqnarray}
-  \tilde{x} &=& \tilde{\tilde{x}} + \Delta x \\
-  \tilde{y} &=& \tilde{\tilde{y}} + \Delta y
-\end{eqnarray}
-%
-%\begin{eqnarray}
-% z &=& \tilde{a} ( \tilde{\tilde{x}} + \Delta x ) \nonumber \\
-%   &&  + \tilde{b} ( \tilde{\tilde{y}} + \Delta y ) \nonumber \\ 
-%   &&  + \frac{1}{2} \tilde{c} ( \tilde{\tilde{x}} + \Delta x )^2  \nonumber \\ 
-%   &&  + \frac{1}{2} \tilde{e} ( \tilde{\tilde{y}} + \Delta y )^2  \\
-% z &=& \tilde{a} \tilde{\tilde{x}} + \tilde{a} \Delta x \nonumber \\
-%   &&  + \tilde{b} \tilde{\tilde{y}} + \tilde{b} \Delta y \nonumber \\ 
-%   &&  + \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \tilde{c} \tilde{\tilde{x}} \Delta x + \frac{1}{2} \tilde{c} \Delta x^2  \nonumber \\ 
-%   &&  + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2 + \tilde{e} \tilde{\tilde{y}} \Delta y + \frac{1}{2} \tilde{e} \Delta y^2 \\
-% z &=& \tilde{a} \Delta x + \tilde{b} \Delta y + \frac{1}{2} \tilde{c} \Delta x^2 + \frac{1}{2} \tilde{e} \Delta y^2 \nonumber \\
-%   && + \tilde{a} \tilde{\tilde{x}} + \tilde{c} \tilde{\tilde{x}} \Delta x \nonumber \\
-%   && + \tilde{b} \tilde{\tilde{y}} + \tilde{e} \tilde{\tilde{y}} \Delta y \nonumber \\
-%   &&  + \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2
-%\end{eqnarray}
-We choose
-%\begin{eqnarray}
-% 0 &=& \tilde{a} \tilde{\tilde{x}} + \tilde{c} \tilde{\tilde{x}} \Delta x \\
-% 0 &=& \tilde{b} \tilde{\tilde{y}} + \tilde{e} \tilde{\tilde{y}} \Delta y
-%\end{eqnarray}
-\begin{eqnarray}
- \Delta x &=& -\frac{\tilde{a}}{\tilde{c}} \\
- \Delta y &=& -\frac{\tilde{b}}{\tilde{e}}
-\end{eqnarray}
-in case both principlal curvatures are nonzero. This results in a sag equation
-\begin{eqnarray}
-  z - \Delta z &=& \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2 \\
-  \Delta z &=& \tilde{a} \Delta x + \tilde{b} \Delta y + \frac{1}{2} \tilde{c} \Delta x^2 + \frac{1}{2} \tilde{e} \Delta y^2
-\end{eqnarray}
-
-After rotating and shifting the coordinate system, the quadratic form is equivalent to a biconic with
-\begin{eqnarray}
- \rho_x &=& \tilde{c} \\
- \rho_y &=& \tilde{e} \\
+ \rho_x &=& \tilde{\rho}_{xx} \\
+ \rho_y &=& \tilde{\rho}_{yy} \\
  c_x &=& -1 \\
  c_y &=& -1
 \end{eqnarray}
-In case exactly one principal curvature is zero, the quadratic form is equivalent to a tilted parabolic acylinder, and in case both curvatures are zero, it is equivalent to a tilted plane.
-In those cases, the tilt cannot be compensated by an equivalent coordinate shift.
-
 
 \subsection{Conics}
 Conics are the rotationally symmetric special case of a biconic $\rho_x = \rho_y$, $c_x = c_y$ .
