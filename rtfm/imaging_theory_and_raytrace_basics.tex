@@ -2049,10 +2049,8 @@ For the unit vectors chosen above \eqref{eq:eUeVVectors}, the matrix is diagonal
 
 \subsubsection{The C-Matrix}
 We consider rays parallel to the pilot ray, $(U,V) = 0$.
-We introduce the ($3\times3$) matrix $\hat{\tilde{M}}$ as
 \begin{eqnarray}
- \Delta \wavenumber_{2i} &=& \tilde{M}_{il} \Delta n_l \\
- \tilde{M}_{il} &=&
+ \Delta \wavenumber_{2i} &=& 
  \Bigg[
      \xi_{2 pilot} \delta_{il} \nonumber\\
  &&- 
@@ -2415,105 +2413,7 @@ The solution of the intersection with the straight equation is
  \label{eq:quadratic_form_t}
 \end{eqnarray}
 
-\subsubsection{Intersection point perturbation}
-We investigate the change of the intersection point due to small perturbations in the ray starting paramaters $\Location_0$ and $\Vector{d}$.
-For a first order Taylor expansion, we calculate the derivatives $\partial t / \partial q$
-with $q \in \{ x_0, y_0, z_0, d_x, d_y, d_z \}$
-\begin{eqnarray}
-% \frac{\partial t}{\partial q} 
-% &=& 
-%     \frac{1}{F + \sqrt{F^2 + H G}} \frac{\partial G}{\partial q} 
-%     - 
-%     \frac{G}{(F + \sqrt{F^2 + H G})^2}
-%   \left(
-%     \frac{\partial F}{\partial q}
-%     +
-%     \frac{1}{2} \frac{1}{\sqrt{F^2 + H G}}
-%     \left(
-%         2 F \frac{\partial F}{\partial q}
-%       + H \frac{\partial G}{\partial q}
-%       + G \frac{\partial H}{\partial q}
-%     \right)
-%   \right)
-% \\
-% \frac{\partial t}{\partial q} 
-% &=& 
-%   \frac{1}{F + \sqrt{F^2 + H G}} 
-%   \left(
-%     \frac{\partial G}{\partial q} 
-%     - 
-%     t
-%   \left(
-%     \frac{\partial F}{\partial q}
-%     +
-%     \frac{1}{2} \frac{1}{\sqrt{F^2 + H G}}
-%     \left(
-%         2 F \frac{\partial F}{\partial q}
-%       + H \frac{\partial G}{\partial q}
-%       + G \frac{\partial H}{\partial q}
-%     \right)
-%   \right)
-%  \right)
-% \\
- \frac{\partial t}{\partial q} 
- &=& 
-  \frac{t}{G}
-   \left(
-     \frac{\partial G}{\partial q} 
-     - t \frac{\partial F}{\partial q}
-     - \frac{1}{2} t \frac{1}{\sqrt{F^2 + H G}}
-     \left(
-         2 F \frac{\partial F}{\partial q}
-       + H \frac{\partial G}{\partial q}
-       + G \frac{\partial H}{\partial q}
-     \right)
-  \right) 
-  \label{eq:derivative_of_t}
-\end{eqnarray}
-with the gradients
-\begin{eqnarray}
-  \frac{\partial F}{\partial \Location_0} 
-  &=&
-  \begin{pmatrix}
-    - c d_x - \frac{1}{2} \delta d_y \\
-    - \frac{1}{2} \delta d_x - e d_y \\
-    0
-  \end{pmatrix}
-  \\
-  \frac{\partial F}{\partial \Vector{d}}
-  &=&
-  \begin{pmatrix}
-    - a - c x_0 - \frac{1}{2} \delta y_0 \\
-    - b - \frac{1}{2} \delta x_0 - e y_0 \\
-    1
-  \end{pmatrix}
-  \\
-  \frac{\partial G}{\partial \Location_0}
-  &=&
-  \begin{pmatrix}
-    2 a + 2 c x_0 + \delta y_0\\
-    2 b + \delta x_0 + 2 e y_0\\
-    - 2
-  \end{pmatrix}
-  \\
-  \frac{\partial G}{\partial \Vector{d}}
-  &=&
-  \Vector{0}
-  \\
-  \frac{\partial H}{\partial \Location_0}
-  &=&
-  \Vector{0}
-  \\
-  \frac{\partial H}{\partial \Vector{d}}
-  &=&
-  \begin{pmatrix}
-    - 2 c d_x - \delta d_y\\
-    - \delta d_x - 2 e d_y\\
-    0
-  \end{pmatrix}
-\end{eqnarray}
-
-\subsubsection{On the equality of quadratic form and biconic}
+\subsubsection{Quadratic Form as a Special Case of Biconic}
 Rotating the coordinate system,
 \begin{eqnarray}
  x &=& \tilde{x} \cos(\phi) - \tilde{y} \sin(\phi) \\
@@ -2538,7 +2438,6 @@ with
  \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(c-e)^2}{\delta^2 + (c-e)^2 } }
 \end{eqnarray}
 The term under square root is nonnegative for real valued $c,\delta,e$. 
-
 Next we shift our coordinate system
 \begin{eqnarray}
   \tilde{x} &=& \tilde{\tilde{x}} + \Delta x \\
