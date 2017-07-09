@@ -2010,7 +2010,7 @@ We apply this intermediate result on the full wavevector of the near-pilot ray a
    \Bigg] \Delta n_l
 \end{eqnarray}
 
-\subsubsection{The C-Matrix}
+\subsubsection{The D-Matrix}
 We consider rays intersecting the surface at the pilot interesction position $(X,Y) = 0$.
 The surface normal for all these rays is the pilot surface normal $\Delta \Vector{n} = 0$.
 We introduce the ($3\times3$) matrix $\hat{M}$ as
@@ -2031,23 +2031,23 @@ Lengthy coordinate transfroms can be avoided by choosing
     \Vector{e}_{V2} &=& \frac{ \hat{M} \Vector{e}_{V1} }{\sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }}
   \end{eqnarray}
 \end{subequations}
-leading to
+The unit vectors can be complex valued.
+Our result for the $\hat{D}$ matrix is
 \begin{eqnarray}
- \hat{C} &=&
+ \hat{D} &=&
  \begin{pmatrix}
-  c_1 & 0 \\
-  0 & c_2 \\
-  c_1 & 0 \\
-  0 & c_2
+  D_{11} & 0 & 0 & 0 \\
+  0 & D_{22} & 0 & 0 \\
+  0 & 0 & D_{11} & 0 \\
+  0 & 0 & 0 & D_{22} \\
  \end{pmatrix}
  \\
- c_1 &=& \sqrt{ (\hat{M} \Vector{e}_{U1})\cdot \overline{(\hat{M} \Vector{e}_{U1})} } \\
- c_2 &=& \sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }
+ D_{11} &=& \sqrt{ (\hat{M} \Vector{e}_{U1})\cdot \overline{(\hat{M} \Vector{e}_{U1})} } \\
+ D_{22} &=& \sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }
 \end{eqnarray}
-For the unit vectors chosen above \eqref{eq:eUeVVectors}, the matrix is only half populated 
-and symmetric between real and imaginary entries.
+For the unit vectors chosen above \eqref{eq:eUeVVectors}, the matrix is diagonal.
 
-\subsubsection{The D-Matrix}
+\subsubsection{The C-Matrix}
 We consider rays parallel to the pilot ray, $(U,V) = 0$.
 We introduce the ($3\times3$) matrix $\hat{\tilde{M}}$ as
 \begin{eqnarray}
