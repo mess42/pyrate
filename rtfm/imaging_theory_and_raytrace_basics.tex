@@ -2060,6 +2060,7 @@ We consider rays parallel to the pilot ray, $(U,V) = 0$.
      \right) 
      ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) 
    \Bigg] \Delta n_l
+   \label{eq:refraction_C_matrix_deltaK_to_deltaN}
 \end{eqnarray}
 We assume a surface with local curvatures $\rho_{XX}, \rho_{XY}, \rho_{YY}$ in our coordinate system
 $(\Vector{e}_X, \Vector{e}_Y, \Vector{n}_{pilot})$ according to equation \eqref{eq:quadratic_form_sag}.
@@ -2069,10 +2070,47 @@ The surface normal is (see \eqref{eq:quadratic_form_near_axis_normal})
  \Vector{n}_{pilot}
  - (\rho_{XX} X + \rho_{XY} Y) \Vector{e}_X
  - (\rho_{YY} Y + \rho_{XY} X) \Vector{e}_Y
+ \label{eq:refraction_C_matrix_deltaN_to_deltaR}
 \end{eqnarray}
-
-TODO
-
+Combining the last two equations \eqref{eq:refraction_C_matrix_deltaK_to_deltaN} and \eqref{eq:refraction_C_matrix_deltaN_to_deltaR},
+we find a relation between the change in wavevector after refraction and the change in position,
+\begin{eqnarray}
+ \Delta \Wavevector_2 &=& 
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+\end{eqnarray}
+mediated by a ($3\times2$) matrix $\hat{\tilde{M}}$.
+We add a variable $\nu=0$ to the left hand side and solve the system in a cartesian basis
+\begin{eqnarray}
+   U_2 \Vector{e}_{U2}
+ + V_2 \Vector{e}_{V2}
+ + \nu \Vector{n}_{pilot}
+ &=& 
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \begin{pmatrix}
+  U_2 \\ V_2 \\ \nu
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  e_{U2x} & e_{U2y} & e_{U2z} \\
+  e_{V2x} & e_{V2y} & e_{V2z} \\
+  n_{pilot x} & n_{pilot y} & n_{pilot z}
+ \end{pmatrix}^{-1}
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+\end{eqnarray}
+Adding $\nu$ allows us to use standard matrix inversion algorithms.
+The result should reproduce $\nu=0$ within numerical accurracy.
+We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(U_2,V_2)$ for each case.
+We split the results up in real and imaginary part $\Re U, \Re V, \Im U, \Im V$ and fill the $\hat{C}$ matrix.
 
 \subsection{Interpretation of XYUV matrices}
 
