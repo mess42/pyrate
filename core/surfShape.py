@@ -100,16 +100,39 @@ class Shape(ClassWithOptimizableVariables):
 
     def getHessian(self, x, y):
         """
-        Returns the local Hessian (as 6D vector) of the surface to obtain local curvature related quantities.
+        Returns the local Hessian of the surface to obtain local curvature related quantities.
         :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
         :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :return n: normal (2d numpy 6xN array of float)
+        :return n: normal (3d numpy 3x3xN array of float)
         """
         raise NotImplementedError()
 
     def getNormalDerivative(self, xveclocal):
+        """
+        Returns the normal derivative in local coordinates.
+        This function in the base class serves as fail safe solution in case the user did not implement
+        it analytically or in an optimized way
         
-        raise NotImplementedError()
+        partial_j n_i = Hess_jk/|grad|*(delta_ki - n_k n_i), see staged part of manual :>
+        """
+
+        x = xveclocal[0]
+        y = xveclocal[1]
+        
+        (num_dims, num_pts) = np.shape(xveclocal)
+        
+        normalvector = self.getNormal(x, y)
+        gradient = self.getGrad(x, y)
+        absgrad = np.sqrt(np.sum(gradient**2, axis=0))
+        
+        hessian = self.getHessian(x, y)/absgrad # first part
+        normal_projection = np.zeros_like(hessian)
+        
+        for i in range(num_pts):
+            normal_projection[:, :, i] += np.eye(num_dims) - np.outer(normalvector[:, i], normalvector[:, i]) 
+        
+        return np.einsum("ij...,jk...", hessian, normalprojection) # TODO: to be tested
+
 
     def getLocalRayBundleForIntersect(self, raybundle):
         localo = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
@@ -626,14 +649,31 @@ class Biconic(ExplicitShape):
     def getCentralCurvature(self):
         return 0.5*(self.dict_variables["curvx"].evaluate() + self.dict_variables["curvy"].evaluate())
 
-class Combination(ExplicitShape):
+class LinearCombination(ExplicitShape):
     """
     Class for combining several principal forms with arbitray corrections
     """
     
-    # TODO: init(self, lc, []), args constructors of other shapes
-    # sag transform back to lc and add up
-    pass
+    def __init__(self, lc, list_of_coefficients_and_shapes = []):
+        self.list_of_coefficient_and_shapes = list_of_coefficients_and_shapes
+        
+    def getSag(self, x, y):
+        
+        xlocal = np.vstack((x, y, np.zeros_like(x)))
+        zfinal = np.zeros_like(x)
+        
+        for (coefficient, shape) in self.list_of_coefficient_and_shapes:
+            xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
+            xs = xshape[0, :]
+            ys = xshape[1, :]
+            zs = shape.getSag(xs, ys)
+            xshape[2, :] = zs
+            xtransform_shape = shape.lc.returnActualToOtherPoints(xshape, self.lc)
+            
+            zfinal += xtransform_shape[2]
+            
+        return zfinal
+        
 
 
 if __name__ == "__main__":
