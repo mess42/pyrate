@@ -633,6 +633,7 @@ class Combination(ExplicitShape):
     
     # TODO: init(self, lc, []), args constructors of other shapes
     # sag transform back to lc and add up
+    pass
 
 
 if __name__ == "__main__":
