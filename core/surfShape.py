@@ -21,6 +21,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+# TODO: Maybe only implement getSag, getGrad, getHessian for the shapes.
+# getNormal is always calculated by getGrad/|getGrad|
+# This has the advantage that you may also define linear combinations
+# of shapes without haveing the problem of nonlinear combination of
+# the normals. Only thing you should take care about are the intersection
+# calculations
+
 import numpy as np
 import math
 from optimize import ClassWithOptimizableVariables
@@ -67,6 +74,16 @@ class Shape(ClassWithOptimizableVariables):
         :return curv: (float)
         """
         raise NotImplementedError()
+        
+    def getGrad(self, x, y):
+        """
+        Returns the gradient of the surface.
+        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :return grad: gradient (2d numpy 3xN array of float)
+        """
+        raise NotImplementedError()
+        
 
     def getNormal(self, x, y):
         """
@@ -75,7 +92,11 @@ class Shape(ClassWithOptimizableVariables):
         :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
         :return n: normal (2d numpy 3xN array of float)
         """
-        raise NotImplementedError()
+        gradient = self.getGrad(x, y)
+        absgradient = np.sqrt(np.sum(gradient**2, axis=0))
+        
+        return gradient/absgradient
+        
 
     def getHessian(self, x, y):
         """
@@ -140,7 +161,7 @@ class Conic(Shape):
 
         return z
 
-    def getNormal(self, x,y):
+    def getGrad(self, x,y):
         """
         normal on a rotational symmetric conic section.
         :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
@@ -152,18 +173,12 @@ class Conic(Shape):
         curv = self.curvature.evaluate()
         cc = self.conic.evaluate()
 
-        normal = np.zeros((3,len(x)), dtype=float)
-        normal[0] = -curv * x
-        normal[1] = -curv * y
-        normal[2] = 1 - curv * z * ( 1 + cc )
+        gradient = np.zeros((3,len(x)), dtype=float)
+        gradient[0] = -curv * x
+        gradient[1] = -curv * y
+        gradient[2] = 1 - curv * z * ( 1 + cc )
 
-        absn = np.sqrt(np.sum(normal**2, axis=0))
-
-        normal[0] = normal[0] / absn
-        normal[1] = normal[1] / absn
-        normal[2] = normal[2] / absn
-
-        return normal
+        return gradient
 
     def getHessian(self, x, y):
         """
@@ -337,21 +352,16 @@ class FreeShape(Shape):
         self.gradF = gradF # closed form gradient in x, y, z, paramslst
         self.hessF = hessF # closed form Hessian in x, y, z, paramslst
 
-    def getNormal(self, x, y):
+    def getGrad(self, x, y):
         result = np.zeros((3, len(x)))
         z = self.getSag(x, y)
         gradient = self.gradF(x, y, z)
-        absgradient = np.sqrt(np.sum(gradient**2, axis=0))
-        result = gradient/absgradient
-        return result
+        return gradient
 
     def getHessian(self, x, y):
         z = self.getSag(x, y)
         return self.hessF(x, y, z)
         
-    # TODO: implement the most general expression for central curvature
-    # (differs for different directions)
-
     # TODO: this could be speed up by updating a class internal z array
     # which could be done by using an internal update procedure and using
     # this z array by the get-functions
@@ -615,6 +625,14 @@ class Biconic(ExplicitShape):
         
     def getCentralCurvature(self):
         return 0.5*(self.dict_variables["curvx"].evaluate() + self.dict_variables["curvy"].evaluate())
+
+class Combination(ExplicitShape):
+    """
+    Class for combining several principal forms with arbitray corrections
+    """
+    
+    # TODO: init(self, lc, []), args constructors of other shapes
+    # sag transform back to lc and add up
 
 
 if __name__ == "__main__":
