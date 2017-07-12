@@ -42,7 +42,7 @@ from core.ray import RayBundle
 from core.aperture import CircularAperture
 from core.localcoordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ey, degree
+from core.globalconstants import canonical_ey, degree, standard_wavelength
 
 import math
 
@@ -126,19 +126,19 @@ rstobj = raster.MeridionalFan()
 rpup = 2
 o = np.vstack((rpup*px, rpup*py, 0.*np.ones_like(px)))
 k1 = np.zeros_like(o)
-k1[2,:] = 1.0 #2.*math.pi/wavelength
+k1[2,:] = 1.0 
 ey = np.zeros_like(o)
 ey[1,:] =  1.
 E1 = np.cross(k1, ey, axisa=0, axisb=0).T
 
 k2 = np.zeros_like(o)
-k2[1,:] = math.sin(15*degree) #2.*math.pi/wavelength
-k2[2,:] = math.cos(15*degree) #2.*math.pi/wavelength
+k2[1,:] = math.sin(15*degree) 
+k2[2,:] = math.cos(15*degree) 
 E2 = np.cross(k2, ey, axisa=0, axisb=0).T
 
 k3 = np.zeros_like(o)
-k3[1,:] = math.sin(-15*degree) #2.*math.pi/wavelength
-k3[2,:] = math.cos(-15*degree) #2.*math.pi/wavelength
+k3[1,:] = math.sin(-15*degree) 
+k3[2,:] = math.cos(-15*degree)
 E3 = np.cross(k3, ey, axisa=0, axisb=0).T
 
 
@@ -162,9 +162,9 @@ sysseq = [("HUD",
         ] 
 
 
-initialbundle1 = RayBundle(x0=o, k0=k1, Efield0=E1, wave=wavelength)
-initialbundle2 = RayBundle(x0=o, k0=k2, Efield0=E2, wave=wavelength)
-initialbundle3 = RayBundle(x0=o, k0=k3, Efield0=E3, wave=wavelength)
+initialbundle1 = RayBundle(x0=o, k0=k1, Efield0=E1, wave=standard_wavelength)
+initialbundle2 = RayBundle(x0=o, k0=k2, Efield0=E2, wave=standard_wavelength)
+initialbundle3 = RayBundle(x0=o, k0=k3, Efield0=E3, wave=standard_wavelength)
 r1 = s.seqtrace(initialbundle1, sysseq)
 r2 = s.seqtrace(initialbundle2, sysseq)
 r3 = s.seqtrace(initialbundle3, sysseq)
