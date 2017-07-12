@@ -242,15 +242,10 @@ class ZMXParser(object):
                 print("Standard surface found")                
                 actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc), apert=ap)
             elif surftype == "EVENASPH":
-                # param(1) corresponds to A2*r**2 coefficient in asphere
-                # this is not implemented, yet
                 print("Polynomial asphere found")
-
-                if abs(parms.get(1, 0.0)) > numerical_tolerance:
-                    print("warning: A2 coefficient ignored by our asphere implementation")
-                acoeffs = [parms.get(2+i, 0.0) for i in range(7)]
+                acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
                 print(acoeffs)
-                actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc, acoeffs=acoeffs), apert=ap)
+                actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc, coefficients=acoeffs), apert=ap)
             elif surftype == "COORDBRK":
                 print("Coordinate break found")
                 """

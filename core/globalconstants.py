@@ -49,4 +49,6 @@ canonical_ex = np.array([1, 0, 0])
 canonical_ey = np.array([0, 1, 0])
 canonical_ez = np.array([0, 0, 1])
 
+degree = math.pi/180.0
+
 numerical_tolerance = 1e-17
