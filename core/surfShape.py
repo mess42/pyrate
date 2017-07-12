@@ -657,23 +657,45 @@ class LinearCombination(ExplicitShape):
     def __init__(self, lc, list_of_coefficients_and_shapes = []):
         self.list_of_coefficient_and_shapes = list_of_coefficients_and_shapes
         
-    def getSag(self, x, y):
         
-        xlocal = np.vstack((x, y, np.zeros_like(x)))
-        zfinal = np.zeros_like(x)
         
-        for (coefficient, shape) in self.list_of_coefficient_and_shapes:
-            xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
-            xs = xshape[0, :]
-            ys = xshape[1, :]
-            zs = shape.getSag(xs, ys)
-            xshape[2, :] = zs
-            xtransform_shape = shape.lc.returnActualToOtherPoints(xshape, self.lc)
+        
+        def licosag(x, y):
             
-            zfinal += xtransform_shape[2]
+            xlocal = np.vstack((x, y, np.zeros_like(x)))
+            zfinal = np.zeros_like(x)
             
-        return zfinal
+            for (coefficient, shape) in self.list_of_coefficient_and_shapes:
+                xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
+                xs = xshape[0, :]
+                ys = xshape[1, :]
+                zs = shape.getSag(xs, ys)
+                xshape[2, :] = zs
+                xtransform_shape = shape.lc.returnActualToOtherPoints(xshape, self.lc)
+                
+                zfinal += coefficient*xtransform_shape[2]
+                
+            return zfinal
+            
+        def licograd(x, y, z):
+            xlocal = np.vstack((x, y, np.zeros_like(x)))
+            gradfinal = np.zeros_like(xlocal)
+            
+            for (coefficient, shape) in self.list_of_coefficient_and_shapes:
+                xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
+                xs = xshape[0, :]
+                ys = xshape[1, :]
+                grads = shape.getGrad(xs, ys)
+                gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
+                
+                gradfinal += coefficient*gradtransform_shape
+                
+            return gradfinal
         
+        def licohess(x, y, z):
+            pass
+        
+        super(LinearCombination, self).__init__(lc, licosag, licograd, licohess)
 
 
 if __name__ == "__main__":
