@@ -326,15 +326,19 @@ class Optimizer(BaseLogger):
         '''
         Funtion to perform a certain number of optimization steps.
         '''
+        self.info("optimizer run start")        
         x0 = self.classwithoptvariables.getActiveTransformedValues()
         
         # TODO: send to logger
         self.debug("initial x: " + str(x0))
         self.debug("initial merit: " + str(self.MeritFunctionWrapper(x0)))
+        self.debug("calling backend run")
         xfinal = self.__backend.run(x0)
+        self.debug("finished backend run")
         self.debug("final x: " + str(xfinal))
         self.debug("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
         self.classwithoptvariables.setActiveTransformedValues(xfinal)
         # TODO: do not change original classwithoptvariables
+        self.info("optimizer run finished")        
         return self.classwithoptvariables
 
