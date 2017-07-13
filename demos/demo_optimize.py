@@ -48,6 +48,8 @@ from core.surface import Surface
 
 from core.globalconstants import canonical_ey
 
+from core.optical_system_analysis import OpticalSystemAnalysis
+
 wavelength = standard_wavelength
 
 logging.basicConfig(level=logging.DEBUG)
@@ -167,8 +169,9 @@ s.addElement("lenssys", elem)
 
 
 fig = plt.figure(1)
-ax = fig.add_subplot(211)
-ax2 = fig.add_subplot(212)
+ax = fig.add_subplot(311)
+ax2 = fig.add_subplot(312)
+ax3 = fig.add_subplot(313)
 
 ax.axis('equal')
 ax2.axis('equal')
@@ -270,7 +273,8 @@ for r in r2:
 
 s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
+osa = OpticalSystemAnalysis(s)
+osa.drawSpotDiagram(ax3, r2[0], sysseq)
 
 plt.show()
 
