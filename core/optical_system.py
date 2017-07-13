@@ -43,8 +43,6 @@ class OpticalSystem(LocalCoordinatesTreeBase):
 
 
         """
-        
-        print('os constructor called')
         if rootlc is None:        
             rootlc = LocalCoordinates(name="global")
         self.rootcoordinatesystem = rootlc

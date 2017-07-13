@@ -175,7 +175,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         """
         Initialize with empty dict.
         """
-        self.setName(name)
+        super(ClassWithOptimizableVariables, self).__init__(name=name)
         self.dict_variables = {}
         self.list_observers = [] 
         # for the optimizable variable class it is useful to have some observer links

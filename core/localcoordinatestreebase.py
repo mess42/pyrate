@@ -47,9 +47,7 @@ class LocalCoordinatesTreeBase(ClassWithOptimizableVariables):
     """
     def __init__(self, rootcoordinatesystem, name="", **kwargs):
         self.rootcoordinatesystem = rootcoordinatesystem
-        
-        print("lc base constructor")        
-        
+                
         super(LocalCoordinatesTreeBase, self).__init__(name=name)        
         
     def checkForRootConnection(self, lc):
