@@ -177,9 +177,9 @@ rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles[2:]]
 # only last two bundles hit the next surface
 
 
-(pilotray, r_pilot) = s.para_seqtrace(pilotbundles[-1], initialbundle1, sysseq, use6x6=False)
+(pilotray, r_pilot) = s.para_seqtrace(pilotbundles[-1], initialbundle1, sysseq, use6x6=True)
 
-(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=False)
+(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=True)
 
 print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
 print(np.array_str(m_stop_img, precision=5, suppress_small=True))

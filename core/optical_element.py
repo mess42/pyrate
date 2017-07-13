@@ -167,7 +167,36 @@ class OpticalElement(LocalCoordinatesTreeBase):
             the components without pilot ray.
             """
             return (np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])).imag
-            
+
+        def bestfit_transfer(X, Y, use6x6=False):
+
+
+            XX = np.einsum('ij, kj', X, X).T
+            YX = np.einsum('ij, kj', X, Y).T
+
+            if use6x6:
+                Ximag = X[4:, :]
+                Yimag = Y[4:, :]
+    
+                if np.linalg.norm(Ximag) < numerical_tolerance or np.linalg.norm(Yimag) < numerical_tolerance:
+                    print("WARNING: start or end matrix contain zero rows: maybe you have a pure real material epsilon. please consider using use6x6=False")
+                    XX[4:, 4:] = np.eye(2)
+                    YX[4:, 4:] = np.eye(2)
+                # TODO: this is somehow arbitrary.
+                # The other possibility is to given k a slight imag component
+                    # may not be complex                
+                
+                        
+            transfer = np.dot(YX, np.linalg.inv(XX))
+
+            if not use6x6:
+                if np.linalg.norm(transfer4x4[0:2, 0:2].imag) > numerical_tolerance:
+                    print("WARNING: the XX transfer part contains imaginary values. please consider using use6x6=True.")
+
+            print(np.array_str(transfer, precision=5, suppress_small=True))
+           
+            return transfer
+
         
         (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)        
         
@@ -226,126 +255,39 @@ class OpticalElement(LocalCoordinatesTreeBase):
             endkred_imag = reduce_matrix_k_imag(endk)
 
             (num_dims, num_pts) = np.shape(startx) # check shape            
+
+
+            print(s1, s2)
+            if use6x6:
+                startmatrix = np.vstack((startxred, startkred_real, startkred_imag))
+                fspropmatrix = np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
+                endmatrix_lcstart = np.vstack((endx_lcstart_red, endk_lcstart_red_real, endk_lcstart_red_imag))
+                endmatrix = np.vstack((endxred, endkred_real, endkred_imag))
+            else:
+                startmatrix = np.vstack((startxred, startkred))
+                fspropmatrix = np.vstack((fspropxred, fspropkred))
+                endmatrix_lcstart = np.vstack((endx_lcstart_red, endk_lcstart_red))
+                endmatrix = np.vstack((endxred, endkred))
+                       
+
+            print("refraction")
+            refractmatrix = bestfit_transfer(startmatrix, fspropmatrix, use6x6=use6x6)
+            print("propagation")                    
+            propagatematrix = bestfit_transfer(fspropmatrix, endmatrix_lcstart, use6x6=use6x6)
+            print("coordinate trafo")                    
+            coordinatetrafomatrix = bestfit_transfer(endmatrix_lcstart, endmatrix, use6x6=use6x6)
+            print("full transfer")                                        
+            transfer = np.dot(coordinatetrafomatrix, np.dot(propagatematrix, refractmatrix)) 
+            print(np.array_str(transfer, precision=5, suppress_small=True))
+            transfer_comparison = bestfit_transfer(startmatrix, endmatrix, use6x6=use6x6) 
             
-            if num_pts == 5:
-                print("inversion algo for 5 points")                
-                if use6x6:
-                    startmatrix6x6 = np.vstack((startxred, startkred_real, startkred_imag))
-                    fspropmatrix6x6 = np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
-                    endmatrix_lcstart6x6 = np.vstack((endx_lcstart_red, endk_lcstart_red_real, endk_lcstart_red_imag))
-                    endmatrix6x6 = np.vstack((endxred, endkred_real, endkred_imag))
-    
-                    refractmatrix6x6 = np.dot(fspropmatrix6x6, np.linalg.inv(startmatrix6x6))
-                    propagatematrix6x6 = np.dot(endmatrix_lcstart6x6, np.linalg.inv(fspropmatrix6x6))
-                    coordinatetrafomatrix6x6 = np.dot(endmatrix6x6, np.linalg.inv(endmatrix_lcstart6x6))
-    
-                    transfer6x6 = np.dot(endmatrix6x6, np.linalg.inv(startmatrix6x6))
-    
-                    print("refract matrix 6x6", surfhit)            
-                    print(np.array_str(refractmatrix6x6, precision=5, suppress_small=True))
-                    print("propagate 6x6", surfhit)            
-                    print(np.array_str(propagatematrix6x6, precision=5, suppress_small=True))
-                    print("coordtrafo 6x6", surfhit)            
-                    print(np.array_str(coordinatetrafomatrix6x6, precision=5, suppress_small=True))
-    
-    
-                    XYUVmatrices[(s1, s2, numhit)] = transfer6x6
-                    XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer6x6)
-    
-    
-                else:
-                    startmatrix4x4 = np.vstack((startxred, startkred))
-                    fspropmatrix4x4 = np.vstack((fspropxred, fspropkred))
-                    endmatrix_lcstart4x4 = np.vstack((endx_lcstart_red, endk_lcstart_red))
-                    endmatrix4x4 = np.vstack((endxred, endkred))
-    
-                    refractmatrix4x4 = np.dot(fspropmatrix4x4, np.linalg.inv(startmatrix4x4))
-                    propagatematrix4x4 = np.dot(endmatrix_lcstart4x4, np.linalg.inv(fspropmatrix4x4))
-                    coordinatetrafomatrix4x4 = np.dot(endmatrix4x4, np.linalg.inv(endmatrix_lcstart4x4))
-    
-                    transfer4x4 = np.dot(endmatrix4x4, np.linalg.inv(startmatrix4x4))
-    
-                    print("SA: ", startmatrix4x4[0:2, 0:2])
-                    print("EA: ", endmatrix4x4[0:2, 0:2])
-                    print("SB: ", startmatrix4x4[0:2, 2:4])
-                    print("EB: ", endmatrix4x4[0:2, 2:4])
-                    sc = startmatrix4x4[2:4, 0:2]
-                    sd = endmatrix4x4[2:4, 2:4]
-                    print("SC: ", sc)
-                    print("SD: ", sd)
-                    print("SD^-1 SC: ", np.dot(np.linalg.inv(sd), sc))
-    
-    
-                    print("refract matrix 4x4", surfhit)            
-                    print(np.array_str(refractmatrix4x4, precision=5, suppress_small=True))
-                    print("propagate 4x4", surfhit)            
-                    print(np.array_str(propagatematrix4x4, precision=5, suppress_small=True))
-                    print("coordtrafo 4x4", surfhit)            
-                    print(np.array_str(coordinatetrafomatrix4x4, precision=5, suppress_small=True))
-                                
-                    XYUVmatrices[(s1, s2, numhit)] = transfer4x4
-                    XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)
-            else: # if num_pts != 5
-                print("best fit algo")                
-                if use6x6:
-                    X = np.vstack((startxred, startkred_real, startkred_imag))
-                    Y = np.vstack((endxred, endkred_real, endkred_imag))
-
-                    if np.linalg.norm(startkred_imag) < numerical_tolerance or np.linalg.norm(endkred_imag) < numerical_tolerance:
-                        print("WARNING: start or end matrix contain zero rows: maybe you have a pure real material epsilon. please consider using use6x6=False")
-
-                    XX = np.einsum('ij, kj', X, X).T
-                    YX = np.einsum('ij, kj', X, Y).T
-                    
-                    print("XX 6x6")                
-                    print(np.array_str(XX, precision=5, suppress_small=True))
-                    print("YX 6x6")                
-                    print(np.array_str(YX, precision=5, suppress_small=True))
-                    
-                    transfer6x6 = np.dot(YX, np.linalg.inv(XX))
-
-                    print("transfermatrix 6x6")                
-                    print(np.array_str(transfer6x6, precision=5, suppress_small=True))
-                    print("condition number:")
-                    print(np.linalg.cond(transfer6x6))
-                    
-                    XYUVmatrices[(s1, s2, numhit)] = transfer6x6
-                    XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer6x6)
+            print("condition number:")
+            print(np.linalg.cond(transfer))
+            
+            XYUVmatrices[(s1, s2, numhit)] = transfer
+            XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer)
 
 
-                else:
-                    X = np.vstack((startxred, startkred))
-                    Y = np.vstack((endxred, endkred))
-                    
-                    XX = np.einsum('ij, kj', X, X).T
-                    YX = np.einsum('ij, kj', X, Y).T
-                    
-                    transfer4x4 = np.dot(YX, np.linalg.inv(XX))
-                    
-                    print("XX 4x4")                
-                    print(XX)
-                    print("YX 4x4")                
-                    print(YX)
-                    #print("XXD 2x2")
-                    #print(XX[2:4, 2:4])
-                    #print("XXC 2x2")
-                    #print(XX[2:4, 0:2])
-                    
-                    # may we remove the imaginary parts from the upper left 2x2 matrix?
-    
-                    print("transfermatrix 4x4")                
-                    print(transfer4x4)
-                    print("condition number:")
-                    print(np.linalg.cond(transfer4x4))
-
-                    if np.linalg.norm(transfer4x4[0:2, 0:2].imag) > numerical_tolerance:
-                        print("WARNING: the XX transfer part contains imaginary values. please consider using use6x6=True.")
-                        # may not be complex                
-
-                    
-                    XYUVmatrices[(s1, s2, numhit)] = transfer4x4
-                    XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer4x4)
-       
         return (pilotraypath, XYUVmatrices)
      
 
