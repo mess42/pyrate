@@ -277,7 +277,7 @@ s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0
 osa = OpticalSystemAnalysis(s)
 osa.drawSpotDiagram(r2[0], sysseq)
 sa = ShapeAnalysis(surf1.shape)
-sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), ax=ax3)
+sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
 
 plt.show()
 

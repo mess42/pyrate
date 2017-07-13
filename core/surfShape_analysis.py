@@ -62,7 +62,7 @@ class ShapeAnalysis(BaseLogger):
         
         return self.shape.getSag(x, y) - z
     
-    def plot(self, xlinspace, ylinspace, ax=None, *args, **kwargs):
+    def plot(self, xlinspace, ylinspace, contours=10, ax=None, *args, **kwargs):
         (X, Y, Z) = self.generateSagMatrices(xlinspace, ylinspace)
         
         MASK = kwargs.get('mask', np.ones_like(Z, dtype=bool))        
@@ -70,12 +70,12 @@ class ShapeAnalysis(BaseLogger):
         
         if ax is None:
             plt.figure()
-            plt.contourf(X, Y, Z, *args, **kwargs)
+            plt.contourf(X, Y, Z, contours, *args, **kwargs)
             plt.colorbar()
             plt.title(kwargs.get("title", ""))
             plt.show()
         else:
-            ax.contourf(X, Y, Z, *args, **kwargs)
+            ax.contourf(X, Y, Z, contours, *args, **kwargs)
             #plt.colorbar()
             ax.set_title(kwargs.get("title", ""))
             ax.set_aspect('equal')
