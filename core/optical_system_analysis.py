@@ -22,21 +22,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+from log import BaseLogger
 
-
-class OpticalSystemAnalysis:
+class OpticalSystemAnalysis(BaseLogger):
     
-    def __init__(self, os):
+    def __init__(self, os, name=''):
+        super(OpticalSystemAnalysis, self).__init__(name=name)
         self.opticalsystem = os
         
     def trace(self, pilotbundle, fullsequence):
-        
-        # FIXME: to many parameters in call, maybe set pilotbundle and background medium in advance        
+        self.info("tracing rays")
         list_of_raypaths = []
         return list_of_raypaths
         
     def getFootprint(self, raypath, fulsequence, hitlist_part):
-        
+        self.info("getting footprint")
         # use hitlist_part to select raypath part
 
         xpos_in_surface_lc = np.array([0, 0])
