@@ -23,11 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import matplotlib.pyplot as plt
+from log import BaseLogger
 
-
-class ShapeAnalysis:
+class ShapeAnalysis(BaseLogger):
     
-    def __init__(self, shape):
+    def __init__(self, shape, name=''):
+        super(ShapeAnalysis, self).__init__(self, name=name)
         self.shape = shape
     
     def generateSagTable(self, xlinspace, ylinspace):
