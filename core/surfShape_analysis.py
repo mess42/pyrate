@@ -64,6 +64,9 @@ class ShapeAnalysis:
     def plot(self, xlinspace, ylinspace, *args, **kwargs):
         (X, Y, Z) = self.generateSagMatrices(xlinspace, ylinspace)
         
+        MASK = kwargs.get('mask', np.ones_like(Z, dtype=bool))        
+        Z[~MASK] = np.nan        
+        
         plt.figure()
         plt.contourf(X, Y, Z, *args, **kwargs)
         plt.colorbar()
