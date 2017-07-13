@@ -277,18 +277,18 @@ class ClassWithOptimizableVariables(BaseLogger):
             var.setvalue_transformed(x[i])
 
 
-class Optimizer(object):
+class Optimizer(BaseLogger):
     '''
     Easy optimization interface. All variables are public such that a quick
     attachment of other meritfunctions or other update functions with other
     parameters is possible.
     '''
-    def __init__(self, classwithoptvariables, meritfunction, backend, updatefunction=None):
+    def __init__(self, classwithoptvariables, meritfunction, backend, name='', updatefunction=None):
 
         def noupdate(cl):
             pass
         
-        super(Optimizer, self).__init__()
+        super(Optimizer, self).__init__(name=name)
         self.classwithoptvariables = classwithoptvariables
         self.meritfunction = meritfunction # function to minimize
         if updatefunction is None:
@@ -299,7 +299,6 @@ class Optimizer(object):
        
         self.meritparameters = {}
         self.updateparameters = {}
-        self.log = "" # for logging
 
     def setBackend(self, backend):
         self.__backend = backend
@@ -319,18 +318,22 @@ class Optimizer(object):
         """
         self.classwithoptvariables.setActiveTransformedValues(x)
         self.updatefunction(self.classwithoptvariables, **self.updateparameters)    
-        return self.meritfunction(self.classwithoptvariables, **self.meritparameters)
+        res = self.meritfunction(self.classwithoptvariables, **self.meritparameters)
+        self.debug("meritfunction: " + str(res))
+        return res
 
     def run(self):
         '''
         Funtion to perform a certain number of optimization steps.
         '''
         x0 = self.classwithoptvariables.getActiveTransformedValues()
-        self.log += "initial x: " + str(x0) + '\n'
-        self.log += "initial merit: " + str(self.MeritFunctionWrapper(x0)) + "\n"
+        
+        # TODO: send to logger
+        self.debug("initial x: " + str(x0))
+        self.debug("initial merit: " + str(self.MeritFunctionWrapper(x0)))
         xfinal = self.__backend.run(x0)
-        self.log += "final x: " + str(xfinal) + '\n'
-        self.log += "final merit: " + str(self.MeritFunctionWrapper(xfinal)) + "\n"
+        self.debug("final x: " + str(xfinal))
+        self.debug("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
         self.classwithoptvariables.setActiveTransformedValues(xfinal)
         # TODO: do not change original classwithoptvariables
         return self.classwithoptvariables

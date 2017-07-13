@@ -27,6 +27,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 from distutils.version import StrictVersion
 
+import logging
+
 import math
 
 from core.material_isotropic import ConstantIndexGlass
@@ -47,6 +49,8 @@ from core.surface import Surface
 from core.globalconstants import canonical_ey
 
 wavelength = standard_wavelength
+
+logging.basicConfig(level=logging.DEBUG)
 
 # definition of optical system
 s = OpticalSystem() # objectDistance = 2.0
@@ -247,8 +251,6 @@ def meritfunctionrms(s):
     
     res = np.sum(x**2 + y**2) + 10.*math.exp(-len(x))
     
-    print("tlt: ", tltx_var())    
-    print("res: ", res)
     return res
 
 #opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
@@ -258,8 +260,8 @@ optimi = Optimizer(s, \
                     meritfunctionrms, \
                     backend=opt_backend, \
                     updatefunction=osupdate)
+optimi.logger.setLevel(logging.DEBUG)
 s = optimi.run()
-print(optimi.log)
 
 r2 = s.seqtrace(initialbundle, sysseq) # trace again
 print("drawing!")

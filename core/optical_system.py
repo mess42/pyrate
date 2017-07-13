@@ -43,11 +43,13 @@ class OpticalSystem(LocalCoordinatesTreeBase):
 
 
         """
+        
+        print('os constructor called')
         if rootlc is None:        
             rootlc = LocalCoordinates(name="global")
         self.rootcoordinatesystem = rootlc
 
-        super(OpticalSystem, self).__init__(self.rootcoordinatesystem, label = name)
+        super(OpticalSystem, self).__init__(self.rootcoordinatesystem, name=name)
         
         if matbackground is None:
             matbackground = ConstantIndexGlass(self.rootcoordinatesystem, 1.0)
