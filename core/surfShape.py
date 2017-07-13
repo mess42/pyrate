@@ -33,6 +33,7 @@ import math
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 from scipy.optimize import fsolve
+from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
 from globalconstants import numerical_tolerance
 
 class Shape(ClassWithOptimizableVariables):
@@ -624,12 +625,12 @@ class Biconic(ExplicitShape):
             z = self.getSag(x, y)
             
 
-            res[0, 0] = 2*cx*(6*cx*x**2 + cx*z**2*(ccx + 1) + 2*cy*y**2 - 2*z)
-            res[0, 1] = res[1, 0] = 8*cx*cy*x*y
-            res[0, 2] = res[2, 0] = 4*cx*x*(cx*z*(ccx + 1) - 1)
-            res[1, 1] = 2*cy*(2*cx*x**2 + 6*cy*y**2 + cy*z**2*(ccy + 1) - 2*z)
-            res[1, 2] = res[2, 1] = 4*cy*y*(cy*z*(ccy + 1) - 1)
-            res[2, 2] = 2*cx**2*x**2*(ccx + 1) + 2*cy**2*y**2*(ccy + 1)
+            res[0, 0] = -2*cx*(6*cx*x**2 + cx*z**2*(ccx + 1) + 2*cy*y**2 - 2*z)
+            res[0, 1] = res[1, 0] = -8*cx*cy*x*y
+            res[0, 2] = res[2, 0] = -4*cx*x*(cx*z*(ccx + 1) - 1)
+            res[1, 1] = -2*cy*(2*cx*x**2 + 6*cy*y**2 + cy*z**2*(ccy + 1) - 2*z)
+            res[1, 2] = res[2, 1] = -4*cy*y*(cy*z*(ccy + 1) - 1)
+            res[2, 2] = -2*cx**2*x**2*(ccx + 1) + 2*cy**2*y**2*(ccy + 1)
 
             # TODO: corrections missing            
             
@@ -688,11 +689,12 @@ class LinearCombination(ExplicitShape):
                 grads = shape.getGrad(xs, ys)
                 gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
                 
-                gradfinal += coefficient*gradtransform_shape
+                gradfinal += -coefficient*gradtransform_shape
                 
             return gradfinal
         
         def licohess(x, y, z):
+            # TODO: Hessian
             pass
         
         super(LinearCombination, self).__init__(lc, licosag, licograd, licohess)
@@ -747,6 +749,48 @@ class XYPolynomials(ExplicitShape):
     def getXYParameters(self):
         return [(xpow, ypow, self.dict_variables["CX"+str(xpow)+"Y"+str(ypow)].evaluate()) for (xpow, ypow) in self.list_coefficients]
                 
+
+class GridSag(ExplicitShape):
+    
+    def __init__(self, lc, (xlinspace, ylinspace, Zgrid), *args, **kwargs):
+    
+    
+        self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, *args, **kwargs)
+    
+        def gsf(x, y):
+            
+            res = np.zeros_like(x)
+            
+            for i in range(len(x)):            
+                res[i] = self.interpolant(x[i], y[i])[0]
+
+            # interpolants give a not perfect return value            
+                        
+            return res
+
+        def gradgsf(x, y, z): # gradient for implicit function z - af(x, y) = 0
+            res = np.zeros((3, len(x)))
+            
+            for i in range(len(x)):
+                res[0, i] = -self.interpolant(x[i], y[i], dx=1)[0]
+                res[1, i] = -self.interpolant(x[i], y[i], dy=1)[0]
+            res[2, :] = 1.
+            
+            return res
+
+        def hessgsf(x, y, z):
+            res = np.zeros((3, 3, len(x)))
+            
+            for i in range(len(x)):
+                res[0, 0, i] = -self.interpolant(x, y, dx=2)[0]            
+                res[0, 1, i] = res[1, 0, i] = -self.interpolant(x, y, dx=1, dy=1)[0]            
+                res[1, 1, i] = -self.interpolant(x, y, dy=2)[0]            
+            
+            
+            return res
+
+        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-6, iterations=10)
+
 
 
 if __name__ == "__main__":
