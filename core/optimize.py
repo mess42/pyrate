@@ -25,6 +25,8 @@ import numpy as np
 import math
 import uuid
 
+from log import BaseLogger
+
 class OptimizableVariable(object):
     """
     Class that contains an optimizable variable. Used to get a pointer on a variable.
@@ -164,7 +166,7 @@ class OptimizableVariable(object):
         value = self.inv_transform(value_transformed)
         self.setvalue(value)
         
-class ClassWithOptimizableVariables(object):
+class ClassWithOptimizableVariables(BaseLogger):
     """
     Implementation of some class with optimizable variables with the help of a dictionary.
     This class is also able to collect the variables and their values from its subclasses per recursion.
@@ -182,15 +184,6 @@ class ClassWithOptimizableVariables(object):
     def __call__(self, key):
         return self.dict_variables.get(key, None)
 
-    def setName(self, name):
-        if name == "":
-            name = str(uuid.uuid4())
-        self.__name = name
-        
-    def getName(self):
-        return self.__name
-        
-    name = property(getName, setName)
 
 
     def appendObservers(self, obslist):

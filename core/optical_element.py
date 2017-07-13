@@ -190,7 +190,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             transfer = np.dot(YX, np.linalg.inv(XX))
 
             if not use6x6:
-                if np.linalg.norm(transfer4x4[0:2, 0:2].imag) > numerical_tolerance:
+                if np.linalg.norm(transfer[0:2, 0:2].imag) > numerical_tolerance:
                     print("WARNING: the XX transfer part contains imaginary values. please consider using use6x6=True.")
 
             print(np.array_str(transfer, precision=5, suppress_small=True))
