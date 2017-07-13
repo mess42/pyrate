@@ -697,6 +697,57 @@ class LinearCombination(ExplicitShape):
         
         super(LinearCombination, self).__init__(lc, licosag, licograd, licohess)
 
+class XYPolynomials(ExplicitShape):
+
+    def __init__(self, lc, coefficients=None):
+
+        if coefficients is None:
+            coefficients = []
+        
+        self.list_coefficients = [(xpow, ypow) for (xpow, ypow, coefficient) in coefficients]
+        initcoeffs = [("CX"+str(xpower)+"Y"+str(ypower), coefficient) for (xpower, ypower, coefficient) in coefficients]
+    
+        def xyf(x, y):
+            coeffs = self.getXYParameters()
+            
+            res = np.zeros_like(x)
+            
+            for (xpow, ypow, coefficient) in coeffs:
+                res += x**xpow*y**ypow*coefficient
+            return res
+
+        def gradxyf(x, y, z): # gradient for implicit function z - af(x, y) = 0
+            res = np.zeros((3, len(x)))
+            coeffs = self.getXYParameters()
+
+            for (xpow, ypow, coefficient) in coeffs:
+                res[0, :] += -xpow*x**(xpow-1)*y**ypow*coefficient
+                res[1, :] += -ypow*x**xpow*y**(ypow-1)*coefficient
+                res[2, :] += 1
+                        
+            return res
+
+        def hessxyf(x, y, z):
+            res = np.zeros((3, 3, len(x)))
+
+            coeffs = self.getXYParameters()            
+
+            for (xpow, ypow, coefficient) in coeffs:
+                res[0, 0] += -xpow*(xpow-1)*x**(xpow-2)*y**ypow*coefficient
+                res[0, 1] += -xpow*ypow*x**(xpow-1)*y**(ypow-1)*coefficient
+                res[1, 1] += -ypow*(ypow-1)*x**xpow*y**(ypow-2)*coefficient
+                
+            res[1, 0] = res[0, 1]
+            
+            return res
+
+        super(XYPolynomials, self).__init__(lc, xyf, gradxyf, hessxyf, \
+            paramlist=initcoeffs, eps=1e-6, iterations=10)
+
+    def getXYParameters(self):
+        return [(xpow, ypow, self.dict_variables["CX"+str(xpow)+"Y"+str(ypow)].evaluate()) for (xpow, ypow) in self.list_coefficients]
+                
+
 
 if __name__ == "__main__":
     from localcoordinates import LocalCoordinates
