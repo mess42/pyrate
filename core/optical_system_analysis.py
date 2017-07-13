@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from log import BaseLogger
 from ray_analysis import RayBundleAnalysis
+import matplotlib.pyplot as plt
 
 
 class OpticalSystemAnalysis(BaseLogger):
@@ -63,8 +64,12 @@ class OpticalSystemAnalysis(BaseLogger):
         return (last_x_surf[0:2, :], rmscentroidsize)
 
     
-    def drawSpotDiagram(self, ax, raypath, fullsequence):
+    def drawSpotDiagram(self, raypath, fullsequence, ax=None):
         (spot_xy, rmscentroidsize) = self.getSpot(raypath, fullsequence)
+
+        if ax is None:
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
 
         ax.plot(spot_xy[0], spot_xy[1],'.')
         ax.set_xlabel('x [mm]')
@@ -74,3 +79,6 @@ class OpticalSystemAnalysis(BaseLogger):
         ax.text(0.05, 0.05,'Centroid RMS spot radius: '+str(1000.*rmscentroidsize)+' um', transform=ax.transAxes)
     
         ax.set_title('Spot diagram')
+        
+        if ax is None:
+            plt.show()

@@ -28,7 +28,7 @@ from log import BaseLogger
 class ShapeAnalysis(BaseLogger):
     
     def __init__(self, shape, name=''):
-        super(ShapeAnalysis, self).__init__(self, name=name)
+        super(ShapeAnalysis, self).__init__(name=name)
         self.shape = shape
     
     def generateSagTable(self, xlinspace, ylinspace):
@@ -62,14 +62,20 @@ class ShapeAnalysis(BaseLogger):
         
         return self.shape.getSag(x, y) - z
     
-    def plot(self, xlinspace, ylinspace, *args, **kwargs):
+    def plot(self, xlinspace, ylinspace, ax=None, *args, **kwargs):
         (X, Y, Z) = self.generateSagMatrices(xlinspace, ylinspace)
         
         MASK = kwargs.get('mask', np.ones_like(Z, dtype=bool))        
         Z[~MASK] = np.nan        
         
-        plt.figure()
-        plt.contourf(X, Y, Z, *args, **kwargs)
-        plt.colorbar()
-        plt.title(kwargs.get("title", ""))
-        plt.show()
+        if ax is None:
+            plt.figure()
+            plt.contourf(X, Y, Z, *args, **kwargs)
+            plt.colorbar()
+            plt.title(kwargs.get("title", ""))
+            plt.show()
+        else:
+            ax.contourf(X, Y, Z, *args, **kwargs)
+            #plt.colorbar()
+            ax.set_title(kwargs.get("title", ""))
+            ax.set_aspect('equal')

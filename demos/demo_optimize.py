@@ -49,6 +49,7 @@ from core.surface import Surface
 from core.globalconstants import canonical_ey
 
 from core.optical_system_analysis import OpticalSystemAnalysis
+from core.surfShape_analysis import ShapeAnalysis
 
 wavelength = standard_wavelength
 
@@ -274,7 +275,9 @@ for r in r2:
 s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 osa = OpticalSystemAnalysis(s)
-osa.drawSpotDiagram(ax3, r2[0], sysseq)
+osa.drawSpotDiagram(r2[0], sysseq)
+sa = ShapeAnalysis(surf1.shape)
+sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), ax=ax3)
 
 plt.show()
 
