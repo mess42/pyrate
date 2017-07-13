@@ -754,8 +754,10 @@ class GridSag(ExplicitShape):
     
     def __init__(self, lc, (xlinspace, ylinspace, Zgrid), *args, **kwargs):
     
+        kwargs_dict = kwargs
+        kind = kwargs_dict.pop('kind', 'cubic')
     
-        self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, *args, **kwargs)
+        self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
     
         def gsf(x, y):
             
