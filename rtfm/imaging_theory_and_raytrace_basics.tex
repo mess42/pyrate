@@ -1778,7 +1778,7 @@ We consider the pilot ray and a ray parallel to it ($U,V=0$).
  \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
  X_2 \Vector{e}_{X2} +  Y_2 \Vector{e}_{Y2} - \Delta s \Vector{d}_{pilot} &=&  X_1 \Vector{e}_{X1} +  Y_1 \Vector{e}_{Y1} 
 \end{eqnarray}
-The three unknowns $X_2 , Y_2 \Vector{e}_{Y2} , \Delta s$ can be calculated from this 3-dimensional vector equation.
+The three unknowns $X_2 , Y_2, \Delta s$ can be calculated from this 3-dimensional vector equation.
 One possibility to do so is to employ a cartesian basis $(x,y,z)$ and write
 \begin{eqnarray}
  \begin{pmatrix}
@@ -2131,9 +2131,6 @@ We split the input vector into two sub-vectors
 \end{eqnarray}
 
 
-\subsubsection{Focal Length}
-TODO
-
 \subsubsection{Finite Conjugate Systems}
 We define a ray fan to be imaged, 
 if for a common ray starting position $\Vector{H}_{obj}$, all multiples of a
@@ -2153,7 +2150,7 @@ They interfere and form a sinusoidal grating intensity pattern
 \begin{eqnarray}
  I &\propto& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
 \end{eqnarray}
-We desire the modulation depth of the intensity pattern to be independent of position
+In the object plane, we desire the modulation depth of the intensity pattern to be independent of position
 \begin{eqnarray}
  (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
 \end{eqnarray}
@@ -2162,28 +2159,31 @@ This shall hold for all positions $\Vector{H}=(X,Y)$, so
  \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_X ) &=& 0 \\
  \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_Y ) &=& 0
 \end{eqnarray}
-We find 2 independent solutions $\Vector{K} = (\Re U, \Re V, \Im U, \Im V)$ that form real gratings in the object plane.
-We choose the solutions in an orthogonal manner $\Vector{K}_1 \cdot \Vector{K}_2 = 0$.
-All wavevector deviations must be constructed as linear combinations of them.
+We find 2 independent solutions $\Vector{K}_x$,$\Vector{K}_y$ that form real gratings in the object plane.
+We choose the solutions in an orthogonal manner $\Vector{K}_x \cdot \Vector{K}_y = 0$.
+Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of the se two directions,
+we ensure a real valued grating in the object plane. 
+The intensity distribution in intermediate planes and in the image plane, however, 
+may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X,Y}$.
 \begin{eqnarray}
- \Delta \Wavevector &=& P_1 \Vector{K}_1 + P_2 \Vector{K}_2
+ \Delta \Wavevector_{obj} &=& P_x \Vector{K}_x + P_y \Vector{K}_y
 \end{eqnarray}
-We call $P_{1,2} \in \mathbb{R}$ the pupil coordinates. The are not normalized and may be arbitrarily scaled.
+We call $P_{x,y} \in \mathbb{R}$ the entrance pupil coordinates. The are not normalized and may be arbitrarily scaled.
 Our imaging condition reduces to
 \begin{eqnarray}
  \hat{B}
  \begin{pmatrix}
- K_{1,1} & K_{1,2} \\
- K_{2,1} & K_{2,2} \\
- K_{3,1} & K_{3,2} \\
- K_{4,1} & K_{4,2} \\ 
+ K_{x,1} & K_{y,1} \\
+ K_{x,2} & K_{y,2} \\
+ K_{x,3} & K_{y,3} \\
+ K_{x,4} & K_{y,4} \\ 
  \end{pmatrix}
  \begin{pmatrix}
- P_1 \\ P_2 
+ P_x \\ P_y 
  \end{pmatrix}
  &=& 0
 \end{eqnarray}
-Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{K}_1, \Vector{K}_2)$ vanishes.
+Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{K}_x, \Vector{K}_y)$ vanishes.
 In case the determeninant is nonzero, 
 we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} by a distance $\Delta s$ 
 in front of the image plane.
@@ -2201,80 +2201,38 @@ We are interested in solutions $\Delta s$ for which the determinant vanishes.
 This problem is similar to an eigenvalue problem, so we call the solutions $\Delta s$ quasi-eigenvalues.
 The characteristic polynomial is quadratic in $\Delta s$.
 The defocus values $\Delta s_{1,2}$ are quasi-eigenvalues 
-and come with a corresponding quasi-eigenvector $\Vector{P}_{qeig\,1,2}$ or $\Vector{K}_{qeig\,1,2}$ , respectively.
+and come with a corresponding quasi-eigenvector $\Vector{p}_{qeig\,1,2}$.
+The quasi-eigenvectors shall be unit-less and normalized, $\Vector{p}_{qeig\,1,2} \cdot \overline{\Vector{p}}_{qeig\,1,2} = 1$
 Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in image plane, 
 if the corresponding eigen-defocus is applied.
 
-\paragraph{First case: both $\Delta s$ are degenerate -- the stigmatic case.}
-In this case, both pupil directions are eigen-directions in the common focus position.
+In both solution planes $\Delta s$, 
+we express the entrance pupil coordinates in a basis system of the quasi-eigenvector and a vector orthogonal to it.
 \begin{eqnarray}
- \hat{\tilde{B}} \Vector{P}_{qeig\,1} &=& 0 \\
- \hat{\tilde{B}} \Vector{P}_{qeig\,2} &=& 0
-\end{eqnarray}
-The imaging equation simplifies to
-\begin{eqnarray}
- \Vector{H}_{im} &=& \hat{\tilde{A}} \Vector{H}_{obj} + 0
-\end{eqnarray}
-Stigmatic imaging is achieved for field coordinates in both directions $X,Y$ or its linear combinations at the same time.
-
-\paragraph{Second case: both $\Delta s$ are unique -- the astigmatic case.}
-We are interested in the magnification in both image planes. 
-Without loss of generality, we choose $\Delta s = \Delta s_1$.
-The imaging equation is
-\begin{eqnarray}
- \Vector{H}_{im} &=& \hat{\tilde{A}} \Vector{H}_{obj} + \hat{\tilde{B}} \Vector{P}_{obj} \\
- \Vector{H}_{im} &=& \hat{\tilde{A}} \Vector{H}_{obj} + \hat{\tilde{B}} \Vector{P}_{\perp1}
-\end{eqnarray}
-where $\Vector{P}_{\perp1}$ is the pupil coordinate component perpendicular to the eigenvector $1$.
-\begin{eqnarray}
- \Vector{P}_{\perp1} &=& \frac{ \Vector{P}_{obj} - (\Vector{P}_{obj} \Vector{P}_{qeig\,1}) \Vector{P}_{qeig\,1}}
-                              { \Vector{P}_{qeig\,1} \cdot \Vector{P}_{qeig\,1} }
-\end{eqnarray}
-Starting with a 2 dimensional angular cone $\Vector{P}_{obj}$ from a fixed object location, 
-we find a line along $\hat{\tilde{B}} \Vector{P}_{\perp1}$ in the image.
-Along such a line, an intensity detector is unable to discriminate object points.
-In order to achieve imaging, we must choose our object coordinates perpendicular to the line,
-\begin{eqnarray}
- \left( \hat{\tilde{A}} \Vector{H}_{obj} \right)
- \cdot
- \left( \hat{\tilde{B}} \Vector{P}_{\perp1} \right) 
- &=& 0
-\end{eqnarray}
-leaving a one-dimensional image direction $\Vector{H}_{obj}$.
-In the weakly astigmatic case, $\lim \Delta s_1 \to \Delta s_2$, 
-we find $\hat{\tilde{B}} \Vector{P}_{\perp1} \to 0$ 
-and the calculation of object directions becomes numerically unstable.
-While in the limit any direction $\Vector{H}_{obj}(\Delta s_1)$ works, 
-we need to make sure that the second direction $\Vector{H}_{obj}(\Delta s_2)$ is linearly independent.
-To solve this instability, we apply the rule of de l'H\^{o}pital and calculate the derivatives $\partial/\partial \Delta s$.
-\begin{eqnarray}
- \Vector{H}_{astig} &=& 
-   \hat{\tilde{A}}^{-1}
-   \begin{pmatrix}
-     0 & 1 \\
-    -1 & 0
-   \end{pmatrix}
-   \left( \hat{\tilde{B}} \Vector{P}_{\perp1} \right) 
+ \Vector{P} &=& P_{qeig} \Vector{p}_{qeig} + P_\perp \Vector{p}_{\perp}
  \\
- \Vector{H}_{stig} &=&
-   \frac{\partial \hat{\tilde{A}}^{-1}}{\partial \Delta s}
-   \begin{pmatrix}
-     0 & 1 \\
-    -1 & 0
-   \end{pmatrix}
-   \left( \hat{\tilde{B}} \Vector{P}_{\perp1} \right) 
-   +
-   \hat{\tilde{A}}^{-1}
-   \begin{pmatrix}
-     0 & 1 \\
-    -1 & 0
-   \end{pmatrix}
-   \left( \frac{\partial \hat{\tilde{B}}}{\partial \Delta s} \Vector{P}_{\perp1} \right)
+ \Vector{p}_{\perp\,1,2} &=&
+ \begin{pmatrix}
+  - p_{qeig\,1,2 y} \\ p_{qeig\,1,2 x}
+ \end{pmatrix}
 \end{eqnarray}
-
-\remark{TODO: automatically choose one option; maybe by calculating the stigmatic solution 
-and projecting it on the astigmatic direction; in the stigmatic case, the scalar product will vanish and the projection leaves the input untouched.}
-
+$P$ is unit bearing and of dimension $1/\meter$, while $p$ is unit-less.
+\begin{eqnarray}
+ \tilde{\hat{B}}(\Delta s_i) & \Vector{p}_{qeig\, i} &= 0 \\
+ \tilde{\hat{B}}(\Delta s_i) & \Vector{p}_{\perp\, i} &= \Vector{h}_{line\, i}
+\end{eqnarray}
+We consider light emitted from one object point 
+in different directions $\Vector{P}$ towards the image.
+There are three cases:
+In the first case, $\Vector{h}_{line}$ is zero. 
+All light emitted from one object point is stigmatically focused to an image point.
+In this case, the quasi-eigenvalues are degenerate $\Delta s_1 = \Delta s_2$.
+In the second case, $\Vector{h}_{line}$ is large.
+Light emitted from one object point is astigmatically focused to a line.
+The orientation of the lines in the planes $\Delta s_1$ and $\Delta s_2$ are different.
+In classical raytracing, this phenomenon is often called \emph{on-axis-astigmatism}.
+And in the third case, $\Vector{h}_{line}$ is nonzero, but small.
+The system behaves like a stigmatic system in all practical aspects.
 
 
 
