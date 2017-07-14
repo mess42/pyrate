@@ -45,6 +45,8 @@ from core.localcoordinates import LocalCoordinates
 from core.globalconstants import canonical_ey
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 import core.helpers
 
@@ -166,10 +168,10 @@ rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 
 (m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=False)
 
-print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
-print(np.array_str(m_stop_img, precision=5, suppress_small=True))
+logging.info(np.array_str(m_obj_stop, precision=5, suppress_small=True))
+logging.info(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
-print(s.sequence_to_hitlist(sysseq))
+logging.info(s.sequence_to_hitlist(sysseq))
 
 
 ### TODO:

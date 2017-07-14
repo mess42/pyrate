@@ -42,6 +42,8 @@ from core.localcoordinates import LocalCoordinates
 from core.globalconstants import canonical_ey
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
@@ -125,11 +127,6 @@ up = canonical_ey
 
 for r in r2:
     r.draw2d(ax, color="blue", plane_normal=pn, up=up)
-    for rb in r.raybundles:
-        print("x")
-        print(rb.x)
-        print("k")
-        print(rb.k)
 s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 

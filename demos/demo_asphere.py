@@ -47,6 +47,8 @@ from core.optimize import Optimizer
 from core.optimize_backends import ScipyBackend
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
@@ -114,7 +116,6 @@ def meritfunctionrms(s):
     
     res = np.sum(x**2 + y**2)
     
-    print(res)
     return res
 
 backsurf.shape.dict_variables["curv"].changetype("variable")
