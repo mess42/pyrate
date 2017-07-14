@@ -193,7 +193,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
                 if np.linalg.norm(transfer[0:2, 0:2].imag) > numerical_tolerance:
                     self.warning("The XX transfer part contains imaginary values. please consider using use6x6=True.")
 
-            self.debug(np.array_str(transfer, precision=5, suppress_small=True))
+            self.debug("\n" + np.array_str(transfer, precision=5, suppress_small=True))
            
             return transfer
 
@@ -257,7 +257,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             (num_dims, num_pts) = np.shape(startx) # check shape            
 
 
-            self.debug(s1, s2)
+            self.debug(str([s1, s2]))
             if use6x6:
                 startmatrix = np.vstack((startxred, startkred_real, startkred_imag))
                 fspropmatrix = np.vstack((fspropxred, fspropkred_real, fspropkred_imag))

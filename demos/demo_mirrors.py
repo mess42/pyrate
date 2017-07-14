@@ -164,14 +164,14 @@ pilotbundles = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx),
 
 rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 
-(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq, use6x6=False)
+(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq, use6x6=True)
 
-(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=False)
+(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=True)
 
 logging.info(np.array_str(m_obj_stop, precision=5, suppress_small=True))
 logging.info(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
-logging.info(s.sequence_to_hitlist(sysseq))
+logging.info(str(s.sequence_to_hitlist(sysseq)))
 
 
 ### TODO:

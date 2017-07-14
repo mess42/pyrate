@@ -78,7 +78,7 @@ def asphere_sag(test_vector):
     x_coordinate = values[0]
     y_coordinate = values[1]
     shape = Asphere(coordinate_system, curv=curvature, cc=conic_constant,
-                    acoeffs=[alpha2, alpha4, alpha6])
+                    coefficients=[alpha2, alpha4, alpha6])
     sag = shape.getSag(x_coordinate, y_coordinate)
     # comparison with explicitly entered formula
     comparison = (curvature*(x_coordinate**2+y_coordinate**2)/
