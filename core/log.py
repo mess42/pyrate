@@ -24,17 +24,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import logging
 import uuid
+import re
 
 class BaseLogger(object):
     
     def __init__(self, name=''):
         self.setName(name)
         self.logger = logging.getLogger(name=self.__name)
-        self.info("logger " + name + "created")
+        self.info("logger \"" + name + "\" created")
                 
     def setName(self, name):
         if name == "":
-            name = str(uuid.uuid4())
+            name = re.sub('-', '_', str(uuid.uuid4()).lower()) 
+            # bring into form which can also be used by FreeCAD
         self.__name = name
         
     def getName(self):
@@ -47,6 +49,9 @@ class BaseLogger(object):
     
     def debug(self, msg, *args, **kwargs):
         self.logger.debug(msg, *args, **kwargs)
+        
+    def warning(self, msg, *args, **kwargs):
+        self.logger.warning(msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
         self.logger.error(msg, *args, **kwargs)

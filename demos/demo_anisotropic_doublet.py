@@ -50,11 +50,13 @@ from core.localcoordinates import LocalCoordinates
 from core.globalconstants import canonical_ey
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem() 
+s = OpticalSystem(name='os') 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-1.048), refname=lc0.name) # objectDist
@@ -63,14 +65,14 @@ lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=2.5), refna
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=97.2), refname=lc3.name)
 
 
-stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./62.8), apert=CircularAperture(lc1, 12.7))
-cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./45.7), apert=CircularAperture(lc2, 12.7))
-rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2), apert=CircularAperture(lc3, 12.7))
-image = Surface(lc4)
+stopsurf = Surface(lc0, name="stopsurf")
+frontsurf = Surface(lc1, name="frontsurf", shape=surfShape.Conic(lc1, curv=1./62.8, name='conic1'), apert=CircularAperture(lc1, 12.7))
+cementsurf = Surface(lc2, name="cementsurf", shape=surfShape.Conic(lc2, curv=-1./45.7, name='conic2'), apert=CircularAperture(lc2, 12.7))
+rearsurf = Surface(lc3, name="rearsurf", shape=surfShape.Conic(lc3, curv=-1./128.2, name='conic3'), apert=CircularAperture(lc3, 12.7))
+image = Surface(lc4, name="imagesurf")
 
 
-elem = OpticalElement(lc0, label="thorlabs_AC_254-100-A")
+elem = OpticalElement(lc0, name="thorlabs_AC_254-100-A")
 
 rnd_data1 = np.random.random((3, 3)) #np.eye(3)
 rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
@@ -90,8 +92,8 @@ myeps2 = 1.6727**2*np.eye(3)
 #myeps1 = rnd_data1 + complex(0, 1)*rnd_data2
 #myeps2 = rnd_data3 + complex(0, 1)*rnd_data4
 
-crystal1 = AnisotropicMaterial(lc1, myeps1)
-crystal2 = AnisotropicMaterial(lc2, myeps2)
+crystal1 = AnisotropicMaterial(lc1, myeps1, name="crystal1")
+crystal2 = AnisotropicMaterial(lc2, myeps2, name="crystal2")
 
 
 elem.addMaterial("crystal1", crystal1)

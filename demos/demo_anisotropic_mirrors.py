@@ -78,7 +78,7 @@ oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=Circu
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 
 
-elem = OpticalElement(lc0, label="TMA")
+elem = OpticalElement(lc0, name="TMA")
 
 #elem.addMaterial("crystal", crystal)
 

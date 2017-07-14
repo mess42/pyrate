@@ -174,7 +174,7 @@ class ZMXParser(object):
 
         # construct basis coordinate system
         lc0 = optical_system.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=optical_system.rootcoordinatesystem.name)
-        elem = OpticalElement(lc0, label=elementname)
+        elem = OpticalElement(lc0, name=elementname)
         
         # construct materials
         if matdict != {}:        

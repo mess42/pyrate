@@ -70,7 +70,7 @@ rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2), apert=Circul
 image = Surface(lc4)
 
 
-elem = OpticalElement(lc0, label="thorlabs_AC_254-100-A")
+elem = OpticalElement(lc0, name="thorlabs_AC_254-100-A")
 
 bk7 = ConstantIndexGlass(lc1, n=1.5168)
 sf5 = ConstantIndexGlass(lc2, n=1.6727)

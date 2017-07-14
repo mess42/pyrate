@@ -37,7 +37,7 @@ from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
 from globalconstants import numerical_tolerance
 
 class Shape(ClassWithOptimizableVariables):
-    def __init__(self, lc):
+    def __init__(self, lc, **kwargs):
         """
         Virtual Class for all surface shapes.
         The shape of a surface provides a function to calculate
@@ -45,7 +45,7 @@ class Shape(ClassWithOptimizableVariables):
         """
         self.lc = lc        
         
-        super(Shape, self).__init__()
+        super(Shape, self).__init__(**kwargs)
 
 
     def intersect(self, raybundle):
@@ -143,7 +143,7 @@ class Shape(ClassWithOptimizableVariables):
 
 
 class Conic(Shape):
-    def __init__(self, lc, curv=0.0, cc=0.0):
+    def __init__(self, lc, curv=0.0, cc=0.0, **kwargs):
         """
         Create rotationally symmetric surface
         with a conic cross section in the meridional plane.
@@ -157,7 +157,7 @@ class Conic(Shape):
              cc = 1 rotational paraboloid
              cc > 1 rotational hyperboloid
         """
-        super(Conic, self).__init__(lc)
+        super(Conic, self).__init__(lc, **kwargs)
 
         self.curvature = OptimizableVariable(value=curv)
         self.addVariable("curvature", self.curvature) 
@@ -300,7 +300,7 @@ class Conic(Shape):
         
 
 class Cylinder(Conic):
-    def __init__(self, lc, curv=0.0, cc=0.0):
+    def __init__(self, lc, curv=0.0, cc=0.0, **kwargs):
         """
         Create cylindric conic section surface.
 
@@ -313,7 +313,7 @@ class Cylinder(Conic):
              cc = 1 parabolic
              cc > 1 hyperbolic
         """
-        super(Cylinder, self).__init__(lc)
+        super(Cylinder, self).__init__(lc, **kwargs)
         
         self.curvature = OptimizableVariable("fixed", value=curv)
         self.addVariable("curvature", self.curvature) #self.createOptimizableVariable("curvature", value=curv, status=False)
@@ -353,7 +353,7 @@ class Cylinder(Conic):
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
 
 class FreeShape(Shape):
-    def __init__(self, lc, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10):
+    def __init__(self, lc, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10, **kwargs):
         """
         Freeshape surface defined by abstract function F (either implicitly
         or explicitly) and its x, y, z derivatives
@@ -365,7 +365,7 @@ class FreeShape(Shape):
         :param iterations: convergence parameter
         """
 
-        super(FreeShape, self).__init__(lc)
+        super(FreeShape, self).__init__(lc, **kwargs)
 
         for (name, value) in paramlist:
             self.addVariable(name, OptimizableVariable("fixed", value=value))        
@@ -486,7 +486,7 @@ class Asphere(ExplicitShape):
     """
 
 
-    def __init__(self, lc, curv=0, cc=0, coefficients=None):
+    def __init__(self, lc, curv=0, cc=0, coefficients=None, **kwargs):
 
         if coefficients is None:
             coefficients = []
@@ -551,7 +551,7 @@ class Asphere(ExplicitShape):
             return res
 
         super(Asphere, self).__init__(lc, af, gradaf, hessaf, \
-            paramlist=([("curv", curv), ("cc", cc)]+initacoeffs), eps=1e-6, iterations=10)
+            paramlist=([("curv", curv), ("cc", cc)]+initacoeffs), **kwargs)
 
     def getAsphereParameters(self):
         return (self.dict_variables["curv"].evaluate(), \
@@ -568,7 +568,7 @@ class Biconic(ExplicitShape):
     """
 
 
-    def __init__(self, lc, curvx=0, ccx=0, curvy=0, ccy=0, coefficients=None):
+    def __init__(self, lc, curvx=0, ccx=0, curvy=0, ccy=0, coefficients=None, **kwargs):
 
         if coefficients is None:
             coefficients = []
@@ -637,7 +637,7 @@ class Biconic(ExplicitShape):
             return res
 
         super(Biconic, self).__init__(lc, bf, gradbf, hessbf, \
-            paramlist=([("curvx", curvx), ("curvy", curvy), ("ccx", ccx), ("ccy", ccy)]+initacoeffs+initbcoeffs), eps=1e-6, iterations=10)
+            paramlist=([("curvx", curvx), ("curvy", curvy), ("ccx", ccx), ("ccy", ccy)]+initacoeffs+initbcoeffs), **kwargs)
 
     def getBiconicParameters(self):
         return (self.dict_variables["curvx"].evaluate(), \
@@ -655,7 +655,7 @@ class LinearCombination(ExplicitShape):
     Class for combining several principal forms with arbitray corrections
     """
     
-    def __init__(self, lc, list_of_coefficients_and_shapes = []):
+    def __init__(self, lc, list_of_coefficients_and_shapes = [], **kwargs):
         self.list_of_coefficient_and_shapes = list_of_coefficients_and_shapes
         
         
@@ -697,11 +697,11 @@ class LinearCombination(ExplicitShape):
             # TODO: Hessian
             pass
         
-        super(LinearCombination, self).__init__(lc, licosag, licograd, licohess)
+        super(LinearCombination, self).__init__(lc, licosag, licograd, licohess, **kwargs)
 
 class XYPolynomials(ExplicitShape):
 
-    def __init__(self, lc, coefficients=None):
+    def __init__(self, lc, coefficients=None, **kwargs):
 
         if coefficients is None:
             coefficients = []
@@ -744,7 +744,7 @@ class XYPolynomials(ExplicitShape):
             return res
 
         super(XYPolynomials, self).__init__(lc, xyf, gradxyf, hessxyf, \
-            paramlist=initcoeffs, eps=1e-6, iterations=10)
+            paramlist=initcoeffs, **kwargs)
 
     def getXYParameters(self):
         return [(xpow, ypow, self.dict_variables["CX"+str(xpow)+"Y"+str(ypow)].evaluate()) for (xpow, ypow) in self.list_coefficients]

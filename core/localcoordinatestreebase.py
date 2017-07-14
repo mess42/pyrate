@@ -42,13 +42,13 @@ class LocalCoordinatesTreeBase(ClassWithOptimizableVariables):
     checks.
     
     :param rootcoordinatesystem (LocalCoordinates object)
-    :param label (string)
-    :param *kwargs (key word arguments)
+    :param name (string)
+    :param **kwargs (key word arguments)
     """
-    def __init__(self, rootcoordinatesystem, name="", **kwargs):
+    def __init__(self, rootcoordinatesystem, **kwargs):
         self.rootcoordinatesystem = rootcoordinatesystem
                 
-        super(LocalCoordinatesTreeBase, self).__init__(name=name)        
+        super(LocalCoordinatesTreeBase, self).__init__(**kwargs)        
         
     def checkForRootConnection(self, lc):
         """
@@ -73,7 +73,7 @@ class LocalCoordinatesTreeBase(ClassWithOptimizableVariables):
         allnames = self.rootcoordinatesystem.returnConnectedNames()
        
         if lc.name in allnames:
-            lc.name = str(uuid.uuid4())
+            lc.name = ''
             
         if refname not in allnames:
             refname = self.rootcoordinatesystem.name

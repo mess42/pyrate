@@ -83,7 +83,7 @@ image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 image3 = Surface(lc7, apert=CircularAperture(lc7, 20.0))
 
 
-elem = OpticalElement(lc0, label="TMA")
+elem = OpticalElement(lc0, name="TMA")
 
 elem.addMaterial("air", air)
 

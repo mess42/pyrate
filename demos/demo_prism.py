@@ -74,7 +74,7 @@ rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0), apert=CircularApertu
 image = Surface(lc3)
 
 
-elem = OpticalElement(lc0, label="prism")
+elem = OpticalElement(lc0, name="prism")
 
 glass = ModelGlass(lc1)
 

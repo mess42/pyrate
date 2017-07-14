@@ -59,7 +59,7 @@ surf1 = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./24.0), apert=CircularApe
 surf2 = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./24.0), apert=CircularAperture(lc2, 5.0))
 image = Surface(lc3)
 
-elem = OpticalElement(lc0, label="grinelement")
+elem = OpticalElement(lc0, name="grinelement")
 
 grin_strength = 0.5
 

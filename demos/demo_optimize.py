@@ -79,7 +79,7 @@ surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=0.1*1/1.479))
 image = Surface(lc8)
 
 
-elem = OpticalElement(lc0, label="lenssystem")
+elem = OpticalElement(lc0, name="lenssystem")
 
 glass = ConstantIndexGlass(lc0, n=1.7)
 glass2 = ConstantIndexGlass(lc0, n=1.5)

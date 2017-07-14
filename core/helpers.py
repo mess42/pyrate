@@ -50,7 +50,7 @@ def build_simple_optical_system(builduplist, matdict):
     
     lc0 = s.addLocalCoordinateSystem(localcoordinates.LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
-    elem = OpticalElement(lc0, label="stdelem")
+    elem = OpticalElement(lc0, name="stdelem")
     
     for (key, val) in matdict.iteritems():
         

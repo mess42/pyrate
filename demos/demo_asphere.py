@@ -65,7 +65,7 @@ backsurf = Surface(lc2, shape=Asphere(lc2, curv=-1./50.0, cc=-1., coefficients=[
 image = Surface(lc3)
 
 
-elem = OpticalElement(lc0, label="asphereelement")
+elem = OpticalElement(lc0, name="asphereelement")
 
 bk7 = ConstantIndexGlass(lc1, n=1.5168)
 

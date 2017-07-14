@@ -77,7 +77,7 @@ frontsurf2 = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./(30*dropletradius)
 image = Surface(lc4, apert=CircularAperture(lc4, 7.*dropletradius))
 
 
-elem = OpticalElement(lc0, label="droplet")
+elem = OpticalElement(lc0, name="droplet")
 
 glass = ModelGlass(lc1)
 glass.calcCoefficientsFrom_nd_vd(1.3236, 55.76)

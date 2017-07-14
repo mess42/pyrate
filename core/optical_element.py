@@ -37,29 +37,29 @@ class OpticalElement(LocalCoordinatesTreeBase):
     surfaces representing material boundaries)
     
     :param lc (Local Coordinates of optical element)
-    :param label (string), if empty -> uuid
+    :param name (string), if empty -> uuid
     """
-    def __init__(self, lc, label="", **kwargs):
-        super(OpticalElement, self).__init__(lc, label=label)
+    def __init__(self, lc, **kwargs):
+        super(OpticalElement, self).__init__(lc, **kwargs)
         self.__surfaces = {} # Append surfaces objects
         self.__materials = {} # Append materials objects
         self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
     
     
-    def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), label=""):
+    def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), name=""):
         """
         Adds surface class object to the optical element.
         
         :param key (string ... dict key)
         :param surface_object (Surface class object)
         :param (minusNmat_key, plusNmat_key) (tuple of strings ... keys to material dict)
-        :param label (string, optional), label of surface
+        :param name (string, optional), name of surface
         """
         if self.checkForRootConnection(surface_object.rootcoordinatesystem):
             self.__surfaces[key] = surface_object
         else:
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
-        self.__surfaces[key].label = label
+        self.__surfaces[key].name = name
         self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
 
     def getSurfaces(self):
@@ -179,7 +179,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
                 Yimag = Y[4:, :]
     
                 if np.linalg.norm(Ximag) < numerical_tolerance or np.linalg.norm(Yimag) < numerical_tolerance:
-                    print("WARNING: start or end matrix contain zero rows: maybe you have a pure real material epsilon. please consider using use6x6=False")
+                    self.warning("Start or end matrix contain zero rows: setting them to unity")
                     XX[4:, 4:] = np.eye(2)
                     YX[4:, 4:] = np.eye(2)
                 # TODO: this is somehow arbitrary.
@@ -191,9 +191,9 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
             if not use6x6:
                 if np.linalg.norm(transfer[0:2, 0:2].imag) > numerical_tolerance:
-                    print("WARNING: the XX transfer part contains imaginary values. please consider using use6x6=True.")
+                    self.warning("The XX transfer part contains imaginary values. please consider using use6x6=True.")
 
-            print(np.array_str(transfer, precision=5, suppress_small=True))
+            self.debug(np.array_str(transfer, precision=5, suppress_small=True))
            
             return transfer
 
@@ -201,8 +201,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
         (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)        
         
         pilotraypaths = self.seqtrace(pilotinitbundle, sequence, background_medium, splitup=True)
-        print("found %d pilotraypaths" % (len(pilotraypaths,)))
-        print("selected no %d via pilotraypath_nr parameter" % (pilotraypath_nr,))        
+        self.info("found %d pilotraypaths" % (len(pilotraypaths,)))
+        self.info("selected no %d via pilotraypath_nr parameter" % (pilotraypath_nr,))        
         # a pilotraypath may not contain an internally splitted raybundle
         pilotraypath = pilotraypaths[pilotraypath_nr]        
         
@@ -257,7 +257,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             (num_dims, num_pts) = np.shape(startx) # check shape            
 
 
-            print(s1, s2)
+            self.debug(s1, s2)
             if use6x6:
                 startmatrix = np.vstack((startxred, startkred_real, startkred_imag))
                 fspropmatrix = np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
@@ -270,19 +270,19 @@ class OpticalElement(LocalCoordinatesTreeBase):
                 endmatrix = np.vstack((endxred, endkred))
                        
 
-            print("refraction")
+            self.debug("refraction")
             refractmatrix = bestfit_transfer(startmatrix, fspropmatrix, use6x6=use6x6)
-            print("propagation")                    
+            self.debug("propagation")                    
             propagatematrix = bestfit_transfer(fspropmatrix, endmatrix_lcstart, use6x6=use6x6)
-            print("coordinate trafo")                    
+            self.debug("coordinate trafo")                    
             coordinatetrafomatrix = bestfit_transfer(endmatrix_lcstart, endmatrix, use6x6=use6x6)
-            print("full transfer")                                        
+            self.debug("full transfer")                                        
             transfer = np.dot(coordinatetrafomatrix, np.dot(propagatematrix, refractmatrix)) 
-            print(np.array_str(transfer, precision=5, suppress_small=True))
+            self.debug(np.array_str(transfer, precision=5, suppress_small=True))
             transfer_comparison = bestfit_transfer(startmatrix, endmatrix, use6x6=use6x6) 
             
-            print("condition number:")
-            print(np.linalg.cond(transfer))
+            self.debug("condition number:")
+            self.debug(np.linalg.cond(transfer))
             
             XYUVmatrices[(s1, s2, numhit)] = transfer
             XYUVmatrices[(s2, s1, numhit)] = np.linalg.inv(transfer)

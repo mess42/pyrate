@@ -68,7 +68,7 @@ rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0), apert=CircularApertu
 image = Surface(lc3)
 
 
-elem = OpticalElement(lc0, label="crystalelem")
+elem = OpticalElement(lc0, name="crystalelem")
 
 no = 1.5
 neo = 1.8
