@@ -53,6 +53,7 @@
 \newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
 
 \newcommand\Vector[1]{{\mathbf{#1}}}
+%\newcommand\Vector[1]{{\vec{#1}}}
 
 \newcommand\vacuum{0}
 
@@ -174,7 +175,56 @@ Using this manual does not replace your own investigations and analyses using pr
 The copyright holders warn you that on-screen and/or printed versions of this manual may emit bosonic particles at speeds of 299792458\,m/s.
 
 \chapter{Optics from Maxwell Equations}
-\section{Maxwell Equations}
+\section{Unit Systems}
+Historically, nearly all unit systems have a unit for length, time and mass.
+As long as the unit system is consistent in itself, 
+it is easy to convert from one unit system to another, and formulas do not depend on the choice of the unit system.
+As electricity was discovered, people observed proportionalities between electrical and mechanical quantities.
+\paragraph{Coulomb} 
+discovered that charged particles attract or repell each other.
+\begin{eqnarray}
+ F &=& k_1 \frac{q_1 q_2}{r^2}
+\end{eqnarray}
+\paragraph{Amp\`{e}re} 
+discovered that wires carrying electric currents attract or repell each other.
+\begin{eqnarray}
+ F &=& k_2 \frac{2 I_1 I_2 l}{d}
+\end{eqnarray}
+\paragraph{Faraday}
+discovered that a change of magnetic flux induces voltages in conductors.
+\begin{eqnarray}
+ \Nabla \times \Efield + k_3 \dot{\Bfield} = 0
+\end{eqnarray}
+\paragraph{Maxwell} 
+unified the laws of electricity, magnetics and electrodynamics to the famous set of equations
+\begin{eqnarray}
+ \Nabla \Efield &=& 4 \pi k_1 \chargedensity \\
+ \Nabla \times \Bfield &=& 4 \pi \frac{k_2}{k_3} \currentdensity + \frac{k_2}{k_1 k_3} \dot{\Efield} \\
+ \Nabla \times \Efield &=& - k_3 \dot{\Bfield} \\
+ \Nabla \Bfield &=& 0
+\end{eqnarray}
+
+All these proportionalities are experimentally proven.
+The proportionality factors, however, cannot be defined by a purely mechanical unit system and may be freely chosen, 
+as long as $k_1 = k_2 c_0^2$.
+The most common choices are
+
+\begin{tabular}{l|lll}
+                       & $k_1$\qquad\qquad                    & $k_2$\qquad\qquad                  & $k_3$ \\
+ \hline
+ electrostatic (esu)   & 1                                    & $\frac{1}{c_0^2}$                  & 1 \\
+ electromagnetic (emu) & $c_0^2$                              & 1                                  & 1 \\
+ Gau\ss                & 1                                    & $\frac{1}{c_0^2}$                  & $\frac{1}{c_0}$ \\
+ Heavyside-Lorentz     & $\frac{1}{4\pi}$                     & $\frac{1}{4\pi c_0^2}$             & $\frac{1}{c_0}$ \\
+ SI                    & $\frac{1}{4\pi \vacuumpermittivity}$ & $\frac{\vacuumpermeability}{4\pi}$ & 1 
+\end{tabular}\\[2ex]
+
+Each of these choices has its advantages when calculating in certain domains.
+The downside of the multitude of unit systems is that formulas differ by 
+a ratio of their corresponding $k_{1,2,3}$ factors when formulated in different unit systems.
+In the following, we use SI units only.
+
+\section{Maxwell Equations in SI units}
 The content of this chapter is well known from textbooks \cite{Jackson, BornWolf}. Still, we repeat some of the equations to have a consistent 
 nomenclature throughout this manual and the pyrate program as well as a gain in clarity which aproximations are made.
 We start from the Maxwell equations in SI units
@@ -2116,7 +2166,7 @@ We split the results up in real and imaginary part $\Re U, \Re V, \Im U, \Im V$ 
 
 We split the input vector into two sub-vectors
 \begin{eqnarray}
- \Vector{H} &=&
+ \Vector{R} &=&
  \begin{pmatrix}
   X \\ Y
  \end{pmatrix}
@@ -2126,17 +2176,17 @@ We split the input vector into two sub-vectors
   \Re U \\ \Re V \\ \Im U \\ \Im V 
  \end{pmatrix}
  \\
- \Vector{H}_{fin} &=& \hat{A} \cdot \Vector{H}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
- \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{H}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
+ \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
+ \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
 \end{eqnarray}
 
 
 \subsubsection{Finite Conjugate Systems}
 We define a ray fan to be imaged, 
-if for a common ray starting position $\Vector{H}_{obj}$, all multiples of a
+if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
 ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
 \begin{eqnarray}
- \Vector{H}_{im} &=& \hat{A} \cdot \Vector{H}_{obj}
+ \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj}
 \end{eqnarray}
 or, in other words,
 \begin{eqnarray}
@@ -2146,7 +2196,9 @@ The matrix $\hat{B}$ is of rank 2, the input vector $\Vector{K}$ contains 4 inde
 We can impose more constraints on the input vector. 
 We consider the plane waves of the pilot ray and a near pilot ray, 
 $\Wavevector_{pilot}$ and $\Wavevector = \Wavevector_{pilot} + U \Vector{e}_U + V \Vector{e}_V$.
-They interfere and form a sinusoidal grating intensity pattern
+Both rays propagate from the object to the image.
+Even if the source is incoherent, there is a certain degree of phase relation between points in the image \cite{BornWolf}.
+Both rays interfere and form a sinusoidal grating intensity pattern
 \begin{eqnarray}
  I &\propto& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
 \end{eqnarray}
@@ -2154,86 +2206,105 @@ In the object plane, we desire the modulation depth of the intensity pattern to 
 \begin{eqnarray}
  (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
 \end{eqnarray}
-This shall hold for all positions $\Vector{H}=(X,Y)$, so
+This shall hold for all positions $\Vector{R}=(X,Y)$, so
 \begin{eqnarray}
  \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_X ) &=& 0 \\
  \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_Y ) &=& 0
 \end{eqnarray}
-We find 2 independent solutions $\Vector{K}_x$,$\Vector{K}_y$ that form real gratings in the object plane.
-We choose the solutions in an orthogonal manner $\Vector{K}_x \cdot \Vector{K}_y = 0$.
-Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of the se two directions,
+We can find 2 independent solutions $\Vector{e}_{K1}$,$\Vector{e}_{K2}$ that fulfill the two conditions.
+$\Vector{e}_{Ki}$ are four-dimensional, have real valued components and can be transfered to a cartesian wavevector deviation via
+\begin{eqnarray}
+ \Delta \Wavevector(\Vector{e}_{Ki}) &=& e_{Ki\,1} (\Re e_{U}) + e_{Ki\,2} (\Re e_{V}) + e_{Ki\,3} (\Im e_{U}) + e_{Ki\,4} (\Im e_{V})
+\end{eqnarray}
+The basis vectors shall be normalized and orthogonal 
+$\Delta \Wavevector(\Vector{e}_{Ki}) \cdot \overline{\Delta \Wavevector (\Vector{e}_{Kj})} = \delta_{ij}$.
+Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of these two directions,
 we ensure a real valued grating in the object plane. 
 The intensity distribution in intermediate planes and in the image plane, however, 
 may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X,Y}$.
 \begin{eqnarray}
- \Delta \Wavevector_{obj} &=& P_x \Vector{K}_x + P_y \Vector{K}_y
+ \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{K1} + \kappa_2 \Vector{e}_{K2}
 \end{eqnarray}
-We call $P_{x,y} \in \mathbb{R}$ the entrance pupil coordinates. The are not normalized and may be arbitrarily scaled.
+We call $\kappa_{x,y} \in \mathbb{R}$ the entrance pupil wavevector coordinates. The are not normalized and may be arbitrarily scaled.
 Our imaging condition reduces to
 \begin{eqnarray}
  \hat{B}
  \begin{pmatrix}
- K_{x,1} & K_{y,1} \\
- K_{x,2} & K_{y,2} \\
- K_{x,3} & K_{y,3} \\
- K_{x,4} & K_{y,4} \\ 
+ e_{K11} & e_{K21} \\
+ e_{K12} & e_{K22} \\
+ e_{K13} & e_{K23} \\
+ e_{K14} & e_{K24} \\ 
  \end{pmatrix}
  \begin{pmatrix}
- P_x \\ P_y 
+ \kappa_1 \\ \kappa_2 
  \end{pmatrix}
  &=& 0
 \end{eqnarray}
-Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{K}_x, \Vector{K}_y)$ vanishes.
+Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{e}_{K1}, \Vector{e}_{K2})$ vanishes.
 In case the determeninant is nonzero, 
 we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} by a distance $\Delta s$ 
 in front of the image plane.
 We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
 \begin{eqnarray}
  \tilde{A} &=& TODO \\
- \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 H_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) K_{j,n}
+ \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) e_{Kj,n}
 \end{eqnarray}
 The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
 The imaging condition becomes
 \begin{eqnarray}
- \hat{\tilde{B}}(\Delta s) \Vector{P} &=& 0
+ \hat{\tilde{B}}(\Delta s) \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& 0
 \end{eqnarray}
 We are interested in solutions $\Delta s$ for which the determinant vanishes.
 This problem is similar to an eigenvalue problem, so we call the solutions $\Delta s$ quasi-eigenvalues.
 The characteristic polynomial is quadratic in $\Delta s$.
 The defocus values $\Delta s_{1,2}$ are quasi-eigenvalues 
-and come with a corresponding quasi-eigenvector $\Vector{p}_{qeig\,1,2}$.
-The quasi-eigenvectors shall be unit-less and normalized, $\Vector{p}_{qeig\,1,2} \cdot \overline{\Vector{p}}_{qeig\,1,2} = 1$
+and come with a corresponding quasi-eigenvector $\Vector{e}_{qeig\,1,2}$.
+The quasi-eigenvectors shall be unit-less and normalized, $\Vector{e}_{qeig\,1,2} \cdot \overline{\Vector{e}}_{qeig\,1,2} = 1$
 Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in image plane, 
 if the corresponding eigen-defocus is applied.
 
 In both solution planes $\Delta s$, 
 we express the entrance pupil coordinates in a basis system of the quasi-eigenvector and a vector orthogonal to it.
 \begin{eqnarray}
- \Vector{P} &=& P_{qeig} \Vector{p}_{qeig} + P_\perp \Vector{p}_{\perp}
+ \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& \kappa_{qeig} \Vector{e}_{qeig} + \kappa_\perp \Vector{e}_{\perp}
  \\
- \Vector{p}_{\perp\,1,2} &=&
+ \Vector{e}_{\perp\,1,2} &=&
  \begin{pmatrix}
-  - p_{qeig\,1,2 y} \\ p_{qeig\,1,2 x}
+  - e_{qeig\,1,2 y} \\ e_{qeig\,1,2 x}
  \end{pmatrix}
 \end{eqnarray}
-$P$ is unit bearing and of dimension $1/\meter$, while $p$ is unit-less.
+$\kappa$ is unit bearing and of dimension $1/\meter$, while $e$ is unit-less.
 \begin{eqnarray}
- \tilde{\hat{B}}(\Delta s_i) & \Vector{p}_{qeig\, i} &= 0 \\
- \tilde{\hat{B}}(\Delta s_i) & \Vector{p}_{\perp\, i} &= \Vector{h}_{line\, i}
+ \tilde{\hat{B}}(\Delta s_i) & \Vector{e}_{qeig\, i} &= 0 \\
+ \tilde{\hat{B}}(\Delta s_i) & \Vector{e}_{\perp\, i} &= \Vector{h}_{line\, i}
 \end{eqnarray}
 We consider light emitted from one object point 
-in different directions $\Vector{P}$ towards the image.
+in different directions $\kappa$ towards the image.
 There are three cases:
 In the first case, $\Vector{h}_{line}$ is zero. 
 All light emitted from one object point is stigmatically focused to an image point.
 In this case, the quasi-eigenvalues are degenerate $\Delta s_1 = \Delta s_2$.
 In the second case, $\Vector{h}_{line}$ is large.
 Light emitted from one object point is astigmatically focused to a line.
+The resolution along the direction of $\Vector{h}_{line\,1,2}$ is drastically reduced and does not allow
+reasonable 2D imaging.
 The orientation of the lines in the planes $\Delta s_1$ and $\Delta s_2$ are different.
 In classical raytracing, this phenomenon is often called \emph{on-axis-astigmatism}.
 And in the third case, $\Vector{h}_{line}$ is nonzero, but small.
-The system behaves like a stigmatic system in all practical aspects.
+Despite the spot blur in our lowest order astigmatism analysis, 2D imaging is still possible up to a certain degree.
+The decision of how much astigmatism is still ``small'' cannot be made in a general manner 
+and depends on the specification of the optics.
 
+In any case, we calculate the transfer of 2D objects $(X,Y)$ to the image as well as the degree of astigmatism.
+The imaging equation in the planes $\Delta s_{1,2}$ is
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \cdot \Vector{R}_{obj}
+                  +  \kappa_\perp \Vector{h}_{line}
+\end{eqnarray}
+We want to isolate the effects of chief ray height magnification and line spread.
+For this, we need to know $\kappa_\perp$ of the chief ray as a function of field.
+
+TODO
 
 
 \chapter{Raytracing}
@@ -2751,7 +2822,6 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  $G$ & coefficient of intersection equation & $\mathbb{R}$ & \meter\\
  \hline
  $\Hfield$ & magnetic field & pseudo-vector of $\mathbb{R}$ or $\mathbb{C}$ & \ampere /\meter \\
- $\Vector{H}$ & field coordinate & 2D-vector of $\mathbb{R}$ & \meter \\ 
  $H$ & Hamiltonian of geometric optics && \\
  $H$ & coefficient of intersection equation & $\mathbb{R}$ & 1/\meter \\
  \hline
@@ -2759,7 +2829,7 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  \hline
  $\currentdensity$ & current density & vector of $\mathbb{R}$ & $\frac{\ampere}{\meter^2}$ \\
  \hline
- $\Vector{K}$ & wavevector deviation from pilot & 4D-vector of $\mathbb{R}$ & 1/\meter \\
+ $\Vector{K}$ & XYUV wavevector deviation from pilot & 4D-vector of $\mathbb{R}$ & 1/\meter \\
  $\Wavevector$ & wavevector & vector of $\mathbb{C}$ & 1/\meter \\
  \hline
  $L$ & optical path length & $\mathbb{R}$ & \meter \\
@@ -2776,9 +2846,8 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  $\Vector{n}$ & surface normal unit vector & vector of $\mathbb{R}$ & 1\\
  $n$ & refractive index & $\mathbb{C}$ & 1\\
  \hline
- $\Vector{P}$ & pupil coordinates & 2D-vector of $\mathbb{R}$ & 1/\meter \\
- \hline
  $R$ & radius of curvature & $\mathbb{R}$ & \meter \\
+ $\Vector{R}$ & XYUV field coordinate & 2D-vector of $\mathbb{R}$ & \meter \\ 
  $\Vector{r}$ & location & vector of $\mathbb{R}$ & \meter \\
  \hline
  $\Vector{S}$ & Poynting vector & vector of $\mathbb{R}$ & $\frac{\watt}{\meter^2}$\\
