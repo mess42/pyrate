@@ -27,7 +27,7 @@ from hypothesis import given
 from hypothesis.strategies import floats
 from hypothesis.extra.numpy import arrays
 import numpy as np
-from core.surfShape import Conic, Asphere
+from core.surfShape import Conic, Asphere, Biconic, XYPolynomials
 from core.localcoordinates import LocalCoordinates
 
 # pylint: disable=no-value-for-parameter
@@ -38,6 +38,8 @@ def test_sag(test_vector):
     """
     conic_sag(test_vector)
     asphere_sag(test_vector)
+    biconic_sag(test_vector)
+    #xypolynomials_sag(test_vector)
 
 def conic_sag(test_vector):
     """
@@ -89,3 +91,59 @@ def asphere_sag(test_vector):
                   +alpha4*(x_coordinate**2+y_coordinate**2)**2
                   +alpha6*(x_coordinate**2+y_coordinate**2)**3)
     assert np.allclose(sag, comparison)
+    
+def biconic_sag(test_vector):
+    """
+    Computation of biconic sag equals explicit calculation
+    """
+    coordinate_system = LocalCoordinates(name="root")
+
+    radiusx = 100.0
+    radiusy = 120.0
+    conic_constantx = -0.5
+    conic_constanty = -1.7
+    
+    cx = 1./radiusx
+    cy = 1./radiusy
+    
+    alpha2 = 1e-3
+    alpha4 = -1e-6
+    alpha6 = 1e-8
+    
+    beta2 = 0.1
+    beta4 = -0.6
+    beta6 = 0.2
+    
+    maxradiusx = (math.sqrt(1./((1+conic_constantx)*cx**2))
+                 if conic_constantx > -1 else radiusx)
+    maxradiusy = (math.sqrt(1./((1+conic_constanty)*cy**2))
+                 if conic_constanty > -1 else radiusy)
+                     
+    maxradius = min([maxradiusx, maxradiusy]) # choose minimal radius
+    
+    values = (2*test_vector - 1)*maxradius
+    x_coordinate = values[0]
+    y_coordinate = values[1]
+    
+    shape = Biconic(coordinate_system, curvx=cx, curvy=cy, ccx=conic_constantx, ccy=conic_constanty,
+                    coefficients=[(alpha2, beta2), (alpha4, beta4), (alpha6, beta6)])
+    sag = shape.getSag(x_coordinate, y_coordinate)
+    # comparison with explicitly entered formula
+    comparison = ((cx*x_coordinate**2+cy*y_coordinate**2)/
+                  (1.+ np.sqrt(1.-(1.+conic_constantx)*cx**2*x_coordinate**2
+                                 -(1.+conic_constanty)*cy**2*y_coordinate**2))
+                  +alpha2*(x_coordinate**2+y_coordinate**2 
+                      - beta2*(x_coordinate**2 - y_coordinate**2))
+                  +alpha4*(x_coordinate**2+y_coordinate**2
+                      - beta4*(x_coordinate**2 - y_coordinate**2))**2
+                  +alpha6*(x_coordinate**2+y_coordinate**2
+                      - beta6*(x_coordinate**2 - y_coordinate**2))**3)
+    assert np.allclose(sag, comparison)
+
+def xypolynomials_sag(test_vector):
+    """
+    Computation of biconic sag equals explicit calculation
+    """
+
+    pass    
+    

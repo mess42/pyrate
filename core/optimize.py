@@ -329,14 +329,13 @@ class Optimizer(BaseLogger):
         self.info("optimizer run start")        
         x0 = self.classwithoptvariables.getActiveTransformedValues()
         
-        # TODO: send to logger
-        self.debug("initial x: " + str(x0))
-        self.debug("initial merit: " + str(self.MeritFunctionWrapper(x0)))
+        self.info("initial x: " + str(x0))
+        self.info("initial merit: " + str(self.MeritFunctionWrapper(x0)))
         self.debug("calling backend run")
         xfinal = self.__backend.run(x0)
         self.debug("finished backend run")
-        self.debug("final x: " + str(xfinal))
-        self.debug("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
+        self.info("final x: " + str(xfinal))
+        self.info("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
         self.classwithoptvariables.setActiveTransformedValues(xfinal)
         # TODO: do not change original classwithoptvariables
         self.info("optimizer run finished")        
