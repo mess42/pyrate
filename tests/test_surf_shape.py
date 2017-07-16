@@ -38,8 +38,10 @@ def test_sag(test_vector):
     """
     conic_sag(test_vector)
     asphere_sag(test_vector)
+    asphere_grad(test_vector)
     biconic_sag(test_vector)
     xypolynomials_sag(test_vector)
+    xypolynomials_grad(test_vector)
 
 def conic_sag(test_vector):
     """
@@ -91,7 +93,48 @@ def asphere_sag(test_vector):
                   +alpha4*(x_coordinate**2+y_coordinate**2)**2
                   +alpha6*(x_coordinate**2+y_coordinate**2)**3)
     assert np.allclose(sag, comparison)
+
+def asphere_grad(test_vector):
+    """
+    Computation of asphere gradient equals explicit calculation.
+    Notice grad is calculated in 3 dimensions by grad F = grad(z - f(x, y))
+    """
+    coordinate_system = LocalCoordinates(name="root")
+    radius = 10.0
+    conic_constant = -1.5
+    curvature = 1./radius
+    alpha2 = 1e-3
+    alpha4 = -1e-6
+    alpha6 = 1e-8
+    maxradius = (math.sqrt(1./((1+conic_constant)*curvature**2))
+                 if conic_constant > -1 else radius)
+    values = (2*test_vector-1.)*maxradius
+    x = values[0]
+    y = values[1]
+    shape = Asphere(coordinate_system, curv=curvature, cc=conic_constant,
+                    coefficients=[alpha2, alpha4, alpha6])
     
+    gradient = shape.getGrad(x, y)
+
+    comparison = np.zeros_like(gradient)
+    
+    comparison[0] = (- 2*alpha2*x 
+                    - 4*alpha4*x*(x**2 + y**2) 
+                    - 6*alpha6*x*(x**2 + y**2)**2 
+                    - curvature**3*x*(conic_constant + 1)*(x**2 + y**2)/
+                        (np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1)*
+                            (np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1) + 1)**2) - 2*curvature*x/(np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1) + 1))
+    comparison[1] = (- 2*alpha2*y 
+                    - 4*alpha4*y*(x**2 + y**2) 
+                    - 6*alpha6*y*(x**2 + y**2)**2 
+                    - curvature**3*y*(conic_constant + 1)*(x**2 + y**2)/
+                        (np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1)*
+                            (np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1) + 1)**2) - 2*curvature*y/(np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1) + 1))
+    comparison[2, :] = 1.0
+
+    assert np.allclose(gradient, comparison)
+
+
 def biconic_sag(test_vector):
     """
     Computation of biconic sag equals explicit calculation
@@ -164,4 +207,31 @@ def xypolynomials_sag(test_vector):
         comparison += alpha*x_coordinate**powx*y_coordinate**powy
         
     assert np.allclose(sag, comparison)
+    
+def xypolynomials_grad(test_vector):
+    """
+    Computation of biconic sag equals explicit calculation
+    """
+    coordinate_system = LocalCoordinates(name="root")
+
+    maxradius = 1e6 # arbitrary choice
+    
+    values = (2*test_vector - 1)*maxradius
+    x_coordinate = values[0]
+    y_coordinate = values[1]
+    
+    coefficients_list = [(0, 2, 1.), (4, 5, -1.), (3, 2, 0.1)]
+    
+    shape = XYPolynomials(coordinate_system, coefficients=coefficients_list)
+
+    gradient = shape.getGrad(x_coordinate, y_coordinate)
+
+    comparison = np.zeros_like(gradient)
+    
+    for (powx, powy, alpha) in coefficients_list:
+        comparison[0] += alpha*powx*x_coordinate**(powx-1)*y_coordinate**powy
+        comparison[1] += alpha*powy*x_coordinate**powx*y_coordinate**(powy-1)
+    comparison[2, :] = 1.
+        
+    assert np.allclose(gradient, comparison)
     
