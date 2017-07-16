@@ -196,6 +196,8 @@ class Conic(Shape):
 
         curv = self.curvature.evaluate()
         cc = self.conic.evaluate()
+        
+        # gradient calculated from -1/2(1+cc)c z^2 + z -1/2 c (x^2 + y^2) = 0 
 
         gradient = np.zeros((3,len(x)), dtype=float)
         gradient[0] = -curv * x

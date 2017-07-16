@@ -37,6 +37,7 @@ def test_sag(test_vector):
     Tests for computation of sag.
     """
     conic_sag(test_vector)
+    conic_grad(test_vector)
     asphere_sag(test_vector)
     asphere_grad(test_vector)
     biconic_sag(test_vector)
@@ -53,7 +54,7 @@ def conic_sag(test_vector):
     conic_constant = -1.5
     curvature = 1./radius
     maxradius = (math.sqrt(1./((1+conic_constant)*curvature**2))
-                 if conic_constant > -1 else radius)
+                 if conic_constant > -1 else abs(radius))
     values = (2*test_vector-1.)*maxradius
     x_coordinate = values[0]
     y_coordinate = values[1]
@@ -65,6 +66,37 @@ def conic_sag(test_vector):
                         (1.+np.sqrt(1.-(1.+conic_constant)
                                     *curvature**2
                                     *(x_coordinate**2+y_coordinate**2)))))
+
+def conic_grad(test_vector):
+    """
+    Computation of conic grad equals explicit calculation.
+    """
+    coordinate_system = LocalCoordinates(name="root")
+    radius = 10.0
+    conic_constant = -1.5
+    curvature = 1./radius
+    maxradius = (math.sqrt(1./((1+conic_constant)*curvature**2))
+                 if conic_constant > -1 else abs(radius))
+    values = (2*test_vector-1.)*maxradius
+    x = values[0]
+    y = values[1]
+    shape = Conic(coordinate_system, curv=curvature, cc=conic_constant)
+    
+    gradient = shape.getGrad(x, y)
+
+    comparison = np.zeros_like(gradient)
+    comparison[2, :] = 1.
+    comparison[0] = (-curvature**3*x*(conic_constant + 1)*(x**2 + y**2)/
+                        (np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1)*
+                            (np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1) + 1)**2) 
+                            - 2*curvature*x/(np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1) + 1))
+    comparison[1] = (-curvature**3*y*(conic_constant + 1)*(x**2 + y**2)/
+                        (np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1)*
+                            (np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1) + 1)**2) 
+                            - 2*curvature*y/(np.sqrt(-curvature**2*(conic_constant + 1)*(x**2 + y**2) + 1) + 1))
+    comparison = comparison*gradient[2] # comparison and gradient are calculated differently
+    
+    assert np.allclose(gradient, comparison)
 
 def asphere_sag(test_vector):
     """
@@ -78,7 +110,7 @@ def asphere_sag(test_vector):
     alpha4 = -1e-6
     alpha6 = 1e-8
     maxradius = (math.sqrt(1./((1+conic_constant)*curvature**2))
-                 if conic_constant > -1 else radius)
+                 if conic_constant > -1 else abs(radius))
     values = (2*test_vector-1.)*maxradius
     x_coordinate = values[0]
     y_coordinate = values[1]
@@ -108,7 +140,7 @@ def asphere_grad(test_vector):
     alpha4 = -1e-6
     alpha6 = 1e-8
     maxradius = (math.sqrt(1./((1+conic_constant)*curvature**2))
-                 if conic_constant > -1 else radius)
+                 if conic_constant > -1 else abs(radius))
     values = (2*test_vector-1.)*maxradius
     x = values[0]
     y = values[1]
@@ -159,9 +191,9 @@ def biconic_sag(test_vector):
     beta6 = 0.2
     
     maxradiusx = (math.sqrt(1./((1+conic_constantx)*cx**2))
-                 if conic_constantx > -1 else radiusx)
+                 if conic_constantx > -1 else abs(radiusx))
     maxradiusy = (math.sqrt(1./((1+conic_constanty)*cy**2))
-                 if conic_constanty > -1 else radiusy)
+                 if conic_constanty > -1 else abs(radiusy))
                      
     maxradius = min([maxradiusx, maxradiusy]) # choose minimal radius
     
@@ -208,9 +240,9 @@ def biconic_grad(test_vector):
     beta6 = 0.2
     
     maxradiusx = (math.sqrt(1./((1+conic_constantx)*cx**2))
-                 if conic_constantx > -1 else radiusx)
+                 if conic_constantx > -1 else abs(radiusx))
     maxradiusy = (math.sqrt(1./((1+conic_constanty)*cy**2))
-                 if conic_constanty > -1 else radiusy)
+                 if conic_constanty > -1 else abs(radiusy))
                      
     maxradius = min([maxradiusx, maxradiusy]) # choose minimal radius
     
