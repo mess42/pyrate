@@ -725,7 +725,7 @@ class XYPolynomials(ExplicitShape):
             for (xpow, ypow, coefficient) in coeffs:
                 res[0, :] += -xpow*x**(xpow-1)*y**ypow*coefficient
                 res[1, :] += -ypow*x**xpow*y**(ypow-1)*coefficient
-                res[2, :] += 1
+            res[2, :] = 1
                         
             return res
 

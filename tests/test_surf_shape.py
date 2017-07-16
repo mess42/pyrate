@@ -229,9 +229,12 @@ def xypolynomials_grad(test_vector):
     comparison = np.zeros_like(gradient)
     
     for (powx, powy, alpha) in coefficients_list:
-        comparison[0] += alpha*powx*x_coordinate**(powx-1)*y_coordinate**powy
-        comparison[1] += alpha*powy*x_coordinate**powx*y_coordinate**(powy-1)
+        comparison[0] += -alpha*powx*x_coordinate**(powx - 1)*y_coordinate**powy
+        comparison[1] += -alpha*powy*x_coordinate**powx*y_coordinate**(powy - 1)
     comparison[2, :] = 1.
-        
+    
+    print(gradient)
+    print(comparison)
+    
     assert np.allclose(gradient, comparison)
     
