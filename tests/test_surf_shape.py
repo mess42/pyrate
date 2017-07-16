@@ -39,7 +39,7 @@ def test_sag(test_vector):
     conic_sag(test_vector)
     asphere_sag(test_vector)
     biconic_sag(test_vector)
-    #xypolynomials_sag(test_vector)
+    xypolynomials_sag(test_vector)
 
 def conic_sag(test_vector):
     """
@@ -144,6 +144,24 @@ def xypolynomials_sag(test_vector):
     """
     Computation of biconic sag equals explicit calculation
     """
+    coordinate_system = LocalCoordinates(name="root")
 
-    pass    
+    maxradius = 1e6 # arbitrary choice
+    
+    values = (2*test_vector - 1)*maxradius
+    x_coordinate = values[0]
+    y_coordinate = values[1]
+    
+    coefficients_list = [(0, 2, 1.), (4, 5, -1.), (3, 2, 0.1)]
+    
+    shape = XYPolynomials(coordinate_system, coefficients=coefficients_list)
+
+    sag = shape.getSag(x_coordinate, y_coordinate)    
+
+    comparison = np.zeros_like(x_coordinate)
+    
+    for (powx, powy, alpha) in coefficients_list:
+        comparison += alpha*x_coordinate**powx*y_coordinate**powy
+        
+    assert np.allclose(sag, comparison)
     

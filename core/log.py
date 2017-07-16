@@ -31,7 +31,7 @@ class BaseLogger(object):
     def __init__(self, name=''):
         self.setName(name)
         self.logger = logging.getLogger(name=self.__name)
-        self.info("logger \"" + name + "\" created")
+        self.debug("logger \"" + name + "\" created")
                 
     def setName(self, name):
         if name == "":
