@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # calculations
 
 import numpy as np
+from scipy.misc import factorial
 import math
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
@@ -702,6 +703,9 @@ class LinearCombination(ExplicitShape):
         super(LinearCombination, self).__init__(lc, licosag, licograd, licohess, **kwargs)
 
 class XYPolynomials(ExplicitShape):
+    """
+    Class for XY polynomials
+    """
 
     def __init__(self, lc, coefficients=None, **kwargs):
 
@@ -753,11 +757,15 @@ class XYPolynomials(ExplicitShape):
                 
 
 class GridSag(ExplicitShape):
+    """
+    Class for gridsag
+    """
     
     def __init__(self, lc, (xlinspace, ylinspace, Zgrid), *args, **kwargs):
     
         kwargs_dict = kwargs
         kind = kwargs_dict.pop('kind', 'cubic')
+        name = kwargs_dict.pop('name', '')
     
         self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
     
@@ -793,9 +801,72 @@ class GridSag(ExplicitShape):
             
             return res
 
-        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-6, iterations=10)
+        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-6, iterations=10, name=name)
 
+class ZernikeFringe(ExplicitShape):
+    """
+    Class for Zernike Fringe
+    """
+    
+    def __init__(self, lc, normradius=1., coefficients=None, **kwargs):
+        if coefficients is None:
+            coefficients = []
 
+        self.numcoefficients = len(coefficients)
+        initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
+            
+        def zf(x, y):
+            (normradius, zcoefficients) = self.getZernikeFringeParameters()            
+            res = np.zeros_like(x)            
+            for (num, val) in enumerate(zcoefficients):
+                res += val*self.zernike_norm(num + 1, x/normradius, y/normradius)
+            
+            return res
+        
+        def gradzf(x, y, z):
+            return np.zeros_like(x)
+            
+        def hesszf(x, y, z):
+            return np.zeros_like(x)
+
+        super(ZernikeFringe, self).__init__(lc, zf, gradzf, hesszf, \
+            paramlist=([("normradius", normradius)]+initcoeffs), **kwargs)
+
+    def getZernikeFringeParameters(self):
+        return (self.dict_variables["normradius"].evaluate(), \
+                [self.dict_variables["Z"+str(i+1)].evaluate() for i in range(self.numcoefficients)])
+
+    def zernike_norm(self, j, xp, yp):
+        # get correct indices from j    
+    
+        next_sq = (math.ceil(math.sqrt(j)))**2
+        m_plus_n = int(2*math.sqrt(next_sq) - 2)
+        m = int(math.ceil((j - next_sq)/2))
+        n = m_plus_n - m
+        
+        R = np.zeros(n+2)
+        
+        a = np.arange(m, n+2, 2, dtype=int)
+        k = (n-a)/2.
+        R[a+1] = (-1)**k * factorial(n-k)/ ( factorial(k) * factorial((n+m)/2. - k) * factorial((n-m)/2.-k) )
+                
+        omega = m
+        r = np.sqrt(xp**2 + yp**2)
+        phi = np.arctan2(yp, xp)
+        
+        rho = np.zeros_like(r)
+
+        for i in range(n+1):
+            rho += R[i+1]*r**i
+                
+        result = np.zeros_like(rho)
+        if next_sq - j % 2 == 1:
+            result = rho*np.sin(omega*phi)
+        else:
+            result = rho*np.cos(omega*phi)
+        
+        return result
+    
 
 if __name__ == "__main__":
     from localcoordinates import LocalCoordinates
