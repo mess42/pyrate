@@ -32,7 +32,7 @@ from distutils.version import StrictVersion
 
 from core import raster
 from core.material_isotropic import ConstantIndexGlass
-from core import surfShape
+from core.surfShape import Conic, Asphere
 from core.optical_element import OpticalElement
 from core.surface import Surface
 from core.optical_system import OpticalSystem
@@ -47,6 +47,8 @@ from core.optimize import Optimizer
 from core.optimize_backends import ScipyBackend
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
@@ -60,12 +62,12 @@ lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=100.0), ref
 
 
 stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1), apert=CircularAperture(lc1, 12.7))
-backsurf = Surface(lc2, shape=surfShape.Asphere(lc2, curv=-1./50.0, cc=-1., acoeffs=[0.0, 0.0, 0.0]), apert=CircularAperture(lc2, 12.7))
+frontsurf = Surface(lc1, shape=Conic(lc1), apert=CircularAperture(lc1, 12.7))
+backsurf = Surface(lc2, shape=Asphere(lc2, curv=-1./50.0, cc=-1., coefficients=[0.0, 0.0, 0.0]), apert=CircularAperture(lc2, 12.7))
 image = Surface(lc3)
 
 
-elem = OpticalElement(lc0, label="asphereelement")
+elem = OpticalElement(lc0, name="asphereelement")
 
 bk7 = ConstantIndexGlass(lc1, n=1.5168)
 
@@ -114,7 +116,6 @@ def meritfunctionrms(s):
     
     res = np.sum(x**2 + y**2)
     
-    print(res)
     return res
 
 backsurf.shape.dict_variables["curv"].changetype("variable")

@@ -27,6 +27,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 from distutils.version import StrictVersion
+import logging
 
 
 from core import raster
@@ -53,6 +54,7 @@ import core.helpers
 # Design: US patent no. 5701202 A, inventor: Koichi Takahashi
 # and also: Bo Chen, Alois M. Herkommer, Opt. Express 24, 26999 (2016)
 
+logging.basicConfig(level=logging.INFO)
 
 s = OpticalSystem() 
 
@@ -96,7 +98,7 @@ S4surf = Surface(lcS4, shape=Conic(lcS4, curv=1./77.772), apert=CircularAperture
 D4Psurf = Surface(lcD4prime)
 imgsurf = Surface(lcimage)
 
-elem = OpticalElement(lc0, label="HUD")
+elem = OpticalElement(lc0, name="HUD")
 
 elem.addMaterial("air", air)
 elem.addMaterial("glass", glass)
@@ -177,9 +179,9 @@ rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles[2:]]
 # only last two bundles hit the next surface
 
 
-(pilotray, r_pilot) = s.para_seqtrace(pilotbundles[-1], initialbundle1, sysseq, use6x6=False)
+(pilotray, r_pilot) = s.para_seqtrace(pilotbundles[-1], initialbundle1, sysseq, use6x6=True)
 
-(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=False)
+(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=True)
 
 print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
 print(np.array_str(m_stop_img, precision=5, suppress_small=True))

@@ -31,20 +31,24 @@ from localcoordinates import LocalCoordinates
 from surface import Surface
 from surfShape import Conic, Asphere
 from aperture import CircularAperture, RectangularAperture
+from log import BaseLogger
 
 from globalconstants import numerical_tolerance
 
 
-class ZMXParser(object):
+class ZMXParser(BaseLogger):
 
 
-    def __init__(self, filename, ascii=False):
+    def __init__(self, filename, ascii=False, **kwargs):
+        super(ZMXParser, self).__init__(**kwargs)
         self.__textlines = []
         self.loadFile(filename, ascii=ascii)
 
     def loadFile(self, filename, ascii=False):
+        self.info("Loading file " + filename)
         self.__textlines = []
         codec_name = "utf-16" if not ascii else None
+        self.info("with codec " + str(codec_name))
         with codecs.open(filename, "r", encoding=codec_name) as fh:
             self.__textlines = list(fh)
         self.__full_textlines = "".join(self.__textlines)
@@ -174,7 +178,7 @@ class ZMXParser(object):
 
         # construct basis coordinate system
         lc0 = optical_system.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=optical_system.rootcoordinatesystem.name)
-        elem = OpticalElement(lc0, label=elementname)
+        elem = OpticalElement(lc0, name=elementname)
         
         # construct materials
         if matdict != {}:        
@@ -183,13 +187,13 @@ class ZMXParser(object):
                 # different material coordinate systems are not supported
                 elem.addMaterial(key, mat)
         else:
-            print("need external material objects in dict with the following identifiers")
+            self.error("need external material objects in dict with the following identifiers")
             for blk in surface_blockstrings:
                 surfres = self.readSurfBlock(blk)
                 material_name = surfres.get("GLAS", None)
                 if material_name is not None and material_name != "MIRROR":
-                    print(material_name)
-            print("exiting")
+                    self.info(material_name)
+            self.error("exiting")
             return (optical_system, [("zmxelem", [])])
 
         refname = lc0.name
@@ -201,9 +205,9 @@ class ZMXParser(object):
 
         for blk in surface_blockstrings:
             lastthickness = thickness
-            print "----"
+            self.debug("----")
             surfres = self.readSurfBlock(blk)
-            print(surfres)    
+            self.debug(surfres)    
 
             surf_options_dict = {}
             
@@ -220,7 +224,7 @@ class ZMXParser(object):
             clap = surfres.get("CLAP", None)
             
             if math.isinf(thickness):
-                print("infinite object distance!")
+                self.info("infinite object distance!")
                 thickness = 0
             if stop:
                 surf_options_dict["is_stop"] = True
@@ -239,15 +243,15 @@ class ZMXParser(object):
                 ap = CircularAperture(lc, semidiameter=clap[1])
 
             if surftype == "STANDARD":
-                print("Standard surface found")                
+                self.debug("Standard surface found")                
                 actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc), apert=ap)
             elif surftype == "EVENASPH":
-                print("Polynomial asphere found")
+                self.debug("Polynomial asphere found")
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
-                print(acoeffs)
+                self.debug(acoeffs)
                 actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc, coefficients=acoeffs), apert=ap)
             elif surftype == "COORDBRK":
-                print("Coordinate break found")
+                self.debug("Coordinate break found")
                 """
                 COORDBRK
                 parm1: decx
@@ -271,7 +275,7 @@ class ZMXParser(object):
                 actsurf = Surface(lc)
                 
             elem.addSurface(surfname, actsurf, (lastmat, mat))
-            print("addsurf: %s at material boundary %s" % (surfname, (lastmat, mat)))        
+            self.info("addsurf: %s at material boundary %s" % (surfname, (lastmat, mat)))        
             
             lastmat = mat
             refname = lc.name

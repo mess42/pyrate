@@ -37,8 +37,8 @@ class Surface(LocalCoordinatesTreeBase):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, rootlc, shape=None, apert=None, label=""):
-        super(Surface, self).__init__(rootlc, label)
+    def __init__(self, rootlc, shape=None, apert=None, **kwargs):
+        super(Surface, self).__init__(rootlc, **kwargs)
 
         if shape is None:        
             shape = surfShape.Conic(rootlc)

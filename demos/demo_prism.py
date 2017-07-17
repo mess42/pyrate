@@ -49,6 +49,8 @@ from core.localcoordinates import LocalCoordinates
 from core.globalconstants import canonical_ey
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
@@ -74,7 +76,7 @@ rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0), apert=CircularApertu
 image = Surface(lc3)
 
 
-elem = OpticalElement(lc0, label="prism")
+elem = OpticalElement(lc0, name="prism")
 
 glass = ModelGlass(lc1)
 

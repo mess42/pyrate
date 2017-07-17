@@ -25,6 +25,8 @@ import numpy as np
 import math
 import uuid
 
+from log import BaseLogger
+
 class OptimizableVariable(object):
     """
     Class that contains an optimizable variable. Used to get a pointer on a variable.
@@ -164,7 +166,7 @@ class OptimizableVariable(object):
         value = self.inv_transform(value_transformed)
         self.setvalue(value)
         
-class ClassWithOptimizableVariables(object):
+class ClassWithOptimizableVariables(BaseLogger):
     """
     Implementation of some class with optimizable variables with the help of a dictionary.
     This class is also able to collect the variables and their values from its subclasses per recursion.
@@ -173,7 +175,7 @@ class ClassWithOptimizableVariables(object):
         """
         Initialize with empty dict.
         """
-        self.setName(name)
+        super(ClassWithOptimizableVariables, self).__init__(name=name)
         self.dict_variables = {}
         self.list_observers = [] 
         # for the optimizable variable class it is useful to have some observer links
@@ -182,15 +184,6 @@ class ClassWithOptimizableVariables(object):
     def __call__(self, key):
         return self.dict_variables.get(key, None)
 
-    def setName(self, name):
-        if name == "":
-            name = str(uuid.uuid4())
-        self.__name = name
-        
-    def getName(self):
-        return self.__name
-        
-    name = property(getName, setName)
 
 
     def appendObservers(self, obslist):
@@ -284,18 +277,18 @@ class ClassWithOptimizableVariables(object):
             var.setvalue_transformed(x[i])
 
 
-class Optimizer(object):
+class Optimizer(BaseLogger):
     '''
     Easy optimization interface. All variables are public such that a quick
     attachment of other meritfunctions or other update functions with other
     parameters is possible.
     '''
-    def __init__(self, classwithoptvariables, meritfunction, backend, updatefunction=None):
+    def __init__(self, classwithoptvariables, meritfunction, backend, name='', updatefunction=None):
 
         def noupdate(cl):
             pass
         
-        super(Optimizer, self).__init__()
+        super(Optimizer, self).__init__(name=name)
         self.classwithoptvariables = classwithoptvariables
         self.meritfunction = meritfunction # function to minimize
         if updatefunction is None:
@@ -306,7 +299,6 @@ class Optimizer(object):
        
         self.meritparameters = {}
         self.updateparameters = {}
-        self.log = "" # for logging
 
     def setBackend(self, backend):
         self.__backend = backend
@@ -326,19 +318,26 @@ class Optimizer(object):
         """
         self.classwithoptvariables.setActiveTransformedValues(x)
         self.updatefunction(self.classwithoptvariables, **self.updateparameters)    
-        return self.meritfunction(self.classwithoptvariables, **self.meritparameters)
+        res = self.meritfunction(self.classwithoptvariables, **self.meritparameters)
+        self.debug("meritfunction: " + str(res))
+        return res
 
     def run(self):
         '''
         Funtion to perform a certain number of optimization steps.
         '''
+        self.info("optimizer run start")        
         x0 = self.classwithoptvariables.getActiveTransformedValues()
-        self.log += "initial x: " + str(x0) + '\n'
-        self.log += "initial merit: " + str(self.MeritFunctionWrapper(x0)) + "\n"
+        
+        self.info("initial x: " + str(x0))
+        self.info("initial merit: " + str(self.MeritFunctionWrapper(x0)))
+        self.debug("calling backend run")
         xfinal = self.__backend.run(x0)
-        self.log += "final x: " + str(xfinal) + '\n'
-        self.log += "final merit: " + str(self.MeritFunctionWrapper(xfinal)) + "\n"
+        self.debug("finished backend run")
+        self.info("final x: " + str(xfinal))
+        self.info("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
         self.classwithoptvariables.setActiveTransformedValues(xfinal)
         # TODO: do not change original classwithoptvariables
+        self.info("optimizer run finished")        
         return self.classwithoptvariables
 

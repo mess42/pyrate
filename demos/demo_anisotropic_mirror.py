@@ -50,11 +50,13 @@ from core.localcoordinates import LocalCoordinates
 from core.globalconstants import canonical_ey
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem() 
+s = OpticalSystem(name='os') 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=1.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=10.0), refname=lc0.name) # objectDist
@@ -68,7 +70,7 @@ rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0), apert=CircularApertu
 image = Surface(lc3)
 
 
-elem = OpticalElement(lc0, label="crystalelem")
+elem = OpticalElement(lc0, name="crystalelem")
 
 no = 1.5
 neo = 1.8

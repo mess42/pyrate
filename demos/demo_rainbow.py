@@ -35,8 +35,8 @@ import matplotlib
 from distutils.version import StrictVersion
 
 from core import raster
-from core.material_isotropic import ModelGlass
-from core import surfShape
+from core.material_isotropic import ModelGlass, ConstantIndexGlass
+from core.surfShape import Conic, Asphere
 from core.optical_element import OpticalElement
 from core.surface import Surface
 from core.optical_system import OpticalSystem
@@ -45,9 +45,11 @@ from core.ray import RayBundle
 from core.aperture import CircularAperture
 from core.localcoordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ey
+from core.globalconstants import canonical_ey, degree
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
@@ -57,57 +59,59 @@ wave_blue = 0.470e-3
 # definition of optical system
 s = OpticalSystem() 
 
-deg = math.pi/180.
-dropletradius = 0.01
+dropletradius = 0.1
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
 lccomprism = s.addLocalCoordinateSystem(LocalCoordinates(name="dropletcenter", decz=2.*dropletradius), refname=lc0.name)
 
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-dropletradius), refname=lccomprism.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=dropletradius+0.0001), refname=lccomprism.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=-dropletradius, tiltx=math.pi), refname=lccomprism.name)
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-2.*dropletradius), refname=lccomprism.name)
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=dropletradius), refname=lccomprism.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=0), refname=lccomprism.name)
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-3.*dropletradius), refname=lccomprism.name)
 
 
-stopsurf = Surface(lc0, apert=CircularAperture(lc0, dropletradius))
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./(10*dropletradius), cc=0.1), apert=CircularAperture(lc1, dropletradius))
-rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./(20*dropletradius)), apert=CircularAperture(lc2, dropletradius))
-frontsurf2 = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./(30*dropletradius), cc=0.01), apert=CircularAperture(lc3, dropletradius))
+stopsurf = Surface(lc0, apert=CircularAperture(lc0, 7*dropletradius))
+frontsurf = Surface(lc1, shape=Asphere(lc1, curv=1./dropletradius), apert=CircularAperture(lc1, dropletradius))
+rearsurf = Surface(lc2, shape=Asphere(lc2, curv=-1./dropletradius), apert=CircularAperture(lc2, dropletradius))
+midsurf = Surface(lc3, shape=Asphere(lc3, curv=0), apert=CircularAperture(lc3, dropletradius))
 
 image = Surface(lc4, apert=CircularAperture(lc4, 7.*dropletradius))
 
 
-elem = OpticalElement(lc0, label="droplet")
+elem = OpticalElement(lc0, name="droplet")
 
-glass = ModelGlass(lc1)
-glass.calcCoefficientsFrom_nd_vd(1.3236, 55.76)
-#glass = material.ConstantIndexGlass(lc1, 1.3236)
+#glass = ModelGlass(lc1)
+#glass.calcCoefficientsFrom_nd_vd(1.3236, 55.76)
+# TODO: something wrong with Modelglass and k vectors in unit form
+# TODO: implement dispersion relation of water
+glass = ConstantIndexGlass(lc1, 1.3236)
 
 elem.addMaterial("glass", glass)
 
 elem.addSurface("stop", stopsurf, (None, None))
 elem.addSurface("surf1", frontsurf, (None, "glass"))
-elem.addSurface("surf2", rearsurf, ("glass", None))
-elem.addSurface("surf3", frontsurf2, ("glass", None))
+elem.addSurface("surf2", rearsurf, ("glass", "glass"))
+#elem.addSurface("surf3", midsurf, ("glass", "glass"))
+elem.addSurface("surf4", frontsurf, ("glass", None))
 elem.addSurface("image", image, (None, None))
 
 s.addElement("droplet", elem)
 
 rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(100)
+(px, py) = rstobj.getGrid(11)
 
-rpup = dropletradius*0.99
-oy = dropletradius*0.0
+rpup = dropletradius*0.05
+oy = dropletradius*0.9
 o = np.vstack((rpup*px, rpup*py + oy, 0*np.ones_like(px)))
 
-kangle = -0.*deg
+kangle = -12.*degree
 
-kwave_red = 2.*math.pi/wave_red
+kwave_red = 1.0
 k_red = np.zeros_like(o)
 k_red[1,:] = kwave_red*math.sin(kangle)
 k_red[2,:] = kwave_red*math.cos(kangle)
 
-kwave_blue = 2.*math.pi/wave_blue
+kwave_blue = 1.0
 k_blue = np.zeros_like(o)
 k_blue[1,:] = kwave_blue*math.sin(kangle)
 k_blue[2,:] = kwave_blue*math.cos(kangle)
@@ -123,19 +127,21 @@ sysseq = [("droplet",
            [
                 ("stop", {"is_stop":True}), 
                 ("surf1", {}), 
+#                ("surf3", {}), 
                 ("surf2", {"is_mirror":True}),
-                ("surf3", {}), 
+#                ("surf3", {}), 
+                ("surf4", {}), 
                 ("image", {})])]
 
 sysseq2nd = [("droplet", [
                 ("stop", {"is_stop":True}), 
                 ("surf1", {}), 
+#                ("surf3", {}), 
                 ("surf2", {"is_mirror":True}), 
-                ("surf3", {}), 
+#                ("surf3", {}), 
+                ("surf4", {}), 
                 ("image", {})])]
 
-
-phi = 5.*math.pi/180.0
 
 initialbundle_red = RayBundle(x0=o, k0=k_red, Efield0=E0_red, wave=wave_red)
 initialbundle_blue = RayBundle(x0=o, k0=k_blue, Efield0=E0_blue, wave=wave_blue)
@@ -156,12 +162,12 @@ else:
     ax.set_facecolor('white')
 
 
-phi = 0.#math.pi/4
+phi = 0 #math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
 for r in r_red: 
-    r.draw2d(ax, color="red", plane_normal=pn, up=up) 
+    r.draw2d(ax, color="red", plane_normal=pn, up=up)
 for r in r_blue:
     r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 
