@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 import sys
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 from core.localcoordinates import LocalCoordinates
 from core.material_isotropic import ConstantIndexGlass

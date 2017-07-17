@@ -126,10 +126,12 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             if abs(totalenergy) > self.energyviolation:
                 #FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
                 #FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
-                print 'WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n'
-                print 'Please reduce integration step size.\n'
+                self.warning('integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation))
+                self.warning('Please reduce integration step size.')
                 valid[:] = False # all rays with energy violation are not useful due to integration errors
                 # TODO: report to user via some kind of fancy interface
+
+            self.debug("step(" + str(loopcount) + ") -> energy conservation violation: " + str(totalenergy))
 
             xglobalnewpos = self.lc.returnLocalToGlobalPoints(newpos)                        
             xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(xglobalnewpos)

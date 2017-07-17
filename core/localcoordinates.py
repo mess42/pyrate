@@ -55,20 +55,14 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                           1 or True means: tiltz first, then tilty, then tiltx, then decenter.       
                         observers:        list of observers derived from AbstractObserver
         '''
-        super(LocalCoordinates, self).__init__()        
+        super(LocalCoordinates, self).__init__(name=name)        
 
         
         (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
         (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "tiltThenDecenter"])
 
         self.list_observers = kwargs.get("observers", [])        
-        
-        
-        if name == "":
-            name = str(uuid.uuid4()).lower() # TODO: translate - into _
-        
-        self.setName(name)
-        
+                
         
 
         self.decx = OptimizableVariable(variable_type='fixed', value=decx)

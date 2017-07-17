@@ -22,11 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+from log import BaseLogger
 
-
-class OpticalElementAnalysis:
+class OpticalElementAnalysis(BaseLogger):
     
-    def __init__(self, oe):
+    def __init__(self, oe, name=''):
+        super(OpticalElementAnalysis, self).__init__(self, name=name)
         self.opticalelement = oe
         
     def calcXYUV(self, parthitlist, pilotbundle, fullsequence, background_medium):

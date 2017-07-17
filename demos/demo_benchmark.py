@@ -31,6 +31,8 @@ from distutils.version import StrictVersion
 
 import time
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 from core import raster
@@ -78,8 +80,8 @@ nrays_draw = 21
 t0 = time.clock()
 initialraybundle = RayBundle(x0=x0, k0=k0, Efield0=E0)
 raypath = s.seqtrace(initialraybundle, seq)
-print "benchmark : ", time.clock() - t0, "s for tracing ", nrays, " rays through ", len(s.elements["stdelem"].surfaces) - 1, " surfaces."
-print "             That is ", int(round(nrays * (len(s.elements["stdelem"].surfaces) - 1) / (time.clock() - t0))), "ray-surface-operations per second"
+logging.info("benchmark : " + str(time.clock() - t0) + "s for tracing " + str(nrays) + " rays through " + str(len(s.elements["stdelem"].surfaces) - 1) + " surfaces.")
+logging.info("             That is " + str(int(round(nrays * (len(s.elements["stdelem"].surfaces) - 1) / (time.clock() - t0)))) + "ray-surface-operations per second")
 
 # plot
 

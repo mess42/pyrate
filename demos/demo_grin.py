@@ -42,6 +42,8 @@ from core.localcoordinates import LocalCoordinates
 from core.globalconstants import canonical_ey
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
@@ -59,7 +61,7 @@ surf1 = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./24.0), apert=CircularApe
 surf2 = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./24.0), apert=CircularAperture(lc2, 5.0))
 image = Surface(lc3)
 
-elem = OpticalElement(lc0, label="grinelement")
+elem = OpticalElement(lc0, name="grinelement")
 
 grin_strength = 0.5
 
@@ -125,11 +127,6 @@ up = canonical_ey
 
 for r in r2:
     r.draw2d(ax, color="blue", plane_normal=pn, up=up)
-    for rb in r.raybundles:
-        print("x")
-        print(rb.x)
-        print("k")
-        print(rb.k)
 s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 

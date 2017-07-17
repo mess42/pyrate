@@ -23,8 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from scipy.optimize import minimize
 import numpy as np
+from log import BaseLogger
 
-class Backend(object):
+class Backend(BaseLogger):
     """
     Base class for the optimization backend. Performs one full optimization run.
     Eats 1D numpy array as starting value. Spits out 1D numpy array as final
@@ -33,12 +34,13 @@ class Backend(object):
     """
     
     
-    def __init__(self, **kwargs):
+    def __init__(self, name='', **kwargs):
         """
         kwargs is everything which is known at initialization time and needed
         by the optimization backend        
         """        
         self.options = kwargs
+        super(Backend, self).__init__(name=name)
 
     def init(self, func):
         """

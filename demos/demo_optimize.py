@@ -27,6 +27,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 from distutils.version import StrictVersion
 
+import logging
+
 import math
 
 from core.material_isotropic import ConstantIndexGlass
@@ -46,7 +48,12 @@ from core.surface import Surface
 
 from core.globalconstants import canonical_ey
 
+from core.optical_system_analysis import OpticalSystemAnalysis
+from core.surfShape_analysis import ShapeAnalysis
+
 wavelength = standard_wavelength
+
+logging.basicConfig(level=logging.DEBUG)
 
 # definition of optical system
 s = OpticalSystem() # objectDistance = 2.0
@@ -72,7 +79,7 @@ surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=0.1*1/1.479))
 image = Surface(lc8)
 
 
-elem = OpticalElement(lc0, label="lenssystem")
+elem = OpticalElement(lc0, name="lenssystem")
 
 glass = ConstantIndexGlass(lc0, n=1.7)
 glass2 = ConstantIndexGlass(lc0, n=1.5)
@@ -163,8 +170,9 @@ s.addElement("lenssys", elem)
 
 
 fig = plt.figure(1)
-ax = fig.add_subplot(211)
-ax2 = fig.add_subplot(212)
+ax = fig.add_subplot(311)
+ax2 = fig.add_subplot(312)
+ax3 = fig.add_subplot(313)
 
 ax.axis('equal')
 ax2.axis('equal')
@@ -247,8 +255,6 @@ def meritfunctionrms(s):
     
     res = np.sum(x**2 + y**2) + 10.*math.exp(-len(x))
     
-    print("tlt: ", tltx_var())    
-    print("res: ", res)
     return res
 
 #opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
@@ -258,8 +264,8 @@ optimi = Optimizer(s, \
                     meritfunctionrms, \
                     backend=opt_backend, \
                     updatefunction=osupdate)
+optimi.logger.setLevel(logging.DEBUG)
 s = optimi.run()
-print(optimi.log)
 
 r2 = s.seqtrace(initialbundle, sysseq) # trace again
 print("drawing!")
@@ -268,7 +274,10 @@ for r in r2:
 
 s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
+osa = OpticalSystemAnalysis(s)
+osa.drawSpotDiagram(r2[0], sysseq)
+sa = ShapeAnalysis(surf1.shape)
+sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
 
 plt.show()
 
