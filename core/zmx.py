@@ -39,19 +39,34 @@ from globalconstants import numerical_tolerance
 class ZMXParser(BaseLogger):
 
 
-    def __init__(self, filename, ascii=False, **kwargs):
+    def __init__(self, filename, **kwargs):
         super(ZMXParser, self).__init__(**kwargs)
         self.__textlines = []
-        self.loadFile(filename, ascii=ascii)
+        self.loadFile(filename)
 
-    def loadFile(self, filename, ascii=False):
+    def checkForUTF16(self, filename):
+        ascii = True
+        filehandler = open(filename,"r")
+        zmxdata = filehandler.read() 
+        filehandler.close()
+
+        if zmxdata.startswith("\xff\xfe"): # utf16
+            ascii = False
+        return ascii
+
+    def loadFile(self, filename, **kwargs):
         self.info("Loading file " + filename)
         self.__textlines = []
+
+        ascii = self.checkForUTF16(filename)
+
         codec_name = "utf-16" if not ascii else None
         self.info("with codec " + str(codec_name))
         with codecs.open(filename, "r", encoding=codec_name) as fh:
             self.__textlines = list(fh)
+            
         self.__full_textlines = "".join(self.__textlines)
+        
 
 
     def returnBlockStrings(self):
@@ -171,16 +186,21 @@ class ZMXParser(BaseLogger):
 
     def createOpticalSystem(self, matdict = {}, elementname="zmxelem"):
 
+        self.info("Creating optical system from ZMX")
         optical_system = OpticalSystem()
 
         # extract surface blockstrings
+
+        self.info("Extract surface blockstrings")
         surface_blockstrings = self.filterBlockStrings("SURF")
 
         # construct basis coordinate system
+        self.info("Construct basis coordinate system")
         lc0 = optical_system.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=optical_system.rootcoordinatesystem.name)
         elem = OpticalElement(lc0, name=elementname)
         
         # construct materials
+        self.info("Construct materials")
         if matdict != {}:        
             for (key, mat) in matdict.iteritems():
                 mat.lc = lc0 
