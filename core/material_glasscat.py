@@ -156,7 +156,7 @@ class refractiveindex_dot_info_glasscatalog(object):
          
         :return ymldict: (dict)
         """
-        ymlfilename  = database_basepath + "/"
+        ymlfilename  = self.database_basepath + "/"
         ymlfilename += self.librarydict[shelf]["content"][book]["content"][page]["path"]
 
         data = self.read_yml_file(ymlfilename)
@@ -292,8 +292,10 @@ class IndexFormulaContainer(object):
             self.__dispFunction = Exotic
         elif typ == "tabulated n":
             self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0],      self.coeff[:,1])
-        elif typ == "tabulated k":
+        elif typ == "tabulated k": 
             self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0], 1j * self.coeff[:,1])
+        elif typ == "tabulated nk":
+            self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0], self.coeff[:,1] + 1j * self.coeff[:,2])
         else:
             raise Exception("Bad dispersion function type: "+str(typ))
             
