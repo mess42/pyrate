@@ -85,36 +85,32 @@ image = Surface(lc4, apert=CircularAperture(lc4, 7.*dropletradius))
 elem = OpticalElement(lc0, name="droplet")
 
 
-database_basepath = "refractiveindex.info-database/database"     
-shelf = "3d"
-book  = "liquids"
-page  = "water"    
 
 try:
+    database_basepath = "refractiveindex.info-database/database"     
+    shelf = "3d"
+    book  = "liquids"
+    page  = "water"    
+
+
     gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
+
+    waterdict = gcat.getMaterialDict(shelf, book, page)
+    water = CatalogMaterial(lc0, waterdict, name="water (catalogue)")
+
 except:
-    print("refractive index database not found. please download it and symlink\n\
+    logging.warn("refractive index database not found. please download it and symlink\n\
             to it in your local pyrate directory")
-    exit()
+    water = ConstantIndexGlass(lc0, n=1.336, name="water (failsafe)")
 
-waterdict = gcat.getMaterialDict(shelf, book, page)
-water = CatalogMaterial(lc0, waterdict)
-
-print(water.getIndex(None, wave_red))
-print(water.getIndex(None, wave_blue))
-
-#glass = ModelGlass(lc1)
-#glass.calcCoefficientsFrom_nd_vd(1.3236, 55.76)
-# TODO: something wrong with Modelglass and k vectors in unit form
-# TODO: implement dispersion relation of water
-glass = ConstantIndexGlass(lc1, 1.3236)
+logging.info("wavelength %f, index %f" % (wave_red, water.getIndex(None, wave_red).real))
+logging.info("wavelength %f, index %f" % (wave_blue, water.getIndex(None, wave_blue).real))
 
 elem.addMaterial("water", water)
 
 elem.addSurface("stop", stopsurf, (None, None))
 elem.addSurface("surf1", frontsurf, (None, "water"))
 elem.addSurface("surf2", rearsurf, ("water", "water"))
-#elem.addSurface("surf3", midsurf, ("glass", "glass"))
 elem.addSurface("surf4", frontsurf, ("water", None))
 elem.addSurface("image", image, (None, None))
 

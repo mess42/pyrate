@@ -23,24 +23,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
-from ray import RayBundle
-import optimize
+from optimize import ClassWithOptimizableVariables
 import scipy.linalg as sla
-import helpers_math
 
-from globalconstants import standard_wavelength, eps0
+from globalconstants import standard_wavelength
 
-class Material(optimize.ClassWithOptimizableVariables):
+class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
         
-    def __init__(self, lc, name="", comment=""):
-        super(Material, self).__init__()
+    def __init__(self, lc, **kwargs):
+        super(Material, self).__init__(**kwargs)
         """
         virtual constructor
         """
-        self.setName(name)
-        self.comment = comment
+        self.comment = kwargs.get("comment", "")
         self.lc = lc
+
 
     def refract(self, raybundle, actualSurface):
         """

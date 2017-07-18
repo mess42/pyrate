@@ -323,7 +323,7 @@ class IndexFormulaContainer(object):
 
                 
 class CatalogMaterial(IsotropicMaterial):
-    def __init__(self, lc, ymldict, name = "", comment=""):
+    def __init__(self, lc, ymldict, **kwargs):
         """
         Material from the refractiveindex.info database.
         
@@ -340,7 +340,7 @@ class CatalogMaterial(IsotropicMaterial):
             bk7 = CatalogMaterial(lc, ymldict)
         """
 
-        super(CatalogMaterial, self).__init__(lc, name, comment)
+        super(CatalogMaterial, self).__init__(lc, **kwargs)
 
         data = ymldict["DATA"]
         
