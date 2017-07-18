@@ -180,38 +180,38 @@ Historically, nearly all unit systems are based on defining a unit for length, t
 As long as the unit system is consistent in itself, 
 it is easy to convert from one unit system to another, and formulas do not depend on the choice of the unit system.
 As electricity was discovered, this uniformity changed.
-For a better understanding we recapitulate the laws of electricity.
+For a better understanding, we recapitulate the laws of electricity.
 \paragraph{Coulomb} 
 discovered that charged particles attract or repel each other.
 \begin{eqnarray}
- F &=& k_1 \frac{q_1 q_2}{r^2}
+ F &=& a_1 \frac{q_1 q_2}{r^2}
 \end{eqnarray}
 \paragraph{Amp\`{e}re} 
 discovered that wires carrying electric currents attract or repel each other.
 \begin{eqnarray}
- F &=& k_2 \frac{2 I_1 I_2 l}{d}
+ F &=& a_2 \frac{2 I_1 I_2 l}{d}
 \end{eqnarray}
 \paragraph{Faraday}
 discovered that a change of magnetic flux induces voltages in conductors.
 \begin{eqnarray}
- \Nabla \times \Efield + k_3 \dot{\Bfield} = 0
+ \Nabla \times \Efield + a_3 \dot{\Bfield} = 0
 \end{eqnarray}
 \paragraph{Maxwell} 
 unified the laws of electricity, magnetics and electrodynamics to the famous set of equations
 \begin{eqnarray}
- \Nabla \Efield &=& 4 \pi k_1 \chargedensity \\
- \Nabla \times \Bfield &=& 4 \pi \frac{k_2}{k_3} \currentdensity + \frac{k_2}{k_1 k_3} \dot{\Efield} \\
- \Nabla \times \Efield &=& - k_3 \dot{\Bfield} \\
+ \Nabla \Efield &=& 4 \pi a_1 \chargedensity \\
+ \Nabla \times \Bfield &=& 4 \pi \frac{a_2}{a_3} \currentdensity + \frac{a_2}{a_1 a_3} \dot{\Efield} \\
+ \Nabla \times \Efield &=& - a_3 \dot{\Bfield} \\
  \Nabla \Bfield &=& 0
 \end{eqnarray}
 which holds in vacuum in this form.
 All these proportionalities are experimentally proven.
 The proportionality factors, however, cannot be defined by a purely mechanical unit system and may be freely chosen, 
-as long as $k_1 = k_2 c_0^2$.
+as long as $a_1 = a_2 c_0^2$.
 The most common choices are
 
 \begin{tabular}{l|lll}
-                       & $k_1$\qquad\qquad                    & $k_2$\qquad\qquad                  & $k_3$ \\
+                       & $a_1$\qquad\qquad                    & $a_2$\qquad\qquad                  & $a_3$ \\
  \hline
  electrostatic (esu)   & 1                                    & $\frac{1}{c_0^2}$                  & 1 \\
  electromagnetic (emu) & $c_0^2$                              & 1                                  & 1 \\
@@ -222,7 +222,7 @@ The most common choices are
 
 Each of these choices has its advantages when calculating in certain domains.
 The downside of the multitude of unit systems is that formulas differ by 
-a ratio of their corresponding $k_{1,2,3}$ factors when formulated in different unit systems.
+a ratio of their corresponding $a_{1,2,3}$ factors when formulated in different unit systems.
 In the following, we use SI units only.
 
 \section{Maxwell Equations in SI units}
