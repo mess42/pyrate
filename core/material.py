@@ -32,12 +32,12 @@ class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
         
     def __init__(self, lc, **kwargs):
-        super(Material, self).__init__(**kwargs)
         """
         virtual constructor
         """
-        self.comment = kwargs.get("comment", "")
+        self.comment = kwargs.pop("comment", "") # remove comment from keywords arg
         self.lc = lc
+        super(Material, self).__init__(**kwargs)
 
 
     def refract(self, raybundle, actualSurface):
