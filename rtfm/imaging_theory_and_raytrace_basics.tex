@@ -179,8 +179,8 @@ The copyright holders warn you that on-screen and/or printed versions of this ma
 Historically, nearly all unit systems are based on defining a unit for length, time and mass.
 As long as the unit system is consistent in itself, 
 it is easy to convert from one unit system to another, and formulas do not depend on the choice of the unit system.
-As electricity was discovered, this uniformity changed.
-For a better understanding, we recapitulate the laws of electricity.
+As electricity was discovered, this changed.
+For a better understanding, we recapitulate some laws of electricity.
 \paragraph{Coulomb} 
 discovered that charged particles attract or repel each other.
 \begin{eqnarray}
@@ -896,10 +896,10 @@ This allows us to abbreviate the equation system to
 \end{subequations}
 where $\varsigma$ represents the sign of each term.
 $\varsigma_t=1$ for transmitted terms and $\varsigma_r=-1$ for reflected ones.
-We introduce a cartesian basis, 
+We introduce a cartesian base, 
 consisting of the directions of the normal direction $\Vector{n}$, 
 and two in-plane directions $\Vector{e}_X$ and $\Vector{e}_Y$.
-We decompose both vectorial equation in this basis and obtain
+We decompose both vectorial equation in this base and obtain
 \begin{subequations}
   \begin{align}
     \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
@@ -1532,7 +1532,7 @@ $A$ is unitless.
 Once the imaging condition is fulfilled, all rays originating from an object field point are focused stigmatically to the corresponding image point. 
 The ABCD formalism calculates first order properties only.
 If the ABCD matrices are calculated with a corresponding dispersion model, lateral and transversal first order chromatic aberrations can be modeled.
-Also, the paraxial ABCD ray trace may be the basis for calculating the Seidel coefficients.
+Also, the paraxial ABCD ray trace may be the base for calculating the Seidel coefficients.
 
 In case $B$ is nonzero, the imaging condition can often be achieved by changing an air gap size. Most often the image sided distance is refocused.
 \begin{eqnarray}
@@ -1704,7 +1704,7 @@ The individual propagators can be, for example, free space propagation or surfac
 \end{eqnarray}
 
 In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
-In the following, we discuss the rank of the matrices $\hat{G}$ and the basis of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+In the following, we discuss the rank of the matrices $\hat{G}$ and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
 
 
 \subsection{Near-Pilot Basis Systems}
@@ -1743,6 +1743,7 @@ Near-pilot rays must fulfill
 \begin{eqnarray}
  \Delta \Wavevector \cdot \Wavevector_{pilot} &=& 0 + 0i
 \end{eqnarray}
+We can choose the unit vectors to describe $\Delta \Wavevector$ by \eqref{eq:normal_to_inplane_vectors}.
 
 \paragraph{Anisotropic, homogeneous media.}
 TODO
@@ -1758,17 +1759,17 @@ We represent the remaining degrees of freedom of $\Delta \Wavevector$ as
 \begin{eqnarray}
  \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
 \end{eqnarray}
-where $\Vector{e}_U$ and $\Vector{e}_V$ are independent basis vectors and $U,V$ are complex valued prefactors.
+where $\Vector{e}_U$ and $\Vector{e}_V$ are independent base vectors and $U,V$ are complex valued prefactors.
 \remark{TODO:Check whether this representation is possible also for the general anisotropic case.}
-The basis vectors $\Vector{e}_U, \Vector{e}_V$ are defined up to a complex valued global phase and a roll degree of freedom. 
+The base vectors $\Vector{e}_U, \Vector{e}_V$ are defined up to a complex valued global phase and a roll degree of freedom. 
 
 
 \subsection{XYUV matrices}
-We choose the object sided basis vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
+We choose the object sided base vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
 in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
 as described in the previous section.
 We trace the pilot ray to the final surface 
-and define the near-pilot basis vectors in the final plane $\Vector{e}_{X,fin}, \Vector{e}_{Y,fin}, \Vector{e}_{U,fin}, \Vector{e}_{V,fin}$.
+and define the near-pilot base vectors in the final plane $\Vector{e}_{X,fin}, \Vector{e}_{Y,fin}, \Vector{e}_{U,fin}, \Vector{e}_{V,fin}$.
 The propagator for near-pilot rays is the Jacobi matrix
 \begin{eqnarray}
  \begin{pmatrix}
@@ -1830,7 +1831,7 @@ We consider the pilot ray and a ray parallel to it ($U,V=0$).
  X_2 \Vector{e}_{X2} +  Y_2 \Vector{e}_{Y2} - \Delta s \Vector{d}_{pilot} &=&  X_1 \Vector{e}_{X1} +  Y_1 \Vector{e}_{Y1} 
 \end{eqnarray}
 The three unknowns $X_2 , Y_2, \Delta s$ can be calculated from this 3-dimensional vector equation.
-One possibility to do so is to employ a cartesian basis $(x,y,z)$ and write
+One possibility to do so is to employ a cartesian base $(x,y,z)$ and write
 \begin{eqnarray}
  \begin{pmatrix}
   X_2 \\ Y_2 \\ \Delta s
@@ -1870,7 +1871,7 @@ leading to
   \Delta \Vector{r}_2  &=& X_2 \Vector{e}_{X2} + Y_2 \Vector{e}_{Y2}
 \end{eqnarray}
 $\Delta \Vector{d}$ originates from $\Delta \Wavevector$ and can be seen as given quantity.
-The 3 unknowns $X_2 , Y_2 , \Delta s$ can be solved, for example, in a cartesian basis
+The 3 unknowns $X_2 , Y_2 , \Delta s$ can be solved, for example, in a cartesian base
 \begin{eqnarray}
  \begin{pmatrix}
   e_{X2x} & e_{Y2x} & - ( d_{pilotx} + \Delta d_x ) \\
@@ -1970,7 +1971,7 @@ The intersection points can be approximated using the tangential plane.
 \subsection{Refraction}
 We assume two parallel, overlaying planes 1,2 just in front of and behind a refracting surface.
 Both planes shall have identical bases $\Vector{e}_{X,Y}$.
-In general, it is not possible to find identical basis vectors $\Vector{e}_{U,V}$ in both planes.
+In general, it is not possible to find identical base vectors $\Vector{e}_{U,V}$ in both planes.
 
 \subsubsection{A and B-Matrix}
 The infinitessimal propagation length through the surface does not change the ray height
@@ -2133,7 +2134,7 @@ we find a relation between the change in wavevector after refraction and the cha
  \end{pmatrix}
 \end{eqnarray}
 mediated by a ($3\times2$) matrix $\hat{\tilde{M}}$.
-We add a variable $\nu=0$ to the left hand side and solve the system in a cartesian basis
+We add a variable $\nu=0$ to the left hand side and solve the system in a cartesian base
 \begin{eqnarray}
    U_2 \Vector{e}_{U2}
  + V_2 \Vector{e}_{V2}
@@ -2217,7 +2218,7 @@ $\Vector{e}_{Ki}$ are four-dimensional, have real valued components and can be t
 \begin{eqnarray}
  \Delta \Wavevector(\Vector{e}_{Ki}) &=& e_{Ki\,1} (\Re e_{U}) + e_{Ki\,2} (\Re e_{V}) + e_{Ki\,3} (\Im e_{U}) + e_{Ki\,4} (\Im e_{V})
 \end{eqnarray}
-The basis vectors shall be normalized and orthogonal 
+The base vectors shall be normalized and orthogonal 
 $\Delta \Wavevector(\Vector{e}_{Ki}) \cdot \overline{\Delta \Wavevector (\Vector{e}_{Kj})} = \delta_{ij}$.
 Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of these two directions,
 we ensure a real valued grating in the object plane. 
@@ -2265,7 +2266,7 @@ Changes of the wavevector by any multiple of the eigenvector are imaged to the s
 if the corresponding eigen-defocus is applied.
 
 In both solution planes $\Delta s$, 
-we express the entrance pupil coordinates in a basis system of the quasi-eigenvector and a vector orthogonal to it.
+we express the entrance pupil coordinates in a base system of the quasi-eigenvector and a vector orthogonal to it.
 \begin{eqnarray}
  \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& \kappa_{qeig} \Vector{e}_{qeig} + \kappa_\perp \Vector{e}_{\perp}
  \\
@@ -2895,6 +2896,26 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
  $\omega$ & angular frequency & $\mathbb{R}_{>0}$ & 1/\second
 \end{tabular}
 
+\chapter{Some Math Notes}
+\section{Determining in-plane Vectors}
+Assume we have a given surface normal unit vector $\Vector{n}$ 
+and want to determine both vectors orthogonal to it $\Vector{e}_1, \Vector{e}_2$.
+We assume further we have a cartesian base $\Vector{e}_x, \Vector{e}_y, \Vector{e}_z$.
+We define a rotation operator $\hat{R}$ to rotate vectors.
+We choose $\hat{R}$ so that
+\begin{eqnarray}
+ \Vector{n} &=& \hat{R}(\Vector{e}_z)
+\end{eqnarray}
+\remark{todo: write down explicit form of Rodrigues matrix in a numerically stable way}
+Then follows
+\begin{subequations}
+\begin{eqnarray}
+ \Vector{e_1} &=& \hat{R}(\Vector{e}_x) \\
+ \Vector{e_2} &=& \hat{R}(\Vector{e}_y)
+\end{eqnarray} \label{eq:normal_to_inplane_vectors}
+ \end{subequations}
 
-    
+
+
+
 \end{document}
