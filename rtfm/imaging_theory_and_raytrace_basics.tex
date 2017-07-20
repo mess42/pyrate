@@ -471,32 +471,46 @@ We call wavevectors $\Wavevector$ for which the deterimant vanishes a solution o
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
 that is, a propagation wavector is only valid for a certain polarisation.
 
+We regard the determinant as a polynomial form of $\wavenumber_i$.
+\begin{eqnarray}
+ \det \hat{A} &=& P(\Wavevector) = 0
+\end{eqnarray}
+The characteristic polynomial $P$ reads
+\begin{align}
+ P &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\relativepermittivity + \gamma) k_0^2 + \Vector{k}^2 \beta \right)\,,\label{eq:determinantinvariant}
+\end{align}
+where $\relativepermittivity$ is the  relative permittivity,
+$\alpha = (\text{tr}\relativepermittivity)^3 - 3 (\text{tr}\relativepermittivity) \text{tr}(\relativepermittivity^2) + 2 \text{tr}(\relativepermittivity^3)$,
+$\beta = \relativepermittivity_{\,ij} k_i k_j$, 
+and
+$\gamma = k_i \relativepermittivity_{\,i\ell} \relativepermittivity_{\,\ell j} k_j$. 
+
+
 \paragraph{Determining one component of $\Wavevector$.}
 
 The wavevector is a three-dimensional, complex valued quantity.
 In the following sections, however, 
 we often face problems where 2 of the 3 components are already fixed and the third component is to be determined.
-Without loss of generality, we rotate $\permittivity$ 
-to a cartesian system in which $\wavenumber_x$ and $\wavenumber_y$ are the known components and $\wavenumber_z$ is unknown.
-The resulting characteristic polynomial of $\hat{A}$ is a quartic equation in $\wavenumber_z$.
-We expect up to four different solutions for $\wavenumber_z$.
+In this special case, the characteristic polynomial is a quartic equation in the unknown component $\wavenumber_\perp$.
+We expect up to four different solutions for $\wavenumber_\perp$.
 
-\paragraph{Some algebra for later use.}
-We use the identity
-\begin{align}
- \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
-\end{align}
-We rewrite the determinant in terms of the relative permittivity $\relativepermittivity$
-\begin{align}
- \det \hat{A}(\Vector{k}) 
- &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\relativepermittivity + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
-\end{align}
-where $\alpha = (\text{tr}\relativepermittivity)^3 - 3 (\text{tr}\relativepermittivity) \text{tr}(\relativepermittivity^2) + 2 \text{tr}(\relativepermittivity^3)$,
-$\beta = \relativepermittivity_{\,ij} k_i k_j$, 
-$\gamma = k_i \relativepermittivity_{\,i\ell} \relativepermittivity_{\,\ell j} k_j$. 
-For given $\omega$ this is an equation of fourth order
-for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
-$\Vector{k}$ gives only two terms.
+
+\subsection{Wavevector Perturbation}
+
+Assume we found a solution $\Wavevector$. 
+A wavevector close to this solution $\Wavevector + d\Wavevector$ is also a solution, if the polynomial is zero.
+\begin{eqnarray}
+ P(\Wavevector+ d\Wavevector) &=& 0
+\end{eqnarray}
+For small $d\Wavevector$ this holds, if $d\Wavevector$ is not along the gradient of $P$.
+\begin{eqnarray}
+ \left. \textrm{grad} P \right|_\Wavevector \cdot d\Wavevector &=& 0 \label{eq:wavevectorPerturbationObeyingDispersion}
+\end{eqnarray}
+We find the two orthogonal directions using \eqref{eq:normal_to_inplane_vectors}.
+For a solution $d\Wavevector$, any shift of complex phase $e^{i\phi} d\Wavevector$ is also a solution.
+With the perturbed wavevector, also the eigen-polarisation may change.
+
+The gradient reads
 \begin{align}
  \frac{\partial (\det \hat{A})}{\partial k_j} &= k_0^2 
 \big[
@@ -509,15 +523,7 @@ k_0^2
 &+ (\relativepermittivity_{\,\ell j} + \relativepermittivity_{\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
 \big]
 \end{align}
-For an expansion around some vector which fulfills the dispersion relation
-\begin{align}
-  \det \hat{A}(\Vector{k} + \Delta \Vector{k}) 
-  &= 
-  \det \hat{A}(\Vector{k}) 
-  + \frac{\partial (\det \hat{A})}{\partial k_j}(\Vector{k}) \Delta k_j 
-  + \frac{1}{2} \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j}(\Vector{k}) \Delta k_i \Delta k_j\,,
-\end{align}
-it may also be useful to know the second derivative since the first term may already vanish:
+In case the gradient is the zero vector, the second derivative may become useful:
 \begin{align}
  \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j} &= 
 k_0^4 \biggl[
@@ -531,7 +537,16 @@ k_0^4 \biggl[
 + 2 k_\ell ((\permittivity_{\ell i}  + \permittivity_{i \ell}) k_j + (\permittivity_{\ell j} + \permittivity_{j \ell}) k_i)
 \biggr]\,.
 \end{align}
-As you can see this matrix is fully symmetric how it is expected from mixed vector derivatives.
+
+\paragraph{Isotropic, homogenous media.}
+The dispersion in isotropic media reads
+\begin{eqnarray}
+ \Wavevector \cdot \Wavevector &=& \Wavevector_{pilot} \cdot \Wavevector_{pilot} = \omega^2 \vacuumpermeability \scalarpermittivity
+\end{eqnarray}
+wavevector changes must fulfill
+\begin{eqnarray}
+ d\Wavevector \cdot \Wavevector &=& 0 + 0i
+\end{eqnarray}
 
 
 \subsection{Uniaxial anisotropic, homogeneous media}
@@ -1732,36 +1747,16 @@ where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 \subsubsection{Wavevectors}
 Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
 In contrast to the real valued ray directions, wavevectors may be complex valued.
-
-\paragraph{Isotropic, homogenous media.}
-
-The dispersion in isotropic media reads
-\begin{eqnarray}
- \Wavevector \cdot \Wavevector &=& \Wavevector_{pilot} \cdot \Wavevector_{pilot} = \omega^2 \vacuumpermeability \scalarpermittivity
-\end{eqnarray}
-Near-pilot rays must fulfill
-\begin{eqnarray}
- \Delta \Wavevector \cdot \Wavevector_{pilot} &=& 0 + 0i
-\end{eqnarray}
-We can choose the unit vectors to describe $\Delta \Wavevector$ by \eqref{eq:normal_to_inplane_vectors}.
-
-\paragraph{Anisotropic, homogeneous media.}
-TODO
-
-There still is a roll degree of freedom inside the $\Vector{e}_U, \Vector{e}_V$ plane.
-One possibility to fix that degree of freedom is \eqref{eq:eUeVVectors}.
-
-\paragraph{Wavevector Degrees of Freedom}
-The change of the wavevector $\Delta\Wavevector$ is a 3 dimensional vector of complex numbers, that is, 6 real valued degrees of freedom.
-The dispersion, as discussed in the paragraphs above, is a scalar complex valued equation, imposing 2 real valued constraints.
-
-We represent the remaining degrees of freedom of $\Delta \Wavevector$ as
+We define 2 orthogonal unit vectors $\Vector{e}_U, \Vector{e}_V$ along the directions
+in which perturbed wavevectors still obey the dispersion relation
+\eqref{eq:wavevectorPerturbationObeyingDispersion}.
+We represent the change of the wavevector $\Wavevector$ as
 \begin{eqnarray}
  \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
 \end{eqnarray}
-where $\Vector{e}_U$ and $\Vector{e}_V$ are independent base vectors and $U,V$ are complex valued prefactors.
-\remark{TODO:Check whether this representation is possible also for the general anisotropic case.}
+where $U,V$ are complex valued prefactors.
 The base vectors $\Vector{e}_U, \Vector{e}_V$ are defined up to a complex valued global phase and a roll degree of freedom. 
+We can -- but don't need to -- rotate in the $U,V$ plane and fix that degree of freedom according to \eqref{eq:eUeVVectors}.
 
 
 \subsection{XYUV matrices}
