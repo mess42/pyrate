@@ -972,15 +972,25 @@ class ZMXDLLShape(Conic):
         else:
             self.dll = ctypes.CDLL(dllfile)
             
-        self.params = {}
+        self.param = {}
         for (key, (value_int, value_float)) in param_dict.iteritems():
-            self.params[value_int] = OptimizableVariable("fixed", value=value_float)
-            self.addVariable(key, self.params[value_int])
+            self.param[value_int] = OptimizableVariable("fixed", value=value_float)
+            self.addVariable(key, self.param[value_int])
         self.xdata = {}
         for (key, (value_int, value_float)) in xdata_dict.iteritems():
             self.xdata[value_int] = OptimizableVariable("fixed", value=value_float)
             self.addVariable(key, self.xdata[value_int])
         self.us_surf = self.dll.UserDefinedSurface
+
+    def writeParam(self, f):
+        for (key, var) in self.param.iteritems():
+            f.param[key] = var()
+        return f
+    
+    def writeXdata(self, f):
+        for (key, var) in self.xdata.iteritems():
+            f.xdata[key] = var()
+        return f
 
     def intersect(self, raybundle):
         (r0, rayDir) = self.getLocalRayBundleForIntersect(raybundle)
@@ -989,10 +999,16 @@ class ZMXDLLShape(Conic):
         
         u = USER_DATA()
         f = FIXED_DATA()
+
         f.type = 5 # ask for intersection
         f.k = self.dict_variables["conic constant"]()
         f.cv = self.dict_variables["curvature"]()
         f.wavelength = raybundle.wave
+
+        
+        f = self.writeParam(f)
+        f = self.writeXdata(f)
+        
         
         x = r0[0, :]
         y = r0[1, :]
@@ -1025,9 +1041,14 @@ class ZMXDLLShape(Conic):
     def getSag(self, x, y):
         u = USER_DATA()
         f = FIXED_DATA()
+
         f.type = 3 # ask for sag
         f.k = self.dict_variables["conic constant"]()
         f.cv = self.dict_variables["curvature"]()
+
+
+        #f = self.writeParam(f)
+        #f = self.writeXdata(f)
 
         z = np.zeros_like(x)
 
@@ -1039,4 +1060,21 @@ class ZMXDLLShape(Conic):
             
         return z
             
+if __name__=="__main__":
+    
+    from localcoordinates import LocalCoordinates
+    
+    lc = LocalCoordinates()
+    
+    s = ZMXDLLShape(lc, 
+                    "../us_stand_gcc.so", 
+                    xdata_dict={"xd1":(1, 0.1), "xd2":(2, 0.2)}, 
+                    param_dict={"p1":(1, 0.3), "p2":(2, 0.4)}, curv=0.01, cc=0)
 
+    x = np.random.random(100)
+    y = np.random.random(100)
+    
+    z = s.getSag(x, y)
+
+    print(z)    
+    
