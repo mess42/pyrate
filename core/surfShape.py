@@ -836,31 +836,40 @@ class ZernikeFringe(ExplicitShape):
         return (self.dict_variables["normradius"].evaluate(), \
                 [self.dict_variables["Z"+str(i+1)].evaluate() for i in range(self.numcoefficients)])
 
-    def zernike_norm(self, j, xp, yp):
+    def jtonm(self, j):
         # get correct indices from j    
     
         next_sq = (math.ceil(math.sqrt(j)))**2
         m_plus_n = int(2*math.sqrt(next_sq) - 2)
-        m = int(math.ceil((j - next_sq)/2))
+        m = int(math.ceil((next_sq - j)/2))
         n = m_plus_n - m
+        m = int((-1)**((next_sq - j) % 2))*m
+        return (n, m)        
+
+    def nmtoj(self, (n, m)):
+        return int(((n + abs(m))/2 + 1)**2 - 2*abs(m) + (1 - np.sign(m))/2)
+
+    def zernike_norm(self, j, xp, yp):        
+        (n, m) = self.jtonm(j)        
+
+        R = np.zeros(n+1)                        
+        omega = abs(m)
         
-        R = np.zeros(n+2)
+        a = np.arange(omega, n+1, 2)
+        k = (n-a)/2        
+    
+        R[a] = (-1)**k * factorial(n-k) / ( factorial(k) * factorial((n+m)/2 - k) * factorial((n-m)/2-k) );
         
-        a = np.arange(m, n+2, 2, dtype=int)
-        k = (n-a)/2.
-        R[a+1] = (-1)**k * factorial(n-k)/ ( factorial(k) * factorial((n+m)/2. - k) * factorial((n-m)/2.-k) )
-                
-        omega = m
         r = np.sqrt(xp**2 + yp**2)
         phi = np.arctan2(yp, xp)
         
         rho = np.zeros_like(r)
 
         for i in range(n+1):
-            rho += R[i+1]*r**i
+            rho += R[i]*r**i
                 
         result = np.zeros_like(rho)
-        if next_sq - j % 2 == 1:
+        if m < 0:
             result = rho*np.sin(omega*phi)
         else:
             result = rho*np.cos(omega*phi)
@@ -1063,6 +1072,8 @@ class ZMXDLLShape(Conic):
 if __name__=="__main__":
     
     from localcoordinates import LocalCoordinates
+    import matplotlib.pyplot as plt    
+    
     
     lc = LocalCoordinates()
     
@@ -1077,4 +1088,30 @@ if __name__=="__main__":
     z = s.getSag(x, y)
 
     print(z)    
+    
+    sz = ZernikeFringe(lc)
+
+    for ind in (np.array(range(36))+1).tolist():
+        print(ind, sz.jtonm(ind), sz.nmtoj(sz.jtonm(ind)))
+            
+    x = np.linspace(-1, 1, 50)
+    y = np.linspace(-1, 1, 50)    
+
+    (X, Y) = np.meshgrid(x, y)
+    
+    XN = X
+    YN = Y
+        
+    fig = plt.figure()
+    for ind in range(36):
+        j = ind+1
+        Zf = sz.zernike_norm(j, XN.flatten(), YN.flatten())
+        ZN = Zf.reshape(np.shape(XN))
+        ax = fig.add_subplot(9, 4, j)
+        ZN[XN**2 + YN**2 > 1] = np.nan
+        ax.imshow(ZN)
+    
+    plt.show()
+    
+           
     
