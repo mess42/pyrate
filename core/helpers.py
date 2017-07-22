@@ -40,6 +40,12 @@ from helpers_math import rodrigues, random_rotation_matrix
 def build_simple_optical_system(builduplist, matdict):
 
     """
+
+    param builduplist: (list of 5-tuples), every tuple contains (radius, conic constant, thickness, material_string, name of lc)
+    param matdict: (dictionary), key=material name (string), value is refraction index    
+    
+    return: (OpticalSystem, seq as list of tuple of strings)    
+    
     Convenience function to fast build up on-axis system 
     only consisting of conic sections. Materials have to be provided
     via a material dict {"matname": ConstantIndexGlass(1.5), ...}
@@ -95,6 +101,15 @@ def build_simple_optical_system(builduplist, matdict):
 
 
 def choose_nearest(kvec, kvecs_new):
+    """
+    Choose kvec from solution vector which is nearest to a specified kvec.
+    
+    param kvec: specified k-vector (3xN numpy array of complex) which is used as reference.
+    param kvecs_new: (4x3xN numpy array of complex) solution arrays of kvectors.
+    
+    return: vector from kvecs_new which is nearest to kvec.
+    """
+    
     tol = 1e-3
     (kvec_dim, kvec_len) = np.shape(kvec)
     (kvec_new_no, kvec_new_dim, kvec_new_len) = np.shape(kvecs_new)
@@ -118,6 +133,18 @@ def choose_nearest(kvec, kvecs_new):
 
 
 def collimated_bundle(nrays, startz, starty, radius, rast):
+    """
+    Generates an x-centered collimated bundle which starts at startz, starty
+    in global coordinates. Further it has the diameter 2*radius.
+    
+    param nrays: (int) How many rays to be generated?
+    param startz: (double) starting z position of the bundle in global coordinates.
+    param starty: (double) starting y position of the bundle in global coordinates.
+    param radius: (double) radius of the raybundle
+    param rast: (raster object) tells the collimated bundle function which raster to use
+
+    return (o, k, E) all (3xN numpy arrays of float (o), or complex(k, E))    
+    """
     # FIXME: this function does not respect the dispersion relation in the material
 
     rstobj = rast
@@ -130,10 +157,30 @@ def collimated_bundle(nrays, startz, starty, radius, rast):
     return (o, k, E0)
 
 
-def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, lck=None, wave=standard_wavelength, num_sampling_points=5, random_xy=False):
+def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, 
+                      kunitvector=None, lck=None, wave=standard_wavelength, 
+                      num_sampling_points=5, random_xy=False):
 
     """
     Simplified pilotbundle generation.
+    
+    param surfobj: (Surface object) denotes the object surface, where to start
+                        the raytracing
+    param mat: (Material object) denotes the background material in which the
+                pilotbundle starts
+    param (dx, dy): (float) infinitesimal distances of pilotbundles in plane of
+                object surface
+    param (dphix, dphiy): (float) infinitesimal angles for angular cones at
+                pilotbundle start points at object surface
+    param Elock: (3xN numpy array of complex) E field vector in local k coordinate system
+    param kunitvector: (3xN numpy array of float) unit vector of k vector which is
+                used to generate the cones around
+    param lck: (LocalCoordinates object) local k coordinate system if it differs from
+                local object coordinate system
+    param wavelength: (float) wavelength of the pilotbundle
+    param num_sampling_points: (int) number of sampling points in every direction
+    param random_xy: (bool) choose xy distribution randomly?
+    
     """
     
     # TODO: remove code doubling from material due to sorting of K and E
