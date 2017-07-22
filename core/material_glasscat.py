@@ -156,7 +156,7 @@ class refractiveindex_dot_info_glasscatalog(object):
          
         :return ymldict: (dict)
         """
-        ymlfilename  = database_basepath + "/"
+        ymlfilename  = self.database_basepath + "/"
         ymlfilename += self.librarydict[shelf]["content"][book]["content"][page]["path"]
 
         data = self.read_yml_file(ymlfilename)

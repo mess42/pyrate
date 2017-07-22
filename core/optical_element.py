@@ -46,15 +46,18 @@ class OpticalElement(LocalCoordinatesTreeBase):
         self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
     
     
-    def addSurface(self, key, surface_object, (minusNmat_key, plusNmat_key), name=""):
+    def addSurface(self, key, surface_object, materialkeys, name=""):
         """
         Adds surface class object to the optical element.
         
         :param key (string ... dict key)
         :param surface_object (Surface class object)
-        :param (minusNmat_key, plusNmat_key) (tuple of strings ... keys to material dict)
+        :param materialkeys (tuple of 2 strings)
+                            materials in minus normal and in plus normal direction.
+                            Both tuple entries must be in the optical element materials dict
         :param name (string, optional), name of surface
         """
+        (minusNmat_key, plusNmat_key) = materialkeys
         if self.checkForRootConnection(surface_object.rootcoordinatesystem):
             self.__surfaces[key] = surface_object
         else:
@@ -77,10 +80,13 @@ class OpticalElement(LocalCoordinatesTreeBase):
         :param comment (string, optional), comment for the material
         """
         if self.checkForRootConnection(material_object.lc):
-            self.__materials[key] = material_object
+            if key not in self.__materials:
+                self.__materials[key] = material_object
+                self.__materials[key].comment = comment
+            else:
+                print "Warning: Material key " + str(key) + "already taken. Material will not be added."
         else:
             raise Exception("material coordinate system should be connected to OpticalElement root coordinate system")            
-        self.__materials[key].comment = comment
 
     def findoutWhichMaterial(self, mat1, mat2, current_mat):
         """

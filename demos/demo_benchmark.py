@@ -47,19 +47,16 @@ wavelength = standard_wavelength
 
 # definition of optical system
 
-mat_dict = {"glass":1.7, "glass2":1.5}
-
-
 (s, seq) = build_simple_optical_system(
-        [(-5.922, 0, 2.0, "glass", "surf1"),
+        [(-5.922, 0, 2.0, 1.7, "surf1"),
          (-3.160, 0, 3.0, None, "surf2"),
-         (15.884, 0, 5.0, "glass", "surf3"),
+         (15.884, 0, 5.0, 1.7, "surf3"),
         (-12.756, 0, 3.0, None, "surf4"),
         (0, 0, 3.0, None, "stop"),
-        (3.125, 0, 2.0, "glass2", "surf5"),
+        (3.125, 0, 2.0, 1.5, "surf5"),
         (1.479, 0, 3.0, None, "surf6"),
         (0, 0, 19.0, None, "surf7")
-         ], mat_dict)
+         ])
 
 nrays = 100000
 nrays_draw = 21
