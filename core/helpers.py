@@ -37,18 +37,26 @@ from ray import RayBundle
 from material_isotropic import ConstantIndexGlass
 from helpers_math import rodrigues, random_rotation_matrix
 
-def build_simple_optical_system(builduplist, matdict):
+def build_simple_optical_system(builduplist, material_db_path = ""):
 
     """
+    Convenience function to build up an centrosymmetric system with spherical lenses.
 
-    param builduplist: (list of 5-tuples), every tuple contains (radius, conic constant, thickness, material_string, name of lc)
-    param matdict: (dictionary), key=material name (string), value is refraction index    
-    
-    return: (OpticalSystem, seq as list of tuple of strings)    
-    
-    Convenience function to fast build up on-axis system 
-    only consisting of conic sections. Materials have to be provided
-    via a material dict {"matname": ConstantIndexGlass(1.5), ...}
+    :param builduplist: (list of tuple)
+             elements are (r, cc, thickness, mat, comment)
+             r - radius of curvature (float)
+             cc - conic constant (float)
+             thickness - (float)
+             mat - material index or name (str)
+                   if convertable to float, a ConstantIndexGlass will be created
+                   if not, a material from the refractiveindex.info will be created
+
+    :param material_db_path: (str)
+             path to the refractiveindex.info yml-database
+
+    :return (s, stdseq): (tuple)
+             s is an OpticalSystem object
+             stdseq is a sequence for sequential raytracing
     """
     
     s = OpticalSystem() 
@@ -57,13 +65,7 @@ def build_simple_optical_system(builduplist, matdict):
     lc0 = s.addLocalCoordinateSystem(localcoordinates.LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
     elem = OpticalElement(lc0, name="stdelem")
-    
-    for (key, val) in matdict.iteritems():
         
-        mat = ConstantIndexGlass(lc0, n=val)        
-        
-        elem.addMaterial(key, mat)
-    
     refname = lc0.name
     lastmat = None
     surflist_for_sequence = []
@@ -76,6 +78,16 @@ def build_simple_optical_system(builduplist, matdict):
         else:
             curv = 0.
         actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc))
+
+        if mat is not None:
+            try:
+                n = float(mat)
+            except:
+                print "mat=",mat
+                raise NotImplementedError() # put refractiveindex.info factory here        
+            else:
+                elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
+
         elem.addSurface(comment, actsurf, (lastmat, mat))
         print("addsurf: %s at material boundary %s" % (comment, (lastmat, mat)))        
         
@@ -133,18 +145,6 @@ def choose_nearest(kvec, kvecs_new):
 
 
 def collimated_bundle(nrays, startz, starty, radius, rast):
-    """
-    Generates an x-centered collimated bundle which starts at startz, starty
-    in global coordinates. Further it has the diameter 2*radius.
-    
-    param nrays: (int) How many rays to be generated?
-    param startz: (double) starting z position of the bundle in global coordinates.
-    param starty: (double) starting y position of the bundle in global coordinates.
-    param radius: (double) radius of the raybundle
-    param rast: (raster object) tells the collimated bundle function which raster to use
-
-    return (o, k, E) all (3xN numpy arrays of float (o), or complex(k, E))    
-    """
     # FIXME: this function does not respect the dispersion relation in the material
 
     rstobj = rast

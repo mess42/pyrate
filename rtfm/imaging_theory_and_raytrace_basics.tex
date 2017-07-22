@@ -79,7 +79,7 @@
 
 \newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
 
-\newcommand\unitmatrix{\mathds{1}}
+\newcommand\unittensor{\mathds{1}}
 
 \newcommand\Greenfunction{\Tensor{G}}
 
@@ -438,11 +438,6 @@ This is a differential equation with constant coefficients, so we use the ansatz
 where the $\Efield_0$ contains polarisation, electric field amplitude and harmonic time dependence.
 With this monochromatic time dependence, $\permittivity_{ij}$ becomes a constant factor 
 and we can replace $\partial_j \to i k_j$. We yield
-\begin{align}
- A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\\
- A_{ij}          &= \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \vacuumpermeability \permittivity_{ij} \right)
- \end{align}
-More explicit, it reads
 \begin{eqnarray}
 \begin{pmatrix}
  \wavenumber_y^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} 
@@ -466,6 +461,11 @@ More explicit, it reads
 \Efield_0
 &=& 0 \label{eq:generalDispersionEigenEquation}
 \end{eqnarray}
+In component notation, that is
+\begin{align}
+ A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\\
+ A_{ij}          &= \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \vacuumpermeability \permittivity_{ij} \right)
+ \end{align}
 Nontrivial solutions can be found if the determinant of $\hat{A}$ is zero.
 We call wavevectors $\Wavevector$ for which the deterimant vanishes a solution of the dispersion relation.
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
@@ -550,7 +550,7 @@ wavevector changes must fulfill
 
 
 \subsection{Uniaxial anisotropic, homogeneous media}
-Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
+Uniaxial anisotropic media are media with one axis along which the permittivity takes an extraordinary value, 
 and a degenerate permittivity along the other two directions in space.
 The direction along which the extraordinary permittivity occurs is often called \emph{optical axis}. 
 In this manual, we use the term \emph{extraordinary direction} $\Vector{e}_{eo}$, to avoid confusion with the symmetry axis of radially symmetric lens systems in technical optics.
@@ -569,6 +569,7 @@ Without loss of generality, we choose our coordinate system so that the extraord
 \end{eqnarray}
 
 We further rotate the coordinate system in the degenerate $xy$ plane so that $\wavenumber_y = 0$.
+\remark{Can a rotation by a real valued angle set real and imaginary part of k zero ?}
 The eigenvalue equation \ref{eq:generalDispersionEigenEquation} simplifies to
 
 \begin{eqnarray}
@@ -996,7 +997,7 @@ I this special case, equation \eqref{eq:fresnelLastToSkip} reduces to
  0 &=& 0
 \end{eqnarray*}
 which is of limited help in solving the system. 
-The special case we chose is quite common, for example as pilot ray in all centro-symmetric systems made of glass.
+The special case we chose is quite common, for example as on-axis ray in all centro-symmetric systems made of glass.
 Thus we decide to remove equation \eqref{eq:fresnelLastToSkip} and yield our final system
 \begin{subequations}
   \begin{align}
@@ -1700,7 +1701,7 @@ We represent the propagation of these deviations through the optical system by a
  \end{pmatrix}
 \end{eqnarray}
 By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray,
-$\hat{G}\Vector{0} = \Vector{0}$.
+$\hat{G}(\Vector{0}) = \Vector{0}$.
 In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
 $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
 The linear terms in $\hat{G}$ can be represented by a matrix,
@@ -1971,7 +1972,7 @@ In general, it is not possible to find identical base vectors $\Vector{e}_{U,V}$
 \subsubsection{A and B-Matrix}
 The infinitessimal propagation length through the surface does not change the ray height
 \begin{eqnarray}
- \hat{A} &=& \unitmatrix \\
+ \hat{A} &=& \unittensor \\
  \hat{B} &=& 0
 \end{eqnarray}
 
