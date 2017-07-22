@@ -292,8 +292,10 @@ class IndexFormulaContainer(object):
             self.__dispFunction = Exotic
         elif typ == "tabulated n":
             self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0],      self.coeff[:,1])
-        elif typ == "tabulated k":
+        elif typ == "tabulated k": 
             self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0], 1j * self.coeff[:,1])
+        elif typ == "tabulated nk":
+            self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0], self.coeff[:,1] + 1j * self.coeff[:,2])
         else:
             raise Exception("Bad dispersion function type: "+str(typ))
             
@@ -321,7 +323,7 @@ class IndexFormulaContainer(object):
 
                 
 class CatalogMaterial(IsotropicMaterial):
-    def __init__(self, lc, ymldict, name = "", comment=""):
+    def __init__(self, lc, ymldict, **kwargs):
         """
         Material from the refractiveindex.info database.
         
@@ -338,7 +340,7 @@ class CatalogMaterial(IsotropicMaterial):
             bk7 = CatalogMaterial(lc, ymldict)
         """
 
-        super(CatalogMaterial, self).__init__(lc, name, comment)
+        super(CatalogMaterial, self).__init__(lc, **kwargs)
 
         data = ymldict["DATA"]
         

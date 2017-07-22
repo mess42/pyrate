@@ -29,12 +29,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # calculations
 
 import numpy as np
+from scipy.misc import factorial
 import math
 from optimize import ClassWithOptimizableVariables
 from optimize import OptimizableVariable
 from scipy.optimize import fsolve
 from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
 from globalconstants import numerical_tolerance
+import ctypes
 
 class Shape(ClassWithOptimizableVariables):
     def __init__(self, lc, **kwargs):
@@ -379,7 +381,6 @@ class FreeShape(Shape):
         self.hessF = hessF # closed form Hessian in x, y, z, paramslst
 
     def getGrad(self, x, y):
-        result = np.zeros((3, len(x)))
         z = self.getSag(x, y)
         gradient = self.gradF(x, y, z)
         return gradient
@@ -702,6 +703,9 @@ class LinearCombination(ExplicitShape):
         super(LinearCombination, self).__init__(lc, licosag, licograd, licohess, **kwargs)
 
 class XYPolynomials(ExplicitShape):
+    """
+    Class for XY polynomials
+    """
 
     def __init__(self, lc, coefficients=None, **kwargs):
 
@@ -753,11 +757,15 @@ class XYPolynomials(ExplicitShape):
                 
 
 class GridSag(ExplicitShape):
+    """
+    Class for gridsag
+    """
     
     def __init__(self, lc, (xlinspace, ylinspace, Zgrid), *args, **kwargs):
     
         kwargs_dict = kwargs
         kind = kwargs_dict.pop('kind', 'cubic')
+        name = kwargs_dict.pop('name', '')
     
         self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
     
@@ -793,114 +801,317 @@ class GridSag(ExplicitShape):
             
             return res
 
-        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-6, iterations=10)
+        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-6, iterations=10, name=name)
+
+class ZernikeFringe(ExplicitShape):
+    """
+    Class for Zernike Fringe
+    """
+    
+    def __init__(self, lc, normradius=1., coefficients=None, **kwargs):
+        if coefficients is None:
+            coefficients = []
+
+        self.numcoefficients = len(coefficients)
+        initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
+            
+        def zf(x, y):
+            (normradius, zcoefficients) = self.getZernikeFringeParameters()            
+            res = np.zeros_like(x)            
+            for (num, val) in enumerate(zcoefficients):
+                res += val*self.zernike_norm(num + 1, x/normradius, y/normradius)
+            
+            return res
+        
+        def gradzf(x, y, z):
+            return np.zeros_like(x)
+            
+        def hesszf(x, y, z):
+            return np.zeros_like(x)
+
+        super(ZernikeFringe, self).__init__(lc, zf, gradzf, hesszf, \
+            paramlist=([("normradius", normradius)]+initcoeffs), **kwargs)
+
+    def getZernikeFringeParameters(self):
+        return (self.dict_variables["normradius"].evaluate(), \
+                [self.dict_variables["Z"+str(i+1)].evaluate() for i in range(self.numcoefficients)])
+
+    def jtonm(self, j):
+        # get correct indices from j    
+    
+        next_sq = (math.ceil(math.sqrt(j)))**2
+        m_plus_n = int(2*math.sqrt(next_sq) - 2)
+        m = int(math.ceil((next_sq - j)/2))
+        n = m_plus_n - m
+        m = int((-1)**((next_sq - j) % 2))*m
+        return (n, m)        
+
+    def nmtoj(self, (n, m)):
+        return int(((n + abs(m))/2 + 1)**2 - 2*abs(m) + (1 - np.sign(m))/2)
+
+    def zernike_norm(self, j, xp, yp):        
+        (n, m) = self.jtonm(j)        
+
+        R = np.zeros(n+1)                        
+        omega = abs(m)
+        
+        a = np.arange(omega, n+1, 2)
+        k = (n-a)/2        
+    
+        R[a] = (-1)**k * factorial(n-k) / ( factorial(k) * factorial((n+m)/2 - k) * factorial((n-m)/2-k) );
+        
+        r = np.sqrt(xp**2 + yp**2)
+        phi = np.arctan2(yp, xp)
+        
+        rho = np.zeros_like(r)
+
+        for i in range(n+1):
+            rho += R[i]*r**i
+                
+        result = np.zeros_like(rho)
+        if m < 0:
+            result = rho*np.sin(omega*phi)
+        else:
+            result = rho*np.cos(omega*phi)
+        
+        return result
+
+
+################################################
+# ZMXDLLShape
+# TODO: maybe create own file for it
+################################################
+
+'''
+typedef struct
+{
+ 
+double x, y, z;     /* the coordinates */
+double l, m, n;     /* the ray direction cosines */
+double ln, mn, nn;  /* the surface normals */
+   double path;        /* the optical path change */
+   double sag1, sag2;  /* the sag and alternate hyperhemispheric sag */
+double index, dndx, dndy, dndz; /* for GRIN surfaces only */
+   double rel_surf_tran; /* for relative surface transmission data, if any */
+   double udreserved1, udreserved2, udreserved3, udreserved4; /* for future expansion */
+   char string[20];    /* for returning string data */
+ 
+}USER_DATA;
+'''
+class USER_DATA(ctypes.Structure):
+	_fields_ = [("x", ctypes.c_double), ("y", ctypes.c_double), ("z", ctypes.c_double),
+			("l", ctypes.c_double), ("m", ctypes.c_double), ("n", ctypes.c_double),
+                        ("ln", ctypes.c_double), ("mn", ctypes.c_double), ("nn", ctypes.c_double),
+			("path", ctypes.c_double), ("sag1", ctypes.c_double), ("sag2", ctypes.c_double),
+			("index", ctypes.c_double), ("dndx", ctypes.c_double), ("dndy", ctypes.c_double), ("dndz", ctypes.c_double),
+                ("rel_surf_tran", ctypes.c_double), 
+                ("udreserved1", ctypes.c_double),
+                ("udreserved2", ctypes.c_double),
+                ("udreserved3", ctypes.c_double),
+                ("udreserved4", ctypes.c_double),
+                 ("string", 20*ctypes.c_byte)]
+'''
+typedef struct
+{
+
+   int type, numb;     /* the requested data type and number */
+   int surf, wave;     /* the surface number and wavelength number */
+   double wavelength, pwavelength;      /* the wavelength and primary wavelength */
+   double n1, n2;      /* the index before and after */
+   double cv, thic, sdia, k; /* the curvature, thickness, semi-diameter, and conic */
+   double param[9];    /* the parameters 1-8 */
+   double fdreserved1, fdreserved2, fdreserved3, fdreserved4; /* for future expansion */
+   double xdata[201];  /* the extra data 1-200 */
+   char glass[21];     /* the glass name on the surface */
+
+}FIXED_DATA;
+'''
+class FIXED_DATA(ctypes.Structure):
+    _fields_ = [
+            ("type", ctypes.c_int),
+            ("numb", ctypes.c_int),
+            ("surf", ctypes.c_int),
+            ("wave", ctypes.c_int),
+            ("wavelength", ctypes.c_double), 
+            ("pwavelength", ctypes.c_double), 
+            ("n1", ctypes.c_double),
+            ("n2", ctypes.c_double),
+            ("cv", ctypes.c_double),
+            ("thic", ctypes.c_double),
+            ("sdia", ctypes.c_double),
+            ("k", ctypes.c_double),
+            ("param", 9*ctypes.c_double),
+            ("fdreserved1", ctypes.c_double),
+            ("xdata", 201*ctypes.c_double),
+            ("glass", 21*ctypes.c_byte) 
+        ]
 
 
 
-if __name__ == "__main__":
+   
+class ZMXDLLShape(Conic):
+    """
+    This surface is able to calculate certain shape quantities from a DLL loaded externally.
+    """
+    
+    def __init__(self, lc, dllfile, param_dict={}, xdata_dict={}, isWinDLL=False, curv=0.0, cc=0.0, **kwargs):
+        """
+        param: lc LocalCoordinateSystem of shape
+        param: dllfile (string) path to DLL file
+        param: param_dict (dictionary) key: string, value: (int 0 to 8, float); initializes optimizable variables.
+        param: xdata_dict (dictionary) key: string, value: (int  0 to 200, float); initializes optimizable variables.
+        param: isWinDLL (bool): is DLL compiled in Windows or Linux?        
+        
+        Notice that this class only calls the appropriate functions from the DLL.
+        The user is responsible to get all necessary functions running to use this DLL.
+        (i.e. intersect, sag, normal, ...)
+        
+        To compile the DLL for Linux, remove all Windows and calling convention stuff an build it
+        via:
+
+            gcc -c -fpic -o us_stand.o us_stand.c -lm
+            gcc -shared -o us_stand.so us_stand.o
+
+
+        """
+        super(ZMXDLLShape, self).__init__(lc, curv=curv, cc=cc, **kwargs)
+        
+        if isWinDLL:
+            self.dll = ctypes.WinDLL(dllfile)
+        else:
+            self.dll = ctypes.CDLL(dllfile)
+            
+        self.param = {}
+        for (key, (value_int, value_float)) in param_dict.iteritems():
+            self.param[value_int] = OptimizableVariable("fixed", value=value_float)
+            self.addVariable(key, self.param[value_int])
+        self.xdata = {}
+        for (key, (value_int, value_float)) in xdata_dict.iteritems():
+            self.xdata[value_int] = OptimizableVariable("fixed", value=value_float)
+            self.addVariable(key, self.xdata[value_int])
+        self.us_surf = self.dll.UserDefinedSurface
+
+    def writeParam(self, f):
+        for (key, var) in self.param.iteritems():
+            f.param[key] = var()
+        return f
+    
+    def writeXdata(self, f):
+        for (key, var) in self.xdata.iteritems():
+            f.xdata[key] = var()
+        return f
+
+    def intersect(self, raybundle):
+        (r0, rayDir) = self.getLocalRayBundleForIntersect(raybundle)
+
+        intersection = np.zeros_like(r0)
+        
+        u = USER_DATA()
+        f = FIXED_DATA()
+
+        f.type = 5 # ask for intersection
+        f.k = self.dict_variables["conic constant"]()
+        f.cv = self.dict_variables["curvature"]()
+        f.wavelength = raybundle.wave
+
+        
+        f = self.writeParam(f)
+        f = self.writeXdata(f)
+        
+        
+        x = r0[0, :]
+        y = r0[1, :]
+        z = r0[2, :]
+
+        l = rayDir[0, :]
+        m = rayDir[1, :]
+        n = rayDir[2, :]
+
+        for (ind, (xl, yl, zl, ll, ml, nl)) in zip(x.tolist(), y.tolist(), z.tolist(), l.tolist(), m.tolist(), n.tolist()):
+            
+            u.x = xl
+            u.y = yl
+            u.z = zl
+            u.l = ll
+            u.m = ml
+            u.n = nl            
+            
+            self.us_surf(ctypes.byref(u), ctypes.byref(f))            
+            
+            intersection[0, ind] = u.x
+            intersection[1, ind] = u.y
+            intersection[2, ind] = u.z        
+
+
+        globalinter = self.lc.returnLocalToGlobalPoints(intersection)
+        
+        raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], raybundle.valid[-1])
+
+    def getSag(self, x, y):
+        u = USER_DATA()
+        f = FIXED_DATA()
+
+        f.type = 3 # ask for sag
+        f.k = self.dict_variables["conic constant"]()
+        f.cv = self.dict_variables["curvature"]()
+
+
+        #f = self.writeParam(f)
+        #f = self.writeXdata(f)
+
+        z = np.zeros_like(x)
+
+        for (ind, (xp, yp)) in enumerate(zip(x.tolist(), y.tolist())):        
+            u.x = xp
+            u.y = yp
+            retval = self.us_surf(ctypes.byref(u), ctypes.byref(f))
+            z[ind] = u.sag1 if retval == 0 else u.sag2
+            
+        return z
+            
+if __name__=="__main__":
+    
     from localcoordinates import LocalCoordinates
-    from ray import RayBundle
-    from globalconstants import standard_wavelength
+    import matplotlib.pyplot as plt    
+    
+    
+    lc = LocalCoordinates()
+    
+    s = ZMXDLLShape(lc, 
+                    "../us_stand_gcc.so", 
+                    xdata_dict={"xd1":(1, 0.1), "xd2":(2, 0.2)}, 
+                    param_dict={"p1":(1, 0.3), "p2":(2, 0.4)}, curv=0.01, cc=0)
 
-    def testf(x, y, z):
-        return x**3 - y**2*x**6 + z**5
+    x = np.random.random(100)
+    y = np.random.random(100)
+    
+    z = s.getSag(x, y)
 
-    def testfddz(x, y, z):
-        return 5.*z**4
+    print(z)    
+    
+    sz = ZernikeFringe(lc)
 
-    def testfgrad(x, y, z):
-        result = np.zeros((3, len(x)))
-        result[0] = 3.*x**2 - 6.*y**2*x**5
-        result[1] = - 2.*y*x**6
-        result[2] = 5.*z**4
-        return result
+    for ind in (np.array(range(36))+1).tolist():
+        print(ind, sz.jtonm(ind), sz.nmtoj(sz.jtonm(ind)))
+            
+    x = np.linspace(-1, 1, 50)
+    y = np.linspace(-1, 1, 50)    
 
-    def testfhess(x, y, z):
-        result = np.zeros((3, 3, len(x)))
-
-        result[0, 0] = 6.*x - 30.*y**2*x**4
-        result[1, 1] = -2.*x**6
-        result[2, 2] = 20.*z**3
-        result[0, 1] = result[1, 0] = -12.*y*x**5
-        result[1, 2] = result[1, 2] = np.zeros_like(x)
-        result[2, 0] = result[0, 2] = np.zeros_like(x)
-
-        return result
-
-
-    def testf2(x, y):
-        return x**2 + y**2
-
-    def testf2grad(x, y, z):
-        result = np.zeros((3, len(x)))
-        result[0] = -2.*x
-        result[1] = -2.*y
-        result[2] = np.ones_like(x)
-        return result
-
-    def testf2hess(x, y, z):
-        result = np.zeros((6, len(x)))
-
-        result[0] = -2.*np.ones_like(x)
-        result[1] = -2.*np.ones_like(x)
-        result[2] = np.zeros_like(x)
-        result[3] = np.zeros_like(x)
-        result[4] = np.zeros_like(x)
-        result[5] = np.zeros_like(x)
-        return result
-
-    # it makes sense that external functions cannot access some internal
-    # optimizable parameters. if you need access to optimizable parameters
-    # derive a class from the appropriate shape classes
-
-    lcroot = LocalCoordinates("root")
-
-    imsh = ImplicitShape(lcroot, testf, testfgrad, testfhess, paramlist=[], eps=1e-6, iterations=10)
-    exsh = ExplicitShape(lcroot, testf2, testf2grad, testf2hess, paramlist=[], eps=1e-6, iterations=10)
-
-    ash = Asphere(lcroot, 1./10., -1., [])
-
-    x1 = np.array([1,2,3])
-    y1 = np.array([4,5,6])
-    z1 = imsh.implicitsolver(x1, y1)
-    z2 = exsh.getSag(x1, y1)
-    z3 = ash.getSag(x1, y1)
-    ash.dict_variables["curv"].setvalue(1./20.)
-    z4 = ash.getSag(x1, y1)
-
-    print("xyz")
-    print(x1)
-    print(y1)
-    print("implsurf")
-    print(z1)
-    print("check implsurf")
-    print(testf(x1, y1, z1))
-    print("explsurf")
-    print(z2)
-    print("asphere curv=0.1")
-    print(z3)
-    print("asphere curv=0.2")
-    print(z4)
-    #print(testfgrad(x, y, z, []))
-    #print(testfhess(x, y, z, []))
-    #print(imsh.getNormal(x, y))
-
-    x0 = np.zeros((3, 10))#random.random((3, 10))
-    x0[2] = 0.
-
-    k0 = np.zeros((3, 10))
-    k0[2] = 2.*math.pi/standard_wavelength        
-
-    ey = np.zeros((3, 10))
-    ey[1] = 1.    
-
-    E0 = np.cross(ey, k0, axis=0)
-
-    conicshape = Conic(lcroot, curv=0.1, cc=0.)
-
-    ray = RayBundle(x0, k0, E0)
-    exsh.intersect(ray)
-    print(ash.getHessian(x0[0], x0[1]))
-    #print(ray.x)
-    #print(ray.rayDir)
-    #print(t)
+    (X, Y) = np.meshgrid(x, y)
+    
+    XN = X
+    YN = Y
+        
+    fig = plt.figure()
+    for ind in range(36):
+        j = ind+1
+        Zf = sz.zernike_norm(j, XN.flatten(), YN.flatten())
+        ZN = Zf.reshape(np.shape(XN))
+        ax = fig.add_subplot(9, 4, j)
+        ZN[XN**2 + YN**2 > 1] = np.nan
+        ax.imshow(ZN)
+    
+    plt.show()
+    
+           
+    

@@ -44,22 +44,18 @@ from distutils.version import StrictVersion
 # http://astro.dur.ac.uk/~rsharp/opticaldesign/
 # some good demonstration of coordinate breaks is: FIELDROTATOR-LECT5.ZMX
 
-if len(sys.argv) != 5:
+if len(sys.argv) != 4:
     print("usage:")
-    print("python -m demos.demo_zmx file.zmx u|a entrance_pupil_diameter num_rays_for_yfan")
+    print("python -m demos.demo_zmx file.zmx entrance_pupil_diameter num_rays_for_yfan")
     print("only collimated light")
     print("file.zmx relative to local directory")
-    print("u for utf16 file; a for ascii file (try both)")
     exit()
 
 file_to_read = sys.argv[1]
-u_or_a = sys.argv[2]
-enpd = float(sys.argv[3])
-num_rays = int(sys.argv[4])
+enpd = float(sys.argv[2])
+num_rays = int(sys.argv[3])
 
-ascii_read = True if u_or_a == "a" else False
-
-p = ZMXParser(file_to_read, ascii=ascii_read)
+p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
 
 #matdict = {}

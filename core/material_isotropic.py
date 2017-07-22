@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import math
 from ray import RayBundle
 import helpers_math
 import optimize
@@ -32,8 +31,8 @@ from globalconstants import standard_wavelength
 
 class IsotropicMaterial(MaxwellMaterial):
     
-    def __init__(self, lc, n=1.0, name="", comment=""):
-        super(IsotropicMaterial, self).__init__(lc, name, comment)
+    def __init__(self, lc, n=1.0, **kwargs):
+        super(IsotropicMaterial, self).__init__(lc, **kwargs)
 
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
@@ -162,8 +161,8 @@ class ConstantIndexGlass(IsotropicMaterial):
     """
     A simple glass defined by a single refractive index.
     """
-    def __init__(self, lc, n=1.0, name="", comment=""):
-        super(ConstantIndexGlass, self).__init__(lc, name, comment)
+    def __init__(self, lc, n=1.0, **kwargs):
+        super(ConstantIndexGlass, self).__init__(lc, **kwargs)
 
         self.n = optimize.OptimizableVariable(value=n)
         self.addVariable("refractive index", self.n)
