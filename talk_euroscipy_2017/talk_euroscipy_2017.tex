@@ -1,0 +1,242 @@
+\pdfminorversion=5
+\pdfcompresslevel=9
+\pdfobjcompresslevel=9
+
+% notes can sometimes not be printed. it is better to filter them through ghostscript before:
+%	gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.5 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=blabla_notes.pdf blabla.pdf
+% command to print notes with 2 slides on one sheet is
+%	lp -o landscape -o number-up=2 -o fitplot -o sides=two-sided-long-edge -P 1,2,3-5,6 -d PRINTER PDF
+% or use pdfnup from the pdfjam package
+% -P pageranges
+\documentclass[
+10pt,
+%notes=only
+]{beamer}
+
+\mode<presentation>
+{
+  \usetheme{Madrid}
+  \setbeamercovered{transparent}
+% remove navigation symbols
+  \setbeamertemplate{navigation symbols}{}
+}
+
+\usepackage{ifthen}
+
+%\setbeameroption{show only notes}
+%\setbeameroption{show notes}
+\newboolean{notesonly}
+\setboolean{notesonly}{false}
+\newboolean{notnotesonly}
+\ifnotesonly
+\setbeameroption{show only notes}
+\setboolean{notnotesonly}{false}
+\else
+\setboolean{notnotesonly}{true}
+\fi
+
+
+%\setbeameroption{show notes on second screen=right}
+
+\usepackage{color}
+\usepackage{sfmath}
+\usepackage{mathrsfs}
+\usepackage{times}
+\usepackage{eulervm}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{wasysym}
+\usepackage{cancel}
+\setlength{\fboxsep}{0pt}
+
+% unicode
+\usepackage[utf8x]{inputenc}
+\usepackage[ngerman]{babel}
+
+\usepackage{amsmath,amssymb,amsbsy}
+
+\usepackage{booktabs}
+
+%\usepackage{natbib}
+
+\usepackage{tikz}
+%\usepackage{pgfplots}
+\usetikzlibrary{decorations}
+\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{shadows}
+
+
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=2cm,
+    minimum height=2em]
+
+
+
+%\input{macros2}
+%\input{overlayboxes}
+\newcommand{\remark}[1]{{\color{red}{#1}}}
+\newcommand{\myref}[1]{{\tiny #1}}
+
+%Backup slides
+\newcommand{\backupbegin}{
+   \newcounter{framenumberappendix}
+   \setcounter{framenumberappendix}{\value{framenumber}}
+}
+\newcommand{\backupend}{
+   \addtocounter{framenumberappendix}{-\value{framenumber}}
+   \addtocounter{framenumber}{\value{framenumberappendix}} 
+}
+
+
+\allowdisplaybreaks
+
+\title[Pyrate -- Raytracing in Python]{Pyrate --- Optical Raytracing Based on Python}
+
+
+\author[M. Esslinger, J. Hartung, T. Heinze, U. Lippmann]{\texorpdfstring{$\bullet$}{}M.~Esslinger, \texorpdfstring{$\bullet$}{}J.~Hartung, T.~Heinze, U.~Lippmann}
+
+%\institute[]{}
+
+\titlegraphic{}
+
+\date[EuroScipy 2017]{EuroScipy 2017}
+
+
+\logo{}
+
+
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+ \frametitle{Outline}
+ \tableofcontents
+\end{frame}
+
+\section{Introduction and Motivation}
+
+\begin{frame}
+ \frametitle{Technical Optical Design}
+  \begin{itemize}
+   \item show some pictures of objectives, some applications
+   \item break down: point -> point mapping
+   \item trend to small, high performance, several optical elements, freeform optics
+   \item several trade-offs between design goals and money needed
+   \item needs sophisticated methods for finding best solution which is technical realizable and effortable
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+ \frametitle{History of Pyrate}
+ \begin{itemize}
+  \item Reason for starting project: commercial programms very expensive 
+      $\Rightarrow$ not for hobbyist, using at home; 
+      further not free, not flexible enough for upcoming freeform optics
+  \item Reason for using python: very flexible, needs no compilation, 
+      very fast using numpy and scipy (optics needs several rays traced through system at once);
+      plugins possible; strong introspection capabilities
+  \item Reason for using Scipy: sophisticated scientific tasks necessary for optics already 
+      implemented (linalg (QEV, GEV); optimization; solution of nonlinear equations)
+ \end{itemize}
+
+\end{frame}
+
+\section{Optical Systems}
+
+\begin{frame}
+ \frametitle{Some Examples}
+ \begin{itemize}
+  \item from simple to complicated (see demo files)
+  \item introduce field points
+ \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+ \frametitle{The Job of the Optical Designer}
+ \begin{itemize}
+  \item start system (literature research, patent research, experience)
+  \item choose few variables to match the design goals roughly
+  \item introduce more DOF, optimize them
+  \item find materials which are cheap and still solve the problem
+  \item \dots
+ \end{itemize}
+\end{frame}
+
+\section{Optimization}
+
+\begin{frame}
+ \frametitle{Which Quantities should be optimized?}
+\end{frame}
+
+\begin{frame}
+ \frametitle{The Merit Function}
+ \begin{itemize}
+  \item show spot criterium, wave front error, several field points
+  \item show plots over 2 design variables
+  \item clarify that merit function geometry is highly complicated
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+ \frametitle{The Implementation in Scipy I/II/III}
+ \begin{itemize}
+  \item optimizable variables
+  \item class with optimizable variables (fixed, variable, pickup; possible by introspection possibilies of python)
+  \item wrapper for scipy backend (goal: call scipy.minimize(vector, args))
+  \item perform optimization
+  \item usually more than one optimization steps necessary
+ \end{itemize}
+
+\end{frame}
+
+
+\section{Results and Outlook}
+
+\begin{frame}
+ \frametitle{Other parts of Pyrate using Scipy}
+  \begin{itemize}
+   \item QEV, GEV for solution of the Helmholtz equation
+   \item Numerical solution of the intersection equations
+   \item \dots
+  \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+ \frametitle{Some Optical Systems generated with Pyrate}
+ \begin{itemize}
+  \item maybe live demo; do not show any demo example
+ \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+ \frametitle{Outlook: GUI}
+ \begin{itemize}
+  \item FreeCAD: also good python interface, good interface to geometry kernel
+  \item good point and click GUI with pyside interface, highly customizable
+  \item offers opportunity to couple with optical design to achieve the post design steps
+    (mechanical design/FEA, manufacturing/G-Codes, measurement/Point Clouds)
+ \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+ \begin{center}
+  Thank you for your attention!\remark{nice picture}
+ \end{center}
+\end{frame}
+
+
+
+\end{document}

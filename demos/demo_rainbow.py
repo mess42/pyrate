@@ -35,8 +35,9 @@ import matplotlib
 from distutils.version import StrictVersion
 
 from core import raster
-from core.material_isotropic import ModelGlass, ConstantIndexGlass
-from core.surfShape import Conic, Asphere
+from core.material_isotropic import ConstantIndexGlass
+from core.material_glasscat import refractiveindex_dot_info_glasscatalog, CatalogMaterial
+from core.surfShape import Asphere
 from core.optical_element import OpticalElement
 from core.surface import Surface
 from core.optical_system import OpticalSystem
@@ -56,6 +57,9 @@ wavelength = 0.5876e-3
 wave_red = 0.700e-3
 wave_blue = 0.470e-3
 
+
+
+
 # definition of optical system
 s = OpticalSystem() 
 
@@ -67,7 +71,7 @@ lccomprism = s.addLocalCoordinateSystem(LocalCoordinates(name="dropletcenter", d
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-dropletradius), refname=lccomprism.name) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=dropletradius), refname=lccomprism.name)
 lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=0), refname=lccomprism.name)
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-3.*dropletradius), refname=lccomprism.name)
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=-2.*dropletradius), refname=lccomprism.name)
 
 
 stopsurf = Surface(lc0, apert=CircularAperture(lc0, 7*dropletradius))
@@ -80,19 +84,34 @@ image = Surface(lc4, apert=CircularAperture(lc4, 7.*dropletradius))
 
 elem = OpticalElement(lc0, name="droplet")
 
-#glass = ModelGlass(lc1)
-#glass.calcCoefficientsFrom_nd_vd(1.3236, 55.76)
-# TODO: something wrong with Modelglass and k vectors in unit form
-# TODO: implement dispersion relation of water
-glass = ConstantIndexGlass(lc1, 1.3236)
 
-elem.addMaterial("glass", glass)
+
+try:
+    database_basepath = "refractiveindex.info-database/database"     
+    shelf = "3d"
+    book  = "liquids"
+    page  = "water"    
+
+
+    gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
+
+    waterdict = gcat.getMaterialDict(shelf, book, page)
+    water = CatalogMaterial(lc0, waterdict, name="water (catalogue)")
+
+except:
+    logging.warn("refractive index database not found. please download it and symlink\n\
+            to it in your local pyrate directory")
+    water = ConstantIndexGlass(lc0, n=1.336, name="water (failsafe)")
+
+logging.info("wavelength %f, index %f" % (wave_red, water.getIndex(None, wave_red).real))
+logging.info("wavelength %f, index %f" % (wave_blue, water.getIndex(None, wave_blue).real))
+
+elem.addMaterial("water", water)
 
 elem.addSurface("stop", stopsurf, (None, None))
-elem.addSurface("surf1", frontsurf, (None, "glass"))
-elem.addSurface("surf2", rearsurf, ("glass", "glass"))
-#elem.addSurface("surf3", midsurf, ("glass", "glass"))
-elem.addSurface("surf4", frontsurf, ("glass", None))
+elem.addSurface("surf1", frontsurf, (None, "water"))
+elem.addSurface("surf2", rearsurf, ("water", "water"))
+elem.addSurface("surf4", frontsurf, ("water", None))
 elem.addSurface("image", image, (None, None))
 
 s.addElement("droplet", elem)
