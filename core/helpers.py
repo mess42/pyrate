@@ -116,6 +116,15 @@ def build_simple_optical_system(builduplist, material_db_path = ""):
 
 
 def choose_nearest(kvec, kvecs_new):
+    """
+    Choose kvec from solution vector which is nearest to a specified kvec.
+    
+    param kvec: specified k-vector (3xN numpy array of complex) which is used as reference.
+    param kvecs_new: (4x3xN numpy array of complex) solution arrays of kvectors.
+    
+    return: vector from kvecs_new which is nearest to kvec.
+    """
+    
     tol = 1e-3
     (kvec_dim, kvec_len) = np.shape(kvec)
     (kvec_new_no, kvec_new_dim, kvec_new_len) = np.shape(kvecs_new)
@@ -151,10 +160,30 @@ def collimated_bundle(nrays, startz, starty, radius, rast):
     return (o, k, E0)
 
 
-def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, kunitvector=None, lck=None, wave=standard_wavelength, num_sampling_points=5, random_xy=False):
+def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, 
+                      kunitvector=None, lck=None, wave=standard_wavelength, 
+                      num_sampling_points=5, random_xy=False):
 
     """
     Simplified pilotbundle generation.
+    
+    param surfobj: (Surface object) denotes the object surface, where to start
+                        the raytracing
+    param mat: (Material object) denotes the background material in which the
+                pilotbundle starts
+    param (dx, dy): (float) infinitesimal distances of pilotbundles in plane of
+                object surface
+    param (dphix, dphiy): (float) infinitesimal angles for angular cones at
+                pilotbundle start points at object surface
+    param Elock: (3xN numpy array of complex) E field vector in local k coordinate system
+    param kunitvector: (3xN numpy array of float) unit vector of k vector which is
+                used to generate the cones around
+    param lck: (LocalCoordinates object) local k coordinate system if it differs from
+                local object coordinate system
+    param wavelength: (float) wavelength of the pilotbundle
+    param num_sampling_points: (int) number of sampling points in every direction
+    param random_xy: (bool) choose xy distribution randomly?
+    
     """
     
     # TODO: remove code doubling from material due to sorting of K and E
