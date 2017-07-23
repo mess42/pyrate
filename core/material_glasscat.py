@@ -93,6 +93,38 @@ class refractiveindex_dot_info_glasscatalog(object):
     def getPageLongName(self, shelf, book, page):
         return self.librarydict[shelf]["content"][book]["content"][page]["name"]
 
+    def getDictOfLongNames(self):
+        """
+        Returns a lookup table in which shelf, book and page a glass name can be found.
+        
+        :return dic: (dict)
+                   keys are glass long names
+                   values are tuples (shelf, book, page)
+        """
+        dic = {}
+        for shelf in self.getShelves():
+            for book in self.getBooks(shelf):
+                for page in self.getPages(shelf, book):
+                    longname = self.getPageLongName(shelf, book, page)
+                    dic[longname] = (shelf, book, page)
+        return dic
+        
+    def findPagesWithLongNameContaining(self, searchterm):
+        """
+        Returns a dict of pages containing a search pattern.
+        
+        :param searchterm: (str)
+                           search pattern may occur in some pages' longnames
+        :return result: (dict)
+                   keys are glass long names
+                   values are tuples (shelf, book, page)        
+        """
+        allpages = self.getDictOfLongNames()
+        result = {}
+        for longname in allpages:
+            if longname.find(searchterm) != -1:
+                result[longname] = allpages[longname]
+        return result
 
     def read_yml_file(self, ymlfilename):
         """
@@ -183,15 +215,15 @@ class refractiveindex_dot_info_glasscatalog(object):
         """
         raise NotImplementedError()
 
-
-    def getMaterialDictFromShortName(self, glassName):
+    def getMaterialDictFromLongName(self, glassName):
         """
-        Identify and return a material from a given short name.
+        Identify and return a material from a given name.
         
         Imagine you know a glass name, like 'BK7' or 'LaK35',
         but don't know the shelf, book and page in the 
         refractiveindex.info database.
         """
+        
         raise NotImplementedError()
 
 
