@@ -28,6 +28,8 @@ import scipy.interpolate
 from material_isotropic import IsotropicMaterial
 from globalconstants import Fline, dline, Cline
 
+
+# TODO: this class has too many methods
 class refractiveindex_dot_info_glasscatalog(object):
     def __init__(self, database_basepath):
         """
@@ -51,80 +53,7 @@ class refractiveindex_dot_info_glasscatalog(object):
         """
         self.database_basepath = database_basepath
         self.librarydict = self.read_library(database_basepath + "/library.yml")
-        
-        #for sh in self.getShelves():
-        #    for bo in self.getBooks(shelf=sh):
-        #        for pa in self.getPages(shelf=sh, book=bo):
-        #            print self.librarydict[sh]["content"][bo]["content"][pa]
-        
-       
-    def getShelves(self):
-        """
-        lists all shelves of the database.
 
-        :return shelves: (list of str)
-        """
-        return self.librarydict.keys()
-
-        
-    def getBooks(self, shelf):
-        """
-        Lists all books of a given shelf in the database.
-        
-        :param shelf: (str)
-        
-        :return books: (list of str)
-        """
-        return self.librarydict[shelf]["content"].keys()
-
-        
-    def getPages(self, shelf, book):
-        """
-        Lists all pages of a given book in the database.
-        
-        :param shelf: (str)
-        :param book: (str)
-        
-        :return pages: (list of str)
-        """
-        return self.librarydict[shelf]["content"][book]["content"].keys()
-
-    
-    def getPageLongName(self, shelf, book, page):
-        return self.librarydict[shelf]["content"][book]["content"][page]["name"]
-
-    def getDictOfLongNames(self):
-        """
-        Returns a lookup table in which shelf, book and page a glass name can be found.
-        
-        :return dic: (dict)
-                   keys are glass long names
-                   values are tuples (shelf, book, page)
-        """
-        dic = {}
-        for shelf in self.getShelves():
-            for book in self.getBooks(shelf):
-                for page in self.getPages(shelf, book):
-                    longname = self.getPageLongName(shelf, book, page)
-                    dic[longname] = (shelf, book, page)
-        return dic
-        
-    def findPagesWithLongNameContaining(self, searchterm):
-        """
-        Returns a dict of pages containing a search pattern.
-        
-        :param searchterm: (str)
-                           search pattern may occur in some pages' longnames
-        :return result: (dict)
-                   keys are glass long names
-                   values are tuples (shelf, book, page)        
-        """
-        allpages = self.getDictOfLongNames()
-        result = {}
-        for longname in allpages:
-            if longname.find(searchterm) != -1:
-                result[longname] = allpages[longname]
-        return result
 
     def read_yml_file(self, ymlfilename):
         """
@@ -193,8 +122,121 @@ class refractiveindex_dot_info_glasscatalog(object):
 
         data = self.read_yml_file(ymlfilename)
         return data
+
+
+    # start of higher functionality section   
+
+    def getShelves(self):
+        """
+        lists all shelves of the database.
+
+        :return shelves: (list of str)
+        """
+        return self.librarydict.keys()
+
+        
+    def getBooks(self, shelf):
+        """
+        Lists all books of a given shelf in the database.
+        
+        :param shelf: (str)
+        
+        :return books: (list of str)
+        """
+        return self.librarydict[shelf]["content"].keys()
+
+        
+    def getPages(self, shelf, book):
+        """
+        Lists all pages of a given book in the database.
+        
+        :param shelf: (str)
+        :param book: (str)
+        
+        :return pages: (list of str)
+        """
+        return self.librarydict[shelf]["content"][book]["content"].keys()
+
+    
+    def getPageLongName(self, shelf, book, page):
+        return self.librarydict[shelf]["content"][book]["content"][page]["name"]
+
+
+    def getDictOfLongNames(self):
+        """
+        Returns a lookup table in which shelf, book and page a glass name can be found.
+        
+        :return dic: (dict)
+                   keys are glass long names
+                   values are tuples (shelf, book, page)
+        """
+        dic = {}
+        for shelf in self.getShelves():
+            for book in self.getBooks(shelf):
+                for page in self.getPages(shelf, book):
+                    longname = self.getPageLongName(shelf, book, page)
+                    # todo: if 2 pages have the same longName, now only one will be put in dic
+                    dic[longname] = (shelf, book, page)
+        return dic
+
+        
+    def findPagesWithLongNameContaining(self, searchterm):
+        """
+        Returns a dict of pages containing a search pattern.
+        
+        :param searchterm: (str)
+                           search pattern may occur in some pages' longnames
+        :return result: (dict)
+                   keys are glass long names
+                   values are tuples (shelf, book, page)        
+        """
+        allpages = self.getDictOfLongNames()
+        result = {}
+        for longname in allpages:
+            if longname.find(searchterm) != -1:
+                result[longname] = allpages[longname]
+        return result
+                   
                     
-                    
+    def getMaterialDictFromLongName(self, glassName):
+        """
+        Identify and return a material from a given name.
+        
+        Imagine you know a glass name, like 'BK7' or 'LaK35',
+        but don't know the shelf, book and page in the 
+        refractiveindex.info database.
+        """
+
+        allpages = self.getDictOfLongNames()
+        result = []
+        for longname in allpages:
+            if longname == glassName:
+                result = allpages[longname]
+                
+        if len(result) == 0: # no glass found, throwing exception
+            errormsg = "glass name "+ str(glassName) + " not found."
+            similarnames = self.findPagesWithLongNameContaining( glassName )
+            if len(similarnames) != 0:
+                errormsg += " Did you mean: " + str(similarnames.keys() )
+            else:
+                errormsg += " No glass names containing this string found."
+            raise Exception(errormsg)
+        shelf, book, page =  result
+        return self.getMaterialDict(shelf, book, page)
+
+
+    def createGlassObjectFromLongName(self, lc, glassName):
+        """
+        todo: wtfm
+        """
+        matdict = self.getMaterialDictFromLongName(glassName)
+        print "matdict=",matdict
+        matobj = CatalogMaterial(lc, matdict)
+        print "matobj=", matobj
+        raise NotImplementedError() # should work if exception is removed; todo: testing, tidying and header wtfm
+        return matobj
+        
+
     def getMaterialDictCloseTo_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
         """
         Search a material close to given parameters.
@@ -213,17 +255,6 @@ class refractiveindex_dot_info_glasscatalog(object):
         """
         Identify and return a material from a given material code.
         """
-        raise NotImplementedError()
-
-    def getMaterialDictFromLongName(self, glassName):
-        """
-        Identify and return a material from a given name.
-        
-        Imagine you know a glass name, like 'BK7' or 'LaK35',
-        but don't know the shelf, book and page in the 
-        refractiveindex.info database.
-        """
-        
         raise NotImplementedError()
 
 

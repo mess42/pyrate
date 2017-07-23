@@ -33,19 +33,19 @@ from core.optical_element import OpticalElement
 from core.surface import Surface
 from core.surfShape import Conic
 from core.localcoordinates import LocalCoordinates
+from core.helpers import build_simple_optical_system
 from core import material_glasscat
 
-
-
-# Extract material dictionary description from refractiveindex.info database
 db_path = "core/refractiveindex.info-database/database"
-gcat = material_glasscat.refractiveindex_dot_info_glasscatalog(db_path) 
 
-print gcat.findPagesWithLongNameContaining("BK7")
+# pre-design: find suitable glasses
+# gcat = material_glasscat.refractiveindex_dot_info_glasscatalog(db_path) 
+# print gcat.findPagesWithLongNameContaining("BK7")
 
-# (r, cc, thickness, mat, comment)
+
+# step 0: set up system of glass plates
 (s, seq) = build_simple_optical_system(
-        [(0, 	0, 	1000., 	"SK16", 		"lens1front"),
+        [(0, 	0, 	1000., 	"N-SK16", 		"lens1front"),
 	 (0, 	0, 	5, 	None, 			"lens1rear"),
 	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem2front"),
 	 (0, 	0, 	5, 	"F5", 			"elem2cement"),
@@ -54,8 +54,8 @@ print gcat.findPagesWithLongNameContaining("BK7")
 	 (0, 	0, 	5, 	"F5", 			"elem3front"),
 	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem3cement"),
 	 (0, 	0, 	5, 	None, 			"elem3rear"),
-         (0, 	0, 	5, 	"SK16", 		"lens4front"),
+         (0, 	0, 	5, 	"N-SK16", 		"lens4front"),
 	 (0, 	0, 	5, 	None, 			"lens4rear"),
 	 (0, 	0, 	100., 	None, 			"image")
-         ])
+         ], db_path)
 
