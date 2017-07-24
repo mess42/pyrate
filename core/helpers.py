@@ -36,6 +36,7 @@ from globalconstants import numerical_tolerance, canonical_ey, canonical_ex, sta
 from ray import RayBundle
 from material_isotropic import ConstantIndexGlass
 from helpers_math import rodrigues, random_rotation_matrix
+from material_glasscat import refractiveindex_dot_info_glasscatalog
 
 def build_simple_optical_system(builduplist, material_db_path = ""):
 
@@ -83,8 +84,10 @@ def build_simple_optical_system(builduplist, material_db_path = ""):
             try:
                 n = float(mat)
             except:
-                print "mat=",mat
-                raise NotImplementedError() # put refractiveindex.info factory here        
+                gcat = refractiveindex_dot_info_glasscatalog( material_db_path )
+                gcat.getMaterialDictFromLongName( mat )
+                
+                elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat) )
             else:
                 elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
 
