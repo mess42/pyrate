@@ -227,13 +227,16 @@ class refractiveindex_dot_info_glasscatalog(object):
 
     def createGlassObjectFromLongName(self, lc, glassName):
         """
-        todo: wtfm
+        Creates a pyrate material object from a given glass name.
+        
+        :param lc: (object)
+                   local coordinate system
+        :param glassName: (str)
+
+        :return matobj: (object)
         """
         matdict = self.getMaterialDictFromLongName(glassName)
-        print "matdict=",matdict
-        matobj = CatalogMaterial(lc, matdict)
-        print "matobj=", matobj
-        raise NotImplementedError() # should work if exception is removed; todo: testing, tidying and header wtfm
+        matobj  = CatalogMaterial(lc, matdict)
         return matobj
         
 
