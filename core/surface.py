@@ -119,9 +119,11 @@ class Surface(LocalCoordinatesTreeBase):
 
 
         sizelimit = 1000.0
-        failsafevalue = 10.0        
+        failsafevalue = 18.0        
         if self.aperture == None:
             effsemidia = failsafevalue
+            # TODO: choose max ray height of all bundles instead 
+            # ( cosmetic but absolutely necessary for beauty )
         else:
             if self.aperture.getTypicalDimension() <= sizelimit:
                 # TODO: maybe introduce aperture types Object and Image to distuingish from very large normal apertures
