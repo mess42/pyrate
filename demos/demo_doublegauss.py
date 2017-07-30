@@ -52,6 +52,10 @@ from core import material_glasscat
 
 from distutils.version import StrictVersion
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
 db_path = "core/refractiveindex.info-database/database"
 
 # drawing parameters
@@ -145,11 +149,14 @@ def meritfunction_step2(s):
 
     return merit
 
+def updatefunction_allsteps(s):
+    s.rootcoordinatesystem.update()
+
 # optimize
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
 
-optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step2") 
 # TODO: Optimizer() is not well documented
 s = optimi.run()
 
@@ -250,7 +257,7 @@ s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("fixed")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("fixed")
 
 
-optimi = Optimizer(s, meritfunction_step3, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+optimi = Optimizer(s, meritfunction_step3, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step3")
 s = optimi.run()
 
 
@@ -278,9 +285,9 @@ def meritfunction_step4b(s):
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
 
-optimi = Optimizer(s, meritfunction_step4a, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+optimi = Optimizer(s, meritfunction_step4a, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step4a")
 s = optimi.run()
-optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step4b") 
 s = optimi.run()
 
 s.draw2d(axarr[3], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
@@ -301,9 +308,9 @@ def meritfunction_step5a(s):
 def meritfunction_step5b(s):
     return final_meritfunction(s, rpup=7.5, fno=4, maxfield_deg=10.)
 
-optimi = Optimizer(s, meritfunction_step5a, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+optimi = Optimizer(s, meritfunction_step5a, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step5a")
 s = optimi.run()
-optimi = Optimizer(s, meritfunction_step5b, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+optimi = Optimizer(s, meritfunction_step5b, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step5b") 
 s = optimi.run()
 
 s.draw2d(axarr[4], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
