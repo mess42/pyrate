@@ -70,6 +70,9 @@ def build_simple_optical_system(builduplist, material_db_path = ""):
     refname = lc0.name
     lastmat = None
     surflist_for_sequence = []
+
+    gcat = refractiveindex_dot_info_glasscatalog( material_db_path )
+
     for (r, cc, thickness, mat, comment) in builduplist:
         
         lc = s.addLocalCoordinateSystem(localcoordinates.LocalCoordinates(name=comment, decz=thickness), refname=refname)
@@ -84,7 +87,6 @@ def build_simple_optical_system(builduplist, material_db_path = ""):
             try:
                 n = float(mat)
             except:
-                gcat = refractiveindex_dot_info_glasscatalog( material_db_path )
                 gcat.getMaterialDictFromLongName( mat )
                 
                 elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat) )

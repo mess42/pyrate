@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 ######################
 
 import numpy as np
+from numpy import pi
 import matplotlib.pyplot as plt
 import matplotlib
 import math
@@ -40,12 +41,32 @@ from core.surface import Surface
 from core.surfShape import Conic
 from core.localcoordinates import LocalCoordinates
 from core.helpers import build_simple_optical_system
-from core.globalconstants import canonical_ey
+from core.helpers import collimated_bundle
+from core.globalconstants import canonical_ex, canonical_ey
+from core.ray import RayBundle
+from core.optimize import Optimizer
+from core.optimize_backends import ScipyBackend
+from core.raster import RectGrid
+from core.globalconstants import Fline, dline, Cline
 from core import material_glasscat
 
 from distutils.version import StrictVersion
 
 db_path = "core/refractiveindex.info-database/database"
+
+# drawing parameters
+phi = 0.#math.pi/4
+pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
+up = canonical_ey
+
+fig, axarr = plt.subplots(5,1)
+for ax in axarr:
+    ax.axis('equal')
+    if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
+        ax.set_axis_bgcolor('white')
+    else:
+        ax.set_facecolor('white')
+
 
 # glass combinations from recipe:
 # SK16 / BK7 / F5
@@ -62,7 +83,7 @@ db_path = "core/refractiveindex.info-database/database"
 ########################################
 
 (s, seq) = build_simple_optical_system(
-        [(0, 	0, 	10000.,	"N-SK16", 		"lens1front"),
+        [(0, 	0, 	10.,	"N-SK16", 		"lens1front"),
 	 (0, 	0, 	5, 	None, 			"lens1rear"),
 	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem2front"),
 	 (0, 	0, 	5, 	"F5", 			"elem2cement"),
@@ -76,34 +97,223 @@ db_path = "core/refractiveindex.info-database/database"
 	 (0, 	0, 	150., 	None, 			"image")
          ], db_path)
 
+def bundle_step1(nrays = 100, rpup = 7.5):
+    """
+    Creates an on-axis collimated RayBundle for step 1.
+    """
+ 
+    (px, py) = RectGrid().getGrid(nrays)
+    o = np.vstack((rpup*px, rpup*py, np.zeros_like(px)))
+    k = np.zeros_like(o)
+    k[2,:] = 1. #2.*math.pi/wavelength
+    E0 = np.cross(k, canonical_ex, axisa=0, axisb=0).T
 
-# helper.collimated_bundle
+    return RayBundle( o, k, E0, wave= dline)
+
+# draw glass plates
+s.draw2d(axarr[0], color="grey", vertices=50, plane_normal=pn, up=up)
+r2 = s.seqtrace(bundle_step1(nrays=25), seq)
+for r in r2:
+    r.draw2d(axarr[0], color="blue", plane_normal=pn, up=up) 
 
 
 
+# Step 2: make last lens biconvex
+##################################
+
+# EFL = 1.5 * EFL of final objective = 150
+# F/10 => EPD = 15
+# monochrome d
+# r1 = -r2
+
+def meritfunction_step2(s):
+    """
+    Merit function (=function to be minimized) for step 2.
+    """
+    initialbundle = bundle_step1()
+    rpaths = s.seqtrace(initialbundle, seq)   
+    x = rpaths[0].raybundles[-1].x[-1, 0, :]
+    y = rpaths[0].raybundles[-1].x[-1, 1, :]
+    
+    merit  = np.sum(x**2 + y**2) + 1000000.*math.exp(-len(x))
+    # TODO: adding the exp-x is a dirty trick. The prefactor also has to be adapted for each system. Is there a more elegant solution ?
+
+    # biconvex lens with same radii
+    merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature.parameters["value"] \
+                     + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.parameters["value"]  )**2
+    # TODO: OptimizableVariable() documentation does not explain what an OptimizableVariable is and makes it cumbersome to use
+
+    return merit
+
+# optimize
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
+
+optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+# TODO: Optimizer() is not well documented
+s = optimi.run()
+
+# draw system with last lens biconvex
+s.draw2d(axarr[1], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+r2 = s.seqtrace(bundle_step1(nrays=25), seq) # trace again
+for r in r2:
+    r.draw2d(axarr[1], color="blue", plane_normal=pn, up=up) 
 
 
 
+# Step 3: colour, field, more variables
+########################################
+
+def bundles_step3(nrays = 100, rpup = 7.5, maxfield_deg=2.):
+    """
+    Creates an array of collimated RayBundle objects for step 3.
+    """
+    bundles = []
+    fields_rad = np.array([0,.5*np.sqrt(2),1]) * maxfield_deg * pi /180.
+
+    (px, py) = RectGrid().getGrid(nrays)
+
+    for field in fields_rad:
+        starty = -30 * np.tan(field) # TODO: this step explicitly sets the pupil, so the stop position is ignored. Better get Aimy to run ...
+        o = np.vstack((rpup*px, rpup*py + starty, np.zeros_like(px)))
+        k = np.zeros_like(o)
+        k[1,:] = np.sin( field )
+        k[2,:] = np.cos( field )
+        E0 = np.cross(k, canonical_ex, axisa=0, axisb=0).T 
+        
+        bundles += [RayBundle( o, k, E0, wave= Fline)]
+        bundles += [RayBundle( o, k, E0, wave= dline)]
+        bundles += [RayBundle( o, k, E0, wave= Cline)]
+
+    return bundles
+
+def final_meritfunction(s, rpup, fno, maxfield_deg):
+    """
+    Merit function (=function to be minimized) for step 3 and following.
+    """
+    merit = 0
+
+    initialbundles = bundles_step3(rpup=rpup, maxfield_deg=maxfield_deg)
+    for b in initialbundles:
+        rpaths = s.seqtrace(b, seq)   
+        x = rpaths[0].raybundles[-1].x[-1, 0, :]
+        y = rpaths[0].raybundles[-1].x[-1, 1, :]
+
+        x = x - sum(x) / ( len(x) + 1E-200 )
+        y = y - sum(y) / ( len(y) + 1E-200 )
+    
+        merit += np.sum(x**2 + y**2) + 10000.*math.exp(-len(x))
+
+    # biconvex lens with same radii
+    merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature.parameters["value"] \
+                     + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.parameters["value"]  )**2
+
+    # outer radii of both doulets should be symmetric
+    merit += 10000* (  s.elements["stdelem"].surfaces["elem2front"].shape.curvature.parameters["value"] \
+                     + s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.parameters["value"]  )**2
+
+    # inner radii of both doulets should be symmetric
+    merit += 10000* (  s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.parameters["value"] \
+                     + s.elements["stdelem"].surfaces["elem3front"].shape.curvature.parameters["value"]  )**2
+
+    # f number
+    o = np.array([[0],[7.5],[0]])
+    k = np.zeros_like(o)
+    k[2,:] = 1
+    E0 = np.cross(k, canonical_ex, axisa=0, axisb=0).T 
+
+    initial_marginal = RayBundle( o, k, E0, wave= dline)
+    marginal_path = s.seqtrace(initial_marginal, seq)
+    
+    kyim = marginal_path[0].raybundles[-1].k[-1,1,:]
+    kzim = marginal_path[0].raybundles[-1].k[-1,2,:]
+
+    merit += 10*sum(fno + .5* np.real(kzim)/np.real(kyim))**2
+
+
+    return merit
+
+def meritfunction_step3(s):
+    return final_meritfunction(s, rpup=7.5, fno=100/15., maxfield_deg=2.)
+
+
+# optimize
+s.elements["stdelem"].surfaces["lens1front"].shape.curvature.changetype("variable")
+s.elements["stdelem"].surfaces["elem2front"].shape.curvature.changetype("variable")
+s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.changetype("variable")
+s.elements["stdelem"].surfaces["elem3front"].shape.curvature.changetype("variable")
+s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.changetype("variable")
+
+s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.changetype("variable")
+
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("fixed")
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("fixed")
+
+
+optimi = Optimizer(s, meritfunction_step3, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+s = optimi.run()
+
+
+s.draw2d(axarr[2], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+b = bundles_step3(nrays=25)
+for i in np.arange(len(b)):
+    r2 = s.seqtrace(b[i], seq)
+    color = [ "blue", "green", "red" ][int(i / 3)] 
+    for r in r2:
+        r.draw2d(axarr[2], color=color, plane_normal=pn, up=up) 
+    #TODO: conveniently colour ray plots y wavelength, field, or some other criteria
 
 
 
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
+# Step 4: larger field
+#######################
+
+def meritfunction_step4a(s):
+    return final_meritfunction(s, rpup=7.5, fno=100/15., maxfield_deg=5.)
+
+def meritfunction_step4b(s):
+    return final_meritfunction(s, rpup=7.5, fno=100/15., maxfield_deg=7.)
 
 
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
 
-#for r in raypath_draw:
-#    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+optimi = Optimizer(s, meritfunction_step4a, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+s = optimi.run()
+optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+s = optimi.run()
 
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+s.draw2d(axarr[3], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+b = bundles_step3(nrays=25, rpup = 7.5, maxfield_deg=5.)
+for i in np.arange(len(b)):
+    r2 = s.seqtrace(b[i], seq)
+    color = [ "blue", "green", "red" ][int(i / 3)] 
+    for r in r2:
+        r.draw2d(axarr[3], color=color, plane_normal=pn, up=up) 
+
+
+# Step 5: larger aperture
+##########################
+
+def meritfunction_step5a(s):
+    return final_meritfunction(s, rpup=7.5, fno=5, maxfield_deg=10.)
+
+def meritfunction_step5b(s):
+    return final_meritfunction(s, rpup=7.5, fno=4, maxfield_deg=10.)
+
+optimi = Optimizer(s, meritfunction_step5a, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+s = optimi.run()
+optimi = Optimizer(s, meritfunction_step5b, backend=ScipyBackend(), updatefunction=s.rootcoordinatesystem.update()) 
+s = optimi.run()
+
+s.draw2d(axarr[4], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+b = bundles_step3(nrays=25, rpup = 7.5, maxfield_deg=5.)
+for i in np.arange(len(b)):
+    r2 = s.seqtrace(b[i], seq)
+    color = [ "blue", "green", "red" ][int(i / 3)] 
+    for r in r2:
+        r.draw2d(axarr[4], color=color, plane_normal=pn, up=up) 
+
 
 plt.show()
 
