@@ -49,6 +49,8 @@ from core.optimize_backends import ScipyBackend
 from core.raster import RectGrid
 from core.globalconstants import Fline, dline, Cline
 from core import material_glasscat
+from core.ray_analysis import RayBundleAnalysis
+
 
 from distutils.version import StrictVersion
 
@@ -85,6 +87,8 @@ for ax in axarr:
 
 # Step 1: set up system of glass plates
 ########################################
+
+rba = RayBundleAnalysis(None)
 
 (s, seq) = build_simple_optical_system(
         [(0, 	0, 	10.,	"N-SK16", 		"lens1front"),
@@ -137,14 +141,16 @@ def meritfunction_step2(s):
     initialbundle = bundle_step1()
     rpaths = s.seqtrace(initialbundle, seq)   
     x = rpaths[0].raybundles[-1].x[-1, 0, :]
-    y = rpaths[0].raybundles[-1].x[-1, 1, :]
+    #y = rpaths[0].raybundles[-1].x[-1, 1, :]
+    rba.raybundle = rpaths[0].raybundles[-1]
     
-    merit  = np.sum(x**2 + y**2) + 1000000.*math.exp(-len(x))
+    merit = rba.getRMSspotSizeCentroid() #np.sum(x**2 + y**2) 
+    merit += 1000000.*math.exp(-len(x))
     # TODO: adding the exp-x is a dirty trick. The prefactor also has to be adapted for each system. Is there a more elegant solution ?
 
     # biconvex lens with same radii
-    merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature.parameters["value"] \
-                     + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.parameters["value"]  )**2
+    merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature() \
+                     + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature()  )**2
     # TODO: OptimizableVariable() documentation does not explain what an OptimizableVariable is and makes it cumbersome to use
 
     return merit
@@ -201,28 +207,30 @@ def final_meritfunction(s, rpup, fno, maxfield_deg):
     merit = 0
 
     initialbundles = bundles_step3(rpup=rpup, maxfield_deg=maxfield_deg)
-    for b in initialbundles:
+    for (ind, b) in enumerate(initialbundles):
         rpaths = s.seqtrace(b, seq)   
         x = rpaths[0].raybundles[-1].x[-1, 0, :]
-        y = rpaths[0].raybundles[-1].x[-1, 1, :]
+        #y = rpaths[0].raybundles[-1].x[-1, 1, :]
 
-        x = x - sum(x) / ( len(x) + 1E-200 )
-        y = y - sum(y) / ( len(y) + 1E-200 )
-    
-        merit += np.sum(x**2 + y**2) + 10000.*math.exp(-len(x))
+        #x = x - np.sum(x) / ( float(len(x)) + 1E-200 )
+        #y = y - np.sum(y) / ( float(len(y)) + 1E-200 )
+        rba.raybundle = rpaths[0].raybundles[-1]
+        merit += rba.getRMSspotSizeCentroid() #np.sum(x**2 + y**2) 
+        # FIXME: somehow this former calculation leads not to a useful rms spot calculation and therefore 
+        # the decz variable is not changed; the rba.getRMS... function is slower but leads to a change in thickness
+        merit += 1./(len(x) + 1e-18) #10000.*math.exp(-len(x))
 
     # biconvex lens with same radii
-    merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature.parameters["value"] \
-                     + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.parameters["value"]  )**2
+    merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature() \
+                     + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature()  )**2
 
     # outer radii of both doulets should be symmetric
-    merit += 10000* (  s.elements["stdelem"].surfaces["elem2front"].shape.curvature.parameters["value"] \
-                     + s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.parameters["value"]  )**2
+    merit += 10000* (  s.elements["stdelem"].surfaces["elem2front"].shape.curvature() \
+                     + s.elements["stdelem"].surfaces["elem3rear"].shape.curvature()  )**2
 
     # inner radii of both doulets should be symmetric
-    merit += 10000* (  s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.parameters["value"] \
-                     + s.elements["stdelem"].surfaces["elem3front"].shape.curvature.parameters["value"]  )**2
-
+    merit += 10000* (  s.elements["stdelem"].surfaces["elem2rear"].shape.curvature() \
+                     + s.elements["stdelem"].surfaces["elem3front"].shape.curvature()  )**2
     # f number
     o = np.array([[0],[7.5],[0]])
     k = np.zeros_like(o)

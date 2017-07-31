@@ -299,6 +299,7 @@ class Optimizer(BaseLogger):
        
         self.meritparameters = {}
         self.updateparameters = {}
+        self.number_of_calls = 0 # how often is the merit function called during one run?
 
     def setBackend(self, backend):
         self.__backend = backend
@@ -316,10 +317,11 @@ class Optimizer(BaseLogger):
     
         :return value of the merit function
         """
+        self.number_of_calls += 1
         self.classwithoptvariables.setActiveTransformedValues(x)
         self.updatefunction(self.classwithoptvariables, **self.updateparameters)    
         res = self.meritfunction(self.classwithoptvariables, **self.meritparameters)
-        self.debug("meritfunction: " + str(res))
+        self.debug("call number " + str(self.number_of_calls) + " meritfunction: " + str(res))
         return res
 
     def run(self):
@@ -338,6 +340,8 @@ class Optimizer(BaseLogger):
         self.info("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
         self.classwithoptvariables.setActiveTransformedValues(xfinal)
         # TODO: do not change original classwithoptvariables
+        self.info("called merit function " + str(self.number_of_calls) + " times.")
+        self.number_of_calls = 0
         self.info("optimizer run finished")        
         return self.classwithoptvariables
 
