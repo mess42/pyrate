@@ -2240,28 +2240,28 @@ Our imaging condition reduces to
 \end{eqnarray}
 Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{e}_{K1}, \Vector{e}_{K2})$ vanishes.
 In case the determeninant is nonzero, 
-we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} by a distance $\Delta s$ 
+we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} by a distance $s$ 
 in front of the image plane.
 We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
 \begin{eqnarray}
  \tilde{A} &=& TODO \\
- \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot \Delta s \right) e_{Kj,n}
+ \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot s \right) e_{Kj,n} \label{eq:tildeB}
 \end{eqnarray}
 The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
 The imaging condition becomes
 \begin{eqnarray}
- \hat{\tilde{B}}(\Delta s) \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& 0
+ \hat{\tilde{B}}(s) \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& 0
 \end{eqnarray}
-We are interested in solutions $\Delta s$ for which the determinant vanishes.
-This problem is similar to an eigenvalue problem, so we call the solutions $\Delta s$ quasi-eigenvalues.
-The characteristic polynomial is quadratic in $\Delta s$.
-The defocus values $\Delta s_{1,2}$ are quasi-eigenvalues 
+We are interested in solutions $s$ for which the determinant vanishes.
+This problem is similar to an eigenvalue problem, so we call the solutions $s$ quasi-eigenvalues.
+The characteristic polynomial is quadratic in $s$.
+The defocus values $s_{1,2}$ are quasi-eigenvalues 
 and come with a corresponding quasi-eigenvector $\Vector{e}_{qeig\,1,2}$.
 The quasi-eigenvectors shall be unit-less and normalized, $\Vector{e}_{qeig\,1,2} \cdot \overline{\Vector{e}}_{qeig\,1,2} = 1$
 Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in image plane, 
 if the corresponding eigen-defocus is applied.
 
-In both solution planes $\Delta s$, 
+In both solution planes $s$, 
 we express the entrance pupil coordinates in a base system of the quasi-eigenvector and a vector orthogonal to it.
 \begin{eqnarray}
  \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& \kappa_{qeig} \Vector{e}_{qeig} + \kappa_\perp \Vector{e}_{\perp}
@@ -2273,44 +2273,102 @@ we express the entrance pupil coordinates in a base system of the quasi-eigenvec
 \end{eqnarray}
 $\kappa$ is unit bearing and of dimension $1/\meter$, while $e$ is unit-less.
 \begin{eqnarray}
- \tilde{\hat{B}}(\Delta s_i) & \Vector{e}_{qeig\, i} &= 0 \\
- \tilde{\hat{B}}(\Delta s_i) & \Vector{e}_{\perp\, i} &= \Vector{h}_{line\, i}
+ \hat{\tilde{B}}(s_i) & \Vector{e}_{qeig\, i} &= 0 \\
+ \hat{\tilde{B}}(s_i) & \Vector{e}_{\perp\, i} &= \Vector{h}_{line\, i}
 \end{eqnarray}
 We consider light emitted from one object point 
 in different directions $\kappa$ towards the image.
-There are three cases:
+There are two cases:
 In the first case, $\Vector{h}_{line}$ is zero. 
 All light emitted from one object point is stigmatically focused to an image point.
-In this case, the quasi-eigenvalues are degenerate $\Delta s_1 = \Delta s_2$.
-In the second case, $\Vector{h}_{line}$ is large.
+In this case, the quasi-eigenvalues are degenerate $s_1 = s_2$.
+In the second case, $\Vector{h}_{line}$ nonzero.
 Light emitted from one object point is astigmatically focused to a line.
-The resolution along the direction of $\Vector{h}_{line\,1,2}$ is drastically reduced and does not allow
+The resolution along the direction of $\Vector{h}_{line\,1,2}$ is reduced or does not allow
 reasonable 2D imaging.
-The orientation of the lines in the planes $\Delta s_1$ and $\Delta s_2$ are different.
+The orientation of the lines in the planes $s_1$ and $s_2$ are different.
 In classical raytracing, this phenomenon is often called \emph{on-axis-astigmatism}.
-And in the third case, $\Vector{h}_{line}$ is nonzero, but small.
-Despite the spot blur in our lowest order astigmatism analysis, 2D imaging is still possible up to a certain degree.
-The decision of how much astigmatism is still ``small'' cannot be made in a general manner 
-and depends on the specification of the optics.
 
 In any case, we calculate the transfer of 2D objects $(X,Y)$ to the image as well as the degree of astigmatism.
-The imaging equation in the planes $\Delta s_{1,2}$ is
+The imaging equation in the planes $s_{1,2}$ is
 \begin{eqnarray}
  \Vector{R}_{im} &=& \hat{\tilde{A}} \cdot \Vector{R}_{obj}
                   +  \kappa_\perp \Vector{h}_{line}
 \end{eqnarray}
-We want to isolate the effects of chief ray height magnification and line spread.
-For this, we need to know $\kappa_\perp$ of the chief ray as a function of field.
+The pupil position dependence causes a spread of the rays to a line.
+We want to isolate the effects of magnification and line spread.
 
-TODO
+\paragraph{In the limit of small astigmatism,}
+we assume a 2-dimensioanl imaging is still possible, but the spot comes with a spot spread to a short line.
+We determine the $\kappa$ values of the chief ray, 
+and separate chief ray maginifiaction from the line spread.
+We need the XYUV matrix from the object to the stop and the XYUV matrix from object to image.
+By definition, the chief ray has a zero ray height in the stop, $\Vector{R}_{chief, stop} = \Vector{0}$.
+\begin{eqnarray}
+ \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+                  +  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix}
+ \\
+ \begin{pmatrix} \kappa_{1 chief} \\ \kappa_{2 chief} \end{pmatrix}
+ &=&
+ - \hat{\tilde{B}}_{obj\rightarrow stop}^{-1} \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+\end{eqnarray}
+Object and entrance pupil must not be conjugate 
+$(\det \hat{\tilde{B}}_{obj\rightarrow stop} \neq 0)$
+for the inverse matrix to exist.
+We insert the chief ray wavevector deviation in the imaging equation and yield
+\begin{eqnarray}
+ \Vector{R}_{im, chief} &=& 
+     \left(
+         \hat{\tilde{A}}_{obj\rightarrow im} 
+       - \left(\hat{\tilde{B}}_{obj\rightarrow im} \hat{\tilde{B}}_{obj\rightarrow stop}^{-1} \right) \hat{\tilde{A}}_{obj\rightarrow stop}
+     \right)
+     \cdot \Vector{R}_{obj}
+\end{eqnarray}
+Rays from an object point spread to a line in the image from $\pm\Delta\Vector{R}$ with
+\begin{eqnarray}
+ \Delta\Vector{R}_{im} &=& \kappa_{\perp marginal} \Vector{h}_{line}
+\end{eqnarray}
+where $\kappa_{\perp marginal}$ is to be chosen from the meridional plane that causes maximum line spread.
+
+\paragraph{The circle of least confusion} denotes the circular spot in a plane between $s_1$ and $s_2$.
+Its radius is smaller than in the two astigmatic line foci.
+However, the spot size is finite in both directions.
+
+We assume a circular or elliptic entrance pupil, that is, the marginal rays form an ellipse in $\kappa$ space.
+In general, the elliptic cone will be imaged to an ellipse in a defocused real space image plane $s$.
+In case two independent ray directions $\kappa$ are imaged to the same ray height $|\Vector{R}|$, this ellipse is a circle.
+
+From the object, we consider the two special directions $\kappa_{qeig, 1}$ and $\kappa_{qeig, 2}$.
+We know
+\begin{eqnarray}
+ \Vector{R}_{im}(s_{i}, \kappa_{qeig, i}) &=& 0 \\
+ \Vector{R}_{im}(s, \kappa_{qeig, i}) &=& \left. \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, i}} \cdot ( s-s_i ) 
+\end{eqnarray}
+and find the position of the circle of least confusion $s_{colc}$ as
+\begin{eqnarray}
+ s_{colc} &=& \alpha s_1 + (1-\alpha) s_2 \\[2ex]
+ \alpha &=& \frac{
+                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 1}}
+                 }
+                 {
+                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 1}}
+                  +
+                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 2}}
+                 }
+\end{eqnarray}
+The derivatives are easily found while setting up the $\hat{\tilde{B}}$ matrix \eqref{eq:tildeB}.
+The length of the $\kappa$-vectors is to be chosen such that they are marginal rays, that is, they are on the border of the entrance pupil.
+
 
 
 \chapter{Raytracing}
 
-Classical raytracing through stepwise homogeneous media consists of the following steps: 
-The ray is considered a straight in 3D space. 
-First its intersection point with the next surface is calculated geometrically. 
-Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
+Raytracing consists of the following steps:
+Light, represented by a ray, is propagated through a medium until it hits a surface.
+In classical raytracing, media are stepwise homogeneous, so rays travel along straight lines between surfaces.
+Then, the ray is reflected or refracted. 
+This operation conserves the ray position, and assigns a new wavevector.
+The wavevector is found employing the law of refraction for plane waves on planar surfaces.
 
 
 \section{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
@@ -2324,7 +2382,9 @@ The explicit surface sag formula is given by
 \begin{align}
  z &= \frac{\rho_x x^2 + \rho_y y^2}{1 + \sqrt{1 - (1+c_x) \rho_x^2 x^2 - (1+c_y) \rho_y^2 y^2}} \label{eq:biconic}\,.
 \end{align}
-The variables are $\rho_x = 1/R_x$ the $x$ curvature, $\rho_y = 1/R_y$ the $y$ curvature, $c_x$ the conic constant in $x$ direction,
+The variables are $\rho_x = 1/R_x$ the central $x$ curvature, and $\rho_y = 1/R_y$ the central $y$ curvature,.
+The curavtures $\rho$ are the inverse of the radii $R$.
+$c_x$ is the conic constant in $x$ direction,
 and $c_y$ the conic constant in $y$ direction, respectively. 
 
 Depending on the conic constant, the biconic $x$ and $y$ cross sections are a
