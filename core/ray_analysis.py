@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 from ray import RayBundle
+from globalconstants import numerical_tolerance
 
 
 class RayBundleAnalysis(object):
@@ -39,7 +40,7 @@ class RayBundleAnalysis(object):
         
         o = self.raybundle.x[-1]
         (num_dims, num_points) = np.shape(o)
-        centroid = 1.0/num_points * np.sum(o, axis=1)        
+        centroid = 1.0/(num_points + numerical_tolerance) * np.sum(o, axis=1)        
         
         return centroid
 
@@ -58,7 +59,7 @@ class RayBundleAnalysis(object):
         
         delta = o - referencePos.reshape((3, 1)) * np.ones((3, num_points))        
         
-        return np.sqrt(np.sum(np.sum(delta**2))/(num_points - 1))
+        return np.sqrt(np.sum(np.sum(delta**2))/(num_points - 1 + numerical_tolerance))
         
     def getRMSspotSizeCentroid(self):
         """
