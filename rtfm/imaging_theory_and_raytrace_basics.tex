@@ -2683,19 +2683,45 @@ to do
 
 \section{Ray Aiming}
 The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
-Often, the desired size of the pupil is not given explicitly, but the optical designer wants to specify a f-number or a numerical aperture.
-This section deals with the conversion between different pupil and field descriptions and how to find suitable starting positions and directions of rays in the object plane.
-If possible, we prefer a description which is numerically stable for telecentric systems or infinite conjugate systems.
+Ray aiming allows to obtain initial ray properties for desired object and pupil coordinates.
+Our ansatz of ray aiming consists of the following steps:
+\begin{itemize}
+ \item Calculate the stop size in paraxial or parabasal approximation.
+ \item Calculate ray starting points and wavevectors for the given field and pupil coordinate in paraxial or parabasal approximation
+ \item Convert the paraxially approximated wavevectors to real wavevectors that obey the dispersion relation in the object material
+ \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates in the stop plane 
+       and whether the stop size fulfills the designer's aperture definition.
+       Optimize the aiming iteratively.
+ \item Adapt the ray intensities so that the rays coincide with the radiant intensity of the light source.
+\end{itemize}
+
+\subsection{Stop Size}
+We use the stop size as a universal measure for the aperture definition.
+A definition of pupil size and position becomes numerically instable for telecentric systems.
+Numerical aperture or aperture number (f-stop) definitions are unsuitable for infinite conjugate systems.
+The stop, as physical part of the optical system, is always finite sized and at a finite distance.
+In the following, we show how to convert different aperture definitions to a stop size.
+If possible, we prefer numerically stable formulas that also hold for the special cases of infinite conjugate or telecentric systems.
+
+todo:
+StopDiameter
+ExitPupilDiameter 
+EntrancePupilDiameter
+InfiniteConjugateObjectSpaceFNumber
+InfiniteConjugateImageSpaceFNumber
+WorkingObjectSpaceFNumber
+WorkingImageSpaceFNumber
+ObjectSpaceNA
+ImageSpaceNA \remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
+
 
 \subsection{Ray origin for finite conjugate objects}
 For finite conjugate objects, the object plane is part of the optical system. Rays from one field point originate from the same point in the object plane.
 
 to do
 
-\subsection{Ray origin for infinite conjugate objects}
-to do
-
 \subsection{Ray directions}
+\remark{todo: adapt for XYUV}
 We want to cast rays from the ray origin positions so that they hit certain coordinates in the pupil plane. 
 The na\"{\i}ve ansatz to subtract the ray origin from the desired pupil coordinate to obtain the ray direction will likely fail numerically for telecentric systems.
 Therefrore, we derive the marginal ray slope and the chief ray slope from the first order properties of the system and base the ray directions on these two quantities.
@@ -2707,6 +2733,10 @@ Therefrore, we derive the marginal ray slope and the chief ray slope from the fi
 where $x_{pup}, y_{pup} \in [-1,1]$ are pupil coordinates normalized to the pupil radius. 
 An equidistant mesh of pupil coordinates will may result in a constant ray density per solid angle, especially for high-NA systems or systems with large field angles.
 A non-equidistant sampling grid limits the validity of fast-Fourier based calculation methods.
+
+\subsection{Ray origin for infinite conjugate objects}
+to do
+
 
 \subsubsection{Paraxial pupil aiming}
 In paraxial pupil aiming, the optical system is represented by ABCD-Matrices and the marginal slope is calculated paraxially.
@@ -2735,6 +2765,9 @@ Similarly, the exit pupil has a distance $z_{ex}$ from the image and a magnifica
 \end{eqnarray}
 For telecentric systems, an expression of the pupil rastering in terms of $z_{en}$ or $z_{ex}$ is depreceated. 
 Expressing everything in terms of ABCD matrices, it is often possible to reduce fractions analytically and avoid numerical instabilities.
+
+
+
 
 \section{Wave Aberrations}
 Despite its name suggests this representation of aberrations would be based on wave optics, its calculation is purely geometrical.
