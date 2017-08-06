@@ -1531,7 +1531,7 @@ We obtain in close analogy to the image sided focal length
 In systems with classical lens elements only and without immersion, 
 we find equal focal lengths on object and image side. The determinant of the ABCD matrix is then equal to one.
 
-\subsubsection{Finite Conjguate Systems}
+\subsubsection{Finite Conjugate Systems}
 In object sided finite conjugate systems, each point in object space $y_{obj}$ is a field point, 
 emitting a cone of rays $y_{obj}^{\,\prime}$.
 
@@ -1579,7 +1579,7 @@ The magnifictaion $\tilde{A}$ after refocusing is
 
 
 
-\subsubsection{Infinite to Finite Conjguate Systems}
+\subsubsection{Infinite to Finite Conjugate Systems}
 In object sided infinite conjugate systems, each direction in object space $y^{\,\prime}_{obj}$ corresponds to a field point, 
 emitting a collimated bundle of rays.
 
@@ -1603,7 +1603,7 @@ In systems with classical lens elements only and no immersion, the determinant o
 \end{eqnarray}
 
 
-\subsubsection{Finite to Infinite Conjguate Systems}
+\subsubsection{Finite to Infinite Conjugate Systems}
 In image sided infinite conjugate systems, each point in object space $y_{obj}$ emits a cone of rays, 
 that is collimated by the optical system.
 
@@ -1640,7 +1640,7 @@ The magnifictaion $\tilde{C}$ after shifting the object distance is
 \end{eqnarray}
 
 
-\subsubsection{Infinite Conjguate Systems}
+\subsubsection{Infinite Conjugate Systems}
 In both sided infinite conjugate systems, imaging is achieved if collimated ray bundles are transfered into collimated ray bundles.
 
 \begin{eqnarray}
@@ -2156,7 +2156,7 @@ We add a variable $\nu=0$ to the left hand side and solve the system in a cartes
  \end{pmatrix}
 \end{eqnarray}
 Adding $\nu$ allows us to use standard matrix inversion algorithms.
-The result should reproduce $\nu=0$ within numerical accurracy.
+The result should reproduce $\nu=0$ within numerical accuracy.
 We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(U_2,V_2)$ for each case.
 We split the results up in real and imaginary part $\Re U, \Re V, \Im U, \Im V$ and fill the $\hat{C}$ matrix.
 
@@ -2221,7 +2221,7 @@ we ensure a real valued grating in the object plane.
 The intensity distribution in intermediate planes and in the image plane, however, 
 may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X,Y}$.
 \begin{eqnarray}
- \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{K1} + \kappa_2 \Vector{e}_{K2}
+ \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{K1} + \kappa_2 \Vector{e}_{K2} \label{eq:deltaK_as_kappa}
 \end{eqnarray}
 We call $\kappa_{x,y} \in \mathbb{R}$ the entrance pupil wavevector coordinates. The are not normalized and may be arbitrarily scaled.
 Our imaging condition reduces to
@@ -2683,22 +2683,23 @@ to do
 
 \section{Ray Aiming}
 The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
-Ray aiming allows to obtain initial ray properties for desired object and pupil coordinates.
+Ray aiming allows to obtain initial ray properties for such ray bundles.
 Our ansatz of ray aiming consists of the following steps:
 \begin{itemize}
  \item Calculate the stop size in paraxial or parabasal approximation.
  \item Calculate ray starting points and wavevectors for the given field and pupil coordinate in paraxial or parabasal approximation
- \item Convert the paraxially approximated wavevectors to real wavevectors that obey the dispersion relation in the object material
- \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates in the stop plane 
+ \item Convert the paraxially approximated wavevectors to real wavevectors
+       ( wavevectors obeying the dispersion relation in the object material )
+ \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates 
        and whether the stop size fulfills the designer's aperture definition.
        Optimize the aiming iteratively.
- \item Adapt the ray intensities so that the rays coincide with the radiant intensity of the light source.
+ \item Adapt the ray intensities so that the ray bundle resembles the radiant intensity of the light source.
 \end{itemize}
 
 \subsection{Stop Size}
 We use the stop size as a universal measure for the aperture definition.
-A definition of pupil size and position becomes numerically instable for telecentric systems.
-Numerical aperture or aperture number (f-stop) definitions are unsuitable for infinite conjugate systems.
+A definition of pupil size and position would become numerically instable for telecentric systems.
+Numerical aperture or aperture number (f-stop) definitions would be unsuitable for infinite conjugate systems.
 The stop, as physical part of the optical system, is always finite sized and at a finite distance.
 In the following, we show how to convert different aperture definitions to a stop size.
 If possible, we prefer numerically stable formulas that also hold for the special cases of infinite conjugate or telecentric systems.
@@ -2715,56 +2716,88 @@ ObjectSpaceNA
 ImageSpaceNA \remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
 
 
-\subsection{Ray origin for finite conjugate objects}
-For finite conjugate objects, the object plane is part of the optical system. Rays from one field point originate from the same point in the object plane.
+\subsection{Ray Origin for Finite Conjugate Objects}
+In object sided finite conjugate systems, the ray origin defines the field, and the ray wavevector defines the pupil position.
 
-to do
+\subsubsection{Specification of Object Ray Height}
+In case the field is specified by the object sided ray height,
+this definition directly fixes the ray origin in the object plane.
+A parabasal calculation is error-free.
 
-\subsection{Ray directions}
-\remark{todo: adapt for XYUV}
-We want to cast rays from the ray origin positions so that they hit certain coordinates in the pupil plane. 
-The na\"{\i}ve ansatz to subtract the ray origin from the desired pupil coordinate to obtain the ray direction will likely fail numerically for telecentric systems.
-Therefrore, we derive the marginal ray slope and the chief ray slope from the first order properties of the system and base the ray directions on these two quantities.
-%
+\subsubsection{Specification of Object Sided Chief Ray Angle}
+This definition is uncommon for finite conjugate systems. 
+It makes sense for large object distances and small apertures.
+It is unsuitable for object sided telecentric systems.
+
+The ray origin is obtained approximately like this \remark{TODO: explain properly}
+\begin{itemize}
+ \item Calculation of entrance pupil position 
+       \remark{TODO: what is the pupil position if there is on-axis astigmatism between stop and pupil ?}
+ \item Calculation of Pilot direction (normalized pilot Poynting vector)
+ \item Chief direction = Pilot direction, rotated by the specified field angle
+ \item The chief ray is a ray with the chief direction, that intersects the pilot in the pupil
+ \item Ray origin = intersection of object plane and chief ray
+\end{itemize}
+
+Using real rotation matrices (Rodrigues matrices) makes this algorithm more robust for finite fields.
+The results, however, may still need iterative adaption for increased accuracy, as the real pupil position may move with field.
+
+\subsubsection{Specification of Image Sided Ray Height}
+The object sided ray height is obtained from the image sided ray height by the inverse of the XYUV matrix between object and image.
+\remark{TODO: what is THE object position belonging to an image position if there is on-axis astigmatism ? Chief ?}
+
+
+
+\subsection{Ray Direction for Finite Conjugate Objects}
+The ray originates from a point $\Vector{R}_{obj}$, defined by the field definition (see above).
+Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
+The ray direction is to be chosen accordingly.
+We reduce the 4 dimensional wavevector deviation $\Vector{K}$ to the 2 dimensional $\kappa$ base according to \eqref{eq:deltaK_as_kappa}
+and find in parabasal approximation
 \begin{eqnarray}
-  \left. \frac{\partial x}{\partial z}\right|_{ray} &=& \left. \frac{\partial x}{\partial z}\right|_{chief} + \left. \frac{\partial x}{\partial z}\right|_{marginal} \cdot x_{pup} \\
-  \left. \frac{\partial y}{\partial z}\right|_{ray} &=& \left. \frac{\partial y}{\partial z}\right|_{chief} + \left. \frac{\partial y}{\partial z}\right|_{marginal} \cdot y_{pup}
+% \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+%                  +    \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+% \\
+% \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} &=& 
+%                  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+% \\
+ \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+ &=&
+ \hat{\tilde{B}}_{obj\rightarrow stop}^{-1}
+ \left(
+    \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} 
+ \right) 
 \end{eqnarray}
-where $x_{pup}, y_{pup} \in [-1,1]$ are pupil coordinates normalized to the pupil radius. 
-An equidistant mesh of pupil coordinates will may result in a constant ray density per solid angle, especially for high-NA systems or systems with large field angles.
-A non-equidistant sampling grid limits the validity of fast-Fourier based calculation methods.
-
-\subsection{Ray origin for infinite conjugate objects}
-to do
 
 
-\subsubsection{Paraxial pupil aiming}
-In paraxial pupil aiming, the optical system is represented by ABCD-Matrices and the marginal slope is calculated paraxially.
-We split the optical system into one ABCD Matrix from the object to the stop
-\begin{eqnarray*}
- ABCD_{obj\rightarrow stop} &=&
- \begin{pmatrix}
-  A_o & B_o \\ C_o & D_o
- \end{pmatrix}
-\end{eqnarray*}
-and one matrix from the stop to the image
-\begin{eqnarray*}
- ABCD_{stop\rightarrow ima} &=&
- \begin{pmatrix}
-  A_i & B_i \\ C_i & D_i
- \end{pmatrix}
-\end{eqnarray*}
-The pupil is the image of the stop, imaged by the front lens group $ABCD_{obj\rightarrow stop}$ for the entrance pupil and the rear lens group $ABCD_{stop\rightarrow ima}$ for the exit pupil, respectively.
-The entrance pupil is imaged to distance $z_{en}$ from the object and appears to be magnified in size by a factor of $mag_{en}$ compared to the stop. 
-Similarly, the exit pupil has a distance $z_{ex}$ from the image and a magnification of $mag_{ex}$.
+\subsection{Ray Direction for Infinite Conjugate Objects}
+In object sided infinite conjugate systems, the desired field defines the ray direction, 
+and the ray height on the first surface of the finite sized optical system defines the pupil position.
+
+We restrict the starting wavevector deviation from the pilot to the 2 dimensional base of $\kappa$ according to \eqref{eq:deltaK_as_kappa}.
+We calculate the change in Poynting vector when the wavevector is changed infinitessimally in direction of $\kappa_1$ or $\kappa_2$
+and conclude the change of ray direction $\Vector{d}$
 \begin{eqnarray}
- z_{en} &=& \frac{B_o}{A_o} \\
- mag_{en} &=& \frac{1}{A_o} \\
- z_{ex} &=& - \frac{B_i}{D_i} \\
- mag_{ex} &=& A_i - \frac{B_i C_i}{D_i}
+ \Vector{d} \approx \Vector{d}_{pilot} + \frac{\partial \Vector{d}}{\partial \kappa_i} \kappa_i
 \end{eqnarray}
-For telecentric systems, an expression of the pupil rastering in terms of $z_{en}$ or $z_{ex}$ is depreceated. 
-Expressing everything in terms of ABCD matrices, it is often possible to reduce fractions analytically and avoid numerical instabilities.
+\remark{TODO: explicit formula}
+
+
+\subsection{Ray Origin for Infinite Conjugate Objects}
+The ray wavevector is defined by the field definition (see above).
+Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
+To achieve this, we set ray height $\Vector{R}_{surf1}$ on the first surface of our finite sized optical system. 
+We find in parabasal approximation
+\begin{eqnarray}
+ \Vector{R}_{surf1}                 
+ &=&
+ \hat{\tilde{A}}_{surf1\rightarrow stop}^{-1}
+ \left(
+   \Vector{R}_{stop} - \hat{\tilde{B}}_{surf1\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+ \right)
+\end{eqnarray}
+
+
 
 
 
@@ -2812,7 +2845,7 @@ From the exit pupil to the image, a Huygens propagation is performed numerically
 The retardation of each point-source, however, is calculated using geometrical optics.
 In a system without any aberrations made of isotropic materials, all point-sources are in phase and form a spherical wave segment, converging towards a spot of minimal spatial extent.
 All aberrations cause a perturbation of the spherical wave, and an extended spot size.
-The accurracy of the result compared to full physical wave-optical calculations of the point-spread function of the whole system is often astonishing. 
+The accuracy of the result compared to full physical wave-optical calculations of the point-spread function of the whole system is often astonishing. 
 
 To reduce calculation times, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant. 
 The normalized ray coordinates in entrance and exit pupil are assumed to be identical.
