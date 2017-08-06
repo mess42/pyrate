@@ -119,7 +119,7 @@ class Surface(LocalCoordinatesTreeBase):
 
 
         sizelimit = 1000.0
-        failsafevalue = 18.0        
+        failsafevalue = 11.0        
         if self.aperture == None:
             effsemidia = failsafevalue
             # TODO: choose max ray height of all bundles instead 

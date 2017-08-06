@@ -65,7 +65,7 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-fig, axarr = plt.subplots(5,1)
+fig, axarr = plt.subplots(4,1)
 for ax in axarr:
     ax.axis('equal')
     if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
@@ -120,7 +120,7 @@ def bundle_step1(nrays = 100, rpup = 7.5):
 
 # draw glass plates
 s.draw2d(axarr[0], color="grey", vertices=50, plane_normal=pn, up=up)
-r2 = s.seqtrace(bundle_step1(nrays=25), seq)
+r2 = s.seqtrace(bundle_step1(nrays=9), seq)
 for r in r2:
     r.draw2d(axarr[0], color="blue", plane_normal=pn, up=up) 
 
@@ -168,7 +168,7 @@ s = optimi.run()
 
 # draw system with last lens biconvex
 s.draw2d(axarr[1], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-r2 = s.seqtrace(bundle_step1(nrays=25), seq) # trace again
+r2 = s.seqtrace(bundle_step1(nrays=9), seq) # trace again
 for r in r2:
     r.draw2d(axarr[1], color="blue", plane_normal=pn, up=up) 
 
@@ -270,7 +270,7 @@ s = optimi.run()
 
 
 s.draw2d(axarr[2], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-b = bundles_step3(nrays=25)
+b = bundles_step3(nrays=9)
 for i in np.arange(len(b)):
     r2 = s.seqtrace(b[i], seq)
     color = [ "blue", "green", "red" ][int(i / 3)] 
@@ -298,36 +298,30 @@ s = optimi.run()
 optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step4b") 
 s = optimi.run()
 
+
+# draw final result in overview plot fig and in fig2
+fig2 = plt.figure()
+ax2  = fig2.add_subplot(111)
+if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
+    ax2.set_axis_bgcolor('white')
+else:
+    ax2.set_facecolor('white')
+ax2.axis('equal')
+
+
 s.draw2d(axarr[3], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-b = bundles_step3(nrays=25, rpup = 7.5, maxfield_deg=5.)
+s.draw2d(ax2,      color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+b = bundles_step3(nrays=9, rpup = 7.5, maxfield_deg=5.)
 for i in np.arange(len(b)):
     r2 = s.seqtrace(b[i], seq)
     color = [ "blue", "green", "red" ][int(i / 3)] 
     for r in r2:
         r.draw2d(axarr[3], color=color, plane_normal=pn, up=up) 
 
-
-# Step 5: larger aperture
-##########################
-
-def meritfunction_step5a(s):
-    return final_meritfunction(s, rpup=7.5, fno=5, maxfield_deg=10.)
-
-def meritfunction_step5b(s):
-    return final_meritfunction(s, rpup=7.5, fno=4, maxfield_deg=10.)
-
-optimi = Optimizer(s, meritfunction_step5a, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step5a")
-s = optimi.run()
-optimi = Optimizer(s, meritfunction_step5b, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step5b") 
-s = optimi.run()
-
-s.draw2d(axarr[4], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-b = bundles_step3(nrays=25, rpup = 7.5, maxfield_deg=5.)
-for i in np.arange(len(b)):
-    r2 = s.seqtrace(b[i], seq)
-    color = [ "blue", "green", "red" ][int(i / 3)] 
-    for r in r2:
-        r.draw2d(axarr[4], color=color, plane_normal=pn, up=up) 
+b = bundles_step3(nrays=36, rpup = 7.5, maxfield_deg=5.)
+r2 = s.seqtrace(b[0], seq)
+for r in r2:
+    r.draw2d(ax2, color="blue", plane_normal=pn, up=up)
 
 
 plt.show()
