@@ -74,39 +74,38 @@ def test_optimization():
     class ExampleOS(ClassWithOptimizableVariables):
         def __init__(self):
             super(ExampleOS, self).__init__()
-            self.addVariable("X", OptimizableVariable("Variable", value=3.0))
-            self.addVariable("Y", OptimizableVariable("Variable", value=20.0))
-            self.addVariable("Z",
-                         OptimizableVariable("Pickup",
+            self.X = OptimizableVariable(name="X", status="Variable", value=3.0)
+            self.Y = OptimizableVariable(name="Y", status="Variable", value=20.0)
+            self.Z = OptimizableVariable(name="Z", status="Pickup",
                                              function=lambda x, y: x**2 + y**2,
-                                             args=(self("X"), self("Y"))))
+                                             args=(self.X, self.Y))
     
     
     def testmerit(s):
         # let x, y being on a circle of radius 5
-        return (s("X")()**2 + s("Y")()**2 - 5.**2)**2
+        return (s.X()**2 + s.Y()**2 - 5.**2)**2
         
             
 
     def testmerit2(s):
         # let x**2 + y**2 + z**2 be minimized with the pickup constraint z = x**2 + y**2
-        return s("X")()**2 + s("Y")()**2 + s("Z")()**2
+        return s.X()**2 + s.Y()**2 + s.Z()**2
         
 
     os = ExampleOS()
 
     optimi = Optimizer(os, testmerit, backend=ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':False}))
     optimi.run()
-    assert np.isclose(os("X")()**2 + os("Y")()**2, 25.0)
+    assert np.isclose(os.X()**2 + os.Y()**2, 25.0)
     optimi.meritfunction = testmerit2
     optimi.run()
-    assert np.isclose(os("X")()**2 + os("Y")()**2, os("Z")())
+    assert np.isclose(os.X()**2 + os.Y()**2, os.Z())
     optimi.backend = Newton1DBackend(dx=1e-6, iterations=500)
     optimi.meritfunction = testmerit
     optimi.run()
-    assert np.isclose(os("X")()**2 + os("Y")()**2, 25.0)
+    assert np.isclose(os.X()**2 + os.Y()**2, 25.0)
     optimi.meritfunction = testmerit2
     optimi.run()
-    assert np.isclose(os("X")()**2 + os("Y")()**2, os("Z")())
+    assert np.isclose(os.X()**2 + os.Y()**2, os.Z())
 
     
