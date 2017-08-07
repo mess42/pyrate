@@ -183,8 +183,9 @@ class ClassWithOptimizableVariables(BaseLogger):
         # for the optimizable variable class it is useful to have some observer links
         # they get informed if variables change their values
 
-    def __call__(self, key):
-        return self.dict_variables.get(key, None)
+    # DAS brauchst Du jetzt nicht mehr!
+    #def __call__(self, key):
+    #    return self.dict_variables.get(key, None)
 
 
 
