@@ -118,14 +118,14 @@ def meritfunctionrms(s):
     
     return res
 
-backsurf.shape.dict_variables["curv"].changetype("variable")
-backsurf.shape.dict_variables["cc"].changetype("variable")
+backsurf.shape.params["curv"].changetype("variable")
+backsurf.shape.params["cc"].changetype("variable")
 # A2 not variable
-backsurf.shape.dict_variables["A4"].changetype("variable")
-backsurf.shape.dict_variables["A6"].changetype("variable")
+backsurf.shape.params["A4"].changetype("variable")
+backsurf.shape.params["A6"].changetype("variable")
 
 opt_backend = ScipyBackend(method='Nelder-Mead', tol=1e-9)
-optimi = Optimizer(s, meritfunctionrms, opt_backend)
+optimi = Optimizer(s, meritfunctionrms, opt_backend, name="Nelder-Mead Optimizer")
 s = optimi.run()
 
 r2 = s.seqtrace(initialbundle, sysseq)

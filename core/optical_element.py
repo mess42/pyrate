@@ -26,7 +26,7 @@ from localcoordinatestreebase import LocalCoordinatesTreeBase
 from ray import RayPath, RayBundle
 from globalconstants import numerical_tolerance
 
-from copy import deepcopy, copy
+from copy import deepcopy
 
 import numpy as np
 
@@ -84,7 +84,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
                 self.__materials[key] = material_object
                 self.__materials[key].comment = comment
             else:
-                print "Warning: Material key " + str(key) + "already taken. Material will not be added."
+                self.warning("Material key " + str(key) + " already taken. Material will not be added.")
         else:
             raise Exception("material coordinate system should be connected to OpticalElement root coordinate system")            
 

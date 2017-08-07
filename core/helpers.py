@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 Here are global convenience and helper functions located.
 """
-import math
+
 import numpy as np
 
 from optical_system import OpticalSystem
@@ -32,11 +32,14 @@ import localcoordinates
 from optical_element import OpticalElement
 from surface import Surface
 from surfShape import Conic
-from globalconstants import numerical_tolerance, canonical_ey, canonical_ex, standard_wavelength
+from globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
 from ray import RayBundle
 from material_isotropic import ConstantIndexGlass
-from helpers_math import rodrigues, random_rotation_matrix
+from helpers_math import rodrigues
 from material_glasscat import refractiveindex_dot_info_glasscatalog
+
+import logging
+
 
 def build_simple_optical_system(builduplist, material_db_path = ""):
 
@@ -59,7 +62,9 @@ def build_simple_optical_system(builduplist, material_db_path = ""):
              s is an OpticalSystem object
              stdseq is a sequence for sequential raytracing
     """
+    logger = logging.getLogger(__name__)    
     
+    logger.info("Creating optical system")    
     s = OpticalSystem() 
     
     
@@ -94,7 +99,7 @@ def build_simple_optical_system(builduplist, material_db_path = ""):
                 elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
 
         elem.addSurface(comment, actsurf, (lastmat, mat))
-        print("addsurf: %s at material boundary %s" % (comment, (lastmat, mat)))        
+        logger.info("Added surface: %s at material boundary %s" % (comment, (lastmat, mat)))        
         
         lastmat = mat
         refname = lc.name

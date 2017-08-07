@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 import random
-import uuid
 
 from helpers_math import rodrigues
 
@@ -55,7 +54,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                           1 or True means: tiltz first, then tilty, then tiltx, then decenter.       
                         observers:        list of observers derived from AbstractObserver
         '''
-        super(LocalCoordinates, self).__init__(name=name)        
+        super(LocalCoordinates, self).__init__(name=name, **kwargs)        
 
         
         (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
@@ -65,23 +64,13 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                 
         
 
-        self.decx = OptimizableVariable(variable_type='fixed', value=decx)
-        self.decy = OptimizableVariable(variable_type='fixed', value=decy)
-        self.decz = OptimizableVariable(variable_type='fixed', value=decz)
-        self.tiltx = OptimizableVariable(variable_type='fixed', value=tiltx)
-        self.tilty = OptimizableVariable(variable_type='fixed', value=tilty)
-        self.tiltz = OptimizableVariable(variable_type='fixed', value=tiltz)
-        
-
-
-        self.addVariable("decx", self.decx)
-        self.addVariable("decy", self.decy)
-        self.addVariable("decz", self.decz)
-        self.addVariable("tiltx", self.tiltx)
-        self.addVariable("tilty", self.tilty)
-        self.addVariable("tiltz", self.tiltz)
-        
-        
+        self.decx = OptimizableVariable(name="decx", variable_type='fixed', value=decx)
+        self.decy = OptimizableVariable(name="decy", variable_type='fixed', value=decy)
+        self.decz = OptimizableVariable(name="decz", variable_type='fixed', value=decz)
+        self.tiltx = OptimizableVariable(name="tiltx", variable_type='fixed', value=tiltx)
+        self.tilty = OptimizableVariable(name="tilty", variable_type='fixed', value=tilty)
+        self.tiltz = OptimizableVariable(name="tiltz", variable_type='fixed', value=tiltz)
+       
         self.tiltThenDecenter = tiltThenDecenter
         
         self.parent = None # None means reference to root coordinate system 

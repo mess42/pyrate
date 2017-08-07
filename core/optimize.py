@@ -23,16 +23,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
-import uuid
 
 from log import BaseLogger
 
-class OptimizableVariable(object):
+class OptimizableVariable(BaseLogger):
     """
     Class that contains an optimizable variable. Used to get a pointer on a variable.
     The value is not constrained to float. Also other dependent variables are possible to define.
     """
     def __init__(self, variable_type="fixed", **kwargs):
+
+        super(OptimizableVariable, self).__init__(name=kwargs.pop('name', ''), **kwargs)
+
         """
         Name is gone since it's only needed for reference. Therefore the former listOfOptimizableVariables
         will be a dictionary. type may contain a string e.g.
@@ -79,7 +81,7 @@ class OptimizableVariable(object):
 
 
     def __str__(self, *args, **kwargs):
-        return "OptVar('" + self.var_type + "') = " + str(self.parameters)
+        return self.name + "('" + self.var_type + "') = " + str(self.parameters)
 
     def getVarType(self):
         return self.__var_type.lower()
@@ -171,12 +173,12 @@ class ClassWithOptimizableVariables(BaseLogger):
     Implementation of some class with optimizable variables with the help of a dictionary.
     This class is also able to collect the variables and their values from its subclasses per recursion.
     """
-    def __init__(self, name = ""):
+    def __init__(self, name = "", **kwargs):
         """
         Initialize with empty dict.
         """
-        super(ClassWithOptimizableVariables, self).__init__(name=name)
-        self.dict_variables = {}
+        super(ClassWithOptimizableVariables, self).__init__(name=name, **kwargs)
+        #self.dict_variables = {}
         self.list_observers = [] 
         # for the optimizable variable class it is useful to have some observer links
         # they get informed if variables change their values
@@ -193,11 +195,11 @@ class ClassWithOptimizableVariables(BaseLogger):
         for obs in self.list_observers:
             obs.informAboutUpdate()
 
-    def addVariable(self, name, var):
-        """
-        Add some variable into dict.
-        """
-        self.dict_variables[name] = var
+    #def addVariable(self, name, var):
+    #    """
+    #    Add some variable into dict.
+    #    """
+    #    self.dict_variables[name] = var
 
 
                 

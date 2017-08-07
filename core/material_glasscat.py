@@ -27,11 +27,11 @@ import numpy as np
 import scipy.interpolate
 from material_isotropic import IsotropicMaterial
 from globalconstants import Fline, dline, Cline
-
+from log import BaseLogger
 
 # TODO: this class has too many methods
-class refractiveindex_dot_info_glasscatalog(object):
-    def __init__(self, database_basepath):
+class refractiveindex_dot_info_glasscatalog(BaseLogger):
+    def __init__(self, database_basepath, **kwargs):
         """
         Reads the refractiveindex.info database and provides glass data. 
         
@@ -53,6 +53,8 @@ class refractiveindex_dot_info_glasscatalog(object):
         """
         self.database_basepath = database_basepath
         self.librarydict = self.read_library(database_basepath + "/library.yml")
+        
+        super(refractiveindex_dot_info_glasscatalog, self).__init__(**kwargs)
 
 
     def read_yml_file(self, ymlfilename):

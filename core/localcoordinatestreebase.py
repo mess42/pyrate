@@ -25,12 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 @author: Johannes Hartung
 """
 
-import numpy as np
-import math
-import random
-import uuid
 
-from optimize import ClassWithOptimizableVariables, OptimizableVariable
+from optimize import ClassWithOptimizableVariables
 
 
 
