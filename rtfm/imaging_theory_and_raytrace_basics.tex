@@ -1356,7 +1356,7 @@ with the corresponding ``Lagrangian'' $\mathcal{L}$.
 $s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
 equations we may not set it to $1$ at the moment.)
 
-\remark{to do: all other cases; restriction to linear optics}
+\remark{todo: all other cases; restriction to linear optics}
 
 \section{Numerical Integration for GRIN Media}
 Let us start with the integration of the 3D formulation since it is separable $H = T + U$. Here we use a symplectic integration formalism
@@ -2412,7 +2412,7 @@ Inserting the straight equation leads to a polynomial of fourth order in $t$.
 The fourth order equation can be solved either analytically or numerically.
 The one physically valid solution must be real valued.
 
-\remark{to do: surface normal equation for all surface shapes}
+\remark{todo: surface normal equation for all surface shapes}
 
 \subsection{Simplified Biconic}
 We assume a Biconic sag equation \eqref{eq:biconic} in which not all parameters are independent, but the x and y conic constants are linked via
@@ -2668,52 +2668,80 @@ In general, a solution can only be found numerically.
 Typical approaches in optical ray tracing use iterative algorithms.
 
 \subsection{Strong Forbes Asphere}
-to do
+todo
 \subsection{Mild Forbes Asphere}
-to do
+todo
 \subsection{Acylindric}
-to do
+todo
 
 \subsection{Free Shapes}
-to do
+todo
 
 \subsection{Linear Combinations}
-to do
+todo
 
 
 \section{Ray Aiming}
-The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
-Ray aiming allows to obtain initial ray properties for such ray bundles.
+When shooting rays at an optical system, we need initial properties like starting position and wavevector.
+But which properties do I have to choose for the marginal, chief, coma or any other ray ?
+Ray aiming allows to approximate initial ray properties for a given optical system.
 Our ansatz of ray aiming consists of the following steps:
 \begin{itemize}
  \item Calculate the stop size in paraxial or parabasal approximation.
- \item Calculate ray starting points and wavevectors for the given field and pupil coordinate in paraxial or parabasal approximation
- \item Convert the paraxially approximated wavevectors to real wavevectors
-       ( wavevectors obeying the dispersion relation in the object material )
+ \item Calculate ray starting points and wavevectors for given field and pupil coordinates in paraxial or parabasal approximation
+ \item Convert the paraxially approximated wavevectors to real wavevectors,
+       that obey the dispersion relation in the object material
  \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates 
        and whether the stop size fulfills the designer's aperture definition.
        Optimize the aiming iteratively.
- \item Adapt the ray intensities so that the ray bundle resembles the radiant intensity of the light source.
+ \item Adapt the ray intensities so that the ray bundle resembles the angular power distribution $\frac{\partial P}{\partial \Omega}$ of the light source.
 \end{itemize}
 
-\subsection{Stop Size}
-We use the stop size as a universal measure for the aperture definition.
+\subsection{Calculating the Stop Size}
+The aperture of an optical system is often defined indirectly.
+Some common definitions are via stop size, pupil diameter, aperture number (f-stop), or numerical aperture.
+However, not all of these quantities can be applied to all tpyes of system.
 A definition of pupil size and position would become numerically instable for telecentric systems.
-Numerical aperture or aperture number (f-stop) definitions would be unsuitable for infinite conjugate systems.
+Numerical aperture or aperture number definitions would be unsuitable for infinite conjugate systems.
+
+Instead, we use the stop size as a universal measure for the aperture definition.
 The stop, as physical part of the optical system, is always finite sized and at a finite distance.
 In the following, we show how to convert different aperture definitions to a stop size.
-If possible, we prefer numerically stable formulas that also hold for the special cases of infinite conjugate or telecentric systems.
+The stop does not need to be circular. 
 
-todo:
-StopDiameter
-ExitPupilDiameter 
-EntrancePupilDiameter
-InfiniteConjugateObjectSpaceFNumber
-InfiniteConjugateImageSpaceFNumber
-WorkingObjectSpaceFNumber
-WorkingImageSpaceFNumber
-ObjectSpaceNA
-ImageSpaceNA \remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
+In the implementation, it is better not to include the calculated aperture object in the optical system.
+Otherwise, small numerical errors might cause marginal or coma rays to lie just outside the aperture.
+These rays could be clipped, confusing automated optimization routines.
+Rather we use the aperture object only to calculate the ray starting properties.
+We leave the stop plane in the optical system without an aperture clipping rays.
+
+
+\subsubsection{Entrance Pupil Size}
+TODO
+stop size = ...
+
+\subsubsection{Exit Pupil Size}
+TODO
+
+\subsubsection{Infinite Conjugate Object Space Aperture Number}
+TODO, uncommon definition
+
+\subsubsection{Infinite Conjugate Image Space Aperture Number}
+TODO
+
+\subsubsection{Working Object Space Aperture Number}
+TODO, uncommon definition
+
+\subsubsection{Working Image Space Aperture Number}
+TODO
+
+\subsubsection{Object Space Numerical Aperture}
+TODO
+
+\subsubsection{Image Space Numerical Aperture}
+TODO
+
+\remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
 
 
 \subsection{Ray Origin for Finite Conjugate Objects}
@@ -2751,7 +2779,7 @@ The object sided ray height is obtained from the image sided ray height by the i
 \subsection{Ray Direction for Finite Conjugate Objects}
 The ray originates from a point $\Vector{R}_{obj}$, defined by the field definition (see above).
 Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
-The ray direction is to be chosen accordingly.
+In the following, we search for a ray direction to fulfill this constraint.
 We reduce the 4 dimensional wavevector deviation $\Vector{K}$ to the 2 dimensional $\kappa$ base according to \eqref{eq:deltaK_as_kappa}
 and find in parabasal approximation
 \begin{eqnarray}
@@ -2797,10 +2825,11 @@ We find in parabasal approximation
  \right)
 \end{eqnarray}
 
+\subsection{Conversion to Wavevectors Obeying the Dispersion}
+todo
 
-
-
-
+\subsection{Angular Power Distribution}
+todo
 
 \section{Wave Aberrations}
 Despite its name suggests this representation of aberrations would be based on wave optics, its calculation is purely geometrical.
