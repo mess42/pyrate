@@ -1182,9 +1182,10 @@ However, the optical designer has to check for each calculation whether the ray 
 
 \section{Definitions}
 
-We choose a cartesian coordinate system and call the z-axis our \emph{optical axis}. 
-In rotationally symmetric optical systems, this is usually the axis of symmetry.
-In systems without an axis of symmetry, we try to avoid the the term \emph{optical axis}.
+\subsection{General Definitions}
+In rotationally symmetric optical systems, we call the axis of symmetry \emph{optical axis}. 
+In systems without an axis of symmetry, we try to avoid the the term \emph{optical axis}
+and introduce a \emph{pilot ray} (see \ref{subsec:pilotRayConcept}).
 
 For imaging systems, we consider an object plane and a image plane with our optical system in between. 
 The optical system shall focus all rays originating from a certain point in the object plane into a point or small spot in the image plane.
@@ -1208,21 +1209,25 @@ If at field points far from the axis also other elements start to clip rays, we 
 The rays emitted by the central (on-axis) field point that hit the border of the stop are called \emph{marginal rays}.
 The rays emitted by any non-zero field point that hit the border of the stop are called \emph{coma rays}.
 A ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
-Often, the chief ray is approximated to be the central ray in the transmitted ray bundle emitted by a field point.
+The chief ray is often approximated as the central ray in the transmitted ray bundle emitted by a field point.
 
-We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, 
+We call the plane containing the optical axis (or pilot ray) and the chief ray \emph{meridional} or \emph{tangential plane}, 
 and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
 
+\subsection{Pupils}
 We divide an optical system in two groups -- elements in front of and behind the stop. 
 We consider both groups of optical elements as systems imaging the stop.
 We call the image of the stop created by the object sided elements \emph{entrance pupil}, and the image created by the image sided elements \emph{exit pupil}.
-
 Rays in the object and rays in the entrance pupil need to pass the same group of optical elements in order to reach the stop. 
 We can regard the propagation of rays from the object to the stop as a free space propagation from the object to the entrance pupil and a subsequent imaging into the stop.
 In close analogy, we can image rays from the stop to the exit pupil and perform a free-space propagation from the exit pupil to the image.
 This property is often used to determine the marginal and coma angles: 
 aiming from the object into the entrance pupil by free-space propagation is much easier than tracing rays from the object to the stop.
 Care has to be taken if the front lens group imaging the stop to the pupil suffers from aberrations such as distortion.
+
+\subsection{Cardinal Planes}
+todo
+
 
 
 
@@ -1673,7 +1678,7 @@ By choosing the term pilot ray, we want to avoid confusions with mechanical symm
 In many systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
-\subsection{Pilot Ray Concept}
+\subsection{Pilot Ray Concept} \label{subsec:pilotRayConcept}
 Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
 From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
@@ -2713,7 +2718,7 @@ In the implementation, it is better not to include the calculated aperture objec
 Otherwise, small numerical errors might cause marginal or coma rays to lie just outside the aperture.
 These rays could be clipped, confusing automated optimization routines.
 Rather we use the aperture object only to calculate the ray starting properties.
-We leave the stop plane in the optical system without an aperture clipping rays.
+We leave the stop plane in the optical system without an aperture.
 
 
 \subsubsection{Entrance Pupil Size}
