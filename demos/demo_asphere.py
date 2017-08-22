@@ -31,8 +31,8 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
-from core import surfShape
+from core.material_isotropic import ConstantIndexGlass
+from core.surfShape import Conic, Asphere
 from core.optical_element import OpticalElement
 from core.surface import Surface
 from core.optical_system import OpticalSystem
@@ -47,6 +47,8 @@ from core.optimize import Optimizer
 from core.optimize_backends import ScipyBackend
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
@@ -60,14 +62,14 @@ lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=100.0), ref
 
 
 stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1), apert=CircularAperture(lc1, 12.7))
-backsurf = Surface(lc2, shape=surfShape.Asphere(lc2, curv=-1./50.0, cc=-1., acoeffs=[0.0, 0.0, 0.0]), apert=CircularAperture(lc2, 12.7))
+frontsurf = Surface(lc1, shape=Conic(lc1), apert=CircularAperture(lc1, 12.7))
+backsurf = Surface(lc2, shape=Asphere(lc2, curv=-1./50.0, cc=-1., coefficients=[0.0, 0.0, 0.0]), apert=CircularAperture(lc2, 12.7))
 image = Surface(lc3)
 
 
-elem = OpticalElement(lc0, label="asphereelement")
+elem = OpticalElement(lc0, name="asphereelement")
 
-bk7 = material.ConstantIndexGlass(lc1, n=1.5168)
+bk7 = ConstantIndexGlass(lc1, n=1.5168)
 
 elem.addMaterial("BK7", bk7)
 
@@ -85,17 +87,17 @@ rpup = 11.43
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
 
 k = np.zeros_like(o)
-k[2,:] = 2.*math.pi/wavelength
+k[2,:] = 1. #2.*math.pi/wavelength
 
 ey = np.zeros_like(o)
 ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("asph", [("stop", True, True), 
-                    ("front", True, True), 
-                    ("rear", True, True), 
-                    ("image", True, True)])]
+sysseq = [("asph", [("stop", {"is_stop":True}), 
+                    ("front", {}), 
+                    ("rear", {}), 
+                    ("image", {})])]
 
 phi = 5.*math.pi/180.0
 
@@ -105,25 +107,25 @@ initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 def meritfunctionrms(s):
     initialbundle_local = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-    rpath = s.seqtrace(initialbundle_local, sysseq)
+    rpaths = s.seqtrace(initialbundle_local, sysseq)
     # other constructions lead to fill up of initial bundle with intersection values
     
-    x = rpath.raybundles[-1].x[-1, 0, :]
-    y = rpath.raybundles[-1].x[-1, 1, :]
+    # for glassy asphere only one path necessary
+    x = rpaths[0].raybundles[-1].x[-1, 0, :]
+    y = rpaths[0].raybundles[-1].x[-1, 1, :]
     
     res = np.sum(x**2 + y**2)
     
-    print(res)
     return res
 
-backsurf.shape.dict_variables["curv"].changetype("variable")
-backsurf.shape.dict_variables["cc"].changetype("variable")
+backsurf.shape.params["curv"].changetype("variable")
+backsurf.shape.params["cc"].changetype("variable")
 # A2 not variable
-backsurf.shape.dict_variables["A4"].changetype("variable")
-backsurf.shape.dict_variables["A6"].changetype("variable")
+backsurf.shape.params["A4"].changetype("variable")
+backsurf.shape.params["A6"].changetype("variable")
 
 opt_backend = ScipyBackend(method='Nelder-Mead', tol=1e-9)
-optimi = Optimizer(s, meritfunctionrms, opt_backend)
+optimi = Optimizer(s, meritfunctionrms, opt_backend, name="Nelder-Mead Optimizer")
 s = optimi.run()
 
 r2 = s.seqtrace(initialbundle, sysseq)
@@ -142,7 +144,8 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+for r in r2:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 for e in s.elements.itervalues():
     for surfs in e.surfaces.itervalues():
         surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.

@@ -6,6 +6,10 @@ Optical Design with Python.
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/theinze/pyrate?branch=master&svg=true)](https://ci.appveyor.com/project/theinze/pyrate/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/theinze/pyrate/badge.svg?branch=master)](https://coveralls.io/github/theinze/pyrate?branch=master)
 
+![pyrate screenshot1](https://cloud.githubusercontent.com/assets/12564815/24820302/9b8cf4a0-1be8-11e7-8d8b-de0184587145.png)
+
+![pyrate screenshot2](https://cloud.githubusercontent.com/assets/12564815/21287091/7c56f076-c464-11e6-9cf9-5d623be63db6.png)
+
 To use the core package with standard management and optimization code
 write your source file and import the modules from the core subdirectory.
 Use the demo_*.py files as a starting point for your investigations.

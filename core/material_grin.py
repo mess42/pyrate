@@ -28,7 +28,7 @@ from ray import RayBundle
 
 from globalconstants import standard_wavelength
 
-from material import IsotropicMaterial
+from material_isotropic import IsotropicMaterial
 
 class IsotropicGrinMaterial(IsotropicMaterial):
     def __init__(self, lc, fun, dfdx, dfdy, dfdz, bndfunction, ds, energyviolation, name="", comment=""):
@@ -126,10 +126,12 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             if abs(totalenergy) > self.energyviolation:
                 #FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
                 #FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
-                print 'WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n'
-                print 'Please reduce integration step size.\n'
+                self.warning('integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation))
+                self.warning('Please reduce integration step size.')
                 valid[:] = False # all rays with energy violation are not useful due to integration errors
                 # TODO: report to user via some kind of fancy interface
+
+            self.debug("step(" + str(loopcount) + ") -> energy conservation violation: " + str(totalenergy))
 
             xglobalnewpos = self.lc.returnLocalToGlobalPoints(newpos)                        
             xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(xglobalnewpos)
@@ -146,7 +148,8 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             updatedpos[:,True ^ final] = newpos[:,True ^ final]
             updatedvel[:,True ^ final] = newvel[:,True ^ final]
 
-            newk = 2.*math.pi/raybundle.wave*updatedvel/self.nfunc(updatedpos)
+            k0 = 1. #2.*math.pi/raybundle.wave
+            newk = k0*updatedvel/self.nfunc(updatedpos)
             Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))
             kapp = self.lc.returnLocalToGlobalDirections(newk)            
             xapp = self.lc.returnLocalToGlobalPoints(updatedpos)            

@@ -9,6 +9,7 @@
 \usepackage{amsfonts}
 \usepackage{xcolor}
 \usepackage{setspace}
+\usepackage{dsfont}
 
 % load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
 
@@ -52,6 +53,7 @@
 \newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
 
 \newcommand\Vector[1]{{\mathbf{#1}}}
+%\newcommand\Vector[1]{{\vec{#1}}}
 
 \newcommand\vacuum{0}
 
@@ -77,36 +79,44 @@
 
 \newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
 
+\newcommand\unittensor{\mathds{1}}
+
 \newcommand\Greenfunction{\Tensor{G}}
 
 \newcommand\scalarEfield{E}
 \newcommand\scalarBfield{B}
 \newcommand\scalarHfield{H}
 \newcommand\scalarDfield{D}
-\newcommand\scalarTipfield{T}
-\newcommand\scalarSamplefield{S}
-\newcommand\scalarDipolarmoment{p}
 \newcommand\Efield{\Vector{\scalarEfield}}
 \newcommand\Bfield{\Vector{\scalarBfield}}
 \newcommand\Hfield{\Vector{\scalarHfield}}
 \newcommand\Dfield{\Vector{\scalarDfield}}
-\newcommand\Dipolarmoment{\Vector{\scalarDipolarmoment}}
 
-\newcommand\permeability{\Tensor{\mu}}
-\newcommand\vacuumpermeability{\mu_{\vacuum}}
-\newcommand\permittivity{\Tensor{\epsilon}}
-\newcommand\generalPermittivity{\Tensor{\tilde\epsilon}}
-\newcommand\vacuumpermittivity{\epsilon_{\vacuum}}
-\newcommand\scalarpermittivity{\epsilon}
+\newcommand\permeability{\Tensor{\scalarpermeability}}
+\newcommand\vacuumpermeability{\scalarpermeability_{\vacuum}}
+\newcommand\scalarpermeability{\mu}
+\newcommand\scalarrelativepermeability{\mu_{rel}}
+\newcommand\relativepermeability{\Tensor{\mu}_{rel}}
+
+\newcommand\permittivity{\Tensor{\scalarpermittivity}}
+\newcommand\vacuumpermittivity{\scalarpermittivity_{\vacuum}}
+\newcommand\scalarrelativepermittivity{\epsilon}
+\newcommand\relativepermittivity{\Tensor{\scalarrelativepermittivity}}
+\newcommand\scalarpermittivity{\varepsilon}
+
 \newcommand\conductivity{\Tensor{\sigma}}
 \newcommand\susceptibility{\Tensor{\chi}}
 \newcommand\currentdensity{\Vector{j}}
-\newcommand\Current{\Vector{I}}
 \newcommand\chargedensity{\rho}
 \newcommand\PoyntingVector{\Vector{S}}
 
 \newcommand\ordi{\text{ord}}
 \newcommand\eo{\text{eo}}
+
+\newcommand\materialone{I}
+\newcommand\materialtwo{{II}}
+
+\newcommand{\kpa}[1]{{\wavenumber_{\parallel\,#1}}}
 
 \newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
 
@@ -114,6 +124,18 @@
 \newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
 
 \newcommand{\orderof}[1]{\mathcal{O}(#1)}
+
+\newcommand\ppol{p}
+\newcommand\spol{s}
+\newcommand\normconst{N}
+
+\newcommand\kilogram{\textrm{kg}}
+\newcommand\meter{\textrm{m}}
+\newcommand\second{\textrm{s}}
+\newcommand\ampere{\textrm{A}}
+\newcommand\volt{\textrm{V}}
+\newcommand\watt{\textrm{W}}
+\newcommand\tesla{\textrm{T}}
 
 
 \begin{document}
@@ -124,7 +146,7 @@
 \subject{Pyrate -- Optical raytracing based on Python}
 \title{Read This Fundamental Manual \\ on Imaging Theory and Basics of Optical Raytracing}
 \author{M. Esslinger, J. Hartung, U. Lippmann}
-\date{2014-2016}
+\date{2014 - 2017}
 \publishers{}
 \maketitle
 
@@ -138,32 +160,72 @@
 
 \singlespacing
 
-\section{No Warranty}
-There is no warranty for the program, its manual, or goods designed using it to the extent permitted by applicable law. 
-Except when otherwise stated in writing the copyright holders and/or other parties provide the program and its manual "as is" 
-without warranty of any kind, either expressed or implied, 
-including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. 
-The entire risk as to the quality and performance of the program, its manual, or goods designed using it is with you. 
-Should the program or its manual prove defective, you assume the cost of all necessary servicing, repair or correction.
-In no event unless required by applicable law or agreed to in writing will any copyright holder, 
-or any other party who may modify and/or redistribute the program or its manual as permitted by its license agreements, 
-be liable to you for damages, including any general, special, incidental or consequential damages 
-arising out of the use or inability to use the program 
-(including but not limited to 
-loss of data 
-or data being rendered inaccurate 
-or losses sustained by you or third parties 
-or a failure of the program to operate with any other programs
-or designs not conforming national law
-or designs unfit for any particular purpose
-or designs that are unsafe), 
-even if such holder or other party has been advised of the possibility of such damages.
+\section{Disclaimer}
 
-Using this program or its manual do not replace your own investigations and analyses using proper (that is, non-pyrate) sources. 
+This manual is licensed under the
+Creative Commons Attribution-ShareAlike 4.0 International Public License
+\textbf{(CC-BY-SA 4.0)}.
+You should have received a \href{rtfm_license.html}{copy} of this license along with this manual.
+
+You receive the manual ``\emph{as is}'', without warranty of any kind, either expressed or implied, 
+including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose.
+There is no warranty for accuracy, absence of errors, or any relation between real world objects and simulations made 
+using this manual or program code based on it.
+Using this manual does not replace your own investigations and analyses using proper (non-pyrate) sources. 
 The copyright holders warn you that on-screen and/or printed versions of this manual may emit bosonic particles at speeds of 299792458\,m/s.
 
 \chapter{Optics from Maxwell Equations}
-\section{Maxwell Equations}
+\section{Unit Systems}
+Historically, nearly all unit systems are based on defining a unit for length, time and mass.
+As long as the unit system is consistent in itself, 
+it is easy to convert from one unit system to another, and formulas do not depend on the choice of the unit system.
+As electricity was discovered, this changed.
+For a better understanding, we recapitulate some laws of electricity.
+\paragraph{Coulomb} 
+discovered that charged particles attract or repel each other.
+\begin{eqnarray}
+ F &=& a_1 \frac{q_1 q_2}{r^2}
+\end{eqnarray}
+\paragraph{Amp\`{e}re} 
+discovered that wires carrying electric currents attract or repel each other.
+\begin{eqnarray}
+ F &=& a_2 \frac{2 I_1 I_2 l}{d}
+\end{eqnarray}
+\paragraph{Faraday}
+discovered that a change of magnetic flux induces voltages in conductors.
+\begin{eqnarray}
+ \Nabla \times \Efield + a_3 \dot{\Bfield} = 0
+\end{eqnarray}
+\paragraph{Maxwell} 
+unified the laws of electricity, magnetics and electrodynamics to the famous set of equations
+\begin{eqnarray}
+ \Nabla \Efield &=& 4 \pi a_1 \chargedensity \\
+ \Nabla \times \Bfield &=& 4 \pi \frac{a_2}{a_3} \currentdensity + \frac{a_2}{a_1 a_3} \dot{\Efield} \\
+ \Nabla \times \Efield &=& - a_3 \dot{\Bfield} \\
+ \Nabla \Bfield &=& 0
+\end{eqnarray}
+which holds in vacuum in this form.
+All these proportionalities are experimentally proven.
+The proportionality factors, however, cannot be defined by a purely mechanical unit system and may be freely chosen, 
+as long as $a_1 = a_2 c_0^2$.
+The most common choices are
+
+\begin{tabular}{l|lll}
+                       & $a_1$\qquad\qquad                    & $a_2$\qquad\qquad                  & $a_3$ \\
+ \hline
+ electrostatic (esu)   & 1                                    & $\frac{1}{c_0^2}$                  & 1 \\
+ electromagnetic (emu) & $c_0^2$                              & 1                                  & 1 \\
+ Gau\ss                & 1                                    & $\frac{1}{c_0^2}$                  & $\frac{1}{c_0}$ \\
+ Heavyside-Lorentz     & $\frac{1}{4\pi}$                     & $\frac{1}{4\pi c_0^2}$             & $\frac{1}{c_0}$ \\
+ SI                    & $\frac{1}{4\pi \vacuumpermittivity}$ & $\frac{\vacuumpermeability}{4\pi}$ & 1 
+\end{tabular}\\[2ex]
+
+Each of these choices has its advantages when calculating in certain domains.
+The downside of the multitude of unit systems is that formulas differ by 
+a ratio of their corresponding $a_{1,2,3}$ factors when formulated in different unit systems.
+In the following, we use SI units only.
+
+\section{Maxwell Equations in SI units}
 The content of this chapter is well known from textbooks \cite{Jackson, BornWolf}. Still, we repeat some of the equations to have a consistent 
 nomenclature throughout this manual and the pyrate program as well as a gain in clarity which aproximations are made.
 We start from the Maxwell equations in SI units
@@ -190,8 +252,13 @@ and the continuity equation, that follows directly from the Maxwell equations.
 All quantities are real valued. $\permittivity$ is the  electric  permittivity, 
 $\permeability$ the magnetic permeability, 
 and $\conductivity$ the conductivity.
-All material properties are described by unit bearing quantities, i.e., 
-they are \emph{not} measured relative to the vacuum values $\vacuumpermittivity$ and $\vacuumpermeability$. 
+The unit bearing quantities $\permeability, \permittivity$ 
+are linked to the relative properties $\relativepermeability, \relativepermittivity$ via
+the vacuum values
+\begin{eqnarray}
+ \permeability &=& \vacuumpermeability \relativepermeability \\
+ \permittivity &=& \vacuumpermittivity \relativepermittivity
+\end{eqnarray}
 We restrict ourselves to linear constitutive equations, that is, ($\permittivity$, $\permeability$ , $\conductivity$) do not depend on the field strength.
 This limitation excludes treatment of effects like higher harmonic generation, frequency conversion, or wave mixing.
 The Maxwell equations require media in which the constitutive bulk quantities can be assigned to all positions in space.
@@ -199,6 +266,13 @@ Single atoms, molecules or nanoscopic structures must be treated quantum-mechani
 
 \section{Energy Conservation}
 We assume the strictly monochromatic case $\Efield,\Dfield,\Hfield,\Bfield, \currentdensity \propto \sin(\omega t + \varphi_0)$ for electrodynamic scenarios only, $\omega \neq 0$.
+We introduce the following constants:
+\begin{align}
+ c_\vacuum &= \frac{1}{\sqrt{\vacuumpermeability\vacuumpermittivity}} & \textrm{vacuum speed of light} \\
+ \wavenumber_\vacuum &= \omega \sqrt{\vacuumpermeability\vacuumpermittivity} = \frac{\omega}{c_\vacuum}& \textrm{vacuum wavenumber} \\
+ \lambda_\vacuum &= \frac{2\pi}{\wavenumber_\vacuum} & \textrm{vacuum wavelength}
+\end{align}
+
 We focus on the term
 \begin{eqnarray}
    \Nabla ( \Efield \times \Hfield )
@@ -258,6 +332,7 @@ as the square of a real number differs from that of a complex one -- e.g. it may
 
 We assume all materials are non-magnetic at the optical frequency $\omega$, that is $\permeability(\omega) = \vacuumpermeability$. 
 Effects like the Magneto-Optical Kerr Effect (MOKE) stem from the deflection of oscillating electrons in a static (DC) magnetic field and are typically modeled by off-diagonal elements in the permittivity tensor, not the permeability.
+Some metamaterials, however, require an non-vacuum permeability to approximate their response with homogeneous material properties. 
 \begin{subequations}
 \begin{eqnarray}
   \Nabla \Dfield &=& \chargedensity 					\\
@@ -304,7 +379,7 @@ From now on, every time we write $\Dfield$, we mean the complex valued $\Dfield_
 \end{subequations}
 
 \section{Poynting Vector}\label{sec:Poynting}
-The Poynting vector is the a real density of energy flow. 
+The Poynting vector is the areal density of energy flow. 
 We want the Poynting vector to be real and stay numerically identical to the quantity derived above 
 for the real valued Maxwell equations in equation \ref{eq:definitionOfPoynting}.
 
@@ -354,7 +429,7 @@ We consider a homogeneous material $\permittivity(\Location) = const.$ We apply 
 \begin{eqnarray}
   \Nabla \times ( \Nabla \times \Efield ) &=& \Nabla \times ( i \omega \vacuumpermeability \Hfield ) 
   \\
-  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k} = -k_0^2 \permittivity_{jk} \scalarEfield_{k}
+  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
 \end{eqnarray}
 This is a differential equation with constant coefficients, so we use the ansatz
 \begin{eqnarray}
@@ -363,11 +438,6 @@ This is a differential equation with constant coefficients, so we use the ansatz
 where the $\Efield_0$ contains polarisation, electric field amplitude and harmonic time dependence.
 With this monochromatic time dependence, $\permittivity_{ij}$ becomes a constant factor 
 and we can replace $\partial_j \to i k_j$. We yield
-\begin{align}
- A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\,.
-\end{align}
-with $A_{ij} = \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + k_0^2 \permittivity_{ij} \right)$.
-More explicit, it reads
 \begin{eqnarray}
 \begin{pmatrix}
  \wavenumber_y^2 + \wavenumber_z^2 - \omega^2 \vacuumpermeability \scalarpermittivity_{xx} 
@@ -391,39 +461,96 @@ More explicit, it reads
 \Efield_0
 &=& 0 \label{eq:generalDispersionEigenEquation}
 \end{eqnarray}
+In component notation, that is
+\begin{align}
+ A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\\
+ A_{ij}          &= \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \vacuumpermeability \permittivity_{ij} \right)
+ \end{align}
 Nontrivial solutions can be found if the determinant of $\hat{A}$ is zero.
+We call wavevectors $\Wavevector$ for which the deterimant vanishes a solution of the dispersion relation.
 In general, each solution $\Wavevector$ is associated with a certain eigenvector direction $\Efield_0$,
 that is, a propagation wavector is only valid for a certain polarisation.
-We use the identity
+
+We regard the determinant as a polynomial form of $\wavenumber_i$.
+\begin{eqnarray}
+ \det \hat{A} &=& P(\Wavevector) = 0
+\end{eqnarray}
+The characteristic polynomial $P$ reads
 \begin{align}
- \det A &= \frac{1}{6} ((\text{tr} A)^3 - 3 (\text{tr} A) \text{tr}(A^2) + 2 \text{tr}(A^3))\,,
+ P &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\relativepermittivity + \gamma) k_0^2 + \Vector{k}^2 \beta \right)\,,\label{eq:determinantinvariant}
 \end{align}
-We also factor out a permittivity of the vacuum from the permittivity tensor 
-$\permittivity_{ij} \to  \vacuumpermittivity \permittivity_{ij}$ and introduce the ``vacuum wave number''
-$k_0 := \frac{2\pi}{\lambda_0} = \frac{\omega}{c} = \omega \sqrt{\vacuumpermeability  \vacuumpermittivity}$.
-and rewrite the determinant
+where $\relativepermittivity$ is the  relative permittivity,
+$\alpha = (\text{tr}\relativepermittivity)^3 - 3 (\text{tr}\relativepermittivity) \text{tr}(\relativepermittivity^2) + 2 \text{tr}(\relativepermittivity^3)$,
+$\beta = \relativepermittivity_{\,ij} k_i k_j$, 
+and
+$\gamma = k_i \relativepermittivity_{\,i\ell} \relativepermittivity_{\,\ell j} k_j$. 
+
+
+\paragraph{Determining one component of $\Wavevector$.}
+
+The wavevector is a three-dimensional, complex valued quantity.
+In the following sections, however, 
+we often face problems where 2 of the 3 components are already fixed and the third component is to be determined.
+In this special case, the characteristic polynomial is a quartic equation in the unknown component $\wavenumber_\perp$.
+We expect up to four different solutions for $\wavenumber_\perp$.
+
+
+\subsection{Wavevector Perturbation}
+
+Assume we found a solution $\Wavevector$. 
+A wavevector close to this solution $\Wavevector + d\Wavevector$ is also a solution, if the polynomial is zero.
+\begin{eqnarray}
+ P(\Wavevector+ d\Wavevector) &=& 0
+\end{eqnarray}
+For small $d\Wavevector$ this holds, if $d\Wavevector$ is not along the gradient of $P$.
+\begin{eqnarray}
+ \left. \textrm{grad} P \right|_\Wavevector \cdot d\Wavevector &=& 0 \label{eq:wavevectorPerturbationObeyingDispersion}
+\end{eqnarray}
+We find the two orthogonal directions using \eqref{eq:normal_to_inplane_vectors}.
+For a solution $d\Wavevector$, any shift of complex phase $e^{i\phi} d\Wavevector$ is also a solution.
+With the perturbed wavevector, also the eigen-polarisation may change.
+
+The gradient reads
 \begin{align}
- \det \hat{A}(\Vector{k}) 
- &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\permittivity + \gamma) k_0^2 + \Vector{k}^2 \beta \right)=0\,,\label{eq:determinantinvariant}
-\end{align}
-where $\alpha = (\text{tr}\permittivity)^3 - 3 (\text{tr}\permittivity) \text{tr}(\permittivity^2) + 2 \text{tr}(\permittivity^3)$,
-$\beta = \permittivity_{ij} k_i k_j$, $\gamma = k_i \permittivity_{i\ell} \permittivity_{\ell j} k_j$. For given $\omega$ this is an equation of fourth order
-for some inplane component of $\Vector{k}$. The first part in the determinant does not depend on $\Vector{k}$. Therefore the differentiation with respect to
-$\Vector{k}$ gives only two terms.
-\begin{align}
- \frac{\partial D}{\partial k_j} &= k_0^2 
-\left[
+ \frac{\partial (\det \hat{A})}{\partial k_j} &= k_0^2 
+\big[
 k_0^2
 \left(
-  \permittivity_{ji} (-(\text{tr}\permittivity) k_i + \permittivity_{i\ell} k_\ell)
-+ \permittivity_{ij} (-(\text{tr}\permittivity) k_i + \permittivity_{\ell i} k_\ell)
-\right)
-+ (\permittivity_{\ell j} + \permittivity_{j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
-\right]
+  \relativepermittivity_{\,ji} (-(\text{tr}\relativepermittivity) k_i + \relativepermittivity_{\,i\ell} k_\ell)
++ \relativepermittivity_{\,ij} (-(\text{tr}\relativepermittivity) k_i + \relativepermittivity_{\,\ell i} k_\ell)
+\right) +
+\nonumber \\
+&+ (\relativepermittivity_{\,\ell j} + \relativepermittivity_{\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
+\big]
+\end{align}
+In case the gradient is the zero vector, the second derivative may become useful:
+\begin{align}
+ \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j} &= 
+k_0^4 \biggl[
+  \permittivity_{\ell i} \permittivity_{j \ell} 
++ \permittivity_{\ell j} \permittivity_{i \ell}
+- (\permittivity_{ij} + \permittivity_{ji}) (\text{tr}\permittivity)
+\biggr] \nonumber\\ 
+&+ k_0^2 \biggl[
+  (\permittivity_{ij} + \permittivity_{ji})\Wavevector^2
++ 2 \delta_{ij} \beta
++ 2 k_\ell ((\permittivity_{\ell i}  + \permittivity_{i \ell}) k_j + (\permittivity_{\ell j} + \permittivity_{j \ell}) k_i)
+\biggr]\,.
 \end{align}
 
+\paragraph{Isotropic, homogenous media.}
+The dispersion in isotropic media reads
+\begin{eqnarray}
+ \Wavevector \cdot \Wavevector &=& \Wavevector_{pilot} \cdot \Wavevector_{pilot} = \omega^2 \vacuumpermeability \scalarpermittivity
+\end{eqnarray}
+wavevector changes must fulfill
+\begin{eqnarray}
+ d\Wavevector \cdot \Wavevector &=& 0 + 0i
+\end{eqnarray}
+
+
 \subsection{Uniaxial anisotropic, homogeneous media}
-Uniaxial anisotropic media are media with one axis, along which the permittivity takes an extraordinary value, 
+Uniaxial anisotropic media are media with one axis along which the permittivity takes an extraordinary value, 
 and a degenerate permittivity along the other two directions in space.
 The direction along which the extraordinary permittivity occurs is often called \emph{optical axis}. 
 In this manual, we use the term \emph{extraordinary direction} $\Vector{e}_{eo}$, to avoid confusion with the symmetry axis of radially symmetric lens systems in technical optics.
@@ -442,6 +569,7 @@ Without loss of generality, we choose our coordinate system so that the extraord
 \end{eqnarray}
 
 We further rotate the coordinate system in the degenerate $xy$ plane so that $\wavenumber_y = 0$.
+\remark{Can a rotation by a real valued angle set real and imaginary part of k zero ?}
 The eigenvalue equation \ref{eq:generalDispersionEigenEquation} simplifies to
 
 \begin{eqnarray}
@@ -573,17 +701,17 @@ We introduce the refractive index $n$ as
 In general, there are two roots. 
 The choice of the root does not change anything in optics based on the Maxwell equations, as the permittivity is the only physically relevant quantity.
 
-
-
+There is a convention to indicate negative permeability and negative permittivity with a negative sign of the index.
+\remark{TODO: rewrite all formulas for non-vacuum permeabilities}
 
 \section{Boundary Conditions}
-Considering two media $\permittivity_1$ and $\permittivity_2$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
+Considering two media $\permittivity_\materialone$ and $\permittivity_\materialtwo$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
 \begin{subequations}
 \begin{eqnarray}
- ( \Dfield_2 - \Dfield_1 ) \Vector{n} &=& 0 \\
- ( \Bfield_2 - \Bfield_1 ) \Vector{n} &=& 0 \\
- \Vector{n} \times ( \Efield_2 - \Efield_1 ) &=& 0 \\
- \Vector{n} \times ( \Hfield_2 - \Hfield_1 ) &=& 0 
+ ( \Dfield_\materialtwo - \Dfield_\materialone ) \Vector{n} &=& 0 \\
+ ( \Bfield_\materialtwo - \Bfield_\materialone ) \Vector{n} &=& 0 \\
+ \Vector{n} \times ( \Efield_\materialtwo - \Efield_\materialone ) &=& 0 \\
+ \Vector{n} \times ( \Hfield_\materialtwo - \Hfield_\materialone ) &=& 0 
 \end{eqnarray}
 \label{eq:boundary_conditions} 
 \end{subequations}
@@ -598,7 +726,7 @@ the boundary conditions hold at each interface between homogeneous materials of 
 \subsection{Derivation}
 We consider a plane wave incident on a planar boundary between two homogeneous materials.
 The incident plane wave projects a grating on the boundary plane. 
-The fields $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permittivity_1$ are modulated with the in-plane component of the wavevector. 
+The fields $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permittivity_\materialone$ are modulated with the in-plane component of the wavevector. 
 \begin{eqnarray}
  \Dfield_{in}, \Efield_{in} &\propto& \exp( i \Wavevector_{in\parallel} \Location)|_{boundary} \\
  \Wavevector_{in\perp} &=& ( \Wavevector_{in} \Vector{n} ) \Vector{n} \\
@@ -627,14 +755,14 @@ In each medium, there are 2 solutions transporting energy towards the boundary,
 and 2 solutions transporting energy from it (see figure \ref{fig:boundary_wavevectors}).
 The modes can be distinguished by analyzing the direction of the Poynting vector relative to the surface normal,
 $\Vector{S}\cdot\Vector{n}>0$ or $\Vector{S}\cdot\Vector{n}<0$.
-In the scenario we consider, we have a single incident plane wave from medium $1$, 
+In the scenario we consider, we have a single incident plane wave from medium $\materialone$, 
 and we discard the 3 remaining solutions transporting energy towards the boundary.
 This leaves 5 modes: One incident plane wave splits up into 2 reflected modes and 2 refracted modes.
-We consider the electric fields $\Efield_{1,2}$ on both sides of the boundary
+We consider the electric fields $\Efield_{\materialone,\materialtwo}$ on both sides of the boundary
 \begin{subequations}
 \begin{eqnarray}
- \Efield_1(\Location) &=& \Efield_{in,0} \exp(i \Wavevector_{in} \Location) + \Efield_{r1,0} \exp(i \Wavevector_{r1} \Location) + \Efield_{r2,0} \exp(i \Wavevector_{r2} \Location)  \\
- \Efield_2(\Location) &=& \Efield_{t1,0} \exp(i \Wavevector_{t1} \Location) + \Efield_{t2,0} \exp(i \Wavevector_{t2} \Location)
+ \Efield_\materialone(\Location) &=& \Efield_{in,0} \exp(i \Wavevector_{in} \Location) + \Efield_{r1,0} \exp(i \Wavevector_{r1} \Location) + \Efield_{r2,0} \exp(i \Wavevector_{r2} \Location)  \\
+ \Efield_\materialtwo(\Location) &=& \Efield_{t1,0} \exp(i \Wavevector_{t1} \Location) + \Efield_{t2,0} \exp(i \Wavevector_{t2} \Location)
 \end{eqnarray}
 \label{eq:modes_on_boundary} 
 \end{subequations}
@@ -643,8 +771,8 @@ Each term on the right hand side stands for a mode, represented by its amplitude
 We consider the incident mode $\Wavevector_{in}$, 
 the two reflected modes $\Wavevector_{r1,2}$,
 and the two refracted or transmitted modes $\Wavevector_{t1,2}$.
-For isotropic media 1, the modes $\Wavevector_{r1,2}$ degenerate. 
-The same holds for $\Wavevector_{t1,2}$ in isotropic media 2.
+For isotropic media $\materialone$, the wavevectors $\Wavevector_{r1,2}$ are degenerate. 
+The same holds for $\Wavevector_{t1,2}$ in isotropic media $\materialtwo$.
 
 \subsection{The Law of Refraction}
 Our formulation of the law of refraction and the law of reflection is
@@ -657,13 +785,13 @@ Compared to the law of Snellius, this formulation bears the following advantages
 \begin{itemize}
  \item It does not require the calculation of angles in 3D space, only scalar products.
  \item The incident wavevector can be modelled as a property of the ray. When calculating the refracted wavevector, 
-       the dispersion relation in material $\permittivity_1$ is not required.
+       the dispersion relation in material $\permittivity_\materialone$ is not required.
        This allows to isolate methods in object-oriented programming and a modular design.
  \item It is not required to implement a different law of refraction for each \emph{pair} of material classes interfacing 
        (isotropic, uniaxial anisotropic, biaxial anisotropic, magnetooptic, ...),
        where the number of implementations increases quadratically with the number of material classes.
-       Instead, the effort of solving the material dispersion increases linearly.
- \item We can calculate with complex valued permittivities, that is, lossy materials.
+       Instead, the implementation effort increases linearly.
+ \item We can calculate with complex valued permittivities of lossy materials.
        The law of Snellius coincides with the Maxwell equations for real valued positive refractive indices only.
  \item We can handle anisotropic materials.
 \end{itemize}
@@ -672,12 +800,12 @@ This calculation can, for certain types of anisotropic materials, be complicated
 
 \subsubsection{isotropic media}
 \begin{align}
- \xi = \sqrt{k_0^2 \epsilon_2 - \Wavevector_{1\,\parallel}^2}
+ \xi = \pm \sqrt{\omega^2 \vacuumpermeability \scalarpermittivity_\materialtwo - \Wavevector_{\parallel}^2}
 \end{align}
 
-where $\Wavevector_{1\,\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself.
-It is not the absolute of the wavevector component and may be complex valued for lossy materials.
-
+where $\Wavevector_{\parallel}^2$ is the scalar product of the in-plane wavevector projection with itself, 
+not the absolute square of the wavevector component.
+The sign of the solution is to be chosen depending on whether the mode shall transport energy towards or away from the interface.
 
 \subsubsection{uniaxial anisotropic}
 The ordinary mode behaves like the isotropic solution.
@@ -688,8 +816,8 @@ The material dispersion of the extraordinary mode, equation \ref{eq:uniaxialAnis
  + \wavenumber_{z}^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
  &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
  \\
- (\Wavevector_{1\,\parallel}^2 + \xi^2) \scalarpermittivity_{\ordi} 
- + (\Wavevector_{1\,\parallel} \Vector{e}_{\eo} + \xi \Vector{n}\Vector{e}_{\eo})^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
+ (\Wavevector_{\parallel}^2 + \xi^2) \scalarpermittivity_{\ordi} 
+ + (\Wavevector_{\parallel} \Vector{e}_{\eo} + \xi \Vector{n}\Vector{e}_{\eo})^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
  &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo}  
 \end{eqnarray}
 This is a quadratic equation in $\xi$.
@@ -699,10 +827,10 @@ This is a quadratic equation in $\xi$.
  c_2 &=& \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Vector{n}\Vector{e}_{\eo})^2
  \nonumber 
  \\
- c_1 &=& 2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo}) (\Vector{n}\Vector{e}_{\eo})
+ c_1 &=& 2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{\parallel} \Vector{e}_{\eo}) (\Vector{n}\Vector{e}_{\eo})
  \nonumber 
  \\
- c_0 &=& \Wavevector_{1\,\parallel}^2 \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{1\,\parallel} \Vector{e}_{\eo})^2 
+ c_0 &=& \Wavevector_{\parallel}^2 \scalarpermittivity_{\ordi} + (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi}) (\Wavevector_{\parallel} \Vector{e}_{\eo})^2 
        - \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
  \nonumber
 \end{eqnarray}
@@ -723,7 +851,6 @@ with
  c_0 &= \frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5
 \end{align}
 with
-\newcommand{\kpa}[1]{{k_{\parallel\,#1}}}
 \begin{subequations}
 \begin{align}
 \tilde{\omega} &= \omega \sqrt{\mu_0}\\
@@ -743,11 +870,8 @@ with
 
 
 
-
-
-
-
 \subsection{Fresnel Coefficients}
+\subsubsection{general case}
 Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarizations
 \begin{subequations}
 \begin{eqnarray}
@@ -764,7 +888,7 @@ We combine the boundary conditions \ref{eq:boundary_conditions} and \ref{eq:mode
 \begingroup \small
 \begin{subequations}
 \begin{align}
-   - ( \permittivity_1 \Vector{e}_{r1}) \Vector{n} E_{r1,0} &-& ( \permittivity_1 \Vector{e}_{r2}) \Vector{n} E_{r2,0} &+& ( \permittivity_2 \Vector{e}_{t1} ) \Vector{n} E_{t1,0} &+& ( \permittivity_2 \Vector{e}_{t2} ) \Vector{n} E_{t2,0} &=& \Dfield_{in} \Vector{n} \label{eq:fresneldn}\\
+   - ( \permittivity_\materialone \Vector{e}_{r1}) \Vector{n} E_{r1,0} &-& ( \permittivity_\materialone \Vector{e}_{r2}) \Vector{n} E_{r2,0} &+& ( \permittivity_\materialtwo \Vector{e}_{t1} ) \Vector{n} E_{t1,0} &+& ( \permittivity_\materialtwo \Vector{e}_{t2} ) \Vector{n} E_{t2,0} &=& \Dfield_{in} \Vector{n} \label{eq:fresneldn}\\
    - ( \Vector{e}_{r1} \times \Vector{n} )         E_{r1,0} &-& ( \Vector{e}_{r2} \times \Vector{n} )         E_{r2,0} &+& ( \Vector{e}_{t1} \times \Vector{n} )          E_{t1,0} &+& ( \Vector{e}_{t2} \times \Vector{n} )          E_{t2,0} &=& \Efield_{in} \times \Vector{n} \label{eq:fresnelEcrossn} \\
    - ( \Wavevector_{r1} \times \Vector{e}_{r1} )   E_{r1,0} &-& ( \Wavevector_{r2} \times \Vector{e}_{r2} )   E_{r2,0} &+& ( \Wavevector_{t1} \times \Vector{e}_{t1} )    E_{t1,0} &+& ( \Wavevector_{t2} \times \Vector{e}_{t2} )    E_{t2,0} &=& \Wavevector_{in} \times \Efield_{in} \label{eq:fresnelkE}
 \end{align}
@@ -781,115 +905,253 @@ First, we split up the mode label $M$ into two indices $\alpha=1,2$ and $\beta=r
 This allows us to abbreviate the equation system to
 \begin{subequations}
   \begin{align}
-    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}                   \label{eq:FresnelSystemEq1} \\
+    \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}                   \label{eq:FresnelSystemEq1} \\
     \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) E_{\beta\alpha,0} &= \Efield_{in} \times \Vector{n}                        \label{eq:FresnelSystemEq2} \\
     \sum_{\alpha=1,2\;\beta=r,t} \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) E_{\beta\alpha,0} &=  \Wavevector_{in} \times \Efield_{in} \label{eq:FresnelSystemEq3}
   \end{align}
 \end{subequations}
 where $\varsigma$ represents the sign of each term.
 $\varsigma_t=1$ for transmitted terms and $\varsigma_r=-1$ for reflected ones.
-We introduce a basis, consisting of the directions of $\Vector{n}$, $\Wavevector_\parallel$, and $\Vector{n} \times \Wavevector_\parallel$.
-We decompose both vectorial equation in this basis and obtain
+We introduce a cartesian base, 
+consisting of the directions of the normal direction $\Vector{n}$, 
+and two in-plane directions $\Vector{e}_X$ and $\Vector{e}_Y$.
+We decompose both vectorial equation in this base and obtain
 \begin{subequations}
   \begin{align}
-    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
     0 &= 0 \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n} \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Wavevector_\parallel \\
-    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_X \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_Y \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n} \label{eq:fresnelTripleProductSubEq}\\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta ( \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
-We represent wavevectors as $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$, yielding
+We represent wavevectors as 
+$\Wavevector_{\beta\alpha} = \wavenumber_{X} \Vector{e}_X + \wavenumber_{Y} \Vector{e}_Y + \xi_{\beta\alpha} \Vector{n}$
+and permute the triple product in \eqref{eq:fresnelTripleProductSubEq}, yielding
 \begin{subequations}
   \begin{align}
-    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \label{eq:fresnelFirstTripleProduct}\\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) (\Vector{n} \times \Wavevector_\parallel) \\
-    \varsigma_\beta ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) \Vector{n} E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})\Vector{n} \label{eq:fresnelSecondTripleProduct}\\
-    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel \\
-    \varsigma_\beta 
-        \left(
-          ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) 
-          (\Vector{n} \times \Wavevector_\parallel) 
-          +
-          \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) 
-          (\Vector{n} \times \Wavevector_\parallel)           
-        \right)
-        E_{\beta\alpha,0} &= (\Wavevector_\parallel \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel) + \xi_{in} (\Vector{n} \times \Efield_{in})(\Vector{n} \times \Wavevector_\parallel)
+    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_X E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_X \label{eq:fresnelXEq}\\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Vector{e}_Y E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Vector{e}_Y \label{eq:fresnelYEq}\\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_{\parallel} E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_{\parallel} \label{eq:fresnelParallelEq}\\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_Y \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X  + \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_X) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_X \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y  + \xi_{\beta\alpha} ( \Vector{n} \times \Vector{e}_{\beta\alpha} ) \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
   \end{align}
 \end{subequations}
-Permuting the triple products, one sees that \eqref{eq:fresnelFirstTripleProduct} and \eqref{eq:fresnelSecondTripleProduct} are linearly dependent.
-We decide to remove \eqref{eq:fresnelSecondTripleProduct} from our equation system.
-We evaluate
+One can see that \eqref{eq:fresnelParallelEq} is a linear combination of \eqref{eq:fresnelXEq} and \eqref{eq:fresnelYEq},
+so we remove this redundant equation.
+Our coordinate system is cartesian, so we employ $\Vector{e}_X \times \Vector{e}_Y = \Vector{n}$ and get rid of the cross products
+\begin{subequations}
+  \begin{align}
+    \varsigma_\beta (\permittivity_\beta \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \label{eq:fresnelLastToSkip}\\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left(-\wavenumber_X ( \Vector{e}_{\beta\alpha} \Vector{n} )  + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
+  \end{align}
+\end{subequations}
+We use the Helmholtz equation \eqref{eq:generalDispersionEigenEquationindex}
 \begin{eqnarray}
-  ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) (\Vector{n} \times \Wavevector_\parallel)            &=& - (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) \\
-  ( \Wavevector_\parallel \times \Vector{e}_{\beta\alpha} ) (\Vector{n} \times \Wavevector_\parallel) &=& - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} )
+ \forall \alpha, \beta : \omega^2 \vacuumpermeability \scalarpermittivity_{\beta ij} \Vector{e}_{\beta \alpha j} 
+ &=&
+ \left(
+   \wavenumber_m \wavenumber_m \delta_{ni}
+   -
+   \wavenumber_i \wavenumber_n
+ \right)
+ \Vector{e}_{\beta \alpha n} 
 \end{eqnarray}
-and obtain
+on the first equation \eqref{eq:fresnelLastToSkip} and multiply the last two equations 
+with $\wavenumber_Y$ and $-\wavenumber_X$, respectively.
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta  \left(   \wavenumber_m \wavenumber_m \delta_{ij} - \wavenumber_i \wavenumber_j   \right) e_{\beta\alpha j} n_i E_{\beta\alpha,0} &= \omega^2 \vacuumpermeability \Dfield_{in} \Vector{n} \\
+%    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+%    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+%    \varsigma_\beta \left( \wavenumber_Y^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_Y \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &=  \wavenumber_Y (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+%    \varsigma_\beta \left( \wavenumber_X^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_X \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -\wavenumber_X (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y
+%  \end{align}
+%\end{subequations}
+\begin{subequations}
+  \begin{align*}
+    \varsigma_\beta \left( ( \wavenumber_X^2 + \wavenumber_Y^2 ) (\Vector{e}_{\beta\alpha} \Vector{n}) - \xi_{\beta\alpha} \wavenumber_X (\Vector{e}_{\beta\alpha} \Vector{e}_X) - \xi_{\beta\alpha} \wavenumber_Y (\Vector{e}_{\beta\alpha} \Vector{e}_Y  \right) E_{\beta\alpha,0} &= \omega^2 \vacuumpermeability \Dfield_{in} \Vector{n} \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_Y^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_Y \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &=  \wavenumber_Y (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X \\
+    \varsigma_\beta \left( \wavenumber_X^2 ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \wavenumber_X \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -\wavenumber_X (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y 
+  \end{align*}
+\end{subequations}
+The first equation is the sum of the last two, so we may remove any of these three from our system of equations.
+But which one is best to choose ?
+
+We consider the first equation, \eqref{eq:fresnelLastToSkip}, in the special case of isotropic materials and normal incidence,
+$\Wavevector_{in} \propto \Vector{n}$.
+In this case, both (conserved) in-plane components $\wavenumber_X, \wavenumber_Y$ are zero for all modes.
+Applying the Gau\ss\,law \eqref{eq:MaxwellNablaD} to isotropic materials, $\scalarpermittivity \Nabla \Efield = 0$, we conclude that 
+all modes $\Vector{e}_{\beta\alpha}$ are orthogonal to the wavevector and thus to the surface normal,
+$\Vector{e}_{\beta\alpha} \Vector{n} = 0$.
+I this special case, equation \eqref{eq:fresnelLastToSkip} reduces to
+\begin{eqnarray*}
+ 0 &=& 0
+\end{eqnarray*}
+which is of limited help in solving the system. 
+The special case we chose is quite common, for example as on-axis ray in all centro-symmetric systems made of glass.
+Thus we decide to remove equation \eqref{eq:fresnelLastToSkip} and yield our final system
 \begin{subequations}
   \begin{align}
-    \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n} \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= (\Efield_{in} \times \Vector{n}) \Wavevector_\parallel \\ 
-    \varsigma_\beta \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \times \Vector{n} ) \Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} ( \Efield_{in} \times \Vector{n} )\Wavevector_\parallel \\
-    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Wavevector_\parallel) E_{\beta\alpha,0} &= \Efield_{in} \Wavevector_\parallel \\
-    \varsigma_\beta 
-        \left(
-          - ( \Wavevector_\parallel \Wavevector_\parallel ) ( \Vector{e}_{\beta\alpha} \Vector{n} ) 
-          + \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Wavevector_\parallel)           
-        \right)
-        E_{\beta\alpha,0} &= - (\Wavevector_\parallel \Wavevector_\parallel) (\Efield_{in}\Vector{n} ) + \xi_{in} (\Efield_{in} \Wavevector_\parallel)
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_X) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta (\Vector{e}_{\beta\alpha} \Vector{e}_Y) E_{\beta\alpha,0} &= \Efield_{in} \Vector{e}_Y \\
+    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_X) \right) E_{\beta\alpha,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y \\
+    \varsigma_\beta \left( \wavenumber_Y ( \Vector{e}_{\beta\alpha} \Vector{n} )  - \xi_{\beta\alpha} ( \Vector{e}_{\beta\alpha} \Vector{e}_Y) \right) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
   \end{align}
 \end{subequations}
 
-\remark{I don't see which equations are still dependent, so it is allowed to go from 5 to 4 equations.}
+Note that the square or absolute square of the field amplitude $E_{\beta\alpha}$ 
+is \emph{not} the energy flow $\Vector{S}$.
+Waves of equal electric field amplitude in dense flint and light crown glasses have a different Poynting vector magnitude.
 
 
-
-If one rearranges the cross products in \eqref{eq:fresnelkE} the other way around and decomposes the $\Wavevector_\alpha$ into in-plane and off-plane components this
-equation could be split up into a scalar part and an in-plane part which could be combined with \eqref{eq:fresnelEcrossn}
-To decompose all equations into the appropriate components, 
-the only useful basis is $\Vector{n}$ (which is fixed and given in our considerations), 
-$\Wavevector_\parallel$ (which is conserved) 
-and a component perpendicular to both (which is also inplane) $\Vector{n}\times\Wavevector_\parallel$. 
-Therefore we perform the following steps:
-\begin{enumerate}
- \item Decomposition of the last two equations into appropriate inplane components
- \item Rearrangement of all equations into two off-plane equations and two in-plane equations
-\end{enumerate}
-First of all we decompose the wavevector in the last equation
-\begin{align}
-  \Wavevector_{\beta\alpha} \times \Vector{e}_{\beta\alpha} = -\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel - \xi_{\beta\alpha} \Vector{e}_{\beta\alpha} \times \Vector{n}
-\end{align}
-From this we get the second off-plane equation by scalar product multiplying with $\Vector{n}$:
-\begin{align}
- \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}
-\end{align}
-Now we multiply both last equations by $\xi_{in} \Wavevector_\parallel$ and $\Wavevector_\parallel$ respectively and decompose $\Wavevector_{in} = \Wavevector_\parallel + \xi_{in} \Vector{n}$,
-\begin{align}
-  \varsigma_\beta \xi_{in}(\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= \xi_{in} (\Efield_{in} \times \Vector{n})\Wavevector_\parallel \\
-  \varsigma_\beta ( -\xi_{\beta\alpha} (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel) E_{\beta\alpha,0} &=  \xi_{in} (\Vector{n} \times \Efield_{in})\Wavevector_\parallel
-\end{align}
-Adding them both up leads to
-\begin{align}
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,.
-\end{align}
-Same argument is valid for $(\Vector{n}\times\Wavevector_\parallel)$ component and therefore leads to
-\begin{align}
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0\,.
-\end{align}
-Therefore the final matrix equations are given by
+\subsubsection{isotropic media}
+We assume the boundary between two isotropic media.
+Without loss of generality, we rotate our coordinate system so that $\wavenumber_Y = 0$.
+In isotropic media, the modes are orthogonal to the wavevectors $\Vector{e}_{\beta\alpha} \perp \Wavevector_{\beta\alpha}$.
+Both solutions $\alpha$ have a degenerate wavevector.
+We choose the modes $\alpha \in \{ \spol, \ppol \}$
+\begin{eqnarray}
+ \Vector{e}_{\spol} &=& \Vector{e}_Y \\
+ \Vector{e}_{\beta\,\ppol} &=& \frac{\xi_\beta \Vector{e}_X - \wavenumber_X \Vector{n}}{\normconst_\beta} 
+\end{eqnarray}
+where $\normconst_\beta = \sqrt{ \xi_\beta \overline{\xi_\beta} + \wavenumber_X \overline{\wavenumber_X}}$ is a normalization constant, ensuring $|\Vector{e}_{\beta\,\ppol}|=1$.
+In lossless media, the normalization constant $\normconst$ is equal to the refractive index times the vacuum wavenumber
+$\wavenumber_0 n = \sqrt{ \xi_\beta^2 + \wavenumber_X^2}$.
+The equation system simplifies to
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta (\Vector{e}_{\beta \ppol} \Vector{e}_X) E_{\beta \ppol,0} &= \Efield_{in} \Vector{e}_X \\
+%    \varsigma_\beta E_{\beta \spol,0} &= \Efield_{in} \Vector{e}_Y \\
+%    \varsigma_\beta \left( \wavenumber_X ( \Vector{e}_{\beta \ppol} \Vector{n} ) - \xi_{\beta} ( \Vector{e}_{\beta \ppol} \Vector{e}_X) \right) E_{\beta\ppol,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y  \\
+%    \varsigma_\beta \left(  - \xi_{\beta} E_{\beta \spol,0} \right) &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
+%  \end{align}
+%\end{subequations}
 \begin{subequations}
-\label{eq:fresnelfinal}
-\begin{align}
-  \varsigma_\beta (\permittivity_\alpha \Vector{e}_{\beta\alpha})\Vector{n} E_{\beta\alpha,0} &= \Dfield_{in} \Vector{n}\,, \label{eq:fresnelfinaldn}\\  
-  \varsigma_\beta ( -(\Vector{e}_{\beta\alpha} \times \Wavevector_\parallel) \Vector{n} ) E_{\beta\alpha,0} &= (\Wavevector_{in} \times \Efield_{in})\Vector{n}\,, \label{eq:fresnelfinalkEn}\\  
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )\Wavevector_\parallel E_{\beta\alpha,0} &= 0\,, \label{eq:fresnelfinalinplanek} \\
-  \varsigma_\beta (\xi_{in}  -\xi_{\beta\alpha}) (\Vector{e}_{\beta\alpha} \times \Vector{n} )(\Vector{n} \times \Wavevector_\parallel) E_{\beta\alpha,0} &= 0 \label{eq:fresnelfinalinplanencrossk}\,.
-\end{align}
+  \begin{align}
+    \varsigma_\beta \frac{\xi_\beta}{\normconst_\beta}  E_{\beta \ppol,0} &= \Efield_{in} \Vector{e}_X \\
+    \varsigma_\beta E_{\beta \spol,0} &= \Efield_{in} \Vector{e}_Y \\
+    - \varsigma_\beta \frac{\xi_\beta^2 + \wavenumber_X^2}{\normconst_\beta} E_{\beta\ppol,0} &= -(\Wavevector_{in} \times \Efield_{in}) \Vector{e}_Y  \\
+    - \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= (\Wavevector_{in} \times \Efield_{in}) \Vector{e}_X 
+  \end{align}
 \end{subequations}
-\remark{needs check whether these 4 equations are independent !}
+
+
+
+\paragraph{s-polarized incidence.}
+We choose s-polarized incident light 
+\begin{eqnarray}
+\Efield_{in} &=& E_{in} \Vector{e}_Y 
+\end{eqnarray}
+and yield
+%\begin{subequations}
+%  \begin{align}
+%    \varsigma_\beta \frac{\xi_\beta}{\wavenumber_0 n_\beta}  E_{\beta \ppol,0} &= 0 \\
+%    \varsigma_\beta E_{\beta \spol,0} &= E_{in} \\
+%    \varsigma_\beta \wavenumber_0 n_\beta E_{\beta\ppol,0} &= 0  \\
+%    \varsigma_\beta \xi_{\beta} E_{\beta \spol,0} &= \xi_{in} E_{in}
+%  \end{align}
+%\end{subequations}
+%\begin{subequations}
+%  \begin{align}
+%    \frac{\xi_t}{\wavenumber_0 n_\materialtwo}  E_{t \ppol,0} 
+%  - \frac{\xi_r}{\wavenumber_0 n_\materialone}  E_{r \ppol,0} &= 0 
+%  \\
+%    E_{t \spol,0} - E_{r \spol,0} &= E_{in} 
+%  \\    
+%    \wavenumber_0 n_\materialtwo E_{t \ppol,0} 
+%  - \wavenumber_0 n_\materialone E_{r \ppol,0} &= 0  
+%  \\
+%    \xi_{t} E_{t \spol,0} 
+%  - \xi_{r} E_{r \spol,0} &= \xi_{in} E_{in}
+%  \end{align}
+%\end{subequations}
+\begin{subequations}
+  \begin{eqnarray}
+    E_{t \ppol,0} &=& 0 \\
+    E_{r \ppol,0} &=& 0 \\ 
+    E_{t \spol,0} &=& \frac{ 2 \xi_{in}        }{\xi_{in} + \xi_t} E_{in} \\
+    E_{r \spol,0} &=& \frac{ \xi_{in} - \xi{t} }{\xi_{in} + \xi_t} E_{in} 
+  \end{eqnarray}
+\end{subequations}
+For lossless media, and the choice of the root $n_\beta > 0$, 
+we replace $\xi_\beta = \wavenumber_0 n_\beta \cos \theta_\beta$, where $\theta$ is the ray direction
+and yield the textbook Fresnel formulas \cite{Jackson, BornWolf}
+\begin{subequations}
+  \begin{eqnarray}
+    E_{t \spol,0} &=& \frac{ 2 n_\materialone \cos \theta_{in} }
+                           { n_\materialone \cos \theta_{in} + n_\materialtwo \cos \theta_t } E_{in}  
+    \\[2ex]
+    E_{r \spol,0} &=& \frac{ n_\materialone \cos \theta_{in} - n_\materialtwo \cos \theta_t }
+                           { n_\materialone \cos \theta_{in} + n_\materialtwo \cos \theta_t } E_{in} 
+  \end{eqnarray}
+\end{subequations}
+
+
+
+\paragraph{p-polarized incidence.}
+We choose p-polarized incident light 
+\begin{eqnarray}
+\Efield_{in} &=& \frac{\xi_{in} \Vector{e}_X - \wavenumber_X \Vector{n}}{\normconst_{in}} E_{in} 
+\end{eqnarray}
+and yield
+
+\begin{subequations}
+\begin{eqnarray}
+    E_{r \spol,0} &=& 0 \\ 
+    E_{t \spol,0} &=& 0 \\
+    E_{r \ppol,0} 
+    &=&
+    \frac{
+      \scalarpermittivity_\materialtwo \xi_{in} 
+      -
+      \scalarpermittivity_\materialone \xi_t
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+  \\
+    E_{t \ppol,0} 
+    &=& 
+    \frac{\normconst_t}{\normconst_{in}}
+    \cdot
+    \frac{
+      2 \scalarpermittivity_\materialone \xi_{in}
+    }
+    {
+      \scalarpermittivity_\materialtwo \xi_{in}
+      +
+      \scalarpermittivity_\materialone \xi_t 
+    }
+    E_{in} 
+\end{eqnarray}
+\end{subequations}
+
+
+For lossless media, and the choice of the root $n_\beta > 0$, 
+we replace $\xi_\beta = \wavenumber_0 n_\beta \cos \theta_\beta$, where $\theta$ is the ray direction
+and yield the textbook Fresnel formulas \cite{Jackson, BornWolf}
+\begin{subequations}
+  \begin{align}
+    E_{r \ppol,0} &= \frac{ n_\materialtwo \cos \theta_{in} - n_\materialone \cos \theta_t }
+                          { n_\materialtwo \cos \theta_{in} + n_\materialone \cos \theta_t } E_{in}
+  \\
+    E_{t \ppol,0} &= \frac{ 2 n_\materialone \cos \theta_{in} }
+                          {   n_\materialtwo \cos \theta_{in} + n_\materialone \cos \theta_t } E_{in}
+  \end{align}
+\end{subequations}
+
 
 \subsection{Summary}
 We can calculate reflection and refraction wavevectors and their Fresnel coefficients the following way:
@@ -897,30 +1159,23 @@ We can calculate reflection and refraction wavevectors and their Fresnel coeffic
  \item Intersect ray with surface, determine local surface normal $\Vector{n}$ and incident in-plane wavevector component $\Wavevector_\parallel$
  \item Calculate all 4 wavevector solutions $\xi$ for the conserved in-plane wavevector component $\Wavevector_\parallel$ 
        according to material dispersion \eqref{eq:generalDispersionEigenEquationindex} in each material
- \item For each solution $\xi$, calculate the eigen-polarisation $\Vector{e}_{\beta\alpha}$ and corresponding $\Dfield$-field $\permittivity_{\alpha} \Vector{e}_{\beta\alpha}$.
+ \item For each solution $\xi$, calculate the eigen-polarisation $\Vector{e}_{\beta\alpha}$.
        The eigen-polarisations are the eigenvectors of the dispersion relation \eqref{eq:generalDispersionEigenEquationindex}.
  \item Construct refracted and reflected wavevectors $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$
  \item Choose 2 the solutions in each material $\alpha$ carrying energy away from the surface
        \remark{todo: consider the case of gain media}
  \item From $\xi$s, eigen vectors and incident ray properties calculate the Fresnel coefficients \eqref{eq:fresnelfinal}.
-       The Fresnel coefficients determine the amplitude of each mode $\beta\alpha$ and thus the amount of energy transferred into each mode.
+       The Fresnel coefficients determine the amplitude of each mode $\beta\alpha$ 
+       and allow to calculate the amount of energy transferred into each mode.
 \end{enumerate}
-\remark{
-  implementation suggestion: The ray asks the opticalSystem to perform a raytrace.
-  The opticalSystem asks the opticalElement to perform a raytrace within the element.
-  During that, the opticalElement must perform (several) refractions. 
-  The opticalElement knows both materials of the refraction surface. 
-  Both materials must independently solve their dispersion relation and provide $\Wavevector, \Vector{e}, \permittivity\Vector{e}$.
-  The opticalElement chooses 2 out of 4 modes from each material and combines the data from both materials to the Fresnel equation system.
-}
 
 
 \chapter{Geometrical Optics}
-In geometrical optics, we assume that radiation is propagated in rays, that are thin, collimated beams. 
+In geometrical optics, we assume that radiation is propagated in rays. Rays are thin, collimated beams. 
 We assume that the rims of these beams are negligible compared to the central area. 
-Further we assume that all rays are much smaller than the characteristic length of surface curvatures and 
+Further we assume that all rays are much thinner than the characteristic length of surface curvatures and 
 all surfaces are locally approximated planar on the cross-section area of a ray.
-That is, rays act on surfaces like plane waves, and we neglect diffraction at the rims of the finite sized beams.
+Rays act on surfaces like plane waves, and we neglect diffraction effects at the rims of the finite sized beams.
 Even in cases where the assumptions are not completely fulfilled, its accuracy compared to experiments is 
 astonishing and lead to the great success of technical optics.
 However, the optical designer has to check for each calculation whether the ray approximation is justified.
@@ -955,7 +1210,8 @@ The rays emitted by any non-zero field point that hit the border of the stop are
 A ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
 Often, the chief ray is approximated to be the central ray in the transmitted ray bundle emitted by a field point.
 
-We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
+We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, 
+and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
 
 We divide an optical system in two groups -- elements in front of and behind the stop. 
 We consider both groups of optical elements as systems imaging the stop.
@@ -971,7 +1227,7 @@ Care has to be taken if the front lens group imaging the stop to the pupil suffe
 
 
 \section{Direction of rays}
-We assume rays propagate along the direction of energy transport, that is, the direction of the Poynting vector.
+We assume rays propagate along the direction of energy transport.
 We assign a unit direction vector $\Vector{d}$ to each ray.
 The direction vector points in the direction of the time averaged Poynting vector.
 \begin{eqnarray}
@@ -1275,7 +1531,7 @@ We obtain in close analogy to the image sided focal length
 In systems with classical lens elements only and without immersion, 
 we find equal focal lengths on object and image side. The determinant of the ABCD matrix is then equal to one.
 
-\subsubsection{Finite Conjguate Systems}
+\subsubsection{Finite Conjugate Systems}
 In object sided finite conjugate systems, each point in object space $y_{obj}$ is a field point, 
 emitting a cone of rays $y_{obj}^{\,\prime}$.
 
@@ -1292,7 +1548,7 @@ $A$ is unitless.
 Once the imaging condition is fulfilled, all rays originating from an object field point are focused stigmatically to the corresponding image point. 
 The ABCD formalism calculates first order properties only.
 If the ABCD matrices are calculated with a corresponding dispersion model, lateral and transversal first order chromatic aberrations can be modeled.
-Also, the paraxial ABCD ray trace may be the basis for calculating the Seidel coefficients.
+Also, the paraxial ABCD ray trace may be the base for calculating the Seidel coefficients.
 
 In case $B$ is nonzero, the imaging condition can often be achieved by changing an air gap size. Most often the image sided distance is refocused.
 \begin{eqnarray}
@@ -1323,7 +1579,7 @@ The magnifictaion $\tilde{A}$ after refocusing is
 
 
 
-\subsubsection{Infinite to Finite Conjguate Systems}
+\subsubsection{Infinite to Finite Conjugate Systems}
 In object sided infinite conjugate systems, each direction in object space $y^{\,\prime}_{obj}$ corresponds to a field point, 
 emitting a collimated bundle of rays.
 
@@ -1347,7 +1603,7 @@ In systems with classical lens elements only and no immersion, the determinant o
 \end{eqnarray}
 
 
-\subsubsection{Finite to Infinite Conjguate Systems}
+\subsubsection{Finite to Infinite Conjugate Systems}
 In image sided infinite conjugate systems, each point in object space $y_{obj}$ emits a cone of rays, 
 that is collimated by the optical system.
 
@@ -1384,7 +1640,7 @@ The magnifictaion $\tilde{C}$ after shifting the object distance is
 \end{eqnarray}
 
 
-\subsubsection{Infinite Conjguate Systems}
+\subsubsection{Infinite Conjugate Systems}
 In both sided infinite conjugate systems, imaging is achieved if collimated ray bundles are transfered into collimated ray bundles.
 
 \begin{eqnarray}
@@ -1399,9 +1655,7 @@ An infinite to infinite system cannot be refocused by adding a finite air distan
 
 \section{Parabasal Optics}
 
-\subsection{Pilot Ray Concept}
-
-\subsubsection{Motivation}
+\subsection{Motivation}
 
 The ABCD ansatz allows for very fast calculations and is invaluable in the pre-design stage.
 Its simplicity, however, comes with the restriction to meridional rays in centro-symmetric systems and the need for an optical axis.
@@ -1419,9 +1673,7 @@ By choosing the term pilot ray, we want to avoid confusions with mechanical symm
 In many systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
-
-
-\subsubsection{Propagation of rays through an optical system}
+\subsection{Pilot Ray Concept}
 Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
 From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
@@ -1448,8 +1700,8 @@ We represent the propagation of these deviations through the optical system by a
   \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
  \end{pmatrix}
 \end{eqnarray}
-By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
-That is $\hat{G}\Vector{0} = \Vector{0}$.
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray,
+$\hat{G}(\Vector{0}) = \Vector{0}$.
 In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
 $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
 The linear terms in $\hat{G}$ can be represented by a matrix,
@@ -1468,10 +1720,10 @@ The individual propagators can be, for example, free space propagation or surfac
 \end{eqnarray}
 
 In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
-In the following, we discuss the rank of the matrices $\hat{G}$ and the basis of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+In the following, we discuss the rank of the matrices $\hat{G}$ and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
 
 
-\subsubsection{Near-Pilot Basis Systems}
+\subsection{Near-Pilot Basis Systems}
 
 The deviations may not be chosen freely, but we need to choose
 $\Delta\Vector{r}$, $\Delta\Wavevector$ and $\Delta\Vector{d}$ 
@@ -1482,7 +1734,7 @@ wavevectors must obey the dispersion relation
 and ray direction vectors must be of unit length.
 This limits the degrees of freedom for the deviations.
 
-\paragraph{Intersection points}
+\subsubsection{Intersection points}
 
 We demand that near-pilot intersection points are on the surface.
 In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
@@ -1493,43 +1745,27 @@ We represent the ray height in this plane by
 \end{eqnarray}
 where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 
-\paragraph{Wavevectors}
+\subsubsection{Wavevectors}
 Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
 In contrast to the real valued ray directions, wavevectors may be complex valued.
-
-\paragraph{Isotropic, homogenous media.}
-
-The dispersion in isotropic media reads
-\begin{eqnarray}
- \Wavevector \cdot \Wavevector &=& \Wavevector_{pilot} \cdot \Wavevector_{pilot} = \omega^2 \vacuumpermeability \scalarpermittivity
-\end{eqnarray}
-Near-pilot rays must fulfill
-\begin{eqnarray}
- \Delta \Wavevector \cdot \Wavevector_{pilot} &=& 0 + 0i
-\end{eqnarray}
-
-\paragraph{Anisotropic, homogeneous media.}
-TODO
-
-\paragraph{Wavevector Degrees of Freedom}
-The change of the wavevector $\Delta\Wavevector$ is a 3 dimensional vector of complex numbers, that is, 6 real valued degrees of freedom.
-The dispersion, as discussed in the paragraphs above, is a scalar complex valued equation, imposing 2 real valued constraints.
-
-We represent the remaining degrees of freedom of $\Delta \Wavevector$ as
+We define 2 orthogonal unit vectors $\Vector{e}_U, \Vector{e}_V$ along the directions
+in which perturbed wavevectors still obey the dispersion relation
+\eqref{eq:wavevectorPerturbationObeyingDispersion}.
+We represent the change of the wavevector $\Wavevector$ as
 \begin{eqnarray}
  \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
 \end{eqnarray}
-where $\Vector{e}_U$ and $\Vector{e}_V$ are independent basis vectors and $U,V$ are complex valued prefactors.
-\remark{TODO:Check whether this representation is possible also for the general anisotropic case.}
-The basis vectors $\Vector{e}_U, \Vector{e}_V$ are defined up to a complex valued global phase and a roll degree of freedom. 
+where $U,V$ are complex valued prefactors.
+The base vectors $\Vector{e}_U, \Vector{e}_V$ are defined up to a complex valued global phase and a roll degree of freedom. 
+We can -- but don't need to -- rotate in the $U,V$ plane and fix that degree of freedom according to \eqref{eq:eUeVVectors}.
 
 
-\subsubsection{XYUV matrices}
-We choose the object sided basis vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
+\subsection{XYUV matrices}
+We choose the object sided base vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
 in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
 as described in the previous section.
 We trace the pilot ray to the final surface 
-and define the near-pilot basis vectors in the final plane $\Vector{e}_{X,fin}, \Vector{e}_{Y,fin}, \Vector{e}_{U,fin}, \Vector{e}_{V,fin}$.
+and define the near-pilot base vectors in the final plane $\Vector{e}_{X,fin}, \Vector{e}_{Y,fin}, \Vector{e}_{U,fin}, \Vector{e}_{V,fin}$.
 The propagator for near-pilot rays is the Jacobi matrix
 \begin{eqnarray}
  \begin{pmatrix}
@@ -1574,117 +1810,565 @@ resembling the ABCD formalism.
  \end{pmatrix}
 \end{eqnarray}
 
-
-\subsubsection{Propagation in homogeneous media}
-In homogeneous media, rays travel along straights.
-That is, wavevector and ray direction do not change.
-We consider the propagation between 2 parallel planes, 
-separated by a pilot ray geometric path length of $\Delta s$
+\subsection{Propagation Between Planes in Homogeneous Media}
+We consider two planes 1 and 2.
+We consider a homogeneous medium, a pilot ray $( \Vector{r}_{pilot1}, \Vector{r}_{pilot2}, \Wavevector_{pilot} )$
+and a near pilot ray $( \Vector{r}_{1}, \Vector{r}_{2}, \Wavevector )$. 
+We describe the rays as lines with geometric path length $s$ and a unit direction vector $\Vector{d}$
 \begin{eqnarray}
- \hat{G}_{prop} &=&
+ \Vector{r}_{2} &=& \Vector{r}_{1} + \Vector{d} s  \\
+ \Vector{r}_{pilot2} &=& \Vector{r}_{pilot1} + \Vector{d}_{pilot} s_{pilot}
+\end{eqnarray}
+
+\subsubsection{The A-Matrix}
+We consider the pilot ray and a ray parallel to it ($U,V=0$).
+\begin{eqnarray}
+ \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
+ X_2 \Vector{e}_{X2} +  Y_2 \Vector{e}_{Y2} - \Delta s \Vector{d}_{pilot} &=&  X_1 \Vector{e}_{X1} +  Y_1 \Vector{e}_{Y1} 
+\end{eqnarray}
+The three unknowns $X_2 , Y_2, \Delta s$ can be calculated from this 3-dimensional vector equation.
+One possibility to do so is to employ a cartesian base $(x,y,z)$ and write
+\begin{eqnarray}
  \begin{pmatrix}
-  1 & 0 & \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
-  0 & 1 & \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
-  0 & 0 & 1 & 0 & 0 & 0 \\[2ex]
-  0 & 0 & 0 & 1 & 0 & 0 \\[2ex]
-  0 & 0 & 0 & 0 & 1 & 0 \\[2ex]
-  0 & 0 & 0 & 0 & 0 & 1 \\[2ex]  
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & d_{pilotx} \\
+  e_{X2y} & e_{Y2y} & d_{piloty} \\
+  e_{X2z} & e_{Y2z} & d_{pilotz}  
+ \end{pmatrix}^{-1}
+ \cdot
+ \left(
+ X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1}
+ \right)
+\end{eqnarray}
+From which we extract the coefficients of the $\hat{A}$ matrix, 
+linking $(X_1,Y_1)$ to $(X_2,Y_2)$.
+
+\subsubsection{The B-Matrix}
+We consider a ray with the same starting point as the pilot, $\Vector{r}_{1} = \Vector{r}_{pilot1}$. 
+The remaining independent points $\Vector{r}_{1}, \Vector{r}_{2}, \Vector{r}_{pilot2}$ form a 2D triangle in 3D space.
+The triangle has the sides $\Vector{d} s ; \Vector{d}_{pilot} s_{pilot}$ and $\Delta \Vector{r}_2$. 
+Further we know that $\Delta \Vector{r}$ is in the image plane.
+
+\begin{eqnarray}
+  \Delta \Vector{r}_2  &=& \Vector{d} s - \Vector{d}_{pilot} s_{pilot} \\
+  \Delta \Vector{r}_2  &=& X_2 \Vector{e}_{X2} + Y_2 \Vector{e}_{Y2}
+\end{eqnarray}
+We substitute
+\begin{eqnarray}
+ \Vector{d} &=& \Vector{d}_{pilot} + \Delta \Vector{d} \\
+ s &=& s_{pilot} + \Delta s
+\end{eqnarray}
+leading to
+\begin{eqnarray}
+  \Delta \Vector{r}_2  &=& \Vector{d}_{pilot} \Delta s + \Delta \Vector{d} s_{pilot} + \Delta \Vector{d} \Delta s \\
+  \Delta \Vector{r}_2  &=& X_2 \Vector{e}_{X2} + Y_2 \Vector{e}_{Y2}
+\end{eqnarray}
+$\Delta \Vector{d}$ originates from $\Delta \Wavevector$ and can be seen as given quantity.
+The 3 unknowns $X_2 , Y_2 , \Delta s$ can be solved, for example, in a cartesian base
+\begin{eqnarray}
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & - ( d_{pilotx} + \Delta d_x ) \\
+  e_{X2y} & e_{Y2y} & - ( d_{piloty} + \Delta d_y ) \\
+  e_{X2z} & e_{Y2z} & - ( d_{pilotz} + \Delta d_z ) 
+ \end{pmatrix}^{-1}
+ \Delta \Vector{d} s_{pilot} &=& 
+ \begin{pmatrix}
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix} 
+\end{eqnarray}
+We approximate up to first order in $\Delta \Vector{d}$
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix} 
+ &\approx& s_{pilot}
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & - d_{pilotx} \\
+  e_{X2y} & e_{Y2y} & - d_{piloty} \\
+  e_{X2z} & e_{Y2z} & - d_{pilotz} 
+ \end{pmatrix}^{-1}
+ \begin{pmatrix}
+  \Delta d_x \\ \Delta d_y \\ \Delta d_z
+ \end{pmatrix}
+\end{eqnarray}
+Now we have to link the wavevector change $\Delta \Wavevector$ to the ray direction change $\Delta \Vector{d}$ in first order.
+In isotropic media, we find
+\begin{eqnarray}
+ \Delta \Vector{d}_{iso} 
+ &\approx& \frac{\Re \Delta \Wavevector}{|\Re \Wavevector_{pilot}|}
+ \\
+ &\approx&
+  \frac{1}{|\Re \Wavevector_{pilot}|}
+  \left(
+      (\Re U)(\Re \Vector{e}_U)
+    + (\Re V)(\Re \Vector{e}_V)
+    - (\Im U)(\Im \Vector{e}_U)
+    - (\Im V)(\Im \Vector{e}_V)
+  \right) \nonumber
+\end{eqnarray}
+
+\remark{todo: general case, maybe in ray dir section}
+
+\subsubsection{The C-Matrix} 
+Two rays that are parallel in plane 1 shall also be parallel in plane 2.
+This means $\hat{C} = 0$.
+
+\subsubsection{The D-Matrix}
+The homogeneous medium shall not change the ray direction.
+However, as the bases $( \Vector{e}_{U1}, \Vector{e}_{V1} )$ and $( \Vector{e}_{U2}, \Vector{e}_{V2} )$
+may differ, the coordinates may also differ.
+
+\begin{eqnarray}
+ \Delta \Wavevector 
+ &=& U_1 \Vector{e}_{U1} + V_1 \Vector{e}_{V1} 
+  =  U_2 \Vector{e}_{U2} + V_2 \Vector{e}_{V2}
+\end{eqnarray}
+
+\subsubsection{Example}
+We assume two parallel planes and identical bases $\Vector{e}_{X,Y,U,V}$ in both planes. 
+The pilot ray Poynting vector shall be normal to the planes.
+We collect the sub-matrices $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ and yield
+
+\begin{eqnarray}
+ \hat{G} &=&
+ \begin{pmatrix}
+  1 & 0 & B_{11} & B_{12} & B_{13} & B_{14} \\
+  0 & 1 & B_{21} & B_{22} & B_{23} & B_{24} \\
+  0 & 0 & 1 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 1 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 1  
  \end{pmatrix}
  \label{eq:xyuv_propagation_homogeneous}
 \end{eqnarray}
-
-\subsection{Interpretation of XYUV matrices}
-\subsubsection{Focal Length}
-TODO
-
-\subsubsection{Finite Conjugate Systems}
-We define imaging as:
-For a fixed ray starting position $(X,Y)$, there is a fan $(U,V)$ that is propagated on a common point in image space.
-
-\begin{eqnarray}
+with\begin{eqnarray}
+ \hat{B} &=&
+ \frac{ s_{pilot} }{| \Re \Wavevector_{pilot} |}
  \begin{pmatrix}
-  X_{im} \\ Y_{im} 
+  (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X & -(\Im \Vector{e}_U) \Vector{e}_X & -(\Im \Vector{e}_V) \Vector{e}_X \\
+  (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y & -(\Im \Vector{e}_U) \Vector{e}_Y & -(\Im \Vector{e}_V) \Vector{e}_Y
+ \end{pmatrix}
+\end{eqnarray}
+In lossless media, one often chooses a real valued $\Vector{e}_{U,V}$ base,
+and half of the matrix $\hat{B}$ is zeros.
+Still, it is important to forward the wavevector components 
+$(\Im U) \Vector{e}_U$ and $(\Im V) \Vector{e}_V$
+to the next surface with the $\hat{D}$ matrix, 
+as these wavevector components may become relevant in following materials.
+
+\subsection{Propagation Between Curved Surfaces}
+Curvature sag is an effect quadratic in $\Delta \Vector{r}$, 
+and is neglected in the (linear) parabasal formalism.
+The intersection points can be approximated using the tangential plane.
+
+\subsection{Refraction}
+We assume two parallel, overlaying planes 1,2 just in front of and behind a refracting surface.
+Both planes shall have identical bases $\Vector{e}_{X,Y}$.
+In general, it is not possible to find identical base vectors $\Vector{e}_{U,V}$ in both planes.
+
+\subsubsection{A and B-Matrix}
+The infinitessimal propagation length through the surface does not change the ray height
+\begin{eqnarray}
+ \hat{A} &=& \unittensor \\
+ \hat{B} &=& 0
+\end{eqnarray}
+
+\subsubsection{C and D-Matrix}
+First, we consider the in-plane wavevector component $\Wavevector_\parallel$.
+This component is conserved during refraction.
+\begin{eqnarray}
+ \Wavevector_{\parallel2} 
+ &=& \Wavevector_{\parallel1} \\
+ &=& \Wavevector_1 - (\Wavevector_1 \Vector{n}) \Vector{n} \\
+ \wavenumber_{\parallel2i}
+ &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} - ( \wavenumber_{pilot1j} + \Delta \wavenumber_{1j} )( n_{pilotj} + \Delta n_j )( n_{piloti} + \Delta n_i )
+% \\
+% &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} +\nonumber \\
+% &&- \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
+% &&- \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti} \nonumber\\
+% &&- \Delta \wavenumber_{1j} \Delta n_j n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i \nonumber\\
+% &&- \Delta \wavenumber_{1j} n_{pilotj} \Delta n_i \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j \Delta n_i \nonumber\\
+% &&- \Delta \wavenumber_{1j} \Delta n_j \Delta n_i
+\end{eqnarray}
+In our linear approximation, we neglect quadratic forms ($\Delta \Vector{n}^2$) or mixed terms ($\Delta \Wavevector \Delta \Vector{n}$)
+%\begin{eqnarray}
+% \wavenumber_{\parallel2i}
+% &=& 
+% \wavenumber_{pilot1i} - \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
+% &&+ \Delta \wavenumber_{1i} 
+%   - \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti}
+%   - \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i
+%\end{eqnarray}
+\begin{eqnarray}
+ \wavenumber_{\parallel2i}
+ &=& 
+ \wavenumber_{\parallel pilot1i} \nonumber\\
+ &&+ ( \delta_{ij} -  n_{piloti} n_{pilotj} ) \Delta \wavenumber_{1j} \nonumber\\
+ &&- ( n_{piloti} \wavenumber_{pilot1j} + \wavenumber_{pilot1m}   n_{pilotm} \delta_{ij}) \Delta n_j
+\end{eqnarray}
+We apply this intermediate result on the full wavevector of the near-pilot ray after refraction
+\begin{eqnarray}
+ \Wavevector_2 &=& \Wavevector_{\parallel} + \xi_2(\Wavevector_{\parallel}) \Vector{n} \\
+ \Wavevector_2 &=& \Wavevector_{\parallel}
+                 + \left(
+                     \xi_{2 pilot} +
+                     \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_{\Wavevector_{\parallel pilot}}
+                     \cdot \Delta \Wavevector_{\parallel}
+                   \right)
+                   \left(
+                     \Vector{n}_{pilot} + \Delta \Vector{n} 
+                   \right)
+ \\ 
+% \wavenumber_{2i}
+% &=& 
+% \wavenumber_{2pilot i} 
+% + \xi_{2 pilot} \Delta n_i
+% + \left( 
+%     \delta_{ij}
+%     + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+%   \right) \Delta \wavenumber_{\parallel j}
+% \\
+% \Delta \wavenumber_{\parallel j}
+% &=&  ( \delta_{jl} -  n_{pilot j} n_{pilot l} ) \Delta \wavenumber_{1l} \nonumber\\
+% &&- ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) \Delta n_l
+% \\
+ \wavenumber_{2i}
+ &=& 
+ \wavenumber_{2pilot i} \nonumber \\
+ &&+ \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( \delta_{jl} -  n_{pilot j} n_{pilot l} ) \Delta \wavenumber_{1l} \nonumber\\
+ &&+ \Bigg[
+     \xi_{2 pilot} \delta_{il} \nonumber\\
+ &&\quad- 
+     \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) 
+   \Bigg] \Delta n_l
+\end{eqnarray}
+
+\subsubsection{The D-Matrix}
+We consider rays intersecting the surface at the pilot interesction position $(X,Y) = 0$.
+The surface normal for all these rays is the pilot surface normal $\Delta \Vector{n} = 0$.
+We introduce the ($3\times3$) matrix $\hat{M}$ as
+\begin{eqnarray}
+ \Delta \wavenumber_{2i} &=& M_{il} \Delta \wavenumber_{1l} \\
+ M_{il}
+ &=& 
+ \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+ \right) 
+ ( \delta_{jl} -  n_{pilot j} n_{pilot l} )
+\end{eqnarray}
+Lengthy coordinate transfroms can be avoided by choosing
+\begin{subequations} \label{eq:eUeVVectors}
+  \begin{eqnarray}
+    \Vector{e}_{U2} &=& \frac{ \hat{M} \Vector{e}_{U1} }{\sqrt{ (\hat{M} \Vector{e}_{U1})\cdot \overline{(\hat{M} \Vector{e}_{U1})} }} \\
+    \Vector{e}_{V2} &=& \frac{ \hat{M} \Vector{e}_{V1} }{\sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }}
+  \end{eqnarray}
+\end{subequations}
+The unit vectors can be complex valued.
+Our result for the $\hat{D}$ matrix is
+\begin{eqnarray}
+ \hat{D} &=&
+ \begin{pmatrix}
+  D_{11} & 0 & 0 & 0 \\
+  0 & D_{22} & 0 & 0 \\
+  0 & 0 & D_{11} & 0 \\
+  0 & 0 & 0 & D_{22} \\
+ \end{pmatrix}
+ \\
+ D_{11} &=& \sqrt{ (\hat{M} \Vector{e}_{U1})\cdot \overline{(\hat{M} \Vector{e}_{U1})} } \\
+ D_{22} &=& \sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }
+\end{eqnarray}
+For the unit vectors chosen above \eqref{eq:eUeVVectors}, the matrix is diagonal.
+
+\subsubsection{The C-Matrix}
+We consider rays parallel to the pilot ray, $(U,V) = 0$.
+\begin{eqnarray}
+ \Delta \wavenumber_{2i} &=& 
+ \Bigg[
+     \xi_{2 pilot} \delta_{il} \nonumber\\
+ &&- 
+     \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) 
+   \Bigg] \Delta n_l
+   \label{eq:refraction_C_matrix_deltaK_to_deltaN}
+\end{eqnarray}
+We assume a surface with local curvatures $\rho_{XX}, \rho_{XY}, \rho_{YY}$ in our coordinate system
+$(\Vector{e}_X, \Vector{e}_Y, \Vector{n}_{pilot})$ according to equation \eqref{eq:quadratic_form_sag}.
+The surface normal is (see \eqref{eq:quadratic_form_near_axis_normal})
+\begin{eqnarray}
+ \Vector{n} &\approx& 
+ \Vector{n}_{pilot}
+ - (\rho_{XX} X + \rho_{XY} Y) \Vector{e}_X
+ - (\rho_{YY} Y + \rho_{XY} X) \Vector{e}_Y
+ \label{eq:refraction_C_matrix_deltaN_to_deltaR}
+\end{eqnarray}
+Combining the last two equations \eqref{eq:refraction_C_matrix_deltaK_to_deltaN} and \eqref{eq:refraction_C_matrix_deltaN_to_deltaR},
+we find a relation between the change in wavevector after refraction and the change in position,
+\begin{eqnarray}
+ \Delta \Wavevector_2 &=& 
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+\end{eqnarray}
+mediated by a ($3\times2$) matrix $\hat{\tilde{M}}$.
+We add a variable $\nu=0$ to the left hand side and solve the system in a cartesian base
+\begin{eqnarray}
+   U_2 \Vector{e}_{U2}
+ + V_2 \Vector{e}_{V2}
+ + \nu \Vector{n}_{pilot}
+ &=& 
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \begin{pmatrix}
+  U_2 \\ V_2 \\ \nu
  \end{pmatrix}
  &=&
- \hat{A}
  \begin{pmatrix}
-  X_{obj} \\ Y_{obj}
+  e_{U2x} & e_{U2y} & e_{U2z} \\
+  e_{V2x} & e_{V2y} & e_{V2z} \\
+  n_{pilot x} & n_{pilot y} & n_{pilot z}
+ \end{pmatrix}^{-1}
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
  \end{pmatrix}
+\end{eqnarray}
+Adding $\nu$ allows us to use standard matrix inversion algorithms.
+The result should reproduce $\nu=0$ within numerical accuracy.
+We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(U_2,V_2)$ for each case.
+We split the results up in real and imaginary part $\Re U, \Re V, \Im U, \Im V$ and fill the $\hat{C}$ matrix.
+
+\subsection{Magnification of XYUV matrices}
+
+We split the input vector into two sub-vectors
+\begin{eqnarray}
+ \Vector{R} &=&
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \Vector{K} &=&
+ \begin{pmatrix}
+  \Re U \\ \Re V \\ \Im U \\ \Im V 
+ \end{pmatrix}
+ \\
+ \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
+ \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
+\end{eqnarray}
+
+
+\subsubsection{Finite Conjugate Systems}
+We define a ray fan to be imaged, 
+if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
+ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj}
 \end{eqnarray}
 or, in other words,
 \begin{eqnarray}
- \hat{B}
- \begin{pmatrix}
-  U_{obj} \\ V_{obj}
- \end{pmatrix}
- &=& 
- 0
+ \hat{B} \cdot \Vector{K}_{obj} &=& 0
 \end{eqnarray}
-The matrix $\hat{B}$ is of rank 2, the input vector $(U,V)$ contains 4 independent real valued degrees of freedom.
-That is, we can impose more constraints on the input vector. 
-In the following, we develop these additional requirements.
-
+The matrix $\hat{B}$ is of rank 2, the input vector $\Vector{K}$ contains 4 independent real valued degrees of freedom.
+We can impose more constraints on the input vector. 
 We consider the plane waves of the pilot ray and a near pilot ray, 
 $\Wavevector_{pilot}$ and $\Wavevector = \Wavevector_{pilot} + U \Vector{e}_U + V \Vector{e}_V$.
-They interfere and form a sinusoidal grating intensity pattern
+Both rays propagate from the object to the image.
+We assume a coherent source.
+Both rays interfere and form a sinusoidal grating intensity pattern
 \begin{eqnarray}
- I &=& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
+ I &\propto& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
 \end{eqnarray}
-We restrict the locations to the image plane
+In the object plane, we desire the modulation depth of the intensity pattern to be independent of position
 \begin{eqnarray}
- \Location &=& \Location_{pilot} + X \Vector{e}_X + Y \Vector{e}_Y
+ (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
 \end{eqnarray}
-We desire the modulation depth of the intensity pattern to be independent of position
+This shall hold for all positions $\Vector{R}=(X,Y)$, so
 \begin{eqnarray}
- (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R}
+ \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_X ) &=& 0 \\
+ \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_Y ) &=& 0
 \end{eqnarray}
-%\begin{eqnarray}
-% \Im (U \Vector{e}_U + V \Vector{e}_V)(X \Vector{e}_X + Y \Vector{e}_Y) &=& 0
-%\end{eqnarray}
-Together with the imaging condition, we obtain
+We can find 2 independent solutions $\Vector{e}_{K1}$,$\Vector{e}_{K2}$ that fulfill the two conditions.
+$\Vector{e}_{Ki}$ are four-dimensional, have real valued components and can be transfered to a cartesian wavevector deviation via
 \begin{eqnarray}
-  \begin{pmatrix}
-  B_{11} & B_{12} & B_{13} & B_{14} \\
-  B_{21} & B_{22} & B_{23} & B_{24} \\
-  (\Im \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\
-  (\Im \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
+ \Delta \Wavevector(\Vector{e}_{Ki}) &=& e_{Ki\,1} (\Re e_{U}) + e_{Ki\,2} (\Re e_{V}) + e_{Ki\,3} (\Im e_{U}) + e_{Ki\,4} (\Im e_{V})
+\end{eqnarray}
+The base vectors shall be normalized and orthogonal 
+$\Delta \Wavevector(\Vector{e}_{Ki}) \cdot \overline{\Delta \Wavevector (\Vector{e}_{Kj})} = \delta_{ij}$.
+Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of these two directions,
+we ensure a real valued grating in the object plane. 
+The intensity distribution in intermediate planes and in the image plane, however, 
+may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X,Y}$.
+\begin{eqnarray}
+ \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{K1} + \kappa_2 \Vector{e}_{K2} \label{eq:deltaK_as_kappa}
+\end{eqnarray}
+We call $\kappa_{x,y} \in \mathbb{R}$ the entrance pupil wavevector coordinates. The are not normalized and may be arbitrarily scaled.
+Our imaging condition reduces to
+\begin{eqnarray}
+ \hat{B}
+ \begin{pmatrix}
+ e_{K11} & e_{K21} \\
+ e_{K12} & e_{K22} \\
+ e_{K13} & e_{K23} \\
+ e_{K14} & e_{K24} \\ 
  \end{pmatrix}
  \begin{pmatrix}
-  \Re U_{obj} \\ \Re V_{obj} \\ \Im U_{obj} \\ \Im V_{obj} 
+ \kappa_1 \\ \kappa_2 
  \end{pmatrix}
  &=& 0
 \end{eqnarray}
-Nontrivial solutions are found if the determinant vanishes.
+Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{e}_{K1}, \Vector{e}_{K2})$ vanishes.
 In case the determeninant is nonzero, 
-we refocus by inserting a homogeneous material propagation (eq. \ref{eq:xyuv_propagation_homogeneous}) in front of the image plane.
+we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} by a distance $s$ 
+in front of the image plane.
+We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
 \begin{eqnarray}
-  \begin{vmatrix}
-  B_{11} + \frac{\partial^2 X}{\partial s \partial \Re U} \Delta s & 
-  B_{12} + \frac{\partial^2 X}{\partial s \partial \Re V} \Delta s & 
-  B_{13} + \frac{\partial^2 X}{\partial s \partial \Im U} \Delta s & 
-  B_{14} + \frac{\partial^2 X}{\partial s \partial \Im V} \Delta s \\[2ex]
-  B_{21} + \frac{\partial^2 Y}{\partial s \partial \Re U} \Delta s & 
-  B_{22} + \frac{\partial^2 Y}{\partial s \partial \Re V} \Delta s & 
-  B_{23} + \frac{\partial^2 Y}{\partial s \partial \Im U} \Delta s & 
-  B_{24} + \frac{\partial^2 Y}{\partial s \partial \Im V} \Delta s \\[2ex]
-  (\Im \Vector{e}_U) \Vector{e}_X & (\Im \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X \\[2ex]
-  (\Im \Vector{e}_U) \Vector{e}_Y & (\Im \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y
- \end{vmatrix}
- &=& 0 \nonumber \\
+ \tilde{A} &=& TODO \\
+ \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot s \right) e_{Kj,n} \label{eq:tildeB}
 \end{eqnarray}
-The characteristic polynomial is quadratic in $\Delta s$, so we expect two defocus positions where the determinant vanishes.
-The corresponding eigenvector $(U,V)$ forms a ray fan that is imaged to a point in the image plane.
-Wavevectors with deviations orthogonal to the eigenvector, however, are in general not stigmatically imaged.
-We obtain an anastigmatic line focus.
-In case of degenerate solutions $\Delta s$, changes along both eigenvector directions are stigmatically focused. 
+The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
+The imaging condition becomes
+\begin{eqnarray}
+ \hat{\tilde{B}}(s) \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& 0
+\end{eqnarray}
+We are interested in solutions $s$ for which the determinant vanishes.
+This problem is similar to an eigenvalue problem, so we call the solutions $s$ quasi-eigenvalues.
+The characteristic polynomial is quadratic in $s$.
+The defocus values $s_{1,2}$ are quasi-eigenvalues 
+and come with a corresponding quasi-eigenvector $\Vector{e}_{qeig\,1,2}$.
+The quasi-eigenvectors shall be unit-less and normalized, $\Vector{e}_{qeig\,1,2} \cdot \overline{\Vector{e}}_{qeig\,1,2} = 1$
+Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in image plane, 
+if the corresponding eigen-defocus is applied.
+
+In both solution planes $s$, 
+we express the entrance pupil coordinates in a base system of the quasi-eigenvector and a vector orthogonal to it.
+\begin{eqnarray}
+ \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& \kappa_{qeig} \Vector{e}_{qeig} + \kappa_\perp \Vector{e}_{\perp}
+ \\
+ \Vector{e}_{\perp\,1,2} &=&
+ \begin{pmatrix}
+  - e_{qeig\,1,2 y} \\ e_{qeig\,1,2 x}
+ \end{pmatrix}
+\end{eqnarray}
+$\kappa$ is unit bearing and of dimension $1/\meter$, while $e$ is unit-less.
+\begin{eqnarray}
+ \hat{\tilde{B}}(s_i) & \Vector{e}_{qeig\, i} &= 0 \\
+ \hat{\tilde{B}}(s_i) & \Vector{e}_{\perp\, i} &= \Vector{h}_{line\, i}
+\end{eqnarray}
+We consider light emitted from one object point 
+in different directions $\kappa$ towards the image.
+There are two cases:
+In the first case, $\Vector{h}_{line}$ is zero. 
+All light emitted from one object point is stigmatically focused to an image point.
+In this case, the quasi-eigenvalues are degenerate $s_1 = s_2$.
+In the second case, $\Vector{h}_{line}$ nonzero.
+Light emitted from one object point is astigmatically focused to a line.
+The resolution along the direction of $\Vector{h}_{line\,1,2}$ is reduced or does not allow
+reasonable 2D imaging.
+The orientation of the lines in the planes $s_1$ and $s_2$ are different.
+In classical raytracing, this phenomenon is often called \emph{on-axis-astigmatism}.
+
+In any case, we calculate the transfer of 2D objects $(X,Y)$ to the image as well as the degree of astigmatism.
+The imaging equation in the planes $s_{1,2}$ is
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}} \cdot \Vector{R}_{obj}
+                  +  \kappa_\perp \Vector{h}_{line}
+\end{eqnarray}
+The pupil position dependence causes a spread of the rays to a line.
+We want to isolate the effects of magnification and line spread.
+
+\paragraph{In the limit of small astigmatism,}
+we assume a 2-dimensioanl imaging is still possible, but the spot comes with a spot spread to a short line.
+We determine the $\kappa$ values of the chief ray, 
+and separate chief ray maginifiaction from the line spread.
+We need the XYUV matrix from the object to the stop and the XYUV matrix from object to image.
+By definition, the chief ray has a zero ray height in the stop, $\Vector{R}_{chief, stop} = \Vector{0}$.
+\begin{eqnarray}
+ \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+                  +  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix}
+ \\
+ \begin{pmatrix} \kappa_{1 chief} \\ \kappa_{2 chief} \end{pmatrix}
+ &=&
+ - \hat{\tilde{B}}_{obj\rightarrow stop}^{-1} \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+\end{eqnarray}
+Object and entrance pupil must not be conjugate 
+$(\det \hat{\tilde{B}}_{obj\rightarrow stop} \neq 0)$
+for the inverse matrix to exist.
+We insert the chief ray wavevector deviation in the imaging equation and yield
+\begin{eqnarray}
+ \Vector{R}_{im, chief} &=& 
+     \left(
+         \hat{\tilde{A}}_{obj\rightarrow im} 
+       - \left(\hat{\tilde{B}}_{obj\rightarrow im} \hat{\tilde{B}}_{obj\rightarrow stop}^{-1} \right) \hat{\tilde{A}}_{obj\rightarrow stop}
+     \right)
+     \cdot \Vector{R}_{obj}
+\end{eqnarray}
+Rays from an object point spread to a line in the image from $\pm\Delta\Vector{R}$ with
+\begin{eqnarray}
+ \Delta\Vector{R}_{im} &=& \kappa_{\perp marginal} \Vector{h}_{line}
+\end{eqnarray}
+where $\kappa_{\perp marginal}$ is to be chosen from the meridional plane that causes maximum line spread.
+
+\paragraph{The circle of least confusion} denotes the circular spot in a plane between $s_1$ and $s_2$.
+Its radius is smaller than in the two astigmatic line foci.
+However, the spot size is finite in both directions.
+
+We assume a circular or elliptic entrance pupil, that is, the marginal rays form an ellipse in $\kappa$ space.
+In general, the elliptic cone will be imaged to an ellipse in a defocused real space image plane $s$.
+In case two independent ray directions $\kappa$ are imaged to the same ray height $|\Vector{R}|$, this ellipse is a circle.
+
+From the object, we consider the two special directions $\kappa_{qeig, 1}$ and $\kappa_{qeig, 2}$.
+We know
+\begin{eqnarray}
+ \Vector{R}_{im}(s_{i}, \kappa_{qeig, i}) &=& 0 \\
+ \Vector{R}_{im}(s, \kappa_{qeig, i}) &=& \left. \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, i}} \cdot ( s-s_i ) 
+\end{eqnarray}
+and find the position of the circle of least confusion $s_{colc}$ as
+\begin{eqnarray}
+ s_{colc} &=& \alpha s_1 + (1-\alpha) s_2 \\[2ex]
+ \alpha &=& \frac{
+                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 1}}
+                 }
+                 {
+                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 1}}
+                  +
+                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 2}}
+                 }
+\end{eqnarray}
+The derivatives are easily found while setting up the $\hat{\tilde{B}}$ matrix \eqref{eq:tildeB}.
+The length of the $\kappa$-vectors is to be chosen such that they are marginal rays, that is, they are on the border of the entrance pupil.
+
 
 
 \chapter{Raytracing}
 
-Classical raytracing through stepwise homogeneous media consists of the following steps: 
-The ray is considered a straight in 3D space. 
-First its intersection point with the next surface is calculated geometrically. 
-Then, a new wavevector is determined using the refraction law for plane waves on planar surfaces.
+Raytracing consists of the following steps:
+Light, represented by a ray, is propagated through a medium until it hits a surface.
+In classical raytracing, media are stepwise homogeneous, so rays travel along straight lines between surfaces.
+Then, the ray is reflected or refracted. 
+This operation conserves the ray position, and assigns a new wavevector.
+The wavevector is found employing the law of refraction for plane waves on planar surfaces.
 
 
 \section{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
@@ -1698,7 +2382,9 @@ The explicit surface sag formula is given by
 \begin{align}
  z &= \frac{\rho_x x^2 + \rho_y y^2}{1 + \sqrt{1 - (1+c_x) \rho_x^2 x^2 - (1+c_y) \rho_y^2 y^2}} \label{eq:biconic}\,.
 \end{align}
-The variables are $\rho_x = 1/R_x$ the $x$ curvature, $\rho_y = 1/R_y$ the $y$ curvature, $c_x$ the conic constant in $x$ direction,
+The variables are $\rho_x = 1/R_x$ the central $x$ curvature, and $\rho_y = 1/R_y$ the central $y$ curvature,.
+The curavtures $\rho$ are the inverse of the radii $R$.
+$c_x$ is the conic constant in $x$ direction,
 and $c_y$ the conic constant in $y$ direction, respectively. 
 
 Depending on the conic constant, the biconic $x$ and $y$ cross sections are a
@@ -1803,234 +2489,78 @@ As it plays an important role for the parabasal approximation, we treat this sha
 
 
 \begin{eqnarray}
- z(x,y) &=& a x + b y + \frac{1}{2} c x^2 + \frac{1}{2} \delta x y + \frac{1}{2} e y^2
+ z(x,y) &=& \frac{1}{2} \rho_{xx} x^2 + \rho_{xy} x y + \frac{1}{2} \rho_{yy} y^2
+ \label{eq:quadratic_form_sag}
 \end{eqnarray}
-The parameters $a,b,c,\delta,e$ are real valued. 
-$a$ and $b$ shift the surface vertex, leaving $z(\Vector{0})=0$, and lead to an inclined tangential plane at the origin.
-$c$, $\delta$ and $e$ represent the surface curvature. 
-A nonzero $\delta$ parameter denotes a nonzero rotation of the principal axes of the paraboloid with respect to the $x$ and $y$ axes.
-%
-%
-%\begin{eqnarray}
-% 0 &=& a x + b y - z + \frac{1}{2} c x^2 + \frac{1}{2} \delta x y + \frac{1}{2} e y^2 \\
-% 0 &=& a (x_0 + d_x t) \nonumber \\
-%   &&  + b (y_0 + d_y t) \nonumber \\
-%   &&  -   (z_0 + d_z t) \nonumber \\
-%   &&  + \frac{1}{2} c (x_0 + d_x t)^2 \nonumber \\
-%   &&  + \frac{1}{2} \delta (x_0 + d_x t) (y_0 + d_y t) \nonumber \\
-%   &&  + \frac{1}{2} e (y_0 + d_y t)^2 \\
-% 0 &=& a x_0 + a d_x t \nonumber \\
-%   &&  + b y_0 + b d_y t \nonumber \\
-%   &&  - z_0 - d_z t \nonumber \\
-%   &&  + \frac{1}{2} c x_0^2 + c x_0 d_x t + \frac{1}{2} c d_x^2 t^2 \nonumber \\
-%   &&  + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + \frac{1}{2} \delta d_x d_y t^2 \nonumber \\
-%   &&  + \frac{1}{2} e y_0^2 + e y_0 d_y t + \frac{1}{2} e d_y^2 t^2 \\
-% 0 &=& \frac{1}{2} c d_x^2 t^2 + \frac{1}{2} \delta d_x d_y t^2 + \frac{1}{2} e d_y^2 t^2 \nonumber \\
-%   && + a d_x t + b d_y t - d_z t + c x_0 d_x t + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + e y_0 d_y t \nonumber \\
-%   && + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2
-%\end{eqnarray}
-%We compare to
-%\begin{eqnarray}
-%  H t^2 + 2 F t - G &=& 0
-%\end{eqnarray}
-%and find
-%\begin{eqnarray}
-% - \frac{1}{2} H t^2  &=& \frac{1}{2} c d_x^2 t^2 + \frac{1}{2} \delta d_x d_y t^2 + \frac{1}{2} e d_y^2 t^2   \\
-% - F t  &=& + a d_x t + b d_y t - d_z t + c x_0 d_x t + \frac{1}{2} \delta x_0 d_y t + \frac{1}{2} \delta y_0 d_x t + e y_0 d_y t   \\
-% + \frac{1}{2} G      &=&  + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2
-%\end{eqnarray}
-%
-%\begin{eqnarray}
-% - F   &=& + a d_x  + b d_y  - d_z  + c x_0 d_x  + \frac{1}{2} \delta x_0 d_y  + \frac{1}{2} \delta y_0 d_x  + e y_0 d_y    \\
-% + \frac{1}{2} G      &=&  + a x_0 + b y_0 - z_0 + \frac{1}{2} c x_0^2 + \frac{1}{2} \delta x_0 y_0 + \frac{1}{2} e y_0^2 \\
-% - \frac{1}{2} H &=& \frac{1}{2} c d_x^2 + \frac{1}{2} \delta d_x d_y + \frac{1}{2} e d_y^2 
-%\end{eqnarray}
-%
-%\begin{eqnarray}
-% - F   &=& + a d_x  + b d_y  - d_z  + c x_0 d_x  + \frac{1}{2} \delta x_0 d_y  + \frac{1}{2} \delta y_0 d_x  + e y_0 d_y    \\
-% + G      &=&  2 a x_0 + 2 b y_0 - 2 z_0 + c x_0^2 + \delta x_0 y_0 + e y_0^2 \\
-% - H &=& c d_x^2 + \delta d_x d_y + e d_y^2 
-%\end{eqnarray}
-%
+The surface curvature parameters $\rho_{xx},\rho_{xy},\rho_{yy}$ are real valued. 
+A nonzero $\rho_{xy}$ parameter denotes a nonzero rotation of the principal axes of the paraboloid with respect to the $x$ and $y$ axes.
 The solution of the intersection with the straight equation is
 \begin{eqnarray}
- F &=& d_z - a d_x - b d_y - \left( c x_0 d_x + \delta \left( \frac{1}{2} x_0 d_y + \frac{1}{2} y_0 d_x \right)  + e y_0 d_y \right)   \\
- G &=&  2 a x_0 + 2 b y_0 - 2 z_0 + c x_0^2 + \delta x_0 y_0 + e y_0^2 \\
- H &=& - \left( c d_x^2 + \delta d_x d_y + e d_y^2 \right) \\
+ F &=& d_z - \left( \rho_{xx} x_0 d_x + \rho_{xy} \left( x_0 d_y + y_0 d_x \right)  + \rho_{yy} y_0 d_y \right)   \\
+ G &=& - 2 z_0 + \rho_{xx} x_0^2 + 2 \rho_{xy} x_0 y_0 + \rho_{yy} y_0^2 \\
+ H &=& - \left( \rho_{xx} d_x^2 +  2 \rho_{xy} d_x d_y + \rho_{yy} d_y^2 \right) \\
  t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
  \label{eq:quadratic_form_t}
 \end{eqnarray}
 
-\subsubsection{Intersection point perturbation}
-We investigate the change of the intersection point due to small perturbations in the ray starting paramaters $\Location_0$ and $\Vector{d}$.
-For a first order Taylor expansion, we calculate the derivatives $\partial t / \partial q$
-with $q \in \{ x_0, y_0, z_0, d_x, d_y, d_z \}$
+\subsubsection{Surface Normal}
+The surface normal of a quadratic form surface is
 \begin{eqnarray}
-% \frac{\partial t}{\partial q} 
-% &=& 
-%     \frac{1}{F + \sqrt{F^2 + H G}} \frac{\partial G}{\partial q} 
-%     - 
-%     \frac{G}{(F + \sqrt{F^2 + H G})^2}
-%   \left(
-%     \frac{\partial F}{\partial q}
-%     +
-%     \frac{1}{2} \frac{1}{\sqrt{F^2 + H G}}
-%     \left(
-%         2 F \frac{\partial F}{\partial q}
-%       + H \frac{\partial G}{\partial q}
-%       + G \frac{\partial H}{\partial q}
-%     \right)
-%   \right)
-% \\
-% \frac{\partial t}{\partial q} 
-% &=& 
-%   \frac{1}{F + \sqrt{F^2 + H G}} 
-%   \left(
-%     \frac{\partial G}{\partial q} 
-%     - 
-%     t
-%   \left(
-%     \frac{\partial F}{\partial q}
-%     +
-%     \frac{1}{2} \frac{1}{\sqrt{F^2 + H G}}
-%     \left(
-%         2 F \frac{\partial F}{\partial q}
-%       + H \frac{\partial G}{\partial q}
-%       + G \frac{\partial H}{\partial q}
-%     \right)
-%   \right)
-%  \right)
-% \\
- \frac{\partial t}{\partial q} 
- &=& 
-  \frac{t}{G}
-   \left(
-     \frac{\partial G}{\partial q} 
-     - t \frac{\partial F}{\partial q}
-     - \frac{1}{2} t \frac{1}{\sqrt{F^2 + H G}}
-     \left(
-         2 F \frac{\partial F}{\partial q}
-       + H \frac{\partial G}{\partial q}
-       + G \frac{\partial H}{\partial q}
-     \right)
-  \right) 
-  \label{eq:derivative_of_t}
+ \Vector{n} &=& 
+ \frac{1}{
+    \sqrt{1 + (\rho_{xx} x + \rho_{xy} y)^2 + (\rho_{yy} y + \rho_{xy} x)^2 }
+ } 
+ \begin{pmatrix}
+   - \rho_{xx} x - \rho_{xy} y \\
+   - \rho_{yy} y - \rho_{xy} x \\
+   1
+ \end{pmatrix}
 \end{eqnarray}
-with the gradients
+In the limit of rays close to the origin, $\lim (x,y) \rightarrow 0$, 
+we perform a Taylor expansion in first order
 \begin{eqnarray}
-  \frac{\partial F}{\partial \Location_0} 
-  &=&
-  \begin{pmatrix}
-    - c d_x - \frac{1}{2} \delta d_y \\
-    - \frac{1}{2} \delta d_x - e d_y \\
-    0
-  \end{pmatrix}
-  \\
-  \frac{\partial F}{\partial \Vector{d}}
-  &=&
-  \begin{pmatrix}
-    - a - c x_0 - \frac{1}{2} \delta y_0 \\
-    - b - \frac{1}{2} \delta x_0 - e y_0 \\
-    1
-  \end{pmatrix}
-  \\
-  \frac{\partial G}{\partial \Location_0}
-  &=&
-  \begin{pmatrix}
-    2 a + 2 c x_0 + \delta y_0\\
-    2 b + \delta x_0 + 2 e y_0\\
-    - 2
-  \end{pmatrix}
-  \\
-  \frac{\partial G}{\partial \Vector{d}}
-  &=&
-  \Vector{0}
-  \\
-  \frac{\partial H}{\partial \Location_0}
-  &=&
-  \Vector{0}
-  \\
-  \frac{\partial H}{\partial \Vector{d}}
-  &=&
-  \begin{pmatrix}
-    - 2 c d_x - \delta d_y\\
-    - \delta d_x - 2 e d_y\\
-    0
-  \end{pmatrix}
+ \Vector{n} &\approx& 
+ \begin{pmatrix}
+   - \rho_{xx} x - \rho_{xy} y \\
+   - \rho_{yy} y - \rho_{xy} x \\
+   1
+ \end{pmatrix}
+ \label{eq:quadratic_form_near_axis_normal}
 \end{eqnarray}
 
-\subsubsection{On the equality of quadratic form and biconic}
+
+
+
+\subsubsection{Quadratic Form as a Special Case of Biconic}
 Rotating the coordinate system,
 \begin{eqnarray}
  x &=& \tilde{x} \cos(\phi) - \tilde{y} \sin(\phi) \\
  y &=& \tilde{x} \sin(\phi) + \tilde{y} \cos(\phi)
 \end{eqnarray}
-one can represent the quadratic form in its principal axes system, eliminating the $\delta x y$ term. 
+one can represent the quadratic form in its principal axes system, eliminating the $\rho_{xy} x y$ term. 
 The principal axes of $\tilde{x}$ and $\tilde{y}$ are orthogonal.
 %\begin{eqnarray}
-% \sin^2(\phi) &=& \frac{1}{2} \pm \sqrt{\frac{1}{4} - \frac{\delta^2}{4 \delta^2 + 4 (c-e)^2 } } \\
-% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{1 - \frac{\delta^2}{\delta^2 + (c-e)^2 } } \\ 
-% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(c-e)^2}{\delta^2 + (c-e)^2 } } \\ 
+% \sin^2(\phi) &=& \frac{1}{2} \pm \sqrt{\frac{1}{4} - \frac{(2 \rho_{xy})^2}{4 (2 \rho_{xy})^2 + 4 (\rho_{xx}-\rho_{yy})^2 } } \\
+% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{1 - \frac{(2 \rho_{xy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } } \\ 
+% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(\rho_{xx}-\rho_{yy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } } \\ 
 %\end{eqnarray}
 \begin{eqnarray}
- z &=& \tilde{a} \tilde{x} + \tilde{b} \tilde{y} + \frac{1}{2} \tilde{c} \tilde{x}^2 + \frac{1}{2} \tilde{e} \tilde{y}^2
+ z &=& \frac{1}{2} \tilde{\rho}_{xx} \tilde{x}^2 + \frac{1}{2} \tilde{\rho}_{yy} \tilde{y}^2
 \end{eqnarray}
 with
 \begin{eqnarray}
- \tilde{a} &=& a \cos(\phi) + b \sin(\phi) \\
- \tilde{b} &=& -a \sin(\phi) + b \cos(\phi) \\
- \tilde{c} &=& a \cos^2(\phi) + b \sin(\phi) \cos(\phi) + c \sin^2(\phi) \\
- \tilde{e} &=& a \sin^2(\phi) - b \sin(\phi) \cos(\phi) + c \cos^2(\phi) \\
- \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(c-e)^2}{\delta^2 + (c-e)^2 } }
-\end{eqnarray}
-The term under square root is nonnegative for real valued $c,\delta,e$. 
-
-Next we shift our coordinate system
+ \tilde{\rho}_{xx} &=& TODO \\
+ \tilde{\rho}_{yy} &=& TODO\\
+ \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(\rho_{xx}-\rho_{yy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } }
+\end{eqnarray}\remark{TODO: needs checking}
+The term under square root is nonnegative for real valued $\rho_{xx},\rho_{xy},\rho_{yy}$. 
+After rotating the coordinate system, the quadratic form is equivalent to a biconic with
 \begin{eqnarray}
-  \tilde{x} &=& \tilde{\tilde{x}} + \Delta x \\
-  \tilde{y} &=& \tilde{\tilde{y}} + \Delta y
-\end{eqnarray}
-%
-%\begin{eqnarray}
-% z &=& \tilde{a} ( \tilde{\tilde{x}} + \Delta x ) \nonumber \\
-%   &&  + \tilde{b} ( \tilde{\tilde{y}} + \Delta y ) \nonumber \\ 
-%   &&  + \frac{1}{2} \tilde{c} ( \tilde{\tilde{x}} + \Delta x )^2  \nonumber \\ 
-%   &&  + \frac{1}{2} \tilde{e} ( \tilde{\tilde{y}} + \Delta y )^2  \\
-% z &=& \tilde{a} \tilde{\tilde{x}} + \tilde{a} \Delta x \nonumber \\
-%   &&  + \tilde{b} \tilde{\tilde{y}} + \tilde{b} \Delta y \nonumber \\ 
-%   &&  + \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \tilde{c} \tilde{\tilde{x}} \Delta x + \frac{1}{2} \tilde{c} \Delta x^2  \nonumber \\ 
-%   &&  + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2 + \tilde{e} \tilde{\tilde{y}} \Delta y + \frac{1}{2} \tilde{e} \Delta y^2 \\
-% z &=& \tilde{a} \Delta x + \tilde{b} \Delta y + \frac{1}{2} \tilde{c} \Delta x^2 + \frac{1}{2} \tilde{e} \Delta y^2 \nonumber \\
-%   && + \tilde{a} \tilde{\tilde{x}} + \tilde{c} \tilde{\tilde{x}} \Delta x \nonumber \\
-%   && + \tilde{b} \tilde{\tilde{y}} + \tilde{e} \tilde{\tilde{y}} \Delta y \nonumber \\
-%   &&  + \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2
-%\end{eqnarray}
-We choose
-%\begin{eqnarray}
-% 0 &=& \tilde{a} \tilde{\tilde{x}} + \tilde{c} \tilde{\tilde{x}} \Delta x \\
-% 0 &=& \tilde{b} \tilde{\tilde{y}} + \tilde{e} \tilde{\tilde{y}} \Delta y
-%\end{eqnarray}
-\begin{eqnarray}
- \Delta x &=& -\frac{\tilde{a}}{\tilde{c}} \\
- \Delta y &=& -\frac{\tilde{b}}{\tilde{e}}
-\end{eqnarray}
-in case both principlal curvatures are nonzero. This results in a sag equation
-\begin{eqnarray}
-  z - \Delta z &=& \frac{1}{2} \tilde{c} \tilde{\tilde{x}}^2 + \frac{1}{2} \tilde{e} \tilde{\tilde{y}}^2 \\
-  \Delta z &=& \tilde{a} \Delta x + \tilde{b} \Delta y + \frac{1}{2} \tilde{c} \Delta x^2 + \frac{1}{2} \tilde{e} \Delta y^2
-\end{eqnarray}
-
-That is: 
-After rotating and shifting the coordinate system, the quadratic form is equivalent to a biconic with
-\begin{eqnarray}
- \rho_x &=& \tilde{c} \\
- \rho_y &=& \tilde{e} \\
+ \rho_x &=& \tilde{\rho}_{xx} \\
+ \rho_y &=& \tilde{\rho}_{yy} \\
  c_x &=& -1 \\
  c_y &=& -1
 \end{eqnarray}
-In case exactly one principal curvature is zero, the quadratic form is equivalent to a tilted parabolic acylinder, and in case both curvatures are zero, it is equivalent to a tilted plane.
-In those cases, the tilt cannot be compensated by an equivalent coordinate shift.
-
 
 \subsection{Conics}
 Conics are the rotationally symmetric special case of a biconic $\rho_x = \rho_y$, $c_x = c_y$ .
@@ -2148,66 +2678,129 @@ to do
 to do
 
 \subsection{Linear Combinations}
-\remark{I would suggest to implement a few standard forms and to combine them by a linear combination operator. This makes the search for optimizable
-variables more difficult.}
-
-
+to do
 
 
 \section{Ray Aiming}
 The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
-Often, the desired size of the pupil is not given explicitly, but the optical designer wants to specify a f-number or a numerical aperture.
-This section deals with the conversion between different pupil and field descriptions and how to find suitable starting positions and directions of rays in the object plane.
-If possible, we prefer a description that is numerically stable for telecentric systems or infinite conjugate systems.
+Ray aiming allows to obtain initial ray properties for such ray bundles.
+Our ansatz of ray aiming consists of the following steps:
+\begin{itemize}
+ \item Calculate the stop size in paraxial or parabasal approximation.
+ \item Calculate ray starting points and wavevectors for the given field and pupil coordinate in paraxial or parabasal approximation
+ \item Convert the paraxially approximated wavevectors to real wavevectors
+       ( wavevectors obeying the dispersion relation in the object material )
+ \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates 
+       and whether the stop size fulfills the designer's aperture definition.
+       Optimize the aiming iteratively.
+ \item Adapt the ray intensities so that the ray bundle resembles the radiant intensity of the light source.
+\end{itemize}
 
-\subsection{Ray origin for finite conjugate objects}
-For finite conjugate objects, the object plane is part of the optical system. Rays from one field point originate from the same point in the object plane.
+\subsection{Stop Size}
+We use the stop size as a universal measure for the aperture definition.
+A definition of pupil size and position would become numerically instable for telecentric systems.
+Numerical aperture or aperture number (f-stop) definitions would be unsuitable for infinite conjugate systems.
+The stop, as physical part of the optical system, is always finite sized and at a finite distance.
+In the following, we show how to convert different aperture definitions to a stop size.
+If possible, we prefer numerically stable formulas that also hold for the special cases of infinite conjugate or telecentric systems.
 
-to do
+todo:
+StopDiameter
+ExitPupilDiameter 
+EntrancePupilDiameter
+InfiniteConjugateObjectSpaceFNumber
+InfiniteConjugateImageSpaceFNumber
+WorkingObjectSpaceFNumber
+WorkingImageSpaceFNumber
+ObjectSpaceNA
+ImageSpaceNA \remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
 
-\subsection{Ray origin for infinite conjugate objects}
-to do
 
-\subsection{Ray directions}
-We want to cast rays from the ray origin positions so that they hit certain coordinates in the pupil plane. 
-The na\"{\i}ve ansatz to subtract the ray origin from the desired pupil coordinate to obtain the ray direction will likely fail numerically for telecentric systems.
-Therefrore, we derive the marginal ray slope and the chief ray slope from the first order properties of the system and base the ray directions on these two quantities.
-%
+\subsection{Ray Origin for Finite Conjugate Objects}
+In object sided finite conjugate systems, the ray origin defines the field, and the ray wavevector defines the pupil position.
+
+\subsubsection{Specification of Object Ray Height}
+In case the field is specified by the object sided ray height,
+this definition directly fixes the ray origin in the object plane.
+A parabasal calculation is error-free.
+
+\subsubsection{Specification of Object Sided Chief Ray Angle}
+This definition is uncommon for finite conjugate systems. 
+It makes sense for large object distances and small apertures.
+It is unsuitable for object sided telecentric systems.
+
+The ray origin is obtained approximately like this \remark{TODO: explain properly}
+\begin{itemize}
+ \item Calculation of entrance pupil position 
+       \remark{TODO: what is the pupil position if there is on-axis astigmatism between stop and pupil ?}
+ \item Calculation of Pilot direction (normalized pilot Poynting vector)
+ \item Chief direction = Pilot direction, rotated by the specified field angle
+ \item The chief ray is a ray with the chief direction, that intersects the pilot in the pupil
+ \item Ray origin = intersection of object plane and chief ray
+\end{itemize}
+
+Using real rotation matrices (Rodrigues matrices) makes this algorithm more robust for finite fields.
+The results, however, may still need iterative adaption for increased accuracy, as the real pupil position may move with field.
+
+\subsubsection{Specification of Image Sided Ray Height}
+The object sided ray height is obtained from the image sided ray height by the inverse of the XYUV matrix between object and image.
+\remark{TODO: what is THE object position belonging to an image position if there is on-axis astigmatism ? Chief ?}
+
+
+
+\subsection{Ray Direction for Finite Conjugate Objects}
+The ray originates from a point $\Vector{R}_{obj}$, defined by the field definition (see above).
+Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
+The ray direction is to be chosen accordingly.
+We reduce the 4 dimensional wavevector deviation $\Vector{K}$ to the 2 dimensional $\kappa$ base according to \eqref{eq:deltaK_as_kappa}
+and find in parabasal approximation
 \begin{eqnarray}
-  \left. \frac{\partial x}{\partial z}\right|_{ray} &=& \left. \frac{\partial x}{\partial z}\right|_{chief} + \left. \frac{\partial x}{\partial z}\right|_{marginal} \cdot x_{pup} \\
-  \left. \frac{\partial y}{\partial z}\right|_{ray} &=& \left. \frac{\partial y}{\partial z}\right|_{chief} + \left. \frac{\partial y}{\partial z}\right|_{marginal} \cdot y_{pup}
+% \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+%                  +    \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+% \\
+% \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} &=& 
+%                  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+% \\
+ \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+ &=&
+ \hat{\tilde{B}}_{obj\rightarrow stop}^{-1}
+ \left(
+    \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} 
+ \right) 
 \end{eqnarray}
-where $x_{pup}, y_{pup} \in [-1,1]$ are pupil coordinates normalized to the pupil radius. 
-An equidistant mesh of pupil coordinates will may result in a constant ray density per solid angle, especially for high-NA systems or systems with large field angles.
-A non-equidistant sampling grid limits the validity of fast-Fourier based calculation methods.
 
-\subsubsection{Paraxial pupil aiming}
-In paraxial pupil aiming, the optical system is represented by ABCD-Matrices and the marginal slope is calculated paraxially.
-We split the optical system into one ABCD Matrix from the object to the stop
-\begin{eqnarray*}
- ABCD_{obj\rightarrow stop} &=&
- \begin{pmatrix}
-  A_o & B_o \\ C_o & D_o
- \end{pmatrix}
-\end{eqnarray*}
-and one matrix from the stop to the image
-\begin{eqnarray*}
- ABCD_{stop\rightarrow ima} &=&
- \begin{pmatrix}
-  A_i & B_i \\ C_i & D_i
- \end{pmatrix}
-\end{eqnarray*}
-The pupil is the image of the stop, imaged by the front lens group $ABCD_{obj\rightarrow stop}$ for the entrance pupil and the rear lens group $ABCD_{stop\rightarrow ima}$ for the exit pupil, respectively.
-The entrance pupil is imaged to distance $z_{en}$ from the object and appears to be magnified in size by a factor of $mag_{en}$ compared to the stop. 
-Similarly, the exit pupil has a distance $z_{ex}$ from the image and a magnification of $mag_{ex}$.
+
+\subsection{Ray Direction for Infinite Conjugate Objects}
+In object sided infinite conjugate systems, the desired field defines the ray direction, 
+and the ray height on the first surface of the finite sized optical system defines the pupil position.
+
+We restrict the starting wavevector deviation from the pilot to the 2 dimensional base of $\kappa$ according to \eqref{eq:deltaK_as_kappa}.
+We calculate the change in Poynting vector when the wavevector is changed infinitessimally in direction of $\kappa_1$ or $\kappa_2$
+and conclude the change of ray direction $\Vector{d}$
 \begin{eqnarray}
- z_{en} &=& \frac{B_o}{A_o} \\
- mag_{en} &=& \frac{1}{A_o} \\
- z_{ex} &=& - \frac{B_i}{D_i} \\
- mag_{ex} &=& A_i - \frac{B_i C_i}{D_i}
+ \Vector{d} \approx \Vector{d}_{pilot} + \frac{\partial \Vector{d}}{\partial \kappa_i} \kappa_i
 \end{eqnarray}
-For telecentric systems, an expression of the pupil rastering in terms of $z_{en}$ or $z_{ex}$ is depreceated. 
-Expressing everything in terms of ABCD matrices, it is often possible to reduce fractions analytically and avoid numerical instabilities.
+\remark{TODO: explicit formula}
+
+
+\subsection{Ray Origin for Infinite Conjugate Objects}
+The ray wavevector is defined by the field definition (see above).
+Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
+To achieve this, we set ray height $\Vector{R}_{surf1}$ on the first surface of our finite sized optical system. 
+We find in parabasal approximation
+\begin{eqnarray}
+ \Vector{R}_{surf1}                 
+ &=&
+ \hat{\tilde{A}}_{surf1\rightarrow stop}^{-1}
+ \left(
+   \Vector{R}_{stop} - \hat{\tilde{B}}_{surf1\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+ \right)
+\end{eqnarray}
+
+
+
+
+
 
 \section{Wave Aberrations}
 Despite its name suggests this representation of aberrations would be based on wave optics, its calculation is purely geometrical.
@@ -2252,7 +2845,7 @@ From the exit pupil to the image, a Huygens propagation is performed numerically
 The retardation of each point-source, however, is calculated using geometrical optics.
 In a system without any aberrations made of isotropic materials, all point-sources are in phase and form a spherical wave segment, converging towards a spot of minimal spatial extent.
 All aberrations cause a perturbation of the spherical wave, and an extended spot size.
-The accurracy of the result compared to full physical wave-optical calculations of the point-spread function of the whole system is often astonishing. 
+The accuracy of the result compared to full physical wave-optical calculations of the point-spread function of the whole system is often astonishing. 
 
 To reduce calculation times, the electric field map of the emitters in the curved exit pupil is often assumed planar and equidistant. 
 The normalized ray coordinates in entrance and exit pupil are assumed to be identical.
@@ -2313,6 +2906,134 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
 \bibliographystyle{unsrt}
 \addcontentsline{toc}{chapter}{Bibliography}
 \bibliography{pyrate}
+
+
+
+\chapter{Nomenclature}
+\begin{tabular}{l|l|l|l}
+ Variable & Description & Type or Value & Unit \\
+ \hline
+ $A$ & element of an ABCD matrix & $\mathbb{R}$ & 1 \\
+ $\hat{A}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & 1 \\
+ $\hat{A}$ & differential operator of the Helmholtz equation & tensor of $\mathbb{C}$ & $\frac{1}{\meter^2}$\\
+ $a$ & polynomial or series coefficients & $\mathbb{R}$ or $\mathbb{C}$ & various\\
+ \hline
+ $\Bfield$ & magnetic flux density & pseudo-vector of $\mathbb{R}$ or $\mathbb{C}$ & $\tesla = \frac{\volt\second}{\meter^2} $\\
+ $B$ & element of an ABCD matrix & $\mathbb{R}$ & \meter \\
+ $\hat{B}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & $\meter^2$ \\
+ \hline
+ $C$ & element of an ABCD matrix & $\mathbb{R}$ & 1/\meter\\
+ $\hat{C}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & 1/$\meter^2$\\
+ $c_\vacuum$ & vacuum speed of light & 299792458 & \meter /\second \\
+ $c$ & conic constant & $\mathbb{R}$ & 1 \\
+ $c$ & polynomial or series coefficients & $\mathbb{R}$ or $\mathbb{C}$ & various\\
+ \hline
+ $\Dfield$ & electric displacement field & vector of $\mathbb{R}$ or $\mathbb{C}$ & $\frac{\ampere \second}{\meter^2}$\\
+ $D$ & element of an ABCD matrix & $\mathbb{R}$ & 1\\
+ $\hat{D}$ & sub-matrix of an XYUV matrix & matrix of $\mathbb{R}$ & 1\\
+ $\Vector{d}$ & unit ray direction & vector of $\mathbb{R}$ or $\mathbb{C}$ & 1\\
+ \hline
+ $\Efield$ & electric field & vector of $\mathbb{R}$ or $\mathbb{C}$ & \volt /\meter \\
+ $\Vector{e}$ & unit vector & vector of $\mathbb{R}$ or $\mathbb{C}$ & 1\\
+ \hline
+ $f$ & focal length & $\mathbb{R}$ & \meter \\
+ $F$ & coefficient of intersection equation & $\mathbb{R}$ & 1\\
+ \hline
+ $\hat{G}$ & ray propagation operator &&\\
+ $G$ & coefficient of intersection equation & $\mathbb{R}$ & \meter\\
+ \hline
+ $\Hfield$ & magnetic field & pseudo-vector of $\mathbb{R}$ or $\mathbb{C}$ & \ampere /\meter \\
+ $H$ & Hamiltonian of geometric optics && \\
+ $H$ & coefficient of intersection equation & $\mathbb{R}$ & 1/\meter \\
+ \hline
+ $I$ & intensity & $\mathbb{R}_{>0}$ & $\frac{\watt}{\meter^2}$ \\
+ \hline
+ $\currentdensity$ & current density & vector of $\mathbb{R}$ & $\frac{\ampere}{\meter^2}$ \\
+ \hline
+ $\Vector{K}$ & XYUV wavevector deviation from pilot & 4D-vector of $\mathbb{R}$ & 1/\meter \\
+ $\Wavevector$ & wavevector & vector of $\mathbb{C}$ & 1/\meter \\
+ \hline
+ $L$ & optical path length & $\mathbb{R}$ & \meter \\
+ $\mathcal{L}$ & Lagrangian of geometric optics &&\\
+\end{tabular}\\
+\begin{tabular}{l|l|l|l}
+ Variable & Description & Type or Value & Unit \\
+ \hline
+ $M$ & mode index &\{ r1, r2, t1, t2 \}&\\
+ $\hat{M}$ & intermediate matrix for XYUV calculus & matrix of $\mathbb{R}$ or $\mathbb{C}$ & various\\
+ \hline
+ $N$ & normalization constant for electric field & $\mathbb{C}$ & \volt /\meter \\
+ \hline
+ $\Vector{n}$ & surface normal unit vector & vector of $\mathbb{R}$ & 1\\
+ $n$ & refractive index & $\mathbb{C}$ & 1\\
+ \hline
+ $R$ & radius of curvature & $\mathbb{R}$ & \meter \\
+ $\Vector{R}$ & XYUV field coordinate & 2D-vector of $\mathbb{R}$ & \meter \\ 
+ $\Vector{r}$ & location & vector of $\mathbb{R}$ & \meter \\
+ \hline
+ $\Vector{S}$ & Poynting vector & vector of $\mathbb{R}$ & $\frac{\watt}{\meter^2}$\\
+ $s$ & arc length & $\mathbb{R}$ & \meter \\
+ \hline
+ $t$ & time & $\mathbb{R}$ & \second \\
+ $t$ & straight parameter & $\mathbb{R}$ & \meter \\
+ \hline
+ $U,V$ & wavevector deviation from pilot ray & $\mathbb{C}$ & 1/\meter \\
+ \volt & Volt & 1 & $\frac{\textrm{kg\,m}^2}{\textrm{A\,s}^3}$ \\
+ \hline
+ $x,y,z$ & cartesian coordinates & $\mathbb{R}$ & \meter \\
+ $y$ & ABCD ray height & $\mathbb{R}$ & \meter \\
+ $y^{\,\prime}$ & ABCD ray inclination& $\mathbb{R}$ & 1\\
+ $z$ & surface sag & $\mathbb{R}$ & \meter \\
+ \hline
+ $X,Y$ & coordinates in tangential plane& $\mathbb{R}$ & \meter \\
+ \hline
+ $\alpha$ & mode index & $\{ 1, 2 \}$ & \\
+ \hline 
+ $\beta$ & mode index & $\{ r, t \}$ & \\
+ \hline
+ $\permittivity$ & electric permittivity & tensor of $\mathbb{R}$ or $\mathbb{C}$ & $\frac{\ampere \second}{\volt \meter}$ \\
+ $\vacuumpermittivity$ & electric permittivity of vacuum & $8.8542...\cdot 10^{-12}$ & $\frac{\ampere \second}{\volt \meter}$ \\
+ $\relativepermittivity$ & relative permittivity & tensor of $\mathbb{R}$ or $\mathbb{C}$ & 1\\
+ \hline
+ $\lambda$ & wavelength & $\mathbb{R}_{>0}$ & \meter \\
+ \hline
+ $\permeability$ & magnetic permeability & tensor of $\mathbb{R}$ & $\frac{\volt \second}{\ampere \meter}$ \\
+ $\vacuumpermeability$ & magnetic permeability of vacuum & $4\pi \cdot 10^{-7}$ & $\frac{\volt \second}{\ampere \meter}$ \\
+ $\relativepermeability$ & relative permeability & tensor of $\mathbb{R}$ & 1\\
+ \hline
+ $\chargedensity$ & charge density & $\mathbb{R}$ & $\frac{\ampere \second}{\meter^3}$ \\
+ $\rho$ & surface curvature & $\mathbb{R}$ & 1/\meter \\
+ \hline
+ $\conductivity$ & conductivity & tensor of $\mathbb{R}$ & $\frac{\ampere}{\volt\meter}$\\
+ \hline
+ $\varsigma$ & sign prefactor & $\pm 1$ & \\
+ \hline
+ $\theta$ & angle of incidence relative to normal & $\mathbb{R}$ & rad \\
+ \hline
+ $\xi$ & wavevector normal component & $\mathbb{C}$ & 1/\meter \\
+ \hline
+ $\omega$ & angular frequency & $\mathbb{R}_{>0}$ & 1/\second
+\end{tabular}
+
+\chapter{Some Math Notes}
+\section{Determining in-plane Vectors}
+Assume we have a given surface normal unit vector $\Vector{n}$ 
+and want to determine both vectors orthogonal to it $\Vector{e}_1, \Vector{e}_2$.
+We assume further we have a cartesian base $\Vector{e}_x, \Vector{e}_y, \Vector{e}_z$.
+We define a rotation operator $\hat{R}$ to rotate vectors.
+We choose $\hat{R}$ so that
+\begin{eqnarray}
+ \Vector{n} &=& \hat{R}(\Vector{e}_z)
+\end{eqnarray}
+\remark{todo: write down explicit form of Rodrigues matrix in a numerically stable way}
+Then follows
+\begin{subequations}
+\begin{eqnarray}
+ \Vector{e_1} &=& \hat{R}(\Vector{e}_x) \\
+ \Vector{e_2} &=& \hat{R}(\Vector{e}_y)
+\end{eqnarray} \label{eq:normal_to_inplane_vectors}
+ \end{subequations}
+
 
 
 

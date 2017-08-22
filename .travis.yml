@@ -9,7 +9,7 @@ addons:
       - liblapack-dev   # needed for scipy/numpy
       - gfortran        # needed for scipy/numpy
 install:
-  - pip install -U pip pip-tools
+  - pip install -U pip pip-tools setuptools
   - pip-compile                       # requirements.in -> requirements.txt
   - pip install -r requirements.txt   # install pyrate dependences
 script:

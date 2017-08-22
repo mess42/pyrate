@@ -28,7 +28,7 @@ from hypothesis.extra.numpy import arrays
 import numpy as np
 import sympy
 from core.localcoordinates import LocalCoordinates
-from core.material import AnisotropicMaterial
+from core.material_anisotropic import AnisotropicMaterial
 
 @given(rnd_data1=arrays(np.float, (3, 3), elements=floats(0, 1)),
        rnd_data2=arrays(np.float, (3, 3), elements=floats(0, 1)),

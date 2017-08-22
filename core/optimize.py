@@ -22,14 +22,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import uuid
+import math
 
-class OptimizableVariable(object):
+from log import BaseLogger
+
+class OptimizableVariable(BaseLogger):
     """
     Class that contains an optimizable variable. Used to get a pointer on a variable.
     The value is not constrained to float. Also other dependent variables are possible to define.
     """
     def __init__(self, variable_type="fixed", **kwargs):
+
+        super(OptimizableVariable, self).__init__(name=kwargs.pop('name', ''), **kwargs)
+
         """
         Name is gone since it's only needed for reference. Therefore the former listOfOptimizableVariables
         will be a dictionary. type may contain a string e.g.
@@ -71,24 +76,38 @@ class OptimizableVariable(object):
         self.changetype(variable_type)
         self.parameters = kwargs
 
-        # TODO: status variable for "pickup" and "external"
-        # TODO: either status variable is important or not
-        # TODO: most simple solution -> ignore status variable for "pickup" and "external"
-        # TODO: more complex solution -> use status variable to update initial_value and return its value
-        # in evaluate()
-
         self.initial_value = self.evaluate()
-
+        self.set_interval(None, None)
 
 
     def __str__(self, *args, **kwargs):
-        return "OptVar('" + self.var_type + "') = " + str(self.parameters)
+        return self.name + "('" + self.var_type + "') = " + str(self.parameters)
 
     def getVarType(self):
         return self.__var_type.lower()
 
     var_type = property(fget=getVarType)
 
+    def set_interval(self, left=None, right=None):
+        """
+        Interval transform from finite to infinite and back.
+        The reason for this is that the optimizer backend has
+        only to deal with infinite range variables and the user
+        can transparently change the interval. The idea and
+        verification is (up to a slight change in the 
+        transformation) taken from:
+        M. Roeber, "Multikriterielle Optimierungsverfahren fuer
+        rechenzeitintensive technische Aufgabenstellungen",
+        Diploma Thesis, Technische Universitaet Chemnitz, 
+        2010-03-31
+        """
+        # TODO: fine-tune for one-sided intervals
+        if left is None and right is None:
+            self.transform = lambda x: x
+            self.inv_transform = lambda x: x
+        else:
+            self.inv_transform = lambda x: left + (right - left)/(1. + math.exp(-x/math.fabs(right - left)))
+            self.transform = lambda x: math.log((-x + left)/(x - right))*math.fabs(left - right)
 
     def changetype(self, vtype, **kwargs):
         self.__var_type = vtype.lower()
@@ -136,33 +155,38 @@ class OptimizableVariable(object):
     def __call__(self):
         return self.evaluate()
         
-class ClassWithOptimizableVariables(object):
+    def evaluate_transformed(self):
+        '''
+        Transform variable value from finite interval to infinite IR before evaluation
+        '''
+        return self.transform(self.evaluate())
+        
+    def setvalue_transformed(self, value_transformed):
+        '''
+        Transform value back from infinite IR before setting value
+        '''
+        value = self.inv_transform(value_transformed)
+        self.setvalue(value)
+        
+class ClassWithOptimizableVariables(BaseLogger):
     """
     Implementation of some class with optimizable variables with the help of a dictionary.
     This class is also able to collect the variables and their values from its subclasses per recursion.
     """
-    def __init__(self, name = ""):
+    def __init__(self, name = "", **kwargs):
         """
         Initialize with empty dict.
         """
-        self.setName(name)
-        self.dict_variables = {}
+        super(ClassWithOptimizableVariables, self).__init__(name=name, **kwargs)
+        #self.dict_variables = {}
         self.list_observers = [] 
         # for the optimizable variable class it is useful to have some observer links
         # they get informed if variables change their values
 
-    def __call__(self, key):
-        return self.dict_variables.get(key, None)
+    # DAS brauchst Du jetzt nicht mehr!
+    #def __call__(self, key):
+    #    return self.dict_variables.get(key, None)
 
-    def setName(self, name):
-        if name == "":
-            name = str(uuid.uuid4())
-        self.__name = name
-        
-    def getName(self):
-        return self.__name
-        
-    name = property(getName, setName)
 
 
     def appendObservers(self, obslist):
@@ -172,11 +196,11 @@ class ClassWithOptimizableVariables(object):
         for obs in self.list_observers:
             obs.informAboutUpdate()
 
-    def addVariable(self, name, var):
-        """
-        Add some variable into dict.
-        """
-        self.dict_variables[name] = var
+    #def addVariable(self, name, var):
+    #    """
+    #    Add some variable into dict.
+    #    """
+    #    self.dict_variables[name] = var
 
 
                 
@@ -245,21 +269,29 @@ class ClassWithOptimizableVariables(object):
         for i, var in enumerate(self.getActiveVariables()):
             var.setvalue(x[i])
 
+    def getActiveTransformedValues(self):
+        return np.array([a.evaluate_transformed() for a in self.getActiveVariables()])
 
-        
+    def setActiveTransformedValues(self, x):
+        """
+        Function to set all values of active variables to the values in the large np.array x.
+        """
+        for i, var in enumerate(self.getActiveVariables()):
+            var.setvalue_transformed(x[i])
 
-class Optimizer(object):
+
+class Optimizer(BaseLogger):
     '''
     Easy optimization interface. All variables are public such that a quick
     attachment of other meritfunctions or other update functions with other
     parameters is possible.
     '''
-    def __init__(self, classwithoptvariables, meritfunction, backend, updatefunction=None):
+    def __init__(self, classwithoptvariables, meritfunction, backend, name='', updatefunction=None):
 
         def noupdate(cl):
             pass
         
-        super(Optimizer, self).__init__()
+        super(Optimizer, self).__init__(name=name)
         self.classwithoptvariables = classwithoptvariables
         self.meritfunction = meritfunction # function to minimize
         if updatefunction is None:
@@ -270,7 +302,7 @@ class Optimizer(object):
        
         self.meritparameters = {}
         self.updateparameters = {}
-        self.log = "" # for logging
+        self.number_of_calls = 0 # how often is the merit function called during one run?
 
     def setBackend(self, backend):
         self.__backend = backend
@@ -288,21 +320,31 @@ class Optimizer(object):
     
         :return value of the merit function
         """
-        self.classwithoptvariables.setActiveValues(x)
+        self.number_of_calls += 1
+        self.classwithoptvariables.setActiveTransformedValues(x)
         self.updatefunction(self.classwithoptvariables, **self.updateparameters)    
-        return self.meritfunction(self.classwithoptvariables, **self.meritparameters)
+        res = self.meritfunction(self.classwithoptvariables, **self.meritparameters)
+        self.debug("call number " + str(self.number_of_calls) + " meritfunction: " + str(res))
+        return res
 
     def run(self):
         '''
         Funtion to perform a certain number of optimization steps.
         '''
-        x0 = self.classwithoptvariables.getActiveValues()
-        self.log += "initial x: " + str(x0) + '\n'
-        self.log += "initial merit: " + str(self.MeritFunctionWrapper(x0)) + "\n"
+        self.info("optimizer run start")        
+        x0 = self.classwithoptvariables.getActiveTransformedValues()
+        
+        self.info("initial x: " + str(x0))
+        self.info("initial merit: " + str(self.MeritFunctionWrapper(x0)))
+        self.debug("calling backend run")
         xfinal = self.__backend.run(x0)
-        self.log += "final x: " + str(xfinal) + '\n'
-        self.log += "final merit: " + str(self.MeritFunctionWrapper(xfinal)) + "\n"
-        self.classwithoptvariables.setActiveValues(xfinal)
+        self.debug("finished backend run")
+        self.info("final x: " + str(xfinal))
+        self.info("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
+        self.classwithoptvariables.setActiveTransformedValues(xfinal)
         # TODO: do not change original classwithoptvariables
+        self.info("called merit function " + str(self.number_of_calls) + " times.")
+        self.number_of_calls = 0
+        self.info("optimizer run finished")        
         return self.classwithoptvariables
 

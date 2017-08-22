@@ -28,7 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 import random
-import uuid
+
+from helpers_math import rodrigues
 
 from optimize import ClassWithOptimizableVariables, OptimizableVariable
 
@@ -53,39 +54,23 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                           1 or True means: tiltz first, then tilty, then tiltx, then decenter.       
                         observers:        list of observers derived from AbstractObserver
         '''
-        super(LocalCoordinates, self).__init__()        
+        super(LocalCoordinates, self).__init__(name=name, **kwargs)        
 
         
         (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
         (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "tiltThenDecenter"])
 
         self.list_observers = kwargs.get("observers", [])        
-        
-        
-        if name == "":
-            name = str(uuid.uuid4()).lower() # TODO: translate - into _
-        
-        self.setName(name)
-        
+                
         
 
-        self.decx = OptimizableVariable(variable_type='fixed', value=decx)
-        self.decy = OptimizableVariable(variable_type='fixed', value=decy)
-        self.decz = OptimizableVariable(variable_type='fixed', value=decz)
-        self.tiltx = OptimizableVariable(variable_type='fixed', value=tiltx)
-        self.tilty = OptimizableVariable(variable_type='fixed', value=tilty)
-        self.tiltz = OptimizableVariable(variable_type='fixed', value=tiltz)
-        
-
-
-        self.addVariable("decx", self.decx)
-        self.addVariable("decy", self.decy)
-        self.addVariable("decz", self.decz)
-        self.addVariable("tiltx", self.tiltx)
-        self.addVariable("tilty", self.tilty)
-        self.addVariable("tiltz", self.tiltz)
-        
-        
+        self.decx = OptimizableVariable(name="decx", variable_type='fixed', value=decx)
+        self.decy = OptimizableVariable(name="decy", variable_type='fixed', value=decy)
+        self.decz = OptimizableVariable(name="decz", variable_type='fixed', value=decz)
+        self.tiltx = OptimizableVariable(name="tiltx", variable_type='fixed', value=tiltx)
+        self.tilty = OptimizableVariable(name="tilty", variable_type='fixed', value=tilty)
+        self.tiltz = OptimizableVariable(name="tiltz", variable_type='fixed', value=tiltz)
+       
         self.tiltThenDecenter = tiltThenDecenter
         
         self.parent = None # None means reference to root coordinate system 
@@ -140,27 +125,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         return childlc
     
 
-    def rodrigues(self, angle, a):
-        ''' 
-        returns numpy matrix from Rodrigues formula.
-        
-        @param: (float) angle in radians
-        @param: (numpy (3x1)) axis of rotation (unit vector)
-        
-        @return: (numpy (3x3)) matrix of rotation
-        '''
-        mat = np.array(\
-            [[    0, -a[2],  a[1]],\
-             [ a[2],     0, -a[0]],\
-             [-a[1],  a[0],    0]]\
-             )
-        return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
     
     def calculateMatrixFromTilt(self, tiltx, tilty, tiltz, tiltThenDecenter=0):
         if tiltThenDecenter == 0:
-            res = np.dot(self.rodrigues(tiltz, [0, 0, 1]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltx, [1, 0, 0])))
+            res = np.dot(rodrigues(tiltz, [0, 0, 1]), np.dot(rodrigues(tilty, [0, 1, 0]), rodrigues(tiltx, [1, 0, 0])))
         else:
-            res = np.dot(self.rodrigues(tiltx, [1, 0, 0]), np.dot(self.rodrigues(tilty, [0, 1, 0]), self.rodrigues(tiltz, [0, 0, 1])))
+            res = np.dot(rodrigues(tiltx, [1, 0, 0]), np.dot(rodrigues(tilty, [0, 1, 0]), rodrigues(tiltz, [0, 0, 1])))
         return res
         
     def FactorMatrixXYZ(self, mat):

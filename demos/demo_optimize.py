@@ -27,12 +27,14 @@ import matplotlib.pyplot as plt
 import matplotlib
 from distutils.version import StrictVersion
 
+import logging
+
 import math
 
-from core import material
+from core.material_isotropic import ConstantIndexGlass
 from core import surfShape
 from core.optimize import Optimizer
-from core.optimize_backends import ScipyBackend, Newton1DBackend
+from core.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
 from core.ray import RayBundle
 
 from core.aperture import CircularAperture, BaseAperture
@@ -46,7 +48,12 @@ from core.surface import Surface
 
 from core.globalconstants import canonical_ey
 
+from core.optical_system_analysis import OpticalSystemAnalysis
+from core.surfShape_analysis import ShapeAnalysis
+
 wavelength = standard_wavelength
+
+logging.basicConfig(level=logging.DEBUG)
 
 # definition of optical system
 s = OpticalSystem() # objectDistance = 2.0
@@ -72,10 +79,10 @@ surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=0.1*1/1.479))
 image = Surface(lc8)
 
 
-elem = OpticalElement(lc0, label="lenssystem")
+elem = OpticalElement(lc0, name="lenssystem")
 
-glass = material.ConstantIndexGlass(lc0, n=1.7)
-glass2 = material.ConstantIndexGlass(lc0, n=1.5)
+glass = ConstantIndexGlass(lc0, n=1.7)
+glass2 = ConstantIndexGlass(lc0, n=1.5)
 
 elem.addMaterial("glass", glass)
 elem.addMaterial("glass2", glass2)
@@ -163,8 +170,9 @@ s.addElement("lenssys", elem)
 
 
 fig = plt.figure(1)
-ax = fig.add_subplot(211)
-ax2 = fig.add_subplot(212)
+ax = fig.add_subplot(311)
+ax2 = fig.add_subplot(312)
+ax3 = fig.add_subplot(313)
 
 ax.axis('equal')
 ax2.axis('equal')
@@ -185,8 +193,10 @@ def generatebundle(openangle=0.01, numrays=11):
     
     angles = np.linspace(-openangle, openangle, num=numrays)
     
-    k[1,:] = 2.*math.pi/wavelength*np.sin(angles)
-    k[2,:] = 2.*math.pi/wavelength*np.cos(angles)
+    k0 = 1. #2.*math.pi/wavelength    
+    
+    k[1,:] = k0*np.sin(angles)
+    k[2,:] = k0*np.cos(angles)
     
     ey = np.zeros_like(o)
     ey[1,:] =  1.
@@ -198,29 +208,37 @@ def generatebundle(openangle=0.01, numrays=11):
 initialbundle = generatebundle(openangle=10.*math.pi/180., numrays=11)
 
 sysseq = [("lenssys", [
-            ("object", True, True), 
-            ("surf1", True, True), 
-            ("surf2", True, True), 
-            ("surf3", True, True), 
-            ("surf4", True, True), 
-            ("stop", True, True), 
-            ("surf6", True, True), 
-            ("surf7", True, True), 
-            ("image", True, True)])]
+            ("object", {}), 
+            ("surf1", {}), 
+            ("surf2", {}), 
+            ("surf3", {}), 
+            ("surf4", {}), 
+            ("stop", {"is_stop":True}), 
+            ("surf6", {}), 
+            ("surf7", {}), 
+            ("image", {})])]
 r2 = s.seqtrace(initialbundle, sysseq)
 print("drawing!")
-r2.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+for r in r2:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
-s.elements["lenssys"].surfaces["surf2"].shape.curvature.changetype("variable")
-s.elements["lenssys"].surfaces["surf3"].shape.curvature.changetype("variable")
-s.elements["lenssys"].surfaces["surf4"].shape.curvature.changetype("variable")
-s.elements["lenssys"].surfaces["surf6"].shape.curvature.changetype("variable")
-s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx.changetype("variable")
-
+curv2 = s.elements["lenssys"].surfaces["surf2"].shape.curvature
+curv2.changetype("variable")
+curv2.set_interval(-0.35, 0.35)
+curv3 = s.elements["lenssys"].surfaces["surf3"].shape.curvature
+curv3.changetype("variable")
+curv3.set_interval(-0.35, 0.35)
+curv4 = s.elements["lenssys"].surfaces["surf4"].shape.curvature
+curv4.changetype("variable")
+curv4.set_interval(-0.35, 0.35)
+curv6 = s.elements["lenssys"].surfaces["surf6"].shape.curvature
+curv6.changetype("variable")
+curv6.set_interval(-0.35, 0.35)
+tltx_var = s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx
+tltx_var.changetype("variable")
+tltx_var.set_interval(-3.*math.pi/180., 3.*math.pi/180.)
 
 def osnone(s):
     pass
@@ -230,33 +248,36 @@ def osupdate(s):
 
 def meritfunctionrms(s):
     initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=121)
-    rpath = s.seqtrace(initialbundle, sysseq)
+    rpaths = s.seqtrace(initialbundle, sysseq)
     
-    x = rpath.raybundles[-1].x[-1, 0, :]
-    y = rpath.raybundles[-1].x[-1, 1, :]
+    x = rpaths[0].raybundles[-1].x[-1, 0, :]
+    y = rpaths[0].raybundles[-1].x[-1, 1, :]
     
-    res = np.sum(x**2 + y**2)
+    res = np.sum(x**2 + y**2) + 10.*math.exp(-len(x))
     
-    print(res)
     return res
 
-opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
+#opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
 #opt_backend = Newton1DBackend(dx=1e-6, iterations=100)
+opt_backend = ParticleSwarmBackend(c1=2.2, c2=2.1)
 optimi = Optimizer(s, \
                     meritfunctionrms, \
                     backend=opt_backend, \
                     updatefunction=osupdate)
+optimi.logger.setLevel(logging.DEBUG)
 s = optimi.run()
-print(optimi.log)
 
 r2 = s.seqtrace(initialbundle, sysseq) # trace again
 print("drawing!")
-r2.draw2d(ax2, color="blue", plane_normal=pn, up=up) 
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+for r in r2:
+    r.draw2d(ax2, color="blue", plane_normal=pn, up=up) 
 
+s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+osa = OpticalSystemAnalysis(s)
+osa.drawSpotDiagram(r2[0], sysseq)
+sa = ShapeAnalysis(surf1.shape)
+sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
 
 plt.show()
 

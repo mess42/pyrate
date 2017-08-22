@@ -1,0 +1,4 @@
+workbenches=PartWorkbench,PointsWorkbench
+pylibs=numpy,scipy
+optionalpylibs=yaml,matplotlib
+

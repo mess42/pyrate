@@ -37,7 +37,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core.material_isotropic import ConstantIndexGlass
+from core.material_anisotropic import AnisotropicMaterial
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -56,7 +56,7 @@ logging.basicConfig(level=logging.DEBUG)
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem() 
+s = OpticalSystem(name='os') 
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-1.048), refname=lc0.name) # objectDist
@@ -65,49 +65,69 @@ lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=2.5), refna
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=97.2), refname=lc3.name)
 
 
-stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./62.8), apert=CircularAperture(lc1, 12.7))
-cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./45.7), apert=CircularAperture(lc2, 12.7))
-rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2), apert=CircularAperture(lc3, 12.7))
-image = Surface(lc4)
+stopsurf = Surface(lc0, name="stopsurf")
+frontsurf = Surface(lc1, name="frontsurf", shape=surfShape.Conic(lc1, curv=1./62.8, name='conic1'), apert=CircularAperture(lc1, 12.7))
+cementsurf = Surface(lc2, name="cementsurf", shape=surfShape.Conic(lc2, curv=-1./45.7, name='conic2'), apert=CircularAperture(lc2, 12.7))
+rearsurf = Surface(lc3, name="rearsurf", shape=surfShape.Conic(lc3, curv=-1./128.2, name='conic3'), apert=CircularAperture(lc3, 12.7))
+image = Surface(lc4, name="imagesurf")
 
 
 elem = OpticalElement(lc0, name="thorlabs_AC_254-100-A")
 
-bk7 = ConstantIndexGlass(lc1, n=1.5168)
-sf5 = ConstantIndexGlass(lc2, n=1.6727)
+rnd_data1 = np.random.random((3, 3)) #np.eye(3)
+rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
+rnd_data3 = np.random.random((3, 3)) #np.eye(3)
+rnd_data4 = np.random.random((3, 3))#np.zeros((3, 3))#
 
-elem.addMaterial("BK7", bk7)
-elem.addMaterial("SF5", sf5)
+# isotropic tests
+
+#bk7 = material.ConstantIndexGlass(lc1, n=1.5168)
+#sf5 = material.ConstantIndexGlass(lc2, n=1.6727)
+
+myeps1 = 1.5168**2*np.eye(3)
+myeps2 = 1.6727**2*np.eye(3)
+
+# anisotropic materials
+
+#myeps1 = rnd_data1 + complex(0, 1)*rnd_data2
+#myeps2 = rnd_data3 + complex(0, 1)*rnd_data4
+
+crystal1 = AnisotropicMaterial(lc1, myeps1, name="crystal1")
+crystal2 = AnisotropicMaterial(lc2, myeps2, name="crystal2")
+
+
+elem.addMaterial("crystal1", crystal1)
+elem.addMaterial("crystal2", crystal2)
 
 elem.addSurface("stop", stopsurf, (None, None))
-elem.addSurface("front", frontsurf, (None, "BK7"))
-elem.addSurface("cement", cementsurf, ("BK7", "SF5"))
-elem.addSurface("rear", rearsurf, ("SF5", None))
+elem.addSurface("front", frontsurf, (None, "crystal1"))
+elem.addSurface("cement", cementsurf, ("crystal1", "crystal2"))
+elem.addSurface("rear", rearsurf, ("crystal2", None))
 elem.addSurface("image", image, (None, None))
 
 s.addElement("AC254-100", elem)
 
 rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(20)
+(px, py) = rstobj.getGrid(10)
 
 rpup = 11.43
 o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
+oshape = np.shape(o)
 
-k = np.zeros_like(o)
-k[2,:] = 1.0 #2.*math.pi/wavelength
+k = np.zeros(oshape, dtype=complex)
+k[2,:] = 1. #2.*math.pi/wavelength
 
 ey = np.zeros_like(o)
 ey[1,:] =  1.
 
 E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
-sysseq = [("AC254-100", [("stop", {"is_stop":True}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
+sysseq = [("AC254-100", [("stop", {}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
 phi = 5.*math.pi/180.0
 
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq)
+r2 = s.seqtrace(initialbundle, sysseq, splitup=True)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(111)
@@ -122,8 +142,8 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-for r in r2:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+r2[0].draw2d(ax, color="blue", plane_normal=pn, up=up) 
+r2[1].draw2d(ax, color="green", plane_normal=pn, up=up) 
 
 s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4

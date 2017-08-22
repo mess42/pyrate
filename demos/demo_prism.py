@@ -36,7 +36,7 @@ from distutils.version import StrictVersion
 
 
 from core import raster
-from core import material
+from core.material_isotropic import ModelGlass
 from core import surfShape
 from core.optical_element import OpticalElement
 from core.surface import Surface
@@ -49,6 +49,8 @@ from core.localcoordinates import LocalCoordinates
 from core.globalconstants import canonical_ey
 
 import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
@@ -74,9 +76,9 @@ rearsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0), apert=CircularApertu
 image = Surface(lc3)
 
 
-elem = OpticalElement(lc0, label="prism")
+elem = OpticalElement(lc0, name="prism")
 
-glass = material.ModelGlass(lc1)
+glass = ModelGlass(lc1)
 
 
 elem.addMaterial("glass", glass)
@@ -97,12 +99,12 @@ o = np.vstack((rpup*px, rpup*py + oy, -5.*np.ones_like(px)))
 
 kangle = 23.*deg
 
-kwave_red = 2.*math.pi/wave_red
+kwave_red = 1. #2.*math.pi/wave_red
 k_red = np.zeros_like(o)
 k_red[1,:] = kwave_red*math.sin(kangle)
 k_red[2,:] = kwave_red*math.cos(kangle)
 
-kwave_blue = 2.*math.pi/wave_blue
+kwave_blue = 1. #2.*math.pi/wave_blue
 k_blue = np.zeros_like(o)
 k_blue[1,:] = kwave_blue*math.sin(kangle)
 k_blue[2,:] = kwave_blue*math.cos(kangle)
@@ -114,7 +116,11 @@ ey[1,:] =  1.
 E0_red = np.cross(k_red, ey, axisa=0, axisb=0).T
 E0_blue = np.cross(k_blue, ey, axisa=0, axisb=0).T
 
-sysseq = [("prism", [("stop", True, True), ("surf1", True, True), ("surf2", True, True), ("image", True, True)])]
+sysseq = [("prism", 
+               [("stop", {"is_stop":True}), 
+                ("surf1", {}), 
+                ("surf2", {}), 
+                ("image", {})])]
 
 phi = 5.*math.pi/180.0
 
@@ -136,13 +142,13 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-r_red.draw2d(ax, color="red", plane_normal=pn, up=up) 
-r_blue.draw2d(ax, color="blue", plane_normal=pn, up=up) 
+for r in r_red:
+    r.draw2d(ax, color="red", plane_normal=pn, up=up) 
+for r in r_blue:
+    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
+#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 
 plt.show()

@@ -37,8 +37,8 @@ class Surface(LocalCoordinatesTreeBase):
     :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
     :param thickness: distance to next surface on the optical axis
     """
-    def __init__(self, rootlc, shape=None, apert=None, label=""):
-        super(Surface, self).__init__(rootlc, label)
+    def __init__(self, rootlc, shape=None, apert=None, **kwargs):
+        super(Surface, self).__init__(rootlc, **kwargs)
 
         if shape is None:        
             shape = surfShape.Conic(rootlc)
@@ -106,7 +106,7 @@ class Surface(LocalCoordinatesTreeBase):
             raybundle.valid[-1] = raybundle.valid[-1]*valid
 
 
-    def draw2d(self, ax, vertices=100, inyzplane = True, color="grey", plane_normal = canonical_ex, up = canonical_ey):
+    def draw2d(self, ax, vertices=100, inyzplane=True, color="grey", plane_normal=canonical_ex, up=canonical_ey):
         """
         :param ax (Axis object)
         :param vertices (int), vertices in xy for aperture sampling
@@ -119,9 +119,11 @@ class Surface(LocalCoordinatesTreeBase):
 
 
         sizelimit = 1000.0
-        failsafevalue = 10.0        
+        failsafevalue = 11.0        
         if self.aperture == None:
             effsemidia = failsafevalue
+            # TODO: choose max ray height of all bundles instead 
+            # ( cosmetic but absolutely necessary for beauty )
         else:
             if self.aperture.getTypicalDimension() <= sizelimit:
                 # TODO: maybe introduce aperture types Object and Image to distuingish from very large normal apertures

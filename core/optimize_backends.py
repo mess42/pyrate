@@ -23,8 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from scipy.optimize import minimize
 import numpy as np
+from log import BaseLogger
 
-class Backend(object):
+class Backend(BaseLogger):
     """
     Base class for the optimization backend. Performs one full optimization run.
     Eats 1D numpy array as starting value. Spits out 1D numpy array as final
@@ -33,12 +34,13 @@ class Backend(object):
     """
     
     
-    def __init__(self, **kwargs):
+    def __init__(self, name='', **kwargs):
         """
         kwargs is everything which is known at initialization time and needed
         by the optimization backend        
         """        
         self.options = kwargs
+        super(Backend, self).__init__(name=name)
 
     def init(self, func):
         """
@@ -118,14 +120,7 @@ class Newton1DBackend(Backend):
         return xfinal
         
 class ParticleSwarmBackend(Backend):
-    
-    # TODO: box restrictions per dimension
-    # use t: (-oo, oo) -> (pL, pU): x -> pL + (pU - pL)/(1 + exp(-x/|pU - pL|))
-    # inverse: d: (pL, pU) -> (-oo, oo): p -> log((-p + p_L)/(p - p_U))*Abs(p_L - p_U)
-    # FIXME: maybe this could be generalized to OptimizableVariable, type restricted
-    # the idea is to transform restricted variables to unrestricted before evaluation 
-    # in optimization backend to only use unrestricted variables there
-    
+        
     def run(self, x0):
 
         class particle:
