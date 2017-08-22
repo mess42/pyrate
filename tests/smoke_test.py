@@ -29,14 +29,36 @@ from matplotlib import pyplot
 # matplotlib/lib/matplotlib/backends/backend_template.py
 pyplot.switch_backend('Template')
 
+def test_smoke_anisotropic_doublet():
+    """Smoke test based on demo_anisotropic_doublet.py."""
+    import demos.demo_anisotropic_doublet
+    assert True
+def test_smoke_anisotropic_mirror():
+    """Smoke test based on demo_anisotropic_mirror.py."""
+    import demos.demo_anisotropic_mirror
+    assert True
+def test_smoke_anisotropic_mirrors():
+    """Smoke test based on demo_anisotropic_mirrors.py."""
+    import demos.demo_anisotropic_mirrors
+    assert True
+def test_smoke_anisotropic_ord_eo():
+    """Smoke test based on demo_anisotropic_ord_eo.py."""
+    import demos.demo_anisotropic_ord_eo
+    assert True
 def test_smoke_asphere():
     """Smoke test based on demo_asphere.py."""
     import demos.demo_asphere
     assert True
-def test_smoke_benchmark():
-    """Smoke test based on demo_benchmark.py."""
-    import demos.demo_benchmark
-    assert True
+# TODO: currently not working, due to missing refractingindex database
+# def test_smoke_benchmark():
+#    """Smoke test based on demo_benchmark.py."""
+#    import demos.demo_benchmark
+#    assert True
+# TODO: currently not working, due to missing refractingindex database
+# def test_smoke_doublegauss():
+#    """Smoke test based on demo_doublegauss.py."""
+#    import demos.demo_doublegauss
+#    assert True
 @image_comparison(baseline_images=['doublet'], extensions=['png'])
 def test_smoke_doublet():
     """Smoke test based on demo_doublet.py."""
@@ -46,6 +68,15 @@ def test_smoke_grin():
     """Smoke test based on demo_grin.py."""
     import demos.demo_grin
     assert True
+def test_smoke_hud():
+    """Smoke test based on demo_hud.py."""
+    import demos.demo_hud
+    assert True
+# TODO: currently not working, outdated demo script ?
+# def test_smoke_loadsave():
+#    """Smoke test based on demo_loadsave.py."""
+#    import demos.demo_loadsave
+#    assert True
 def test_smoke_mirrors():
     """Smoke test based on demo_mirrors.py."""
     import demos.demo_mirrors
@@ -61,4 +92,10 @@ def test_smoke_prism():
 def test_smoke_rainbow():
     """Smoke test based on demo_rainbow.py."""
     import demos.demo_rainbow
+    assert True
+def test_smoke_zmx():
+    """Smoke test based on demo_zmx.py."""
+    import sys
+    sys.argv = [sys.argv[0], 'lenssystem.ZMX', '10', '2']
+    import demos.demo_zmx
     assert True
