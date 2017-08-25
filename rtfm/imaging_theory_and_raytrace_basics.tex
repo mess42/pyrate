@@ -1182,9 +1182,10 @@ However, the optical designer has to check for each calculation whether the ray 
 
 \section{Definitions}
 
-We choose a cartesian coordinate system and call the z-axis our \emph{optical axis}. 
-In rotationally symmetric optical systems, this is usually the axis of symmetry.
-In systems without an axis of symmetry, we try to avoid the the term \emph{optical axis}.
+\subsection{General Definitions}
+In rotationally symmetric optical systems, we call the axis of symmetry \emph{optical axis}. 
+In systems without an axis of symmetry, we try to avoid the the term \emph{optical axis}
+and introduce a \emph{pilot ray} (see \ref{subsec:pilotRayConcept}).
 
 For imaging systems, we consider an object plane and a image plane with our optical system in between. 
 The optical system shall focus all rays originating from a certain point in the object plane into a point or small spot in the image plane.
@@ -1208,21 +1209,25 @@ If at field points far from the axis also other elements start to clip rays, we 
 The rays emitted by the central (on-axis) field point that hit the border of the stop are called \emph{marginal rays}.
 The rays emitted by any non-zero field point that hit the border of the stop are called \emph{coma rays}.
 A ray emitted by any non-zero field point that hits the center of the stop is called \emph{chief ray}.
-Often, the chief ray is approximated to be the central ray in the transmitted ray bundle emitted by a field point.
+The chief ray is often approximated as the central ray in the transmitted ray bundle emitted by a field point.
 
-We call the plane containing the optical axis and the chief ray \emph{meridional} or \emph{tangential plane}, 
+We call the plane containing the optical axis (or pilot ray) and the chief ray \emph{meridional} or \emph{tangential plane}, 
 and the plane that contains the chief ray and is orthogonal to the meridional plane \emph{sagittal plane}.
 
+\subsection{Pupils}
 We divide an optical system in two groups -- elements in front of and behind the stop. 
 We consider both groups of optical elements as systems imaging the stop.
 We call the image of the stop created by the object sided elements \emph{entrance pupil}, and the image created by the image sided elements \emph{exit pupil}.
-
 Rays in the object and rays in the entrance pupil need to pass the same group of optical elements in order to reach the stop. 
 We can regard the propagation of rays from the object to the stop as a free space propagation from the object to the entrance pupil and a subsequent imaging into the stop.
 In close analogy, we can image rays from the stop to the exit pupil and perform a free-space propagation from the exit pupil to the image.
 This property is often used to determine the marginal and coma angles: 
 aiming from the object into the entrance pupil by free-space propagation is much easier than tracing rays from the object to the stop.
 Care has to be taken if the front lens group imaging the stop to the pupil suffers from aberrations such as distortion.
+
+\subsection{Cardinal Planes}
+todo
+
 
 
 
@@ -1356,7 +1361,7 @@ with the corresponding ``Lagrangian'' $\mathcal{L}$.
 $s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
 equations we may not set it to $1$ at the moment.)
 
-\remark{to do: all other cases; restriction to linear optics}
+\remark{todo: all other cases; restriction to linear optics}
 
 \section{Numerical Integration for GRIN Media}
 Let us start with the integration of the 3D formulation since it is separable $H = T + U$. Here we use a symplectic integration formalism
@@ -1673,7 +1678,7 @@ By choosing the term pilot ray, we want to avoid confusions with mechanical symm
 In many systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
-\subsection{Pilot Ray Concept}
+\subsection{Pilot Ray Concept} \label{subsec:pilotRayConcept}
 Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
 From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
@@ -2412,7 +2417,7 @@ Inserting the straight equation leads to a polynomial of fourth order in $t$.
 The fourth order equation can be solved either analytically or numerically.
 The one physically valid solution must be real valued.
 
-\remark{to do: surface normal equation for all surface shapes}
+\remark{todo: surface normal equation for all surface shapes}
 
 \subsection{Simplified Biconic}
 We assume a Biconic sag equation \eqref{eq:biconic} in which not all parameters are independent, but the x and y conic constants are linked via
@@ -2668,52 +2673,80 @@ In general, a solution can only be found numerically.
 Typical approaches in optical ray tracing use iterative algorithms.
 
 \subsection{Strong Forbes Asphere}
-to do
+todo
 \subsection{Mild Forbes Asphere}
-to do
+todo
 \subsection{Acylindric}
-to do
+todo
 
 \subsection{Free Shapes}
-to do
+todo
 
 \subsection{Linear Combinations}
-to do
+todo
 
 
 \section{Ray Aiming}
-The caculation of many aberrations requires tracing a fan of rays or a ray bundle rastering the whole pupil.
-Ray aiming allows to obtain initial ray properties for such ray bundles.
+When shooting rays at an optical system, we need initial properties like starting position and wavevector.
+But which properties do I have to choose for the marginal, chief, coma or any other ray ?
+Ray aiming allows to approximate initial ray properties for a given optical system.
 Our ansatz of ray aiming consists of the following steps:
 \begin{itemize}
  \item Calculate the stop size in paraxial or parabasal approximation.
- \item Calculate ray starting points and wavevectors for the given field and pupil coordinate in paraxial or parabasal approximation
- \item Convert the paraxially approximated wavevectors to real wavevectors
-       ( wavevectors obeying the dispersion relation in the object material )
+ \item Calculate ray starting points and wavevectors for given field and pupil coordinates in paraxial or parabasal approximation
+ \item Convert the paraxially approximated wavevectors to real wavevectors,
+       that obey the dispersion relation in the object material
  \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates 
        and whether the stop size fulfills the designer's aperture definition.
        Optimize the aiming iteratively.
- \item Adapt the ray intensities so that the ray bundle resembles the radiant intensity of the light source.
+ \item Adapt the ray intensities so that the ray bundle resembles the angular power distribution $\frac{\partial P}{\partial \Omega}$ of the light source.
 \end{itemize}
 
-\subsection{Stop Size}
-We use the stop size as a universal measure for the aperture definition.
+\subsection{Calculating the Stop Size}
+The aperture of an optical system is often defined indirectly.
+Some common definitions are via stop size, pupil diameter, aperture number (f-stop), or numerical aperture.
+However, not all of these quantities can be applied to all tpyes of system.
 A definition of pupil size and position would become numerically instable for telecentric systems.
-Numerical aperture or aperture number (f-stop) definitions would be unsuitable for infinite conjugate systems.
+Numerical aperture or aperture number definitions would be unsuitable for infinite conjugate systems.
+
+Instead, we use the stop size as a universal measure for the aperture definition.
 The stop, as physical part of the optical system, is always finite sized and at a finite distance.
 In the following, we show how to convert different aperture definitions to a stop size.
-If possible, we prefer numerically stable formulas that also hold for the special cases of infinite conjugate or telecentric systems.
+The stop does not need to be circular. 
 
-todo:
-StopDiameter
-ExitPupilDiameter 
-EntrancePupilDiameter
-InfiniteConjugateObjectSpaceFNumber
-InfiniteConjugateImageSpaceFNumber
-WorkingObjectSpaceFNumber
-WorkingImageSpaceFNumber
-ObjectSpaceNA
-ImageSpaceNA \remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
+In the implementation, it is better not to include the calculated aperture object in the optical system.
+Otherwise, small numerical errors might cause marginal or coma rays to lie just outside the aperture.
+These rays could be clipped, confusing automated optimization routines.
+Rather we use the aperture object only to calculate the ray starting properties.
+We leave the stop plane in the optical system without an aperture.
+
+
+\subsubsection{Entrance Pupil Size}
+TODO
+stop size = ...
+
+\subsubsection{Exit Pupil Size}
+TODO
+
+\subsubsection{Infinite Conjugate Object Space Aperture Number}
+TODO, uncommon definition
+
+\subsubsection{Infinite Conjugate Image Space Aperture Number}
+TODO
+
+\subsubsection{Working Object Space Aperture Number}
+TODO, uncommon definition
+
+\subsubsection{Working Image Space Aperture Number}
+TODO
+
+\subsubsection{Object Space Numerical Aperture}
+TODO
+
+\subsubsection{Image Space Numerical Aperture}
+TODO
+
+\remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
 
 
 \subsection{Ray Origin for Finite Conjugate Objects}
@@ -2751,7 +2784,7 @@ The object sided ray height is obtained from the image sided ray height by the i
 \subsection{Ray Direction for Finite Conjugate Objects}
 The ray originates from a point $\Vector{R}_{obj}$, defined by the field definition (see above).
 Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
-The ray direction is to be chosen accordingly.
+In the following, we search for a ray direction to fulfill this constraint.
 We reduce the 4 dimensional wavevector deviation $\Vector{K}$ to the 2 dimensional $\kappa$ base according to \eqref{eq:deltaK_as_kappa}
 and find in parabasal approximation
 \begin{eqnarray}
@@ -2797,10 +2830,11 @@ We find in parabasal approximation
  \right)
 \end{eqnarray}
 
+\subsection{Conversion to Wavevectors Obeying the Dispersion}
+todo
 
-
-
-
+\subsection{Angular Power Distribution}
+todo
 
 \section{Wave Aberrations}
 Despite its name suggests this representation of aberrations would be based on wave optics, its calculation is purely geometrical.
