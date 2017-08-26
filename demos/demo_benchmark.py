@@ -47,6 +47,8 @@ wavelength = standard_wavelength
 
 # definition of optical system
 
+db_path = "refractiveindex.info-database/database"
+
 (s, seq) = build_simple_optical_system(
         [(-5.922, 0, 2.0, 1.7, "surf1"),
          (-3.160, 0, 3.0, None, "surf2"),
@@ -56,7 +58,7 @@ wavelength = standard_wavelength
         (3.125, 0, 2.0, 1.5, "surf5"),
         (1.479, 0, 3.0, None, "surf6"),
         (0, 0, 19.0, None, "surf7")
-         ])
+         ], db_path)
 
 nrays = 100000
 nrays_draw = 21

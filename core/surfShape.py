@@ -134,7 +134,7 @@ class Shape(ClassWithOptimizableVariables):
         for i in range(num_pts):
             normal_projection[:, :, i] += np.eye(num_dims) - np.outer(normalvector[:, i], normalvector[:, i]) 
         
-        return np.einsum("ij...,jk...", hessian, normalprojection) # TODO: to be tested
+        return np.einsum("ij...,jk...", hessian, normal_projection) # TODO: to be tested
 
 
     def getLocalRayBundleForIntersect(self, raybundle):
@@ -161,10 +161,8 @@ class Conic(Shape):
         """
         super(Conic, self).__init__(lc, **kwargs)
 
-        self.curvature = OptimizableVariable(value=curv)
-        self.addVariable("curvature", self.curvature) 
-        self.conic = OptimizableVariable(value=cc)
-        self.addVariable("conic constant", self.conic) 
+        self.curvature = OptimizableVariable(name="curvature", value=curv)
+        self.conic = OptimizableVariable(name="conic constant", value=cc)
 
     def getSag(self, x, y):
         """
@@ -319,10 +317,8 @@ class Cylinder(Conic):
         """
         super(Cylinder, self).__init__(lc, **kwargs)
         
-        self.curvature = OptimizableVariable("fixed", value=curv)
-        self.addVariable("curvature", self.curvature) #self.createOptimizableVariable("curvature", value=curv, status=False)
-        self.conic = OptimizableVariable("fixed", value=cc)
-        self.addVariable("conic constant", self.conic) #self.createOptimizableVariable("conic constant", value=cc, status=False)
+        self.curvature = OptimizableVariable(name="curvature", value=curv)
+        self.conic = OptimizableVariable(name="conic constant", value=cc)
 
 
     def getSag(self, x, y):
@@ -371,8 +367,10 @@ class FreeShape(Shape):
 
         super(FreeShape, self).__init__(lc, **kwargs)
 
+        self.params = {}
         for (name, value) in paramlist:
-            self.addVariable(name, OptimizableVariable("fixed", value=value))        
+            self.params[name] = OptimizableVariable(name=name, value=value)
+            
         
         self.eps = eps
         self.iterations = iterations
@@ -557,12 +555,12 @@ class Asphere(ExplicitShape):
             paramlist=([("curv", curv), ("cc", cc)]+initacoeffs), **kwargs)
 
     def getAsphereParameters(self):
-        return (self.dict_variables["curv"].evaluate(), \
-                self.dict_variables["cc"].evaluate(), \
-                [self.dict_variables["A"+str(2*i+2)].evaluate() for i in range(self.numcoefficients)])
+        return (self.params["curv"](), \
+                self.params["cc"](), \
+                [self.params["A"+str(2*i+2)]() for i in range(self.numcoefficients)])
         
     def getCentralCurvature(self):
-        return self.dict_variables["curv"].evaluate()
+        return self.params["curv"].evaluate()
 
 
 class Biconic(ExplicitShape):
@@ -643,15 +641,15 @@ class Biconic(ExplicitShape):
             paramlist=([("curvx", curvx), ("curvy", curvy), ("ccx", ccx), ("ccy", ccy)]+initacoeffs+initbcoeffs), **kwargs)
 
     def getBiconicParameters(self):
-        return (self.dict_variables["curvx"].evaluate(), \
-                self.dict_variables["curvy"].evaluate(), \
-                self.dict_variables["ccx"].evaluate(), \
-                self.dict_variables["ccy"].evaluate(), \
-                [(self.dict_variables["A"+str(2*i+2)].evaluate(), self.dict_variables["B"+str(2*i+2)].evaluate()) for i in range(self.numcoefficients)]
+        return (self.params["curvx"](), \
+                self.params["curvy"](), \
+                self.params["ccx"](), \
+                self.params["ccy"](), \
+                [(self.params["A"+str(2*i+2)](), self.params["B"+str(2*i+2)]()) for i in range(self.numcoefficients)]
                 )
         
     def getCentralCurvature(self):
-        return 0.5*(self.dict_variables["curvx"].evaluate() + self.dict_variables["curvy"].evaluate())
+        return 0.5*(self.params["curvx"]() + self.params["curvy"]())
 
 class LinearCombination(ExplicitShape):
     """
@@ -753,7 +751,7 @@ class XYPolynomials(ExplicitShape):
             paramlist=initcoeffs, **kwargs)
 
     def getXYParameters(self):
-        return [(xpow, ypow, self.dict_variables["CX"+str(xpow)+"Y"+str(ypow)].evaluate()) for (xpow, ypow) in self.list_coefficients]
+        return [(xpow, ypow, self.params["CX"+str(xpow)+"Y"+str(ypow)]()) for (xpow, ypow) in self.list_coefficients]
                 
 
 class GridSag(ExplicitShape):
@@ -833,8 +831,8 @@ class ZernikeFringe(ExplicitShape):
             paramlist=([("normradius", normradius)]+initcoeffs), **kwargs)
 
     def getZernikeFringeParameters(self):
-        return (self.dict_variables["normradius"].evaluate(), \
-                [self.dict_variables["Z"+str(i+1)].evaluate() for i in range(self.numcoefficients)])
+        return (self.params["normradius"](), \
+                [self.params["Z"+str(i+1)]() for i in range(self.numcoefficients)])
 
     def jtonm(self, j):
         # get correct indices from j    
@@ -983,12 +981,10 @@ class ZMXDLLShape(Conic):
             
         self.param = {}
         for (key, (value_int, value_float)) in param_dict.iteritems():
-            self.param[value_int] = OptimizableVariable("fixed", value=value_float)
-            self.addVariable(key, self.param[value_int])
+            self.param[value_int] = OptimizableVariable(name="param"+str(value_int), value=value_float)
         self.xdata = {}
         for (key, (value_int, value_float)) in xdata_dict.iteritems():
-            self.xdata[value_int] = OptimizableVariable("fixed", value=value_float)
-            self.addVariable(key, self.xdata[value_int])
+            self.xdata[value_int] = OptimizableVariable(name="xdata"+str(value_int), value=value_float)
         self.us_surf = self.dll.UserDefinedSurface
 
     def writeParam(self, f):
@@ -1010,8 +1006,8 @@ class ZMXDLLShape(Conic):
         f = FIXED_DATA()
 
         f.type = 5 # ask for intersection
-        f.k = self.dict_variables["conic constant"]()
-        f.cv = self.dict_variables["curvature"]()
+        f.k = self.cc()
+        f.cv = self.curvature()
         f.wavelength = raybundle.wave
 
         
@@ -1052,8 +1048,8 @@ class ZMXDLLShape(Conic):
         f = FIXED_DATA()
 
         f.type = 3 # ask for sag
-        f.k = self.dict_variables["conic constant"]()
-        f.cv = self.dict_variables["curvature"]()
+        f.k = self.cc()
+        f.cv = self.curvature()
 
 
         #f = self.writeParam(f)

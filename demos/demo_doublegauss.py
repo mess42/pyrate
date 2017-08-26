@@ -35,20 +35,13 @@ import matplotlib.pyplot as plt
 import matplotlib
 import math
 
-from core.optical_system import OpticalSystem
-from core.optical_element import OpticalElement
-from core.surface import Surface
-from core.surfShape import Conic
-from core.localcoordinates import LocalCoordinates
 from core.helpers import build_simple_optical_system
-from core.helpers import collimated_bundle
 from core.globalconstants import canonical_ex, canonical_ey
 from core.ray import RayBundle
 from core.optimize import Optimizer
 from core.optimize_backends import ScipyBackend
 from core.raster import RectGrid
 from core.globalconstants import Fline, dline, Cline
-from core import material_glasscat
 from core.ray_analysis import RayBundleAnalysis
 
 
@@ -58,7 +51,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-db_path = "core/refractiveindex.info-database/database"
+db_path = "refractiveindex.info-database/database"
 
 # drawing parameters
 phi = 0.#math.pi/4

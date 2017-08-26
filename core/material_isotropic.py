@@ -164,8 +164,7 @@ class ConstantIndexGlass(IsotropicMaterial):
     def __init__(self, lc, n=1.0, **kwargs):
         super(ConstantIndexGlass, self).__init__(lc, **kwargs)
 
-        self.n = optimize.OptimizableVariable(value=n)
-        self.addVariable("refractive index", self.n)
+        self.n = optimize.OptimizableVariable(name="refractive index", value=n)
 
 
     def getIndex(self, x, wave):
@@ -185,15 +184,10 @@ class ModelGlass(IsotropicMaterial):
         super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0], name=name, comment=comment)
 
 
-        self.n0 = optimize.OptimizableVariable(value=n0_A_B[0])
-        self.A = optimize.OptimizableVariable(value=n0_A_B[1])
-        self.B = optimize.OptimizableVariable(value=n0_A_B[2])
+        self.n0 = optimize.OptimizableVariable(name="Conrady n0", value=n0_A_B[0])
+        self.A = optimize.OptimizableVariable(name="Conrady A", value=n0_A_B[1])
+        self.B = optimize.OptimizableVariable(name="Conrady B", value=n0_A_B[2])
         
-        self.addVariable("Conrady n0", self.n0)
-        self.addVariable("Conrady A", self.A)
-        self.addVariable("Conrady B", self.B)
-
-
     def getIndex(self, x, wave):
         """
         Private routine for all isotropic materials obeying the Snell law of refraction.
@@ -202,7 +196,7 @@ class ModelGlass(IsotropicMaterial):
 
         :return index: refractive index at respective wavelength (float)
         """
-        return self.n0.evaluate() + self.A.evaluate() / wave + self.B.evaluate() / (wave**3.5)
+        return self.n0() + self.A() / wave + self.B() / (wave**3.5)
 
 
     def calcCoefficientsFrom_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):

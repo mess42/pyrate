@@ -18,9 +18,9 @@ install:
   - conda update -q conda
   - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy matplotlib pytest"
   - activate test-environment
-  - pip install -U pip pip-tools setuptools
+  - pip install -U pip pip-tools
   - pip-compile                       # requirements.in -> requirements.txt
   - pip install -r requirements.txt   # install pyrate dependences
 
 test_script:
-  - python -m nose  # test automation, no coverage (alreay by travis CI)
+  - python -m nose  tests.smoke_test # test automation, no coverage
