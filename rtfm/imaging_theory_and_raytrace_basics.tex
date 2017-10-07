@@ -425,11 +425,10 @@ In general, the direction of the Poynting vector is the real projection of a wei
 \section{Plane Wave Solutions and Dispersion}
 \subsection{The general anisotropic homgeneous case}
 We consider a homogeneous material $\permittivity(\Location) = const.$ We apply the Nabla curl operatur on the Maxwell curl equation for the electric field
-($\partial_i \partial_i =: \Delta$ the Laplacian). 
 \begin{eqnarray}
   \Nabla \times ( \Nabla \times \Efield ) &=& \Nabla \times ( i \omega \vacuumpermeability \Hfield ) 
   \\
-  \Delta \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
+  \partial_i \partial_i \scalarEfield_j - \partial_j \partial_i \scalarEfield_i &=& - \omega^2 \vacuumpermeability \permittivity_{jk} \scalarEfield_{k}
 \end{eqnarray}
 This is a differential equation with constant coefficients, so we use the ansatz
 \begin{eqnarray}
@@ -486,6 +485,7 @@ and
 $\gamma = k_i \relativepermittivity_{\,i\ell} \relativepermittivity_{\,\ell j} k_j$. 
 
 The characteristic polynomial is a quartic equation in the components $\wavenumber_i$.
+There are no cubic or linear terms.
 This means:
 \begin{itemize}
  \item If we represent $\Wavevector$ in a cartesian basis, and we fix 2 of the 3 cartestian components,
