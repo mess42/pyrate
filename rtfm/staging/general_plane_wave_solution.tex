@@ -145,7 +145,7 @@ In component notation, that is
 \begin{align}
  A_{ij} E_{j\,0} &= 0 \label{eq:generalDispersionEigenEquationindex}\\
  A_{ij}          &= \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \vacuumpermeability \permittivity_{ij} \right)
- \end{align}
+\end{align}
 Nontrivial solutions can be found if the determinant of $\hat{A}$ is zero.
 \begin{eqnarray}
  \det \hat{A} =&& 
@@ -202,51 +202,157 @@ For more compact formulas, we assume $\omega^2 \vacuumpermeability=1$. This step
      ( - \wavenumber_y \wavenumber_z -  \scalarpermittivity_{yz} )
      ( - \wavenumber_y \wavenumber_z -  \scalarpermittivity_{zy} )
 \end{eqnarray}
-
+We factor out
 \begin{eqnarray}
  \det \hat{A} =&& 
-     (   \wavenumber_y^2 + \wavenumber_z^2 -  \scalarpermittivity_{xx} )
-     (   \wavenumber_x^4 + \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{zz} \wavenumber_x^2
-       + \wavenumber_x^2 \wavenumber_z^2 + \wavenumber_y^2 \wavenumber_z^2 - \scalarpermittivity_{zz} \wavenumber_z^2
-       - \scalarpermittivity_{yy} \wavenumber_x^2 - \scalarpermittivity_{yy} \wavenumber_y^2 + \scalarpermittivity_{yy} \scalarpermittivity_{zz} )
+ % k^6 terms
+       \wavenumber_x^4 \wavenumber_y^2 + \wavenumber_x^2 \wavenumber_y^4  + \wavenumber_x^2 \wavenumber_y^2 \wavenumber_z^2 + \wavenumber_y^4 \wavenumber_z^2 
+    +  \wavenumber_x^4 \wavenumber_z^2 + \wavenumber_x^2 \wavenumber_y^2 \wavenumber_z^2 + \wavenumber_x^2 \wavenumber_z^4 + \wavenumber_y^2 \wavenumber_z^4 
+    -  \wavenumber_x^2 \wavenumber_y^2 \wavenumber_z^2  
  \nonumber\\&+&
-     ( - \wavenumber_x \wavenumber_y - \scalarpermittivity_{xy} )
-     ( \wavenumber_x \wavenumber_y \wavenumber_z^2 + \scalarpermittivity_{yz} \wavenumber_x \wavenumber_z + \scalarpermittivity_{zx} \wavenumber_y \wavenumber_z + \scalarpermittivity_{yz} \scalarpermittivity_{zx} )
+    -  \wavenumber_x^2 \wavenumber_y^2 \wavenumber_z^2   
+    -  \wavenumber_x^4 \wavenumber_z^2   
+    -  \wavenumber_x^2 \wavenumber_z^4  
+    -  \wavenumber_x^4 \wavenumber_y^2  
+    -  \wavenumber_x^2 \wavenumber_y^4      
+    -  \wavenumber_y^4 \wavenumber_z^2  
+    -  \wavenumber_y^2 \wavenumber_z^4     
+ \nonumber\\[2ex]
+ % k^4 terms
+ &+& 
+    - \scalarpermittivity_{zz} \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{zz} \wavenumber_y^2 \wavenumber_z^2 - \scalarpermittivity_{yy} \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{yy} \wavenumber_y^4 
+    - \scalarpermittivity_{zz} \wavenumber_x^2 \wavenumber_z^2 - \scalarpermittivity_{zz} \wavenumber_z^4 - \scalarpermittivity_{yy} \wavenumber_x^2 \wavenumber_z^2 - \scalarpermittivity_{yy} \wavenumber_y^2 \wavenumber_z^2 
+ \nonumber\\&+& 
+    - \scalarpermittivity_{xx} \wavenumber_x^4 - \scalarpermittivity_{xx} \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{xx} \wavenumber_x^2 \wavenumber_z^2 - \scalarpermittivity_{xx} \wavenumber_y^2 \wavenumber_z^2  
+    - \scalarpermittivity_{yz} \wavenumber_x^2 \wavenumber_y \wavenumber_z - \scalarpermittivity_{zx} \wavenumber_x \wavenumber_y^2 \wavenumber_z  
+ \nonumber\\&+&   
+    -  \scalarpermittivity_{xy} \wavenumber_x \wavenumber_y \wavenumber_z^2  
+    - \scalarpermittivity_{yx} \wavenumber_x \wavenumber_y \wavenumber_z^2 - \scalarpermittivity_{zy} \wavenumber_x^2 \wavenumber_y \wavenumber_z  
+    -  \scalarpermittivity_{xz} \wavenumber_x \wavenumber_y^2 \wavenumber_z   
+    +  \scalarpermittivity_{yy} \wavenumber_x^2 \wavenumber_z^2  
  \nonumber\\&+&
-     ( - \wavenumber_x \wavenumber_z - \scalarpermittivity_{xz} )
-     ( \wavenumber_x \wavenumber_y^2 \wavenumber_z + \scalarpermittivity_{yx} \wavenumber_y \wavenumber_z + \scalarpermittivity_{zy} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \scalarpermittivity_{zy} )
- \nonumber\\&+&    
-     (   \scalarpermittivity_{yy} - \wavenumber_x^2 - \wavenumber_z^2  )    
-     (   \wavenumber_x^2 \wavenumber_z^2 + \scalarpermittivity_{xz} \wavenumber_x \wavenumber_z + \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z + \scalarpermittivity_{xz} \scalarpermittivity_{zx} )
+    - \scalarpermittivity_{xz} \wavenumber_x^3 \wavenumber_z - \scalarpermittivity_{zx} \wavenumber_x^3 \wavenumber_z 
+    - \scalarpermittivity_{xz} \wavenumber_x \wavenumber_z^3 - \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z^3  
+    +  \scalarpermittivity_{zz} \wavenumber_x^2 \wavenumber_y^2  
+    - \scalarpermittivity_{xy} \wavenumber_x^3 \wavenumber_y - \scalarpermittivity_{yx} \wavenumber_x^3 \wavenumber_y  
  \nonumber\\&+&
-     (   \scalarpermittivity_{zz} - \wavenumber_x^2 - \wavenumber_y^2  )
-     (   \wavenumber_x^2 \wavenumber_y^2 + \scalarpermittivity_{xy} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \wavenumber_x \wavenumber_y + \scalarpermittivity_{xy} \scalarpermittivity_{yx} )
+    - \scalarpermittivity_{xy} \wavenumber_x \wavenumber_y^3 - \scalarpermittivity_{yx} \wavenumber_x \wavenumber_y^3 
+    +  \scalarpermittivity_{xx} \wavenumber_y^2 \wavenumber_z^2  
+    - \scalarpermittivity_{yz} \wavenumber_y^3 \wavenumber_z - \scalarpermittivity_{zy} \wavenumber_y^3 \wavenumber_z  
+    - \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z^3 - \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z^3  
+ \nonumber\\[2ex]
+ % k^2 terms
+ &+& 
+       \scalarpermittivity_{yy} \scalarpermittivity_{zz} \wavenumber_y^2 
+    +  \scalarpermittivity_{yy} \scalarpermittivity_{zz} \wavenumber_z^2 
+    +  \scalarpermittivity_{xx} \scalarpermittivity_{zz} \wavenumber_x^2 + \scalarpermittivity_{xx} \scalarpermittivity_{zz} \wavenumber_z^2 + \scalarpermittivity_{xx} \scalarpermittivity_{yy} \wavenumber_x^2 + \scalarpermittivity_{xx} \scalarpermittivity_{yy} \wavenumber_y^2 
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zx} \wavenumber_x \wavenumber_y 
  \nonumber\\&+&
-     (   \scalarpermittivity_{xx} - \wavenumber_y^2 - \wavenumber_z^2  )
-     (   \wavenumber_y^2 \wavenumber_z^2 + \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z + \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z +  \scalarpermittivity_{yz} \scalarpermittivity_{zy} )
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yz} \wavenumber_x \wavenumber_z - \scalarpermittivity_{xy} \scalarpermittivity_{zx} \wavenumber_y \wavenumber_z  
+    -  \scalarpermittivity_{yx} \scalarpermittivity_{zy} \wavenumber_x \wavenumber_z  
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{yx} \wavenumber_y \wavenumber_z - \scalarpermittivity_{xz} \scalarpermittivity_{zy} \wavenumber_x \wavenumber_y  
+ \nonumber\\&+&
+       \scalarpermittivity_{xz} \scalarpermittivity_{yy} \wavenumber_x \wavenumber_z + \scalarpermittivity_{yy} \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z 
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{zx} \wavenumber_x^2 
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{zx} \wavenumber_z^2 
+    +  \scalarpermittivity_{xy} \scalarpermittivity_{zz} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \scalarpermittivity_{zz} \wavenumber_x \wavenumber_y 
+ \nonumber\\&+&
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yx} \wavenumber_x^2 
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yx} \wavenumber_y^2 
+    +  \scalarpermittivity_{xx} \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z + \scalarpermittivity_{xx} \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z  
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zy} \wavenumber_y^2 
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zy} \wavenumber_z^2 
+ \nonumber\\[2ex]
+ % absolute terms
+ &+& 
+ -  \scalarpermittivity_{xx} \scalarpermittivity_{yy} \scalarpermittivity_{zz} 
+ -  \scalarpermittivity_{xy} \scalarpermittivity_{yz} \scalarpermittivity_{zx}  
+ -  \scalarpermittivity_{xz} \scalarpermittivity_{yx} \scalarpermittivity_{zy} 
+ +  \scalarpermittivity_{xz} \scalarpermittivity_{yy} \scalarpermittivity_{zx} 
+ +  \scalarpermittivity_{xy} \scalarpermittivity_{yx} \scalarpermittivity_{zz} 
+ +  \scalarpermittivity_{xx} \scalarpermittivity_{yz} \scalarpermittivity_{zy} 
 \end{eqnarray}
-
+The $\wavenumber^6$ terms cancel out. We identify the $\scalarpermittivity^3$ terms as the negative of the determinant of $\permittivity$.
 \begin{eqnarray}
  \det \hat{A} =&& 
-                \wavenumber_y^2             ( \wavenumber_x^4 + \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{zz} \wavenumber_x^2 + \wavenumber_x^2 \wavenumber_z^2 + \wavenumber_y^2 \wavenumber_z^2 - \scalarpermittivity_{zz} \wavenumber_z^2 - \scalarpermittivity_{yy} \wavenumber_x^2 - \scalarpermittivity_{yy} \wavenumber_y^2 + \scalarpermittivity_{yy} \scalarpermittivity_{zz} )
- \nonumber\\&+& \wavenumber_z^2             ( \wavenumber_x^4 + \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{zz} \wavenumber_x^2 + \wavenumber_x^2 \wavenumber_z^2 + \wavenumber_y^2 \wavenumber_z^2 - \scalarpermittivity_{zz} \wavenumber_z^2 - \scalarpermittivity_{yy} \wavenumber_x^2 - \scalarpermittivity_{yy} \wavenumber_y^2 + \scalarpermittivity_{yy} \scalarpermittivity_{zz} )
- \nonumber\\&-& \scalarpermittivity_{xx}    ( \wavenumber_x^4 + \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{zz} \wavenumber_x^2 + \wavenumber_x^2 \wavenumber_z^2 + \wavenumber_y^2 \wavenumber_z^2 - \scalarpermittivity_{zz} \wavenumber_z^2 - \scalarpermittivity_{yy} \wavenumber_x^2 - \scalarpermittivity_{yy} \wavenumber_y^2 + \scalarpermittivity_{yy} \scalarpermittivity_{zz} )
- \nonumber\\&-& \wavenumber_x \wavenumber_y ( \wavenumber_x \wavenumber_y \wavenumber_z^2 + \scalarpermittivity_{yz} \wavenumber_x \wavenumber_z + \scalarpermittivity_{zx} \wavenumber_y \wavenumber_z + \scalarpermittivity_{yz} \scalarpermittivity_{zx} )
- \nonumber\\&-& \scalarpermittivity_{xy}    ( \wavenumber_x \wavenumber_y \wavenumber_z^2 + \scalarpermittivity_{yz} \wavenumber_x \wavenumber_z + \scalarpermittivity_{zx} \wavenumber_y \wavenumber_z + \scalarpermittivity_{yz} \scalarpermittivity_{zx} )
- \nonumber\\&-& \wavenumber_x \wavenumber_z ( \wavenumber_x \wavenumber_y^2 \wavenumber_z + \scalarpermittivity_{yx} \wavenumber_y \wavenumber_z + \scalarpermittivity_{zy} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \scalarpermittivity_{zy} ) 
- \nonumber\\&-& \scalarpermittivity_{xz}    ( \wavenumber_x \wavenumber_y^2 \wavenumber_z + \scalarpermittivity_{yx} \wavenumber_y \wavenumber_z + \scalarpermittivity_{zy} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \scalarpermittivity_{zy} )
- \nonumber\\&+& \scalarpermittivity_{yy}    ( \wavenumber_x^2 \wavenumber_z^2 + \scalarpermittivity_{xz} \wavenumber_x \wavenumber_z + \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z + \scalarpermittivity_{xz} \scalarpermittivity_{zx} )
- \nonumber\\&-& \wavenumber_x^2             ( \wavenumber_x^2 \wavenumber_z^2 + \scalarpermittivity_{xz} \wavenumber_x \wavenumber_z + \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z + \scalarpermittivity_{xz} \scalarpermittivity_{zx} )
- \nonumber\\&-& \wavenumber_z^2             ( \wavenumber_x^2 \wavenumber_z^2 + \scalarpermittivity_{xz} \wavenumber_x \wavenumber_z + \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z + \scalarpermittivity_{xz} \scalarpermittivity_{zx} )
- \nonumber\\&+& \scalarpermittivity_{zz}    ( \wavenumber_x^2 \wavenumber_y^2 + \scalarpermittivity_{xy} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \wavenumber_x \wavenumber_y + \scalarpermittivity_{xy} \scalarpermittivity_{yx} )
- \nonumber\\&-& \wavenumber_x^2             ( \wavenumber_x^2 \wavenumber_y^2 + \scalarpermittivity_{xy} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \wavenumber_x \wavenumber_y + \scalarpermittivity_{xy} \scalarpermittivity_{yx} )
- \nonumber\\&-& \wavenumber_y^2             ( \wavenumber_x^2 \wavenumber_y^2 + \scalarpermittivity_{xy} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \wavenumber_x \wavenumber_y + \scalarpermittivity_{xy} \scalarpermittivity_{yx} )     
- \nonumber\\&+& \scalarpermittivity_{xx}    ( \wavenumber_y^2 \wavenumber_z^2 + \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z + \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z +  \scalarpermittivity_{yz} \scalarpermittivity_{zy} )
- \nonumber\\&-& \wavenumber_y^2             ( \wavenumber_y^2 \wavenumber_z^2 + \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z + \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z +  \scalarpermittivity_{yz} \scalarpermittivity_{zy} )
- \nonumber\\&-& \wavenumber_z^2             ( \wavenumber_y^2 \wavenumber_z^2 + \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z + \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z +  \scalarpermittivity_{yz} \scalarpermittivity_{zy} )   
+ % k^4 terms
+    - \scalarpermittivity_{zz} \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{zz} \wavenumber_y^2 \wavenumber_z^2 - \scalarpermittivity_{yy} \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{yy} \wavenumber_y^4 
+    - \scalarpermittivity_{zz} \wavenumber_x^2 \wavenumber_z^2 - \scalarpermittivity_{zz} \wavenumber_z^4 - \scalarpermittivity_{yy} \wavenumber_x^2 \wavenumber_z^2 - \scalarpermittivity_{yy} \wavenumber_y^2 \wavenumber_z^2 
+ \nonumber\\&+& 
+    - \scalarpermittivity_{xx} \wavenumber_x^4 - \scalarpermittivity_{xx} \wavenumber_x^2 \wavenumber_y^2 - \scalarpermittivity_{xx} \wavenumber_x^2 \wavenumber_z^2 - \scalarpermittivity_{xx} \wavenumber_y^2 \wavenumber_z^2  
+    - \scalarpermittivity_{yz} \wavenumber_x^2 \wavenumber_y \wavenumber_z - \scalarpermittivity_{zx} \wavenumber_x \wavenumber_y^2 \wavenumber_z  
+ \nonumber\\&+&   
+    -  \scalarpermittivity_{xy} \wavenumber_x \wavenumber_y \wavenumber_z^2  
+    - \scalarpermittivity_{yx} \wavenumber_x \wavenumber_y \wavenumber_z^2 - \scalarpermittivity_{zy} \wavenumber_x^2 \wavenumber_y \wavenumber_z  
+    -  \scalarpermittivity_{xz} \wavenumber_x \wavenumber_y^2 \wavenumber_z   
+    +  \scalarpermittivity_{yy} \wavenumber_x^2 \wavenumber_z^2  
+ \nonumber\\&+&
+    - \scalarpermittivity_{xz} \wavenumber_x^3 \wavenumber_z - \scalarpermittivity_{zx} \wavenumber_x^3 \wavenumber_z 
+    - \scalarpermittivity_{xz} \wavenumber_x \wavenumber_z^3 - \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z^3  
+    +  \scalarpermittivity_{zz} \wavenumber_x^2 \wavenumber_y^2  
+    - \scalarpermittivity_{xy} \wavenumber_x^3 \wavenumber_y - \scalarpermittivity_{yx} \wavenumber_x^3 \wavenumber_y  
+ \nonumber\\&+&
+    - \scalarpermittivity_{xy} \wavenumber_x \wavenumber_y^3 - \scalarpermittivity_{yx} \wavenumber_x \wavenumber_y^3 
+    +  \scalarpermittivity_{xx} \wavenumber_y^2 \wavenumber_z^2  
+    - \scalarpermittivity_{yz} \wavenumber_y^3 \wavenumber_z - \scalarpermittivity_{zy} \wavenumber_y^3 \wavenumber_z  
+    - \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z^3 - \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z^3  
+ \nonumber\\[2ex]
+ % k^2 terms
+ &+& 
+       \scalarpermittivity_{yy} \scalarpermittivity_{zz} \wavenumber_y^2 
+    +  \scalarpermittivity_{yy} \scalarpermittivity_{zz} \wavenumber_z^2 
+    +  \scalarpermittivity_{xx} \scalarpermittivity_{zz} \wavenumber_x^2 + \scalarpermittivity_{xx} \scalarpermittivity_{zz} \wavenumber_z^2 + \scalarpermittivity_{xx} \scalarpermittivity_{yy} \wavenumber_x^2 + \scalarpermittivity_{xx} \scalarpermittivity_{yy} \wavenumber_y^2 
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zx} \wavenumber_x \wavenumber_y 
+ \nonumber\\&+&
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yz} \wavenumber_x \wavenumber_z - \scalarpermittivity_{xy} \scalarpermittivity_{zx} \wavenumber_y \wavenumber_z  
+    -  \scalarpermittivity_{yx} \scalarpermittivity_{zy} \wavenumber_x \wavenumber_z  
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{yx} \wavenumber_y \wavenumber_z - \scalarpermittivity_{xz} \scalarpermittivity_{zy} \wavenumber_x \wavenumber_y  
+ \nonumber\\&+&
+       \scalarpermittivity_{xz} \scalarpermittivity_{yy} \wavenumber_x \wavenumber_z + \scalarpermittivity_{yy} \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z 
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{zx} \wavenumber_x^2 
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{zx} \wavenumber_z^2 
+    +  \scalarpermittivity_{xy} \scalarpermittivity_{zz} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \scalarpermittivity_{zz} \wavenumber_x \wavenumber_y 
+ \nonumber\\&+&
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yx} \wavenumber_x^2 
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yx} \wavenumber_y^2 
+    +  \scalarpermittivity_{xx} \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z + \scalarpermittivity_{xx} \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z  
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zy} \wavenumber_y^2 
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zy} \wavenumber_z^2 
+ \nonumber\\[2ex]
+ % absolute terms
+ &-& \det \permittivity 
 \end{eqnarray}
-
-
+We factor out a $\Wavevector^2$ from the $\wavenumber^4$ terms.
+\begin{eqnarray}
+ \det \hat{A} =&& 
+   - ( \wavenumber_x^2 + \wavenumber_y^2 + \wavenumber_z^2 )
+     ( \scalarpermittivity_{ij} \wavenumber_i \wavenumber_j )
+ % k^2 terms
+ \nonumber\\
+ &+& 
+       \scalarpermittivity_{yy} \scalarpermittivity_{zz} \wavenumber_y^2 
+    +  \scalarpermittivity_{yy} \scalarpermittivity_{zz} \wavenumber_z^2 
+    +  \scalarpermittivity_{xx} \scalarpermittivity_{zz} \wavenumber_x^2 + \scalarpermittivity_{xx} \scalarpermittivity_{zz} \wavenumber_z^2 + \scalarpermittivity_{xx} \scalarpermittivity_{yy} \wavenumber_x^2 + \scalarpermittivity_{xx} \scalarpermittivity_{yy} \wavenumber_y^2 
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zx} \wavenumber_x \wavenumber_y 
+ \nonumber\\&+&
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yz} \wavenumber_x \wavenumber_z - \scalarpermittivity_{xy} \scalarpermittivity_{zx} \wavenumber_y \wavenumber_z  
+    -  \scalarpermittivity_{yx} \scalarpermittivity_{zy} \wavenumber_x \wavenumber_z  
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{yx} \wavenumber_y \wavenumber_z - \scalarpermittivity_{xz} \scalarpermittivity_{zy} \wavenumber_x \wavenumber_y  
+ \nonumber\\&+&
+       \scalarpermittivity_{xz} \scalarpermittivity_{yy} \wavenumber_x \wavenumber_z + \scalarpermittivity_{yy} \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z 
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{zx} \wavenumber_x^2 
+    -  \scalarpermittivity_{xz} \scalarpermittivity_{zx} \wavenumber_z^2 
+    +  \scalarpermittivity_{xy} \scalarpermittivity_{zz} \wavenumber_x \wavenumber_y + \scalarpermittivity_{yx} \scalarpermittivity_{zz} \wavenumber_x \wavenumber_y 
+ \nonumber\\&+&
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yx} \wavenumber_x^2 
+    -  \scalarpermittivity_{xy} \scalarpermittivity_{yx} \wavenumber_y^2 
+    +  \scalarpermittivity_{xx} \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z + \scalarpermittivity_{xx} \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z  
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zy} \wavenumber_y^2 
+    -  \scalarpermittivity_{yz} \scalarpermittivity_{zy} \wavenumber_z^2 
+ \nonumber\\[2ex]
+ % absolute terms
+ &-& \det \permittivity 
+\end{eqnarray}
 
 \section{Attempt 1: unit direction vector of k is known}
 
