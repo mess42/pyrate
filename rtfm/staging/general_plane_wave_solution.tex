@@ -354,6 +354,62 @@ We factor out a $\Wavevector^2$ from the $\wavenumber^4$ terms.
  &-& \det \permittivity 
 \end{eqnarray}
 
+\begin{eqnarray}
+ \det \hat{A} =&& 
+   - ( \wavenumber_x^2 + \wavenumber_y^2 + \wavenumber_z^2 )
+     ( \scalarpermittivity_{ij} \wavenumber_i \wavenumber_j )
+ % k^2 terms
+ \nonumber\\
+ &+& 
+    - \wavenumber_x \scalarpermittivity_{xy} \scalarpermittivity_{yx} \wavenumber_x
+    - \wavenumber_x \scalarpermittivity_{xz} \scalarpermittivity_{zx} \wavenumber_x
+    - \wavenumber_x \scalarpermittivity_{xy} \scalarpermittivity_{yz} \wavenumber_z 
+    - \wavenumber_x \scalarpermittivity_{xz} \scalarpermittivity_{zy} \wavenumber_y  
+ \nonumber\\&+&
+    - \wavenumber_y \scalarpermittivity_{yz} \scalarpermittivity_{zx} \wavenumber_x  
+    - \wavenumber_y \scalarpermittivity_{yx} \scalarpermittivity_{xz} \wavenumber_z 
+    - \wavenumber_y \scalarpermittivity_{yx} \scalarpermittivity_{xy} \wavenumber_y
+    - \wavenumber_y \scalarpermittivity_{yz} \scalarpermittivity_{zy} \wavenumber_y
+ \nonumber\\&+&
+    - \wavenumber_z \scalarpermittivity_{zx} \scalarpermittivity_{xy} \wavenumber_y  
+    - \wavenumber_z \scalarpermittivity_{zy} \scalarpermittivity_{yx} \wavenumber_x   
+    - \wavenumber_z \scalarpermittivity_{zx} \scalarpermittivity_{xz} \wavenumber_z 
+    - \wavenumber_z \scalarpermittivity_{zy} \scalarpermittivity_{yz} \wavenumber_z 
+ \nonumber\\&+&    
+      \scalarpermittivity_{yy} \scalarpermittivity_{zz} \wavenumber_y^2 
+    + \scalarpermittivity_{yy} \scalarpermittivity_{zz} \wavenumber_z^2 
+    + \scalarpermittivity_{xx} \scalarpermittivity_{zz} \wavenumber_x^2 
+    + \scalarpermittivity_{xx} \scalarpermittivity_{zz} \wavenumber_z^2 
+    + \scalarpermittivity_{xx} \scalarpermittivity_{yy} \wavenumber_x^2 
+    + \scalarpermittivity_{xx} \scalarpermittivity_{yy} \wavenumber_y^2
+ \nonumber\\&+&    
+      \scalarpermittivity_{xz} \scalarpermittivity_{yy} \wavenumber_x \wavenumber_z  
+    + \scalarpermittivity_{yy} \scalarpermittivity_{zx} \wavenumber_x \wavenumber_z 
+    + \scalarpermittivity_{xy} \scalarpermittivity_{zz} \wavenumber_x \wavenumber_y 
+    + \scalarpermittivity_{yx} \scalarpermittivity_{zz} \wavenumber_x \wavenumber_y 
+    + \scalarpermittivity_{xx} \scalarpermittivity_{yz} \wavenumber_y \wavenumber_z 
+    + \scalarpermittivity_{xx} \scalarpermittivity_{zy} \wavenumber_y \wavenumber_z  
+ \nonumber\\[2ex]
+ % absolute terms
+ &-& \det \permittivity 
+\end{eqnarray}
+We add a lot of terms, subtract the same terms and refactor to
+\begin{eqnarray}
+ \det \hat{A} =
+ &-& 
+     \Wavevector^2
+     ( \scalarpermittivity_{ij} \wavenumber_i \wavenumber_j )
+ \nonumber\\
+ &-&
+      \wavenumber_i \scalarpermittivity_{ij} \scalarpermittivity_{jl} \wavenumber_l
+ \nonumber\\
+ &+&
+   \text{tr}(\permittivity) ( \scalarpermittivity_{ij} \wavenumber_i \wavenumber_j )
+ \nonumber\\
+ &-& \det \permittivity 
+\end{eqnarray}
+
+
 \section{Attempt 1: unit direction vector of k is known}
 
 

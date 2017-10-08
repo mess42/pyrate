@@ -476,10 +476,10 @@ We regard the determinant as a polynomial form of $\wavenumber_i$.
 \end{eqnarray}
 The characteristic polynomial $P$ reads
 \begin{align}
- P &= k_0^2 \left(\frac{1}{6} \alpha k_0^4 +  (-\beta \text{tr}\relativepermittivity + \gamma) k_0^2 + \Vector{k}^2 \beta \right)\,,\label{eq:determinantinvariant}
+ P &= k_0^2 \left( -\alpha k_0^4 +  (\beta \text{tr}\relativepermittivity - \gamma) k_0^2 - \Vector{k}^2 \beta \right)\,,\label{eq:determinantinvariant}
 \end{align}
 where $\relativepermittivity$ is the  relative permittivity,
-$\alpha = (\text{tr}\relativepermittivity)^3 - 3 (\text{tr}\relativepermittivity) \text{tr}(\relativepermittivity^2) + 2 \text{tr}(\relativepermittivity^3)$,
+$\alpha = \det(\relativepermittivity)$,
 $\beta = \scalarrelativepermittivity_{\,ij} k_i k_j$, 
 and
 $\gamma = k_i \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} k_j$. 
