@@ -92,12 +92,18 @@
 \newcommand\Dfield{\Vector{\scalarDfield}}
 \newcommand\Dipolarmoment{\Vector{\scalarDipolarmoment}}
 
-\newcommand\permeability{\Tensor{\mu}}
-\newcommand\vacuumpermeability{\mu_{\vacuum}}
-\newcommand\permittivity{\Tensor{\epsilon}}
-\newcommand\generalPermittivity{\Tensor{\tilde\epsilon}}
-\newcommand\vacuumpermittivity{\epsilon_{\vacuum}}
-\newcommand\scalarpermittivity{\epsilon}
+\newcommand\permeability{\Tensor{\scalarpermeability}}
+\newcommand\vacuumpermeability{\scalarpermeability_{\vacuum}}
+\newcommand\scalarpermeability{\mu}
+\newcommand\scalarrelativepermeability{\mu_{rel}}
+\newcommand\relativepermeability{\Tensor{\mu}_{rel}}
+
+\newcommand\permittivity{\Tensor{\scalarpermittivity}}
+\newcommand\vacuumpermittivity{\scalarpermittivity_{\vacuum}}
+\newcommand\scalarrelativepermittivity{\epsilon}
+\newcommand\relativepermittivity{\Tensor{\scalarrelativepermittivity}}
+\newcommand\scalarpermittivity{\varepsilon}
+
 \newcommand\conductivity{\Tensor{\sigma}}
 \newcommand\susceptibility{\Tensor{\chi}}
 \newcommand\currentdensity{\Vector{j}}
@@ -408,6 +414,68 @@ We add a lot of terms, subtract the same terms and refactor to
  \nonumber\\
  &-& \det \permittivity 
 \end{eqnarray}
+
+\begin{eqnarray}
+ \det \hat{A}  &=& k_0^2 \left( -\alpha k_0^4 +  (\beta \text{tr}\relativepermittivity - \gamma) k_0^2 - \Vector{k}^2 \beta \right) \\
+ \alpha &=& \det(\relativepermittivity) \\
+ \beta &=& \scalarrelativepermittivity_{\,ij} k_i k_j \\
+ \gamma &=& k_i \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} k_j
+\end{eqnarray}
+
+\section{Wavevector Perturbation}
+
+\begin{eqnarray}
+ dP &=& P(\Wavevector + d\Wavevector) - P(\Wavevector) \\
+    &=& \wavenumber_0^2 \bigg( \wavenumber_0^2 \text{tr}(\relativepermittivity) d\beta - \wavenumber_0^2 d\gamma - \Wavevector^2 d\beta - \beta d(\Wavevector^2) \bigg) 
+\end{eqnarray}
+with
+\begin{eqnarray}
+ d\alpha &=& 0 \\
+ d\beta &=& (\scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji}) \wavenumber_j d\wavenumber_i\\
+ d\gamma &=& (\scalarrelativepermittivity_{il}\scalarrelativepermittivity_{lj} + \scalarrelativepermittivity_{jl}\scalarrelativepermittivity_{li}) \wavenumber_j d\wavenumber_i\\
+ d(\Wavevector^2) &=& 2 \wavenumber_i d\wavenumber_i
+\end{eqnarray}
+
+\begin{eqnarray}
+ dP &=& \wavenumber_0^2 
+    \bigg( 
+       (\scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji}) ( \wavenumber_0^2 \text{tr}(\relativepermittivity) 
+     - \Wavevector^2 ) - \wavenumber_0^2 (\scalarrelativepermittivity_{il}\scalarrelativepermittivity_{lj} + \scalarrelativepermittivity_{jl}\scalarrelativepermittivity_{li}) 
+     - 2 \beta \delta_{ij}
+   \bigg)
+   \wavenumber_i d\wavenumber_j 
+\end{eqnarray}
+in isotropic media, that is
+\begin{eqnarray}
+ dP_{iso} &=& \wavenumber_0^2 
+    \bigg( 
+       ( 2 \scalarrelativepermittivity \delta_{ij}) ( \wavenumber_0^2 (3 \scalarrelativepermittivity) 
+     - \Wavevector^2 ) - \wavenumber_0^2 ( 2 \scalarrelativepermittivity^2 \delta_{ij})
+     - 2 \beta \delta_{ij}
+   \bigg)
+   \wavenumber_i d\wavenumber_j 
+ \\
+ &=& \wavenumber_0^2 
+    \bigg( 
+       4 \scalarrelativepermittivity^2 \wavenumber_0^2 
+     - 2 \scalarrelativepermittivity \Wavevector^2
+     - 2 \beta
+   \bigg)
+   \wavenumber_i d\wavenumber_i
+ \\
+ &=& 4 \scalarrelativepermittivity^2 \wavenumber_0^2 
+    \bigg( 
+       \wavenumber_0^2 - \Wavevector^2
+   \bigg)
+   \wavenumber_i d\wavenumber_i
+ \\
+ &=& 4 \scalarrelativepermittivity^2 \wavenumber_0^2 
+    \bigg( 0 \bigg)
+   \wavenumber_i d\wavenumber_i
+ \\
+ &=& 0
+\end{eqnarray}
+
 
 
 \section{Attempt 1: unit direction vector of k is known}
