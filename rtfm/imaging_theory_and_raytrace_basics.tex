@@ -215,7 +215,7 @@ The most common choices are
  \hline
  electrostatic (esu)   & 1                                    & $\frac{1}{c_0^2}$                  & 1 \\
  electromagnetic (emu) & $c_0^2$                              & 1                                  & 1 \\
- Gau\ss                & 1                                    & $\frac{1}{c_0^2}$                  & $\frac{1}{c_0}$ \\
+ Gau\ss (cgs)          & 1                                    & $\frac{1}{c_0^2}$                  & $\frac{1}{c_0}$ \\
  Heavyside-Lorentz     & $\frac{1}{4\pi}$                     & $\frac{1}{4\pi c_0^2}$             & $\frac{1}{c_0}$ \\
  SI                    & $\frac{1}{4\pi \vacuumpermittivity}$ & $\frac{\vacuumpermeability}{4\pi}$ & 1 
 \end{tabular}\\[2ex]
@@ -398,9 +398,9 @@ From \eqref{eq:SconjEH} and \eqref{eq:timeaverageS} we get
 \begin{eqnarray}
   \timeavg{\Vector{S}}   &=& \underbrace{\left\langle \frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) )\right\rangle}_{\approx0} + \frac{1}{2} \Re ( \overline{\Efield} \times \Hfield )\,.
 \end{eqnarray}
-We insert Maxwell equation \eqref{eq:sourcefreemaxwell_rotE} and obtain
+We insert the Maxwell equation \eqref{eq:sourcefreemaxwell_rotE} and obtain
 \begin{eqnarray}
- \timeavg{\Vector{S}}   &=& \frac{1}{2} \Re \left( \overline{\Efield} \times \frac{\Nabla \times \Efield}{i \omega \vacuumpermeability} \right) \\
+ \timeavg{\Vector{S}}   &=& \frac{1}{2} \Re \left( \overline{\Efield} \times \frac{\Nabla \times \Efield}{i \omega \vacuumpermeability} \right)
 \end{eqnarray}
 and via the Gra\ss mann identity 
 \begin{eqnarray}
@@ -478,22 +478,67 @@ The characteristic polynomial $P$ reads
 \begin{align}
  P &= k_0^2 \left( -\alpha k_0^4 +  (\beta \text{tr}\relativepermittivity - \gamma) k_0^2 - \Vector{k}^2 \beta \right)\,,\label{eq:dispersion_determinant_invariant}
 \end{align}
-where $\relativepermittivity$ is the  relative permittivity,
+where 
 $\alpha = \det(\relativepermittivity)$,
 $\beta = \scalarrelativepermittivity_{\,ij} k_i k_j$, 
 and
-$\gamma = k_i \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} k_j$. 
-
+$\gamma = k_i \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} k_j$.
+$\relativepermittivity$ is the  relative permittivity.
 The characteristic polynomial is a quartic equation in the components $\wavenumber_i$.
-There are no cubic or linear terms.
-This means:
-\begin{itemize}
- \item If we represent $\Wavevector$ in a cartesian basis, and we fix 2 of the 3 cartestian components,
-       there are up to four different solutions for the remaining component.
- \item If we fix the direction of $\Wavevector$, and want to calculate its length,
-       there are up to four different solutions.
-\end{itemize}
 
+The wavevector is a three dimensional vector of complex components, having 6 real valued degrees of freedom.
+The complex valued dispersion relation $P=0$ eliminates two of these degrees of freedom,
+forcing the solution to lie on a 4-dimensional surface in 6-dimensional $\Wavevector$ space.
+In raytracing, one often faces problems where additional information about the wavevector is given and the
+degrees of freedom are further reduced. In the following, we present some of these problems and their solutions:
+
+\subsubsection{Problem 1: Two components are known}
+
+We assume two of the three cartesian components of $\Wavevector$ are known.
+Without loss of generality, we assume $\wavenumber_x$ and $\wavenumber_y$ are known,
+and we want to solve the dispersion relation to obtain $\wavenumber_z$.
+The dispersion condition $P=0$ becomes
+\begin{eqnarray}
+ a_4 \wavenumber_z^4 + a_3 \wavenumber_z^3 + a_2 \wavenumber_z^2 + a_1 \wavenumber_z + a_0 &=& 0
+\end{eqnarray}
+where the coefficients $a$ depend on material permittivity $\permittivity$, frequency $\omega$, and the known components $\wavenumber_x$, $\wavenumber_y$.
+In general, there are  up to four different solutions for the remaining component $\wavenumber_z$.
+\remark{todo: explicitly write down coefficients a} 
+
+\subsubsection{Problem 2: Direction of $\Wavevector$ is known}
+We assume the solution $\Wavevector$ is proportional to a given direction $\Vector{e}_\wavenumber$.
+The remaining unknown is the length of the wavevector.
+\begin{eqnarray}
+ \Wavevector &=& \wavenumber \Vector{e}_\wavenumber
+\end{eqnarray}
+A real valued $\Vector{e}_\wavenumber$ could not represent wavevectors with different ratios of retardation and evanescence in different directions.
+In general, the direction vector may be chosen complex valued.
+The direction vector shall be of unit length, $\Vector{e}_\wavenumber \overline{\Vector{e}_\wavenumber} = 1$.
+We insert this ansatz in the dispersion relation and yield
+
+\begin{align}
+ P &= a_4 \wavenumber^4 + a_2 \wavenumber^2 + a_0
+ \\
+ a_4 &= - k_0^2 \scalarrelativepermittivity_{\,ij} e_{ki} e_{kj}
+ \\
+ a_2 &=   k_0^4 ( \scalarrelativepermittivity_{\,ij} e_{ki} e_{kj} \text{tr}\relativepermittivity - e_{ki} \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} e_{kj})
+ \\
+ a_0 &= - k_0^6 \det \relativepermittivity
+\end{align}
+The solution to this bi-quadratic equation is easily found as
+\begin{eqnarray}
+ \wavenumber^2 &=& - \frac{a_2}{2 a_4} \pm \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} 
+\end{eqnarray}
+We obtain 4 solutions for $\wavenumber$. 
+In general, they may all be complex valued.
+The complex phase of the solutions $\wavenumber$ has to be interpreted
+in conjunction with the phase of the unit vector $\Vector{e}_\wavenumber$.
+Real and imaginary part of their product, $\Wavevector = \wavenumber \Vector{e}_\wavenumber$, 
+denote the physically relevant quantities retardation and evanescence, respectively.
+This also holds the other way round: When specifying the unit direction $\Vector{e}_\wavenumber$, 
+it is hard to predict the complex phase of the resulting wavevector $\Wavevector$,
+which makes the whole ansatz somewhat counter-intuitive.
+\remark{to do: find more intuitive ansatz}
 
 \subsection{Wavevector Perturbation}
 
@@ -525,7 +570,10 @@ k_0^2
 &+ (\relativepermittivity_{\,\ell j} + \relativepermittivity_{\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
 \big]
 \end{align}
-In case the gradient is the zero vector, the second derivative may become useful:
+Unfortunately, the gradient at the position of the nominal solution, $\textrm{grad} P |_\Wavevector$,
+becomes zero in case of isotropic media.
+In this case, we should consider the next leading order in the Taylor expansion of $P$.
+The second derivative of $P$ is:
 \begin{align}
  \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j} &= 
 k_0^4 \biggl[
