@@ -475,11 +475,46 @@ in isotropic media, that is
  \\
  &=& 0
 \end{eqnarray}
+In isotropic media, the first derivative of $P$ is zero.
 
 
+\section{Attempt 1: k unit direction of k is known}
 
-\section{Attempt 1: unit direction vector of k is known}
+\begin{eqnarray}
+ \Wavevector &=& \wavenumber \Vector{e}_\wavenumber
+\end{eqnarray}
+The direction vector shall be of unit length, $\Vector{e}_\wavenumber \overline{\Vector{e}_\wavenumber} = 1$.
 
+\begin{align}
+ P &= a_4 \wavenumber^4 + a_2 \wavenumber^2 + a_0
+ \\
+ a_4 &= - k_0^2 \scalarrelativepermittivity_{\,ij} e_{ki} e_{kj}
+ \\
+ a_2 &=   k_0^4 ( \scalarrelativepermittivity_{\,ij} e_{ki} e_{kj} \text{tr}\relativepermittivity - e_{ki} \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} e_{kj})
+ \\
+ a_0 &= - k_0^6 \det \relativepermittivity
+\end{align}
+The solution to this bi-quadratic equation is easily found as
+\begin{eqnarray}
+ \wavenumber^2 &=& - \frac{a_2}{2 a_4} \pm \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} 
+\end{eqnarray}
+
+\subsection{wavevector perturbation}
+We perturb the unit direction vector.
+\begin{eqnarray}
+ \tilde{\Vector{e}}_\wavenumber &=& \lim_{\alpha\rightarrow0} \Vector{e}_\wavenumber + \alpha \Vector{e}_\perp \\
+ \Vector{e}_\wavenumber \Vector{e}_\perp &=& 0
+\end{eqnarray}
+
+\begin{eqnarray}
+ d \wavenumber^2 &=&  \wavenumber^2(\tilde{\Vector{e}}_\wavenumber) - \wavenumber^2(\Vector{e}_\wavenumber) \\
+ d a_4 &=& a_4(\tilde{\Vector{e}}_\wavenumber) - a_4(\Vector{e}_\wavenumber) \\
+ d a_2 &=& a_2(\tilde{\Vector{e}}_\wavenumber) - a_2(\Vector{e}_\wavenumber) \\
+ d a_0 &=& 0
+\end{eqnarray}
+
+
+\section{Attempt 2: k is along the z-axis}
 
 \begin{eqnarray}
  0 &=& \left(-\Vector{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \permittivity_{ij} \right) E_{j\,0} \\
@@ -530,7 +565,7 @@ We substitute $\cos^2 \phi = \zeta$
 
 
 
-\section{Attempt 2: 2D problem}
+\section{Attempt 3: 2D problem}
 TODO: double check this section
 
 \begin{eqnarray}

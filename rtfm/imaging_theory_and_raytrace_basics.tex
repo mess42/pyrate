@@ -507,7 +507,7 @@ In general, there are  up to four different solutions for the remaining componen
 
 \subsubsection{Problem 2: Direction of $\Wavevector$ is known}
 We assume the solution $\Wavevector$ is proportional to a given direction $\Vector{e}_\wavenumber$.
-The remaining unknown is the length of the wavevector \cite{Doering:1957, wiki:Kristalloptik}.
+The remaining unknown is the length of the wavevector. This ansatz is inspired by \cite{Doering:1957, wiki:Kristalloptik}.
 \begin{eqnarray}
  \Wavevector &=& \wavenumber \Vector{e}_\wavenumber
 \end{eqnarray}
@@ -529,9 +529,9 @@ The solution to this bi-quadratic equation is easily found as
 \begin{eqnarray}
  \wavenumber^2 &=& - \frac{a_2}{2 a_4} \pm \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} 
 \end{eqnarray}
-There are two solutions for $\wavenumber^2$.
+There are two solutions (modes) for $\wavenumber^2$.
 In general, they may be complex valued.
-In isotropic media, the term under the square root always vanishes, and both solutions have degenerate wavevectors.
+In isotropic media, the term under the square root always vanishes, and both mode polarisations have degenerate wavevectors.
 Anisotropic media may achieve degeneracy for certain directions, 
 for example along the optical axis of uniaxial anisotropic crystals.
 Calculating the two roots $\pm \sqrt{\wavenumber^2}$, we find that with each solution 
@@ -543,8 +543,8 @@ in conjunction with the phase of the unit vector $\Vector{e}_\wavenumber$.
 Real and imaginary part of their product, $\Wavevector = \wavenumber \Vector{e}_\wavenumber$, 
 denote the physically relevant quantities retardation and evanescence, respectively.
 This also holds the other way round: When specifying the unit direction $\Vector{e}_\wavenumber$, 
-it is hard to predict the complex phase of the resulting wavevector $\Wavevector$,
-which makes the whole ansatz somewhat counter-intuitive.
+one does not know the phase of the resulting wavevector $\Wavevector$ beforehand.
+This makes the whole ansatz somewhat counter-intuitive.
 \remark{to do: find more intuitive ansatz}
 
 \subsection{Wavevector Perturbation}
