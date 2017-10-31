@@ -772,6 +772,18 @@ Many of these materials can be represented by a single scalar index only in a li
 This manual does not cover materials with non-vacuum permeabilities so far.
 \remark{TODO: rewrite all formulas for non-vacuum permeabilities}
 
+\subsection{Derivative of $\xi$ by parallel components}
+
+$P = \det \hat{A}(\Vector{k})$.
+\begin{align}
+ \frac{\partial \xi}{\partial \Wavevector_{\parallel}} &= -\frac{\frac{\partial P}{\partial \Wavevector_{\parallel}}}{\frac{\partial P}{\partial \xi}} 
+\end{align}
+For differentiation we use \eqref{eq:detequalszeroanisotropic}.
+\begin{align}
+ \frac{\partial P}{\partial \xi} &= 4 c_4 \xi^3 + 3 c_3 \xi^2 + 2 c_2 \xi + c_1\,.
+\end{align}
+\remark{What about double zeros of $P$? They might lead to singularities.}
+
 \section{Boundary Conditions}
 Considering two media $\permittivity_\materialone$ and $\permittivity_\materialtwo$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
 \begin{subequations}
@@ -908,7 +920,7 @@ We start from the general dispersion relation \eqref{eq:dispersion_determinant_i
 $\Wavevector = \Wavevector_\parallel + \xi \Vector{n}$.
 We divide the equation by $\omega^2 \vacuumpermeability$ and yield
 \begin{align}
-0 &= c_4 \xi ^4 + c_3 \xi ^3 + c_2 \xi ^2 + c_1 \xi + c_0
+0 &= c_4 \xi ^4 + c_3 \xi ^3 + c_2 \xi ^2 + c_1 \xi + c_0\label{eq:detequalszeroanisotropic}
 \end{align}
 with
 \begin{align}
