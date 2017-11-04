@@ -499,18 +499,28 @@ The solution to this bi-quadratic equation is easily found as
  \wavenumber^2 &=& - \frac{a_2}{2 a_4} \pm \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} 
 \end{eqnarray}
 
-\subsection{wavevector perturbation}
+\subsection{perturbation of the wavevector direction}
 We perturb the unit direction vector.
 \begin{eqnarray}
- \tilde{\Vector{e}}_\wavenumber &=& \lim_{\alpha\rightarrow0} \Vector{e}_\wavenumber + \alpha \Vector{e}_\perp \\
- \Vector{e}_\wavenumber \Vector{e}_\perp &=& 0
+ \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + d\Vector{e} \\
+ \Vector{e}_\wavenumber \cdot d\Vector{e} &=& 0
 \end{eqnarray}
 
 \begin{eqnarray}
- d \wavenumber^2 &=&  \wavenumber^2(\tilde{\Vector{e}}_\wavenumber) - \wavenumber^2(\Vector{e}_\wavenumber) \\
- d a_4 &=& a_4(\tilde{\Vector{e}}_\wavenumber) - a_4(\Vector{e}_\wavenumber) \\
- d a_2 &=& a_2(\tilde{\Vector{e}}_\wavenumber) - a_2(\Vector{e}_\wavenumber) \\
- d a_0 &=& 0
+ \partial a_4 &=& - k_0^2  e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} \\
+ \partial a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_j
+\end{eqnarray}
+
+\begin{eqnarray}
+ \partial k^2 &=& - \frac{1}{2 a_4} \partial a_2 + \frac{a_2}{2 a_4^2} \partial a_4 \nonumber\\
+                &&\pm \frac{1}{2 \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}}
+                  \left( \frac{ 2 a_2}{4 a_4^2} \partial a_2 - \frac{ 2 a_2^2}{4 a_4^3} \partial a_4 \right)
+              \\
+              &=& \frac{1}{2 a_4} \left( -1 \pm \frac{a_2}{2 a_4 \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}} \right)
+                  \left( \partial a_2 - \frac{a_2}{a_4} \partial a_4 \right) 
+              \\
+              &=& \frac{1}{2 a_4} \left( -1 \pm \sqrt{\frac{1}{1-4 \frac{a_0 a_4}{a_2^2}}} \right)
+                  \left( \partial a_2 - \frac{a_2}{a_4} \partial a_4 \right) 
 \end{eqnarray}
 
 
