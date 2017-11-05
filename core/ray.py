@@ -133,16 +133,22 @@ class RayBundle(object):
 
         # FIXME: improve this by using np.einsum?
         
+#        absE2 = np.sum(np.conj(self.Efield)*self.Efield, axis=1)
+#        Ek = np.sum(self.Efield * self.k, axis=1)
+#        S = np.zeros_like( self.k, dtype=float)
+#        for j in np.arange(3):
+#            S[:,j,:] = np.real(absE2*self.k[:,j,:] - Ek*np.conj(self.Efield)[:,j,:])
+#        absS = np.sqrt(np.sum(S**2, axis=1))
+#        d = np.zeros_like( self.k, dtype=float)        
+#        for j in np.arange(3):
+#            d[:,j,:] = S[:,j,:] / absS
+#        return d
+
         absE2 = np.sum(np.conj(self.Efield)*self.Efield, axis=1)
-        Ek = np.sum(self.Efield * self.k, axis=1)
-        S = np.zeros_like( self.k, dtype=float)
-        for j in np.arange(3):
-            S[:,j,:] = np.real(absE2*self.k[:,j,:] - Ek*np.conj(self.Efield)[:,j,:])
-        absS = np.sqrt(np.sum(S**2, axis=1))
-        d = np.zeros_like( self.k, dtype=float)        
-        for j in np.arange(3):
-            d[:,j,:] = S[:,j,:] / absS
-        return d
+        Ek = np.sum(self.Efield*self.k, axis=1)
+        S = np.real(absE2*self.k - Ek*np.conj(self.Efield))
+        return S / np.sqrt(np.sum(S**2, axis=1))
+
         
         
     def getLocalSurfaceNormal(self, surface, material, xglob):
