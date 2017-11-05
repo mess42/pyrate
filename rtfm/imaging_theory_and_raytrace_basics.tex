@@ -116,7 +116,8 @@
 \newcommand\materialone{I}
 \newcommand\materialtwo{{II}}
 
-\newcommand{\kpa}[1]{{\wavenumber_{\parallel\,#1}}}
+\newcommand{\kpa}[1]{{\wavenumber_{\parallel#1}}}
+\newcommand\tr{\text{tr}}
 
 \newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
 
@@ -215,7 +216,7 @@ The most common choices are
  \hline
  electrostatic (esu)   & 1                                    & $\frac{1}{c_0^2}$                  & 1 \\
  electromagnetic (emu) & $c_0^2$                              & 1                                  & 1 \\
- Gau\ss                & 1                                    & $\frac{1}{c_0^2}$                  & $\frac{1}{c_0}$ \\
+ Gau\ss (cgs)          & 1                                    & $\frac{1}{c_0^2}$                  & $\frac{1}{c_0}$ \\
  Heavyside-Lorentz     & $\frac{1}{4\pi}$                     & $\frac{1}{4\pi c_0^2}$             & $\frac{1}{c_0}$ \\
  SI                    & $\frac{1}{4\pi \vacuumpermittivity}$ & $\frac{\vacuumpermeability}{4\pi}$ & 1 
 \end{tabular}\\[2ex]
@@ -398,9 +399,9 @@ From \eqref{eq:SconjEH} and \eqref{eq:timeaverageS} we get
 \begin{eqnarray}
   \timeavg{\Vector{S}}   &=& \underbrace{\left\langle \frac{1}{2} \Re ( \Efield_0 \times \Hfield_0 \exp(-2i\omega t) )\right\rangle}_{\approx0} + \frac{1}{2} \Re ( \overline{\Efield} \times \Hfield )\,.
 \end{eqnarray}
-We insert Maxwell equation \eqref{eq:sourcefreemaxwell_rotE} and obtain
+We insert the Maxwell equation \eqref{eq:sourcefreemaxwell_rotE} and obtain
 \begin{eqnarray}
- \timeavg{\Vector{S}}   &=& \frac{1}{2} \Re \left( \overline{\Efield} \times \frac{\Nabla \times \Efield}{i \omega \vacuumpermeability} \right) \\
+ \timeavg{\Vector{S}}   &=& \frac{1}{2} \Re \left( \overline{\Efield} \times \frac{\Nabla \times \Efield}{i \omega \vacuumpermeability} \right)
 \end{eqnarray}
 and via the Gra\ss mann identity 
 \begin{eqnarray}
@@ -476,24 +477,70 @@ We regard the determinant as a polynomial form of $\wavenumber_i$.
 \end{eqnarray}
 The characteristic polynomial $P$ reads
 \begin{align}
- P &= k_0^2 \left( -\alpha k_0^4 +  (\beta \text{tr}\relativepermittivity - \gamma) k_0^2 - \Vector{k}^2 \beta \right)\,,\label{eq:dispersion_determinant_invariant}
+ P &= k_0^2 \left( -\alpha k_0^4 +  (\beta \tr\relativepermittivity - \gamma) k_0^2 - \Vector{k}^2 \beta \right)\,,\label{eq:dispersion_determinant_invariant}
 \end{align}
-where $\relativepermittivity$ is the  relative permittivity,
+where 
 $\alpha = \det(\relativepermittivity)$,
 $\beta = \scalarrelativepermittivity_{\,ij} k_i k_j$, 
 and
-$\gamma = k_i \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} k_j$. 
-
+$\gamma = k_i \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} k_j$.
+$\relativepermittivity$ is the  relative permittivity.
 The characteristic polynomial is a quartic equation in the components $\wavenumber_i$.
-There are no cubic or linear terms.
-This means:
-\begin{itemize}
- \item If we represent $\Wavevector$ in a cartesian basis, and we fix 2 of the 3 cartestian components,
-       there are up to four different solutions for the remaining component.
- \item If we fix the direction of $\Wavevector$, and want to calculate its length,
-       there are up to four different solutions.
-\end{itemize}
 
+The wavevector is a three dimensional vector of complex components, having 6 real valued degrees of freedom.
+The dispersion relation $P=0+0i$ eliminates two of these degrees of freedom,
+forcing the solution to lie on a 4-dimensional surface in 6-dimensional $\Wavevector$ space.
+In raytracing, one often faces problems where additional information about the wavevector is given and the
+degrees of freedom are further reduced. In the following, we present some of these problems and their solutions:
+
+\subsubsection{Problem 1: Two components are known}
+
+We assume two of the three cartesian components of $\Wavevector$ are known.
+We decompose $\Wavevector$ into a plane of known components $\Wavevector_\parallel$ and the unknown component $\wavenumber_\perp$. 
+A detailed discussion how to calculate the unknown component from the dispersion relation
+is given in \ref{subsubsec:general_anisotropic_refraction}.
+
+\subsubsection{Problem 2: Direction of $\Wavevector$ is known}
+We assume the solution $\Wavevector$ is proportional to a given direction $\Vector{e}_\wavenumber$.
+The remaining unknown is the length of the wavevector. This ansatz is inspired by \cite{Doering:1957, wiki:Kristalloptik}.
+\begin{eqnarray}
+ \Wavevector &=& \wavenumber \Vector{e}_\wavenumber
+\end{eqnarray}
+A real valued $\Vector{e}_\wavenumber$ could not represent wavevectors with different ratios of retardation and evanescence in different directions.
+In general, we must assume the direction vector is complex valued.
+The direction vector shall be of unit length, $\Vector{e}_\wavenumber \overline{\Vector{e}_\wavenumber} = 1$.
+We insert this ansatz in the dispersion relation and yield
+
+\begin{align}
+ P &= a_4 \wavenumber^4 + a_2 \wavenumber^2 + a_0
+ \\
+ a_4 &= - k_0^2 \scalarrelativepermittivity_{\,ij} e_{ki} e_{kj}
+ \\
+ a_2 &=   k_0^4 ( \scalarrelativepermittivity_{\,ij} e_{ki} e_{kj} \tr\relativepermittivity - e_{ki} \scalarrelativepermittivity_{\,i\ell} \scalarrelativepermittivity_{\,\ell j} e_{kj})
+ \\
+ a_0 &= - k_0^6 \det \relativepermittivity
+\end{align}
+The solution to this bi-quadratic equation is easily found as
+\begin{eqnarray}
+ \wavenumber^2 &=& - \frac{a_2}{2 a_4} \pm \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} 
+\end{eqnarray}
+There are two solutions (modes) for $\wavenumber^2$.
+In general, they may be complex valued.
+In isotropic media, the term under the square root always vanishes, and both mode polarisations have degenerate wavevectors.
+Anisotropic media may achieve degeneracy for certain directions, 
+for example along the optical axis of uniaxial anisotropic crystals.
+Calculating the two roots $\pm \sqrt{\wavenumber^2}$, we find that with each solution 
+also the opposite wavevector is a solution.
+This result holds for general non-magnetic media and shows a direct link to the reciprocity theorem.
+
+The complex phase of the solutions $\wavenumber$ has to be interpreted
+in conjunction with the phase of the unit vector $\Vector{e}_\wavenumber$.
+Real and imaginary part of their product, $\Wavevector = \wavenumber \Vector{e}_\wavenumber$, 
+denote the physically relevant quantities retardation and evanescence, respectively.
+This also holds the other way round: When specifying the unit direction $\Vector{e}_\wavenumber$, 
+one does not know the phase of the resulting wavevector $\Wavevector$ beforehand.
+This makes the whole ansatz somewhat counter-intuitive.
+\remark{to do: find more intuitive ansatz}
 
 \subsection{Wavevector Perturbation}
 
@@ -518,20 +565,23 @@ The gradient reads
 \big[
 k_0^2
 \left(
-  \relativepermittivity_{\,ji} (-(\text{tr}\relativepermittivity) k_i + \relativepermittivity_{\,i\ell} k_\ell)
-+ \relativepermittivity_{\,ij} (-(\text{tr}\relativepermittivity) k_i + \relativepermittivity_{\,\ell i} k_\ell)
+  \relativepermittivity_{\,ji} (-(\tr\relativepermittivity) k_i + \relativepermittivity_{\,i\ell} k_\ell)
++ \relativepermittivity_{\,ij} (-(\tr\relativepermittivity) k_i + \relativepermittivity_{\,\ell i} k_\ell)
 \right) +
 \nonumber \\
 &+ (\relativepermittivity_{\,\ell j} + \relativepermittivity_{\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
 \big]
 \end{align}
-In case the gradient is the zero vector, the second derivative may become useful:
+Unfortunately, the gradient at the position of the nominal solution, $\textrm{grad} P |_\Wavevector$,
+becomes zero in case of isotropic media.
+In this case, we should consider the next leading order in the Taylor expansion of $P$.
+The second derivative of $P$ is:
 \begin{align}
  \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j} &= 
 k_0^4 \biggl[
   \permittivity_{\ell i} \permittivity_{j \ell} 
 + \permittivity_{\ell j} \permittivity_{i \ell}
-- (\permittivity_{ij} + \permittivity_{ji}) (\text{tr}\permittivity)
+- (\permittivity_{ij} + \permittivity_{ji}) (\tr\permittivity)
 \biggr] \nonumber\\ 
 &+ k_0^2 \biggl[
   (\permittivity_{ij} + \permittivity_{ji})\Wavevector^2
@@ -860,7 +910,7 @@ This is a quadratic equation in $\xi$.
  \nonumber
 \end{eqnarray}
 
-\subsubsection{general anisotropic}
+\subsubsection{general anisotropic}\label{subsubsec:general_anisotropic_refraction}
 We start from the general dispersion relation \eqref{eq:dispersion_determinant_invariant} and decompose $\Wavevector$ into in-plane and off-plane part
 $\Wavevector = \Wavevector_\parallel + \xi \Vector{n}$.
 We divide the equation by $\omega^2 \vacuumpermeability$ and yield
@@ -869,27 +919,22 @@ We divide the equation by $\omega^2 \vacuumpermeability$ and yield
 \end{align}
 with
 \begin{align}
- c_4 &= \permittivity_{ij} n_i n_j \\
- c_3 &= \left[a_8+a_9\right] \\
- c_2 &= \left[\tilde{\omega} ^2 (a_{13}-a_1 c_4)+ a_4 c_4+a_5\right] \\
- c_1 &= \left[\tilde{\omega}^2 (-a_1 c_3 + a_{11}+a_{12})+a_4 c_3\right] \\
- c_0 &= \frac{1}{6} \tilde{\omega} ^4 \left(a_1^3-3 a_1 a_2+2 a_3\right) +\tilde{\omega}^2 (a_6-a_1 a_5)+a_4 a_5
+ c_4 &= \scalarpermittivity_{ij} n_i n_j \\
+ c_3 &=  \kpa{i} (\scalarpermittivity_{ij}+\scalarpermittivity_{ji}) n_j \\
+ c_2 &= \omega^2 \vacuumpermeability (a_{13}-a_1 c_4)+ a_4 c_4+a_5 \\
+ c_1 &= \omega^2 \vacuumpermeability (-a_1 c_3 + a_{11}+a_{12})+a_4 c_3 \\
+ c_0 &= \omega^4 \vacuumpermeability^2 \det\permittivity +\omega^2 \vacuumpermeability (a_6-a_1 a_5)+a_4 a_5
 \end{align}
 with
 \begin{subequations}
 \begin{align}
-\tilde{\omega} &= \omega \sqrt{\mu_0}\\
- a_1 &= \permittivity_{ii} \\
- a_2 &= \permittivity_{ij}\permittivity_{ji} \\ 
- a_3 &= \permittivity_{ij}\permittivity_{jk}\permittivity_{ki} \\
+ a_1 &= \scalarpermittivity_{ii} \\
  a_4 &= \kpa{i}\kpa{i} \\
- a_5 &= \permittivity_{ij} \kpa{i} \kpa{j} \\
- a_6 &= \permittivity_{ij} \permittivity_{jk} \kpa{i}\kpa{k} \\
- a_8 &= \permittivity_{ij} \kpa{j} n_i \\
- a_9 &= \permittivity_{ij} \kpa{i} n_j \\
- a_{11} &= \permittivity_{ij} \permittivity_{jk} \kpa{k} n_i \\
- a_{12} &= \permittivity_{ij} \permittivity_{jk} \kpa{i} n_k \\
- a_{13} &= \permittivity_{ij} \permittivity_{jk} n_i n_k 
+ a_5 &= \scalarpermittivity_{ij} \kpa{i} \kpa{j} \\
+ a_6 &= \scalarpermittivity_{ij} \scalarpermittivity_{jm} \kpa{i}\kpa{m} \\
+ a_{11} &= \scalarpermittivity_{ij} \scalarpermittivity_{jm} \kpa{m} n_i \\
+ a_{12} &= \scalarpermittivity_{ij} \scalarpermittivity_{jm} \kpa{i} n_m \\
+ a_{13} &= \scalarpermittivity_{ij} \scalarpermittivity_{jm} n_i n_m 
 \end{align}
 \end{subequations}
 
