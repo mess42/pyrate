@@ -144,10 +144,15 @@ class RayBundle(object):
 #            d[:,j,:] = S[:,j,:] / absS
 #        return d
 
-        absE2 = np.sum(np.conj(self.Efield)*self.Efield, axis=1)
-        Ek = np.sum(self.Efield*self.k, axis=1)
+        (num_bund, num_dim, num_pts) = np.shape(self.Efield)
+
+        absE2 = np.reshape(np.sum(np.conj(self.Efield)*self.Efield, axis=1), (num_bund, 1, num_pts))
+        Ek = np.reshape(np.sum(self.Efield*self.k, axis=1), (num_bund, 1, num_pts))
+
         S = np.real(absE2*self.k - Ek*np.conj(self.Efield))
-        return S / np.sqrt(np.sum(S**2, axis=1))
+                
+        
+        return S / np.sqrt(np.reshape(np.sum(S**2, axis=1), (num_bund, 1, num_pts)))
 
         
         
