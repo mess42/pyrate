@@ -499,29 +499,54 @@ The solution to this bi-quadratic equation is easily found as
  \wavenumber^2 &=& - \frac{a_2}{2 a_4} \pm \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} 
 \end{eqnarray}
 
+To address all four solutions, we introduce two sign prefactors $\varsigma, \tau \in \{ -1,1\}$
+\begin{eqnarray}
+ \wavenumber &=& \tau \sqrt{ - \frac{a_2}{2 a_4} + \varsigma \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} } \label{eq:dispersion_for_known_direction}
+\end{eqnarray}
+
 \subsection{perturbation of the wavevector direction}
-We perturb the unit direction vector.
+We perturb the unit direction vector. For small perturbations, the length of the direction vector shall stay normalized.
 \begin{eqnarray}
  \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + d\Vector{e} \\
  \Vector{e}_\wavenumber \cdot d\Vector{e} &=& 0
 \end{eqnarray}
-
+According to the dispersion relation, the change in direction also leads to a change in wavevector length.
+\begin{eqnarray}
+ \tilde{\Wavevector} &=& 
+     \left( 
+         \wavenumber + \left. \frac{\partial \wavenumber}{\partial \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} 
+     \right)
+     \tilde{\Vector{e}}_\wavenumber
+ &=& \Wavevector + \wavenumber \cdot d\Vector{e} + \left( \left. \frac{\partial \wavenumber}{\partial \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
+\end{eqnarray}
+We calculate the derivative of the dispersion \ref{eq:dispersion_for_known_direction}
+%\begin{eqnarray}
+% \partial k^2 &=& - \frac{1}{2 a_4} \partial a_2 + \frac{a_2}{2 a_4^2} \partial a_4 \nonumber\\
+%                &&\pm \frac{1}{2 \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}}
+%                  \left( \frac{ 2 a_2}{4 a_4^2} \partial a_2 - \frac{ 2 a_2^2}{4 a_4^3} \partial a_4 + \frac{a_0}{a_4^2} \partial a_4 \right)
+% \\
+% &=& \frac{1}{2 a_4} \left(
+%         - \partial a_2 + \frac{a_2}{a_4} \partial a_4 
+%           \pm \frac{1}{\sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}}
+%             \left( \frac{a_2}{2 a_4} \partial a_2 - \frac{a_2^2}{2 a_4^2} \partial a_4 + \frac{a_0}{a_4} \partial a_4 \right)
+%     \right)
+%\end{eqnarray}
+\begin{eqnarray}
+ \frac{\partial \wavenumber}{\partial \Vector{e}} &=&
+     \frac{\tau}{4 \wavenumber a_4}
+     \left(
+         - \partial a_2 + \frac{a_2}{a_4} \partial a_4 
+         +  \frac{\varsigma}{\sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}}
+                \left( \frac{a_2}{2 a_4} \partial a_2 + \left( \frac{a_0}{a_4} - \frac{a_2^2}{2 a_4^2} \right) \partial a_4 \right)
+     \right)
+ \nonumber\\
+\end{eqnarray}
+with
 \begin{eqnarray}
  \partial a_4 &=& - k_0^2  e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} \\
  \partial a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_j
 \end{eqnarray}
 
-\begin{eqnarray}
- \partial k^2 &=& - \frac{1}{2 a_4} \partial a_2 + \frac{a_2}{2 a_4^2} \partial a_4 \nonumber\\
-                &&\pm \frac{1}{2 \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}}
-                  \left( \frac{ 2 a_2}{4 a_4^2} \partial a_2 - \frac{ 2 a_2^2}{4 a_4^3} \partial a_4 \right)
-              \\
-              &=& \frac{1}{2 a_4} \left( -1 \pm \frac{a_2}{2 a_4 \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}} \right)
-                  \left( \partial a_2 - \frac{a_2}{a_4} \partial a_4 \right) 
-              \\
-              &=& \frac{1}{2 a_4} \left( -1 \pm \sqrt{\frac{1}{1-4 \frac{a_0 a_4}{a_2^2}}} \right)
-                  \left( \partial a_2 - \frac{a_2}{a_4} \partial a_4 \right) 
-\end{eqnarray}
 
 
 \section{Attempt 2: k is along the z-axis}
