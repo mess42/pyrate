@@ -316,7 +316,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         
     def returnActualToOtherTensors(self, localtensors, lcother):
         # TODO: constraint: lcother and self share same root
-        globaltensors = self.returnLocalToGlobalTensorss(localtensors)
+        globaltensors = self.returnLocalToGlobalTensors(localtensors)
         return lcother.returnGlobalToLocalDirections(globaltensors)
 
     def returnOtherToActualTensors(self, othertensors, lcother):
@@ -329,10 +329,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         @param: localpts (3xN numpy array)
         @return: globalpts (3xN numpy array)
         """
-        transformedlocalpts = np.dot(self.localbasis, localpts)
         # construction to use broadcasting        
-        globalpts = (transformedlocalpts.T + self.globalcoordinates).T
-        return globalpts
+        return (np.dot(self.localbasis, localpts).T + self.globalcoordinates).T
 
     def returnLocalToGlobalDirections(self, localdirs):
         """
@@ -346,10 +344,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         @param: globalpts (3xN numpy array)
         @return: localpts (3xN numpy array)
         """
-        translatedglobalpts = (globalpts.T - self.globalcoordinates).T
         # construction to use broadcasting
-        localpts = np.dot(self.localbasis.T, translatedglobalpts)        
-        return localpts
+        return np.dot(self.localbasis.T, (globalpts.T - self.globalcoordinates).T)
 
     def returnGlobalToLocalDirections(self, globaldirs):
         """
