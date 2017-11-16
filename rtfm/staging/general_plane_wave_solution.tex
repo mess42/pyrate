@@ -9,6 +9,7 @@
 \usepackage{amsfonts}
 \usepackage{xcolor}
 \usepackage{setspace}
+\usepackage{dsfont}
 
 % load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
 
@@ -52,6 +53,7 @@
 \newcommand*{\doi}[1]{\href{http://dx.doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
 
 \newcommand\Vector[1]{{\mathbf{#1}}}
+%\newcommand\Vector[1]{{\vec{#1}}}
 
 \newcommand\vacuum{0}
 
@@ -77,20 +79,18 @@
 
 \newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
 
+\newcommand\unittensor{\mathds{1}}
+
 \newcommand\Greenfunction{\Tensor{G}}
 
 \newcommand\scalarEfield{E}
 \newcommand\scalarBfield{B}
 \newcommand\scalarHfield{H}
 \newcommand\scalarDfield{D}
-\newcommand\scalarTipfield{T}
-\newcommand\scalarSamplefield{S}
-\newcommand\scalarDipolarmoment{p}
 \newcommand\Efield{\Vector{\scalarEfield}}
 \newcommand\Bfield{\Vector{\scalarBfield}}
 \newcommand\Hfield{\Vector{\scalarHfield}}
 \newcommand\Dfield{\Vector{\scalarDfield}}
-\newcommand\Dipolarmoment{\Vector{\scalarDipolarmoment}}
 
 \newcommand\permeability{\Tensor{\scalarpermeability}}
 \newcommand\vacuumpermeability{\scalarpermeability_{\vacuum}}
@@ -107,21 +107,40 @@
 \newcommand\conductivity{\Tensor{\sigma}}
 \newcommand\susceptibility{\Tensor{\chi}}
 \newcommand\currentdensity{\Vector{j}}
-\newcommand\Current{\Vector{I}}
 \newcommand\chargedensity{\rho}
 \newcommand\PoyntingVector{\Vector{S}}
 
 \newcommand\ordi{\text{ord}}
 \newcommand\eo{\text{eo}}
 
+\newcommand\materialone{I}
+\newcommand\materialtwo{{II}}
+
+\newcommand{\kpa}[1]{{\wavenumber_{\parallel#1}}}
+\newcommand\tr{\text{tr}}
+
 \newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
 
 \newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
 \newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
 
+\newcommand{\orderof}[1]{\mathcal{O}(#1)}
+
+\newcommand\ppol{p}
+\newcommand\spol{s}
+\newcommand\normconst{N}
+
+\newcommand\kilogram{\textrm{kg}}
+\newcommand\meter{\textrm{m}}
+\newcommand\second{\textrm{s}}
+\newcommand\ampere{\textrm{A}}
+\newcommand\volt{\textrm{V}}
+\newcommand\watt{\textrm{W}}
+\newcommand\tesla{\textrm{T}}
 
 
 \begin{document}
+
 
 \section{The Problem}
 \begin{eqnarray}
@@ -424,6 +443,53 @@ We add a lot of terms, subtract the same terms and refactor to
 
 \section{Wavevector Perturbation}
 
+Assume we found a solution $\Wavevector$. 
+A wavevector close to this solution $\Wavevector + d\Wavevector$ is also a solution, if the polynomial is zero.
+\begin{eqnarray}
+ P(\Wavevector+ d\Wavevector) &=& 0
+\end{eqnarray}
+For small $d\Wavevector$ this holds, if $d\Wavevector$ is not along the gradient of $P$.
+\remark{todo: check what is the ``gradient'' if dk may be complex}
+\begin{eqnarray}
+ \left. \textrm{grad} P \right|_\Wavevector \cdot d\Wavevector &=& 0 \label{eq:wavevectorPerturbationObeyingDispersion}
+\end{eqnarray}
+We find the two orthogonal directions using \eqref{eq:normal_to_inplane_vectors}.
+For a solution $d\Wavevector$, any shift of complex phase $e^{i\phi} d\Wavevector$ is also a solution.
+With the perturbed wavevector, also the eigen-polarisation may change.
+
+The gradient reads
+\begin{align}
+ \frac{\partial (\det \hat{A})}{\partial k_j} &= k_0^2 
+\big[
+k_0^2
+\left(
+  \relativepermittivity_{\,ji} (-(\tr\relativepermittivity) k_i + \relativepermittivity_{\,i\ell} k_\ell)
++ \relativepermittivity_{\,ij} (-(\tr\relativepermittivity) k_i + \relativepermittivity_{\,\ell i} k_\ell)
+\right) +
+\nonumber \\
+&+ (\relativepermittivity_{\,\ell j} + \relativepermittivity_{\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
+\big]
+\end{align}
+Unfortunately, the gradient at the position of the nominal solution, $\textrm{grad} P |_\Wavevector$,
+becomes zero in case of isotropic media.
+In this case, we should consider the next leading order in the Taylor expansion of $P$.
+The second derivative of $P$ is:
+\begin{align}
+ \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j} &= 
+k_0^4 \biggl[
+  \permittivity_{\ell i} \permittivity_{j \ell} 
++ \permittivity_{\ell j} \permittivity_{i \ell}
+- (\permittivity_{ij} + \permittivity_{ji}) (\tr\permittivity)
+\biggr] \nonumber\\ 
+&+ k_0^2 \biggl[
+  (\permittivity_{ij} + \permittivity_{ji})\Wavevector^2
++ 2 \delta_{ij} \beta
++ 2 k_\ell ((\permittivity_{\ell i}  + \permittivity_{i \ell}) k_j + (\permittivity_{\ell j} + \permittivity_{j \ell}) k_i)
+\biggr]\,.
+\end{align}
+
+Details:
+
 \begin{eqnarray}
  dP &=& P(\Wavevector + d\Wavevector) - P(\Wavevector) \\
     &=& \wavenumber_0^2 \bigg( \wavenumber_0^2 \text{tr}(\relativepermittivity) d\beta - \wavenumber_0^2 d\gamma - \Wavevector^2 d\beta - \beta d(\Wavevector^2) \bigg) 
@@ -516,7 +582,8 @@ According to the dispersion relation, the change in direction also leads to a ch
      \left( 
          \wavenumber + \left. \frac{\partial \wavenumber}{\partial \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} 
      \right)
-     \tilde{\Vector{e}}_\wavenumber
+     \tilde{\Vector{e}}_\wavenumber 
+ \\
  &=& \Wavevector + \wavenumber \cdot d\Vector{e} + \left( \left. \frac{\partial \wavenumber}{\partial \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
 \end{eqnarray}
 We calculate the derivative of the dispersion \ref{eq:dispersion_for_known_direction}

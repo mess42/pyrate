@@ -524,12 +524,18 @@ The solution to this bi-quadratic equation is easily found as
 \begin{eqnarray}
  \wavenumber^2 &=& - \frac{a_2}{2 a_4} \pm \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} 
 \end{eqnarray}
-There are two solutions (modes) for $\wavenumber^2$.
+
+To address all four solutions, we introduce two sign prefactors $\varsigma, \tau \in \{ -1,1\}$
+\begin{eqnarray}
+ \wavenumber &=& \tau \sqrt{ - \frac{a_2}{2 a_4} + \varsigma \sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}} } \label{eq:dispersion_for_known_direction}
+\end{eqnarray}
+
+There are two solutions for $\wavenumber^2$, depending on the choice of $\varsigma$.
 In general, they may be complex valued.
-In isotropic media, the term under the square root always vanishes, and both mode polarisations have degenerate wavevectors.
+In isotropic media, the term under the inner square root always vanishes, and both mode polarisations have degenerate wavevectors.
 Anisotropic media may achieve degeneracy for certain directions, 
 for example along the optical axis of uniaxial anisotropic crystals.
-Calculating the two roots $\pm \sqrt{\wavenumber^2}$, we find that with each solution 
+Calculating the two roots $\tau \sqrt{\wavenumber^2}$, we find that with each solution
 also the opposite wavevector is a solution.
 This result holds for general non-magnetic media and shows a direct link to the reciprocity theorem.
 
@@ -542,66 +548,94 @@ one does not know the phase of the resulting wavevector $\Wavevector$ beforehand
 This makes the whole ansatz somewhat counter-intuitive.
 \remark{to do: find more intuitive ansatz}
 
-\subsection{Wavevector Perturbation}
+\subsubsection{Wavevector perturbation}
 
-Assume we found a solution $\Wavevector$. 
-A wavevector close to this solution $\Wavevector + d\Wavevector$ is also a solution, if the polynomial is zero.
-\begin{eqnarray}
- P(\Wavevector+ d\Wavevector) &=& 0
-\end{eqnarray}
-For small $d\Wavevector$ this holds, if $d\Wavevector$ is not along the gradient of $P$.
-\remark{todo: check what is the ``gradient'' if dk may be complex}
-\remark{todo: double check grad P formula, check whether grad P can become zero}
-\begin{eqnarray}
- \left. \textrm{grad} P \right|_\Wavevector \cdot d\Wavevector &=& 0 \label{eq:wavevectorPerturbationObeyingDispersion}
-\end{eqnarray}
-We find the two orthogonal directions using \eqref{eq:normal_to_inplane_vectors}.
-For a solution $d\Wavevector$, any shift of complex phase $e^{i\phi} d\Wavevector$ is also a solution.
-With the perturbed wavevector, also the eigen-polarisation may change.
+Assume we found a solution to the dispersion relation $\Wavevector$ and its sign prefactors $\varsigma, \tau$ according to equation \eqref{eq:dispersion_for_known_direction}.
 
-The gradient reads
-\begin{align}
- \frac{\partial (\det \hat{A})}{\partial k_j} &= k_0^2 
-\big[
-k_0^2
-\left(
-  \relativepermittivity_{\,ji} (-(\tr\relativepermittivity) k_i + \relativepermittivity_{\,i\ell} k_\ell)
-+ \relativepermittivity_{\,ij} (-(\tr\relativepermittivity) k_i + \relativepermittivity_{\,\ell i} k_\ell)
-\right) +
-\nonumber \\
-&+ (\relativepermittivity_{\,\ell j} + \relativepermittivity_{\,j \ell}) \Vector{k}^2 k_\ell + 2 \beta k_j
-\big]
-\end{align}
-Unfortunately, the gradient at the position of the nominal solution, $\textrm{grad} P |_\Wavevector$,
-becomes zero in case of isotropic media.
-In this case, we should consider the next leading order in the Taylor expansion of $P$.
-The second derivative of $P$ is:
-\begin{align}
- \frac{\partial^2 (\det \hat{A})}{\partial k_i \partial k_j} &= 
-k_0^4 \biggl[
-  \permittivity_{\ell i} \permittivity_{j \ell} 
-+ \permittivity_{\ell j} \permittivity_{i \ell}
-- (\permittivity_{ij} + \permittivity_{ji}) (\tr\permittivity)
-\biggr] \nonumber\\ 
-&+ k_0^2 \biggl[
-  (\permittivity_{ij} + \permittivity_{ji})\Wavevector^2
-+ 2 \delta_{ij} \beta
-+ 2 k_\ell ((\permittivity_{\ell i}  + \permittivity_{i \ell}) k_j + (\permittivity_{\ell j} + \permittivity_{j \ell}) k_i)
-\biggr]\,.
-\end{align}
+In case we do not know the prefactors, but only the wavevector, we divide the wavevector by its length $\sqrt{\Wavevector \overline{\Wavevector}}$ 
+to obtain its unit direction vector. 
+Then we calculate the four modes $\varsigma, \tau$ corresponding to this unit direction vector employing \eqref{eq:dispersion_for_known_direction}.
+We choose the mode with minimum wavevector difference to the original wavevector.
 
-\paragraph{Isotropic, homogenous media.}
-The dispersion in isotropic media reads
+We perturb the unit direction vector. 
 \begin{eqnarray}
- \Wavevector \cdot \Wavevector &=& \Wavevector_{pilot} \cdot \Wavevector_{pilot} = \omega^2 \vacuumpermeability \scalarpermittivity
+ \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + d\Vector{e} \\
+ \Vector{e}_\wavenumber \cdot d\Vector{e} &=& 0
 \end{eqnarray}
-wavevector changes must fulfill
+For small perturbations, the length of the direction vector shall stay normalized.
+That is, unit direction and direction perturbation are orthogonal.
+The change in direction may also lead to a change in wavevector length.
+\begin{eqnarray}
+ \tilde{\Wavevector} &=& 
+     \left( 
+         \wavenumber + \left. \frac{d \wavenumber}{d \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} 
+     \right)
+     \tilde{\Vector{e}}_\wavenumber 
+ \\
+ &=& \Wavevector + \wavenumber \cdot d\Vector{e} + \left( \left. \frac{d \wavenumber}{d \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
+\end{eqnarray}
+From the dispersion \ref{eq:dispersion_for_known_direction}, we find
+\begin{eqnarray}
+ d \wavenumber &=&
+     \frac{\tau}{4 \wavenumber a_4}
+     \left(
+         - d a_2 + \frac{a_2}{a_4} d a_4 
+         +  \frac{\varsigma}{\sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}}
+                \left( \frac{a_2}{2 a_4} d a_2 + \left( \frac{a_0}{a_4} - \frac{a_2^2}{2 a_4^2} \right) d a_4 \right)
+     \right)
+ \nonumber\\
+\end{eqnarray}
+\remark{to do: double check this formula}
+\remark{to do: check whether sqrt may become zero}
+with
+\begin{eqnarray}
+ d a_4 &=& - k_0^2  e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} \\
+ d a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_j
+\end{eqnarray}
+
+\subsection{Isotropic media}
+We insert an isotropic permittivity $\scalarpermittivity_{ij} = \scalarpermittivity \delta_{ij}$ 
+in the general dispersion relation \eqref{eq:dispersion_determinant_invariant}.
+\begin{eqnarray}
+ P &=& -\scalarpermittivity 
+       \left( 
+         \Wavevector^2 - \omega^2 \vacuumpermeability \scalarpermittivity\
+       \right)^2
+    = 0
+\end{eqnarray}
+The solution is degenerate for both polarisations,
+\begin{eqnarray}
+ \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity\,, \\
+ \scpm{\Wavevector}{\Efield} &=& 0\,.
+\end{eqnarray}
+where $\Wavevector^2$ is the scalar product of the wavevector with itself and may be complex.
+Wavevector perturbations must fulfill
 \begin{eqnarray}
  d\Wavevector \cdot \Wavevector &=& 0 + 0i
 \end{eqnarray}
 
+For plane waves in isotropic media, the Poynting vector becomes 
+\begin{eqnarray}
+ \timeavg{\Vector{S}}_\text{iso} = \frac{ |\Efield|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector
+\end{eqnarray}
+
+We introduce the refractive index $n$ as
+\begin{eqnarray}
+ \Wavevector^2 &=& k_0^2 n^2 \\
+ n &=& \pm \sqrt{ \frac{\scalarpermittivity}{\vacuumpermittivity} }
+\end{eqnarray}
+In general, there are two roots. 
+The choice of the root does not change anything in optics based on the Maxwell equations, as the permittivity is the only physically relevant quantity.
+
+Some people indicate materials with a negative permittivity real part by a negative sign of the index.
+Some people indicate materials with negative permeability and negative permittivity real part at the same time by a negative sign of the index.
+This manual does not cover materials with non-vacuum permeabilities so far.
+\remark{TODO: rewrite all formulas for non-vacuum permeabilities}
+
+
 
 \subsection{Uniaxial anisotropic, homogeneous media}
+\remark{this section needs some updates}
 Uniaxial anisotropic media are media with one axis along which the permittivity takes an extraordinary value, 
 and a degenerate permittivity along the other two directions in space.
 The direction along which the extraordinary permittivity occurs is often called \emph{optical axis}. 
@@ -731,53 +765,6 @@ we replace $E_z \rightarrow E_i e_{\eo, i}$ and find
 \end{eqnarray}
 
 
-\subsection{Isotropic media}
-We insert an isotropic permittivity $\scalarpermittivity_{ij} = \scalarpermittivity \delta_{ij}$ 
-in the general dispersion relation \eqref{eq:dispersion_determinant_invariant}.
-\begin{eqnarray}
- P &=& -\scalarpermittivity 
-       \left( 
-         \Wavevector^2 - \omega^2 \vacuumpermeability \scalarpermittivity\
-       \right)^2
-    = 0
-\end{eqnarray}
-The solution is a degenerate for both polarisations,
-\begin{eqnarray}
- \Wavevector^2 &=& \omega^2 \vacuumpermeability \scalarpermittivity\,, \\
- \scpm{\Wavevector}{\Efield} &=& 0\,.
-\end{eqnarray}
-where $\Wavevector^2$ is the scalar product of the wavevector with itself and may be complex.
-For plane waves in isotropic media, the Poynting vector becomes 
-\begin{eqnarray}
- \timeavg{\Vector{S}}_\text{iso} = \frac{ |\Efield|^2 }{ 2\omega\vacuumpermeability } \Re \Wavevector
-\end{eqnarray}
-
-We introduce the refractive index $n$ as
-\begin{eqnarray}
- \Wavevector^2 &=& k_0^2 n^2 \\
- n &=& \pm \sqrt{ \frac{\scalarpermittivity}{\vacuumpermittivity} }
-\end{eqnarray}
-In general, there are two roots. 
-The choice of the root does not change anything in optics based on the Maxwell equations, as the permittivity is the only physically relevant quantity.
-
-Some people indicate materials with a negative permittivity real part by a negative sign of the index.
-Some people indicate materials with negative permeability and negative permittivity real part at the same time by a negative sign of the index.
-When dealing with ``negative indices'', one should always consider the material losses.
-Many of these materials can be represented by a single scalar index only in a limited angular spectrum.
-This manual does not cover materials with non-vacuum permeabilities so far.
-\remark{TODO: rewrite all formulas for non-vacuum permeabilities}
-
-\subsection{Derivative of $\xi$ by parallel components}
-
-$P = \det \hat{A}(\Vector{k})$.
-\begin{align}
- \frac{\partial \xi}{\partial \Wavevector_{\parallel}} &= -\frac{\frac{\partial P}{\partial \Wavevector_{\parallel}}}{\frac{\partial P}{\partial \xi}} 
-\end{align}
-For differentiation we use \eqref{eq:detequalszeroanisotropic}.
-\begin{align}
- \frac{\partial P}{\partial \xi} &= 4 c_4 \xi^3 + 3 c_3 \xi^2 + 2 c_2 \xi + c_1\,.
-\end{align}
-\remark{What about double zeros of $P$? They might lead to singularities.}
 
 \section{Boundary Conditions}
 Considering two media $\permittivity_\materialone$ and $\permittivity_\materialtwo$, we find the following conditions fulfilled on the boundary in both media \cite{Jackson}:
