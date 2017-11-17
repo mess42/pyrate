@@ -553,14 +553,14 @@ This makes the whole ansatz somewhat counter-intuitive.
 Assume we found a solution to the dispersion relation $\Wavevector$ and its sign prefactors $\varsigma, \tau$ according to equation \eqref{eq:dispersion_for_known_direction}.
 
 In case we do not know the prefactors, but only the wavevector, we divide the wavevector by its length $\sqrt{\Wavevector \overline{\Wavevector}}$ 
-to obtain its unit direction vector. 
+to obtain its unit direction vector $\Vector{e}_\wavenumber$. 
 Then we calculate the four modes $\varsigma, \tau$ corresponding to this unit direction vector employing \eqref{eq:dispersion_for_known_direction}.
 We choose the mode with minimum wavevector difference to the original wavevector.
 
 We perturb the unit direction vector. 
 \begin{eqnarray}
  \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + d\Vector{e} \\
- \Vector{e}_\wavenumber \cdot d\Vector{e} &=& 0
+ \Vector{e}_\wavenumber \cdot d\Vector{e} &=& 0 \label{eq:perturbation_unit_orthogonality}
 \end{eqnarray}
 For small perturbations, the length of the direction vector shall stay normalized.
 That is, unit direction and direction perturbation are orthogonal.
@@ -572,11 +572,11 @@ The change in direction may also lead to a change in wavevector length.
      \right)
      \tilde{\Vector{e}}_\wavenumber 
  \\
- &=& \Wavevector + \wavenumber \cdot d\Vector{e} + \left( \left. \frac{d \wavenumber}{d \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
+ d \Wavevector = \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot d\Vector{e} + \left( \left. \frac{d \wavenumber}{d \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
 \end{eqnarray}
 From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \begin{eqnarray}
- d \wavenumber &=&
+ \frac{d \wavenumber}{d \Vector{e}} d\Vector{e} &=&
      \frac{\tau}{4 \wavenumber a_4}
      \left(
          - d a_2 + \frac{a_2}{a_4} d a_4 
@@ -592,6 +592,17 @@ with
  d a_4 &=& - k_0^2  e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} \\
  d a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_j
 \end{eqnarray}
+
+The change in unit direction vector is complex valued, so it contains 6 real valued degrees of freedom.
+The orthogonality condition \eqref{eq:perturbation_unit_orthogonality} reduces the degrees of freedom by 2.
+We can find four different wavevector perturbation directions $d\Vector{e}_{1,2,3,4}$
+with corresponding wavevector perturbations $d \Wavevector_{1,2,3,4}$.
+In our first order Taylor expansion, the wavevector may deviate by any linear combination of these four directions.
+\begin{eqnarray}
+ \tilde{\Wavevector} &=& \Wavevector + a_i \cdot d \Wavevector_i \label{eq:perturbed_wavevector}
+\end{eqnarray}
+with $a_i \in \mathbb{R}$.
+
 
 \subsection{Isotropic media}
 We insert an isotropic permittivity $\scalarpermittivity_{ij} = \scalarpermittivity \delta_{ij}$ 
@@ -1049,7 +1060,7 @@ In this case, both (conserved) in-plane components $\wavenumber_X, \wavenumber_Y
 Applying the Gau\ss\,law \eqref{eq:MaxwellNablaD} to isotropic materials, $\scalarpermittivity \Nabla \Efield = 0$, we conclude that 
 all modes $\Vector{e}_{\beta\alpha}$ are orthogonal to the wavevector and thus to the surface normal,
 $\Vector{e}_{\beta\alpha} \Vector{n} = 0$.
-I this special case, equation \eqref{eq:fresnelLastToSkip} reduces to
+In this special case, equation \eqref{eq:fresnelLastToSkip} reduces to
 \begin{eqnarray*}
  0 &=& 0
 \end{eqnarray*}
@@ -1220,8 +1231,8 @@ We can calculate reflection and refraction wavevectors and their Fresnel coeffic
  \item For each solution $\xi$, calculate the eigen-polarisation $\Vector{e}_{\beta\alpha}$.
        The eigen-polarisations are the eigenvectors of the dispersion relation \eqref{eq:generalDispersionEigenEquationindex}.
  \item Construct refracted and reflected wavevectors $\Wavevector_{\beta\alpha} = \Wavevector_\parallel + \xi_{\beta\alpha} \Vector{n}$
- \item Choose 2 the solutions in each material $\alpha$ carrying energy away from the surface
-       \remark{todo: consider the case of gain media}
+ \item Choose the 2 solutions in each material $\alpha$ carrying energy away from the surface
+       \remark{todo: check validity in the case of gain media}
  \item From $\xi$s, eigen vectors and incident ray properties calculate the Fresnel coefficients \eqref{eq:fresnel_equation_system_general}.
        The Fresnel coefficients determine the amplitude of each mode $\beta\alpha$ 
        and allow to calculate the amount of energy transferred into each mode.
@@ -1788,7 +1799,6 @@ The individual propagators can be, for example, free space propagation or surfac
 In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
 In the following, we discuss the rank of the matrices $\hat{G}$ and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
 
-\remark{todo: 9x9 section}
 
 \subsection{Near-Pilot Basis Systems}
 
@@ -1815,17 +1825,14 @@ where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 \subsubsection{Wavevectors}
 Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
 In contrast to the real valued ray directions, wavevectors may be complex valued.
-We define 2 orthogonal unit vectors $\Vector{e}_U, \Vector{e}_V$ along the directions
-in which perturbed wavevectors still obey the dispersion relation
-\eqref{eq:wavevectorPerturbationObeyingDispersion}.
+Using \eqref{eq:perturbed_wavevector}, we determine the 4 complex valued unit vectors,
+along which perturbed wavevectors still obey the dispersion relation.
 We represent the change of the wavevector $\Wavevector$ as
 \begin{eqnarray}
- \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
+ \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q
 \end{eqnarray}
-where $U,V$ are complex valued prefactors.
-The base vectors $\Vector{e}_U, \Vector{e}_V$ are defined up to a complex valued global phase and a roll degree of freedom. 
-Below \eqref{eq:eUeVVectors} we suggest a way to fix this degree of freedom for surfaces behind the object.
-
+where $U,V,W,Q$ are real valued prefactors.
+\remark{todo:rewrite whole XYUV section with XYUVWQ formalism}
 
 \subsection{XYUV matrices}
 We choose the object sided base vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
