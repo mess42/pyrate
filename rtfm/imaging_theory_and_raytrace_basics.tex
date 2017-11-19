@@ -1832,30 +1832,31 @@ We represent the change of the wavevector $\Wavevector$ as
  \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q
 \end{eqnarray}
 where $U,V,W,Q$ are real valued prefactors.
-\remark{todo:rewrite whole XYUV section with XYUVWQ formalism}
 
 \subsection{XYUV matrices}
-We choose the object sided base vectors $\Vector{e}_{X,obj}, \Vector{e}_{Y,obj}, \Vector{e}_{U,obj}, \Vector{e}_{V,obj}$ 
+We choose the object sided base vectors 
+$\Vector{e}_{X,Y,U,V,W,Q,\,obj}$ 
 in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
 as described in the previous section.
 We trace the pilot ray to the final surface 
-and define the near-pilot base vectors in the final plane $\Vector{e}_{X,fin}, \Vector{e}_{Y,fin}, \Vector{e}_{U,fin}, \Vector{e}_{V,fin}$.
+and define the near-pilot base vectors in the final plane
+$\Vector{e}_{X,Y,U,V,W,Q,\,fin}$.
 The propagator for near-pilot rays is the Jacobi matrix
 \begin{eqnarray}
  \begin{pmatrix}
-  X_{fin} \\[2ex] Y_{fin} \\[2ex] \Re U_{fin}\\[2ex] \Re V_{fin} \\[2ex] \Im U_{fin} \\[2ex] \Im V_{fin} 
+  X_{fin} \\[2ex] Y_{fin} \\[2ex] U_{fin}\\[2ex] V_{fin} \\[2ex] W_{fin} \\[2ex] Q_{fin} 
  \end{pmatrix}
  &=&
  \begin{pmatrix}
-  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial \Re U_{obj}} & \frac{\partial X_{fin}}{\partial \Re V_{obj}} & \frac{\partial X_{fin}}{\partial \Im U_{obj}} & \frac{\partial X_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial \Re U_{obj}} & \frac{\partial Y_{fin}}{\partial \Re V_{obj}} & \frac{\partial Y_{fin}}{\partial \Im U_{obj}} & \frac{\partial Y_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Re U_{fin}}{\partial X_{obj}} & \frac{\partial \Re U_{fin}}{\partial Y_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re U_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Re V_{fin}}{\partial X_{obj}} & \frac{\partial \Re V_{fin}}{\partial Y_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Re V_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Im U_{fin}}{\partial X_{obj}} & \frac{\partial \Im U_{fin}}{\partial Y_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im U_{fin}}{\partial \Im V_{obj}} \\[2ex]
-  \frac{\partial \Im V_{fin}}{\partial X_{obj}} & \frac{\partial \Im V_{fin}}{\partial Y_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Re V_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im U_{obj}} & \frac{\partial \Im V_{fin}}{\partial \Im V_{obj}}
+  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial U_{obj}} & \frac{\partial X_{fin}}{\partial V_{obj}} & \frac{\partial X_{fin}}{\partial W_{obj}} & \frac{\partial X_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial U_{obj}} & \frac{\partial Y_{fin}}{\partial V_{obj}} & \frac{\partial Y_{fin}}{\partial W_{obj}} & \frac{\partial Y_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial U_{fin}}{\partial X_{obj}} & \frac{\partial U_{fin}}{\partial Y_{obj}} & \frac{\partial U_{fin}}{\partial U_{obj}} & \frac{\partial U_{fin}}{\partial V_{obj}} & \frac{\partial U_{fin}}{\partial W_{obj}} & \frac{\partial U_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial V_{fin}}{\partial X_{obj}} & \frac{\partial V_{fin}}{\partial Y_{obj}} & \frac{\partial V_{fin}}{\partial U_{obj}} & \frac{\partial V_{fin}}{\partial V_{obj}} & \frac{\partial V_{fin}}{\partial W_{obj}} & \frac{\partial V_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial W_{fin}}{\partial X_{obj}} & \frac{\partial W_{fin}}{\partial Y_{obj}} & \frac{\partial W_{fin}}{\partial U_{obj}} & \frac{\partial W_{fin}}{\partial V_{obj}} & \frac{\partial W_{fin}}{\partial W_{obj}} & \frac{\partial W_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial Q_{fin}}{\partial X_{obj}} & \frac{\partial Q_{fin}}{\partial Y_{obj}} & \frac{\partial Q_{fin}}{\partial U_{obj}} & \frac{\partial Q_{fin}}{\partial V_{obj}} & \frac{\partial Q_{fin}}{\partial W_{obj}} & \frac{\partial Q_{fin}}{\partial Q_{obj}}
  \end{pmatrix}
  \begin{pmatrix}
-  X_{obj} \\[2ex] Y_{obj} \\[2ex] \Re U_{obj} \\[2ex] \Re V_{obj} \\[2ex] \Im U_{obj} \\[2ex] \Im V_{obj} 
+  X_{obj} \\[2ex] Y_{obj} \\[2ex] U_{obj} \\[2ex] V_{obj} \\[2ex] W_{obj} \\[2ex] Q_{obj} 
  \end{pmatrix} \nonumber \\
 \end{eqnarray}
 We obtain this matrix by multiplying the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations.
@@ -1868,7 +1869,7 @@ We abbreviate the coefficients of the propagator by sub-matrices $\hat{A}, \hat{
 resembling the ABCD formalism.
 \begin{eqnarray}
  \begin{pmatrix}
-  X_{fin} \\ Y_{fin} \\ \Re U_{fin} \\ \Re V_{fin} \\ \Im U_{fin} \\ \Im V_{fin} 
+  X_{fin} \\ Y_{fin} \\ U_{fin} \\ V_{fin} \\ W_{fin} \\ Q_{fin} 
  \end{pmatrix}
  &=&
  \begin{pmatrix}
@@ -1880,11 +1881,33 @@ resembling the ABCD formalism.
   C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
  \end{pmatrix}
  \begin{pmatrix}
-  X_{obj} \\ Y_{obj} \\ \Re U_{obj} \\ \Re V_{obj} \\ \Im U_{obj} \\ \Im V_{obj} 
+  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj} \\ W_{obj} \\ Q_{obj} 
  \end{pmatrix}
 \end{eqnarray}
 
+We abbreviate $(X,Y)$ as a vector of location deviation $\Vector{R}$
+and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
+\begin{eqnarray}
+\Vector{R} &=&
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \Vector{K} &=&
+ \begin{pmatrix}
+  U \\ V \\ W \\ Q 
+ \end{pmatrix}
+\end{eqnarray}
+
+The propagator equation becomes
+\begin{eqnarray}
+ \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
+ \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
+\end{eqnarray}
+
+
 \subsection{Propagation Between Planes in Homogeneous Media}
+\remark{todo:rewrite to fit XYUVWQ formalism}
 We consider two planes 1 and 2.
 We consider a homogeneous medium, a pilot ray $( \Vector{r}_{pilot1}, \Vector{r}_{pilot2}, \Wavevector_{pilot} )$
 and a near pilot ray $( \Vector{r}_{1}, \Vector{r}_{2}, \Wavevector )$. 
@@ -1978,10 +2001,10 @@ In isotropic media, we find
  &\approx&
   \frac{1}{|\Re \Wavevector_{pilot}|}
   \left(
-      (\Re U)(\Re \Vector{e}_U)
-    + (\Re V)(\Re \Vector{e}_V)
-    - (\Im U)(\Im \Vector{e}_U)
-    - (\Im V)(\Im \Vector{e}_V)
+      (U)(\Re \Vector{e}_U)
+    + (V)(\Re \Vector{e}_V)
+    - (W)(\Im \Vector{e}_U)
+    - (Q)(\Im \Vector{e}_V)
   \right) \nonumber
 \end{eqnarray}
 
@@ -2030,7 +2053,7 @@ with\begin{eqnarray}
 In lossless media, one often chooses a real valued $\Vector{e}_{U,V}$ base,
 and half of the matrix $\hat{B}$ is zeros.
 Still, it is important to forward the wavevector components 
-$(\Im U) \Vector{e}_U$ and $(\Im V) \Vector{e}_V$
+$(W) \Vector{e}_U$ and $(Q) \Vector{e}_V$
 to the next surface with the $\hat{D}$ matrix, 
 as these wavevector components may become relevant in following materials.
 
@@ -2040,6 +2063,7 @@ and is neglected in the (linear) parabasal formalism.
 The intersection points can be approximated using the tangential plane.
 
 \subsection{Refraction}
+\remark{todo:rewrite to fit XYUVWQ formalism}
 We assume two parallel planes 1,2 just in front of and behind a refracting surface.
 Both planes shall have identical bases $\Vector{e}_{X,Y}$.
 In general, it is not possible to find identical base vectors $\Vector{e}_{U,V}$ in both planes.
@@ -2233,26 +2257,10 @@ We add a variable $\nu=0$ to the left hand side and solve the system in a cartes
 Adding $\nu$ allows us to use standard matrix inversion algorithms.
 The result should reproduce $\nu=0$ within numerical accuracy.
 We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(U_2,V_2)$ for each case.
-We split the results up in real and imaginary part $\Re U, \Re V, \Im U, \Im V$ and fill the $\hat{C}$ matrix.
+We split the results up in real and imaginary part $U, V, W, Q$ and fill the $\hat{C}$ matrix.
 
 \subsection{Magnification of XYUV matrices}
-
-We split the input vector into two sub-vectors
-\begin{eqnarray}
- \Vector{R} &=&
- \begin{pmatrix}
-  X \\ Y
- \end{pmatrix}
- \\
- \Vector{K} &=&
- \begin{pmatrix}
-  \Re U \\ \Re V \\ \Im U \\ \Im V 
- \end{pmatrix}
- \\
- \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
- \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
-\end{eqnarray}
-
+\remark{todo:rewrite to fit XYUVWQ formalism}
 
 \subsubsection{Finite Conjugate Systems}
 We define a ray fan to be imaged, 
