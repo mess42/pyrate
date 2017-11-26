@@ -1300,7 +1300,7 @@ todo
 
 
 
-\section{Direction of rays}
+\section{Direction of rays} \label{sec:raydir}
 We assume rays propagate along the direction of energy transport.
 We assign a unit direction vector $\Vector{d}$ to each ray.
 The direction vector points in the direction of the time averaged Poynting vector.
@@ -1907,7 +1907,6 @@ The propagator equation becomes
 
 
 \subsection{Propagation Between Planes in Homogeneous Media}
-\remark{todo:rewrite to fit XYUVWQ formalism}
 We consider two planes 1 and 2.
 We consider a homogeneous medium, a pilot ray $( \Vector{r}_{pilot1}, \Vector{r}_{pilot2}, \Wavevector_{pilot} )$
 and a near pilot ray $( \Vector{r}_{1}, \Vector{r}_{2}, \Wavevector )$. 
@@ -1919,7 +1918,7 @@ We describe the rays as lines with geometric path length $s$ and a unit directio
 Next we consider some special cases, that allow us to fix the components of the propagator step by step.
 
 \subsubsection{The A-Matrix}
-We consider the pilot ray and a ray parallel to it ($U,V=0$).
+We consider a ray parallel to the pilot ($\Vector{K} = \Vector{0}$).
 \begin{eqnarray}
  \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
  X_2 \Vector{e}_{X2} +  Y_2 \Vector{e}_{Y2} - \Delta s \Vector{d}_{pilot} &=&  X_1 \Vector{e}_{X1} +  Y_1 \Vector{e}_{Y1} 
@@ -1945,7 +1944,7 @@ From which we extract the coefficients of the $\hat{A}$ matrix,
 linking $(X_1,Y_1)$ to $(X_2,Y_2)$.
 
 \subsubsection{The B-Matrix}
-We consider a ray with the same starting point as the pilot, $\Vector{r}_{1} = \Vector{r}_{pilot1}$. 
+We consider a ray with the same starting point as the pilot, $\Vector{R} = \Vector{0}$ or $\Vector{r}_{1} = \Vector{r}_{pilot1}$. 
 The remaining independent points $\Vector{r}_{1}, \Vector{r}_{2}, \Vector{r}_{pilot2}$ form a 2D triangle in 3D space.
 The triangle has the sides $\Vector{d} s ; \Vector{d}_{pilot} s_{pilot}$ and $\Delta \Vector{r}_2$. 
 Further we know that $\Delta \Vector{r}_2$ is in the image plane.
@@ -1999,35 +1998,43 @@ In isotropic media, we find
  &\approx& \frac{\Re \Delta \Wavevector}{|\Re \Wavevector_{pilot}|}
  \\
  &\approx&
-  \frac{1}{|\Re \Wavevector_{pilot}|}
-  \left(
-      (U)(\Re \Vector{e}_U)
-    + (V)(\Re \Vector{e}_V)
-    - (W)(\Im \Vector{e}_U)
-    - (Q)(\Im \Vector{e}_V)
-  \right) \nonumber
+  \frac{
+    U(\Re \Vector{e}_U)
+    + V(\Re \Vector{e}_V)
+    + W(\Re \Vector{e}_W)
+    + Q(\Re \Vector{e}_Q)
+  }{|\Re \Wavevector_{pilot}|}
 \end{eqnarray}
 
-\remark{todo: general case, maybe in ray dir section}
+\remark{todo: general case, maybe shift whole direction perturbation in ray dir section \ref{sec:raydir}}
 
 \subsubsection{The C-Matrix} 
-Two rays that are parallel in plane 1 shall also be parallel in plane 2.
-This means $\hat{C} = 0$.
+Two rays that are parallel in plane 1 shall also be parallel in plane 2, 
+independent of their point of origin.
+\begin{eqnarray}
+\hat{C} &=& 0 
+\end{eqnarray}
 
 \subsubsection{The D-Matrix}
 The homogeneous medium shall not change the ray direction.
-However, as the bases $( \Vector{e}_{U1}, \Vector{e}_{V1} )$ and $( \Vector{e}_{U2}, \Vector{e}_{V2} )$
-may differ, the coordinates may also differ.
-
+However, as the ray bases $( \Vector{e}_{U,V,W,Q\,1} )$ and $( \Vector{e}_{U,V,W,Q\,2} )$
+may differ, its coordinates may also differ.
 \begin{eqnarray}
  \Delta \Wavevector 
- &=& U_1 \Vector{e}_{U1} + V_1 \Vector{e}_{V1} 
-  =  U_2 \Vector{e}_{U2} + V_2 \Vector{e}_{V2}
+ &=& U_1 \Vector{e}_{U1} + V_1 \Vector{e}_{V1} + W_1 \Vector{e}_{W1} + Q_1 \Vector{e}_{Q1} \nonumber \\
+ &=& U_2 \Vector{e}_{U2} + V_2 \Vector{e}_{V2} + W_2 \Vector{e}_{W2} + Q_2 \Vector{e}_{Q2}
+\end{eqnarray}
+We recommend to stick to a single coordinate system when propagating through homogeneous media, 
+$( \Vector{e}_{U,V,W,Q\,1} ) = ( \Vector{e}_{U,V,W,Q\,2} )$. 
+In this case, the $\hat{D}$ matrix simplifies to unity.
+\begin{eqnarray}
+ \hat{D} &=& \unittensor
 \end{eqnarray}
 
+
 \subsubsection{Example}
-We assume two parallel planes and identical bases $\Vector{e}_{X,Y,U,V}$ in both planes. 
-The pilot ray Poynting vector shall be normal to the planes.
+We assume two parallel planes and identical bases $\Vector{e}_{X,Y,U,V,W,Q}$ in both planes. 
+The pilot ray direction shall be normal to the planes.
 We collect the sub-matrices $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ and yield
 
 \begin{eqnarray}
@@ -2046,27 +2053,22 @@ with\begin{eqnarray}
  \hat{B} &=&
  \frac{ s_{pilot} }{| \Re \Wavevector_{pilot} |}
  \begin{pmatrix}
-  (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X & -(\Im \Vector{e}_U) \Vector{e}_X & -(\Im \Vector{e}_V) \Vector{e}_X \\
-  (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y & -(\Im \Vector{e}_U) \Vector{e}_Y & -(\Im \Vector{e}_V) \Vector{e}_Y
+  (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_W) \Vector{e}_X & (\Re \Vector{e}_Q) \Vector{e}_X \\
+  (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_W) \Vector{e}_Y & (\Re \Vector{e}_Q) \Vector{e}_Y
  \end{pmatrix}
 \end{eqnarray}
-In lossless media, one often chooses a real valued $\Vector{e}_{U,V}$ base,
-and half of the matrix $\hat{B}$ is zeros.
+In lossless media, one often chooses real $\Vector{e}_{U,V}$ and imaginary $\Vector{e}_{W,Q}$.
+Half of the matrix $\hat{B}$ becomes zeros.
 Still, it is important to forward the wavevector components 
-$(W) \Vector{e}_U$ and $(Q) \Vector{e}_V$
+$W \Vector{e}_W$ and $Q \Vector{e}_Q$
 to the next surface with the $\hat{D}$ matrix, 
 as these wavevector components may become relevant in following materials.
 
-\subsection{Refraction on Curved Surfaces}
-Curvature sag is an effect quadratic in $\Delta \Vector{r}$, 
-and is neglected in the (linear) parabasal formalism.
-The intersection points can be approximated using the tangential plane.
-
 \subsection{Refraction}
-\remark{todo:rewrite to fit XYUVWQ formalism}
 We assume two parallel planes 1,2 just in front of and behind a refracting surface.
-Both planes shall have identical bases $\Vector{e}_{X,Y}$.
-In general, it is not possible to find identical base vectors $\Vector{e}_{U,V}$ in both planes.
+The planes shall be tangential to the surface 
+and shall have identical bases $\Vector{e}_{X,Y}$.
+In general, it is not possible to find identical base vectors $\Vector{e}_{U,V,W,Q}$ in both planes.
 
 \subsubsection{A and B-Matrix}
 The infinitessimal propagation length through the surface does not change the ray height
@@ -2074,6 +2076,8 @@ The infinitessimal propagation length through the surface does not change the ra
  \hat{A} &=& \unittensor \\
  \hat{B} &=& 0
 \end{eqnarray}
+Deviations from the tangential plane (sag differences due to curvature) 
+are an effect quadratic in ray height and are neglected in this linear formalism.
 
 \subsubsection{C and D-Matrix}
 First, we consider the in-plane wavevector component $\Wavevector_\parallel$.
@@ -2171,30 +2175,22 @@ We introduce the ($3\times3$) matrix $\hat{M}$ as
  \right) 
  ( \delta_{jl} -  n_{pilot j} n_{pilot l} )
 \end{eqnarray}
-Lengthy coordinate transfroms can be avoided by choosing
-\begin{subequations} \label{eq:eUeVVectors}
-  \begin{eqnarray}
-    \Vector{e}_{U2} &=& \frac{ \hat{M} \Vector{e}_{U1} }{\sqrt{ (\hat{M} \Vector{e}_{U1})\cdot \overline{(\hat{M} \Vector{e}_{U1})} }} \\
-    \Vector{e}_{V2} &=& \frac{ \hat{M} \Vector{e}_{V1} }{\sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }}
-  \end{eqnarray}
-\end{subequations}
+Lengthy coordinate transformations can be avoided by choosing
+\begin{eqnarray}
+  \Vector{e}_{K_i\,2} &=& \frac{ \hat{M} \Vector{e}_{K_i\,1} }{\sqrt{ (\hat{M} \Vector{e}_{K_i\,1})\cdot \overline{(\hat{M} \Vector{e}_{K_i\,1})} }}
+  \label{eq:eUeVVectors}
+\end{eqnarray}
 The unit vectors can be complex valued.
 Our result for the $\hat{D}$ matrix is
 \begin{eqnarray}
- \hat{D} &=&
- \begin{pmatrix}
-  D_{11} & 0 & 0 & 0 \\
-  0 & D_{22} & 0 & 0 \\
-  0 & 0 & D_{11} & 0 \\
-  0 & 0 & 0 & D_{22} \\
- \end{pmatrix}
- \\
- D_{11} &=& \sqrt{ (\hat{M} \Vector{e}_{U1})\cdot \overline{(\hat{M} \Vector{e}_{U1})} } \\
- D_{22} &=& \sqrt{ (\hat{M} \Vector{e}_{V1})\cdot \overline{(\hat{M} \Vector{e}_{V1})} }
+ D_{ij} &=&  \delta_{ij}
+ \sqrt{ (\hat{M} \Vector{e}_{K_i\,1})\cdot \overline{(\hat{M} \Vector{e}_{K_i\,1})} } 
 \end{eqnarray}
+\remark{todo: double check before use}
 For the unit vectors chosen above \eqref{eq:eUeVVectors}, the $D$-matrix is diagonal.
 
 \subsubsection{The C-Matrix}
+\remark{todo:rewrite to fit XYUVWQ formalism}
 We consider rays parallel to the pilot ray, $(U,V) = 0$.
 \begin{eqnarray}
  \Delta \wavenumber_{2i} &=& 
