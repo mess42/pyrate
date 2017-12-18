@@ -265,7 +265,6 @@ This limitation excludes treatment of effects like higher harmonic generation, f
 The Maxwell equations require media in which the constitutive bulk quantities can be assigned to all positions in space.
 Single atoms, molecules or nanoscopic structures must be treated quantum-mechanically and are beyond the scope of this manual.
 
-\section{Energy Conservation}
 We assume the strictly monochromatic case $\Efield,\Dfield,\Hfield,\Bfield, \currentdensity \propto \sin(\omega t + \varphi_0)$ for electrodynamic scenarios only, $\omega \neq 0$.
 We introduce the following constants:
 \begin{align}
@@ -274,11 +273,12 @@ We introduce the following constants:
  \lambda_\vacuum &= \frac{2\pi}{\wavenumber_\vacuum} & \textrm{vacuum wavelength}
 \end{align}
 
+\section{Energy Conservation}
 We focus on the term
 \begin{eqnarray}
    \Nabla ( \Efield \times \Hfield )
 \end{eqnarray}
-we apply the product rule for derivatives and rewrite the triple products, leading to
+We apply the product rule for derivatives and rewrite the triple products, leading to
 \begin{eqnarray}
    \Nabla ( \Efield \times \Hfield ) &=& \Hfield ( \Nabla \times \Efield ) - \Efield ( \Nabla \times \Hfield ) \\
    &=& - \Hfield \timederivative{\Bfield} - \Efield  \timederivative{\Dfield} - \Efield \currentdensity
@@ -300,11 +300,9 @@ $(\permittivity^S)^T = \permittivity^S$ and $(\permittivity^{AS})^T = - \permitt
 \end{eqnarray}
 
 We derive an analogous equation for the magnetic field and insert both
-
 \begin{eqnarray}
    \Nabla ( \Efield \times \Hfield ) + \frac{1}{2} \partial_t (\Hfield \Bfield) + \frac{1}{2} \partial_t (\Efield \Dfield) + \Efield \currentdensity &=& 0
 \end{eqnarray}
-
 leading to a continuity equation. 
 We associate $\Efield \currentdensity$ with ohmic losses, that is, the volume density of energy losses from optical energy into other forms, for example heat.
 Thus, the equation is a continuity equation of energy.
@@ -316,7 +314,7 @@ and $\Efield \times \Hfield$, which we call Poynting vector $\Vector{S}$, is the
 \end{eqnarray}
 We discuss the Poynting vector in more detail in section \ref{sec:Poynting}, after introducing complex valued notation.
 
-\section{Source-Free Maxwell Equations in Non-Magnetic Materials}
+\section{Complex Notation, Non-Magnetic Materials and Source-Free Maxwell Equations}
 \label{sec:sourcefreemaxwell}
 For ease of calculation, we introduce complex valued time harmonic dependence.
 \begin{eqnarray}
@@ -327,8 +325,7 @@ We associate the real part of $F$ with physically measureable quantities.
 Via the time harmonic factor $\exp(-i \omega t)$, the imaginary part of the fields will become real at other instances in time.
 Complex valued amplitudes $\Vector{F}_0$ express magnitude and phase retardation of the fields.
 All equations linear in $\Efield,\Dfield,\Hfield,\Bfield$ remain valid also for the newly introduced complex valued fields.
-Care has to be taken with quadratic equations, 
-containing terms like for example $\Efield \times \Hfield$, $\Hfield \Bfield$, or $\Efield \Dfield$,
+Care has to be taken with quadratic terms like $\Efield \times \Hfield$, $\Hfield \Bfield$, or $\Efield \Dfield$,
 as the square of a real number differs from that of a complex one -- e.g. it may become negative.
 
 We assume all materials are non-magnetic at the optical frequency $\omega$, that is $\permeability(\omega) = \vacuumpermeability$. 
@@ -493,12 +490,17 @@ forcing the solution to lie on a 4-dimensional surface in 6-dimensional $\Waveve
 In raytracing, one often faces problems where additional information about the wavevector is given and the
 degrees of freedom are further reduced. In the following, we present some of these problems and their solutions:
 
+\subsubsection{Problem 0: Poynting Vector is known}
+The Poynting vector is a real valued, 3-dimensional vector.
+It does not provide enough information for the 4 remaining degrees of freedom in the wavevector.
+Thus, it is impossible to find a unique solution without further knowledge about $\Wavevector$.
+
 \subsubsection{Problem 1: Two components are known}
 
 We assume two of the three cartesian components of $\Wavevector$ are known.
 We decompose $\Wavevector$ into a plane of known components $\Wavevector_\parallel$ and the unknown component $\wavenumber_\perp$. 
 A detailed discussion how to calculate the unknown component from the dispersion relation
-is given in \ref{subsubsec:general_anisotropic_refraction}.
+is given in section \ref{subsubsec:general_anisotropic_refraction}.
 
 \subsubsection{Problem 2: Direction of $\Wavevector$ is known}
 We assume the solution $\Wavevector$ is proportional to a given direction $\Vector{e}_\wavenumber$.
@@ -555,9 +557,13 @@ Assume we found a solution to the dispersion relation $\Wavevector$ and its sign
 In case we do not know the prefactors, but only the wavevector, we divide the wavevector by its length $\sqrt{\Wavevector \overline{\Wavevector}}$ 
 to obtain its unit direction vector $\Vector{e}_\wavenumber$. 
 Then we calculate the four modes $\varsigma, \tau$ corresponding to this unit direction vector employing \eqref{eq:dispersion_for_known_direction}.
-We choose the mode with minimum wavevector difference to the original wavevector.
+From those four modes, we choose the mode with minimum wavevector difference to the original wavevector and remember the prefactors chosen.
+For isotropic media, several modes will be degenerate and have zero difference within numerical accuracy.
+In this case, it does not matter which one to choose.
 
-We perturb the unit direction vector. 
+Once we found both mode prefactors $\varsigma, \tau$, we perturb the wavevector. 
+The perturbed quantities are marked with a tilde, like $\tilde{\Wavevector}$.
+We start by perturbing the unit direction vector. 
 \begin{eqnarray}
  \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + d\Vector{e} \\
  \Vector{e}_\wavenumber \cdot d\Vector{e} &=& 0 \label{eq:perturbation_unit_orthogonality}
@@ -642,11 +648,12 @@ Some people indicate materials with a negative permittivity real part by a negat
 Some people indicate materials with negative permeability and negative permittivity real part at the same time by a negative sign of the index.
 This manual does not cover materials with non-vacuum permeabilities so far.
 \remark{TODO: rewrite all formulas for non-vacuum permeabilities}
-
+\remark{todo: subsection on k perturbation in this special case}
 
 
 \subsection{Uniaxial anisotropic, homogeneous media}
-\remark{this section needs some updates}
+\remark{todo: this section needs some updates to fit the rewrite of the general dispersion section: so far, it does not allow complex values in all k components. A starting point could be \ref{eq:uniaxialDispersion}.}
+\remark{todo: subsection on k perturbation in this special case}
 Uniaxial anisotropic media are media with one axis along which the permittivity takes an extraordinary value, 
 and a degenerate permittivity along the other two directions in space.
 The direction along which the extraordinary permittivity occurs is often called \emph{optical axis}. 
@@ -806,7 +813,7 @@ The fields $\Dfield_{in}$ and $\Efield_{in}$ on the boundary in medium $\permitt
  \Wavevector_{in\parallel} &=& \Wavevector_{in} - \Wavevector_{in\perp}
 \end{eqnarray}
 where $\Vector{n}$ is the surface normal unit vector.
-From the boundary conditions \ref{eq:boundary_conditions} we conclude that with $\Dfield_{in}$ and $\Efield_{in}$, 
+From the boundary conditions \ref{eq:boundary_conditions} we conclude that with the incident light $\Dfield_{in}$ and $\Efield_{in}$, 
 all reflected or refracted modes $M$ are to be modulated by the same in-plane wavevector component.
 \begin{eqnarray}
   \Dfield_{M}, \Efield_{M} &\propto& \exp( i \Wavevector_{M\parallel} \Location)|_{boundary} \\
@@ -856,7 +863,7 @@ The wavevectors of each mode $\Wavevector_M$ consist of the conserved in-plane c
 Solving the material dispersion $\xi$, we find the directions of all refracted and reflected modes.
 Compared to the law of Snellius, this formulation bears the following advantages:
 \begin{itemize}
- \item It does not require the calculation of angles in 3D space, only scalar products.
+ \item It does not require the calculation of geometric angles in 3D space, and can be formulated with scalar products of vectors.
  \item The incident wavevector can be modelled as a property of the ray. When calculating the refracted wavevector, 
        the dispersion relation in material $\permittivity_\materialone$ is not required.
        This allows to isolate methods in object-oriented programming and a modular design.
@@ -888,6 +895,7 @@ The material dispersion of the extraordinary mode, equation \ref{eq:uniaxialAnis
  \Wavevector^2 \scalarpermittivity_{\ordi} 
  + \wavenumber_{z}^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
  &=& \omega^2 \vacuumpermeability \scalarpermittivity_{\ordi} \scalarpermittivity_{\eo} 
+ \label{eq:uniaxialDispersion}
  \\
  (\Wavevector_{\parallel}^2 + \xi^2) \scalarpermittivity_{\ordi} 
  + (\Wavevector_{\parallel} \Vector{e}_{\eo} + \xi \Vector{n}\Vector{e}_{\eo})^2 (\scalarpermittivity_{\eo} - \scalarpermittivity_{\ordi})
@@ -940,7 +948,7 @@ with
 
 \subsection{Fresnel Coefficients}
 \subsubsection{general case}
-Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarizations $\Vector{e}$
+Assume we solved the material dispersion and found the wavevectors of all modes as well as their corresponding eigen-polarization unit vectors $\Vector{e}$
 \begin{subequations}
 \begin{eqnarray}
 (\Wavevector_{in}, \Wavevector_{r1}, \Wavevector_{r2}, \Wavevector_{t1}, \Wavevector_{t2}) \\
@@ -980,6 +988,7 @@ This allows us to abbreviate the equation system to
 \end{subequations}
 where $\varsigma$ represents the sign of each term.
 $\varsigma_t=1$ for transmitted terms and $\varsigma_r=-1$ for reflected ones.
+\remark{todo: check nomenclature consistency with mode sign prefactors introduced in plane wave section}
 We introduce a cartesian base, 
 consisting of the directions of the normal direction $\Vector{n}$, 
 and two in-plane directions $\Vector{e}_X$ and $\Vector{e}_Y$.
@@ -1297,7 +1306,8 @@ Care has to be taken if the front lens group imaging the stop to the pupil suffe
 \subsection{Cardinal Planes}
 todo
 
-
+\subsection{Principal Planes}
+todo
 
 
 \section{Direction of rays} \label{sec:raydir}
@@ -1517,7 +1527,7 @@ Performing the Taylor expansion in linear order, we find the ABCD-Matrices of ty
  \begin{pmatrix}
   1 & 0 \\ \left( \frac{n_1}{n_2} - 1 \right) \frac{1}{R} & \frac{n_1}{n_2}
  \end{pmatrix}
- && \textrm{refraction of a thin surface}
+ && \textrm{refraction of a thin surface, $n \in \mathbb{R}_{>0}$ }
  \\
  \begin{pmatrix}
   1 & 0 \\ -\frac{2}{R} & 1
