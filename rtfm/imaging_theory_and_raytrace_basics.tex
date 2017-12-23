@@ -2271,23 +2271,23 @@ We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wa
 We use this result to fill the $(2\times4)$ matrix $\hat{C}$.
 
 \subsection{Magnification of XYUV matrices}
-\remark{todo:rewrite to fit XYUVWQ formalism}
 
 \subsubsection{Finite Conjugate Systems}
 We define a ray fan to be imaged, 
 if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
 ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj}
+ \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj} + 0
 \end{eqnarray}
 or, in other words,
 \begin{eqnarray}
  \hat{B} \cdot \Vector{K}_{obj} &=& 0
 \end{eqnarray}
 The matrix $\hat{B}$ is of rank 2, the input vector $\Vector{K}$ contains 4 independent real valued degrees of freedom.
-We can impose more constraints on the input vector. 
+For a unique solution, we need to impose more constraints on the input vector. 
 We consider the plane waves of the pilot ray and a near pilot ray, 
-$\Wavevector_{pilot}$ and $\Wavevector = \Wavevector_{pilot} + U \Vector{e}_U + V \Vector{e}_V$.
+$\Wavevector_{pilot}$ and 
+$\Wavevector = \Wavevector_{pilot} + U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q$.
 Both rays propagate from the object to the image.
 We assume a coherent source.
 Both rays interfere and form a sinusoidal grating intensity pattern
@@ -2300,15 +2300,15 @@ In the object plane, we desire the modulation depth of the intensity pattern to 
 \end{eqnarray}
 This shall hold for all positions $\Vector{R}=(X,Y)$, so
 \begin{eqnarray}
- \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_X ) &=& 0 \\
- \Im ( (U \Vector{e}_U + V \Vector{e}_V) \Vector{e}_Y ) &=& 0
+ \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_X \right) &=& 0 \\
+ \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_Y \right) &=& 0
 \end{eqnarray}
-We can find 2 independent solutions $\Vector{e}_{K1}$,$\Vector{e}_{K2}$ that fulfill the two conditions.
+With 4 variables and 2 equations, we can find 2 independent solutions $\Vector{e}_{K1}$,$\Vector{e}_{K2}$ that fulfill the two conditions.
 $\Vector{e}_{Ki}$ are four-dimensional, have real valued components and can be transfered to a cartesian wavevector deviation via
 \begin{eqnarray}
- \Delta \Wavevector(\Vector{e}_{Ki}) &=& e_{Ki\,1} (\Re e_{U}) + e_{Ki\,2} (\Re e_{V}) + e_{Ki\,3} (\Im e_{U}) + e_{Ki\,4} (\Im e_{V})
+ \Delta \Wavevector(\Vector{e}_{Ki}) &=& e_{Ki\,1} e_{U} + e_{Ki\,2} e_{V} + e_{Ki\,3} e_{W} + e_{Ki\,4} e_{Q}
 \end{eqnarray}
-The base vectors shall be normalized and orthogonal 
+The base vectors $\Vector{e}_{Ki}$ shall be normalized and orthogonal, 
 $\Delta \Wavevector(\Vector{e}_{Ki}) \cdot \overline{\Delta \Wavevector (\Vector{e}_{Kj})} = \delta_{ij}$.
 Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of these two directions,
 we ensure a real valued grating in the object plane. 
@@ -2317,7 +2317,7 @@ may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X
 \begin{eqnarray}
  \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{K1} + \kappa_2 \Vector{e}_{K2} \label{eq:deltaK_as_kappa}
 \end{eqnarray}
-We call $\kappa_{x,y} \in \mathbb{R}$ the entrance pupil wavevector coordinates. The are not normalized and may be arbitrarily scaled.
+We call $\kappa_{x,y} \in \mathbb{R}$ the entrance pupil wavevector coordinates.
 Our imaging condition reduces to
 \begin{eqnarray}
  \hat{B}
@@ -2334,7 +2334,9 @@ Our imaging condition reduces to
 \end{eqnarray}
 Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{e}_{K1}, \Vector{e}_{K2})$ vanishes.
 In case the determeninant is nonzero, 
-we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} by a distance $s$ 
+we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} 
+\remark{The referenced equation is only valid for homogeneous media, parallel planes and a pilot normal to the planes. Todo: Check if the following equations also work in the general case.} 
+by a distance $s$ 
 in front of the image plane.
 We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
 \begin{eqnarray}
@@ -2351,6 +2353,7 @@ This problem is similar to an eigenvalue problem, so we call the solutions $s$ q
 The characteristic polynomial is quadratic in $s$.
 The defocus values $s_{1,2}$ are quasi-eigenvalues 
 and come with a corresponding quasi-eigenvector $\Vector{e}_{qeig\,1,2}$.
+\remark{Too many base vectors e of different dimenstionality (2d,3d,4d) are distracting. todo: find a simpler nomenclature.}
 The quasi-eigenvectors shall be unit-less and normalized, $\Vector{e}_{qeig\,1,2} \cdot \overline{\Vector{e}}_{qeig\,1,2} = 1$
 Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in image plane, 
 if the corresponding eigen-defocus is applied.
