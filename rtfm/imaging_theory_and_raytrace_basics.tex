@@ -1920,17 +1920,23 @@ The propagator equation becomes
 We consider two planes 1 and 2.
 We consider a homogeneous medium, a pilot ray $( \Vector{r}_{pilot1}, \Vector{r}_{pilot2}, \Wavevector_{pilot} )$
 and a near pilot ray $( \Vector{r}_{1}, \Vector{r}_{2}, \Wavevector )$. 
+In the homogeneous medium, the rays are straight lines and the wavevector of each ray is the same in both planes.
 We describe the rays as lines with geometric path length $s$ and a unit direction vector $\Vector{d}$
 \begin{eqnarray}
  \Vector{r}_{2} &=& \Vector{r}_{1} + \Vector{d} s  \\
  \Vector{r}_{pilot2} &=& \Vector{r}_{pilot1} + \Vector{d}_{pilot} s_{pilot}
 \end{eqnarray}
 Next we consider some special cases, that allow us to fix the components of the propagator step by step.
+\begin{eqnarray}
+ \Delta \Vector{r}_2 &=& \Vector{r}_{2} - \Vector{r}_{pilot2} \\
+ \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
+ \Delta \Vector{r}_2 &=& \Vector{r}_{1} + \Vector{d} s  - \Vector{r}_{pilot1} - \Vector{d}_{pilot} s_{pilot}
+\end{eqnarray}
 
 \subsubsection{The A-Matrix}
-We consider a ray parallel to the pilot ($\Vector{K} = \Vector{0}$).
+We consider a ray parallel to the pilot ($\Vector{K} = \Vector{0}$ and $\Vector{d} = \Vector{d}_{pilot}$).
 \begin{eqnarray}
- \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
+ \Delta \Vector{r}_2 &=& \Vector{r}_{1} - \Vector{r}_{pilot1} + \Vector{d} ( s - s_{pilot} ) \\
  X_2 \Vector{e}_{X2} +  Y_2 \Vector{e}_{Y2} - \Delta s \Vector{d}_{pilot} &=&  X_1 \Vector{e}_{X1} +  Y_1 \Vector{e}_{Y1} 
 \end{eqnarray}
 The three unknowns $X_2 , Y_2, \Delta s$ can be calculated from this 3-dimensional vector equation.
@@ -2172,7 +2178,7 @@ We apply this intermediate result on the full wavevector of the near-pilot ray a
 \end{eqnarray}
 
 \subsubsection{The D-Matrix}
-We consider rays intersecting the surface at the pilot interesction position $(X,Y) = 0$.
+We consider rays intersecting the surface at the pilot interesction position $\Vector{R} = 0$.
 The surface normal for all these rays is the pilot surface normal $\Delta \Vector{n} = 0$.
 We introduce the ($3\times3$) matrix $\hat{M}$ as
 \begin{eqnarray}
@@ -2200,8 +2206,7 @@ Our result for the $\hat{D}$ matrix is
 For the unit vectors chosen above \eqref{eq:eUeVVectors}, the $D$-matrix is diagonal.
 
 \subsubsection{The C-Matrix}
-\remark{todo:rewrite to fit XYUVWQ formalism}
-We consider rays parallel to the pilot ray, $(U,V) = 0$.
+We consider rays parallel to the pilot ray, $\Vector{K} = 0$.
 \begin{eqnarray}
  \Delta \wavenumber_{2i} &=& 
  \Bigg[
@@ -2262,8 +2267,8 @@ We add a variable $\nu=0$ to the left hand side and solve the system in a cartes
 \end{eqnarray}
 Adding $\nu$ allows us to use standard matrix inversion algorithms.
 The result should reproduce $\nu=0$ within numerical accuracy.
-We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(U_2,V_2)$ for each case.
-We split the results up in real and imaginary part $U, V, W, Q$ and fill the $\hat{C}$ matrix.
+We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(dU_2,dV_2, dW_2, dQ2)$ for both cases.
+We use this result to fill the $(2\times4)$ matrix $\hat{C}$.
 
 \subsection{Magnification of XYUV matrices}
 \remark{todo:rewrite to fit XYUVWQ formalism}
