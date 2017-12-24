@@ -2270,9 +2270,7 @@ The result should reproduce $\nu=0$ within numerical accuracy.
 We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(dU_2,dV_2, dW_2, dQ2)$ for both cases.
 We use this result to fill the $(2\times4)$ matrix $\hat{C}$.
 
-\subsection{Magnification of XYUV matrices}
-
-\subsubsection{Finite Conjugate Systems}
+\subsection{Image Plane Position in a Finite Conjugate Image Space}
 We define a ray fan to be imaged, 
 if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
 ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
@@ -2315,9 +2313,9 @@ we ensure a real valued grating in the object plane.
 The intensity distribution in intermediate planes and in the image plane, however, 
 may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X,Y}$.
 \begin{eqnarray}
- \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{K1} + \kappa_2 \Vector{e}_{K2} \label{eq:deltaK_as_kappa}
+ \Delta \Wavevector_{obj} &=& K_1 \Vector{e}_{K1} + K_2 \Vector{e}_{K2} \label{eq:deltaK_as_kappa}
 \end{eqnarray}
-We call $\kappa_{x,y} \in \mathbb{R}$ the entrance pupil wavevector coordinates.
+$K_{1,2} \in \mathbb{R}$ are coordinates in this 2-dimensional representation of wavevector deviations.
 Our imaging condition reduces to
 \begin{eqnarray}
  \hat{B}
@@ -2328,7 +2326,7 @@ Our imaging condition reduces to
  e_{K14} & e_{K24} \\ 
  \end{pmatrix}
  \begin{pmatrix}
- \kappa_1 \\ \kappa_2 
+ K_1 \\ K_2 
  \end{pmatrix}
  &=& 0
 \end{eqnarray}
@@ -2346,129 +2344,164 @@ We obtain the matrices describing the imaging system after refocus and projectio
 The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
 The imaging condition becomes
 \begin{eqnarray}
- \hat{\tilde{B}}(s) \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& 0
+ \hat{\tilde{B}}(s) \begin{pmatrix} K_1 \\ K_2 \end{pmatrix} &=& 0
 \end{eqnarray}
 We are interested in solutions $s$ for which the determinant vanishes.
-This problem is similar to an eigenvalue problem, so we call the solutions $s$ quasi-eigenvalues.
 The characteristic polynomial is quadratic in $s$.
-The defocus values $s_{1,2}$ are quasi-eigenvalues 
-and come with a corresponding quasi-eigenvector $\Vector{e}_{qeig\,1,2}$.
-\remark{Too many base vectors e of different dimenstionality (2d,3d,4d) are distracting. todo: find a simpler nomenclature.}
-The quasi-eigenvectors shall be unit-less and normalized, $\Vector{e}_{qeig\,1,2} \cdot \overline{\Vector{e}}_{qeig\,1,2} = 1$
-Changes of the wavevector by any multiple of the eigenvector are imaged to the same point in image plane, 
-if the corresponding eigen-defocus is applied.
+This problem is similar to an eigenvalue problem, so we call the solutions $s_{1,2}$ quasi-eigenvalues.
 
-In both solution planes $s$, 
-we express the entrance pupil coordinates in a base system of the quasi-eigenvector and a vector orthogonal to it.
-\begin{eqnarray}
- \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& \kappa_{qeig} \Vector{e}_{qeig} + \kappa_\perp \Vector{e}_{\perp}
- \\
- \Vector{e}_{\perp\,1,2} &=&
- \begin{pmatrix}
-  - e_{qeig\,1,2 y} \\ e_{qeig\,1,2 x}
- \end{pmatrix}
-\end{eqnarray}
-$\kappa$ is unit bearing and of dimension $1/\meter$, while $e$ is unit-less.
-\begin{eqnarray}
- \hat{\tilde{B}}(s_i) & \Vector{e}_{qeig\, i} &= 0 \\
- \hat{\tilde{B}}(s_i) & \Vector{e}_{\perp\, i} &= \Vector{h}_{line\, i}
-\end{eqnarray}
-We consider light emitted from one object point 
-in different directions $\kappa$ towards the image.
-There are two cases:
-In the first case, $\Vector{h}_{line}$ is zero. 
-All light emitted from one object point is stigmatically focused to an image point.
-In this case, the quasi-eigenvalues are degenerate $s_1 = s_2$.
-In the second case, $\Vector{h}_{line}$ nonzero.
-Light emitted from one object point is astigmatically focused to a line.
-The resolution along the direction of $\Vector{h}_{line\,1,2}$ is reduced or does not allow
-reasonable 2D imaging.
-The orientation of the lines in the planes $s_1$ and $s_2$ are different.
-In classical raytracing, this phenomenon is often called \emph{on-axis-astigmatism}.
+\section{Ray Aiming}
+When shooting rays at an optical system, we need initial properties like starting position and wavevector.
+But which properties do I have to choose for the marginal, chief, coma or any other ray ?
+Ray aiming allows to approximate initial ray properties for a given optical system.
+Our ansatz of ray aiming consists of the following steps:
+\begin{itemize}
+ \item Calculate the stop size in paraxial or parabasal approximation.
+ \item Calculate ray starting points and wavevectors for given field and pupil coordinates in paraxial or parabasal approximation
+ \item Convert the paraxially approximated wavevectors to real wavevectors,
+       that obey the dispersion relation in the object material
+ \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates 
+       and whether the stop size fulfills the designer's aperture definition.
+       Optimize the aiming iteratively.
+ \item Adapt the ray intensities so that the ray bundle resembles the angular power distribution $\frac{\partial P}{\partial \Omega}$ of the light source.
+\end{itemize}
 
-In any case, we calculate the transfer of 2D objects $(X,Y)$ to the image as well as the degree of astigmatism.
-The imaging equation in the planes $s_{1,2}$ is
-\begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}} \cdot \Vector{R}_{obj}
-                  +  \kappa_\perp \Vector{h}_{line}
-\end{eqnarray}
-The pupil position dependence causes a spread of the rays to a line.
-We want to isolate the effects of magnification and line spread.
+\subsection{Calculating the Stop Size}
+The aperture of an optical system is often defined indirectly.
+Some common definitions are via stop size, pupil diameter, aperture number (f-stop), or numerical aperture.
+However, not all of these quantities can be applied to all tpyes of system.
+A definition of pupil size and position would become numerically instable for telecentric systems.
+Numerical aperture or aperture number definitions would be unsuitable for infinite conjugate systems.
 
-\paragraph{In the limit of small astigmatism,}
-we assume a 2-dimensioanl imaging is still possible, but the spot comes with a spot spread to a short line.
-We determine the $\kappa$ values of the chief ray, 
-and separate chief ray maginifiaction from the line spread.
-We need the XYUV matrix from the object to the stop and the XYUV matrix from object to image.
-By definition, the chief ray has a zero ray height in the stop, $\Vector{R}_{chief, stop} = \Vector{0}$.
+Instead, we use the stop size as a universal measure for the aperture definition.
+The stop, as physical part of the optical system, is always finite sized and at a finite distance.
+In the following, we show how to convert different aperture definitions to a stop size.
+The stop does not need to be circular. 
+
+In the implementation, it is better not to include the calculated aperture object in the optical system.
+Otherwise, small numerical errors might cause marginal or coma rays to lie just outside the aperture.
+These rays could be clipped, confusing automated optimization routines.
+Rather we use the aperture object only to calculate the ray starting properties.
+We leave the stop plane in the optical system without an aperture.
+
+
+\subsubsection{Entrance Pupil Size}
+TODO
+stop size = ...
+
+\subsubsection{Exit Pupil Size}
+TODO
+
+\subsubsection{Infinite Conjugate Object Space Aperture Number}
+TODO, uncommon definition
+
+\subsubsection{Infinite Conjugate Image Space Aperture Number}
+TODO
+
+\subsubsection{Working Object Space Aperture Number}
+TODO, uncommon definition
+
+\subsubsection{Working Image Space Aperture Number}
+TODO
+
+\subsubsection{Object Space Numerical Aperture}
+TODO
+
+\subsubsection{Image Space Numerical Aperture}
+TODO
+
+\remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
+
+
+\subsection{Ray Origin for Finite Conjugate Objects}
+In object sided finite conjugate systems, the ray origin defines the field, and the ray wavevector defines the pupil position.
+
+\subsubsection{Specification of Object Ray Height}
+In case the field is specified by the object sided ray height,
+this definition directly fixes the ray origin in the object plane.
+A parabasal calculation is error-free.
+
+\subsubsection{Specification of Object Sided Chief Ray Angle}
+This definition is uncommon for finite conjugate systems. 
+It makes sense for large object distances and small apertures.
+It is unsuitable for object sided telecentric systems.
+
+The ray origin is obtained approximately like this \remark{TODO: explain properly}
+\begin{itemize}
+ \item Calculation of entrance pupil position 
+       \remark{TODO: what is the pupil position if there is on-axis astigmatism between stop and pupil ?}
+ \item Calculation of Pilot direction (normalized pilot Poynting vector)
+ \item Chief direction = Pilot direction, rotated by the specified field angle
+ \item The chief ray is a ray with the chief direction, that intersects the pilot in the pupil
+ \item Ray origin = intersection of object plane and chief ray
+\end{itemize}
+
+Using real rotation matrices (Rodrigues matrices) makes this algorithm more robust for finite fields.
+The results, however, may still need iterative adaption for increased accuracy, as the real pupil position may move with field.
+
+\subsubsection{Specification of Image Sided Ray Height}
+The object sided ray height is obtained from the image sided ray height by the inverse of the XYUV matrix between object and image.
+\remark{TODO: what is THE object position belonging to an image position if there is on-axis astigmatism ? Chief ?}
+
+
+
+\subsection{Ray Direction for Finite Conjugate Objects}
+The ray originates from a point $\Vector{R}_{obj}$, defined by the field definition (see above).
+Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
+In the following, we search for a ray direction to fulfill this constraint.
+We reduce the 4 dimensional wavevector deviation $\Vector{K}$ to the 2 dimensional $\kappa$ base according to \eqref{eq:deltaK_as_kappa}
+and find in parabasal approximation
 \begin{eqnarray}
- \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
-                  +  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix}
- \\
- \begin{pmatrix} \kappa_{1 chief} \\ \kappa_{2 chief} \end{pmatrix}
+% \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+%                  +    \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+% \\
+% \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} &=& 
+%                  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+% \\
+ \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
  &=&
- - \hat{\tilde{B}}_{obj\rightarrow stop}^{-1} \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+ \hat{\tilde{B}}_{obj\rightarrow stop}^{-1}
+ \left(
+    \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} 
+ \right) 
 \end{eqnarray}
-Object and entrance pupil must not be conjugate 
-$(\det \hat{\tilde{B}}_{obj\rightarrow stop} \neq 0)$
-for the inverse matrix to exist.
-We insert the chief ray wavevector deviation in the imaging equation and yield
+
+
+\subsection{Ray Direction for Infinite Conjugate Objects}
+In object sided infinite conjugate systems, the desired field defines the ray direction, 
+and the ray height on the first surface of the finite sized optical system defines the pupil position.
+
+We restrict the starting wavevector deviation from the pilot to the 2 dimensional base of $\kappa$ according to \eqref{eq:deltaK_as_kappa}.
+We calculate the change in Poynting vector when the wavevector is changed infinitessimally in direction of $\kappa_1$ or $\kappa_2$
+and conclude the change of ray direction $\Vector{d}$
 \begin{eqnarray}
- \Vector{R}_{im, chief} &=& 
-     \left(
-         \hat{\tilde{A}}_{obj\rightarrow im} 
-       - \left(\hat{\tilde{B}}_{obj\rightarrow im} \hat{\tilde{B}}_{obj\rightarrow stop}^{-1} \right) \hat{\tilde{A}}_{obj\rightarrow stop}
-     \right)
-     \cdot \Vector{R}_{obj}
+ \Vector{d} \approx \Vector{d}_{pilot} + \frac{\partial \Vector{d}}{\partial \kappa_i} \kappa_i
 \end{eqnarray}
-Rays from an object point spread to a line in the image from $\pm\Delta\Vector{R}$ with
+\remark{TODO: explicit formula}
+
+
+\subsection{Ray Origin for Infinite Conjugate Objects}
+The ray wavevector is defined by the field definition (see above).
+Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
+To achieve this, we set ray height $\Vector{R}_{surf1}$ on the first surface of our finite sized optical system. 
+We find in parabasal approximation
 \begin{eqnarray}
- \Delta\Vector{R}_{im} &=& \kappa_{\perp marginal} \Vector{h}_{line}
+ \Vector{R}_{surf1}                 
+ &=&
+ \hat{\tilde{A}}_{surf1\rightarrow stop}^{-1}
+ \left(
+   \Vector{R}_{stop} - \hat{\tilde{B}}_{surf1\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+ \right)
 \end{eqnarray}
-where $\kappa_{\perp marginal}$ is to be chosen from the meridional plane that causes maximum line spread.
 
-\paragraph{The circle of least confusion} denotes the circular spot in a plane between $s_1$ and $s_2$.
-Its radius is smaller than in the two astigmatic line foci.
-However, the spot size is finite in both directions.
+\subsection{Conversion to Wavevectors Obeying the Dispersion}
+todo
 
-We assume a circular or elliptic entrance pupil, that is, the marginal rays form an ellipse in $\kappa$ space.
-In general, the elliptic cone will be imaged to an ellipse in a defocused real space image plane $s$.
-In case two independent ray directions $\kappa$ are imaged to the same ray height $|\Vector{R}|$, this ellipse is a circle.
-
-From the object, we consider the two special directions $\kappa_{qeig, 1}$ and $\kappa_{qeig, 2}$.
-We know
-\begin{eqnarray}
- \Vector{R}_{im}(s_{i}, \kappa_{qeig, i}) &=& 0 \\
- \Vector{R}_{im}(s, \kappa_{qeig, i}) &=& \left. \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, i}} \cdot ( s-s_i ) 
-\end{eqnarray}
-and find the position of the circle of least confusion $s_{colc}$ as
-\begin{eqnarray}
- s_{colc} &=& \alpha s_1 + (1-\alpha) s_2 \\[2ex]
- \alpha &=& \frac{
-                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 1}}
-                 }
-                 {
-                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 1}}
-                  +
-                  \left| \frac{\partial \Vector{R}_{im}}{\partial s} \right|_{\kappa_{qeig, 2}}
-                 }
-\end{eqnarray}
-The derivatives are easily found while setting up the $\hat{\tilde{B}}$ matrix \eqref{eq:tildeB}.
-The length of the $\kappa$-vectors is to be chosen such that they are marginal rays, that is, they are on the border of the entrance pupil.
+\subsection{Angular Power Distribution}
+todo
 
 
-
-\chapter{Raytracing}
-
-Raytracing consists of the following steps:
-Light, represented by a ray, is propagated through a medium until it hits a surface.
-In classical raytracing, media are stepwise homogeneous, so rays travel along straight lines between surfaces.
-Then, the ray is reflected or refracted. 
-This operation conserves the ray position, and assigns a new wavevector.
-The wavevector is found employing the law of refraction for plane waves on planar surfaces.
-
-
-\section{Intersections of Straights with Spheres, Aspheres and Free-shapes}\label{subsec:intersectionformulas}
+\chapter{Surface Intersections}\label{subsec:intersectionformulas}
 
 \subsection{Biconics}
 The word ``conic" is short for conic section. 
@@ -2778,157 +2811,7 @@ todo
 todo
 
 
-\section{Ray Aiming}
-When shooting rays at an optical system, we need initial properties like starting position and wavevector.
-But which properties do I have to choose for the marginal, chief, coma or any other ray ?
-Ray aiming allows to approximate initial ray properties for a given optical system.
-Our ansatz of ray aiming consists of the following steps:
-\begin{itemize}
- \item Calculate the stop size in paraxial or parabasal approximation.
- \item Calculate ray starting points and wavevectors for given field and pupil coordinates in paraxial or parabasal approximation
- \item Convert the paraxially approximated wavevectors to real wavevectors,
-       that obey the dispersion relation in the object material
- \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates 
-       and whether the stop size fulfills the designer's aperture definition.
-       Optimize the aiming iteratively.
- \item Adapt the ray intensities so that the ray bundle resembles the angular power distribution $\frac{\partial P}{\partial \Omega}$ of the light source.
-\end{itemize}
-
-\subsection{Calculating the Stop Size}
-The aperture of an optical system is often defined indirectly.
-Some common definitions are via stop size, pupil diameter, aperture number (f-stop), or numerical aperture.
-However, not all of these quantities can be applied to all tpyes of system.
-A definition of pupil size and position would become numerically instable for telecentric systems.
-Numerical aperture or aperture number definitions would be unsuitable for infinite conjugate systems.
-
-Instead, we use the stop size as a universal measure for the aperture definition.
-The stop, as physical part of the optical system, is always finite sized and at a finite distance.
-In the following, we show how to convert different aperture definitions to a stop size.
-The stop does not need to be circular. 
-
-In the implementation, it is better not to include the calculated aperture object in the optical system.
-Otherwise, small numerical errors might cause marginal or coma rays to lie just outside the aperture.
-These rays could be clipped, confusing automated optimization routines.
-Rather we use the aperture object only to calculate the ray starting properties.
-We leave the stop plane in the optical system without an aperture.
-
-
-\subsubsection{Entrance Pupil Size}
-TODO
-stop size = ...
-
-\subsubsection{Exit Pupil Size}
-TODO
-
-\subsubsection{Infinite Conjugate Object Space Aperture Number}
-TODO, uncommon definition
-
-\subsubsection{Infinite Conjugate Image Space Aperture Number}
-TODO
-
-\subsubsection{Working Object Space Aperture Number}
-TODO, uncommon definition
-
-\subsubsection{Working Image Space Aperture Number}
-TODO
-
-\subsubsection{Object Space Numerical Aperture}
-TODO
-
-\subsubsection{Image Space Numerical Aperture}
-TODO
-
-\remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
-
-
-\subsection{Ray Origin for Finite Conjugate Objects}
-In object sided finite conjugate systems, the ray origin defines the field, and the ray wavevector defines the pupil position.
-
-\subsubsection{Specification of Object Ray Height}
-In case the field is specified by the object sided ray height,
-this definition directly fixes the ray origin in the object plane.
-A parabasal calculation is error-free.
-
-\subsubsection{Specification of Object Sided Chief Ray Angle}
-This definition is uncommon for finite conjugate systems. 
-It makes sense for large object distances and small apertures.
-It is unsuitable for object sided telecentric systems.
-
-The ray origin is obtained approximately like this \remark{TODO: explain properly}
-\begin{itemize}
- \item Calculation of entrance pupil position 
-       \remark{TODO: what is the pupil position if there is on-axis astigmatism between stop and pupil ?}
- \item Calculation of Pilot direction (normalized pilot Poynting vector)
- \item Chief direction = Pilot direction, rotated by the specified field angle
- \item The chief ray is a ray with the chief direction, that intersects the pilot in the pupil
- \item Ray origin = intersection of object plane and chief ray
-\end{itemize}
-
-Using real rotation matrices (Rodrigues matrices) makes this algorithm more robust for finite fields.
-The results, however, may still need iterative adaption for increased accuracy, as the real pupil position may move with field.
-
-\subsubsection{Specification of Image Sided Ray Height}
-The object sided ray height is obtained from the image sided ray height by the inverse of the XYUV matrix between object and image.
-\remark{TODO: what is THE object position belonging to an image position if there is on-axis astigmatism ? Chief ?}
-
-
-
-\subsection{Ray Direction for Finite Conjugate Objects}
-The ray originates from a point $\Vector{R}_{obj}$, defined by the field definition (see above).
-Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
-In the following, we search for a ray direction to fulfill this constraint.
-We reduce the 4 dimensional wavevector deviation $\Vector{K}$ to the 2 dimensional $\kappa$ base according to \eqref{eq:deltaK_as_kappa}
-and find in parabasal approximation
-\begin{eqnarray}
-% \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
-%                  +    \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
-% \\
-% \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} &=& 
-%                  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
-% \\
- \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
- &=&
- \hat{\tilde{B}}_{obj\rightarrow stop}^{-1}
- \left(
-    \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} 
- \right) 
-\end{eqnarray}
-
-
-\subsection{Ray Direction for Infinite Conjugate Objects}
-In object sided infinite conjugate systems, the desired field defines the ray direction, 
-and the ray height on the first surface of the finite sized optical system defines the pupil position.
-
-We restrict the starting wavevector deviation from the pilot to the 2 dimensional base of $\kappa$ according to \eqref{eq:deltaK_as_kappa}.
-We calculate the change in Poynting vector when the wavevector is changed infinitessimally in direction of $\kappa_1$ or $\kappa_2$
-and conclude the change of ray direction $\Vector{d}$
-\begin{eqnarray}
- \Vector{d} \approx \Vector{d}_{pilot} + \frac{\partial \Vector{d}}{\partial \kappa_i} \kappa_i
-\end{eqnarray}
-\remark{TODO: explicit formula}
-
-
-\subsection{Ray Origin for Infinite Conjugate Objects}
-The ray wavevector is defined by the field definition (see above).
-Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
-To achieve this, we set ray height $\Vector{R}_{surf1}$ on the first surface of our finite sized optical system. 
-We find in parabasal approximation
-\begin{eqnarray}
- \Vector{R}_{surf1}                 
- &=&
- \hat{\tilde{A}}_{surf1\rightarrow stop}^{-1}
- \left(
-   \Vector{R}_{stop} - \hat{\tilde{B}}_{surf1\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
- \right)
-\end{eqnarray}
-
-\subsection{Conversion to Wavevectors Obeying the Dispersion}
-todo
-
-\subsection{Angular Power Distribution}
-todo
-
-\section{Wave Aberrations}
+\chapter{Wave Aberrations}
 Despite its name suggests this representation of aberrations would be based on wave optics, its calculation is purely geometrical.
 Wave aberrations are strongly related to the optical path difference.
 
