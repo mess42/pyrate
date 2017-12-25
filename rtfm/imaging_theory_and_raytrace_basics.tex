@@ -1911,7 +1911,7 @@ and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
 
 The propagator equation becomes
 \begin{eqnarray}
- \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \\
+ \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \label{eq:xyuv_imaging_equation}\\
  \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
 \end{eqnarray}
 
@@ -2274,6 +2274,7 @@ We use this result to fill the $(2\times4)$ matrix $\hat{C}$.
 We define a ray fan to be imaged, 
 if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
 ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
+The imaging equation \eqref{eq:xyuv_imaging_equation} becomes
 \begin{eqnarray}
  \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj} + 0
 \end{eqnarray}
@@ -2342,13 +2343,81 @@ We obtain the matrices describing the imaging system after refocus and projectio
  \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot s \right) e_{Kj,n} \label{eq:tildeB}
 \end{eqnarray}
 The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
+
 The imaging condition becomes
 \begin{eqnarray}
  \hat{\tilde{B}}(s) \begin{pmatrix} K_1 \\ K_2 \end{pmatrix} &=& 0
 \end{eqnarray}
-We are interested in solutions $s$ for which the determinant vanishes.
+We are interested in solutions $s$ for which the determinant of $\hat{\tilde{B}}$ vanishes.
 The characteristic polynomial is quadratic in $s$.
 This problem is similar to an eigenvalue problem, so we call the solutions $s_{1,2}$ quasi-eigenvalues.
+
+\subsubsection{The Stigmatic Case}
+If both solutions $s_1 = s_2$ are degenerate, the corresponding eigen-space is two-dimensional.
+Any combination $(K_1, K_2)$ will be imaged on the pilot image point.
+
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}}(s) \cdot \Vector{R}_{obj}
+\end{eqnarray}
+
+For example, centro-symmetric systems have no astigmatism when the pilot ray is chosen on the optical axis.
+
+\subsubsection{The Astigmatic Case}
+If both solutions $s_{1,2}$ are not degenerate, each solution has a one-dimensional eigen-space.
+Focusing to any of the two solutions $s_i$, 
+we can find an eigen ray fan $(K_{1\,eig\,si},K_{2\,eig\,si})$ that is imaged on the pilot ray.
+We normalize the eigen-vectors
+\begin{eqnarray}
+ \begin{pmatrix} K_{1\,eig\,si} \\   K_{2\,eig\,si} \end{pmatrix} \cdot  \begin{pmatrix} \overline{K}_{1\,eig\,si} \\ \overline{K}_{2\,eig\,si} \end{pmatrix}
+ &=& 1
+\end{eqnarray}
+Any multiple of the direction deviation eigen-vectors are imaged on the pilot.
+Deviation components orthogonal to the eigen directions, however, will not be imaged on the pilot ray.
+We represent the 2-dimensional wavevector deviation in the base of the eigen direction and the orthogonal direction
+\begin{eqnarray}
+     \begin{pmatrix} K_1            \\   K_2            \end{pmatrix} &=& 
+   a \begin{pmatrix} K_{1\,eig\,si} \\   K_{2\,eig\,si} \end{pmatrix} 
+ + b \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix}
+\end{eqnarray}
+
+The imaging equation \eqref{eq:xyuv_imaging_equation} becomes
+
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{\tilde{B}}(s_i) \cdot b(s_i,\Delta\Wavevector) \cdot \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix}
+\end{eqnarray}
+The coefficient $b$ depends on the object sided wavevector deviation.
+We introduce the projection operator $\hat{P}$ with
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{P} \cdot \begin{pmatrix} K_{1} \\ K_{2} \end{pmatrix} \\
+ \hat{P} \cdot \begin{pmatrix} K_{1} \\ K_{2} \end{pmatrix} &=& 
+    \left( \hat{\tilde{B}}(s_i) \cdot \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix} \right) 
+    \cdot
+    \left( \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix} \cdot \begin{pmatrix} K_{1} \\ K_{2} \end{pmatrix} \right)
+\end{eqnarray}
+For a fixed object position, we can associate an image plane position for each wavevector choice $(K_1,K_2)$.
+In general, a point in the object plane is imaged to a line in the image plane.
+To characterize this line, we can use, for example,
+\begin{itemize}
+ \item the wavevector deviation at the border of the aperture (marginal ray) that produces the largest image distance from the pilot.
+ \item the RMS image position deviation from the pilot when rastering the pupil.
+       The angular power emission density of the object is to be considered for the RMS average.
+ \item the RMS image position deviation from the center of mass of the line in parabasal approximation.
+\end{itemize}
+Based on the criterion for the line length chosen, we define a line vector in image space $\Vector{h}_{line}$.
+The line vector resembles line length and orientation $( K_{2\,eig\,si}, - K_{1\,eig\,si} )$.
+
+\begin{figure}
+  \centering
+   \includegraphics[width=0.5\columnwidth]{xyuv_on_axis_astigmatism}
+  \caption{
+           In systems with on-axis astigmatism, line foci are generated in the planes $s_{1,2}$ with a corresponding line $\Vector{h}_{line}.$
+           (todo: make sketch beautiful)
+          }
+  \label{fig:xyuv_on_axis_astigmatism}
+\end{figure}
+
+\subsubsection{Circle of Least Confusion}
+todo
 
 \section{Ray Aiming}
 When shooting rays at an optical system, we need initial properties like starting position and wavevector.
