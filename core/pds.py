@@ -2,7 +2,8 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
+Copyright (C) 2014-2018
+               by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
 
@@ -20,26 +21,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
-
-
-# Poisson disk sampling gives an sampling of points in space whose
-# distance is >= some certain value. # This sampling belongs to
-# the so-called hardcore processes of point sampling.
-# For instance Mitchell's Best Candidate algorithm approximates
-# Poisson disk sampling.
-#
-# The algorithm used here (also extensible to n dimensions) is given in
-# Robert Bridson (University of British Columbia)
-# 'Fast Poisson Disk Sampling in Arbitrary Dimensions'.
-# For further reading the following links are useful
-# (all viewed July 2015):
-# Good description of algorithm in pseudo code and applications:
-# http://devmag.org.za/2009/05/03/poisson-disk-sampling/
-# Object oriented Python implementation:
-# http://connor-johnson.com/2015/04/08/poisson-disk-sampling/
-# Procedural Python implementation:
-# http://nbviewer.ipython.org/github/HyperionAnalytics/PyDataNYC2014/blob/master/poisson_disc_sampling.ipynb
-# respectively.
 
 import math
 import numpy as np

@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env/python
 """
-Created on Sat Nov 19 15:27:15 2016
-
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
-               and Johannes Hartung j.hartung@gmx.net
+Copyright (C) 2014-2018
+               by     Moritz Esslinger moritz.esslinger@web.de
+               and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
 
 This program is free software; you can redistribute it and/or

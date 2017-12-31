@@ -2,10 +2,10 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2017 Moritz Esslinger <moritz.esslinger@web.de>
-               and Johannes Hartung <j.hartung@gmx.net>
-               and     Uwe Lippmann <uwe.lippmann@web.de>
-               and    Thomas Heinze <t.heinze@fn.de>
+Copyright (C) 2014-2018
+               by     Moritz Esslinger moritz.esslinger@web.de
+               and    Johannes Hartung j.hartung@gmx.net
+               and    Uwe Lippmann  uwe.lippmann@web.de
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,13 +21,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
-
-"""
-Smoke demo for picture checking. This means the result of this file
-is compared with a fixed picture and may not change. That's part of the test.
-If anything breaks, the picture  usually changes.
-"""
-
 
 import numpy as np
 import matplotlib.pyplot as plt
