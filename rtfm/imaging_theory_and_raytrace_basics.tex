@@ -2394,17 +2394,17 @@ We introduce the projection operator $\hat{P}$ with
     \cdot
     \left( \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix} \cdot \begin{pmatrix} K_{1} \\ K_{2} \end{pmatrix} \right)
 \end{eqnarray}
-For a fixed object position, we can associate an image plane position for each wavevector choice $(K_1,K_2)$.
+The image position $\Vector{R}_{im}$ of a near-pilot ray depends on both object position $\Vector{R}_{obj}$ and wavevector choice $(K_1,K_2)$.
 In general, a point in the object plane is imaged to a line in the image plane.
 To characterize this line, we can use, for example,
 \begin{itemize}
  \item the wavevector deviation at the border of the aperture (marginal ray) that produces the largest image distance from the pilot.
  \item the RMS image position deviation from the pilot when rastering the pupil.
-       The angular power emission density of the object is to be considered for the RMS average.
- \item the RMS image position deviation from the center of mass of the line in parabasal approximation.
+       For accurate results, the angular power distribution of the object should be considered as weighting factor.
+ \item the RMS image position deviation from the center of mass.
 \end{itemize}
 Based on the criterion for the line length chosen, we define a line vector in image space $\Vector{h}_{line}$.
-The line vector resembles line length and orientation $( K_{2\,eig\,si}, - K_{1\,eig\,si} )$.
+The line vector resembles line length and orientation.
 
 \begin{figure}
   \centering
@@ -2417,7 +2417,41 @@ The line vector resembles line length and orientation $( K_{2\,eig\,si}, - K_{1\
 \end{figure}
 
 \subsubsection{Circle of Least Confusion}
-todo
+For some systems, like anamorphotic laser line projectors, it makes sense to pick one of the two solutions $s_{1,2}$ as the image plane.
+Other systems, like imaging systems with weak on-axis astigmatism, 
+are often charcaterized by an intermediate plane between $s_{1,2}$ as compromise image plane for both wavevector directions.
+The spot size in this intermediate plane is called \emph{circle of least confusion}.
+
+We consider 2 rays: 
+The first ray coincides with the pilot ray in plane $s_1$, but has an infinitessimal wavevector deviation from the pilot.
+The wavevector deviation is chosen orthogonal to the eigen-wavevector direction in plane $s_2$.
+In other words, this ray is chosen to have a maximum astigmatic image height per wavevector deviation in plane $s_2$.
+The second ray shall coincide with the pilot ray in plane $s_2$, but have a maximum image height in plane $s_1$.
+
+We restrict ourselves to homogeneous media and calculate the ray height $\Vector{h}_2$ of the first ray in plane $s_2$ 
+and the ray height $\Vector{h}_1$ of the second ray in plane $s_1$.
+
+\begin{align*}
+\textrm{Ray 1:} && \Vector{R}(s_1) &= \Vector{0} && \Vector{R}(s_2) = \Vector{h}_2 && \begin{pmatrix} K_1\\K_2 \end{pmatrix} = \begin{pmatrix} K_{2\,eig\,s2} \\ - K_{1\,eig\,s2} \end{pmatrix}
+\\
+\textrm{Ray 2:} && \Vector{R}(s_1) &= \Vector{h}_1 && \Vector{R}(s_2) = \Vector{0} && \begin{pmatrix} K_1\\K_2 \end{pmatrix} = \begin{pmatrix} K_{2\,eig\,s1} \\ - K_{1\,eig\,s1} \end{pmatrix}
+\end{align*}
+\remark{This holds for apertures circular in K-space only. todo: wavevectors should be scaled with pupil size in their direction. But what about funny shaped apertures ?}
+
+In the plane $s_{coc}$ of the circle of least confusion, both rays shall have the same ray height.
+One ray increases its height, the other ray decreases its height linearly with distance, so the solution is found as
+
+\begin{eqnarray}
+ s_{coc} &=& \alpha s_1 + (1-\alpha) s_2 \\
+ \alpha  &=& \frac{|\Vector{h}_2|}{|\Vector{h}_1| + |\Vector{h_2}|}
+\end{eqnarray}
+
+For weakly astigmatic systems, $\lim \Vector{h}_{1,2} \rightarrow \Vector{0}$, 
+the calculation of $\alpha$ becomes numerically instable.
+For systems with finite aperture extensions in both directions, 
+weak astigmatism also means that both planes converge, $s_1 \rightarrow s_2$,
+so the accuracy required decreases.
+To prevent instabilities, one may consider to clip $\alpha$ to the interval $[0,1]$ after calculation.
 
 \section{Ray Aiming}
 When shooting rays at an optical system, we need initial properties like starting position and wavevector.
