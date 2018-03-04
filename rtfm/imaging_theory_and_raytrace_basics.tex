@@ -1263,7 +1263,7 @@ However, the optical designer has to check for each calculation whether the ray 
 \subsection{General Definitions}
 In rotationally symmetric optical systems, we call the axis of symmetry \emph{optical axis}. 
 In systems without an axis of symmetry, we try to avoid the the term \emph{optical axis}
-and introduce a \emph{pilot ray} (see \ref{subsec:pilotRayConcept}).
+and introduce a \emph{pilot ray} (see \ref{sec:ParabasalOptics}).
 
 For imaging systems, we consider an object plane and a image plane with our optical system in between. 
 The optical system shall focus all rays originating from a certain point in the object plane into a point or small spot in the image plane.
@@ -1740,7 +1740,7 @@ $D$ is unitless.
 
 An infinite to infinite system cannot be refocused by adding a finite air distance on either object or image side.
 
-\section{Parabasal Optics}
+\section{Parabasal Optics} \label{sec:ParabasalOptics}
 
 \subsection{Motivation}
 
@@ -1760,7 +1760,6 @@ By choosing the term pilot ray, we want to avoid confusions with mechanical symm
 In many systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
-\subsection{Pilot Ray Concept} \label{subsec:pilotRayConcept}
 Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
 From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
@@ -1824,7 +1823,8 @@ This limits the degrees of freedom for the deviations.
 \subsubsection{Intersection points}
 
 We demand that near-pilot intersection points are on the surface.
-In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point. 
+In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point.
+That is, we neglect surface curvature increasing quadratically with the deviation. 
 We represent the ray height in this plane by
 \begin{eqnarray}
  \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
@@ -2270,8 +2270,10 @@ The result should reproduce $\nu=0$ within numerical accuracy.
 We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(dU_2,dV_2, dW_2, dQ2)$ for both cases.
 We use this result to fill the $(2\times4)$ matrix $\hat{C}$.
 
+\remark{a subsubsection about coordinate breaks is missing.}
+
 \subsection{Image Plane Position in a Finite Conjugate Image Space}
-We define a ray fan to be imaged, 
+A ray fan is being imaged, 
 if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
 ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
 The imaging equation \eqref{eq:xyuv_imaging_equation} becomes
@@ -2293,45 +2295,46 @@ Both rays interfere and form a sinusoidal grating intensity pattern
 \begin{eqnarray}
  I &\propto& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
 \end{eqnarray}
-In the object plane, we desire the modulation depth of the intensity pattern to be independent of position
+In the object plane, we desire the modulation depth of the intensity pattern to be independent of position.
+This condition is fulfilled if $i$ times the exponent is real.
 \begin{eqnarray}
- (\Wavevector_{pilot} - \Wavevector)(X \Vector{e}_X + Y \Vector{e}_Y) \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
+ (\Wavevector_{pilot} - \Wavevector)\Location \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
 \end{eqnarray}
 This shall hold for all positions $\Vector{R}=(X,Y)$, so
 \begin{eqnarray}
  \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_X \right) &=& 0 \\
  \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_Y \right) &=& 0
 \end{eqnarray}
-With 4 variables and 2 equations, we can find 2 independent solutions $\Vector{e}_{K1}$,$\Vector{e}_{K2}$ that fulfill the two conditions.
-$\Vector{e}_{Ki}$ are four-dimensional, have real valued components and can be transfered to a cartesian wavevector deviation via
+With 4 variables and 2 equations, we can find 2 independent solutions $\Vector{e}_{\kappa1}$,$\Vector{e}_{\kappa2}$ that fulfill the two conditions.
+$\Vector{e}_{\kappa i}$ are four-dimensional, have real valued components and can be transfered to a cartesian wavevector deviation via
 \begin{eqnarray}
- \Delta \Wavevector(\Vector{e}_{Ki}) &=& e_{Ki\,1} e_{U} + e_{Ki\,2} e_{V} + e_{Ki\,3} e_{W} + e_{Ki\,4} e_{Q}
+ \Delta \Wavevector(\Vector{e}_{\kappa i}) &=& e_{\kappa i\,1} e_{U} + e_{\kappa i\,2} e_{V} + e_{\kappa i\,3} e_{W} + e_{\kappa i\,4} e_{Q}
 \end{eqnarray}
-The base vectors $\Vector{e}_{Ki}$ shall be normalized and orthogonal, 
-$\Delta \Wavevector(\Vector{e}_{Ki}) \cdot \overline{\Delta \Wavevector (\Vector{e}_{Kj})} = \delta_{ij}$.
+The base vectors $\Vector{e}_{\kappa i}$ shall be normalized and orthogonal, 
+$\Delta \Wavevector(\Vector{e}_{\kappa i}) \cdot \overline{\Delta \Wavevector (\Vector{e}_{\kappa j})} = \delta_{ij}$.
 Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of these two directions,
 we ensure a real valued grating in the object plane. 
 The intensity distribution in intermediate planes and in the image plane, however, 
 may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X,Y}$.
 \begin{eqnarray}
- \Delta \Wavevector_{obj} &=& K_1 \Vector{e}_{K1} + K_2 \Vector{e}_{K2} \label{eq:deltaK_as_kappa}
+ \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{\kappa1} + \kappa_2 \Vector{e}_{\kappa2} \label{eq:deltaK_as_kappa}
 \end{eqnarray}
-$K_{1,2} \in \mathbb{R}$ are coordinates in this 2-dimensional representation of wavevector deviations.
+$\kappa_{1,2} \in \mathbb{R}$ are coordinates in this 2-dimensional representation of wavevector deviations.
 Our imaging condition reduces to
 \begin{eqnarray}
  \hat{B}
  \begin{pmatrix}
- e_{K11} & e_{K21} \\
- e_{K12} & e_{K22} \\
- e_{K13} & e_{K23} \\
- e_{K14} & e_{K24} \\ 
+ e_{\kappa11} & e_{\kappa21} \\
+ e_{\kappa12} & e_{\kappa22} \\
+ e_{\kappa13} & e_{\kappa23} \\
+ e_{\kappa14} & e_{\kappa24} \\ 
  \end{pmatrix}
  \begin{pmatrix}
- K_1 \\ K_2 
+ \kappa_1 \\ \kappa_2 
  \end{pmatrix}
  &=& 0
 \end{eqnarray}
-Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{e}_{K1}, \Vector{e}_{K2})$ vanishes.
+Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{e}_{\kappa1}, \Vector{e}_{\kappa2})$ vanishes.
 In case the determeninant is nonzero, 
 we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} 
 \remark{The referenced equation is only valid for homogeneous media, parallel planes and a pilot normal to the planes. Todo: Check if the following equations also work in the general case.} 
@@ -2340,13 +2343,13 @@ in front of the image plane.
 We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
 \begin{eqnarray}
  \tilde{A} &=& TODO \\
- \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot s \right) e_{Kj,n} \label{eq:tildeB}
+ \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot s \right) e_{\kappa j,n} \label{eq:tildeB}
 \end{eqnarray}
 The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
 
 The imaging condition becomes
 \begin{eqnarray}
- \hat{\tilde{B}}(s) \begin{pmatrix} K_1 \\ K_2 \end{pmatrix} &=& 0
+ \hat{\tilde{B}}(s) \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& 0
 \end{eqnarray}
 We are interested in solutions $s$ for which the determinant of $\hat{\tilde{B}}$ vanishes.
 The characteristic polynomial is quadratic in $s$.
@@ -2354,47 +2357,45 @@ This problem is similar to an eigenvalue problem, so we call the solutions $s_{1
 
 \subsubsection{The Stigmatic Case}
 If both solutions $s_1 = s_2$ are degenerate, the corresponding eigen-space is two-dimensional.
-Any combination $(K_1, K_2)$ will be imaged on the pilot image point.
-
+Any combination $(\kappa_1, \kappa_2)$ will be imaged on the pilot image point.
 \begin{eqnarray}
  \Vector{R}_{im} &=& \hat{\tilde{A}}(s) \cdot \Vector{R}_{obj}
 \end{eqnarray}
-
-For example, centro-symmetric systems have no astigmatism when the pilot ray is chosen on the optical axis.
+For example, centro-symmetric systems have no (on-axis) astigmatism if the pilot ray is chosen on the optical axis.
 
 \subsubsection{The Astigmatic Case}
 If both solutions $s_{1,2}$ are not degenerate, each solution has a one-dimensional eigen-space.
 Focusing to any of the two solutions $s_i$, 
-we can find an eigen ray fan $(K_{1\,eig\,si},K_{2\,eig\,si})$ that is imaged on the pilot ray.
+we can find an eigen ray fan $(\kappa_{1\,eig\,si},\kappa_{2\,eig\,si})$ that is imaged on the pilot ray.
 We normalize the eigen-vectors
 \begin{eqnarray}
- \begin{pmatrix} K_{1\,eig\,si} \\   K_{2\,eig\,si} \end{pmatrix} \cdot  \begin{pmatrix} \overline{K}_{1\,eig\,si} \\ \overline{K}_{2\,eig\,si} \end{pmatrix}
+ \begin{pmatrix} \kappa_{1\,eig\,si} \\   \kappa_{2\,eig\,si} \end{pmatrix} \cdot  \begin{pmatrix} \overline{\kappa}_{1\,eig\,si} \\ \overline{\kappa}_{2\,eig\,si} \end{pmatrix}
  &=& 1
 \end{eqnarray}
 Any multiple of the direction deviation eigen-vectors are imaged on the pilot.
 Deviation components orthogonal to the eigen directions, however, will not be imaged on the pilot ray.
 We represent the 2-dimensional wavevector deviation in the base of the eigen direction and the orthogonal direction
 \begin{eqnarray}
-     \begin{pmatrix} K_1            \\   K_2            \end{pmatrix} &=& 
-   a \begin{pmatrix} K_{1\,eig\,si} \\   K_{2\,eig\,si} \end{pmatrix} 
- + b \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix}
+     \begin{pmatrix} \kappa_1            \\   \kappa_2            \end{pmatrix} &=& 
+   a \begin{pmatrix} \kappa_{1\,eig\,si} \\   \kappa_{2\,eig\,si} \end{pmatrix} 
+ + b \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix}
 \end{eqnarray}
 
 The imaging equation \eqref{eq:xyuv_imaging_equation} becomes
 
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{\tilde{B}}(s_i) \cdot b(s_i,\Delta\Wavevector) \cdot \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix}
+ \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{\tilde{B}}(s_i) \cdot b(s_i,\Delta\Wavevector) \cdot \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix}
 \end{eqnarray}
 The coefficient $b$ depends on the object sided wavevector deviation.
 We introduce the projection operator $\hat{P}$ with
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{P} \cdot \begin{pmatrix} K_{1} \\ K_{2} \end{pmatrix} \\
- \hat{P} \cdot \begin{pmatrix} K_{1} \\ K_{2} \end{pmatrix} &=& 
-    \left( \hat{\tilde{B}}(s_i) \cdot \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix} \right) 
+ \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{P} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} \\
+ \hat{P} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} &=& 
+    \left( \hat{\tilde{B}}(s_i) \cdot \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix} \right) 
     \cdot
-    \left( \begin{pmatrix} K_{2\,eig\,si} \\ - K_{1\,eig\,si} \end{pmatrix} \cdot \begin{pmatrix} K_{1} \\ K_{2} \end{pmatrix} \right)
+    \left( \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} \right)
 \end{eqnarray}
-The image position $\Vector{R}_{im}$ of a near-pilot ray depends on both object position $\Vector{R}_{obj}$ and wavevector choice $(K_1,K_2)$.
+The image position $\Vector{R}_{im}$ of a near-pilot ray depends on both object position $\Vector{R}_{obj}$ and wavevector choice $(\kappa_1,\kappa_2)$.
 In general, a point in the object plane is imaged to a line in the image plane.
 To characterize this line, we can use, for example,
 \begin{itemize}
@@ -2404,7 +2405,7 @@ To characterize this line, we can use, for example,
  \item the RMS image position deviation from the center of mass.
 \end{itemize}
 Based on the criterion for the line length chosen, we define a line vector in image space $\Vector{h}_{line}$.
-The line vector resembles line length and orientation.
+The line vector is a measure for the amount of astigmatism in the corresponding image plane -- by its line length and orientation.
 
 \begin{figure}
   \centering
@@ -2432,9 +2433,9 @@ We restrict ourselves to homogeneous media and calculate the ray height $\Vector
 and the ray height $\Vector{h}_1$ of the second ray in plane $s_1$.
 
 \begin{align*}
-\textrm{Ray 1:} && \Vector{R}(s_1) &= \Vector{0} && \Vector{R}(s_2) = \Vector{h}_2 && \begin{pmatrix} K_1\\K_2 \end{pmatrix} = \begin{pmatrix} K_{2\,eig\,s2} \\ - K_{1\,eig\,s2} \end{pmatrix}
+\textrm{Ray 1:} && \Vector{R}(s_1) &= \Vector{0} && \Vector{R}(s_2) = \Vector{h}_2 && \begin{pmatrix} \kappa_1\\\kappa_2 \end{pmatrix} = \begin{pmatrix} \kappa_{2\,eig\,s2} \\ - \kappa_{1\,eig\,s2} \end{pmatrix}
 \\
-\textrm{Ray 2:} && \Vector{R}(s_1) &= \Vector{h}_1 && \Vector{R}(s_2) = \Vector{0} && \begin{pmatrix} K_1\\K_2 \end{pmatrix} = \begin{pmatrix} K_{2\,eig\,s1} \\ - K_{1\,eig\,s1} \end{pmatrix}
+\textrm{Ray 2:} && \Vector{R}(s_1) &= \Vector{h}_1 && \Vector{R}(s_2) = \Vector{0} && \begin{pmatrix} \kappa_1\\\kappa_2 \end{pmatrix} = \begin{pmatrix} \kappa_{2\,eig\,s1} \\ - \kappa_{1\,eig\,s1} \end{pmatrix}
 \end{align*}
 \remark{This holds for apertures circular in K-space only. todo: wavevectors should be scaled with pupil size in their direction. But what about funny shaped apertures ?}
 
@@ -2452,6 +2453,52 @@ For systems with finite aperture extensions in both directions,
 weak astigmatism also means that both planes converge, $s_1 \rightarrow s_2$,
 so the accuracy required decreases.
 To prevent instabilities, one may consider to clip $\alpha$ to the interval $[0,1]$ after calculation.
+
+\subsection{Parabasal Chief Rays}
+We consider a surface $surf1$ in front of the optical system.
+For example, it may be chosen identical to the object.
+For infinite conjugate objects, it may be chosen as the first surface with finite distance from the optical system.
+We assume the XYUV matrix from $surf1$ to the aperture is known.
+The propagation reads
+\begin{eqnarray}
+ \Vector{R}_{aper}
+  &=&
+  \hat{A}_{surf1\rightarrow aper}  
+  \Vector{R}_{surf1}
+  +
+  \hat{B}_{surf1\rightarrow aper}
+  \Vector{K}_{surf1}
+\end{eqnarray}
+The chief ray has zero ray height in the aperture compared to the pilot,
+\begin{eqnarray}
+ \Vector{R}_{chief, aper} &=& \Vector{0} 
+\end{eqnarray}
+For the chief ray, position and wavevector on $surf1$ are no longer independent.
+In case the (parabasal) chief ray wavevector is given, we obtain the chief ray height on $surf1$ as
+\begin{eqnarray}
+ \Vector{R}_{chief, surf1}
+ &=&
+ - \hat{A}^{-1}_{surf1\rightarrow aper} \hat{B}_{surf1\rightarrow aper} \Vector{K}_{surf1}
+\end{eqnarray}
+In case the chief ray height is given, there are several wavevectors that fulfill the equation.
+If we restrict ourselves to wavevectors that create a constant object modulation over position \eqref{eq:deltaK_as_kappa},
+we find
+\begin{eqnarray}
+ \begin{pmatrix} \kappa_{1 chief,surf1} \\ \kappa_{2 chief,surf1} \end{pmatrix}
+  &=&
+  - \hat{\tilde{B}}^{-1}_{surf1\rightarrow aper} \hat{A}_{surf1\rightarrow aper} \Vector{R}_{surf1}
+\end{eqnarray}
+
+\subsection{Parabasal Magnification}
+\subsubsection{finite conjugate systems}
+TODO
+\subsubsection{finite object, infinite image conjugate systems}
+TODO
+\subsubsection{infinite object, finite image conjugate systems}
+TODO
+\subsubsection{infinite conjugate systems}
+TODO
+
 
 \section{Ray Aiming}
 When shooting rays at an optical system, we need initial properties like starting position and wavevector.
