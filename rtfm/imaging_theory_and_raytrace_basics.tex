@@ -2301,10 +2301,13 @@ This condition is fulfilled if $i$ times the exponent is real.
  (\Wavevector_{pilot} - \Wavevector)\Location \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
 \end{eqnarray}
 This shall hold for all positions $\Vector{R}=(X,Y)$, so
+\begin{subequations}
 \begin{eqnarray}
  \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_X \right) &=& 0 \\
- \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_Y \right) &=& 0
+ \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_Y \right) &=& 0 
 \end{eqnarray}
+\label{eq:restriction_to_2d_kspace} 
+\end{subequations}
 With 4 variables and 2 equations, we can find 2 independent solutions $\Vector{e}_{\kappa1}$,$\Vector{e}_{\kappa2}$ that fulfill the two conditions.
 $\Vector{e}_{\kappa i}$ are four-dimensional, have real valued components and can be transfered to a cartesian wavevector deviation via
 \begin{eqnarray}
@@ -2437,7 +2440,7 @@ and the ray height $\Vector{h}_1$ of the second ray in plane $s_1$.
 \\
 \textrm{Ray 2:} && \Vector{R}(s_1) &= \Vector{h}_1 && \Vector{R}(s_2) = \Vector{0} && \begin{pmatrix} \kappa_1\\\kappa_2 \end{pmatrix} = \begin{pmatrix} \kappa_{2\,eig\,s1} \\ - \kappa_{1\,eig\,s1} \end{pmatrix}
 \end{align*}
-\remark{This holds for apertures circular in K-space only. todo: wavevectors should be scaled with pupil size in their direction. But what about funny shaped apertures ?}
+\remark{This holds for apertures circular in object K-space only. todo: wavevectors should be scaled with pupil size in their direction. But what about funny shaped apertures ?}
 
 In the plane $s_{coc}$ of the circle of least confusion, both rays shall have the same ray height.
 One ray increases its height, the other ray decreases its height linearly with distance, so the solution is found as
@@ -2486,19 +2489,35 @@ we find
 \begin{eqnarray}
  \begin{pmatrix} \kappa_{1 chief,surf1} \\ \kappa_{2 chief,surf1} \end{pmatrix}
   &=&
-  - \hat{\tilde{B}}^{-1}_{surf1\rightarrow aper} \hat{A}_{surf1\rightarrow aper} \Vector{R}_{surf1}
+  - \hat{\tilde{B}}^{-1}_{surf1\rightarrow aper} \hat{A}_{surf1\rightarrow aper} \Vector{R}_{surf1} \label{eq:kappachief_as_function_of_R}
 \end{eqnarray}
 
 \subsection{Parabasal Magnification}
-\subsubsection{finite conjugate systems}
+We assume an optical system in which the imaging condition between object and image plane is fulfilled.
+We define magnification as the relation between image sided and object sided chief ray field coordinate.
+There are basically two different ways how a field can be defined: by ray height or by wavevector.
+For infinite conjugates, the field must be defined by the wavevector, or, equivalently, by the angle of the collimated bundle.
+For finite conjugates, both definitions are possible.
+An exception is found in Telecentric systems, where the field cannot be defined by chief ray angle.
+We address the four cases of object and image sided field definition by ray height or wavevector, individually.
+
+\subsubsection{Object Ray Height, Image Ray height}
+We use the dependence of chief ray wavevector on the field coordinate \eqref{eq:kappachief_as_function_of_R} and obtain
+\begin{eqnarray}
+ \Vector{R}_{chief, im} &=& \hat{M} \Vector{R}_{chief, obj} \\
+ \hat{M} &=& \hat{A}_{obj\rightarrow im} - \hat{B}_{obj\rightarrow im} \hat{\tilde{B}}^{-1}_{obj\rightarrow aper} \hat{A}_{obj\rightarrow aper}
+\end{eqnarray}
+The magnification $\hat{M}$ is unitless. 
+For this result, we restricted the wavevector space to two dimensions, as introduced in \eqref{eq:restriction_to_2d_kspace}.
+
+\subsubsection{Object Ray Height, Image Wavevector}
 TODO
-\subsubsection{finite object, infinite image conjugate systems}
+\subsubsection{Object Wavevector, Image Ray Height}
 TODO
-\subsubsection{infinite object, finite image conjugate systems}
-TODO
-\subsubsection{infinite conjugate systems}
+\subsubsection{Object Wavevector, Image Wavevector}
 TODO
 
+todo: continue with a common section for all four cases, interpreting the magnification matrix and its eigen-rays.
 
 \section{Ray Aiming}
 When shooting rays at an optical system, we need initial properties like starting position and wavevector.
