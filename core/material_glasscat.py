@@ -119,8 +119,11 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
          
         :return ymldict: (dict)
         """
-        ymlfilename  = self.database_basepath + "/"
-        ymlfilename += self.librarydict[shelf]["content"][book]["content"][page]["path"]
+        ymlfilename  = self.database_basepath + "/data/"
+        
+        self.logger.info("Material dict: %s" % (str(self.librarydict[shelf]["content"][book]["content"][page]),))
+        ymlfilename += self.librarydict[shelf]["content"][book]["content"][page]["data"]
+        self.logger.info("Material file: %s" % (ymlfilename,))
 
         data = self.read_yml_file(ymlfilename)
         return data
