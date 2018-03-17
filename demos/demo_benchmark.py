@@ -34,13 +34,13 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-from core import raster
-from core.ray import RayBundle
+from pyrate.core import raster
+from pyrate.core.ray import RayBundle
 
-from core.globalconstants import standard_wavelength
+from pyrate.core.globalconstants import standard_wavelength
 
-from core.helpers import build_simple_optical_system, collimated_bundle
-from core.globalconstants import canonical_ey
+from pyrate.core.helpers import build_simple_optical_system, collimated_bundle
+from pyrate.core.globalconstants import canonical_ey
 
 wavelength = standard_wavelength
 

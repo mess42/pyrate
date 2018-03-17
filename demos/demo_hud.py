@@ -29,24 +29,24 @@ from distutils.version import StrictVersion
 import logging
 
 
-from core import raster
-from core.material_isotropic import ConstantIndexGlass, ModelGlass
-from core.material_anisotropic import AnisotropicMaterial
-from core.surfShape import Conic, Biconic
-from core.optical_element import OpticalElement
-from core.optical_element_analysis import OpticalElementAnalysis
-from core.optical_system import OpticalSystem
-from core.surface import Surface
-from core.ray import RayBundle
+from pyrate.core import raster
+from pyrate.core.material_isotropic import ConstantIndexGlass, ModelGlass
+from pyrate.core.material_anisotropic import AnisotropicMaterial
+from pyrate.core.surfShape import Conic, Biconic
+from pyrate.core.optical_element import OpticalElement
+from pyrate.core.optical_element_analysis import OpticalElementAnalysis
+from pyrate.core.optical_system import OpticalSystem
+from pyrate.core.surface import Surface
+from pyrate.core.ray import RayBundle
 
-from core.aperture import CircularAperture
-from core.localcoordinates import LocalCoordinates
+from pyrate.core.aperture import CircularAperture
+from pyrate.core.localcoordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ey, degree, standard_wavelength
+from pyrate.core.globalconstants import canonical_ey, degree, standard_wavelength
 
 import math
 
-import core.helpers
+import pyrate.core.helpers
 
 # definition of optical system
 
@@ -172,7 +172,7 @@ r3 = s.seqtrace(initialbundle3, sysseq)
 
 obj_dx = 0.1
 obj_dphi = 5*degree
-pilotbundles = core.helpers.build_pilotbundle(objsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+pilotbundles = pyrate.core.helpers.build_pilotbundle(objsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 
 rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles[2:]]
 # only last two bundles hit the next surface

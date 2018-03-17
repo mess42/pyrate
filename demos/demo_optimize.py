@@ -31,25 +31,25 @@ import logging
 
 import math
 
-from core.material_isotropic import ConstantIndexGlass
-from core import surfShape
-from core.optimize import Optimizer
-from core.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
-from core.ray import RayBundle
+from pyrate.core.material_isotropic import ConstantIndexGlass
+from pyrate.core import surfShape
+from pyrate.core.optimize import Optimizer
+from pyrate.core.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
+from pyrate.core.ray import RayBundle
 
-from core.aperture import CircularAperture, BaseAperture
-from core.localcoordinates import LocalCoordinates
+from pyrate.core.aperture import CircularAperture, BaseAperture
+from pyrate.core.localcoordinates import LocalCoordinates
 
-from core.globalconstants import standard_wavelength
+from pyrate.core.globalconstants import standard_wavelength
 
-from core.optical_element import OpticalElement
-from core.optical_system import OpticalSystem
-from core.surface import Surface
+from pyrate.core.optical_element import OpticalElement
+from pyrate.core.optical_system import OpticalSystem
+from pyrate.core.surface import Surface
 
-from core.globalconstants import canonical_ey
+from pyrate.core.globalconstants import canonical_ey
 
-from core.optical_system_analysis import OpticalSystemAnalysis
-from core.surfShape_analysis import ShapeAnalysis
+from pyrate.core.optical_system_analysis import OpticalSystemAnalysis
+from pyrate.core.surfShape_analysis import ShapeAnalysis
 
 wavelength = standard_wavelength
 

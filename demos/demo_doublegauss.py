@@ -28,14 +28,14 @@ import matplotlib.pyplot as plt
 import matplotlib
 import math
 
-from core.helpers import build_simple_optical_system
-from core.globalconstants import canonical_ex, canonical_ey
-from core.ray import RayBundle
-from core.optimize import Optimizer
-from core.optimize_backends import ScipyBackend
-from core.raster import RectGrid
-from core.globalconstants import Fline, dline, Cline
-from core.ray_analysis import RayBundleAnalysis
+from pyrate.core.helpers import build_simple_optical_system
+from pyrate.core.globalconstants import canonical_ex, canonical_ey
+from pyrate.core.ray import RayBundle
+from pyrate.core.optimize import Optimizer
+from pyrate.core.optimize_backends import ScipyBackend
+from pyrate.core.raster import RectGrid
+from pyrate.core.globalconstants import Fline, dline, Cline
+from pyrate.core.ray_analysis import RayBundleAnalysis
 
 
 from distutils.version import StrictVersion

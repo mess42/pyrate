@@ -6,7 +6,7 @@ setup(
     version = "0.2.0",
     description = "Optical raytracing with Python",
     author = "Moritz Esslinger",
-    author_email = "m.esslinger@web.de",
+    author_email = "moritz.esslinger@web.de",
     url = "https://github.com/mess42/pyrate/",
     keywords = ["optics", "raytracing"],
     classifiers = [

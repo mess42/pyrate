@@ -27,19 +27,19 @@ import matplotlib.pyplot as plt
 import matplotlib
 from distutils.version import StrictVersion
 
-from core import raster
-from core.material_isotropic import ConstantIndexGlass
-from core.material_glasscat import refractiveindex_dot_info_glasscatalog, CatalogMaterial
-from core.surfShape import Asphere
-from core.optical_element import OpticalElement
-from core.surface import Surface
-from core.optical_system import OpticalSystem
-from core.ray import RayBundle
+from pyrate.core import raster
+from pyrate.core.material_isotropic import ConstantIndexGlass
+from pyrate.core.material_glasscat import refractiveindex_dot_info_glasscatalog, CatalogMaterial
+from pyrate.core.surfShape import Asphere
+from pyrate.core.optical_element import OpticalElement
+from pyrate.core.surface import Surface
+from pyrate.core.optical_system import OpticalSystem
+from pyrate.core.ray import RayBundle
 
-from core.aperture import CircularAperture
-from core.localcoordinates import LocalCoordinates
+from pyrate.core.aperture import CircularAperture
+from pyrate.core.localcoordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ey, degree
+from pyrate.core.globalconstants import canonical_ey, degree
 
 import math
 import logging
