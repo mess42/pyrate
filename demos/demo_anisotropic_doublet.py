@@ -29,18 +29,18 @@ import matplotlib
 from distutils.version import StrictVersion
 
 
-from core import raster
-from core.material_anisotropic import AnisotropicMaterial
-from core import surfShape
-from core.optical_element import OpticalElement
-from core.surface import Surface
-from core.optical_system import OpticalSystem
-from core.ray import RayBundle
+from pyrate.core import raster
+from pyrate.core.material_anisotropic import AnisotropicMaterial
+from pyrate.core import surfShape
+from pyrate.core.optical_element import OpticalElement
+from pyrate.core.surface import Surface
+from pyrate.core.optical_system import OpticalSystem
+from pyrate.core.ray import RayBundle
 
-from core.aperture import CircularAperture
-from core.localcoordinates import LocalCoordinates
+from pyrate.core.aperture import CircularAperture
+from pyrate.core.localcoordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ey
+from pyrate.core.globalconstants import canonical_ey
 
 import math
 import logging
