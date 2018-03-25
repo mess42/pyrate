@@ -1,8 +1,8 @@
 # pyrateoptics setup.py
 from distutils.core import setup
 setup(
-    name = "pyrateoptics", # this is a preliminary name to avoid name clashes
-    packages = ["pyrateoptics", "tests"], # this is preliminary to not break the package code
+    name = "pyrateoptics", 
+    packages = ["pyrateoptics", "tests", "pyrateoptics/core", "demos"], 
     version = "0.2.0",
     description = "Optical raytracing with Python",
     author = "Moritz Esslinger",
