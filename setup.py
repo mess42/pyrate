@@ -2,7 +2,7 @@
 from distutils.core import setup
 setup(
     name = "pyrateoptics", # this is a preliminary name to avoid name clashes
-    packages = ["pyrateoptics"], # this is preliminary to not break the package code
+    packages = ["pyrateoptics", "tests"], # this is preliminary to not break the package code
     version = "0.2.0",
     description = "Optical raytracing with Python",
     author = "Moritz Esslinger",
