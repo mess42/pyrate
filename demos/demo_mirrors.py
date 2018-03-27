@@ -28,26 +28,26 @@ import matplotlib
 from distutils.version import StrictVersion
 
 
-from core import raster
-from core.material_isotropic import ConstantIndexGlass
-from core.material_anisotropic import AnisotropicMaterial
-from core import surfShape
-from core.optical_element import OpticalElement
-from core.optical_element_analysis import OpticalElementAnalysis
-from core.optical_system import OpticalSystem
-from core.surface import Surface
-from core.ray import RayBundle
+from pyrateoptics.core import raster
+from pyrateoptics.core.material_isotropic import ConstantIndexGlass
+from pyrateoptics.core.material_anisotropic import AnisotropicMaterial
+from pyrateoptics.core import surfShape
+from pyrateoptics.core.optical_element import OpticalElement
+from pyrateoptics.core.optical_element_analysis import OpticalElementAnalysis
+from pyrateoptics.core.optical_system import OpticalSystem
+from pyrateoptics.core.surface import Surface
+from pyrateoptics.core.ray import RayBundle
 
-from core.aperture import CircularAperture
-from core.localcoordinates import LocalCoordinates
+from pyrateoptics.core.aperture import CircularAperture
+from pyrateoptics.core.localcoordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ey
+from pyrateoptics.core.globalconstants import canonical_ey
 
 import math
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-import core.helpers
+import pyrateoptics.core.helpers
 
 wavelength = 0.5876e-3
 
@@ -159,7 +159,7 @@ r2 = s.seqtrace(initialbundle, sysseq)
 #pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
 
 
-pilotbundles = core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+pilotbundles = pyrateoptics.core.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 
 rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 

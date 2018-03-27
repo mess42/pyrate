@@ -29,21 +29,21 @@ import matplotlib
 from distutils.version import StrictVersion
 
 
-from core import raster
-from core.material_isotropic import ConstantIndexGlass
-from core.surfShape import Conic, Asphere
-from core.optical_element import OpticalElement
-from core.surface import Surface
-from core.optical_system import OpticalSystem
-from core.ray import RayBundle
+from pyrateoptics.core import raster
+from pyrateoptics.core.material_isotropic import ConstantIndexGlass
+from pyrateoptics.core.surfShape import Conic, Asphere
+from pyrateoptics.core.optical_element import OpticalElement
+from pyrateoptics.core.surface import Surface
+from pyrateoptics.core.optical_system import OpticalSystem
+from pyrateoptics.core.ray import RayBundle
 
-from core.aperture import CircularAperture
-from core.localcoordinates import LocalCoordinates
+from pyrateoptics.core.aperture import CircularAperture
+from pyrateoptics.core.localcoordinates import LocalCoordinates
 
-from core.globalconstants import canonical_ey
+from pyrateoptics.core.globalconstants import canonical_ey
 
-from core.optimize import Optimizer
-from core.optimize_backends import ScipyBackend
+from pyrateoptics.core.optimize import Optimizer
+from pyrateoptics.core.optimize_backends import ScipyBackend
 
 import math
 import logging
