@@ -2272,7 +2272,7 @@ We use this result to fill the $(2\times4)$ matrix $\hat{C}$.
 
 \remark{a subsubsection about coordinate breaks is missing.}
 
-\subsection{Image Plane Position in a Finite Conjugate Image Space}
+\subsection{Image Plane Position in a Finite Conjugate Image Space} \label{sec:xyuv_image_plane_position}
 A ray fan is being imaged, 
 if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
 ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
@@ -2457,6 +2457,8 @@ weak astigmatism also means that both planes converge, $s_1 \rightarrow s_2$,
 so the accuracy required decreases.
 To prevent instabilities, one may consider to clip $\alpha$ to the interval $[0,1]$ after calculation.
 
+\remark{How to determine the image plane if there's image plane tilt?}
+
 \subsection{Parabasal Chief Rays}
 We consider a surface $surf1$ in front of the optical system.
 For example, it may be chosen identical to the object.
@@ -2519,8 +2521,55 @@ TODO
 
 todo: continue with a common section for all four cases, interpreting the magnification matrix and its eigen-rays.
 
+\subsection{Entrance Pupil} \label{sec:xyuv_entrance_pupil}
+We consider a sequential raytrace with the sequency
+\begin{eqnarray*}
+ \textrm{object} \rightarrow 
+ \textrm{entrance pupil} \rightarrow 
+ \textrm{object} \rightarrow
+ \\ \rightarrow 
+ \textrm{optical system front group} \rightarrow
+ \textrm{stop} \rightarrow
+ \textrm{optical system rear group} \rightarrow
+ \textrm{image}
+\end{eqnarray*}
+We assume the propagation from object to entrance pupil takes place in the same material surrounding the object.
+If the object is embedded in a GRIN material, 
+we assume a homogeneous continuation of the same refractive index as at the intersection of object and pilot ray.
+For the back-propagation from the entrance pupil to the object, we use the inverse propagator.
+The inverse propagator is not the same as the forward-propagator with swapped start and end planes.
+For example, the inverse propagator restores evanescent waves.
+
+We consider the propagation between the conjugate planes
+\begin{eqnarray*}
+ \textrm{entrance pupil} \rightarrow 
+ \textrm{object} \rightarrow
+ \textrm{optical system front group} \rightarrow
+ \textrm{stop} 
+\end{eqnarray*}
+First, we calculate the XYUV matrix from object to stop. 
+Then we add the propagation from object to pupil as a function of pupil position.
+We then choose the pupil position such that pupil and stop are imaging conjugates, as shown in \ref{sec:xyuv_image_plane_position}.
+
+\remark{What is THE pupil position if the optical system front group suffers from astigmatism ?}
+
+\subsection{Exit Pupil}
+In close analogy to the entrance pupil \ref{sec:xyuv_entrance_pupil}, 
+we insert an exit pupil plane between the rear group of optical elements and the image.
+We consider the propagation between the conjugate planes
+\begin{eqnarray*}
+ \textrm{stop} \rightarrow
+ \textrm{optical system rear group} \rightarrow
+ \textrm{image} \rightarrow
+ \textrm{exit pupil}
+\end{eqnarray*}
+We then choose the pupil position such that pupil and stop are imaging conjugates, as shown in \ref{sec:xyuv_image_plane_position}.
+
+\remark{What is THE pupil position if the optical system rear group suffers from astigmatism ?}
+
+
 \section{Ray Aiming}
-When shooting rays at an optical system, we need initial properties like starting position and wavevector.
+When shooting rays at an optical system, we need initial properties like ray starting position and wavevector.
 But which properties do I have to choose for the marginal, chief, coma or any other ray ?
 Ray aiming allows to approximate initial ray properties for a given optical system.
 Our ansatz of ray aiming consists of the following steps:
@@ -2540,7 +2589,7 @@ The aperture of an optical system is often defined indirectly.
 Some common definitions are via stop size, pupil diameter, aperture number (f-stop), or numerical aperture.
 However, not all of these quantities can be applied to all tpyes of system.
 A definition of pupil size and position would become numerically instable for telecentric systems.
-Numerical aperture or aperture number definitions would be unsuitable for infinite conjugate systems.
+Numerical aperture or aperture number definitions can only be defined for finite conjugate systems.
 
 Instead, we use the stop size as a universal measure for the aperture definition.
 The stop, as physical part of the optical system, is always finite sized and at a finite distance.
@@ -2556,7 +2605,6 @@ We leave the stop plane in the optical system without an aperture.
 
 \subsubsection{Entrance Pupil Size}
 TODO
-stop size = ...
 
 \subsubsection{Exit Pupil Size}
 TODO

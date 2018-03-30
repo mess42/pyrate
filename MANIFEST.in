@@ -4,6 +4,5 @@ include run_demos
 recursive-include pyrateoptics/refractiveindex.info-database *.md *.yml
 recursive-include pyrateoptics/stubs_and_others *.py
 recursive-include tests/baseline_images *.png
-recursive-include docs *.txt *.tex *.svg *.png *.jpg *.eps *.odg *.odp
-#prune examples/sample?/build
+recursive-include docs *.txt *.tex *.svg *.png *.jpg *.eps *.odg *.odp *.html
 
