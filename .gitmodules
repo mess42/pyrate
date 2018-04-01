@@ -1,0 +1,3 @@
+[submodule "refractiveindex.info-database"]
+	path = refractiveindex.info-database
+	url = https://github.com/polyanskiy/refractiveindex.info-database.git
