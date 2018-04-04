@@ -1786,8 +1786,29 @@ We represent the propagation of these deviations through the optical system by a
   \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
  \end{pmatrix}
 \end{eqnarray}
-By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray,
-$\hat{G}(\Vector{0}) = \Vector{0}$.
+We perform a Taylor expansion around the pilot ray
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}_i
+ &=&
+   G^{00}_i
+ + G^{10}_{ij} \Delta r_j
+ + G^{01}_{ij} \Delta k_j
+ + G^{11}_{ijm} \Delta r_j \Delta k_m
+ + G^{20}_{ijm} \Delta r_j \Delta r_m
+ + G^{02}_{ijm} \Delta k_j \Delta k_m
+ + ...\nonumber\\
+\end{eqnarray}
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
+\begin{eqnarray}
+\hat{G}(\Vector{0}) &=& \Vector{0}\\
+\hat{G}^{00} &=& \Vector{0} 
+\end{eqnarray}
+
+
+\subsection{Here the trouble begins}
+\remark{Which terms may we neglect ? Is G11 responsible for image plane tilt ? Do we need to keep G11 ? G11 is quadratic. Why don't we have to keep other quadratic terms ? A clean derivation should be made from here.}
 In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
 $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
 The linear terms in $\hat{G}$ can be represented by a matrix,
