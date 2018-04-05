@@ -30,13 +30,13 @@ import sys
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from core.localcoordinates import LocalCoordinates
-from core.material_isotropic import ConstantIndexGlass
-from core.globalconstants import standard_wavelength, numerical_tolerance
-from core.ray import RayBundle
-from core.zmx import ZMXParser
+from pyrateoptics.core.localcoordinates import LocalCoordinates
+from pyrateoptics.core.material_isotropic import ConstantIndexGlass
+from pyrateoptics.core.globalconstants import standard_wavelength, numerical_tolerance
+from pyrateoptics.core.ray import RayBundle
+from pyrateoptics.core.zmx import ZMXParser
 
-from core import raster
+from pyrateoptics.core import raster
 
 import matplotlib
 import matplotlib.pyplot as plt

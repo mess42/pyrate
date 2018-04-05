@@ -30,14 +30,14 @@ import matplotlib.pyplot as plt
 import matplotlib
 import math
 
-from core.helpers import build_simple_optical_system
-from core.globalconstants import canonical_ex, canonical_ey
-from core.ray import RayBundle
-from core.optimize import Optimizer
-from core.optimize_backends import ScipyBackend
-from core.raster import RectGrid
-from core.globalconstants import Fline, dline, Cline
-from core.ray_analysis import RayBundleAnalysis
+from pyrateoptics.core.helpers import build_simple_optical_system
+from pyrateoptics.core.globalconstants import canonical_ex, canonical_ey
+from pyrateoptics.core.ray import RayBundle
+from pyrateoptics.core.optimize import Optimizer
+from pyrateoptics.core.optimize_backends import ScipyBackend
+from pyrateoptics.core.raster import RectGrid
+from pyrateoptics.core.globalconstants import Fline, dline, Cline
+from pyrateoptics.core.ray_analysis import RayBundleAnalysis
 
 
 from distutils.version import StrictVersion
