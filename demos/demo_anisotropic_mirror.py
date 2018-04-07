@@ -32,7 +32,7 @@ from distutils.version import StrictVersion
 
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.core.material_anisotropic import AnisotropicMaterial
+from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
 from pyrateoptics.core import surfShape
 from pyrateoptics.core.optical_element import OpticalElement
 from pyrateoptics.core.surface import Surface

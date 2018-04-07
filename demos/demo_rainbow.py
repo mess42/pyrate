@@ -30,8 +30,8 @@ import matplotlib
 from distutils.version import StrictVersion
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.core.material_isotropic import ConstantIndexGlass
-from pyrateoptics.core.material_glasscat import refractiveindex_dot_info_glasscatalog, CatalogMaterial
+from pyrateoptics.material.material_isotropic import ConstantIndexGlass
+from pyrateoptics.material.material_glasscat import refractiveindex_dot_info_glasscatalog, CatalogMaterial
 from pyrateoptics.core.surfShape import Asphere
 from pyrateoptics.core.optical_element import OpticalElement
 from pyrateoptics.core.surface import Surface

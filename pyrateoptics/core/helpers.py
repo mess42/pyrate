@@ -33,9 +33,9 @@ from surface import Surface
 from surfShape import Conic
 from globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
 from ray import RayBundle
-from material_isotropic import ConstantIndexGlass
+from ..material.material_isotropic import ConstantIndexGlass
 from helpers_math import rodrigues
-from material_glasscat import refractiveindex_dot_info_glasscatalog
+from ..material.material_glasscat import refractiveindex_dot_info_glasscatalog
 
 import logging
 

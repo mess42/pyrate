@@ -28,8 +28,8 @@ import yaml
 import numpy as np
 import scipy.interpolate
 from material_isotropic import IsotropicMaterial
-from globalconstants import Fline, dline, Cline
-from log import BaseLogger
+from ..core.globalconstants import Fline, dline, Cline
+from ..core.log import BaseLogger
 
 # TODO: this class has too many methods
 class refractiveindex_dot_info_glasscatalog(BaseLogger):

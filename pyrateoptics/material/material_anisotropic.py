@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import helpers_math
-from ray import RayBundle
+from ..core.helpers_math import checkfinite
+from ..core.ray import RayBundle
 from material import MaxwellMaterial
-from globalconstants import standard_wavelength
+from ..core.globalconstants import standard_wavelength
 
 
 
@@ -65,8 +65,8 @@ class AnisotropicMaterial(MaxwellMaterial):
         normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_x = helpers_math.checkfinite(xlocal)
-        valid_normals = helpers_math.checkfinite(normal)
+        valid_x = checkfinite(xlocal)
+        valid_normals = checkfinite(normal)
 
         #xlocal[:, valid_x ^ True] = 0.0        
         #normal[:, valid_normals ^ True] = 0.0
@@ -109,8 +109,8 @@ class AnisotropicMaterial(MaxwellMaterial):
         normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_x = helpers_math.checkfinite(xlocal)
-        valid_normals = helpers_math.checkfinite(normal)
+        valid_x = checkfinite(xlocal)
+        valid_normals = checkfinite(normal)
 
         #xlocal[:, valid_x ^ True] = 0.0        
         #normal[:, valid_normals ^ True] = 0.0

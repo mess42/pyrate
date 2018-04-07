@@ -29,7 +29,7 @@ import math
 from ..optimize.optimize import ClassWithOptimizableVariables
 import scipy.linalg as sla
 
-from globalconstants import standard_wavelength
+from ..core.globalconstants import standard_wavelength
 
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""

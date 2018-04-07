@@ -25,12 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-from ray import RayBundle
-import helpers_math
+from ..core.ray import RayBundle
+from ..core.helpers_math import checkfinite
 from ..optimize.optimize import OptimizableVariable
 from material import MaxwellMaterial
 
-from globalconstants import standard_wavelength
+from ..core.globalconstants import standard_wavelength
 
 class IsotropicMaterial(MaxwellMaterial):
     
@@ -98,7 +98,7 @@ class IsotropicMaterial(MaxwellMaterial):
         normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_normals = helpers_math.checkfinite(normal)
+        valid_normals = checkfinite(normal)
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
@@ -126,7 +126,7 @@ class IsotropicMaterial(MaxwellMaterial):
         normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_normals = helpers_math.checkfinite(normal)
+        valid_normals = checkfinite(normal)
         # normals or sag values could either be nan or infinite
         # TODO: remove those normals from calculation
 

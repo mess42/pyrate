@@ -33,7 +33,7 @@ import logging
 
 import math
 
-from pyrateoptics.core.material_isotropic import ConstantIndexGlass
+from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.core import surfShape
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend

@@ -26,9 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
-from ray import RayBundle
+from ..core.ray import RayBundle
 
-from globalconstants import standard_wavelength
+from ..core.globalconstants import standard_wavelength
 
 from material_isotropic import IsotropicMaterial
 

@@ -32,8 +32,8 @@ import logging
 
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.core.material_isotropic import ConstantIndexGlass, ModelGlass
-from pyrateoptics.core.material_anisotropic import AnisotropicMaterial
+from pyrateoptics.material.material_isotropic import ConstantIndexGlass, ModelGlass
+from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
 from pyrateoptics.core.surfShape import Conic, Biconic
 from pyrateoptics.core.optical_element import OpticalElement
 from pyrateoptics.analysis.optical_element_analysis import OpticalElementAnalysis
