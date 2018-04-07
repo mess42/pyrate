@@ -33,9 +33,9 @@ import math
 from pyrateoptics.core.helpers import build_simple_optical_system
 from pyrateoptics.core.globalconstants import canonical_ex, canonical_ey
 from pyrateoptics.core.ray import RayBundle
-from pyrateoptics.core.optimize import Optimizer
-from pyrateoptics.core.optimize_backends import ScipyBackend
-from pyrateoptics.core.raster import RectGrid
+from pyrateoptics.optimize.optimize import Optimizer
+from pyrateoptics.optimize.optimize_backends import ScipyBackend
+from pyrateoptics.sampling2d.raster import RectGrid
 from pyrateoptics.core.globalconstants import Fline, dline, Cline
 from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
 

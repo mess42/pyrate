@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 from distutils.version import StrictVersion
 
-from pyrateoptics.core import raster
+from pyrateoptics.sampling2d import raster
 from pyrateoptics.core.material_grin import IsotropicGrinMaterial
 from pyrateoptics.core.material_isotropic import ConstantIndexGlass
 from pyrateoptics.core import surfShape

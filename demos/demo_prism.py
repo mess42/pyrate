@@ -30,7 +30,7 @@ import matplotlib
 from distutils.version import StrictVersion
 
 
-from pyrateoptics.core import raster
+from pyrateoptics.sampling2d import raster
 from pyrateoptics.core.material_isotropic import ModelGlass
 from pyrateoptics.core import surfShape
 from pyrateoptics.core.optical_element import OpticalElement

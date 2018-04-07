@@ -31,7 +31,7 @@ import matplotlib
 from distutils.version import StrictVersion
 
 
-from pyrateoptics.core import raster
+from pyrateoptics.sampling2d import raster
 from pyrateoptics.core.material_isotropic import ConstantIndexGlass
 from pyrateoptics.core.surfShape import Conic, Asphere
 from pyrateoptics.core.optical_element import OpticalElement
@@ -44,8 +44,8 @@ from pyrateoptics.core.localcoordinates import LocalCoordinates
 
 from pyrateoptics.core.globalconstants import canonical_ey
 
-from pyrateoptics.core.optimize import Optimizer
-from pyrateoptics.core.optimize_backends import ScipyBackend
+from pyrateoptics.optimize.optimize import Optimizer
+from pyrateoptics.optimize.optimize_backends import ScipyBackend
 
 import math
 import logging

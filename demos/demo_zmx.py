@@ -36,7 +36,7 @@ from pyrateoptics.core.globalconstants import standard_wavelength, numerical_tol
 from pyrateoptics.core.ray import RayBundle
 from pyrateoptics.io.zmx import ZMXParser
 
-from pyrateoptics.core import raster
+from pyrateoptics.sampling2d import raster
 
 import matplotlib
 import matplotlib.pyplot as plt

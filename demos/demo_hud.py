@@ -31,7 +31,7 @@ from distutils.version import StrictVersion
 import logging
 
 
-from pyrateoptics.core import raster
+from pyrateoptics.sampling2d import raster
 from pyrateoptics.core.material_isotropic import ConstantIndexGlass, ModelGlass
 from pyrateoptics.core.material_anisotropic import AnisotropicMaterial
 from pyrateoptics.core.surfShape import Conic, Biconic
