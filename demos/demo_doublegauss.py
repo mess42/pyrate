@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import math
 
-from pyrateoptics.core.helpers import build_simple_optical_system
+from pyrateoptics import build_rotationally_symmetric_optical_system
 from pyrateoptics.core.globalconstants import canonical_ex, canonical_ey
 from pyrateoptics.core.ray import RayBundle
 from pyrateoptics.optimize.optimize import Optimizer
@@ -78,19 +78,19 @@ for ax in axarr:
 
 rba = RayBundleAnalysis(None)
 
-(s, seq) = build_simple_optical_system(
-        [(0, 	0, 	10.,	"N-SK16", 		"lens1front"),
-	 (0, 	0, 	5, 	None, 			"lens1rear"),
-	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem2front"),
-	 (0, 	0, 	5, 	"F5", 			"elem2cement"),
-	 (0, 	0, 	5, 	None, 			"elem2rear"),
-	 (0, 	0, 	5, 	None, 			"stop"),
-	 (0, 	0, 	5, 	"F5", 			"elem3front"),
-	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem3cement"),
-	 (0, 	0, 	5, 	None, 			"elem3rear"),
-         (0, 	0, 	5, 	"N-SK16", 		"lens4front"),
-	 (0, 	0, 	5, 	None, 			"lens4rear"),
-	 (0, 	0, 	150., 	None, 			"image")
+(s, seq) = build_rotationally_symmetric_optical_system(
+        [(0, 	0, 	10.,	"N-SK16", 		"lens1front", {}),
+	 (0, 	0, 	5, 	None, 			"lens1rear", {}),
+	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem2front", {}),
+	 (0, 	0, 	5, 	"F5", 			"elem2cement", {}),
+	 (0, 	0, 	5, 	None, 			"elem2rear", {}),
+	 (0, 	0, 	5, 	None, 			"stop", {"stop": True}),
+	 (0, 	0, 	5, 	"F5", 			"elem3front", {}),
+	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem3cement", {}),
+	 (0, 	0, 	5, 	None, 			"elem3rear", {}),
+         (0, 	0, 	5, 	"N-SK16", 		"lens4front", {}),
+	 (0, 	0, 	5, 	None, 			"lens4rear", {}),
+	 (0, 	0, 	150., 	None, 			"image", {})
          ], db_path)
 
 def bundle_step1(nrays = 100, rpup = 7.5):
