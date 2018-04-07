@@ -1,7 +1,9 @@
 #!/usr/bin/env/python
 """
 Pyrate - Optical raytracing based on Python
+"""
 
+"""
 Copyright (C) 2014-2018
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
@@ -28,6 +30,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 Use this file for convenience functions which should be called at the main package level.
 """
 
+import logging
+import uuid
+
+from matplotlib import pyplot as plt
+import matplotlib
+from distutils.version import StrictVersion
+
+
 from core.optical_system import OpticalSystem
 from core.localcoordinates import LocalCoordinates
 from core.optical_element import OpticalElement
@@ -37,7 +47,7 @@ from core.globalconstants import numerical_tolerance
 from material.material_isotropic import ConstantIndexGlass
 from material.material_glasscat import refractiveindex_dot_info_glasscatalog
 
-import logging
+
 
 def build_rotationally_symmetric_optical_system(builduplist, material_db_path=""):
 
@@ -107,7 +117,10 @@ def build_simple_optical_system(builduplist, material_db_path=""):
     
     lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
-    elem = OpticalElement(lc0, name="stdelem")
+    elem_name = str(uuid.uuid4())
+    logger.info("Element name %s" % (elem_name,))
+
+    elem = OpticalElement(lc0, name=elem_name)
         
     refname = lc0.name
     lastmat = None
@@ -129,9 +142,9 @@ def build_simple_optical_system(builduplist, material_db_path=""):
             try:
                 n = float(mat)
             except:
-                gcat.getMaterialDictFromLongName( mat )
+                gcat.getMaterialDictFromLongName(mat)
                 
-                elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat) )
+                elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat))
             else:
                 elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
 
@@ -142,7 +155,35 @@ def build_simple_optical_system(builduplist, material_db_path=""):
         refname = lc.name
         surflist_for_sequence.append((name, optdict))
             
-    s.addElement("stdelem", elem)
-    stdseq = [("stdelem", surflist_for_sequence)]    
+    s.addElement(elem_name, elem)
+    stdseq = [(elem_name, surflist_for_sequence)]    
 
     return (s, stdseq)
+
+def draw(os, rb=None):
+
+    """
+    Convenience function for drawing optical system and list of raybundles
+
+    :param os - OpticalSystem
+    :param rb - list of raybundles    
+    
+    """
+    
+    fig = plt.figure(1)
+    ax = fig.add_subplot(111)
+    
+    ax.axis('equal')
+    if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
+        ax.set_axis_bgcolor('white')
+    else:
+        ax.set_facecolor('white')
+        
+    if rb is not None:
+        for r in rb:
+            r.draw2d(ax, color="blue") 
+    
+    os.draw2d(ax, color="grey") 
+    
+    plt.show()
+    

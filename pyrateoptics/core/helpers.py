@@ -26,18 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 
-from optical_system import OpticalSystem
-import localcoordinates
-from optical_element import OpticalElement
-from surface import Surface
-from surfShape import Conic
-from globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
+from globalconstants import canonical_ey, standard_wavelength
 from ray import RayBundle
-from ..material.material_isotropic import ConstantIndexGlass
 from helpers_math import rodrigues
-from ..material.material_glasscat import refractiveindex_dot_info_glasscatalog
-
-import logging
 
 
 

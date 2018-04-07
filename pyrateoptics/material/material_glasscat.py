@@ -31,7 +31,7 @@ from material_isotropic import IsotropicMaterial
 from ..core.globalconstants import Fline, dline, Cline
 from ..core.log import BaseLogger
 
-# TODO: this class has too many methods
+# FIXME: this class has too many methods
 class refractiveindex_dot_info_glasscatalog(BaseLogger):
     def __init__(self, database_basepath, **kwargs):
         """
@@ -53,10 +53,12 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         Example:
         gcat = refractiveindex_dot_info_glasscatalog("/home/user/refractiveindex.info-database/database")
         """
+
+        super(refractiveindex_dot_info_glasscatalog, self).__init__(**kwargs)
+
         self.database_basepath = database_basepath
         self.librarydict = self.read_library(database_basepath + "/library.yml")
         
-        super(refractiveindex_dot_info_glasscatalog, self).__init__(**kwargs)
 
 
     def read_yml_file(self, ymlfilename):
@@ -66,9 +68,14 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         :param ymlfilename: (str)
         :return data: (list or dict)
         """
-        f = open(ymlfilename, "r")
-        data = yaml.safe_load(f)
-        f.close()
+        try:        
+            f = open(ymlfilename, "r")
+        except:
+            self.info("Glass catalogue file not found: %s" % (ymlfilename,))            
+            data = []
+        else:
+            data = yaml.safe_load(f)
+            f.close()
         return data
 
 
