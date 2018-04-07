@@ -27,8 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from scipy.misc import factorial
 import math
-from optimize import ClassWithOptimizableVariables
-from optimize import OptimizableVariable
+from ..optimize.optimize import ClassWithOptimizableVariables, OptimizableVariable
 from scipy.optimize import fsolve
 from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
 from globalconstants import numerical_tolerance

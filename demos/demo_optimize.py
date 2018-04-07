@@ -50,8 +50,8 @@ from pyrateoptics.core.surface import Surface
 
 from pyrateoptics.core.globalconstants import canonical_ey
 
-from pyrateoptics.core.optical_system_analysis import OpticalSystemAnalysis
-from pyrateoptics.core.surfShape_analysis import ShapeAnalysis
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+from pyrateoptics.analysis.surfShape_analysis import ShapeAnalysis
 
 wavelength = standard_wavelength
 

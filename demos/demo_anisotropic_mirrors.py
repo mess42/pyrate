@@ -34,7 +34,7 @@ from pyrateoptics.core import raster
 from pyrateoptics.core.material_anisotropic import AnisotropicMaterial
 from pyrateoptics.core import surfShape
 from pyrateoptics.core.optical_element import OpticalElement
-from pyrateoptics.core.optical_element_analysis import OpticalElementAnalysis
+from pyrateoptics.analysis.optical_element_analysis import OpticalElementAnalysis
 from pyrateoptics.core.optical_system import OpticalSystem
 from pyrateoptics.core.surface import Surface
 from pyrateoptics.core.ray import RayBundle

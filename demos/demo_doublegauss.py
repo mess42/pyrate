@@ -37,7 +37,7 @@ from pyrateoptics.core.optimize import Optimizer
 from pyrateoptics.core.optimize_backends import ScipyBackend
 from pyrateoptics.core.raster import RectGrid
 from pyrateoptics.core.globalconstants import Fline, dline, Cline
-from pyrateoptics.core.ray_analysis import RayBundleAnalysis
+from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
 
 
 from distutils.version import StrictVersion
