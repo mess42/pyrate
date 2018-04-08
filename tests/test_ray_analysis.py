@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import math
 import numpy as np
-from core.ray import RayBundle
-from core.ray_analysis import RayBundleAnalysis
+from pyrateoptics.core.ray import RayBundle
+from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
 
 def test_centroid():
     """

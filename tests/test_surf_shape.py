@@ -29,8 +29,8 @@ from hypothesis import given
 from hypothesis.strategies import floats
 from hypothesis.extra.numpy import arrays
 import numpy as np
-from core.surfShape import Conic, Asphere, Biconic, XYPolynomials
-from core.localcoordinates import LocalCoordinates
+from pyrateoptics.core.surfShape import Conic, Asphere, Biconic, XYPolynomials
+from pyrateoptics.core.localcoordinates import LocalCoordinates
 
 # pylint: disable=no-value-for-parameter
 @given(test_vector=arrays(np.float, (2, 10), elements=floats(0, 1)))
