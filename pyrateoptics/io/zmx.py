@@ -29,15 +29,15 @@ import re
 import math
 from asyncore import read
 
-from optical_system import OpticalSystem
-from optical_element import OpticalElement
-from localcoordinates import LocalCoordinates
-from surface import Surface
-from surfShape import Conic, Asphere
-from aperture import CircularAperture, RectangularAperture
-from log import BaseLogger
+from ..core.optical_system import OpticalSystem
+from ..core.optical_element import OpticalElement
+from ..core.localcoordinates import LocalCoordinates
+from ..core.surface import Surface
+from ..core.surfShape import Conic, Asphere
+from ..core.aperture import CircularAperture, RectangularAperture
+from ..core.log import BaseLogger
 
-from globalconstants import numerical_tolerance
+from ..core.globalconstants import numerical_tolerance
 
 
 class ZMXParser(BaseLogger):

@@ -48,7 +48,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
         self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
     
     
-    def addSurface(self, key, surface_object, materialkeys, name=""):
+    def addSurface(self, key, surface_object, materialkeys):
         """
         Adds surface class object to the optical element.
         
@@ -64,7 +64,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
             self.__surfaces[key] = surface_object
         else:
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
-        self.__surfaces[key].name = name
         self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
 
     def getSurfaces(self):

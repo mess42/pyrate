@@ -30,14 +30,14 @@ import matplotlib.pyplot as plt
 import matplotlib
 import math
 
-from pyrateoptics.core.helpers import build_simple_optical_system
+from pyrateoptics import build_rotationally_symmetric_optical_system, listOptimizableVariables
 from pyrateoptics.core.globalconstants import canonical_ex, canonical_ey
 from pyrateoptics.core.ray import RayBundle
-from pyrateoptics.core.optimize import Optimizer
-from pyrateoptics.core.optimize_backends import ScipyBackend
-from pyrateoptics.core.raster import RectGrid
+from pyrateoptics.optimize.optimize import Optimizer
+from pyrateoptics.optimize.optimize_backends import ScipyBackend
+from pyrateoptics.sampling2d.raster import RectGrid
 from pyrateoptics.core.globalconstants import Fline, dline, Cline
-from pyrateoptics.core.ray_analysis import RayBundleAnalysis
+from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
 
 
 from distutils.version import StrictVersion
@@ -78,20 +78,20 @@ for ax in axarr:
 
 rba = RayBundleAnalysis(None)
 
-(s, seq) = build_simple_optical_system(
-        [(0, 	0, 	10.,	"N-SK16", 		"lens1front"),
-	 (0, 	0, 	5, 	None, 			"lens1rear"),
-	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem2front"),
-	 (0, 	0, 	5, 	"F5", 			"elem2cement"),
-	 (0, 	0, 	5, 	None, 			"elem2rear"),
-	 (0, 	0, 	5, 	None, 			"stop"),
-	 (0, 	0, 	5, 	"F5", 			"elem3front"),
-	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem3cement"),
-	 (0, 	0, 	5, 	None, 			"elem3rear"),
-         (0, 	0, 	5, 	"N-SK16", 		"lens4front"),
-	 (0, 	0, 	5, 	None, 			"lens4rear"),
-	 (0, 	0, 	150., 	None, 			"image")
-         ], db_path)
+(s, seq) = build_rotationally_symmetric_optical_system(
+        [(0, 	0, 	10.,	"N-SK16", 		"lens1front", {}),
+	 (0, 	0, 	5, 	None, 			"lens1rear", {}),
+	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem2front", {}),
+	 (0, 	0, 	5, 	"F5", 			"elem2cement", {}),
+	 (0, 	0, 	5, 	None, 			"elem2rear", {}),
+	 (0, 	0, 	5, 	None, 			"stop", {"stop": True}),
+	 (0, 	0, 	5, 	"F5", 			"elem3front", {}),
+	 (0, 	0, 	5, 	"N-BK7 (SCHOTT)", 	"elem3cement", {}),
+	 (0, 	0, 	5, 	None, 			"elem3rear", {}),
+         (0, 	0, 	5, 	"N-SK16", 		"lens4front", {}),
+	 (0, 	0, 	5, 	None, 			"lens4rear", {}),
+	 (0, 	0, 	150., 	None, 			"image", {})
+         ], material_db_path=db_path, name="os")
 
 def bundle_step1(nrays = 100, rpup = 7.5):
     """
@@ -149,6 +149,8 @@ def updatefunction_allsteps(s):
 # optimize
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
+
+listOptimizableVariables(s, maxcol=80)
 
 optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step2") 
 # TODO: Optimizer() is not well documented
@@ -286,6 +288,8 @@ s = optimi.run()
 optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step4b") 
 s = optimi.run()
 
+
+listOptimizableVariables(s, maxcol=80)
 
 # draw final result in overview plot fig and in fig2
 fig2 = plt.figure()
