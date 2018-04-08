@@ -42,7 +42,7 @@ from core.optical_system import OpticalSystem
 from core.localcoordinates import LocalCoordinates
 from core.optical_element import OpticalElement
 from core.surface import Surface
-from core.surfShape import Conic, Asphere, Biconic
+import core.surfShape as Shapes
 from core.globalconstants import numerical_tolerance
 from material.material_isotropic import ConstantIndexGlass
 from material.material_glasscat import refractiveindex_dot_info_glasscatalog
@@ -136,7 +136,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
         lc = s.addLocalCoordinateSystem(LocalCoordinates(name=name + "_lc", **coordbreakdict), refname=refname)
         shapetype = surfdict.pop("shape", "Conic")
         #actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc))
-        actsurf = Surface(lc, name=name + "_surf", shape=eval(shapetype)(lc, name=name + "_shape", **surfdict))
+        actsurf = Surface(lc, name=name + "_surf", shape=eval("Shapes." + shapetype)(lc, name=name + "_shape", **surfdict))
         
         if mat is not None:
             try:
