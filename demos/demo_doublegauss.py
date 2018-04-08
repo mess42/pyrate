@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import math
 
-from pyrateoptics import build_rotationally_symmetric_optical_system
+from pyrateoptics import build_rotationally_symmetric_optical_system, listOptimizableVariables
 from pyrateoptics.core.globalconstants import canonical_ex, canonical_ey
 from pyrateoptics.core.ray import RayBundle
 from pyrateoptics.optimize.optimize import Optimizer
@@ -91,7 +91,7 @@ rba = RayBundleAnalysis(None)
          (0, 	0, 	5, 	"N-SK16", 		"lens4front", {}),
 	 (0, 	0, 	5, 	None, 			"lens4rear", {}),
 	 (0, 	0, 	150., 	None, 			"image", {})
-         ], db_path)
+         ], material_db_path=db_path, name="os")
 
 def bundle_step1(nrays = 100, rpup = 7.5):
     """
@@ -149,6 +149,8 @@ def updatefunction_allsteps(s):
 # optimize
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
+
+listOptimizableVariables(s, maxcol=80)
 
 optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step2") 
 # TODO: Optimizer() is not well documented
@@ -286,6 +288,8 @@ s = optimi.run()
 optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step4b") 
 s = optimi.run()
 
+
+listOptimizableVariables(s, maxcol=80)
 
 # draw final result in overview plot fig and in fig2
 fig2 = plt.figure()

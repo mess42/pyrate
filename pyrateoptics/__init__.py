@@ -49,7 +49,7 @@ from material.material_glasscat import refractiveindex_dot_info_glasscatalog
 
 
 
-def build_rotationally_symmetric_optical_system(builduplist, material_db_path=""):
+def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
 
     """
     Convenience function to build up a centrosymmetric system with conic lenses.
@@ -84,7 +84,7 @@ def build_rotationally_symmetric_optical_system(builduplist, material_db_path=""
         surfdict = {"shape": "Conic", "curv": curv, "cc": cc}
         builduplist_build_simple_os.append((surfdict, coordbrkdict, mat, name, optdict))
     
-    return build_simple_optical_system(builduplist_build_simple_os, material_db_path)
+    return build_simple_optical_system(builduplist_build_simple_os, **kwargs)
         
 
 def build_simple_optical_system(builduplist, material_db_path="", name=""):
@@ -146,7 +146,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
                 
                 elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat))
             else:
-                elem.addMaterial(mat, ConstantIndexGlass(lc, name="glass", n=n))
+                elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
 
         elem.addSurface(name, actsurf, (lastmat, mat))
         logger.info("Added surface: %s at material boundary %s" % (name, (lastmat, mat)))        
@@ -189,6 +189,45 @@ def draw(os, rb=None):
     plt.show()
     
 
-def listOptimizableVariables(s):
-    return s.getAllVariables()
+def listOptimizableVariables(os, filter_status=None, maxcol=None):
+
+    """
+    Convenience function to list all optimizable variables within
+    an object.
+    
+    :param os (ClassWithOptimizableVariables) - Container with optimizable variables.
+    :param filter_status (str or None) - filter table for "variable", "fixed", ...
+    
+    :returns os.getAllVariables()
+    """
+
+    lst = os.getAllVariables()
+
+    def shorten_string(s, maxlen=None):
+        if maxlen is None:
+            return(s)
+        else:
+            if len(s) > maxlen:
+                to_remove = len(s) - maxlen + 3
+                interpos = (len(s) - to_remove) // 2
+                return(s[:interpos] + "..." + s[len(s) - interpos:])
+            else:
+                return(s)
+
+    def print_table(table):
+        col_width = [max(len(str(x)) for x in col) for col in zip(*table)]
+        for line in table:
+            print(" ".join("{:{}}".format(x, col_width[i])
+                                    for i, x in enumerate(line)))
+
+    table = [(shorten_string(a, maxlen=maxcol), b.var_type, str(b.evaluate())) \
+        for (a, (b, c)) in \
+            sorted(lst.items(), key=lambda x: (len(x[0].split('.')) - 1, x[0]))]
+    if filter_status is not None:
+        table = [(a, b, c) for (a, b, c) in table if b == filter_status]
+
+    print_table(table)
+
+    return lst 
+
 
