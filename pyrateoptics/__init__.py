@@ -52,7 +52,7 @@ from material.material_glasscat import refractiveindex_dot_info_glasscatalog
 def build_rotationally_symmetric_optical_system(builduplist, material_db_path=""):
 
     """
-    Convenience function to build up an centrosymmetric system with conic lenses.
+    Convenience function to build up a centrosymmetric system with conic lenses.
 
     :param builduplist: (list of tuple)
              elements are (r, cc, thickness, mat, name, optdict)
@@ -87,7 +87,7 @@ def build_rotationally_symmetric_optical_system(builduplist, material_db_path=""
     return build_simple_optical_system(builduplist_build_simple_os, material_db_path)
         
 
-def build_simple_optical_system(builduplist, material_db_path=""):
+def build_simple_optical_system(builduplist, material_db_path="", name=""):
 
     """
     Convenience function to build up system with simple lenses.
@@ -112,12 +112,12 @@ def build_simple_optical_system(builduplist, material_db_path=""):
     logger = logging.getLogger(__name__)    
     
     logger.info("Creating optical system")    
-    s = OpticalSystem() 
+    s = OpticalSystem(name=name) 
     
     
     lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
-    elem_name = str(uuid.uuid4())
+    elem_name = "stdelem"
     logger.info("Element name %s" % (elem_name,))
 
     elem = OpticalElement(lc0, name=elem_name)
@@ -133,10 +133,10 @@ def build_simple_optical_system(builduplist, material_db_path=""):
     
     
     
-        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=name, **coordbreakdict), refname=refname)
+        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=name + "_lc", **coordbreakdict), refname=refname)
         shapetype = surfdict.pop("shape", "Conic")
         #actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc))
-        actsurf = Surface(lc, shape=eval(shapetype)(lc, **surfdict))
+        actsurf = Surface(lc, name=name + "_surf", shape=eval(shapetype)(lc, name=name + "_shape", **surfdict))
         
         if mat is not None:
             try:
@@ -146,7 +146,7 @@ def build_simple_optical_system(builduplist, material_db_path=""):
                 
                 elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat))
             else:
-                elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
+                elem.addMaterial(mat, ConstantIndexGlass(lc, name="glass", n=n))
 
         elem.addSurface(name, actsurf, (lastmat, mat))
         logger.info("Added surface: %s at material boundary %s" % (name, (lastmat, mat)))        
@@ -156,6 +156,7 @@ def build_simple_optical_system(builduplist, material_db_path=""):
         surflist_for_sequence.append((name, optdict))
             
     s.addElement(elem_name, elem)
+    s.material_background.setName("background")
     stdseq = [(elem_name, surflist_for_sequence)]    
 
     return (s, stdseq)
@@ -187,3 +188,7 @@ def draw(os, rb=None):
     
     plt.show()
     
+
+def listOptimizableVariables(s):
+    return s.getAllVariables()
+
