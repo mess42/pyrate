@@ -135,8 +135,21 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     
         lc = s.addLocalCoordinateSystem(LocalCoordinates(name=name + "_lc", **coordbreakdict), refname=refname)
         shapetype = surfdict.pop("shape", "Conic")
-        #actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc))
-        actsurf = Surface(lc, name=name + "_surf", shape=eval("Shapes." + shapetype)(lc, name=name + "_shape", **surfdict))
+        if shapetype == "LinearCombination":
+            # linear combination accepts pairs of coefficients and surfdicts            
+            
+            list_of_coefficients_and_shapes = surfdict.get("list_of_coefficients_and_shapes", [])
+            new_list_coeffs_shapes = []            
+            for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
+                shapetype_part = surfdict_part.pop("shape", "Conic")
+                new_list_coeffs_shapes.append((coeff_part, eval("Shapes." + shapetype_part)(lc, name=name + "_shape" + str(ind), **surfdict_part)))
+                
+            actsurf = Surface(lc, name=name + "_surf",\
+                        shape=Shapes.LinearCombination(lc, name=name + "_linearcombi",\
+                        list_of_coefficients_and_shapes=new_list_coeffs_shapes))
+        else:
+            actsurf = Surface(lc, name=name + "_surf",\
+                        shape=eval("Shapes." + shapetype)(lc, name=name + "_shape", **surfdict))
         
         if mat is not None:
             try:
