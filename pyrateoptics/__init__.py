@@ -216,14 +216,15 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
 
     lst = os.getAllVariables()
 
-    def shorten_string(s, maxlen=None):
+    def shorten_string(s, maxlen=None, intermediate_string="..."):
+        
         if maxlen is None:
             return(s)
         else:
             if len(s) > maxlen:
-                to_remove = len(s) - maxlen + 3
+                to_remove = len(s) - maxlen + len(intermediate_string)
                 interpos = (len(s) - to_remove) // 2
-                return(s[:interpos] + "..." + s[len(s) - interpos:])
+                return(s[:interpos] + intermediate_string + s[len(s) - interpos:])
             else:
                 return(s)
 
@@ -236,6 +237,8 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
     table = [(shorten_string(a, maxlen=maxcol), b.var_type, str(b.evaluate())) \
         for (a, (b, c)) in \
             sorted(lst.items(), key=lambda x: (len(x[0].split('.')) - 1, x[0]))]
+    # sort by number of . in dict key and afterwards by lexical order
+    
     if filter_status is not None:
         table = [(a, b, c) for (a, b, c) in table if b == filter_status]
 
