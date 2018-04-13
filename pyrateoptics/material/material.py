@@ -26,10 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
-from optimize import ClassWithOptimizableVariables
+from ..optimize.optimize import ClassWithOptimizableVariables
 import scipy.linalg as sla
 
-from globalconstants import standard_wavelength
+from ..core.globalconstants import standard_wavelength
 
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""

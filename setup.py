@@ -2,7 +2,15 @@
 from distutils.core import setup
 setup(
     name = "pyrateoptics", 
-    packages = ["pyrateoptics", "tests", "pyrateoptics/core", "demos"], 
+    packages = ["pyrateoptics",\
+		"tests",\
+		"pyrateoptics/core",\
+		"pyrateoptics/analysis",\
+		"pyrateoptics/io",\
+		"pyrateoptics/sampling2d",\
+		"pyrateoptics/optimize",\
+		"pyrateoptics/material",\
+		"demos"], 
     version = "0.2.0",
     description = "Optical raytracing with Python",
     author = "Moritz Esslinger",

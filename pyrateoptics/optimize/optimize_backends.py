@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from scipy.optimize import minimize
 import numpy as np
-from log import BaseLogger
+from ..core.log import BaseLogger
 
 class Backend(BaseLogger):
     """

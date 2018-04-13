@@ -25,12 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-from ray import RayBundle
-import helpers_math
-import optimize
+from ..core.ray import RayBundle
+from ..core.helpers_math import checkfinite
+from ..optimize.optimize import OptimizableVariable
 from material import MaxwellMaterial
 
-from globalconstants import standard_wavelength
+from ..core.globalconstants import standard_wavelength
 
 class IsotropicMaterial(MaxwellMaterial):
     
@@ -98,7 +98,7 @@ class IsotropicMaterial(MaxwellMaterial):
         normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_normals = helpers_math.checkfinite(normal)
+        valid_normals = checkfinite(normal)
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
@@ -126,7 +126,7 @@ class IsotropicMaterial(MaxwellMaterial):
         normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_normals = helpers_math.checkfinite(normal)
+        valid_normals = checkfinite(normal)
         # normals or sag values could either be nan or infinite
         # TODO: remove those normals from calculation
 
@@ -167,7 +167,7 @@ class ConstantIndexGlass(IsotropicMaterial):
     def __init__(self, lc, n=1.0, **kwargs):
         super(ConstantIndexGlass, self).__init__(lc, **kwargs)
 
-        self.n = optimize.OptimizableVariable(name="refractive index", value=n)
+        self.n = OptimizableVariable(name="refractive index", value=n)
 
 
     def getIndex(self, x, wave):
@@ -187,9 +187,9 @@ class ModelGlass(IsotropicMaterial):
         super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0], name=name, comment=comment)
 
 
-        self.n0 = optimize.OptimizableVariable(name="Conrady n0", value=n0_A_B[0])
-        self.A = optimize.OptimizableVariable(name="Conrady A", value=n0_A_B[1])
-        self.B = optimize.OptimizableVariable(name="Conrady B", value=n0_A_B[2])
+        self.n0 = OptimizableVariable(name="Conrady n0", value=n0_A_B[0])
+        self.A = OptimizableVariable(name="Conrady A", value=n0_A_B[1])
+        self.B = OptimizableVariable(name="Conrady B", value=n0_A_B[2])
         
     def getIndex(self, x, wave):
         """

@@ -33,10 +33,10 @@ import logging
 
 import math
 
-from pyrateoptics.core.material_isotropic import ConstantIndexGlass
+from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.core import surfShape
-from pyrateoptics.core.optimize import Optimizer
-from pyrateoptics.core.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
+from pyrateoptics.optimize.optimize import Optimizer
+from pyrateoptics.optimize.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
 from pyrateoptics.core.ray import RayBundle
 
 from pyrateoptics.core.aperture import CircularAperture, BaseAperture
@@ -50,8 +50,8 @@ from pyrateoptics.core.surface import Surface
 
 from pyrateoptics.core.globalconstants import canonical_ey
 
-from pyrateoptics.core.optical_system_analysis import OpticalSystemAnalysis
-from pyrateoptics.core.surfShape_analysis import ShapeAnalysis
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+from pyrateoptics.analysis.surfShape_analysis import ShapeAnalysis
 
 wavelength = standard_wavelength
 

@@ -36,7 +36,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-from pyrateoptics.core import raster
+from pyrateoptics.sampling2d import raster
 from pyrateoptics.core.ray import RayBundle
 
 from pyrateoptics.core.globalconstants import standard_wavelength

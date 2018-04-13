@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 
-from log import BaseLogger
+from ..core.log import BaseLogger
 
 class OptimizableVariable(BaseLogger):
     """
@@ -209,13 +209,13 @@ class ClassWithOptimizableVariables(BaseLogger):
                 
     def getAllVariables(self):
 
-        def addOptimizableVariablesToList(var, listOfOptVars = [], idlist=[]):
+        def addOptimizableVariablesToList(var, dictOfOptVars = {}, idlist=[], keystring="", reducedkeystring=""):
             """
             Accumulates optimizable variables in var and its linked objects.
             Ignores ring-links and double links.       
             
             @param var: object to evaluate (object)
-            @param listOfOptVars: optimizable variables found so far (list of objects)
+            @param dictOfOptVars: optimizable variables found so far (dict of objects)
             @param idlist: ids of objects already evaluated (list of int)
             """ 
             
@@ -223,32 +223,39 @@ class ClassWithOptimizableVariables(BaseLogger):
                 idlist.append(id(var))
     
                 if isinstance(var, ClassWithOptimizableVariables):
-                    for v in var.__dict__.values():
-                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist) 
+                    for (k, v) in var.__dict__.items():
+                        newkeystring = keystring + "(" + var.name + ")." + str(k)
+                        newredkeystring = reducedkeystring + var.name + "."
+                        dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, newredkeystring) 
                 elif isinstance(var, dict):
-                    for v in var.values():
-                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist)                        
+                    for (k, v) in var.items():
+                        newkeystring = keystring + "[" + str(k) + "]" 
+                        dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, reducedkeystring)                        
     
                 elif isinstance(var, list) or isinstance(var, tuple):
-                    for v in var:
-                        listOfOptVars, idlist = addOptimizableVariablesToList(v, listOfOptVars, idlist)
+                    for (ind, v) in enumerate(var):
+                        newkeystring = keystring + "[" + str(ind) + "]" 
+                        dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, reducedkeystring)
     
                 elif isinstance(var, OptimizableVariable):
-                    listOfOptVars.append(var)
+                    newkeystring = keystring + "(" + var.name + ")"
+                    newreducedkeystring = reducedkeystring + var.name
+                    #dictOfOptVars.append((var, newkeystring, newreducedkeystring))
+                    dictOfOptVars[newreducedkeystring] = (var, newkeystring)
     
-            return listOfOptVars, idlist
+            return dictOfOptVars, idlist
 
 
 
-        (lst, idlist) = addOptimizableVariablesToList(self)
-        return lst
+        (dict_opt_vars, idlist) = addOptimizableVariablesToList(self)
+        return dict_opt_vars
 
 
     def getAllValues(self):
         """
         For fast evaluation of value vector
         """
-        return np.array([a.evaluate() for a in self.getAllVariables()])
+        return np.array([a.evaluate() for (a, b) in self.getAllVariables().values()])
 
     def getActiveVariables(self):
         """
@@ -256,7 +263,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         but it does not matter since the variable references are still in the
         original dictionary in the class
         """
-        return [x for x in self.getAllVariables() if x.var_type == "variable"]
+        return [x for (x, y) in self.getAllVariables().values() if x.var_type == "variable"]
 
 
     def getActiveValues(self):
