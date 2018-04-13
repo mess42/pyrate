@@ -187,7 +187,23 @@ We represent the propagation of these deviations through the optical system by a
   \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
  \end{pmatrix}
 \end{eqnarray}
-We perform a Taylor expansion around the pilot ray
+In case the path from object to image is built up from subsystems that are subsequently passed, 
+and we know the propagator of each subsystem,
+we can write
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot \hat{G}_0 \cdot
+ \begin{pmatrix}
+  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+In general, the operators do not commutate. $\hat{G}_0$ is the propagator representing the subsystem closest to the object.
+
+We are interested in rays close to the pilot ray, $\Delta \Vector{r}_{obj}, \Delta \Wavevector_{obj} \rightarrow 0$,
+so we approximate the operators by a Taylor expansion around the pilot ray
 \begin{eqnarray}
  \begin{pmatrix}
   \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
@@ -201,35 +217,31 @@ We perform a Taylor expansion around the pilot ray
  + G^{02}_{ijm} \Delta k_j \Delta k_m
  + ...\nonumber\\
 \end{eqnarray}
-By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
-\begin{eqnarray}
-\hat{G}(\Vector{0}) &=& \Vector{0}\\
-\hat{G}^{00} &=& \Vector{0} 
-\end{eqnarray}
-
-
-\subsection{Here the trouble begins}
-\remark{Which terms may we neglect ? Is G11 responsible for image plane tilt ? Do we need to keep G11 ? G11 is quadratic. Why don't we have to keep other quadratic terms ? A clean derivation should be made from here.}
-In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
-$\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
-The linear terms in $\hat{G}$ can be represented by a matrix,
-and we can express the effect of multiple propagators as the product of its matrices.
-The individual propagators can be, for example, free space propagation or surface refraction.
-
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray,
+that is $\hat{G}(\Vector{0}) = \Vector{0}$ or $\hat{G}^{00} = \Vector{0}$. 
+In analogy to the ABCD formalism, we neglect terms quadratic or higher in the change of direction or position, 
+$\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$.
 \begin{eqnarray}
  \begin{pmatrix}
   \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
- \end{pmatrix}
- &=&
- \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot
- \begin{pmatrix}
-  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
- \end{pmatrix}
+ \end{pmatrix}_i
+ &\approx&
+   G^{10}_{ij} \Delta r_j
+ + G^{01}_{ij} \Delta k_j
+ + G^{11}_{ijm} \Delta r_j \Delta k_m
+\end{eqnarray}
+In contrast to the ABCD formalism, we do not drop the bilinear $\hat{G}^{11}$ term right away, but have closer look.
+\remark{todo: write a more elegant explanation why all quadratic forms but the bilinear one are dropped.}
+We split up the $\hat{G}$ operators into separate operators with location and direction as output.
+\begin{eqnarray}
+ \Delta \Vector{r}_{im}  &=& \hat{A} \\ 
+ \Delta \Wavevector_{im} &=& 
 \end{eqnarray}
 
-In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
-In the following, we discuss the rank of the matrices $\hat{G}$ and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
 
+
+In the following, we discuss the representation of the operators by matrices, 
+the rank of the matrices and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
 
 \subsection{Near-Pilot Basis Systems (contains errors)}
 
