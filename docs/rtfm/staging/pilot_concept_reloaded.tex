@@ -1,0 +1,1137 @@
+\documentclass[12pt,a4paper,twoside,openright,BCOR10mm,headsepline,titlepage,abstracton,chapterprefix,final]{scrreprt}
+
+\usepackage{ae}
+\usepackage[ngerman, english]{babel}
+%\usepackage{SIunits}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{dsfont}
+
+% load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
+
+\RequirePackage{ifpdf}  % flag for pdf or dvi backend
+\ifpdf
+  \usepackage[pdftex]{graphicx}
+  \usepackage[pdftitle={RTFM on Imaging Theory and Basics of Optical Raytracing},%
+              pdfsubject={},%
+              pdfauthor={M. Esslinger, J. Hartung, U. Lippmann},%
+              pdfkeywords={},%
+              bookmarks=true,%
+%              colorlinks=true,%
+              urlcolor=blue,%
+              pdfpagelayout=TwoColumnRight,%
+              pdfpagemode=UseNone,%
+              pdfstartview=Fit,%
+	      pdfpagelabels,
+              pdftex]{hyperref}
+\else
+  \usepackage[dvips]{graphicx}
+  \usepackage[colorlinks=false,dvips]{hyperref}
+\fi
+%\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
+
+\usepackage{ae}
+%\usepackage[ngerman, english]{babel}
+
+%\usepackage{SIunits}
+\newcommand\elementarycharge{\textrm{e}}
+\newcommand\sccm{\textrm{sccm}}
+\newcommand\mbar{\milli\textrm{bar}}
+
+
+\usepackage{amsmath}
+%\usepackage{amssymb}
+\usepackage{setspace}
+
+%\widowpenalty = 1000
+
+
+\newcommand*{\doi}[1]{\href{https://doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
+
+\newcommand\Vector[1]{{\mathbf{#1}}}
+%\newcommand\Vector[1]{{\vec{#1}}}
+
+\newcommand\vacuum{0}
+
+\newcommand\location{r}
+\newcommand\Location{\Vector{r}}
+
+
+\newcommand\wavenumber{k}
+\newcommand\vacuumWavenumber{\wavenumber_{\vacuum}}
+\newcommand\Wavevector{\Vector{\wavenumber}}
+
+\newcommand\Nabla{\Vector{\nabla}}
+\newcommand\Laplace{\Delta}
+\newcommand\timederivative[1]{\dot{{#1}}}
+\newcommand\Tensor[1]{\hat{#1}}
+\newcommand\conjugate[1]{\overline{#1}}
+\newcommand\transpose[1]{#1^{T}}
+\newcommand\Norm[1]{\left| #1 \right|}
+\newcommand{\ket}[1]{\left\vert{#1}\right\rangle}
+\newcommand{\bra}[1]{\left\langle{#1}\right\vert}
+\newcommand{\braket}[2]{\left\langle{#1}\vert{#2}\right\rangle}
+\newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
+
+\newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
+
+\newcommand\unittensor{\mathds{1}}
+
+\newcommand\Greenfunction{\Tensor{G}}
+
+\newcommand\scalarEfield{E}
+\newcommand\scalarBfield{B}
+\newcommand\scalarHfield{H}
+\newcommand\scalarDfield{D}
+\newcommand\Efield{\Vector{\scalarEfield}}
+\newcommand\Bfield{\Vector{\scalarBfield}}
+\newcommand\Hfield{\Vector{\scalarHfield}}
+\newcommand\Dfield{\Vector{\scalarDfield}}
+
+\newcommand\permeability{\Tensor{\scalarpermeability}}
+\newcommand\vacuumpermeability{\scalarpermeability_{\vacuum}}
+\newcommand\scalarpermeability{\mu}
+\newcommand\scalarrelativepermeability{\mu_{rel}}
+\newcommand\relativepermeability{\Tensor{\mu}_{rel}}
+
+\newcommand\permittivity{\Tensor{\scalarpermittivity}}
+\newcommand\vacuumpermittivity{\scalarpermittivity_{\vacuum}}
+\newcommand\scalarrelativepermittivity{\epsilon}
+\newcommand\relativepermittivity{\Tensor{\scalarrelativepermittivity}}
+\newcommand\scalarpermittivity{\varepsilon}
+
+\newcommand\conductivity{\Tensor{\sigma}}
+\newcommand\susceptibility{\Tensor{\chi}}
+\newcommand\currentdensity{\Vector{j}}
+\newcommand\chargedensity{\rho}
+\newcommand\PoyntingVector{\Vector{S}}
+
+\newcommand\ordi{\text{ord}}
+\newcommand\eo{\text{eo}}
+
+\newcommand\materialone{I}
+\newcommand\materialtwo{{II}}
+
+\newcommand{\kpa}[1]{{\wavenumber_{\parallel#1}}}
+\newcommand\tr{\text{tr}}
+
+\newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
+
+\newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
+\newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
+
+\newcommand{\orderof}[1]{\mathcal{O}(#1)}
+
+\newcommand\ppol{p}
+\newcommand\spol{s}
+\newcommand\normconst{N}
+
+\newcommand\kilogram{\textrm{kg}}
+\newcommand\meter{\textrm{m}}
+\newcommand\second{\textrm{s}}
+\newcommand\ampere{\textrm{A}}
+\newcommand\volt{\textrm{V}}
+\newcommand\watt{\textrm{W}}
+\newcommand\tesla{\textrm{T}}
+
+
+\begin{document}
+
+\section{Parabasal Optics} \label{sec:ParabasalOptics}
+
+\subsection{Motivation}
+
+The ABCD ansatz allows for very fast calculations and is invaluable in the pre-design stage.
+Its simplicity, however, comes with the restriction to meridional rays in centro-symmetric systems and the need for an optical axis.
+
+In systems like Offner systems or off-axis parabolic mirrors, the center-of-field chief ray is no more aligned with the axis of rotational symmetry of the surfaces.
+In these systems, it is no longer sufficient to obtain first order properties from the central curvature on the axis of symmetry of each surface.
+In other systems, like freeshape Schiefspiegler telescopes, there is no axis of symmetry at all. 
+Anamorphotic systems, on the other hand, often have an optical axis, but do not have the same effective surface curvature in all meridional planes.
+
+In this section, we develop a description for the first order properties of optical systems 
+and describe rotationally symmetric and non-symmetric systems with a single formalism.
+It is a formalism for rays close to the center-of-field chief ray, which we call \emph{pilot ray} in the following.
+This pilot ray takes the role of the optical axis in rotationally symmetric systems. 
+By choosing the term pilot ray, we want to avoid confusions with mechanical symmetry axes of sub-systems.
+In many systems, the intial pilot ray direction is perpendicular to the object plane. 
+An exception is found, for example, in Scheimpflug systems.
+
+Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
+From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
+The concept is a parabasal approximation around a non-paraxial pilot ray.
+It is a generalization of the ABCD formalism. 
+We describe the vectorial deviation from the pilot ray position and direction.
+We consider near-pilot rays, that have an intersection point and a wavevector close to the pilot ray.
+
+\begin{tabular}{ l | l | l }
+		    & pilot ray & near-pilot ray \\
+& & \\ \hline & & \\
+intersection point  & $\Vector{r}_{pilot}$ & ${\Vector{r}} = \Vector{r}_{pilot} + \Delta\Vector{r}$ \\
+wavevector  & $\Wavevector_{pilot}$ & ${\Wavevector} = \Wavevector_{pilot} + \Delta\Wavevector$ \\
+ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \Delta\Vector{d}$ \\
+surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
+\end{tabular}\\[2ex]
+We represent the propagation of these deviations through the optical system by a propagation operator $\hat{G}$
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+We perform a Taylor expansion around the pilot ray
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}_i
+ &=&
+   G^{00}_i
+ + G^{10}_{ij} \Delta r_j
+ + G^{01}_{ij} \Delta k_j
+ + G^{11}_{ijm} \Delta r_j \Delta k_m
+ + G^{20}_{ijm} \Delta r_j \Delta r_m
+ + G^{02}_{ijm} \Delta k_j \Delta k_m
+ + ...\nonumber\\
+\end{eqnarray}
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
+\begin{eqnarray}
+\hat{G}(\Vector{0}) &=& \Vector{0}\\
+\hat{G}^{00} &=& \Vector{0} 
+\end{eqnarray}
+
+
+\subsection{Here the trouble begins}
+\remark{Which terms may we neglect ? Is G11 responsible for image plane tilt ? Do we need to keep G11 ? G11 is quadratic. Why don't we have to keep other quadratic terms ? A clean derivation should be made from here.}
+In analogy to the ABCD formalism, we neglect terms quadratic in the change of direction or position, 
+$\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$, as well as mixed terms $\orderof{\Delta\Wavevector\Delta\Vector{r}}$.
+The linear terms in $\hat{G}$ can be represented by a matrix,
+and we can express the effect of multiple propagators as the product of its matrices.
+The individual propagators can be, for example, free space propagation or surface refraction.
+
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot
+ \begin{pmatrix}
+  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+
+In general, the matrices do not commutate. $\hat{G}_1$ is the propagator closest to the object.
+In the following, we discuss the rank of the matrices $\hat{G}$ and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+
+
+\subsection{Near-Pilot Basis Systems (contains errors)}
+
+The deviations may not be chosen freely, but we need to choose
+$\Delta\Vector{r}$, $\Delta\Wavevector$ and $\Delta\Vector{d}$ 
+in a way so that both pilot and near-pilot rays
+have valid properties.
+Intersection points must lay on the surface,
+wavevectors must obey the dispersion relation 
+and ray direction vectors must be of unit length.
+This limits the degrees of freedom for the deviations.
+
+\subsubsection{Intersection points (contains errors)}
+
+We demand that near-pilot intersection points are on the surface.
+In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point.
+That is, we neglect surface curvature increasing quadratically with the deviation. 
+We represent the ray height in this plane by
+\begin{eqnarray}
+ \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
+ \label{eq:deltaR_equals_XY}
+\end{eqnarray}
+where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
+
+\subsubsection{Wavevectors (contains errors)}
+Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
+In contrast to the real valued ray directions, wavevectors may be complex valued.
+Using \eqref{eq:perturbed_wavevector}, we determine the 4 complex valued unit vectors,
+along which perturbed wavevectors still obey the dispersion relation.
+We represent the change of the wavevector $\Wavevector$ as
+\begin{eqnarray}
+ \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q
+\end{eqnarray}
+where $U,V,W,Q$ are real valued prefactors.
+
+\subsection{XYUV matrices (contains errors)}
+We choose the object sided base vectors 
+$\Vector{e}_{X,Y,U,V,W,Q,\,obj}$ 
+in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
+as described in the previous section.
+We trace the pilot ray to the final surface 
+and define the near-pilot base vectors in the final plane
+$\Vector{e}_{X,Y,U,V,W,Q,\,fin}$.
+The propagator for near-pilot rays is the Jacobi matrix
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_{fin} \\[2ex] Y_{fin} \\[2ex] U_{fin}\\[2ex] V_{fin} \\[2ex] W_{fin} \\[2ex] Q_{fin} 
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial U_{obj}} & \frac{\partial X_{fin}}{\partial V_{obj}} & \frac{\partial X_{fin}}{\partial W_{obj}} & \frac{\partial X_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial U_{obj}} & \frac{\partial Y_{fin}}{\partial V_{obj}} & \frac{\partial Y_{fin}}{\partial W_{obj}} & \frac{\partial Y_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial U_{fin}}{\partial X_{obj}} & \frac{\partial U_{fin}}{\partial Y_{obj}} & \frac{\partial U_{fin}}{\partial U_{obj}} & \frac{\partial U_{fin}}{\partial V_{obj}} & \frac{\partial U_{fin}}{\partial W_{obj}} & \frac{\partial U_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial V_{fin}}{\partial X_{obj}} & \frac{\partial V_{fin}}{\partial Y_{obj}} & \frac{\partial V_{fin}}{\partial U_{obj}} & \frac{\partial V_{fin}}{\partial V_{obj}} & \frac{\partial V_{fin}}{\partial W_{obj}} & \frac{\partial V_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial W_{fin}}{\partial X_{obj}} & \frac{\partial W_{fin}}{\partial Y_{obj}} & \frac{\partial W_{fin}}{\partial U_{obj}} & \frac{\partial W_{fin}}{\partial V_{obj}} & \frac{\partial W_{fin}}{\partial W_{obj}} & \frac{\partial W_{fin}}{\partial Q_{obj}} \\[2ex]
+  \frac{\partial Q_{fin}}{\partial X_{obj}} & \frac{\partial Q_{fin}}{\partial Y_{obj}} & \frac{\partial Q_{fin}}{\partial U_{obj}} & \frac{\partial Q_{fin}}{\partial V_{obj}} & \frac{\partial Q_{fin}}{\partial W_{obj}} & \frac{\partial Q_{fin}}{\partial Q_{obj}}
+ \end{pmatrix}
+ \begin{pmatrix}
+  X_{obj} \\[2ex] Y_{obj} \\[2ex] U_{obj} \\[2ex] V_{obj} \\[2ex] W_{obj} \\[2ex] Q_{obj} 
+ \end{pmatrix} \nonumber \\
+\end{eqnarray}
+We obtain this matrix by multiplying the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations.
+To obtain these atomic matrices, we perform Taylor expansions around the pilot ray.
+For systems where an explicit calculation is not possible
+-- or the operator suffers from laziness --
+it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
+
+We abbreviate the coefficients of the propagator by sub-matrices $\hat{A}, \hat{B}, \hat{C}, \hat{D}$, 
+resembling the ABCD formalism.
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_{fin} \\ Y_{fin} \\ U_{fin} \\ V_{fin} \\ W_{fin} \\ Q_{fin} 
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  A_{11} & A_{12} & B_{11} & B_{12} & B_{13} & B_{14} \\
+  A_{21} & A_{22} & B_{21} & B_{22} & B_{23} & B_{24} \\
+  C_{11} & C_{12} & D_{11} & D_{12} & D_{13} & D_{14} \\
+  C_{21} & C_{22} & D_{21} & D_{22} & D_{23} & D_{24} \\
+  C_{31} & C_{32} & D_{31} & D_{32} & D_{33} & D_{34} \\
+  C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
+ \end{pmatrix}
+ \begin{pmatrix}
+  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj} \\ W_{obj} \\ Q_{obj} 
+ \end{pmatrix}
+\end{eqnarray}
+
+We abbreviate $(X,Y)$ as a vector of location deviation $\Vector{R}$
+and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
+\begin{eqnarray}
+\Vector{R} &=&
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \Vector{K} &=&
+ \begin{pmatrix}
+  U \\ V \\ W \\ Q 
+ \end{pmatrix}
+\end{eqnarray}
+
+The propagator equation becomes
+\begin{eqnarray}
+ \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \label{eq:xyuv_imaging_equation}\\
+ \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
+\end{eqnarray}
+
+
+\subsection{Propagation Between Planes in Homogeneous Media (contains errors)}
+We consider two planes 1 and 2.
+We consider a homogeneous medium, a pilot ray $( \Vector{r}_{pilot1}, \Vector{r}_{pilot2}, \Wavevector_{pilot} )$
+and a near pilot ray $( \Vector{r}_{1}, \Vector{r}_{2}, \Wavevector )$. 
+In the homogeneous medium, the rays are straight lines and the wavevector of each ray is the same in both planes.
+We describe the rays as lines with geometric path length $s$ and a unit direction vector $\Vector{d}$
+\begin{eqnarray}
+ \Vector{r}_{2} &=& \Vector{r}_{1} + \Vector{d} s  \\
+ \Vector{r}_{pilot2} &=& \Vector{r}_{pilot1} + \Vector{d}_{pilot} s_{pilot}
+\end{eqnarray}
+Next we consider some special cases, that allow us to fix the components of the propagator step by step.
+\begin{eqnarray}
+ \Delta \Vector{r}_2 &=& \Vector{r}_{2} - \Vector{r}_{pilot2} \\
+ \Delta \Vector{r}_2 &=& \Delta \Vector{r}_1 + \Delta s \Vector{d}_{pilot} \\
+ \Delta \Vector{r}_2 &=& \Vector{r}_{1} + \Vector{d} s  - \Vector{r}_{pilot1} - \Vector{d}_{pilot} s_{pilot}
+\end{eqnarray}
+
+\subsubsection{The A-Matrix (contains errors)}
+We consider a ray parallel to the pilot ($\Vector{K} = \Vector{0}$ and $\Vector{d} = \Vector{d}_{pilot}$).
+\begin{eqnarray}
+ \Delta \Vector{r}_2 &=& \Vector{r}_{1} - \Vector{r}_{pilot1} + \Vector{d} ( s - s_{pilot} ) \\
+ X_2 \Vector{e}_{X2} +  Y_2 \Vector{e}_{Y2} - \Delta s \Vector{d}_{pilot} &=&  X_1 \Vector{e}_{X1} +  Y_1 \Vector{e}_{Y1} 
+\end{eqnarray}
+The three unknowns $X_2 , Y_2, \Delta s$ can be calculated from this 3-dimensional vector equation.
+One possibility to do so is to employ a cartesian base $(x,y,z)$ and write
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & d_{pilotx} \\
+  e_{X2y} & e_{Y2y} & d_{piloty} \\
+  e_{X2z} & e_{Y2z} & d_{pilotz}  
+ \end{pmatrix}^{-1}
+ \cdot
+ \left(
+ X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1}
+ \right)
+\end{eqnarray}
+From which we extract the coefficients of the $\hat{A}$ matrix, 
+linking $(X_1,Y_1)$ to $(X_2,Y_2)$.
+
+\subsubsection{The B-Matrix (contains errors)}
+We consider a ray with the same starting point as the pilot, $\Vector{R} = \Vector{0}$ or $\Vector{r}_{1} = \Vector{r}_{pilot1}$. 
+The remaining independent points $\Vector{r}_{1}, \Vector{r}_{2}, \Vector{r}_{pilot2}$ form a 2D triangle in 3D space.
+The triangle has the sides $\Vector{d} s ; \Vector{d}_{pilot} s_{pilot}$ and $\Delta \Vector{r}_2$. 
+Further we know that $\Delta \Vector{r}_2$ is in the image plane.
+
+\begin{eqnarray}
+  \Delta \Vector{r}_2  &=& \Vector{d} s - \Vector{d}_{pilot} s_{pilot} \\
+  \Delta \Vector{r}_2  &=& X_2 \Vector{e}_{X2} + Y_2 \Vector{e}_{Y2}
+\end{eqnarray}
+We substitute
+\begin{eqnarray}
+ \Vector{d} &=& \Vector{d}_{pilot} + \Delta \Vector{d} \\
+ s &=& s_{pilot} + \Delta s
+\end{eqnarray}
+leading to
+\begin{eqnarray}
+  \Delta \Vector{r}_2  &=& \Vector{d}_{pilot} \Delta s + \Delta \Vector{d} s_{pilot} + \Delta \Vector{d} \Delta s \\
+  \Delta \Vector{r}_2  &=& X_2 \Vector{e}_{X2} + Y_2 \Vector{e}_{Y2}
+\end{eqnarray}
+$\Delta \Vector{d}$ originates from $\Delta \Wavevector$ and can be seen as given quantity.
+The 3 unknowns $X_2 , Y_2 , \Delta s$ can be solved, for example, in a cartesian base
+\begin{eqnarray}
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & - ( d_{pilotx} + \Delta d_x ) \\
+  e_{X2y} & e_{Y2y} & - ( d_{piloty} + \Delta d_y ) \\
+  e_{X2z} & e_{Y2z} & - ( d_{pilotz} + \Delta d_z ) 
+ \end{pmatrix}^{-1}
+ \Delta \Vector{d} s_{pilot} &=& 
+ \begin{pmatrix}
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix} 
+\end{eqnarray}
+We approximate up to first order in $\Delta \Vector{d}$
+\begin{eqnarray}
+ \begin{pmatrix}
+  X_2 \\ Y_2 \\ \Delta s
+ \end{pmatrix} 
+ &\approx& s_{pilot}
+ \begin{pmatrix}
+  e_{X2x} & e_{Y2x} & - d_{pilotx} \\
+  e_{X2y} & e_{Y2y} & - d_{piloty} \\
+  e_{X2z} & e_{Y2z} & - d_{pilotz} 
+ \end{pmatrix}^{-1}
+ \begin{pmatrix}
+  \Delta d_x \\ \Delta d_y \\ \Delta d_z
+ \end{pmatrix}
+\end{eqnarray}
+Now we have to link the wavevector change $\Delta \Wavevector$ to the ray direction change $\Delta \Vector{d}$ in first order.
+In isotropic media, we find
+\begin{eqnarray}
+ \Delta \Vector{d}_{iso} 
+ &\approx& \frac{\Re \Delta \Wavevector}{|\Re \Wavevector_{pilot}|}
+ \\
+ &\approx&
+  \frac{
+    U(\Re \Vector{e}_U)
+    + V(\Re \Vector{e}_V)
+    + W(\Re \Vector{e}_W)
+    + Q(\Re \Vector{e}_Q)
+  }{|\Re \Wavevector_{pilot}|}
+\end{eqnarray}
+
+\remark{todo: general case, maybe shift whole direction perturbation in ray dir section \ref{sec:raydir}}
+
+\subsubsection{The C-Matrix (contains errors)} 
+Two rays that are parallel in plane 1 shall also be parallel in plane 2, 
+independent of their point of origin.
+\begin{eqnarray}
+\hat{C} &=& 0 
+\end{eqnarray}
+
+\subsubsection{The D-Matrix (contains errors)}
+The homogeneous medium shall not change the ray direction.
+However, as the ray bases $( \Vector{e}_{U,V,W,Q\,1} )$ and $( \Vector{e}_{U,V,W,Q\,2} )$
+may differ, its coordinates may also differ.
+\begin{eqnarray}
+ \Delta \Wavevector 
+ &=& U_1 \Vector{e}_{U1} + V_1 \Vector{e}_{V1} + W_1 \Vector{e}_{W1} + Q_1 \Vector{e}_{Q1} \nonumber \\
+ &=& U_2 \Vector{e}_{U2} + V_2 \Vector{e}_{V2} + W_2 \Vector{e}_{W2} + Q_2 \Vector{e}_{Q2}
+\end{eqnarray}
+We recommend to stick to a single coordinate system when propagating through homogeneous media, 
+$( \Vector{e}_{U,V,W,Q\,1} ) = ( \Vector{e}_{U,V,W,Q\,2} )$. 
+In this case, the $\hat{D}$ matrix simplifies to unity.
+\begin{eqnarray}
+ \hat{D} &=& \unittensor
+\end{eqnarray}
+
+
+\subsubsection{Example (contains errors)}
+We assume two parallel planes and identical bases $\Vector{e}_{X,Y,U,V,W,Q}$ in both planes. 
+The pilot ray direction shall be normal to the planes.
+We collect the sub-matrices $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ and yield
+
+\begin{eqnarray}
+ \hat{G} &=&
+ \begin{pmatrix}
+  1 & 0 & B_{11} & B_{12} & B_{13} & B_{14} \\
+  0 & 1 & B_{21} & B_{22} & B_{23} & B_{24} \\
+  0 & 0 & 1 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 1 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 1  
+ \end{pmatrix}
+ \label{eq:xyuv_propagation_homogeneous}
+\end{eqnarray}
+with\begin{eqnarray}
+ \hat{B} &=&
+ \frac{ s_{pilot} }{| \Re \Wavevector_{pilot} |}
+ \begin{pmatrix}
+  (\Re \Vector{e}_U) \Vector{e}_X & (\Re \Vector{e}_V) \Vector{e}_X & (\Re \Vector{e}_W) \Vector{e}_X & (\Re \Vector{e}_Q) \Vector{e}_X \\
+  (\Re \Vector{e}_U) \Vector{e}_Y & (\Re \Vector{e}_V) \Vector{e}_Y & (\Re \Vector{e}_W) \Vector{e}_Y & (\Re \Vector{e}_Q) \Vector{e}_Y
+ \end{pmatrix}
+\end{eqnarray}
+In lossless media, one often chooses real $\Vector{e}_{U,V}$ and imaginary $\Vector{e}_{W,Q}$.
+Half of the matrix $\hat{B}$ becomes zeros.
+Still, it is important to forward the wavevector components 
+$W \Vector{e}_W$ and $Q \Vector{e}_Q$
+to the next surface with the $\hat{D}$ matrix, 
+as these wavevector components may become relevant in following materials.
+
+\subsection{Refraction (contains errors)}
+We assume two parallel planes 1,2 just in front of and behind a refracting surface.
+The planes shall be tangential to the surface 
+and shall have identical bases $\Vector{e}_{X,Y}$.
+In general, it is not possible to find identical base vectors $\Vector{e}_{U,V,W,Q}$ in both planes.
+
+\subsubsection{A and B-Matrix (contains errors)}
+The infinitessimal propagation length through the surface does not change the ray height
+\begin{eqnarray}
+ \hat{A} &=& \unittensor \\
+ \hat{B} &=& 0
+\end{eqnarray}
+Deviations from the tangential plane (sag differences due to curvature) 
+are an effect quadratic in ray height and are neglected in this linear formalism.
+
+\subsubsection{C and D-Matrix (contains errors)}
+First, we consider the in-plane wavevector component $\Wavevector_\parallel$.
+This component is conserved during refraction.
+\begin{eqnarray}
+ \Wavevector_{\parallel2} 
+ &=& \Wavevector_{\parallel1} \\
+ &=& \Wavevector_1 - (\Wavevector_1 \Vector{n}) \Vector{n} \\
+ \wavenumber_{\parallel2i}
+ &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} - ( \wavenumber_{pilot1j} + \Delta \wavenumber_{1j} )( n_{pilotj} + \Delta n_j )( n_{piloti} + \Delta n_i )
+% \\
+% &=& \wavenumber_{pilot1i} + \Delta \wavenumber_{1i} +\nonumber \\
+% &&- \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
+% &&- \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti} \nonumber\\
+% &&- \Delta \wavenumber_{1j} \Delta n_j n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i \nonumber\\
+% &&- \Delta \wavenumber_{1j} n_{pilotj} \Delta n_i \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j \Delta n_i \nonumber\\
+% &&- \Delta \wavenumber_{1j} \Delta n_j \Delta n_i
+\end{eqnarray}
+In our linear approximation, we neglect quadratic forms ($\Delta \Vector{n}^2$) or mixed terms ($\Delta \Wavevector \Delta \Vector{n}$)
+%\begin{eqnarray}
+% \wavenumber_{\parallel2i}
+% &=& 
+% \wavenumber_{pilot1i} - \wavenumber_{pilot1j}   n_{pilotj} n_{piloti} \nonumber\\
+% &&+ \Delta \wavenumber_{1i} 
+%   - \Delta \wavenumber_{1j} n_{pilotj} n_{piloti} \nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j n_{piloti}
+%   - \wavenumber_{pilot1j}   n_{pilotj} \Delta n_i
+%\end{eqnarray}
+\begin{eqnarray}
+ \wavenumber_{\parallel2i}
+ &=& 
+ \wavenumber_{\parallel pilot1i} \nonumber\\
+ &&+ ( \delta_{ij} -  n_{piloti} n_{pilotj} ) \Delta \wavenumber_{1j} \nonumber\\
+ &&- ( n_{piloti} \wavenumber_{pilot1j} + \wavenumber_{pilot1m}   n_{pilotm} \delta_{ij}) \Delta n_j
+\end{eqnarray}
+We apply this intermediate result on the full wavevector of the near-pilot ray after refraction
+\begin{eqnarray}
+ \Wavevector_2 &=& \Wavevector_{\parallel} + \xi_2(\Wavevector_{\parallel}) \Vector{n} \\
+ \Wavevector_2 &=& \Wavevector_{\parallel}
+                 + \left(
+                     \xi_{2 pilot} +
+                     \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_{\Wavevector_{\parallel pilot}}
+                     \cdot \Delta \Wavevector_{\parallel}
+                   \right)
+                   \left(
+                     \Vector{n}_{pilot} + \Delta \Vector{n} 
+                   \right)
+ \\ 
+% \wavenumber_{2i}
+% &=& 
+% \wavenumber_{2pilot i} 
+% + \xi_{2 pilot} \Delta n_i
+% + \left( 
+%     \delta_{ij}
+%     + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+%   \right) \Delta \wavenumber_{\parallel j}
+% \\
+% \Delta \wavenumber_{\parallel j}
+% &=&  ( \delta_{jl} -  n_{pilot j} n_{pilot l} ) \Delta \wavenumber_{1l} \nonumber\\
+% &&- ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) \Delta n_l
+% \\
+ \wavenumber_{2i}
+ &=& 
+ \wavenumber_{2pilot i} \nonumber \\
+ &&+ \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( \delta_{jl} -  n_{pilot j} n_{pilot l} ) \Delta \wavenumber_{1l} \nonumber\\
+ &&+ \Bigg[
+     \xi_{2 pilot} \delta_{il} \nonumber\\
+ &&\quad- 
+     \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) 
+   \Bigg] \Delta n_l
+\end{eqnarray}
+
+\subsubsection{The D-Matrix (contains errors)}
+We consider rays intersecting the surface at the pilot interesction position $\Vector{R} = 0$.
+The surface normal for all these rays is the pilot surface normal $\Delta \Vector{n} = 0$.
+We introduce the ($3\times3$) matrix $\hat{M}$ as
+\begin{eqnarray}
+ \Delta \wavenumber_{2i} &=& M_{il} \Delta \wavenumber_{1l} \\
+ M_{il}
+ &=& 
+ \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+ \right) 
+ ( \delta_{jl} -  n_{pilot j} n_{pilot l} )
+\end{eqnarray}
+Lengthy coordinate transformations can be avoided by choosing
+\begin{eqnarray}
+  \Vector{e}_{K_i\,2} &=& \frac{ \hat{M} \Vector{e}_{K_i\,1} }{\sqrt{ (\hat{M} \Vector{e}_{K_i\,1})\cdot \overline{(\hat{M} \Vector{e}_{K_i\,1})} }}
+  \label{eq:eUeVVectors}
+\end{eqnarray}
+The unit vectors can be complex valued.
+Our result for the $\hat{D}$ matrix is
+\begin{eqnarray}
+ D_{ij} &=&  \delta_{ij}
+ \sqrt{ (\hat{M} \Vector{e}_{K_i\,1})\cdot \overline{(\hat{M} \Vector{e}_{K_i\,1})} } 
+\end{eqnarray}
+\remark{todo: double check before use}
+For the unit vectors chosen above \eqref{eq:eUeVVectors}, the $D$-matrix is diagonal.
+
+\subsubsection{The C-Matrix (contains errors)}
+We consider rays parallel to the pilot ray, $\Vector{K} = 0$.
+\begin{eqnarray}
+ \Delta \wavenumber_{2i} &=& 
+ \Bigg[
+     \xi_{2 pilot} \delta_{il} \nonumber\\
+ &&- 
+     \left( 
+       \delta_{ij}
+       + \left. \frac{\partial \xi_2}{\partial \Wavevector_{\parallel}} \right|_j n_{pilot i}
+     \right) 
+     ( n_{pilot j} \wavenumber_{pilot1 l} + \wavenumber_{pilot1 m}   n_{pilot m} \delta_{jl}) 
+   \Bigg] \Delta n_l
+   \label{eq:refraction_C_matrix_deltaK_to_deltaN}
+\end{eqnarray}
+We assume a surface with local curvatures $\rho_{XX}, \rho_{XY}, \rho_{YY}$ in our coordinate system
+$(\Vector{e}_X, \Vector{e}_Y, \Vector{n}_{pilot})$ according to equation \eqref{eq:quadratic_form_sag}.
+The surface normal is (see \eqref{eq:quadratic_form_near_axis_normal})
+\begin{eqnarray}
+ \Vector{n} &\approx& 
+ \Vector{n}_{pilot}
+ - (\rho_{XX} X + \rho_{XY} Y) \Vector{e}_X
+ - (\rho_{YY} Y + \rho_{XY} X) \Vector{e}_Y
+ \label{eq:refraction_C_matrix_deltaN_to_deltaR}
+\end{eqnarray}
+Combining the last two equations \eqref{eq:refraction_C_matrix_deltaK_to_deltaN} and \eqref{eq:refraction_C_matrix_deltaN_to_deltaR},
+we find a relation between the change in wavevector after refraction and the change in position,
+\begin{eqnarray}
+ \Delta \Wavevector_2 &=& 
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+\end{eqnarray}
+mediated by a ($3\times2$) matrix $\hat{\tilde{M}}$.
+We add a variable $\nu=0$ to the left hand side and solve the system in a cartesian base
+\begin{eqnarray}
+   U_2 \Vector{e}_{U2}
+ + V_2 \Vector{e}_{V2}
+ + \nu \Vector{n}_{pilot}
+ &=& 
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \begin{pmatrix}
+  U_2 \\ V_2 \\ \nu
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  e_{U2x} & e_{U2y} & e_{U2z} \\
+  e_{V2x} & e_{V2y} & e_{V2z} \\
+  n_{pilot x} & n_{pilot y} & n_{pilot z}
+ \end{pmatrix}^{-1}
+ \hat{\tilde{M}}
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+\end{eqnarray}
+Adding $\nu$ allows us to use standard matrix inversion algorithms.
+The result should reproduce $\nu=0$ within numerical accuracy.
+We consider the positions $(dX,0)$ and $(0,dY)$, and obtain the corresponding wavevector changes $(dU_2,dV_2, dW_2, dQ2)$ for both cases.
+We use this result to fill the $(2\times4)$ matrix $\hat{C}$.
+
+\remark{a subsubsection about coordinate breaks is missing.}
+
+\subsection{Image Plane Position in a Finite Conjugate Image Space (contains errors)} \label{sec:xyuv_image_plane_position}
+A ray fan is being imaged, 
+if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
+ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
+The imaging equation \eqref{eq:xyuv_imaging_equation} becomes
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj} + 0
+\end{eqnarray}
+or, in other words,
+\begin{eqnarray}
+ \hat{B} \cdot \Vector{K}_{obj} &=& 0
+\end{eqnarray}
+The matrix $\hat{B}$ is of rank 2, the input vector $\Vector{K}$ contains 4 independent real valued degrees of freedom.
+For a unique solution, we need to impose more constraints on the input vector. 
+We consider the plane waves of the pilot ray and a near pilot ray, 
+$\Wavevector_{pilot}$ and 
+$\Wavevector = \Wavevector_{pilot} + U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q$.
+Both rays propagate from the object to the image.
+We assume a coherent source.
+Both rays interfere and form a sinusoidal grating intensity pattern
+\begin{eqnarray}
+ I &\propto& |\Efield_{0,pilot}|^2 + |\Efield_{0}|^2 + 2 \Re \left( \overline{\Efield}_{0}\Efield_{0,pilot} \exp(i(\Wavevector_{pilot} - \Wavevector)\Location) \right)
+\end{eqnarray}
+In the object plane, we desire the modulation depth of the intensity pattern to be independent of position.
+This condition is fulfilled if $i$ times the exponent is real.
+\begin{eqnarray}
+ (\Wavevector_{pilot} - \Wavevector)\Location \in \mathbb{R} \label{eq:xyuvRealGratingConstraint}
+\end{eqnarray}
+This shall hold for all positions $\Vector{R}=(X,Y)$, so
+\begin{subequations}
+\begin{eqnarray}
+ \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_X \right) &=& 0 \\
+ \Im \left( ( U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q ) \Vector{e}_Y \right) &=& 0 
+\end{eqnarray}
+\label{eq:restriction_to_2d_kspace} 
+\end{subequations}
+With 4 variables and 2 equations, we can find 2 independent solutions $\Vector{e}_{\kappa1}$,$\Vector{e}_{\kappa2}$ that fulfill the two conditions.
+$\Vector{e}_{\kappa i}$ are four-dimensional, have real valued components and can be transfered to a cartesian wavevector deviation via
+\begin{eqnarray}
+ \Delta \Wavevector(\Vector{e}_{\kappa i}) &=& e_{\kappa i\,1} e_{U} + e_{\kappa i\,2} e_{V} + e_{\kappa i\,3} e_{W} + e_{\kappa i\,4} e_{Q}
+\end{eqnarray}
+The base vectors $\Vector{e}_{\kappa i}$ shall be normalized and orthogonal, 
+$\Delta \Wavevector(\Vector{e}_{\kappa i}) \cdot \overline{\Delta \Wavevector (\Vector{e}_{\kappa j})} = \delta_{ij}$.
+Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of these two directions,
+we ensure a real valued grating in the object plane. 
+The intensity distribution in intermediate planes and in the image plane, however, 
+may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X,Y}$.
+\begin{eqnarray}
+ \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{\kappa1} + \kappa_2 \Vector{e}_{\kappa2} \label{eq:deltaK_as_kappa}
+\end{eqnarray}
+$\kappa_{1,2} \in \mathbb{R}$ are coordinates in this 2-dimensional representation of wavevector deviations.
+Our imaging condition reduces to
+\begin{eqnarray}
+ \hat{B}
+ \begin{pmatrix}
+ e_{\kappa11} & e_{\kappa21} \\
+ e_{\kappa12} & e_{\kappa22} \\
+ e_{\kappa13} & e_{\kappa23} \\
+ e_{\kappa14} & e_{\kappa24} \\ 
+ \end{pmatrix}
+ \begin{pmatrix}
+ \kappa_1 \\ \kappa_2 
+ \end{pmatrix}
+ &=& 0
+\end{eqnarray}
+Nontrivial solutions are found if the determinant of $\hat{B} \cdot(\Vector{e}_{\kappa1}, \Vector{e}_{\kappa2})$ vanishes.
+In case the determeninant is nonzero, 
+we refocus by inserting a homogeneous material propagation \eqref{eq:xyuv_propagation_homogeneous} 
+\remark{The referenced equation is only valid for homogeneous media, parallel planes and a pilot normal to the planes. Todo: Check if the following equations also work in the general case.} 
+by a distance $s$ 
+in front of the image plane.
+We obtain the matrices describing the imaging system after refocus and projection on our 2 wavevector solutions
+\begin{eqnarray}
+ \tilde{A} &=& TODO \\
+ \tilde{B}_{i,n} &=& \left( B_{ij} + \sum_m \frac{\partial^2 R_i}{\partial s \partial K_m} D_{mj} \cdot s \right) e_{\kappa j,n} \label{eq:tildeB}
+\end{eqnarray}
+The matrix $\hat{\tilde{B}}$ is a 2 by 2 matrix.
+
+The imaging condition becomes
+\begin{eqnarray}
+ \hat{\tilde{B}}(s) \begin{pmatrix} \kappa_1 \\ \kappa_2 \end{pmatrix} &=& 0
+\end{eqnarray}
+We are interested in solutions $s$ for which the determinant of $\hat{\tilde{B}}$ vanishes.
+The characteristic polynomial is quadratic in $s$.
+This problem is similar to an eigenvalue problem, so we call the solutions $s_{1,2}$ quasi-eigenvalues.
+
+\subsubsection{The Stigmatic Case (contains errors)}
+If both solutions $s_1 = s_2$ are degenerate, the corresponding eigen-space is two-dimensional.
+Any combination $(\kappa_1, \kappa_2)$ will be imaged on the pilot image point.
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}}(s) \cdot \Vector{R}_{obj}
+\end{eqnarray}
+For example, centro-symmetric systems have no (on-axis) astigmatism if the pilot ray is chosen on the optical axis.
+
+\subsubsection{The Astigmatic Case (contains errors)}
+If both solutions $s_{1,2}$ are not degenerate, each solution has a one-dimensional eigen-space.
+Focusing to any of the two solutions $s_i$, 
+we can find an eigen ray fan $(\kappa_{1\,eig\,si},\kappa_{2\,eig\,si})$ that is imaged on the pilot ray.
+We normalize the eigen-vectors
+\begin{eqnarray}
+ \begin{pmatrix} \kappa_{1\,eig\,si} \\   \kappa_{2\,eig\,si} \end{pmatrix} \cdot  \begin{pmatrix} \overline{\kappa}_{1\,eig\,si} \\ \overline{\kappa}_{2\,eig\,si} \end{pmatrix}
+ &=& 1
+\end{eqnarray}
+Any multiple of the direction deviation eigen-vectors are imaged on the pilot.
+Deviation components orthogonal to the eigen directions, however, will not be imaged on the pilot ray.
+We represent the 2-dimensional wavevector deviation in the base of the eigen direction and the orthogonal direction
+\begin{eqnarray}
+     \begin{pmatrix} \kappa_1            \\   \kappa_2            \end{pmatrix} &=& 
+   a \begin{pmatrix} \kappa_{1\,eig\,si} \\   \kappa_{2\,eig\,si} \end{pmatrix} 
+ + b \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix}
+\end{eqnarray}
+
+The imaging equation \eqref{eq:xyuv_imaging_equation} becomes
+
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{\tilde{B}}(s_i) \cdot b(s_i,\Delta\Wavevector) \cdot \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix}
+\end{eqnarray}
+The coefficient $b$ depends on the object sided wavevector deviation.
+We introduce the projection operator $\hat{P}$ with
+\begin{eqnarray}
+ \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{P} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} \\
+ \hat{P} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} &=& 
+    \left( \hat{\tilde{B}}(s_i) \cdot \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix} \right) 
+    \cdot
+    \left( \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} \right)
+\end{eqnarray}
+The image position $\Vector{R}_{im}$ of a near-pilot ray depends on both object position $\Vector{R}_{obj}$ and wavevector choice $(\kappa_1,\kappa_2)$.
+In general, a point in the object plane is imaged to a line in the image plane.
+To characterize this line, we can use, for example,
+\begin{itemize}
+ \item the wavevector deviation at the border of the aperture (marginal ray) that produces the largest image distance from the pilot.
+ \item the RMS image position deviation from the pilot when rastering the pupil.
+       For accurate results, the angular power distribution of the object should be considered as weighting factor.
+ \item the RMS image position deviation from the center of mass.
+\end{itemize}
+Based on the criterion for the line length chosen, we define a line vector in image space $\Vector{h}_{line}$.
+The line vector is a measure for the amount of astigmatism in the corresponding image plane -- by its line length and orientation.
+
+
+\subsubsection{Circle of Least Confusion (contains errors)}
+For some systems, like anamorphotic laser line projectors, it makes sense to pick one of the two solutions $s_{1,2}$ as the image plane.
+Other systems, like imaging systems with weak on-axis astigmatism, 
+are often charcaterized by an intermediate plane between $s_{1,2}$ as compromise image plane for both wavevector directions.
+The spot size in this intermediate plane is called \emph{circle of least confusion}.
+
+We consider 2 rays: 
+The first ray coincides with the pilot ray in plane $s_1$, but has an infinitessimal wavevector deviation from the pilot.
+The wavevector deviation is chosen orthogonal to the eigen-wavevector direction in plane $s_2$.
+In other words, this ray is chosen to have a maximum astigmatic image height per wavevector deviation in plane $s_2$.
+The second ray shall coincide with the pilot ray in plane $s_2$, but have a maximum image height in plane $s_1$.
+
+We restrict ourselves to homogeneous media and calculate the ray height $\Vector{h}_2$ of the first ray in plane $s_2$ 
+and the ray height $\Vector{h}_1$ of the second ray in plane $s_1$.
+
+\begin{align*}
+\textrm{Ray 1:} && \Vector{R}(s_1) &= \Vector{0} && \Vector{R}(s_2) = \Vector{h}_2 && \begin{pmatrix} \kappa_1\\\kappa_2 \end{pmatrix} = \begin{pmatrix} \kappa_{2\,eig\,s2} \\ - \kappa_{1\,eig\,s2} \end{pmatrix}
+\\
+\textrm{Ray 2:} && \Vector{R}(s_1) &= \Vector{h}_1 && \Vector{R}(s_2) = \Vector{0} && \begin{pmatrix} \kappa_1\\\kappa_2 \end{pmatrix} = \begin{pmatrix} \kappa_{2\,eig\,s1} \\ - \kappa_{1\,eig\,s1} \end{pmatrix}
+\end{align*}
+\remark{This holds for apertures circular in object K-space only. todo: wavevectors should be scaled with pupil size in their direction. But what about funny shaped apertures ?}
+
+In the plane $s_{coc}$ of the circle of least confusion, both rays shall have the same ray height.
+One ray increases its height, the other ray decreases its height linearly with distance, so the solution is found as
+
+\begin{eqnarray}
+ s_{coc} &=& \alpha s_1 + (1-\alpha) s_2 \\
+ \alpha  &=& \frac{|\Vector{h}_2|}{|\Vector{h}_1| + |\Vector{h_2}|}
+\end{eqnarray}
+
+For weakly astigmatic systems, $\lim \Vector{h}_{1,2} \rightarrow \Vector{0}$, 
+the calculation of $\alpha$ becomes numerically instable.
+For systems with finite aperture extensions in both directions, 
+weak astigmatism also means that both planes converge, $s_1 \rightarrow s_2$,
+so the accuracy required decreases.
+To prevent instabilities, one may consider to clip $\alpha$ to the interval $[0,1]$ after calculation.
+
+\remark{How to determine the image plane if there's image plane tilt?}
+
+\subsection{Parabasal Chief Rays (contains errors)}
+We consider a surface $surf1$ in front of the optical system.
+For example, it may be chosen identical to the object.
+For infinite conjugate objects, it may be chosen as the first surface with finite distance from the optical system.
+We assume the XYUV matrix from $surf1$ to the aperture is known.
+The propagation reads
+\begin{eqnarray}
+ \Vector{R}_{aper}
+  &=&
+  \hat{A}_{surf1\rightarrow aper}  
+  \Vector{R}_{surf1}
+  +
+  \hat{B}_{surf1\rightarrow aper}
+  \Vector{K}_{surf1}
+\end{eqnarray}
+The chief ray has zero ray height in the aperture compared to the pilot,
+\begin{eqnarray}
+ \Vector{R}_{chief, aper} &=& \Vector{0} 
+\end{eqnarray}
+For the chief ray, position and wavevector on $surf1$ are no longer independent.
+In case the (parabasal) chief ray wavevector is given, we obtain the chief ray height on $surf1$ as
+\begin{eqnarray}
+ \Vector{R}_{chief, surf1}
+ &=&
+ - \hat{A}^{-1}_{surf1\rightarrow aper} \hat{B}_{surf1\rightarrow aper} \Vector{K}_{surf1}
+\end{eqnarray}
+In case the chief ray height is given, there are several wavevectors that fulfill the equation.
+If we restrict ourselves to wavevectors that create a constant object modulation over position \eqref{eq:deltaK_as_kappa},
+we find
+\begin{eqnarray}
+ \begin{pmatrix} \kappa_{1 chief,surf1} \\ \kappa_{2 chief,surf1} \end{pmatrix}
+  &=&
+  - \hat{\tilde{B}}^{-1}_{surf1\rightarrow aper} \hat{A}_{surf1\rightarrow aper} \Vector{R}_{surf1} \label{eq:kappachief_as_function_of_R}
+\end{eqnarray}
+
+\subsection{Parabasal Magnification (contains errors)}
+We assume an optical system in which the imaging condition between object and image plane is fulfilled.
+We define magnification as the relation between image sided and object sided chief ray field coordinate.
+There are basically two different ways how a field can be defined: by ray height or by wavevector.
+For infinite conjugates, the field must be defined by the wavevector, or, equivalently, by the angle of the collimated bundle.
+For finite conjugates, both definitions are possible.
+An exception is found in Telecentric systems, where the field cannot be defined by chief ray angle.
+We address the four cases of object and image sided field definition by ray height or wavevector, individually.
+
+\subsubsection{Object Ray Height, Image Ray height (contains errors)}
+We use the dependence of chief ray wavevector on the field coordinate \eqref{eq:kappachief_as_function_of_R} and obtain
+\begin{eqnarray}
+ \Vector{R}_{chief, im} &=& \hat{M} \Vector{R}_{chief, obj} \\
+ \hat{M} &=& \hat{A}_{obj\rightarrow im} - \hat{B}_{obj\rightarrow im} \hat{\tilde{B}}^{-1}_{obj\rightarrow aper} \hat{A}_{obj\rightarrow aper}
+\end{eqnarray}
+The magnification $\hat{M}$ is unitless. 
+For this result, we restricted the wavevector space to two dimensions, as introduced in \eqref{eq:restriction_to_2d_kspace}.
+
+\subsubsection{Object Ray Height, Image Wavevector}
+TODO
+\subsubsection{Object Wavevector, Image Ray Height}
+TODO
+\subsubsection{Object Wavevector, Image Wavevector}
+TODO
+
+todo: continue with a common section for all four cases, interpreting the magnification matrix and its eigen-rays.
+
+\subsection{Entrance Pupil (contains errors)} \label{sec:xyuv_entrance_pupil}
+We consider a sequential raytrace with the sequency
+\begin{eqnarray*}
+ \textrm{object} \rightarrow 
+ \textrm{entrance pupil} \rightarrow 
+ \textrm{object} \rightarrow
+ \\ \rightarrow 
+ \textrm{optical system front group} \rightarrow
+ \textrm{stop} \rightarrow
+ \textrm{optical system rear group} \rightarrow
+ \textrm{image}
+\end{eqnarray*}
+We assume the propagation from object to entrance pupil takes place in the same material surrounding the object.
+If the object is embedded in a GRIN material, 
+we assume a homogeneous continuation of the same refractive index as at the intersection of object and pilot ray.
+For the back-propagation from the entrance pupil to the object, we use the inverse propagator.
+The inverse propagator is not the same as the forward-propagator with swapped start and end planes.
+For example, the inverse propagator restores evanescent waves.
+
+We consider the propagation between the conjugate planes
+\begin{eqnarray*}
+ \textrm{entrance pupil} \rightarrow 
+ \textrm{object} \rightarrow
+ \textrm{optical system front group} \rightarrow
+ \textrm{stop} 
+\end{eqnarray*}
+First, we calculate the XYUV matrix from object to stop. 
+Then we add the propagation from object to pupil as a function of pupil position.
+We then choose the pupil position such that pupil and stop are imaging conjugates, as shown in \ref{sec:xyuv_image_plane_position}.
+
+\remark{What is THE pupil position if the optical system front group suffers from astigmatism ?}
+
+\subsection{Exit Pupil (contains errors)}
+In close analogy to the entrance pupil \ref{sec:xyuv_entrance_pupil}, 
+we insert an exit pupil plane between the rear group of optical elements and the image.
+We consider the propagation between the conjugate planes
+\begin{eqnarray*}
+ \textrm{stop} \rightarrow
+ \textrm{optical system rear group} \rightarrow
+ \textrm{image} \rightarrow
+ \textrm{exit pupil}
+\end{eqnarray*}
+We then choose the pupil position such that pupil and stop are imaging conjugates, as shown in \ref{sec:xyuv_image_plane_position}.
+
+\remark{What is THE pupil position if the optical system rear group suffers from astigmatism ?}
+
+
+\section{Ray Aiming}
+When shooting rays at an optical system, we need initial properties like ray starting position and wavevector.
+But which properties do I have to choose for the marginal, chief, coma or any other ray ?
+Ray aiming allows to approximate initial ray properties for a given optical system.
+Our ansatz of ray aiming consists of the following steps:
+\begin{itemize}
+ \item Calculate the stop size in paraxial or parabasal approximation.
+ \item Calculate ray starting points and wavevectors for given field and pupil coordinates in paraxial or parabasal approximation
+ \item Convert the paraxially approximated wavevectors to real wavevectors,
+       that obey the dispersion relation in the object material
+ \item Optional: Perform real ray tracing. Check whether the rays hit the desired coordinates 
+       and whether the stop size fulfills the designer's aperture definition.
+       Optimize the aiming iteratively.
+ \item Adapt the ray intensities so that the ray bundle resembles the angular power distribution $\frac{\partial P}{\partial \Omega}$ of the light source.
+\end{itemize}
+
+\subsection{Calculating the Stop Size}
+The aperture of an optical system is often defined indirectly.
+Some common definitions are via stop size, pupil diameter, aperture number (f-stop), or numerical aperture.
+However, not all of these quantities can be applied to all tpyes of system.
+A definition of pupil size and position would become numerically instable for telecentric systems.
+Numerical aperture or aperture number definitions can only be defined for finite conjugate systems.
+
+Instead, we use the stop size as a universal measure for the aperture definition.
+The stop, as physical part of the optical system, is always finite sized and at a finite distance.
+In the following, we show how to convert different aperture definitions to a stop size.
+The stop does not need to be circular. 
+
+In the implementation, it is better not to include the calculated aperture object in the optical system.
+Otherwise, small numerical errors might cause marginal or coma rays to lie just outside the aperture.
+These rays could be clipped, confusing automated optimization routines.
+Rather we use the aperture object only to calculate the ray starting properties.
+We leave the stop plane in the optical system without an aperture.
+
+
+\subsubsection{Entrance Pupil Size}
+TODO
+
+\subsubsection{Exit Pupil Size}
+TODO
+
+\subsubsection{Infinite Conjugate Object Space Aperture Number}
+TODO, uncommon definition
+
+\subsubsection{Infinite Conjugate Image Space Aperture Number}
+TODO
+
+\subsubsection{Working Object Space Aperture Number}
+TODO, uncommon definition
+
+\subsubsection{Working Image Space Aperture Number}
+TODO
+
+\subsubsection{Object Space Numerical Aperture}
+TODO
+
+\subsubsection{Image Space Numerical Aperture}
+TODO
+
+\remark{todo: consider anamorphotic systems with fast and slow NA, f-number; consider non-circular stops and pupils (elliptic and funny shaped)}
+
+
+\subsection{Ray Origin for Finite Conjugate Objects}
+In object sided finite conjugate systems, the ray origin defines the field, and the ray wavevector defines the pupil position.
+
+\subsubsection{Specification of Object Ray Height}
+In case the field is specified by the object sided ray height,
+this definition directly fixes the ray origin in the object plane.
+A parabasal calculation is error-free.
+
+\subsubsection{Specification of Object Sided Chief Ray Angle}
+This definition is uncommon for finite conjugate systems. 
+It makes sense for large object distances and small apertures.
+It is unsuitable for object sided telecentric systems.
+
+The ray origin is obtained approximately like this \remark{TODO: explain properly}
+\begin{itemize}
+ \item Calculation of entrance pupil position 
+       \remark{TODO: what is the pupil position if there is on-axis astigmatism between stop and pupil ?}
+ \item Calculation of Pilot direction (normalized pilot Poynting vector)
+ \item Chief direction = Pilot direction, rotated by the specified field angle
+ \item The chief ray is a ray with the chief direction, that intersects the pilot in the pupil
+ \item Ray origin = intersection of object plane and chief ray
+\end{itemize}
+
+Using real rotation matrices (Rodrigues matrices) makes this algorithm more robust for finite fields.
+The results, however, may still need iterative adaption for increased accuracy, as the real pupil position may move with field.
+
+\subsubsection{Specification of Image Sided Ray Height}
+The object sided ray height is obtained from the image sided ray height by the inverse of the XYUV matrix between object and image.
+\remark{TODO: what is THE object position belonging to an image position if there is on-axis astigmatism ? Chief ?}
+
+
+
+\subsection{Ray Direction for Finite Conjugate Objects}
+The ray originates from a point $\Vector{R}_{obj}$, defined by the field definition (see above).
+Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
+In the following, we search for a ray direction to fulfill this constraint.
+We reduce the 4 dimensional wavevector deviation $\Vector{K}$ to the 2 dimensional $\kappa$ base according to \eqref{eq:deltaK_as_kappa}
+and find in parabasal approximation
+\begin{eqnarray}
+% \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+%                  +    \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+% \\
+% \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} &=& 
+%                  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+% \\
+ \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+ &=&
+ \hat{\tilde{B}}_{obj\rightarrow stop}^{-1}
+ \left(
+    \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} 
+ \right) 
+\end{eqnarray}
+
+
+\subsection{Ray Direction for Infinite Conjugate Objects}
+In object sided infinite conjugate systems, the desired field defines the ray direction, 
+and the ray height on the first surface of the finite sized optical system defines the pupil position.
+
+We restrict the starting wavevector deviation from the pilot to the 2 dimensional base of $\kappa$ according to \eqref{eq:deltaK_as_kappa}.
+We calculate the change in Poynting vector when the wavevector is changed infinitessimally in direction of $\kappa_1$ or $\kappa_2$
+and conclude the change of ray direction $\Vector{d}$
+\begin{eqnarray}
+ \Vector{d} \approx \Vector{d}_{pilot} + \frac{\partial \Vector{d}}{\partial \kappa_i} \kappa_i
+\end{eqnarray}
+\remark{TODO: explicit formula}
+
+
+\subsection{Ray Origin for Infinite Conjugate Objects}
+The ray wavevector is defined by the field definition (see above).
+Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
+To achieve this, we set ray height $\Vector{R}_{surf1}$ on the first surface of our finite sized optical system. 
+We find in parabasal approximation
+\begin{eqnarray}
+ \Vector{R}_{surf1}                 
+ &=&
+ \hat{\tilde{A}}_{surf1\rightarrow stop}^{-1}
+ \left(
+   \Vector{R}_{stop} - \hat{\tilde{B}}_{surf1\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
+ \right)
+\end{eqnarray}
+
+\subsection{Conversion to Wavevectors Obeying the Dispersion}
+todo
+
+\subsection{Angular Power Distribution}
+todo
+
+
+
+
+
+\end{document}
