@@ -161,6 +161,7 @@ By choosing the term pilot ray, we want to avoid confusions with mechanical symm
 In many systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
+\subsection{Operator Ansatz}
 Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
 From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
@@ -187,21 +188,6 @@ We represent the propagation of these deviations through the optical system by a
   \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
  \end{pmatrix}
 \end{eqnarray}
-In case the path from object to image is built up from subsystems that are subsequently passed, 
-and we know the propagator of each subsystem,
-we can write
-\begin{eqnarray}
- \begin{pmatrix}
-  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
- \end{pmatrix}
- &=&
- \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot \hat{G}_0 \cdot
- \begin{pmatrix}
-  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
- \end{pmatrix}
-\end{eqnarray}
-In general, the operators do not commutate. $\hat{G}_0$ is the propagator representing the subsystem closest to the object.
-
 We are interested in rays close to the pilot ray, $\Delta \Vector{r}_{obj}, \Delta \Wavevector_{obj} \rightarrow 0$,
 so we approximate the operators by a Taylor expansion around the pilot ray
 \begin{eqnarray}
@@ -230,18 +216,55 @@ $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$.
  + G^{01}_{ij} \Delta k_j
  + G^{11}_{ijm} \Delta r_j \Delta k_m
 \end{eqnarray}
-In contrast to the ABCD formalism, we do not drop the bilinear $\hat{G}^{11}$ term right away, but have closer look.
+In contrast to the ABCD formalism, we do not drop the bilinear $\hat{G}^{11}$ term right away.
 \remark{todo: write a more elegant explanation why all quadratic forms but the bilinear one are dropped.}
-We split up the $\hat{G}$ operators into separate operators with location and direction as output.
+We split up the $\hat{G}$ operators into separate operators for location and direction.
 \begin{eqnarray}
- \Delta \Vector{r}_{im}  &=& \hat{A} \\ 
- \Delta \Wavevector_{im} &=& 
+ \Delta \Vector{r}_{im}  &=& \hat{A} \Delta \Vector{r}_{ob} + \hat{B} \Delta \Vector{k}_{ob} + \hat{M} \Vector{r}_{ob} \Vector{k}_{ob} \\ 
+ \Delta \Wavevector_{im} &=& \hat{C} \Delta \Vector{r}_{ob} + \hat{D} \Delta \Vector{k}_{ob} + \hat{N} \Vector{r}_{ob} \Vector{k}_{ob}
+\end{eqnarray}
+We name the linear operators $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ in analogy to the ABCD formalism.
+We name the bilinear operators $\hat{M}$ and $\hat{N}$.
+
+\subsection{Sequence of Systems}
+In case the path from object to image is built up from subsystems that are subsequently passed, 
+and we know the propagator of each subsystem,
+we can write
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot \hat{G}_0 \cdot
+ \begin{pmatrix}
+  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+ \end{pmatrix}
+\end{eqnarray}
+In general, the operators do not commutate. $\hat{G}_0$ is the propagator representing the subsystem adjacent to the object.
+In the following, we consider the most simple case: the case of two subsystems.
+\begin{eqnarray}
+ \Delta \Vector{r}_2  &=& \hat{A}_1 \Delta \Vector{r}_1 + \hat{B}_1 \Delta \Vector{k}_1 + \hat{M}_1 \Vector{r}_1 \Vector{k}_1 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_1 \Delta \Vector{r}_1 + \hat{D}_1 \Delta \Vector{k}_1 + \hat{N}_1 \Vector{r}_1 \Vector{k}_1 \\
+ \Delta \Vector{r}_1  &=& \hat{A}_0 \Delta \Vector{r}_0 + \hat{B}_0 \Delta \Vector{k}_0 + \hat{M}_0 \Vector{r}_0 \Vector{k}_0 \\ 
+ \Delta \Wavevector_1 &=& \hat{C}_0 \Delta \Vector{r}_0 + \hat{D}_0 \Delta \Vector{k}_0 + \hat{N}_0 \Vector{r}_0 \Vector{k}_0
+\end{eqnarray}
+We neglect all quadratic or higher order terms except for the bilinear term and obtain the total operators, 
+propagating from surface $0$ to surface $2$:
+\begin{eqnarray}
+ \Delta \Vector{r}_2  &=& \hat{A}_{tot} \Delta \Vector{r}_0 + \hat{B}_{tot} \Delta \Vector{k}_0 + \hat{M}_{tot} \Vector{r}_0 \Vector{k}_0 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_{tot} \Delta \Vector{r}_0 + \hat{D}_{tot} \Delta \Vector{k}_0 + \hat{N}_{tot} \Vector{r}_0 \Vector{k}_0 \\
+ \hat{A}_{tot} &=& \hat{A}_1 \hat{A}_0 + \hat{B}_1 \hat{C}_0 \\
+ \hat{B}_{tot} &=& \hat{A}_1 \hat{B}_0 + \hat{B}_1 \hat{D}_0 \\
+ \hat{C}_{tot} &=& \hat{C}_1 \hat{A}_0 + \hat{D}_1 \hat{C}_0\\
+ \hat{D}_{tot} &=& \hat{C}_1 \hat{B}_0 + \hat{D}_1 \hat{D}_0 \\
+ \hat{M}_{tot} &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
+ \hat{N}_{tot} &=& \hat{C}_1 \hat{M}_0 + \hat{D}_1 \hat{N}_0 + \hat{N}_1 \hat{A}_0 \hat{D}_0 + \hat{N}_1 \hat{B}_0 \hat{C}_0
 \end{eqnarray}
 
 
-
 In the following, we discuss the representation of the operators by matrices, 
-the rank of the matrices and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+the rank of the matrices and the minimal base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+
 
 \subsection{Near-Pilot Basis Systems (contains errors)}
 
