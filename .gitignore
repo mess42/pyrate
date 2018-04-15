@@ -7,5 +7,7 @@
 *.orig
 *.log
 *.out
+*.bbl
+*.blg
 result_images/
 .hypothesis/
