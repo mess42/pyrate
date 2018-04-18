@@ -37,8 +37,6 @@ from ..core.surfShape import Conic, Asphere
 from ..core.aperture import CircularAperture, RectangularAperture
 from ..core.log import BaseLogger
 
-from ..core.globalconstants import numerical_tolerance
-
 
 class ZMXParser(BaseLogger):
 
@@ -50,7 +48,7 @@ class ZMXParser(BaseLogger):
 
     def checkForUTF16(self, filename):
         ascii = True
-        filehandler = open(filename,"r")
+        filehandler = open(filename,"rU")
         zmxdata = filehandler.read() 
         filehandler.close()
 
@@ -66,15 +64,19 @@ class ZMXParser(BaseLogger):
 
         codec_name = "utf-16" if not ascii else None
         self.info("with codec " + str(codec_name))
-        with codecs.open(filename, "r", encoding=codec_name) as fh:
-            self.__textlines = list(fh)
-            
+        
+        # rU - universal newline mode: translates all lineendings into \n
+        # is obsolete in Python3 since U mode is default
+        fh = codecs.open(filename, "rU", encoding=codec_name)
+        self.__textlines = list([line for line in fh])
+        fh.close()
         self.__full_textlines = "".join(self.__textlines)
         
 
 
     def returnBlockStrings(self):
-        return re.split("\r\n(?=\S)", self.__full_textlines)
+        # U mode in file read sets line ending to \n        
+        return re.split("\n(?=\S)", self.__full_textlines)
         # match if look-ahead gives non-whitespace after line break
 
     def returnBlockKeyword(self, blk):
@@ -151,7 +153,8 @@ class ZMXParser(BaseLogger):
         paramsdict = {}
         zmxparams = {}
 
-        blocklines = [x.lstrip() for x in surfblk.split("\r\n")]
+        # U mode in file read sets line ending to \n        
+        blocklines = [x.lstrip() for x in surfblk.split("\n")]
 
 
         self.addKeywordToDict(blocklines, "SURF", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, int)
