@@ -47,7 +47,10 @@ from core.globalconstants import numerical_tolerance
 from material.material_isotropic import ConstantIndexGlass
 from material.material_glasscat import refractiveindex_dot_info_glasscatalog
 
-
+# TODO: provide code for simple creation of elements
+# TODO: integrate elements code into build...system helper functions
+# TODO: provide convenience classes for building a builduplist which could be
+# transferred to the build...functions
 
 def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
 
@@ -63,7 +66,7 @@ def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
                    if convertable to float, a ConstantIndexGlass will be created
                    if not, a material from the refractiveindex.info will be created
             name - name of surf (str)
-            optdict - {"mirror": True|False, "stop": True|False}
+            optdict - {"is_mirror": True|False, "is_stop": True|False}
 
     :param material_db_path: (str)
              path to the refractiveindex.info yml-database
@@ -100,7 +103,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
             (such that coordbreakdict can be used for **kwargs in LocalCoordinates)
             mat - material index or name (str)
             name - name of surf (str)
-            optdict - {"mirror":True|False, "stop":True|False}
+            optdict - {"is_mirror":True|False, "is_stop":True|False}
 
     :param material_db_path: (str)
              path to the refractiveindex.info yml-database
