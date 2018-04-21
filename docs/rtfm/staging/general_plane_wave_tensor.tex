@@ -46,6 +46,22 @@
 
 \section{Dispersion relation and its derivatives}
 
+Maybe useful for simplification: Given a unit vector $e_i$ then there is a projector given by
+\begin{align}
+ Pe_{ij} &= \delta_{ij} - e_i e_j\,.
+\end{align}
+Therefore maybe this opens the possibility to simplify the double tensor constructions better
+\begin{align}
+ (a_i \eps{ij} \eps{jk} b_k) &= (a_i \eps{ij} \delta_{j\ell} \eps{\ell k} b_k) 
+= (a_i \eps{ij} (Pe_{j\ell} + e_j e_\ell) \eps{\ell k} b_k) = (a_i \eps{ij} Pe_{j\ell} \eps{\ell k} b_k) + (a_i \eps{ij} e_j)(e_\ell \eps{\ell k} b_k)
+\end{align}
+And from three linear independent unity vectors $u_i, v_i, w_i$ it follows
+\begin{align}
+ \delta_{ij} = u_i u_j + v_i v_j + w_i w_j\,.
+\end{align}
+
+
+
 \subsection{General case}
 
 Given the plane wave propagator in anisotropic medium. The permittivity tensor neither has to symmetric nor real.
@@ -126,9 +142,22 @@ The fourth derivative is given by
 
 \subsection{Perturbative case}
 
-Consider $\eps{ij} = \varepsilon \delta_{ij} + \beta \an{ij}$ where the first part is isotropic and the second is a small anisotropic correction.
+Consider $\eps{ij} = \varepsilon (\delta_{ij} + \beta \an{ij})$ where the first part is isotropic and the second is a small anisotropic correction.
 ($\beta$ bookkeeping parameter.)
-Consider also $k_i = k_{(0)i} + \beta k_{(1)i}$ and calculate the first order correction of $\vct{k}$ under anisotropic corrections.
+Consider also $k_i = k_{(0)i} + \beta k_{(1)i} + \beta^2 k_{(2)i}$ and calculate the first order correction of $\vct{k}$ under anisotropic corrections.
+First of all consider the determinant of $\eps{ij}$
+\begin{align}
+ \det\varepsilon &= \varepsilon^3 \left[1 + \beta (\an{jj}) + \frac{\beta^2}{2} ( (\an{jj})^2 - (\an{ij}\an{ji}) ) + \dots\right]\,.
+\end{align}
+Since the special property of the determinant (the gradient vanishes for the isotropic case) it is necessary to expand it up to second order in $\beta$.
+Solving those equations order by order leads to
+\begin{align}
+ \vct{k}_{(0)}^2 &= \varepsilon\,,
+\end{align}
+the first order vanishes identically and the second order leads to a quadratic equation for $\vct{k}_{(1)}$ (the contribution from $\vct{k}_{(2)}$ also
+vanishes due to the dispersion relation solution of $\vct{k}_{(0)}$).
+This will later be important when finding a solution for the small vector deviation.
+
 
 \section{Dispersion under small vector deviation}
 
