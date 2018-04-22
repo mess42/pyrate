@@ -22,13 +22,11 @@ For providing any contributions:
 
 # When filing an issue 
 
-Make sure to answer these five questions:
+Make sure to answer these three questions:
 
- 1. What version of Go are you using (go version)?
- 2. What operating system and processor architecture are you using?
- 3. What did you do?
- 4. What did you expect to see?
- 5. What did you see instead?
+ 1. What did you do?
+ 2. What did you expect to see?
+ 3. What did you see instead?
 
 # Problems?
 
