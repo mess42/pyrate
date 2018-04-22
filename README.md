@@ -18,6 +18,8 @@ wrapper codes to wrap the core functionality in a dialog and click & play manner
 There is still no lens editor interface. At the moment you can only choose some demo
 directly in the sources.
 
+Want to contribute? See [(CONTRIBUTE.md)] file.
+
 Requirements
 ------------
 
