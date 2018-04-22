@@ -5,6 +5,7 @@ setup(
     packages = ["pyrateoptics",\
 		"tests",\
 		"pyrateoptics/core",\
+                "pyrateoptics/raytracer",\
 		"pyrateoptics/analysis",\
 		"pyrateoptics/io",\
 		"pyrateoptics/sampling2d",\

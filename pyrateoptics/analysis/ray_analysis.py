@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-from ..core.ray import RayBundle
-from ..core.globalconstants import numerical_tolerance
+from ..raytracer.ray import RayBundle
+from ..raytracer.globalconstants import numerical_tolerance
 
 
 class RayBundleAnalysis(object):

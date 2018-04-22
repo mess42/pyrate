@@ -28,7 +28,7 @@ import jsonpickle
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from pyrateoptics.core.optical_system import OpticalSystem
+from pyrateoptics.raytracer.optical_system import OpticalSystem
 
 # definition of optical system
 

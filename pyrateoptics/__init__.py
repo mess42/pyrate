@@ -38,12 +38,12 @@ import matplotlib
 from distutils.version import StrictVersion
 
 
-from core.optical_system import OpticalSystem
-from core.localcoordinates import LocalCoordinates
-from core.optical_element import OpticalElement
-from core.surface import Surface
-import core.surfShape as Shapes
-from core.globalconstants import numerical_tolerance
+from raytracer.optical_system import OpticalSystem
+from raytracer.localcoordinates import LocalCoordinates
+from raytracer.optical_element import OpticalElement
+from raytracer.surface import Surface
+import raytracer.surfShape as Shapes
+from raytracer.globalconstants import numerical_tolerance
 from material.material_isotropic import ConstantIndexGlass
 from material.material_glasscat import refractiveindex_dot_info_glasscatalog
 

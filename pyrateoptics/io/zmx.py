@@ -29,12 +29,12 @@ import re
 import math
 from asyncore import read
 
-from ..core.optical_system import OpticalSystem
-from ..core.optical_element import OpticalElement
-from ..core.localcoordinates import LocalCoordinates
-from ..core.surface import Surface
-from ..core.surfShape import Conic, Asphere
-from ..core.aperture import CircularAperture, RectangularAperture
+from ..raytracer.optical_system import OpticalSystem
+from ..raytracer.optical_element import OpticalElement
+from ..raytracer.localcoordinates import LocalCoordinates
+from ..raytracer.surface import Surface
+from ..raytracer.surfShape import Conic, Asphere
+from ..raytracer.aperture import CircularAperture, RectangularAperture
 from ..core.log import BaseLogger
 
 

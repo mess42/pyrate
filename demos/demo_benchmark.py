@@ -37,12 +37,12 @@ logging.basicConfig(level=logging.DEBUG)
 
 from pyrateoptics import build_simple_optical_system, build_rotationally_symmetric_optical_system
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.core.ray import RayBundle
+from pyrateoptics.raytracer.ray import RayBundle
 
-from pyrateoptics.core.globalconstants import standard_wavelength
+from pyrateoptics.raytracer.globalconstants import standard_wavelength
 
-from pyrateoptics.core.helpers import collimated_bundle
-from pyrateoptics.core.globalconstants import canonical_ey
+from pyrateoptics.raytracer.helpers import collimated_bundle
+from pyrateoptics.raytracer.globalconstants import canonical_ey
 
 wavelength = standard_wavelength
 
