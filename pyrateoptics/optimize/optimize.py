@@ -39,19 +39,17 @@ class OptimizableVariable(BaseLogger):
         super(OptimizableVariable, self).__init__(name=kwargs.pop('name', ''), **kwargs)
 
         """
-        Name is gone since it's only needed for reference. Therefore the former listOfOptimizableVariables
-        will be a dictionary. type may contain a string e.g.
-        "Fixed", "Variable", "Pickup", "External", "...",
-        status=True means updating during optimization run
-        status=False means no updating during optimization run
         kwargs depend on type
-        "Variable" is value=value
-        "Pickup" gets function=f, args=tuple of optimizablevariables
-        "External" gets function=f, args=tuple of external standard variables (or values)
+        "variable" is value=value
+        "pickup" gets function=f, args=tuple of optimizablevariables
+        "external" gets function=f, args=tuple of external standard variables 
+        (or values)
 
-        :param variable_type (string): which kind of variable do we have? valid choices are: 'fixed', 'variable', 'pickup', 'external'
+        :param variable_type (string): which kind of variable do we have? 
+        valid choices are: 'fixed', 'variable', 'pickup', 'external'
 
-        :param kwargs (keyword arguments): used to fill up parameters dictionary for variable.
+        :param kwargs (keyword arguments): used to fill up parameters 
+        dictionary for variable.
 
         kwargs:
 
@@ -61,8 +59,9 @@ class OptimizableVariable(BaseLogger):
         'pickup'        function=f, args=(other_optvar1, other_optvar2, ...)
         'external'        function=f, args=(other_externalvar/value, ...)
 
-        Notice: f must take exactly as many arguments as args=... long is. The only constraint on f is
-        that it has to convert the variables into some final float variable. If this is not the case some
+        Notice: f must take exactly as many arguments as args=... long is. 
+        The only constraint on f is that it has to convert the variables into 
+        some final float variable. If this is not the case some
         low-level optimizer might break down.
 
 
@@ -88,8 +87,11 @@ class OptimizableVariable(BaseLogger):
 
     def getVarType(self):
         return self.__var_type.lower()
+    
+    def setVarType(self, vtype):
+        self.__var_type = vtype.lower()
 
-    var_type = property(fget=getVarType)
+    var_type = property(fget=getVarType, fset=setVarType)
 
     def set_interval(self, left=None, right=None):
         """
@@ -113,7 +115,7 @@ class OptimizableVariable(BaseLogger):
             self.transform = lambda x: math.log((-x + left)/(x - right))*math.fabs(left - right)
 
     def changetype(self, vtype, **kwargs):
-        self.__var_type = vtype.lower()
+        self.var_type = vtype
         self.evalfunc = self.evaldict[self.var_type]
         try:        
             parameter_backup = self.parameters
@@ -121,7 +123,7 @@ class OptimizableVariable(BaseLogger):
             parameter_backup = {"value":None}
         self.parameters = kwargs
         if vtype.lower() in ["variable", "fixed"] \
-            and self.__var_type in ["variable", "fixed"] \
+            and self.var_type in ["variable", "fixed"] \
             and parameter_backup["value"] != None:
             self.parameters["value"] = parameter_backup["value"]
 
@@ -159,38 +161,34 @@ class OptimizableVariable(BaseLogger):
         return self.evaluate()
         
     def evaluate_transformed(self):
-        '''
-        Transform variable value from finite interval to infinite IR before evaluation
-        '''
+        """
+        Transform variable value from finite interval 
+        to infinite IR before evaluation
+        """
         return self.transform(self.evaluate())
         
     def setvalue_transformed(self, value_transformed):
-        '''
+        """
         Transform value back from infinite IR before setting value
-        '''
+        """
         value = self.inv_transform(value_transformed)
         self.setvalue(value)
         
 class ClassWithOptimizableVariables(BaseLogger):
     """
-    Implementation of some class with optimizable variables with the help of a dictionary.
-    This class is also able to collect the variables and their values from its subclasses per recursion.
+    Implementation of some class with optimizable variables with the help 
+    of a dictionary. This class is also able to collect the variables and 
+    their values from its subclasses per recursion.
     """
     def __init__(self, name = "", **kwargs):
         """
         Initialize with empty dict.
         """
         super(ClassWithOptimizableVariables, self).__init__(name=name, **kwargs)
-        #self.dict_variables = {}
+
         self.list_observers = [] 
         # for the optimizable variable class it is useful to have some observer links
         # they get informed if variables change their values
-
-    # DAS brauchst Du jetzt nicht mehr!
-    #def __call__(self, key):
-    #    return self.dict_variables.get(key, None)
-
-
 
     def appendObservers(self, obslist):
         self.list_observers += obslist
@@ -198,13 +196,6 @@ class ClassWithOptimizableVariables(BaseLogger):
     def informObservers(self):
         for obs in self.list_observers:
             obs.informAboutUpdate()
-
-    #def addVariable(self, name, var):
-    #    """
-    #    Add some variable into dict.
-    #    """
-    #    self.dict_variables[name] = var
-
 
                 
     def getAllVariables(self):

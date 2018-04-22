@@ -35,13 +35,13 @@ import math
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-
+from pyrateoptics import build_simple_optical_system, build_rotationally_symmetric_optical_system
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.core.ray import RayBundle
 
 from pyrateoptics.core.globalconstants import standard_wavelength
 
-from pyrateoptics.core.helpers import build_simple_optical_system, collimated_bundle
+from pyrateoptics.core.helpers import collimated_bundle
 from pyrateoptics.core.globalconstants import canonical_ey
 
 wavelength = standard_wavelength
@@ -50,16 +50,16 @@ wavelength = standard_wavelength
 
 db_path = "refractiveindex.info-database/database"
 
-(s, seq) = build_simple_optical_system(
-        [(-5.922, 0, 2.0, 1.7, "surf1"),
-         (-3.160, 0, 3.0, None, "surf2"),
-         (15.884, 0, 5.0, 1.7, "surf3"),
-        (-12.756, 0, 3.0, None, "surf4"),
-        (0, 0, 3.0, None, "stop"),
-        (3.125, 0, 2.0, 1.5, "surf5"),
-        (1.479, 0, 3.0, None, "surf6"),
-        (0, 0, 19.0, None, "surf7")
-         ], db_path)
+(s, seq) = build_rotationally_symmetric_optical_system(
+        [(-5.922, 0, 2.0, 1.7, "surf1", {}),
+         (-3.160, 0, 3.0, None, "surf2", {}),
+         (15.884, 0, 5.0, 1.7, "surf3", {}),
+        (-12.756, 0, 3.0, None, "surf4", {}),
+        (0, 0, 3.0, None, "stop", {"is_stop": True}),
+        (3.125, 0, 2.0, 1.5, "surf5", {}),
+        (1.479, 0, 3.0, None, "surf6", {}),
+        (0, 0, 19.0, None, "surf7", {})
+         ], material_db_path=db_path)
 
 nrays = 100000
 nrays_draw = 21
