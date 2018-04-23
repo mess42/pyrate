@@ -2,9 +2,12 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014 Moritz Esslinger moritz.esslinger@web.de
-               and Johannes Hartung j.hartung@gmx.net
+Copyright (C) 2014-2018
+               by     Moritz Esslinger moritz.esslinger@web.de
+               and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
+               and    Thomas Heinze t.heinze@uni-jena.de
+               and    others
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,17 +24,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+def annotate_decorator(cls):
+    """
+    Class decorator based on example 4 of:
+    https://krzysztofzuraw.com/blog/2016/python-class-decorators.html
+    """
 
-# TODO: maybe rewriteable into class decorator
-class AbstractObserver(object):
-    def __init__(self):
-        """ 
-        Get actualized from to be observed object.
-        Most simple case: Observed object calls informAboutUpdate()
-        """
-        super(AbstractObserver, self).__init__()
-    
-    def informAboutUpdate(self):
-        raise NotImplemented()
-    
+    class AnnotateWrapper(object):
+        def __init__(self, *args, **kwargs):
+            self.annotations = {}
+            self.wrapped = cls(*args, **kwargs)
 
+        def __getattr__(self, name):
+            print('Getting the {} of {}'.format(name, self.wrapped))
+            return getattr(self.wrapped, name)
+
+    return AnnotateWrapper

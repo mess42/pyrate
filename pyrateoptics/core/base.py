@@ -34,9 +34,9 @@ class OptimizableVariable(BaseLogger):
     Class that contains an optimizable variable. Used to get a pointer on a variable.
     The value is not constrained to float. Also other dependent variables are possible to define.
     """
-    def __init__(self, variable_type="fixed", **kwargs):
+    def __init__(self, variable_type="fixed", name='', **kwargs):
 
-        super(OptimizableVariable, self).__init__(name=kwargs.pop('name', ''), **kwargs)
+        super(OptimizableVariable, self).__init__(name=name, **kwargs)
 
         """
         kwargs depend on type
