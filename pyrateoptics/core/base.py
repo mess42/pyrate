@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
+import yaml
 
 from log import BaseLogger
 
@@ -82,8 +83,8 @@ class OptimizableVariable(BaseLogger):
         self.set_interval(None, None)
 
 
-    def __str__(self, *args, **kwargs):
-        return self.name + "('" + self.var_type + "') = " + str(self.parameters)
+    #def __str__(self, *args, **kwargs):
+    #    return self.name + "('" + self.var_type + "') = " + str(self.parameters)
 
     def getVarType(self):
         return self.__var_type.lower()
@@ -279,3 +280,15 @@ class ClassWithOptimizableVariables(BaseLogger):
         """
         for i, var in enumerate(self.getActiveVariables()):
             var.setvalue_transformed(x[i])
+
+
+def optimizablevariable_representer(dumper, data):
+    result_dict = {"name": data.name, "type": data.var_type}
+    params = data.parameters
+    if data.var_type == 'pickup':
+        params["args"] = tuple([o.name for o in params["args"]])
+    result_dict["parameters"] = params
+        
+    return dumper.represent_scalar(u'!optvar', str(result_dict))
+
+yaml.add_representer(OptimizableVariable, optimizablevariable_representer)
