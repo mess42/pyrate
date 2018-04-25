@@ -292,3 +292,13 @@ def optimizablevariable_representer(dumper, data):
     return dumper.represent_scalar(u'!optvar', str(result_dict))
 
 yaml.add_representer(OptimizableVariable, optimizablevariable_representer)
+
+def classwithoptimizablevariables_representer(dumper, data):
+    result_dict = {}
+    print(data)
+    for (k, v) in data.__dict__.items():
+        if isinstance(v, OptimizableVariable) or isinstance(v, ClassWithOptimizableVariables):
+            result_dict[k] = v
+    return dumper.represent_scalar(u'!classoptvar', str(result_dict))
+    
+yaml.add_representer(ClassWithOptimizableVariables, classwithoptimizablevariables_representer)
