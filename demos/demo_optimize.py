@@ -37,7 +37,7 @@ from pyrateoptics import listOptimizableVariables
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.raytracer import surfShape
 from pyrateoptics.optimize.optimize import Optimizer
-from pyrateoptics.optimize.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
+from pyrateoptics.optimize.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend, SimulatedAnnealingBackend
 from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.aperture import CircularAperture, BaseAperture
@@ -270,7 +270,8 @@ def meritfunctionrms(s):
 
 #opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
 #opt_backend = Newton1DBackend(dx=1e-6, iterations=100)
-opt_backend = ParticleSwarmBackend(c1=2.2, c2=2.1)
+#opt_backend = ParticleSwarmBackend(c1=2.2, c2=2.1)
+opt_backend = SimulatedAnnealingBackend(Nt=30,Tt=20.*np.exp(-np.linspace(0, 10, 20)))
 optimi = Optimizer(s, \
                     meritfunctionrms, \
                     backend=opt_backend, \

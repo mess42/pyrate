@@ -199,14 +199,51 @@ class ParticleSwarmBackend(Backend):
         return result
         
             
+class SimulatedAnnealingBackend(Backend):
+        
+        def run(self, x0):
 
+            Nt = self.options.get("Nt", 10)
+            Tt = self.options.get("Tt", np.exp(-np.linspace(0, 10, 10)))
+            
+            
+            def choose_neighbour(x):
+                neighbourhood = self.options.get("neighbourhood", np.ones(np.shape(x0)))            
+                return x + neighbourhood*(1. - 2*np.random.random(np.shape(x0)))
+                
+            xapprox = np.copy(x0)
+            x = np.copy(x0)
+            
+            for temperature in Tt.tolist():
+                
+                for step in range(Nt):
+                    
+                    y = choose_neighbour(x)
+                    
+                    yfunc = self.func(y)
+                    xfunc = self.func(x)
+                    
+                    if yfunc <= xfunc:
+                        x = y
+                    else:
+                        if np.random.random() <= np.exp(-(yfunc - xfunc)/temperature):
+                            x = y
+                    if self.func(x) < self.func(xapprox):
+                        xapprox = np.copy(x)
+            
+                    self.debug("T: %f Nt: %d" % (temperature, step))            
+            
+            return xapprox
+    
+    
         
 if __name__=="__main__":
 
     def fun(x):
         return ((x[0] - 1)**2 + (x[1] - 2)**2 - 25)**2
     
-    p = ParticleSwarmBackend(cube=np.array([[-10, -10], [10, 10]]), c1=2.1, c2=2.1)
+    #p = ParticleSwarmBackend(cube=np.array([[-10, -10], [10, 10]]), c1=2.1, c2=2.1)
+    p = SimulatedAnnealing(name='sa', neighbourhood=np.array(2, 2))
     p.func = fun
     
     
