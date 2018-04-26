@@ -243,7 +243,7 @@ if __name__=="__main__":
         return ((x[0] - 1)**2 + (x[1] - 2)**2 - 25)**2
     
     #p = ParticleSwarmBackend(cube=np.array([[-10, -10], [10, 10]]), c1=2.1, c2=2.1)
-    p = SimulatedAnnealing(name='sa', neighbourhood=np.array(2, 2))
+    p = SimulatedAnnealingBackend(name='sa', neighbourhood=np.array(2, 2))
     p.func = fun
     
     
