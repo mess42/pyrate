@@ -31,12 +31,12 @@ import matplotlib
 import math
 
 from pyrateoptics import build_rotationally_symmetric_optical_system, listOptimizableVariables
-from pyrateoptics.core.globalconstants import canonical_ex, canonical_ey
-from pyrateoptics.core.ray import RayBundle
+from pyrateoptics.raytracer.globalconstants import canonical_ex, canonical_ey
+from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend
 from pyrateoptics.sampling2d.raster import RectGrid
-from pyrateoptics.core.globalconstants import Fline, dline, Cline
+from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
 from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
 
 

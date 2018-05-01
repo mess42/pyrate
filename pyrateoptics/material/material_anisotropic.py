@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-from ..core.helpers_math import checkfinite
-from ..core.ray import RayBundle
+from ..raytracer.helpers_math import checkfinite
+from ..raytracer.ray import RayBundle
 from material import MaxwellMaterial
-from ..core.globalconstants import standard_wavelength
+from ..raytracer.globalconstants import standard_wavelength
 
 
 

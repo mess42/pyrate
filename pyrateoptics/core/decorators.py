@@ -24,21 +24,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import jsonpickle
-import logging
-logging.basicConfig(level=logging.DEBUG)
+def annotate_decorator(cls):
+    """
+    Class decorator based on example 4 of:
+    https://krzysztofzuraw.com/blog/2016/python-class-decorators.html
+    """
 
-from pyrateoptics.raytracer.optical_system import OpticalSystem
+    class AnnotateWrapper(object):
+        def __init__(self, *args, **kwargs):
+            self.annotations = {}
+            self.wrapped = cls(*args, **kwargs)
 
-# definition of optical system
+        def __getattr__(self, name):
+            print('Getting the {} of {}'.format(name, self.wrapped))
+            return getattr(self.wrapped, name)
 
-s = OpticalSystem()
-
-print "pickle dump"
-frozen = jsonpickle.encode(s)
-
-with open('optical_sys.jpkl', 'w') as output:
-    output.write(frozen)
-
-
-# WARNING: code is operational, but not tested
+    return AnnotateWrapper

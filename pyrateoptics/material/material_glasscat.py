@@ -28,7 +28,7 @@ import yaml
 import numpy as np
 import scipy.interpolate
 from material_isotropic import IsotropicMaterial
-from ..core.globalconstants import Fline, dline, Cline
+from ..raytracer.globalconstants import Fline, dline, Cline
 from ..core.log import BaseLogger
 
 # FIXME: this class has too many methods

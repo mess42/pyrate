@@ -33,22 +33,23 @@ import logging
 
 import math
 
+from pyrateoptics import listOptimizableVariables
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
-from pyrateoptics.core import surfShape
+from pyrateoptics.raytracer import surfShape
 from pyrateoptics.optimize.optimize import Optimizer
-from pyrateoptics.optimize.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend
-from pyrateoptics.core.ray import RayBundle
+from pyrateoptics.optimize.optimize_backends import ScipyBackend, Newton1DBackend, ParticleSwarmBackend, SimulatedAnnealingBackend
+from pyrateoptics.raytracer.ray import RayBundle
 
-from pyrateoptics.core.aperture import CircularAperture, BaseAperture
-from pyrateoptics.core.localcoordinates import LocalCoordinates
+from pyrateoptics.raytracer.aperture import CircularAperture, BaseAperture
+from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.core.globalconstants import standard_wavelength
+from pyrateoptics.raytracer.globalconstants import standard_wavelength
 
-from pyrateoptics.core.optical_element import OpticalElement
-from pyrateoptics.core.optical_system import OpticalSystem
-from pyrateoptics.core.surface import Surface
+from pyrateoptics.raytracer.optical_element import OpticalElement
+from pyrateoptics.raytracer.optical_system import OpticalSystem
+from pyrateoptics.raytracer.surface import Surface
 
-from pyrateoptics.core.globalconstants import canonical_ey
+from pyrateoptics.raytracer.globalconstants import canonical_ey
 
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 from pyrateoptics.analysis.surfShape_analysis import ShapeAnalysis
@@ -190,15 +191,21 @@ up = canonical_ey
 
 def generatebundle(openangle=0.01, numrays=11):
    
-    o = np.zeros((3, numrays))
+    o = np.zeros((3, numrays*numrays))
     k = np.zeros_like(o)
     
     angles = np.linspace(-openangle, openangle, num=numrays)
-    
+    #phi = np.linspace(0, 2.*math.pi, num=numrays)
+    #theta = np.linspace(-openangle, openangle, num=numrays)
+    #(PHI, THETA) = np.meshgrid(phi, theta)
+    phiv = np.random.random(numrays*numrays)*2.*np.pi #PHI.flatten()
+    thetav = (1. - 2.*np.random.random(numrays*numrays))*openangle #THETA.flatten()   
+ 
     k0 = 1. #2.*math.pi/wavelength    
     
-    k[1,:] = k0*np.sin(angles)
-    k[2,:] = k0*np.cos(angles)
+    k[0,:] = np.cos(phiv)*np.sin(thetav)
+    k[1,:] = np.sin(phiv)*np.sin(thetav) #k0*np.sin(angles)
+    k[2,:] = np.cos(thetav) #k0*np.cos(angles)
     
     ey = np.zeros_like(o)
     ey[1,:] =  1.
@@ -207,7 +214,7 @@ def generatebundle(openangle=0.01, numrays=11):
 
     return RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
-initialbundle = generatebundle(openangle=10.*math.pi/180., numrays=11)
+initialbundle = generatebundle(openangle=10.*math.pi/180., numrays=30)
 
 sysseq = [("lenssys", [
             ("object", {}), 
@@ -242,6 +249,8 @@ tltx_var = s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx
 tltx_var.changetype("variable")
 tltx_var.set_interval(-3.*math.pi/180., 3.*math.pi/180.)
 
+listOptimizableVariables(s, filter_status='variable', maxcol=80)
+
 def osnone(s):
     pass
 
@@ -249,7 +258,7 @@ def osupdate(s):
     s.rootcoordinatesystem.update()
 
 def meritfunctionrms(s):
-    initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=121)
+    initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=30)
     rpaths = s.seqtrace(initialbundle, sysseq)
     
     x = rpaths[0].raybundles[-1].x[-1, 0, :]
@@ -261,7 +270,8 @@ def meritfunctionrms(s):
 
 #opt_backend = ScipyBackend(method='Nelder-Mead', options={'maxiter':1000, 'disp':True}, tol=1e-8)
 #opt_backend = Newton1DBackend(dx=1e-6, iterations=100)
-opt_backend = ParticleSwarmBackend(c1=2.2, c2=2.1)
+#opt_backend = ParticleSwarmBackend(c1=2.2, c2=2.1)
+opt_backend = SimulatedAnnealingBackend(Nt=30,Tt=20.*np.exp(-np.linspace(0, 10, 20)))
 optimi = Optimizer(s, \
                     meritfunctionrms, \
                     backend=opt_backend, \
@@ -274,12 +284,16 @@ print("drawing!")
 for r in r2:
     r.draw2d(ax2, color="blue", plane_normal=pn, up=up) 
 
+listOptimizableVariables(s, filter_status='variable', maxcol=80)
+
 s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 osa = OpticalSystemAnalysis(s)
 osa.drawSpotDiagram(r2[0], sysseq)
 sa = ShapeAnalysis(surf1.shape)
 sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
+
+
 
 plt.show()
 

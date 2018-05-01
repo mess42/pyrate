@@ -33,16 +33,16 @@ from distutils.version import StrictVersion
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
-from pyrateoptics.core import surfShape
-from pyrateoptics.core.optical_element import OpticalElement
-from pyrateoptics.core.surface import Surface
-from pyrateoptics.core.optical_system import OpticalSystem
-from pyrateoptics.core.ray import RayBundle
+from pyrateoptics.raytracer import surfShape
+from pyrateoptics.raytracer.optical_element import OpticalElement
+from pyrateoptics.raytracer.surface import Surface
+from pyrateoptics.raytracer.optical_system import OpticalSystem
+from pyrateoptics.raytracer.ray import RayBundle
 
-from pyrateoptics.core.aperture import CircularAperture
-from pyrateoptics.core.localcoordinates import LocalCoordinates
+from pyrateoptics.raytracer.aperture import CircularAperture
+from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.core.globalconstants import canonical_ey
+from pyrateoptics.raytracer.globalconstants import canonical_ey
 
 import math
 import logging

@@ -30,7 +30,7 @@ import random
 
 from helpers_math import rodrigues
 
-from ..optimize.optimize import ClassWithOptimizableVariables, OptimizableVariable
+from ..core.base import ClassWithOptimizableVariables, OptimizableVariable
 
 class LocalCoordinates(ClassWithOptimizableVariables):
     def __init__(self, name="", **kwargs):

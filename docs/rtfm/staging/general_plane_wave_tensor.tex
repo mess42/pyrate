@@ -1,0 +1,189 @@
+\documentclass[12pt,a4paper,twoside,openright,BCOR10mm,headsepline,titlepage,abstracton,chapterprefix,final]{scrreprt}
+
+\usepackage{ae}
+\usepackage[ngerman, english]{babel}
+%\usepackage{SIunits}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{dsfont}
+
+% load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
+
+\RequirePackage{ifpdf}  % flag for pdf or dvi backend
+\ifpdf
+  \usepackage[pdftex]{graphicx}
+  \usepackage[pdftitle={RTFM on Imaging Theory and Basics of Optical Raytracing},%
+              pdfsubject={},%
+              pdfauthor={M. Esslinger, J. Hartung, U. Lippmann},%
+              pdfkeywords={},%
+              bookmarks=true,%
+%              colorlinks=true,%
+              urlcolor=blue,%
+              pdfpagelayout=TwoColumnRight,%
+              pdfpagemode=UseNone,%
+              pdfstartview=Fit,%
+	      pdfpagelabels,
+              pdftex]{hyperref}
+\else
+  \usepackage[dvips]{graphicx}
+  \usepackage[colorlinks=false,dvips]{hyperref}
+\fi
+%\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
+
+%\usepackage{SIunits}
+
+\newcommand{\vct}[1]{\mathbf{#1}}
+\newcommand{\eps}[1]{\varepsilon_{#1}}
+\newcommand{\an}[1]{\alpha_{#1}}
+\newcommand{\deteps}{\det \varepsilon}
+\newcommand{\tr}[1]{\text{tr}\left(#1\right)}
+\newcommand{\scpm}[2]{{(#1\cdot#2)}}
+\begin{document}
+
+\section{Dispersion relation and its derivatives}
+
+Maybe useful for simplification: Given a unit vector $e_i$ then there is a projector given by
+\begin{align}
+ Pe_{ij} &= \delta_{ij} - e_i e_j\,.
+\end{align}
+Therefore maybe this opens the possibility to simplify the double tensor constructions better
+\begin{align}
+ (a_i \eps{ij} \eps{jk} b_k) &= (a_i \eps{ij} \delta_{j\ell} \eps{\ell k} b_k) 
+= (a_i \eps{ij} (Pe_{j\ell} + e_j e_\ell) \eps{\ell k} b_k) = (a_i \eps{ij} Pe_{j\ell} \eps{\ell k} b_k) + (a_i \eps{ij} e_j)(e_\ell \eps{\ell k} b_k)
+\end{align}
+And from three linear independent unity vectors $u_i, v_i, w_i$ it follows
+\begin{align}
+ \delta_{ij} = u_i u_j + v_i v_j + w_i w_j\,.
+\end{align}
+
+
+
+\subsection{General case}
+
+Given the plane wave propagator in anisotropic medium. The permittivity tensor neither has to symmetric nor real.
+For simplicity the wave vectors are scaled with the wave number such that they are without dimensions,
+\begin{align}
+ P_{ij}(\vct{k}) &= \eps{ij} - \delta_{ij} \vct{k}^2 + k_i k_j\,.
+\end{align}
+The eigenvalue problem of the wave equation $P_{ij} E_i = 0$ should have non trivial solutions and therefore the determinant of $P_{ij}$
+must vanish (the following expression is only valid for a $3\times3$ matrix)
+\begin{align}
+ D \equiv \det P &= \frac{1}{6} (\tr{P}^3 - 3 \tr{P} \tr{P^2} + 2 \tr{P^3}) \stackrel{!}{=} 0\,.
+\end{align}
+From this we get
+\begin{align}
+ D(\vct{k}) &= \deteps - (\eps{\ell\ell}) (\eps{ij} k_i k_j) + (\eps{ij} \eps{j \ell} k_i k_\ell) + (\eps{ij} k_i k_j) \vct{k}^2\,. 
+\end{align}
+The first derivative is given by
+\begin{align}
+ \frac{\partial D}{\partial k_k} &= (\eps{ik} + \eps{ki}) [((-\eps{jj} + \vct{k}^2)k_i + \eps{i\ell} k_\ell] + 2(\eps{ij} k_i k_j) k_k\,. 
+\end{align}
+The second derivative is given by
+\begin{align}
+ \frac{\partial^2 D}{\partial k_i \partial k_j} &= (\eps{ij} + \eps{ji})(-\eps{\ell\ell} + \vct{k}^2) + 2 \delta_{ij} (\eps{k\ell} k_k k_\ell)
+  + 2[(\eps{j \ell} + \eps{\ell j}) k_\ell k_i + (\eps{i \ell} + \eps{\ell i}) k_\ell k_j] \nonumber\\
+  &+ \eps{i \ell} \eps{\ell j} + \eps{j \ell} \eps{\ell i}\,.
+\end{align}
+The third one is given by
+\begin{align}
+ \frac{\partial^3 D}{\partial k_i \partial k_j \partial k_k} &= 2 \biggl[
+  (\eps{k\ell} + \eps{\ell k})k_\ell \delta_{ij}
+  + (\eps{i\ell} + \eps{\ell i})k_\ell \delta_{jk}
+  + (\eps{j\ell} + \eps{\ell j})k_\ell \delta_{ki} \nonumber\\&
+  + (\eps{ij} + \eps{ji}) k_k
+  + (\eps{jk} + \eps{kj}) k_i
+  + (\eps{ki} + \eps{ik}) k_j
+ \biggr]\,.
+\end{align}
+The fourth one is given by
+\begin{align}
+ \frac{\partial^4 D}{\partial k_i \partial k_j \partial k_m \partial k_n} &= 2 \biggl[
+  (\eps{ij} + \eps{ji}) \delta_{mn}
+  +(\eps{jm} + \eps{mj}) \delta_{ni}
+  +(\eps{mn} + \eps{nm}) \delta_{ij} \nonumber\\&
+  +(\eps{ni} + \eps{in}) \delta_{jm}
+  +(\eps{im} + \eps{mi}) \delta_{nj}
+  +(\eps{jn} + \eps{nj}) \delta_{im}  
+ \biggr]\,.
+\end{align}
+
+
+
+
+\subsection{Isotropic case}
+The isotropic case is given by $\eps{ij} = \varepsilon \delta_{ij}$ and in this case all expressions from above are simplified to
+\begin{align}
+ D_\text{iso}(\vct{k}) &= \varepsilon (\varepsilon - \vct{k}^2)^2\,.
+\end{align}
+The first derivative is
+\begin{align}
+ \frac{\partial D_\text{iso}}{\partial k_i} &= -4 \varepsilon (\varepsilon - \vct{k}^2) k_i\,.
+\end{align}
+The second derivative is given by
+\begin{align}
+ \frac{\partial^2 D_\text{iso}}{\partial k_i \partial k_j} &= -4 \varepsilon [ \delta_{ij} (\varepsilon - \vct{k}^2) - 2 k_i k_j ]\,.
+\end{align}
+The third derivative is given by
+\begin{align}
+ \frac{\partial^3 D_\text{iso}}{\partial k_i \partial k_j \partial k_k} &= 8 \varepsilon [ \delta_{ij} k_k + \delta_{jk} k_i + \delta_{ki} k_j ]\,.
+\end{align}
+The fourth derivative is given by
+\begin{align}
+ \frac{\partial^4 D_\text{iso}}{\partial k_i \partial k_j \partial k_m \partial k_n} &= 8 \varepsilon [ \delta_{ij} \delta_{mn} + \delta_{jm} \delta_{in} + \delta_{mi} \delta_{jn} ]\,.
+\end{align}
+
+
+
+
+
+\subsection{Perturbative case}
+
+Consider $\eps{ij} = \varepsilon (\delta_{ij} + \beta \an{ij})$ where the first part is isotropic and the second is a small anisotropic correction.
+($\beta$ bookkeeping parameter.)
+Consider also $k_i = k_{(0)i} + \beta k_{(1)i} + \beta^2 k_{(2)i}$ and calculate the first order correction of $\vct{k}$ under anisotropic corrections.
+First of all consider the determinant of $\eps{ij}$
+\begin{align}
+ \det\varepsilon &= \varepsilon^3 \left[1 + \beta (\an{jj}) + \frac{\beta^2}{2} ( (\an{jj})^2 - (\an{ij}\an{ji}) ) + \dots\right]\,.
+\end{align}
+Since the special property of the determinant (the gradient vanishes for the isotropic case) it is necessary to expand it up to second order in $\beta$.
+Solving those equations order by order leads to
+\begin{align}
+ \vct{k}_{(0)}^2 &= \varepsilon\,,
+\end{align}
+the first order vanishes identically and the second order leads to a quadratic equation for $\vct{k}_{(1)}$ (the contribution from $\vct{k}_{(2)}$ also
+vanishes due to the dispersion relation solution of $\vct{k}_{(0)}$).
+This will later be important when finding a solution for the small vector deviation.
+
+
+\section{Dispersion under small vector deviation}
+
+\subsection{General case}
+
+\begin{align}
+ D(\vct{k} + \Delta \vct{k}) - D(\vct{k}) &= (\Delta \vct{k})^2 (\eps{ij} \Delta k_i \Delta k_j)\nonumber\\&
+ + 2 (\eps{ij} \Delta k_i \Delta k_j) \scpm{\Delta \vct{k}}{\vct{k}} + (\Delta \vct{k})^2 (\Delta k_i (\eps{ij} + \eps{ji}) k_j)\nonumber\\&
+ + (\Delta k_i \eps{ij} \eps{jk} \Delta k_k) + (\Delta k_i \Delta k_j \eps{ij})[-(\eps{\ell\ell}) + \vct{k}^2]\nonumber\\&
+ + 2 \scpm{\Delta \vct{k}}{\vct{k}} (\Delta k_i (\eps{ij} + \eps{ji}) k_j) + (\Delta \vct{k})^2 (\eps{ij} k_i k_j)\nonumber\\&
+ + [-(\eps{\ell\ell}) + \vct{k}^2](\Delta k_i (\eps{ij} + \eps{ji}) k_j) + 2 \scpm{\Delta \vct{k}}{\vct{k}} (\eps{ij} k_i k_j)\nonumber\\&
+ + (\Delta k_i (\eps{i\ell}\eps{\ell j} + \eps{j\ell}\eps{\ell i}) k_j)\,.
+\end{align}
+
+
+\subsection{Isotropic case}
+
+\begin{align}
+ D_\text{iso}(\vct{k} + \Delta \vct{k}) - D_\text{iso}(\vct{k}) &= \varepsilon ((\Delta \vct{k})^2)^2 
+ + 4 \varepsilon (\Delta \vct{k})^2 \scpm{\Delta \vct{k}}{\vct{k}}\nonumber\\&
+ + \varepsilon \left(4 \scpm{\Delta \vct{k}}{\vct{k}}^2 -2 (\Delta \vct{k})^2 (-\varepsilon + \vct{k}^2)\right)\nonumber\\&
+ + 4 \varepsilon \scpm{\Delta \vct{k}}{\vct{k}}(-\varepsilon + \vct{k}^2)\,.
+\end{align}
+For the solution of the determinant equation in the isotropic case this leads to 
+$((\Delta \vct{k})^2 + 2 \scpm{\Delta \vct{k}}{\vct{k}})^2 = 0$.
+
+\subsection{Perturbative case}
+
+\end{document}
