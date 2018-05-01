@@ -203,8 +203,9 @@ so we approximate the operators by a Taylor expansion around the pilot ray
  + G^{02}_{ijm} \Delta k_j \Delta k_m
  + ...\nonumber\\
 \end{eqnarray}
+The two upper indices denote the order in $\Delta \Vector{r}$ and $\Delta \Vector{k}$, respectively.
 By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray,
-that is $\hat{G}(\Vector{0}) = \Vector{0}$ or $\hat{G}^{00} = \Vector{0}$. 
+that is $\hat{G}(\Vector{0}) = \Vector{0}$ or $\hat{G}^{00} = \hat{0}$. 
 In analogy to the ABCD formalism, we neglect terms quadratic or higher in the change of direction or position, 
 $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$.
 \begin{eqnarray}
@@ -220,15 +221,15 @@ In contrast to the ABCD formalism, we do not drop the bilinear $\hat{G}^{11}$ te
 \remark{todo: write a more elegant explanation why all quadratic forms but the bilinear one are dropped.}
 We split up the $\hat{G}$ operators into separate operators for location and direction.
 \begin{eqnarray}
- \Delta \Vector{r}_{im}  &=& \hat{A} \Delta \Vector{r}_{ob} + \hat{B} \Delta \Vector{k}_{ob} + \hat{M} \Vector{r}_{ob} \Vector{k}_{ob} \\ 
- \Delta \Wavevector_{im} &=& \hat{C} \Delta \Vector{r}_{ob} + \hat{D} \Delta \Vector{k}_{ob} + \hat{N} \Vector{r}_{ob} \Vector{k}_{ob}
+ \Delta \Vector{r}_{im}  &=& \hat{A} \Delta \Vector{r}_{ob} + \hat{B} \Delta \Vector{k}_{ob} + \hat{M} \Delta \Vector{r}_{ob} \Delta \Vector{k}_{ob} \\ 
+ \Delta \Wavevector_{im} &=& \hat{C} \Delta \Vector{r}_{ob} + \hat{D} \Delta \Vector{k}_{ob} + \hat{N} \Delta \Vector{r}_{ob} \Delta \Vector{k}_{ob}
 \end{eqnarray}
 We name the linear operators $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ in analogy to the ABCD formalism.
 We name the bilinear operators $\hat{M}$ and $\hat{N}$.
 
 \subsection{Sequence of Systems}
 In case the path from object to image is built up from subsystems that are subsequently passed, 
-and we know the propagator of each subsystem,
+and we know the propagator of each subsystem $\hat{G}_i$,
 we can write
 \begin{eqnarray}
  \begin{pmatrix}
@@ -250,9 +251,15 @@ In the following, we consider the most simple case: the case of two subsystems.
 \end{eqnarray}
 We neglect all quadratic or higher order terms except for the bilinear term and obtain the total operators, 
 propagating from surface $0$ to surface $2$:
+\begin{subequations}
 \begin{eqnarray}
  \Delta \Vector{r}_2  &=& \hat{A}_{tot} \Delta \Vector{r}_0 + \hat{B}_{tot} \Delta \Vector{k}_0 + \hat{M}_{tot} \Vector{r}_0 \Vector{k}_0 \\ 
- \Delta \Wavevector_2 &=& \hat{C}_{tot} \Delta \Vector{r}_0 + \hat{D}_{tot} \Delta \Vector{k}_0 + \hat{N}_{tot} \Vector{r}_0 \Vector{k}_0 \\
+ \Delta \Wavevector_2 &=& \hat{C}_{tot} \Delta \Vector{r}_0 + \hat{D}_{tot} \Delta \Vector{k}_0 + \hat{N}_{tot} \Vector{r}_0 \Vector{k}_0
+\end{eqnarray}
+\end{subequations}
+with
+\begin{subequations}\label{eq:xyuv_total_propagation}
+\begin{eqnarray}
  \hat{A}_{tot} &=& \hat{A}_1 \hat{A}_0 + \hat{B}_1 \hat{C}_0 \\
  \hat{B}_{tot} &=& \hat{A}_1 \hat{B}_0 + \hat{B}_1 \hat{D}_0 \\
  \hat{C}_{tot} &=& \hat{C}_1 \hat{A}_0 + \hat{D}_1 \hat{C}_0\\
@@ -260,13 +267,14 @@ propagating from surface $0$ to surface $2$:
  \hat{M}_{tot} &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
  \hat{N}_{tot} &=& \hat{C}_1 \hat{M}_0 + \hat{D}_1 \hat{N}_0 + \hat{N}_1 \hat{A}_0 \hat{D}_0 + \hat{N}_1 \hat{B}_0 \hat{C}_0
 \end{eqnarray}
+ \end{subequations}
 
 
 In the following, we discuss the representation of the operators by matrices, 
-the rank of the matrices and the minimal base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+the rank of the matrices and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
 
 
-\subsection{Near-Pilot Basis Systems (contains errors)}
+\subsection{Near-Pilot Basis Systems}
 
 The deviations may not be chosen freely, but we need to choose
 $\Delta\Vector{r}$, $\Delta\Wavevector$ and $\Delta\Vector{d}$ 
@@ -277,7 +285,7 @@ wavevectors must obey the dispersion relation
 and ray direction vectors must be of unit length.
 This limits the degrees of freedom for the deviations.
 
-\subsubsection{Intersection points (contains errors)}
+\subsubsection{Intersection points}
 
 We demand that near-pilot intersection points are on the surface.
 In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point.
@@ -289,7 +297,7 @@ We represent the ray height in this plane by
 \end{eqnarray}
 where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
 
-\subsubsection{Wavevectors (contains errors)}
+\subsubsection{Wavevectors}
 Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
 In contrast to the real valued ray directions, wavevectors may be complex valued.
 Using \eqref{eq:perturbed_wavevector}, we determine the 4 complex valued unit vectors,
@@ -300,7 +308,7 @@ We represent the change of the wavevector $\Wavevector$ as
 \end{eqnarray}
 where $U,V,W,Q$ are real valued prefactors.
 
-\subsection{XYUV matrices (contains errors)}
+\subsection{XYUV matrices}
 We choose the object sided base vectors 
 $\Vector{e}_{X,Y,U,V,W,Q,\,obj}$ 
 in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
@@ -308,50 +316,6 @@ as described in the previous section.
 We trace the pilot ray to the final surface 
 and define the near-pilot base vectors in the final plane
 $\Vector{e}_{X,Y,U,V,W,Q,\,fin}$.
-The propagator for near-pilot rays is the Jacobi matrix
-\begin{eqnarray}
- \begin{pmatrix}
-  X_{fin} \\[2ex] Y_{fin} \\[2ex] U_{fin}\\[2ex] V_{fin} \\[2ex] W_{fin} \\[2ex] Q_{fin} 
- \end{pmatrix}
- &=&
- \begin{pmatrix}
-  \frac{\partial X_{fin}}{\partial X_{obj}} & \frac{\partial X_{fin}}{\partial Y_{obj}} & \frac{\partial X_{fin}}{\partial U_{obj}} & \frac{\partial X_{fin}}{\partial V_{obj}} & \frac{\partial X_{fin}}{\partial W_{obj}} & \frac{\partial X_{fin}}{\partial Q_{obj}} \\[2ex]
-  \frac{\partial Y_{fin}}{\partial X_{obj}} & \frac{\partial Y_{fin}}{\partial Y_{obj}} & \frac{\partial Y_{fin}}{\partial U_{obj}} & \frac{\partial Y_{fin}}{\partial V_{obj}} & \frac{\partial Y_{fin}}{\partial W_{obj}} & \frac{\partial Y_{fin}}{\partial Q_{obj}} \\[2ex]
-  \frac{\partial U_{fin}}{\partial X_{obj}} & \frac{\partial U_{fin}}{\partial Y_{obj}} & \frac{\partial U_{fin}}{\partial U_{obj}} & \frac{\partial U_{fin}}{\partial V_{obj}} & \frac{\partial U_{fin}}{\partial W_{obj}} & \frac{\partial U_{fin}}{\partial Q_{obj}} \\[2ex]
-  \frac{\partial V_{fin}}{\partial X_{obj}} & \frac{\partial V_{fin}}{\partial Y_{obj}} & \frac{\partial V_{fin}}{\partial U_{obj}} & \frac{\partial V_{fin}}{\partial V_{obj}} & \frac{\partial V_{fin}}{\partial W_{obj}} & \frac{\partial V_{fin}}{\partial Q_{obj}} \\[2ex]
-  \frac{\partial W_{fin}}{\partial X_{obj}} & \frac{\partial W_{fin}}{\partial Y_{obj}} & \frac{\partial W_{fin}}{\partial U_{obj}} & \frac{\partial W_{fin}}{\partial V_{obj}} & \frac{\partial W_{fin}}{\partial W_{obj}} & \frac{\partial W_{fin}}{\partial Q_{obj}} \\[2ex]
-  \frac{\partial Q_{fin}}{\partial X_{obj}} & \frac{\partial Q_{fin}}{\partial Y_{obj}} & \frac{\partial Q_{fin}}{\partial U_{obj}} & \frac{\partial Q_{fin}}{\partial V_{obj}} & \frac{\partial Q_{fin}}{\partial W_{obj}} & \frac{\partial Q_{fin}}{\partial Q_{obj}}
- \end{pmatrix}
- \begin{pmatrix}
-  X_{obj} \\[2ex] Y_{obj} \\[2ex] U_{obj} \\[2ex] V_{obj} \\[2ex] W_{obj} \\[2ex] Q_{obj} 
- \end{pmatrix} \nonumber \\
-\end{eqnarray}
-We obtain this matrix by multiplying the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations.
-To obtain these atomic matrices, we perform Taylor expansions around the pilot ray.
-For systems where an explicit calculation is not possible
--- or the operator suffers from laziness --
-it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
-
-We abbreviate the coefficients of the propagator by sub-matrices $\hat{A}, \hat{B}, \hat{C}, \hat{D}$, 
-resembling the ABCD formalism.
-\begin{eqnarray}
- \begin{pmatrix}
-  X_{fin} \\ Y_{fin} \\ U_{fin} \\ V_{fin} \\ W_{fin} \\ Q_{fin} 
- \end{pmatrix}
- &=&
- \begin{pmatrix}
-  A_{11} & A_{12} & B_{11} & B_{12} & B_{13} & B_{14} \\
-  A_{21} & A_{22} & B_{21} & B_{22} & B_{23} & B_{24} \\
-  C_{11} & C_{12} & D_{11} & D_{12} & D_{13} & D_{14} \\
-  C_{21} & C_{22} & D_{21} & D_{22} & D_{23} & D_{24} \\
-  C_{31} & C_{32} & D_{31} & D_{32} & D_{33} & D_{34} \\
-  C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
- \end{pmatrix}
- \begin{pmatrix}
-  X_{obj} \\ Y_{obj} \\ U_{obj} \\ V_{obj} \\ W_{obj} \\ Q_{obj} 
- \end{pmatrix}
-\end{eqnarray}
-
 We abbreviate $(X,Y)$ as a vector of location deviation $\Vector{R}$
 and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
 \begin{eqnarray}
@@ -365,12 +329,58 @@ and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
   U \\ V \\ W \\ Q 
  \end{pmatrix}
 \end{eqnarray}
-
 The propagator equation becomes
+\begin{subequations}
 \begin{eqnarray}
- \Vector{R}_{fin} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} \label{eq:xyuv_imaging_equation}\\
- \Vector{K}_{fin} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} 
+ \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} + \hat{M} \cdot \Vector{R}_{obj} \cdot \Vector{K}_{obj}\label{eq:xyuv_imaging_equation}\\
+ \Vector{K}_{im} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} + \hat{N} \cdot \Vector{R}_{obj} \cdot \Vector{K}_{obj}
 \end{eqnarray}
+\end{subequations}
+with the Jacobi matrices
+\begin{align}
+ A_{ij} &=
+   \left.
+     \frac{\partial R_{i\,im}}{\partial R_{j\,obj}} 
+   \right|_{\Vector{K_{obj}}=0}
+   & (2\times2 \,\textrm{matrix})
+ \\
+ B_{ij} &=
+   \left.
+     \frac{\partial R_{i\,im}}{\partial K_{j\,obj}} 
+   \right|_{\Vector{R_{obj}}=0}
+   & (2\times4 \,\textrm{matrix})
+ \\
+ C_{ij} &=
+   \left.
+     \frac{\partial K_{i\,im}}{\partial R_{j\,obj}} 
+   \right|_{\Vector{K_{obj}}=0}
+   & (4\times2 \,\textrm{matrix})
+ \\
+ D_{ij} &=
+   \left.
+     \frac{\partial K_{i\,im}}{\partial K_{j\,obj}} 
+   \right|_{\Vector{R_{obj}}=0}
+   & (4\times4 \,\textrm{matrix})
+ \\
+ M_{ijl} &=
+     \frac{\partial^2 R_{i\,im}}{\partial R_{j\,obj}\partial K_{l\,obj}} 
+   & (2\times2\times4 \,\textrm{matrix})
+ \\
+ N_{ijl} &=
+     \frac{\partial^2 K_{i\,im}}{\partial R_{j\,obj}\partial K_{l\,obj}} 
+   & (4\times2\times4 \,\textrm{matrix})
+\end{align}
+
+
+To analytically obtain matrices of the total propagation from object to image, 
+it is easiest to concatenate the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations,
+using \eqref{eq:xyuv_total_propagation}.
+To obtain these atomic matrices, we perform Taylor expansions around the pilot ray.
+For systems where an explicit calculation is not possible
+-- or the operator suffers from laziness --
+it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
+
+
 
 
 \subsection{Propagation Between Planes in Homogeneous Media (contains errors)}
