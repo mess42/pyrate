@@ -25,83 +25,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-
-import matplotlib
-from distutils.version import StrictVersion
 
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.material.material_isotropic import ConstantIndexGlass
-from pyrateoptics.raytracer.surfShape import Conic, Asphere
-from pyrateoptics.raytracer.optical_element import OpticalElement
-from pyrateoptics.raytracer.surface import Surface
-from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.ray import RayBundle
-
-from pyrateoptics.raytracer.aperture import CircularAperture
-from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
-
-from pyrateoptics.raytracer.globalconstants import canonical_ey
 
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend
 
-import math
+from pyrateoptics import build_simple_optical_system, draw, collimated_bundle
+
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem() 
-
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=5.0), refname=lc0.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=20.0), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=100.0), refname=lc2.name)
-
-
-stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=Conic(lc1), apert=CircularAperture(lc1, 12.7))
-backsurf = Surface(lc2, shape=Asphere(lc2, curv=-1./50.0, cc=-1., coefficients=[0.0, 0.0, 0.0]), apert=CircularAperture(lc2, 12.7))
-image = Surface(lc3)
-
-
-elem = OpticalElement(lc0, name="asphereelement")
-
-bk7 = ConstantIndexGlass(lc1, n=1.5168)
-
-elem.addMaterial("BK7", bk7)
-
-elem.addSurface("stop", stopsurf, (None, None))
-elem.addSurface("front", frontsurf, (None, "BK7"))
-elem.addSurface("rear", backsurf, ("BK7", None))
-elem.addSurface("image", image, (None, None))
-
-s.addElement("asph", elem)
-
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(20)
-
-rpup = 11.43
-o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-
-k = np.zeros_like(o)
-k[2,:] = 1. #2.*math.pi/wavelength
-
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
-
-sysseq = [("asph", [("stop", {"is_stop":True}), 
-                    ("front", {}), 
-                    ("rear", {}), 
-                    ("image", {})])]
-
-phi = 5.*math.pi/180.0
-
+(s, sysseq) = build_simple_optical_system(
+                [
+                    ({"shape": "Conic"}, {"decz":0.0}, None, "stop", {"is_stop":True}),
+                    ({"shape": "Conic"}, {"decz":5.0}, 1.5168, "front", {}),
+                    ({"shape": "Asphere", "curv": -1./50., 
+                          "cc": -1., "coefficients": [0.0, 0.0, 0.0]},
+                            {"decz":20.0}, None, "back", {}),
+                    ({"shape": "Conic"}, {"decz":100.0}, None, "image", {})
+                ],
+                )
+                
+(o, k, E0) = collimated_bundle(121, {"startz":-5., "radius":11.43}, wave=wavelength)
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 #initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=121)
@@ -119,6 +70,7 @@ def meritfunctionrms(s):
     
     return res
 
+backsurf = s.elements["stdelem"].surfaces["back"]
 backsurf.shape.params["curv"].changetype("variable")
 backsurf.shape.params["cc"].changetype("variable")
 # A2 not variable
@@ -131,28 +83,6 @@ s = optimi.run()
 
 r2 = s.seqtrace(initialbundle, sysseq)
 
-
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-for r in r2:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-for e in s.elements.itervalues():
-    for surfs in e.surfaces.itervalues():
-        surfs.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-        #surfs.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-
-plt.show()
+draw(s, r2)
 
 

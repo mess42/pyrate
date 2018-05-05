@@ -203,7 +203,7 @@ class RayBundle(object):
             
             y = np.vstack((ypt1, ypt2))[:, todraw]
             z = np.vstack((zpt1, zpt2))[:, todraw]
-            ax.plot(z, y, color)            
+            ax.plot(z, y, color=color)            
             
         
 
