@@ -24,25 +24,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-import matplotlib
-from distutils.version import StrictVersion
-
 import time
-import math
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from pyrateoptics import build_simple_optical_system, build_rotationally_symmetric_optical_system
+from pyrateoptics import build_rotationally_symmetric_optical_system, draw, collimated_bundle
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.raytracer.ray import RayBundle
-
 from pyrateoptics.raytracer.globalconstants import standard_wavelength
-
-from pyrateoptics.raytracer.helpers import collimated_bundle
-from pyrateoptics.raytracer.globalconstants import canonical_ey
 
 wavelength = standard_wavelength
 
@@ -64,19 +53,7 @@ db_path = "refractiveindex.info-database/database"
 nrays = 100000
 nrays_draw = 21
 
-# benchmark
-
-# definition of rays
-#nray = 1E5 # number of rays
-#aimy = aim.aimFiniteByMakingASurfaceTheStop(s, pupilType=pupil.ObjectSpaceNA, #.StopDiameter,
-#                                           pupilSizeParameter=0.2,#3.0,
-#                                            fieldType= field.ObjectHeight,
-#                                            rasterType= raster.RectGrid,
-#                                            nray=nray, wavelength=wavelength, stopPosition=5)
-#initialBundle = aimy.getInitialRayBundle(s, fieldXY=np.array([0, 0]), wavelength=wavelength)
-#nray = len(initialBundle.o[0, :])
-
-(x0, k0, E0) = collimated_bundle(nrays, -5., 0., 1., raster.RectGrid())
+(x0, k0, E0) = collimated_bundle(nrays, {"startz": -5., "radius": 1., "raster": raster.RectGrid()})
 t0 = time.clock()
 initialraybundle = RayBundle(x0=x0, k0=k0, Efield0=E0)
 raypath = s.seqtrace(initialraybundle, seq)
@@ -85,30 +62,9 @@ logging.info("             That is " + str(int(round(nrays * (len(s.elements["st
 
 # plot
 
-(x0_draw, k0_draw, E0_draw)= collimated_bundle(nrays_draw, -5., 0., 1., raster.MeridionalFan())
+(x0_draw, k0_draw, E0_draw) = collimated_bundle(nrays_draw, {"startz": -5., "radius": 1., "raster": raster.MeridionalFan()})
 initialraybundle_draw = RayBundle(x0=x0_draw, k0=k0_draw, Efield0=E0_draw)
 raypath_draw = s.seqtrace(initialraybundle_draw, seq)
 
 
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-for r in raypath_draw:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-plt.show()
-
-
+draw(s, raypath_draw)

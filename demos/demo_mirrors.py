@@ -50,6 +50,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 import pyrateoptics.raytracer.helpers
+from pyrateoptics import collimated_bundle, draw
 
 wavelength = 0.5876e-3
 
@@ -103,16 +104,8 @@ s.addElement("TMA", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(11)
-
-rpup = 10
-o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-k = np.zeros_like(o)
-k[2,:] = 1.0 #2.*math.pi/wavelength
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
+(o, k, E0) = collimated_bundle(11, {"startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, wave=wavelength)
+initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 sysseq = [("TMA", 
            [
@@ -127,8 +120,6 @@ sysseq = [("TMA",
             ])
         ] 
 
-# TODO: integrate mirrors (is_mirror:True) also into options dict
-
 sysseq_pilot = [("TMA", 
                  [
                     ("object", True, {}), 
@@ -142,6 +133,7 @@ sysseq_pilot = [("TMA",
                     ("m2", False, {})
                 ])
                 ] 
+r2 = s.seqtrace(initialbundle, sysseq)
                 
 phi = 5.*math.pi/180.0
 
@@ -149,9 +141,6 @@ obj_dx = 0.1
 obj_dphi = 1.*math.pi/180.0
 
 kwave = 2.*math.pi/wavelength
-
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq)
 
 #pilotbundle = RayBundle(
 #                x0 = np.array([[0], [0], [0]]), 
