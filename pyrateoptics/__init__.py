@@ -89,6 +89,55 @@ def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
     
     return build_simple_optical_system(builduplist_build_simple_os, **kwargs)
         
+def build_simple_optical_element(lc0, builduplist, material_db_path="", name=""):
+    logger = logging.getLogger(__name__)    
+    logger.info("Element name %s" % (name,))
+
+    elem = OpticalElement(lc0, name=name)
+        
+    refname = lc0.name
+    lastmat = None
+    surflist_for_sequence = []
+
+    gcat = refractiveindex_dot_info_glasscatalog(material_db_path)
+
+    for (surfdict, coordbreakdict, mat, surf_name, optdict) in builduplist:    
+        lc = elem.addLocalCoordinateSystem(LocalCoordinates(name=surf_name + "_lc", **coordbreakdict), refname=refname)
+        shapetype = surfdict.pop("shape", "Conic")
+        if shapetype == "LinearCombination":
+            # linear combination accepts pairs of coefficients and surfdicts            
+            
+            list_of_coefficients_and_shapes = surfdict.get("list_of_coefficients_and_shapes", [])
+            new_list_coeffs_shapes = []            
+            for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
+                shapetype_part = surfdict_part.pop("shape", "Conic")
+                new_list_coeffs_shapes.append((coeff_part, eval("Shapes." + shapetype_part)(lc, name=name + "_shape" + str(ind), **surfdict_part)))
+                
+            actsurf = Surface(lc, name=surf_name + "_surf",\
+                        shape=Shapes.LinearCombination(lc, name=surf_name + "_linearcombi",\
+                        list_of_coefficients_and_shapes=new_list_coeffs_shapes))
+        else:
+            actsurf = Surface(lc, name=surf_name + "_surf",\
+                        shape=eval("Shapes." + shapetype)(lc, name=name + "_shape", **surfdict))
+        
+        if mat is not None:
+            try:
+                n = float(mat)
+            except:
+                gcat.getMaterialDictFromLongName(mat)
+                
+                elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat))
+            else:
+                elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
+
+        elem.addSurface(surf_name, actsurf, (lastmat, mat))
+        logger.info("Added surface: %s at material boundary %s" % (surf_name, (lastmat, mat)))        
+        
+        lastmat = mat
+        refname = lc.name
+        surflist_for_sequence.append((surf_name, optdict))
+
+    return (elem, (name, surflist_for_sequence))
 
 def build_simple_optical_system(builduplist, material_db_path="", name=""):
 
@@ -123,6 +172,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     elem_name = "stdelem"
     logger.info("Element name %s" % (elem_name,))
 
+    '''    
     elem = OpticalElement(lc0, name=elem_name)
         
     refname = lc0.name
@@ -136,7 +186,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     
     
     
-        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=name + "_lc", **coordbreakdict), refname=refname)
+        lc = elem.addLocalCoordinateSystem(LocalCoordinates(name=name + "_lc", **coordbreakdict), refname=refname)
         shapetype = surfdict.pop("shape", "Conic")
         if shapetype == "LinearCombination":
             # linear combination accepts pairs of coefficients and surfdicts            
@@ -170,12 +220,19 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
         lastmat = mat
         refname = lc.name
         surflist_for_sequence.append((name, optdict))
-            
+    '''
+    (elem, elem_seq) = build_simple_optical_element(lc0, builduplist,\
+        material_db_path=material_db_path, name=elem_name)        
     s.addElement(elem_name, elem)
+
     s.material_background.setName("background")
-    stdseq = [(elem_name, surflist_for_sequence)]    
+    stdseq = [(elem_seq)]    
 
     return (s, stdseq)
+    
+def build_optical_system(builduplist, material_db_path="", name=""):
+    # TODO: here also more than one element allowed
+    pass
 
 def draw(os, rb=None):
 
