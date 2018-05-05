@@ -281,7 +281,6 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
 
 
 def collimated_bundle(nrays, properties_dict={}, wave=standard_wavelength):
-    # FIXME: this function does not respect the dispersion relation in the material
 
     material = properties_dict.get("material", ConstantIndexGlass(1.0))
     startx = properties_dict.get("startx", 0.)
