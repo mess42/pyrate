@@ -25,18 +25,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-from distutils.version import StrictVersion
 import logging
 
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.material.material_isotropic import ConstantIndexGlass, ModelGlass
-from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
+from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.raytracer.surfShape import Conic, Biconic
 from pyrateoptics.raytracer.optical_element import OpticalElement
-from pyrateoptics.analysis.optical_element_analysis import OpticalElementAnalysis
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.ray import RayBundle
@@ -44,9 +39,7 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey, degree, standard_wavelength
-
-import math
+from pyrateoptics.raytracer.globalconstants import degree, standard_wavelength
 
 import pyrateoptics.raytracer.helpers
 
