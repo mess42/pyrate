@@ -24,7 +24,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from pyrateoptics.optimize.optimize import ClassWithOptimizableVariables, OptimizableVariable, Optimizer
+from pyrateoptics.core.base import ClassWithOptimizableVariables, OptimizableVariable
+from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend, Newton1DBackend
 
 import numpy as np
@@ -76,9 +77,9 @@ def test_optimization():
     class ExampleOS(ClassWithOptimizableVariables):
         def __init__(self):
             super(ExampleOS, self).__init__()
-            self.X = OptimizableVariable(name="X", status="Variable", value=3.0)
-            self.Y = OptimizableVariable(name="Y", status="Variable", value=20.0)
-            self.Z = OptimizableVariable(name="Z", status="Pickup", \
+            self.X = OptimizableVariable(name="X", variable_type="variable", value=3.0)
+            self.Y = OptimizableVariable(name="Y", variable_type="variable", value=20.0)
+            self.Z = OptimizableVariable(name="Z", variable_type="pickup", \
                                              function=lambda x, y: x**2 + y**2, \
                                              args=(self.X, self.Y))
     

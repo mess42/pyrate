@@ -29,7 +29,7 @@ from hypothesis import given
 from hypothesis.strategies import floats, integers
 from hypothesis.extra.numpy import arrays
 import numpy as np
-from pyrateoptics.core.localcoordinates import LocalCoordinates
+from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 # pylint: disable=no-value-for-parameter
 @given(parameter=integers())
