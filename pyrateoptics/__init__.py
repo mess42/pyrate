@@ -233,14 +233,28 @@ def draw(os, rays=None, **kwargs):
                     for rp in rpl:
                         ray_color = tuple(np.random.random(3))
                         rp.draw2d(ax, color=ray_color, **kwargs)
+                if isinstance(rpl, tuple):
+                    (rl, ray_color) = rpl
+                    if isinstance(rl, list): # draw(s, [([rp1, ..], color1), (....)])
+                        for r in rl:
+                            r.draw2d(ax, color=ray_color, **kwargs)
+                    else: # draw(s, [(rp1, color1), (....)])
+                        rl.draw2d(ax, color=ray_color, **kwargs)                    
                 else:
                     rpl.draw2d(ax, color=ray_color, **kwargs)
-        elif isinstance(rays, RayPath):
+        elif isinstance(rays, RayPath): # draw(s, raypath)
             ray_color = tuple(np.random.random(3))
             rays.draw2d(ax, color=ray_color, **kwargs)
-        elif isinstance(rays, RayBundle):
+        elif isinstance(rays, RayBundle): # draw(s, raybundle)
             ray_color = tuple(np.random.random(3))
             rays.draw2d(ax, color=ray_color, **kwargs)
+        elif isinstance(rays, tuple): 
+            (rl, ray_color) = rays
+            if isinstance(rl, list): # draw(s, ([raypath1, ...], color))
+                for r in rl:
+                    r.draw2d(ax, color=ray_color, **kwargs)
+            else: # draw(s, (raypath, color))
+                rl.draw2d(ax, color=ray_color, **kwargs)
             
             
     

@@ -136,5 +136,5 @@ initialbundle_blue = RayBundle(x0=o, k0=k_blue, Efield0=E0_blue, wave=wave_blue)
 r_red = s.seqtrace(initialbundle_red, sysseq)
 r_blue = s.seqtrace(initialbundle_blue, sysseq)
 
-draw(s, [r_red, r_blue])
+draw(s, [(r_red, "red"), (r_blue, "blue")])
 

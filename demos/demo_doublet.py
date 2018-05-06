@@ -89,5 +89,5 @@ sysseq = [("AC254-100", [("stop", {"is_stop":True}), ("front", {}), ("cement", {
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq)
 
-draw(s, r2)
+draw(s, (r2, "blue"))
 
