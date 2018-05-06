@@ -50,6 +50,8 @@ import math
 
 import pyrateoptics.raytracer.helpers
 
+from pyrateoptics import collimated_bundle, draw
+
 # definition of optical system
 
 # Design: US patent no. 5701202 A, inventor: Koichi Takahashi
@@ -123,26 +125,9 @@ s.addElement("HUD", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(3)
-
-rpup = 2
-o = np.vstack((rpup*px, rpup*py, 0.*np.ones_like(px)))
-k1 = np.zeros_like(o)
-k1[2,:] = 1.0 
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-E1 = np.cross(k1, ey, axisa=0, axisb=0).T
-
-k2 = np.zeros_like(o)
-k2[1,:] = math.sin(15*degree) 
-k2[2,:] = math.cos(15*degree) 
-E2 = np.cross(k2, ey, axisa=0, axisb=0).T
-
-k3 = np.zeros_like(o)
-k3[1,:] = math.sin(-15*degree) 
-k3[2,:] = math.cos(-15*degree)
-E3 = np.cross(k3, ey, axisa=0, axisb=0).T
+(o, k1, E1) = collimated_bundle(3, {"opticalsystem": s, "radius": 2, "raster": raster.MeridionalFan()}, wave=standard_wavelength)
+(o, k2, E2) = collimated_bundle(3, {"opticalsystem": s, "radius": 2, "raster": raster.MeridionalFan(), "anglex": 15*degree}, wave=standard_wavelength)
+(o, k3, E3) = collimated_bundle(3, {"opticalsystem": s, "radius": 2, "raster": raster.MeridionalFan(), "anglex": -15*degree}, wave=standard_wavelength)
 
 
 sysseq = [("HUD", 
@@ -190,40 +175,8 @@ print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 #print(s.sequence_to_hitlist(sysseq))
 
 
+draw(s, [r1, r2, r3, pilotray])
 
-
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-
-
-phi = 0. #math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-#print("drawing!")
-for (i, r) in enumerate(r2):
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
-for (i, r) in enumerate(r1):
-    r.draw2d(ax, color="red", plane_normal=pn, up=up)
-for (i, r) in enumerate(r3):
-    r.draw2d(ax, color="green", plane_normal=pn, up=up)
-for r_p in rays_pilot:
-    for (i, r) in enumerate(r_p):    
-        r.draw2d(ax, color="orange", plane_normal=pn, up=up)
-
-pz = np.array([26.36, 33.339, 18.817])
-py = np.array([-24.028, 19.109, -35.215])
-
-ax.scatter(pz, py)
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-plt.show()
+#pz = np.array([26.36, 33.339, 18.817])
+#py = np.array([-24.028, 19.109, -35.215])
 

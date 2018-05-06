@@ -44,7 +44,7 @@ from raytracer.optical_element import OpticalElement
 from raytracer.surface import Surface
 import raytracer.surfShape as Shapes
 from raytracer.globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
-from raytracer.ray import RayBundle
+from raytracer.ray import RayBundle, RayPath
 from material.material_isotropic import ConstantIndexGlass
 from material.material_glasscat import refractiveindex_dot_info_glasscatalog
 from sampling2d.raster import RectGrid
@@ -206,7 +206,7 @@ def build_optical_system(builduplist, material_db_path="", name=""):
 
     return (s, full_elements_seq)
 
-def draw(os, rb=None, **kwargs):
+def draw(os, rays=None, **kwargs):
 
     """
     Convenience function for drawing optical system and list of raybundles
@@ -225,10 +225,24 @@ def draw(os, rb=None, **kwargs):
     else:
         ax.set_facecolor('white')
         
-    if rb is not None:
-        ray_color = tuple(np.random.random(3))
-        for r in rb:
-            r.draw2d(ax, color=ray_color, **kwargs) 
+    if rays is not None:
+        if isinstance(rays, list):
+            for rpl in rays:
+                ray_color = tuple(np.random.random(3))
+                if isinstance(rpl, list):                    
+                    for rp in rpl:
+                        ray_color = tuple(np.random.random(3))
+                        rp.draw2d(ax, color=ray_color, **kwargs)
+                else:
+                    rpl.draw2d(ax, color=ray_color, **kwargs)
+        elif isinstance(rays, RayPath):
+            ray_color = tuple(np.random.random(3))
+            rays.draw2d(ax, color=ray_color, **kwargs)
+        elif isinstance(rays, RayBundle):
+            ray_color = tuple(np.random.random(3))
+            rays.draw2d(ax, color=ray_color, **kwargs)
+            
+            
     
     os.draw2d(ax, color="grey", **kwargs) 
     
@@ -282,7 +296,16 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
 
 def collimated_bundle(nrays, properties_dict={}, wave=standard_wavelength):
 
-    material = properties_dict.get("material", ConstantIndexGlass(1.0))
+    logger = logging.getLogger(__name__)        
+
+    optical_system = properties_dict.get("opticalsystem", None)
+    if optical_system is not None:
+        material = properties_dict.get("material", optical_system.material_background)
+    else:
+        logger.warn("Material has no reference to optical system coordinates!")
+        logger.warn("Please provide 'opticalsystem' key.")
+        material = ConstantIndexGlass(LocalCoordinates(name="mat_lc"))
+        
     startx = properties_dict.get("startx", 0.)
     starty = properties_dict.get("starty", 0.)
     startz = properties_dict.get("startz", 0.)

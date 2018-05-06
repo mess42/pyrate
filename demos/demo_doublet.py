@@ -85,7 +85,7 @@ s.addElement("AC254-100", elem)
 sysseq = [("AC254-100", [("stop", {"is_stop":True}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
 
-(o, k, E0) = collimated_bundle(20, {"startz": -5, "radius": 11.43, "raster": raster.MeridionalFan()}, wave=wavelength)
+(o, k, E0) = collimated_bundle(20, {"opticalsystem": s, "startz": -5, "radius": 11.43, "raster": raster.MeridionalFan()}, wave=wavelength)
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq)
 

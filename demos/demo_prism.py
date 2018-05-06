@@ -42,6 +42,7 @@ from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics.raytracer.globalconstants import canonical_ey
+from pyrateoptics import collimated_bundle, draw
 
 import math
 import logging
@@ -85,67 +86,19 @@ elem.addSurface("image", image, (None, None))
 
 s.addElement("prism", elem)
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(20)
-
-rpup = 5
-oy = -20.0
-o = np.vstack((rpup*px, rpup*py + oy, -5.*np.ones_like(px)))
-
-kangle = 23.*deg
-
-kwave_red = 1. #2.*math.pi/wave_red
-k_red = np.zeros_like(o)
-k_red[1,:] = kwave_red*math.sin(kangle)
-k_red[2,:] = kwave_red*math.cos(kangle)
-
-kwave_blue = 1. #2.*math.pi/wave_blue
-k_blue = np.zeros_like(o)
-k_blue[1,:] = kwave_blue*math.sin(kangle)
-k_blue[2,:] = kwave_blue*math.cos(kangle)
-
-
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-
-E0_red = np.cross(k_red, ey, axisa=0, axisb=0).T
-E0_blue = np.cross(k_blue, ey, axisa=0, axisb=0).T
-
 sysseq = [("prism", 
                [("stop", {"is_stop":True}), 
                 ("surf1", {}), 
                 ("surf2", {}), 
                 ("image", {})])]
 
-phi = 5.*math.pi/180.0
+(o, k_red, E0_red) = collimated_bundle(20, {"opticalsystem": s, "radius": 5.0, "startz":-5., "starty":-20., "anglex":23*deg, "raster":raster.MeridionalFan()}, wave=wave_red)
+(o, k_blue, E0_blue) = collimated_bundle(20, {"opticalsystem": s, "radius": 5.0, "startz":-5., "starty":-20., "anglex":23*deg, "raster":raster.MeridionalFan()}, wave=wave_blue)
 
 initialbundle_red = RayBundle(x0=o, k0=k_red, Efield0=E0_red, wave=wave_red)
 initialbundle_blue = RayBundle(x0=o, k0=k_blue, Efield0=E0_blue, wave=wave_blue)
 r_red = s.seqtrace(initialbundle_red, sysseq)
 r_blue = s.seqtrace(initialbundle_blue, sysseq)
 
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-for r in r_red:
-    r.draw2d(ax, color="red", plane_normal=pn, up=up) 
-for r in r_blue:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-
-plt.show()
-
+draw(s, [r_red, r_blue])
 

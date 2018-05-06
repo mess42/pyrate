@@ -104,7 +104,7 @@ s.addElement("TMA", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-(o, k, E0) = collimated_bundle(11, {"startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, wave=wavelength)
+(o, k, E0) = collimated_bundle(11, {"opticalsystem": s, "startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, wave=wavelength)
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 sysseq = [("TMA", 
@@ -210,38 +210,5 @@ logging.info(str(s.sequence_to_hitlist(sysseq)))
 #initialbundle = RayBundle(x0=lc0.returnLocalToGlobalPoints(o), k0=lc0.returnLocalToGlobalDirections(k), Efield0=lc0.returnLocalToGlobalDirections(E0), wave=wavelength)
 #r4 = s.seqtrace(initialbundle, sysseq)
 
-
-
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-
-
-phi = 0. #math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-#print("drawing!")
-for (i, r) in enumerate(r2):
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
-for r_p in rays_pilot:
-    for (i, r) in enumerate(r_p):    
-        r.draw2d(ax, color="red", plane_normal=pn, up=up)
-
-r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
-pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
-
-#r4.draw2d(ax, color="pink", plane_normal=pn, up=up)
-#pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
-
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-plt.show()
+draw(s, [r2, r3, pilotray2])
 

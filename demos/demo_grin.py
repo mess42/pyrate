@@ -95,7 +95,7 @@ s.addElement("grinelement", elem)
 sysseq = [("grinelement", [("object", {"is_stop":True}), ("surf1", {}), ("surf2", {}), ("image", {})])]
 
 
-(o, k, E0) = collimated_bundle(21, {"startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()}, wave=wavelength)
+(o, k, E0) = collimated_bundle(21, {"opticalsystem": s, "startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()}, wave=wavelength)
 
 
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
