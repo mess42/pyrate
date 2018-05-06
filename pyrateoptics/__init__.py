@@ -233,7 +233,7 @@ def draw(os, rays=None, **kwargs):
                     for rp in rpl:
                         ray_color = tuple(np.random.random(3))
                         rp.draw2d(ax, color=ray_color, **kwargs)
-                if isinstance(rpl, tuple):
+                elif isinstance(rpl, tuple):
                     (rl, ray_color) = rpl
                     if isinstance(rl, list): # draw(s, [([rp1, ..], color1), (....)])
                         for r in rl:
