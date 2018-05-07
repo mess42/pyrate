@@ -25,10 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-
-import matplotlib
-from distutils.version import StrictVersion
+import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 from pyrateoptics.sampling2d import raster
@@ -42,13 +41,9 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey
-from pyrateoptics import draw, collimated_bundle
+from pyrateoptics import draw
 
 
-import math
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 

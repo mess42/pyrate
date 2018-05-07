@@ -25,11 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-
-import matplotlib
-from distutils.version import StrictVersion
-
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
