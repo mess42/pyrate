@@ -24,12 +24,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-from distutils.version import StrictVersion
-
-
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ModelGlass
 from pyrateoptics.raytracer import surfShape
@@ -42,8 +36,8 @@ from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics import collimated_bundle, draw
+from pyrateoptics.raytracer.globalconstants import degree
 
-import math
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -55,13 +49,11 @@ wave_blue = 0.470e-3
 # definition of optical system
 s = OpticalSystem() 
 
-deg = math.pi/180.
-
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
 lccomprism = s.addLocalCoordinateSystem(LocalCoordinates(name="prismcenter", decz=50.0), refname=lc0.name)
 
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-10.0, tiltx=30.*deg), refname=lccomprism.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=10.0, tiltx=-30.*deg), refname=lccomprism.name)
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-10.0, tiltx=30.*degree), refname=lccomprism.name) # objectDist
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=10.0, tiltx=-30.*degree), refname=lccomprism.name)
 lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=50.0), refname=lccomprism.name)
 
 
@@ -91,8 +83,8 @@ sysseq = [("prism",
                 ("surf2", {}), 
                 ("image", {})])]
 
-(o, k_red, E0_red) = collimated_bundle(20, {"opticalsystem": s, "radius": 5.0, "startz":-5., "starty":-20., "anglex":23*deg, "raster":raster.MeridionalFan()}, wave=wave_red)
-(o, k_blue, E0_blue) = collimated_bundle(20, {"opticalsystem": s, "radius": 5.0, "startz":-5., "starty":-20., "anglex":23*deg, "raster":raster.MeridionalFan()}, wave=wave_blue)
+(o, k_red, E0_red) = collimated_bundle(20, {"opticalsystem": s, "radius": 5.0, "startz":-5., "starty":-20., "anglex":23*degree, "raster":raster.MeridionalFan()}, wave=wave_red)
+(o, k_blue, E0_blue) = collimated_bundle(20, {"opticalsystem": s, "radius": 5.0, "startz":-5., "starty":-20., "anglex":23*degree, "raster":raster.MeridionalFan()}, wave=wave_blue)
 
 initialbundle_red = RayBundle(x0=o, k0=k_red, Efield0=E0_red, wave=wave_red)
 initialbundle_blue = RayBundle(x0=o, k0=k_blue, Efield0=E0_blue, wave=wave_blue)

@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 
 
-from pyrateoptics.sampling2d import raster
 from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.optimize.optimize import Optimizer

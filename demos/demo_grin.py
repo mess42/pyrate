@@ -28,7 +28,6 @@ import numpy as np
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_grin import IsotropicGrinMaterial
-from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
