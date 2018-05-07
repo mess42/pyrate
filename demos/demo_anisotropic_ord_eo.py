@@ -42,7 +42,7 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey
+from pyrateoptics import draw
 
 import math
 import logging
@@ -108,40 +108,19 @@ E0 = np.cross(k, ey, axisa=0, axisb=0).T
 
 sysseq = [("crystalelem", [("stop", {"is_stop":True}), ("front", {}), ("rear", {}), ("image", {})])]
 
-phi = 5.*math.pi/180.0
+
 
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 splitup = True
 r2 = s.seqtrace(initialbundle, sysseq, splitup=splitup)
 
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
 
 if splitup:
-    r2[0].draw2d(ax, color="blue", plane_normal=pn, up=up) 
-    r2[1].draw2d(ax, color="green", plane_normal=pn, up=up)
-    #r2[2].draw2d(ax, color="red", plane_normal=pn, up=up)
-    print("contains splitted? %s" % (r2[0].containsSplitted(),))
+    draw(s, [(r2[0], "blue"), (r2[1], "green")])
+    logging.info("contains splitted? %s" % (r2[0].containsSplitted(),))
 else:
-    r2[0].draw2d(ax, color="blue", plane_normal=pn, up=up)
-    print(r2[0].raybundles[-1].rayID)
-    print("contains splitted? %s" % (r2[0].containsSplitted(),))
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-
-plt.show()
-
+    draw(s, (r2[0], "blue"))
+    logging.info(r2[0].raybundles[-1].rayID)
+    logging.info("contains splitted? %s" % (r2[0].containsSplitted(),))
 

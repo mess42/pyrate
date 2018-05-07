@@ -42,9 +42,8 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey
+from pyrateoptics import draw, collimated_bundle
 
-import math
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -102,48 +101,12 @@ elem.addSurface("image", image, (None, None))
 
 s.addElement("AC254-100", elem)
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(10)
-
-rpup = 11.43
-o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-oshape = np.shape(o)
-
-k = np.zeros(oshape, dtype=complex)
-k[2,:] = 1. #2.*math.pi/wavelength
-
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
-
 sysseq = [("AC254-100", [("stop", {}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
-phi = 5.*math.pi/180.0
 
+(o, k, E0) = collimated_bundle(10, {"opticalsystem":s, "radius":11.43, "startz":-5., "raster":raster.MeridionalFan()}, wave=wavelength)
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq, splitup=True)
 
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-r2[0].draw2d(ax, color="blue", plane_normal=pn, up=up) 
-r2[1].draw2d(ax, color="green", plane_normal=pn, up=up) 
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-
-plt.show()
-
+draw(s, [(r2[0], "blue"), (r2[1], "green")])
 
