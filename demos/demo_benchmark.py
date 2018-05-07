@@ -28,10 +28,10 @@ import time
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from pyrateoptics import build_rotationally_symmetric_optical_system, draw, collimated_bundle
+from pyrateoptics import build_rotationally_symmetric_optical_system, draw, divergent_bundle
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.raytracer.ray import RayBundle
-from pyrateoptics.raytracer.globalconstants import standard_wavelength
+from pyrateoptics.raytracer.globalconstants import standard_wavelength, degree
 
 wavelength = standard_wavelength
 
@@ -53,7 +53,7 @@ db_path = "refractiveindex.info-database/database"
 nrays = 100000
 nrays_draw = 21
 
-(x0, k0, E0) = collimated_bundle(nrays, {"startz": -5., "radius": 1., "raster": raster.RectGrid()})
+(x0, k0, E0) = divergent_bundle(nrays, {"radius": 10.*degree, "raster": raster.RectGrid()})
 t0 = time.clock()
 initialraybundle = RayBundle(x0=x0, k0=k0, Efield0=E0)
 raypath = s.seqtrace(initialraybundle, seq)
@@ -62,7 +62,7 @@ logging.info("             That is " + str(int(round(nrays * (len(s.elements["st
 
 # plot
 
-(x0_draw, k0_draw, E0_draw) = collimated_bundle(nrays_draw, {"startz": -5., "radius": 1., "raster": raster.MeridionalFan()})
+(x0_draw, k0_draw, E0_draw) = divergent_bundle(nrays_draw, {"radius": 10.*degree, "raster": raster.MeridionalFan()})
 initialraybundle_draw = RayBundle(x0=x0_draw, k0=k0_draw, Efield0=E0_draw)
 raypath_draw = s.seqtrace(initialraybundle_draw, seq)
 

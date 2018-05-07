@@ -49,10 +49,13 @@ from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.surface import Surface
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey
+from pyrateoptics.raytracer.globalconstants import canonical_ey, degree
 
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 from pyrateoptics.analysis.surfShape_analysis import ShapeAnalysis
+from pyrateoptics.sampling2d.raster import RandomGrid
+
+from pyrateoptics import divergent_bundle
 
 wavelength = standard_wavelength
 
@@ -64,7 +67,7 @@ s = OpticalSystem() # objectDistance = 2.0
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0), refname=lc0.name) # objectDist
 lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=2.5*math.pi/180.0), refname=lc2.name)
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=2.5*degree), refname=lc2.name)
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0), refname=lc3.name)
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0), refname=lc4.name)
 lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0), refname=lc5.name)
@@ -172,6 +175,28 @@ s.addElement("lenssys", elem)
 #plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 
 
+
+
+divbundledict = {"opticalsystem":s, "radius":10*degree, "raster":RandomGrid()}
+(o, k, E0) = divergent_bundle(900, divbundledict, wave=wavelength)
+
+initialbundle = RayBundle(x0=o, k0=k, Efield0=E0)
+
+#generatebundle(openangle=10.*math.pi/180., numrays=30)
+
+sysseq = [("lenssys", [
+            ("object", {}), 
+            ("surf1", {}), 
+            ("surf2", {}), 
+            ("surf3", {}), 
+            ("surf4", {}), 
+            ("stop", {"is_stop":True}), 
+            ("surf6", {}), 
+            ("surf7", {}), 
+            ("image", {})])]
+r2 = s.seqtrace(initialbundle, sysseq)
+
+
 fig = plt.figure(1)
 ax = fig.add_subplot(311)
 ax2 = fig.add_subplot(312)
@@ -188,46 +213,6 @@ phi = 0.#math.pi/4
 pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
 up = canonical_ey
 
-
-def generatebundle(openangle=0.01, numrays=11):
-   
-    o = np.zeros((3, numrays*numrays))
-    k = np.zeros_like(o)
-    
-    angles = np.linspace(-openangle, openangle, num=numrays)
-    #phi = np.linspace(0, 2.*math.pi, num=numrays)
-    #theta = np.linspace(-openangle, openangle, num=numrays)
-    #(PHI, THETA) = np.meshgrid(phi, theta)
-    phiv = np.random.random(numrays*numrays)*2.*np.pi #PHI.flatten()
-    thetav = (1. - 2.*np.random.random(numrays*numrays))*openangle #THETA.flatten()   
- 
-    k0 = 1. #2.*math.pi/wavelength    
-    
-    k[0,:] = np.cos(phiv)*np.sin(thetav)
-    k[1,:] = np.sin(phiv)*np.sin(thetav) #k0*np.sin(angles)
-    k[2,:] = np.cos(thetav) #k0*np.cos(angles)
-    
-    ey = np.zeros_like(o)
-    ey[1,:] =  1.
-    
-    E0 = np.cross(k, ey, axisa=0, axisb=0).T
-
-    return RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-
-initialbundle = generatebundle(openangle=10.*math.pi/180., numrays=30)
-
-sysseq = [("lenssys", [
-            ("object", {}), 
-            ("surf1", {}), 
-            ("surf2", {}), 
-            ("surf3", {}), 
-            ("surf4", {}), 
-            ("stop", {"is_stop":True}), 
-            ("surf6", {}), 
-            ("surf7", {}), 
-            ("image", {})])]
-r2 = s.seqtrace(initialbundle, sysseq)
-print("drawing!")
 for r in r2:
     r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
 s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
@@ -258,7 +243,7 @@ def osupdate(s):
     s.rootcoordinatesystem.update()
 
 def meritfunctionrms(s):
-    initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=30)
+    initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
     rpaths = s.seqtrace(initialbundle, sysseq)
     
     x = rpaths[0].raybundles[-1].x[-1, 0, :]
@@ -280,7 +265,7 @@ optimi.logger.setLevel(logging.DEBUG)
 s = optimi.run()
 
 r2 = s.seqtrace(initialbundle, sysseq) # trace again
-print("drawing!")
+
 for r in r2:
     r.draw2d(ax2, color="blue", plane_normal=pn, up=up) 
 

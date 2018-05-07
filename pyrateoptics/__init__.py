@@ -43,7 +43,7 @@ from raytracer.localcoordinates import LocalCoordinates
 from raytracer.optical_element import OpticalElement
 from raytracer.surface import Surface
 import raytracer.surfShape as Shapes
-from raytracer.globalconstants import numerical_tolerance, canonical_ey, standard_wavelength
+from raytracer.globalconstants import numerical_tolerance, degree, standard_wavelength
 from raytracer.ray import RayBundle, RayPath
 from material.material_isotropic import ConstantIndexGlass
 from material.material_glasscat import refractiveindex_dot_info_glasscatalog
@@ -335,6 +335,38 @@ def collimated_bundle(nrays, properties_dict={}, wave=standard_wavelength):
     unitvector[0, :] = np.sin(angley)*np.cos(anglex)
     unitvector[1, :] = np.sin(anglex)
     unitvector[2, :] = np.cos(angley)*np.cos(anglex)
+    
+    (k0, E0) = material.sortKnormUnitEField(origin, unitvector, unitvector, wave=wave)
+        
+    return (origin, k0[2, :, :], E0[2, :, :])
+
+def divergent_bundle(nrays, properties_dict={}, wave=standard_wavelength):
+
+    logger = logging.getLogger(__name__)        
+
+    optical_system = properties_dict.get("opticalsystem", None)
+    if optical_system is not None:
+        material = properties_dict.get("material", optical_system.material_background)
+    else:
+        logger.warn("Material has no reference to optical system coordinates!")
+        logger.warn("Please provide 'opticalsystem' key.")
+        material = ConstantIndexGlass(LocalCoordinates(name="mat_lc"))
+        
+    startx = properties_dict.get("startx", 0.)
+    starty = properties_dict.get("starty", 0.)
+    startz = properties_dict.get("startz", 0.)
+    rasterobj = properties_dict.get("raster", RectGrid())
+    radius = properties_dict.get("radius", 45.0*degree)
+    angley = properties_dict.get("angley", 0.0)
+    anglex = properties_dict.get("anglex", 0.0)
+
+    (ax, ay) = rasterobj.getGrid(nrays)
+
+    origin = np.vstack((startx*np.ones_like(ax), starty*np.ones_like(ax), startz*np.ones_like(ax)))
+    unitvector = np.zeros_like(origin)
+    unitvector[0, :] = np.sin(angley + radius*ax)*np.cos(anglex + radius*ay)
+    unitvector[1, :] = np.sin(anglex + radius*ay)
+    unitvector[2, :] = np.cos(angley + radius*ax)*np.cos(anglex + radius*ay)
     
     (k0, E0) = material.sortKnormUnitEField(origin, unitvector, unitvector, wave=wave)
         
