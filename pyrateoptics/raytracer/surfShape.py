@@ -271,9 +271,12 @@ class Conic(Shape):
         # FIXME: G = 0 if start points lie on a conic with the same parameters than
         # the next surface! (e.g.: water drop with internal reflection)
 
-        F = rayDir[2] - self.curvature.evaluate() * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.evaluate()))
-        G = self.curvature.evaluate() * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+self.conic.evaluate())) - 2 * r0[2]
-        H = - self.curvature.evaluate() - self.conic.evaluate() * self.curvature.evaluate() * rayDir[2]**2
+        curv = self.curvature()
+        cc = self.conic()
+
+        F = rayDir[2] - curv * (rayDir[0] * r0[0] + rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+cc))
+        G = curv * (r0[0]**2 + r0[1]**2 + r0[2]**2 * (1+cc)) - 2 * r0[2]
+        H = - curv - cc * curv * rayDir[2]**2
 
         square = F**2 + H*G
         division_part = F + np.sqrt(square)
@@ -281,7 +284,7 @@ class Conic(Shape):
         
         #H_nearly_zero = (np.abs(H) < numerical_tolerance)
         #G_nearly_zero = (np.abs(G) < numerical_tolerance)
-        F_nearly_zero = (np.abs(F) < numerical_tolerance)                
+        #F_nearly_zero = (np.abs(F) < numerical_tolerance)                
         #t = np.where(H_nearly_zero, G/(2.*F), np.where(G_nearly_zero, -2.*F/H, G / division_part))
 
         t = G/division_part 
@@ -328,12 +331,14 @@ class Cylinder(Conic):
 
     def intersect(self, raybundle):
 
-
         (r0, rayDir) = self.getLocalRayBundleForIntersect(raybundle)
 
-        F = rayDir[2] - self.curvature.val * ( rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+self.conic.val))
-        G = self.curvature.val * ( r0[1]**2 + r0[2]**2 * (1+self.conic.val)) - 2 * r0[2]
-        H = - self.curvature.val - self.conic.val * self.curvature.val * rayDir[2]**2
+        curv = self.curvature()
+        cc = self.conic()
+
+        F = rayDir[2] - curv * ( rayDir[1] * r0[1] + rayDir[2] * r0[2] * (1+cc))
+        G = curv * ( r0[1]**2 + r0[2]**2 * (1+cc)) - 2 * r0[2]
+        H = - curv - cc * curv * rayDir[2]**2
 
         square = F**2 + H*G
 
