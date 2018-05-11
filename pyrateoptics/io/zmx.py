@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import codecs
 import re
 import math
-from asyncore import read
 
 from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.optical_element import OpticalElement
@@ -35,7 +34,9 @@ from ..raytracer.localcoordinates import LocalCoordinates
 from ..raytracer.surface import Surface
 from ..raytracer.surfShape import Conic, Asphere
 from ..raytracer.aperture import CircularAperture, RectangularAperture
+from ..raytracer.ray import RayBundle
 from ..core.log import BaseLogger
+
 
 
 class ZMXParser(BaseLogger):
@@ -68,6 +69,7 @@ class ZMXParser(BaseLogger):
         # rU - universal newline mode: translates all lineendings into \n
         # is obsolete in Python3 since U mode is default
         fh = codecs.open(filename, "rU", encoding=codec_name)
+        self.debug(str(fh))
         self.__textlines = list([line for line in fh])
         fh.close()
         self.__full_textlines = "".join(self.__textlines)
@@ -191,6 +193,26 @@ class ZMXParser(BaseLogger):
         
         return filteredBlockStrings
 
+    def createInitialBundle(self):
+        enpd = filter(lambda x: x != None, [self.readStringForKeyword(l, "ENPD") for l in self.__textlines])[0]
+        self.info(enpd)
+        if enpd is not None:
+            enpd = float(enpd)
+        xfldlist = [self.readStringForKeyword(l, "XFLN") for l in self.__textlines]
+        yfldlist = [self.readStringForKeyword(l, "YFLN") for l in self.__textlines]
+        self.info("Field X: %s" % (str(xfldlist),))        
+        self.info("Field Y: %s" % (str(yfldlist),))        
+        xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
+        yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
+        xfield_list = [float(x) for x in xfield_str_list.split(" ")]
+        yfield_list = [float(y) for y in yfield_str_list.split(" ")]
+        
+        raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in zip(xfield_list, yfield_list)]
+        
+        print(raybundle_dicts)        
+        
+        return raybundle_dicts
+
     def createOpticalSystem(self, matdict = {}, elementname="zmxelem"):
 
         self.info("Creating optical system from ZMX")
@@ -214,14 +236,19 @@ class ZMXParser(BaseLogger):
                 # different material coordinate systems are not supported
                 elem.addMaterial(key, mat)
         else:
-            self.error("need external material objects in dict with the following identifiers")
+            self.info("checking for external material objects in dict with the following identifiers")
+            found_necessary_glasses = False
             for blk in surface_blockstrings:
                 surfres = self.readSurfBlock(blk)
                 material_name = surfres.get("GLAS", None)
                 if material_name is not None and material_name != "MIRROR":
+                    found_necessary_glasses = True
                     self.info(material_name)
-            self.error("exiting")
-            return (optical_system, [("zmxelem", [])])
+            if found_necessary_glasses:
+                self.error("found material names: exiting")
+                return (optical_system, [("zmxelem", [])])
+            else:
+                self.info("found only mirrors or no material: continuing")
 
         refname = lc0.name
         lastlc = lc0

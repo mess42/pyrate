@@ -57,14 +57,21 @@ num_rays = int(sys.argv[3])
 p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
 
-#matdict = {}
-matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168)}
+matdict = {}
+#matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168)}
 #matdict = {"LAFN21":ConstantIndexGlass(lctmp, 1.788), "SF53":ConstantIndexGlass(lctmp, 1.72)}    
 
 (s, seq) = p.createOpticalSystem(matdict)
-(o, k, E0) = collimated_bundle(11, {"opticalsystem":s, "radius":enpd*0.5, "startz":-5., "raster":raster.MeridionalFan()}, wave=standard_wavelength)
+#(o, k, E0) = collimated_bundle(11, {"opticalsystem":s, "radius":enpd*0.5, "startz":-5., "raster":raster.MeridionalFan()}, wave=standard_wavelength)
 
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=standard_wavelength)
-rays = s.seqtrace(initialbundle, seq)
+initialbundles_dict = p.createInitialBundle()
+print(seq)
+ray_paths = []
+for d in initialbundles_dict:
+    d["opticalsystem"] = s
+    d["raster"] = raster.MeridionalFan()
+    (o, k, E0) = collimated_bundle(11, d, wave=standard_wavelength)
+    initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=standard_wavelength)
+    ray_paths.append(s.seqtrace(initialbundle, seq))
 
-draw(s, rays)
+draw(s, ray_paths)
