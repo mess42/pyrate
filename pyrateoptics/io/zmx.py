@@ -193,24 +193,23 @@ class ZMXParser(BaseLogger):
         
         return filteredBlockStrings
 
-    def createInitialBundle(self):
+    def createInitialBundle(self, d_or_n="D"):
+        raybundle_dicts = []
+        
         enpd = filter(lambda x: x != None, [self.readStringForKeyword(l, "ENPD") for l in self.__textlines])[0]
         self.info(enpd)
+                
         if enpd is not None:
             enpd = float(enpd)
-        xfldlist = [self.readStringForKeyword(l, "XFLN") for l in self.__textlines]
-        yfldlist = [self.readStringForKeyword(l, "YFLN") for l in self.__textlines]
-        self.info("Field X: %s" % (str(xfldlist),))        
-        self.info("Field Y: %s" % (str(yfldlist),))        
-        xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
-        yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
-        xfield_list = [float(x) for x in xfield_str_list.split(" ")]
-        yfield_list = [float(y) for y in yfield_str_list.split(" ")]
+            xfldlist = [self.readStringForKeyword(l, "XFL" + d_or_n) for l in self.__textlines]
+            yfldlist = [self.readStringForKeyword(l, "YFL" + d_or_n) for l in self.__textlines]
+            xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
+            yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
+            xfield_list = [float(x) for x in xfield_str_list.split(" ")]
+            yfield_list = [float(y) for y in yfield_str_list.split(" ")]
         
-        raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in zip(xfield_list, yfield_list)]
-        
-        print(raybundle_dicts)        
-        
+            raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in zip(xfield_list, yfield_list)]
+                
         return raybundle_dicts
 
     def createOpticalSystem(self, matdict = {}, elementname="zmxelem"):
@@ -246,7 +245,7 @@ class ZMXParser(BaseLogger):
                     self.info(material_name)
             if found_necessary_glasses:
                 self.error("found material names: exiting")
-                return (optical_system, [("zmxelem", [])])
+                return (None, [("zmxelem", [])])
             else:
                 self.info("found only mirrors or no material: continuing")
 

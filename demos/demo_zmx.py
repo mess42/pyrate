@@ -57,15 +57,18 @@ num_rays = int(sys.argv[3])
 p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
 
-matdict = {}
-#matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168)}
+#matdict = {}
+matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168)}
 #matdict = {"LAFN21":ConstantIndexGlass(lctmp, 1.788), "SF53":ConstantIndexGlass(lctmp, 1.72)}    
 
 (s, seq) = p.createOpticalSystem(matdict)
 #(o, k, E0) = collimated_bundle(11, {"opticalsystem":s, "radius":enpd*0.5, "startz":-5., "raster":raster.MeridionalFan()}, wave=standard_wavelength)
+if s is None:
+    sys.exit()
 
-initialbundles_dict = p.createInitialBundle()
-print(seq)
+initialbundles_dict = p.createInitialBundle("N")
+
+
 ray_paths = []
 for d in initialbundles_dict:
     d["opticalsystem"] = s
