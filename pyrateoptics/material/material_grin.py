@@ -41,7 +41,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         self.ds = ds
         self.energyviolation = energyviolation
         self.boundaryfunction = bndfunction
-
+        # TODO: optimization via *args or *kwargs in n, dndx, dndy, dndz
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)

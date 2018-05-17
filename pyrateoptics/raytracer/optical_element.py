@@ -66,6 +66,12 @@ class OpticalElement(LocalCoordinatesTreeBase):
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
         self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
 
+    def changeMaterialsForSurface(self, key, materialkeys):
+        (minusNmat_key, plusNmat_key) = materialkeys
+        if key in self.__surf_mat_connection:        
+            self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
+        
+
     def getSurfaces(self):
         return self.__surfaces
         
