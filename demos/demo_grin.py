@@ -64,23 +64,26 @@ elem = OpticalElement(lc0, name="grinelement")
 grin_strength = 0.5
 
 
-def nfunc(x):
+def nfunc(x, **kw):
     return grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)+1.0#(2.5 - (x**2 + 100.0*y**4)/10.**2)
 
-def dndx(x):
+def dndx(x, **kw):
     return -2.*x[0]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)#-2*x/10.**2
 
-def dndy(x):
+def dndy(x, **kw):
     return -2.*4.*x[1]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2) #-100.0*4.0*y**3/10.**2
 
-def dndz(x):
+def dndz(x, **kw):
     return np.zeros_like(x[0])
 
 def bnd(x):
     return x[0]**2 + x[1]**2 < 10.**2
 
 #grinmaterial = ConstantIndexGlass(lc1, 1.0 + grin_strength) 
-grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz, bnd, ds=0.05, energyviolation=0.01)
+grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz)
+grinmaterial.ds = 0.05, 
+grinmaterial.energyviolation = 0.01
+grinmaterial.boundaryfunction = bnd
 
 elem.addMaterial("grin", grinmaterial)
 

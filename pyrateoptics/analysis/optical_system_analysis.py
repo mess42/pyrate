@@ -38,7 +38,7 @@ class OpticalSystemAnalysis(BaseLogger):
         
     def trace(self, initialbundle, fullsequence):
         self.info("tracing rays")
-        list_of_raypaths = s.seqtrace(initialbundle, sysseq)
+        list_of_raypaths = self.opticalsystem.seqtrace(initialbundle, fullsequence)
         return list_of_raypaths
         
     def getFootprint(self, raypath, fullsequence, hitlist_part):
