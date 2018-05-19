@@ -30,20 +30,20 @@ import math
 
 import numpy as np
 
-from core import material_isotropic
-from core import surfShape
+from pyrateoptics import material_isotropic
+from pyrateoptics import surfShape
 
-from core.optical_system import OpticalSystem
-from core.optical_element import OpticalElement
-from core.surface import Surface
-from core.observers import AbstractObserver
-from core.localcoordinates import LocalCoordinates
-from core.aperture import CircularAperture
+from pyrateoptics.optical_system import OpticalSystem
+from pyrateoptics.optical_element import OpticalElement
+from pyrateoptics.surface import Surface
+from pyrateoptics.observers import AbstractObserver
+from pyrateoptics.localcoordinates import LocalCoordinates
+from pyrateoptics.aperture import CircularAperture
 
-from core import pupil
-from core import raster
-#from core import aim
-from core import ray
+from pyrateoptics import pupil
+from pyrateoptics import raster
+#from pyrateoptics import aim
+from pyrateoptics import ray
 
 # freecad modules
 
@@ -55,7 +55,7 @@ from Observer_LocalCoordinates import LC
 from Object_Surface import SurfaceObject
 from View_Surface import SurfaceView
 
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 from Interface_Helpers import *
 from Interface_Checks import *
     

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCADGui
 
 from Interface_Helpers import *
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
 
 class FunctionsTaskPanelEdit:

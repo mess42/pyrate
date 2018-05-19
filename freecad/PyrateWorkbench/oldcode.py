@@ -33,18 +33,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PySide import QtCore, QtGui
 
-from core import material
-from core import surfShape
-from core import aim
-from core import field
-from core import pupil
-from core import raster
-from core import plots
-from core import aperture
+from pyrateoptics import material
+from pyrateoptics import surfShape
+from pyrateoptics import aim
+from pyrateoptics import field
+from pyrateoptics import pupil
+from pyrateoptics import raster
+from pyrateoptics import plots
+from pyrateoptics import aperture
 
-from core.ray import RayPath
-from core.optical_system import OpticalSystem, Surface
-from core.observers import AbstractObserver
+from pyrateoptics.ray import RayPath
+from pyrateoptics.optical_system import OpticalSystem, Surface
+from pyrateoptics.observers import AbstractObserver
 
 
 # freecad modules
@@ -55,7 +55,7 @@ import Part
 import Points
 import Draft
 
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
 
 class AimDialog(QtGui.QDialog):

@@ -31,9 +31,9 @@ import PartGui
 import Points
 
 
-from Observer_OpticalSystem import OpticalSystemObserver
+from .Observer_OpticalSystem import OpticalSystemObserver
 from PySide import QtGui
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
 class ShowSystemCommand:
     "Show system in active document"

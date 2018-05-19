@@ -33,7 +33,7 @@ from TaskPanel_Materials_Add import MaterialsTaskPanelAdd
 from Object_MaterialCatalogue import MaterialCatalogueObject
 
 from Interface_Checks import *
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
 
 class CreateMaterialsTool:

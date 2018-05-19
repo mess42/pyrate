@@ -26,11 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from Interface_Helpers import *
 from Interface_Checks import *
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
-from core.observers import AbstractObserver
-from core.material_isotropic import ConstantIndexGlass, ModelGlass
-from core.material_grin import IsotropicGrinMaterial
+from pyrateoptics.observers import AbstractObserver
+from pyrateoptics.material_isotropic import ConstantIndexGlass, ModelGlass
+from pyrateoptics.material_grin import IsotropicGrinMaterial
 
 import numpy as np
 
@@ -64,7 +64,7 @@ class MaterialObject(AbstractObserver):
           
         # TODO: set values from initialized matclass coming from a predefined optical system
         
-        self.__obj.addProperty("App::PropertyPythonObject", "matclass", "Material", "material class from core code")
+        self.__obj.addProperty("App::PropertyPythonObject", "matclass", "Material", "material class from pyrateoptics code")
         self.__obj.addProperty("App::PropertyString", "comment", "Material", "comments").comment = ""
         self.__obj.addProperty("App::PropertyString", "mattype", "Material", "specifies type").mattype = mattype
 
