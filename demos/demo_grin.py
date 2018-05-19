@@ -80,8 +80,8 @@ def bnd(x):
     return x[0]**2 + x[1]**2 < 10.**2
 
 #grinmaterial = ConstantIndexGlass(lc1, 1.0 + grin_strength) 
-grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz)
-grinmaterial.ds = 0.05, 
+grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz, parameterlist=[("n0", 0.5)])
+grinmaterial.ds = 0.05
 grinmaterial.energyviolation = 0.01
 grinmaterial.boundaryfunction = bnd
 
