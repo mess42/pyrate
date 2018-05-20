@@ -705,43 +705,52 @@ class XYPolynomials(ExplicitShape):
     Class for XY polynomials
     """
 
-    def __init__(self, lc, coefficients=None, **kwargs):
+    def __init__(self, lc, normradius=100.0, coefficients=None, **kwargs):
 
         if coefficients is None:
             coefficients = []
-        
         self.list_coefficients = [(xpow, ypow) for (xpow, ypow, coefficient) in coefficients]
-        initcoeffs = [("CX"+str(xpower)+"Y"+str(ypower), coefficient) for (xpower, ypower, coefficient) in coefficients]
-    
+        initcoeffs = [("normradius", normradius)] + [("CX"+str(xpower)+"Y"+str(ypower), coefficient) for (xpower, ypower, coefficient) in coefficients]
+
         def xyf(x, y):
-            coeffs = self.getXYParameters()
+            (normradius, coeffs) = self.getXYParameters()
             
             res = np.zeros_like(x)
             
             for (xpow, ypow, coefficient) in coeffs:
-                res += x**xpow*y**ypow*coefficient
+                normalization = 1./normradius**(xpow+ypow)
+                res += x**xpow*y**ypow*coefficient*normalization
             return res
 
         def gradxyf(x, y, z): # gradient for implicit function z - af(x, y) = 0
             res = np.zeros((3, len(x)))
-            coeffs = self.getXYParameters()
+            (normradius, coeffs) = self.getXYParameters()
 
             for (xpow, ypow, coefficient) in coeffs:
-                res[0, :] += -xpow*x**(xpow-1)*y**ypow*coefficient
-                res[1, :] += -ypow*x**xpow*y**(ypow-1)*coefficient
-            res[2, :] = 1
+                normalization = 1./normradius**(xpow+ypow)
+                xpm1 = np.where(xpow >= 1, x**(xpow-1), np.zeros_like(x))
+                ypm1 = np.where(ypow >= 1, y**(ypow-1), np.zeros_like(x))
+                res[0, :] += -xpow*xpm1*y**ypow*coefficient*normalization
+                res[1, :] += -ypow*x**xpow*ypm1*coefficient*normalization
+            res[2, :] = 1.
                         
             return res
 
         def hessxyf(x, y, z):
             res = np.zeros((3, 3, len(x)))
 
-            coeffs = self.getXYParameters()            
+            (normradius, coeffs) = self.getXYParameters()            
 
             for (xpow, ypow, coefficient) in coeffs:
-                res[0, 0] += -xpow*(xpow-1)*x**(xpow-2)*y**ypow*coefficient
-                res[0, 1] += -xpow*ypow*x**(xpow-1)*y**(ypow-1)*coefficient
-                res[1, 1] += -ypow*(ypow-1)*x**xpow*y**(ypow-2)*coefficient
+                normalization = 1./normradius**(xpow+ypow)
+                xpm1 = np.where(xpow >= 1, x**(xpow-1), np.zeros_like(x))
+                ypm1 = np.where(ypow >= 1, y**(ypow-1), np.zeros_like(x))
+                xpm2 = np.where(xpow >= 2, x**(xpow-2), np.zeros_like(x))
+                ypm2 = np.where(ypow >= 2, y**(ypow-2), np.zeros_like(x))
+
+                res[0, 0] += -xpow*(xpow-1)*xpm2*y**ypow*coefficient*normalization
+                res[0, 1] += -xpow*ypow*xpm1*ypm1*coefficient*normalization
+                res[1, 1] += -ypow*(ypow-1)*x**xpow*ypm2*coefficient*normalization
                 
             res[1, 0] = res[0, 1]
             
@@ -751,7 +760,8 @@ class XYPolynomials(ExplicitShape):
             paramlist=initcoeffs, **kwargs)
 
     def getXYParameters(self):
-        return [(xpow, ypow, self.params["CX"+str(xpow)+"Y"+str(ypow)]()) for (xpow, ypow) in self.list_coefficients]
+        return (self.params["normradius"](),
+                [(xpow, ypow, self.params["CX"+str(xpow)+"Y"+str(ypow)]()) for (xpow, ypow) in self.list_coefficients])
                 
 
 class GridSag(ExplicitShape):
