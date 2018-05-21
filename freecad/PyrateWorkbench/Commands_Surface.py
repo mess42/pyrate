@@ -32,7 +32,7 @@ from PySide.QtGui import QLineEdit, QInputDialog
 from TaskPanel_Surfaces_Add import SurfacesTaskPanelAdd
 
 from Interface_Checks import *
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
 
 class CreateSurfaceTool:

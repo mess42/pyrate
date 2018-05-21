@@ -28,7 +28,7 @@ import FreeCADGui
 
 from Interface_Helpers import *
 from Interface_Checks import *
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
 from Object_Material import MaterialObject
 

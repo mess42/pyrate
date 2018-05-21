@@ -30,7 +30,7 @@ import PartGui
 import Points
 
 
-from Observer_OpticalSystem import OpticalSystemObserver
+from .Observer_OpticalSystem import OpticalSystemObserver
 from PySide import QtGui
 
 

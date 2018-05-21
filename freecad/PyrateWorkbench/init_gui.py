@@ -56,37 +56,37 @@ else:
 import FreeCADGui
 import FreeCAD
 
-from PyrateWorkbench.Interface_Checks import isLocalCoordinatesObserver
+from freecad.PyrateWorkbench.Interface_Checks import isLocalCoordinatesObserver
 
-from PyrateWorkbench import Commands_OpticalSystem
-from PyrateWorkbench import Observer_OpticalSystem
+from freecad.PyrateWorkbench import Commands_OpticalSystem
+from freecad.PyrateWorkbench import Observer_OpticalSystem
 
-#from PyrateWorkbench import Commands_Files # TODO: update
+#from freecad.PyrateWorkbench import Commands_Files # TODO: update
 
-from PyrateWorkbench import Commands_Visualization # TODO: update
+from freecad.PyrateWorkbench import Commands_Visualization # TODO: update
 
-from PyrateWorkbench import Commands_FieldPoints
-from PyrateWorkbench import TaskPanel_FieldPoints
+from freecad.PyrateWorkbench import Commands_FieldPoints
+from freecad.PyrateWorkbench import TaskPanel_FieldPoints
 
-from PyrateWorkbench import Commands_Analysis # TODO: update
+from freecad.PyrateWorkbench import Commands_Analysis # TODO: update
 
-from PyrateWorkbench import Commands_Optimization
-from PyrateWorkbench import Dialog_Optimization
+from freecad.PyrateWorkbench import Commands_Optimization
+from freecad.PyrateWorkbench import Dialog_Optimization
 
-from PyrateWorkbench import Commands_LocalCoordinates
-from PyrateWorkbench import Observer_LocalCoordinates
+from freecad.PyrateWorkbench import Commands_LocalCoordinates
+from freecad.PyrateWorkbench import Observer_LocalCoordinates
 
-from PyrateWorkbench import Commands_Functions
-from PyrateWorkbench import Object_Functions
+from freecad.PyrateWorkbench import Commands_Functions
+from freecad.PyrateWorkbench import Object_Functions
 
-from PyrateWorkbench import Commands_Materials
+from freecad.PyrateWorkbench import Commands_Materials
 
-from PyrateWorkbench import Commands_Surface
+from freecad.PyrateWorkbench import Commands_Surface
 
 # access to the resource file
-from PyrateWorkbench import resources_rc
+from freecad.PyrateWorkbench import resources_rc
 
-class PyrateWorkbench ( Workbench ):
+class PyrateWorkbench ( FreeCADGui.Workbench ):
     "Pyrate workbench object"
     Icon = ":/icons/pyrate_logo_icon.svg"
 

@@ -28,10 +28,10 @@ import FreeCAD
 import FreeCADGui
 
 
-#from core import merit
-from core import optimize
+#from pyrateoptics import merit
+from pyrateoptics import optimize
 
-from Observer_OpticalSystem import OpticalSystemObserver
+from .Observer_OpticalSystem import OpticalSystemObserver
 from Dialog_Optimization import OptimizationDialog
 
 class StartOptimizationCommand:

@@ -30,10 +30,10 @@ import FreeCADGui
 from PySide.QtGui import QLineEdit, QInputDialog, QMessageBox
 
 
-from Observer_OpticalSystem import OpticalSystemObserver 
+from .Observer_OpticalSystem import OpticalSystemObserver 
 from Object_MaterialCatalogue import MaterialCatalogueObject
 
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 from Interface_Checks import *
 
 from TaskPanel_SurfaceList_Edit import SurfaceListTaskPanelEdit
@@ -156,8 +156,8 @@ class ShowSurfaceListTool:
         # TODO: In menu: Add, Del Surf001, Delf Surf002, ..., Del Surf00N
         # TODO: Enums must have actualized with Labels of defined surfaces
         # TODO: every time something is changed the list in the core opticalsystem has to be actualized
-        # TODO: initial Surfaces list from core opticalsystem
-        # TODO: initial enumeration list from core opticalsystem
+        # TODO: initial Surfaces list from pyrateoptics opticalsystem
+        # TODO: initial enumeration list from pyrateoptics opticalsystem
         
         panel = SurfaceListTaskPanelEdit(osselection)
         FreeCADGui.Control.showDialog(panel)

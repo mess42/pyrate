@@ -31,7 +31,7 @@ from PySide import QtGui
 from Observer_LocalCoordinates import LC
 
 from Interface_Helpers import *
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
 class LocalCoordinatesTaskPanelAdd:
     def __init__(self, doc, oslabellist):
