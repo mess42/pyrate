@@ -261,6 +261,13 @@ def draw(os, rays=None, **kwargs):
     os.draw2d(ax, color="grey", **kwargs) 
     
     plt.show()
+
+def raytrace(s, seq, numrays, rays_dict, bundletype="collimated", wave=standard_wavelength):
+    call_dict = {"collimated":collimated_bundle, "divergent":divergent_bundle}
+    rays_dict["opticalsystem"] = s    
+    (o1, k1, E1) = call_dict[bundletype](numrays, rays_dict, wave=wave)
+    initialbundle = RayBundle(x0=o1, k0=k1, Efield0=E1, wave=wave)
+    return s.seqtrace(initialbundle, seq)
     
 
 def listOptimizableVariables(os, filter_status=None, maxcol=None):
