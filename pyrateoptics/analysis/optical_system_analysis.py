@@ -70,13 +70,15 @@ class OpticalSystemAnalysis(BaseLogger):
 
     
     def drawSpotDiagram(self, initialbundle, raypath_numbers, ax=None):
+        # TODO: optimize calling convention such that it is usable by convenience functions
+        # drawSpotDiagram(numrays, raypath_numbers, rays_dict)
         raypaths = self.trace(initialbundle)
 
         if ax is None:
             fig = plt.figure()
         
         for num in raypath_numbers:
-            (spot_xy, rmscentroidsize) = self.getSpot(raypaths[num], self.sequence)
+            (spot_xy, rmscentroidsize) = self.getSpot(raypaths[num])
 
             if ax is None:
                 ax = fig.add_subplot(len(raypath_numbers), 1, 1)

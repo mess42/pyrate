@@ -273,8 +273,8 @@ listOptimizableVariables(s, filter_status='variable', maxcol=80)
 
 s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-osa = OpticalSystemAnalysis(s)
-osa.drawSpotDiagram(r2[0], sysseq)
+osa = OpticalSystemAnalysis(s, sysseq)
+osa.drawSpotDiagram(r2[0].raybundles[0], [0,])
 sa = ShapeAnalysis(surf1.shape)
 sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
 
