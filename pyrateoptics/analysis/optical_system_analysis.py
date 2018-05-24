@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from ..core.log import BaseLogger
 from ray_analysis import RayBundleAnalysis
+from ..sampling2d.raster import RectGrid
 import matplotlib.pyplot as plt
 
 # TODO: update this class and use this as an interface for the convenience functions
@@ -37,6 +38,10 @@ class OpticalSystemAnalysis(BaseLogger):
         super(OpticalSystemAnalysis, self).__init__(name=name)
         self.opticalsystem = os
         self.sequence = seq
+        self.field_raster = RectGrid() # [-1, 1] x [-1, 1]
+        self.pupil_raster = RectGrid() # [-1, 1] x [-1, 1]
+        self.initial_bundles = None
+
         
     def trace(self, initialbundle):
         self.info("tracing rays")
