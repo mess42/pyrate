@@ -811,9 +811,9 @@ class GridSag(ExplicitShape):
 
         super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-6, iterations=10, name=name)
 
-class ZernikeFringe(ExplicitShape):
+class Zernike(ExplicitShape):
     """
-    Class for Zernike Fringe
+    Class for Zernike
     """
     
     def __init__(self, lc, normradius=1., coefficients=None, **kwargs):
@@ -824,7 +824,7 @@ class ZernikeFringe(ExplicitShape):
         initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
             
         def zf(x, y):
-            (normradius, zcoefficients) = self.getZernikeFringeParameters()            
+            (normradius, zcoefficients) = self.getZernikeParameters()            
             res = np.zeros_like(x)            
             for (num, val) in enumerate(zcoefficients):
                 res += val*self.zernike_norm(num + 1, x/normradius, y/normradius)
@@ -837,25 +837,24 @@ class ZernikeFringe(ExplicitShape):
         def hesszf(x, y, z):
             return np.zeros_like(x)
 
-        super(ZernikeFringe, self).__init__(lc, zf, gradzf, hesszf, \
+        super(Zernike, self).__init__(lc, zf, gradzf, hesszf, \
             paramlist=([("normradius", normradius)]+initcoeffs), **kwargs)
 
-    def getZernikeFringeParameters(self):
+    def getZernikeParameters(self):
         return (self.params["normradius"](), \
                 [self.params["Z"+str(i+1)]() for i in range(self.numcoefficients)])
 
     def jtonm(self, j):
-        # get correct indices from j    
-    
-        next_sq = (math.ceil(math.sqrt(j)))**2
-        m_plus_n = int(2*math.sqrt(next_sq) - 2)
-        m = int(math.ceil((next_sq - j)/2))
-        n = m_plus_n - m
-        m = int((-1)**((next_sq - j) % 2))*m
-        return (n, m)        
+        """
+        Get double indices from single index
+        """
+        raise NotImplementedError()
 
     def nmtoj(self, (n, m)):
-        return int(((n + abs(m))/2 + 1)**2 - 2*abs(m) + (1 - np.sign(m))/2)
+        """
+        Get single index from double indices
+        """
+        raise NotImplementedError()
 
     def zernike_norm(self, j, xp, yp):        
         (n, m) = self.jtonm(j)        
@@ -883,7 +882,43 @@ class ZernikeFringe(ExplicitShape):
             result = rho*np.cos(omega*phi)
         
         return result
+        
+        
+class ZernikeFringe(Zernike):
+    
+    def __init__(self, lc, **kwargs):
 
+        super(ZernikeFringe, self).__init__(lc, **kwargs)
+
+
+    def jtonm(self, j):
+        next_sq = (math.ceil(math.sqrt(j)))**2
+        m_plus_n = int(2*math.sqrt(next_sq) - 2)
+        m = int(math.ceil((next_sq - j)/2))
+        n = m_plus_n - m
+        m = int((-1)**((next_sq - j) % 2))*m
+        return (n, m)        
+
+    def nmtoj(self, (n, m)):
+        return int(((n + abs(m))/2 + 1)**2 - 2*abs(m) + (1 - np.sign(m))/2)
+
+
+class ZernikeNoll(Zernike):
+    
+    def __init__(self, lc, **kwargs):
+
+        super(ZernikeNoll, self).__init__(lc, **kwargs)
+
+
+    def jtonm(self, j):
+        n = math.floor((-1.+math.sqrt(1.+8.*j))*0.5);
+        m = n-2*j+n*(n+1);
+
+        
+        return (n, m)
+        
+    def nmtoj(self, (n, m)):
+        return 0
 
 ################################################
 # ZMXDLLShape
