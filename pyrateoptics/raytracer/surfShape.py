@@ -30,6 +30,7 @@ import math
 from ..core.base import ClassWithOptimizableVariables, OptimizableVariable
 from scipy.optimize import fsolve
 from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
+from scipy.special import jacobi
 from globalconstants import numerical_tolerance
 import ctypes
 
@@ -827,15 +828,15 @@ class Zernike(ExplicitShape):
             (normradius, zcoefficients) = self.getZernikeParameters()            
             res = np.zeros_like(x)            
             for (num, val) in enumerate(zcoefficients):
-                res += val*self.zernike_norm(num + 1, x/normradius, y/normradius)
+                res += val*self.zernike_norm_j(num + 1, x/normradius, y/normradius)
             
             return res
         
         def gradzf(x, y, z):
-            return np.zeros_like(x)
+            return np.zeros((3, len(x)))
             
         def hesszf(x, y, z):
-            return np.zeros_like(x)
+            return np.zeros((3, 3, len(x)))
 
         super(Zernike, self).__init__(lc, zf, gradzf, hesszf, \
             paramlist=([("normradius", normradius)]+initcoeffs), **kwargs)
@@ -843,6 +844,7 @@ class Zernike(ExplicitShape):
     def getZernikeParameters(self):
         return (self.params["normradius"](), \
                 [self.params["Z"+str(i+1)]() for i in range(self.numcoefficients)])
+
 
     def jtonm(self, j):
         """
@@ -856,8 +858,47 @@ class Zernike(ExplicitShape):
         """
         raise NotImplementedError()
 
-    def zernike_norm(self, j, xp, yp):        
-        (n, m) = self.jtonm(j)        
+    """
+    def radial_coefficients(self, n, m):
+        omega = abs(m)
+        k = np.arange(0, (n-omega)//2)
+        print(k)
+        return (-1)**k * factorial(n-k) / ( factorial(k) * factorial((n+m)/2 - k) * factorial((n-m)/2-k) );
+
+    def radialfunction_norm(self, n, m, xp, yp):
+        rho = np.sqrt(xp**2 + yp**2)
+        k = np.arange(0, (n-abs(m))//2)
+        (RHO, K) = np.meshgrid(rho, k)
+        M = RHO**(2.*n - K)
+        radcoeffs = self.radial_coefficients(n, m)[:, np.newaxis]
+        #print(k)
+        #print(radcoeffs)
+        #print(M.shape)
+        #print(radcoeffs.shape)
+        
+        return np.sum(radcoeffs*M, axis=0)
+    """
+        
+    def radialfunction_norm(self, n, m, xp, yp):
+        rho = np.sqrt(xp**2 + yp**2)
+        omega = abs(m)
+        sumlimit = (n-omega)//2
+        return (-1)**sumlimit*rho**omega*jacobi(sumlimit, omega, 0)(1. - 2.*rho**2)        
+
+    def angularfunction_norm(self, n, m, xp, yp):
+        omega = abs(m)
+        phi = np.arctan2(yp, xp)
+        return np.where(m < 0, np.sin(omega*phi), np.cos(omega*phi))
+
+    def zernike_norm_j(self, j, xp, yp):
+        (n, m) = self.jtonm(j)                
+        return self.zernike_norm(n, m, xp, yp)
+
+    def zernike_norm2(self, n, m, xp, yp):
+        return self.radialfunction_norm(n, m, xp, yp)*self.angularfunction_norm(n, m, xp, yp)        
+
+    def zernike_norm(self, n, m, xp, yp):        
+
 
         R = np.zeros(n+1)                        
         omega = abs(m)
@@ -865,7 +906,7 @@ class Zernike(ExplicitShape):
         a = np.arange(omega, n+1, 2)
         k = (n-a)/2        
     
-        R[a] = (-1)**k * factorial(n-k) / ( factorial(k) * factorial((n+m)/2 - k) * factorial((n-m)/2-k) );
+        R[a] = (-1)**k * factorial(n-k) / ( factorial(k) * factorial((n+m)/2 - k) * factorial((n-m)/2-k) )
         
         r = np.sqrt(xp**2 + yp**2)
         phi = np.arctan2(yp, xp)
@@ -903,11 +944,11 @@ class ZernikeFringe(Zernike):
         return int(((n + abs(m))/2 + 1)**2 - 2*abs(m) + (1 - np.sign(m))/2)
 
 
-class ZernikeNoll(Zernike):
+class ZernikeStandard(Zernike):
     
     def __init__(self, lc, **kwargs):
 
-        super(ZernikeNoll, self).__init__(lc, **kwargs)
+        super(ZernikeStandard, self).__init__(lc, **kwargs)
 
 
     def jtonm(self, j):

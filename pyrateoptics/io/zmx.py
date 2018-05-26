@@ -32,7 +32,7 @@ from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.optical_element import OpticalElement
 from ..raytracer.localcoordinates import LocalCoordinates
 from ..raytracer.surface import Surface
-from ..raytracer.surfShape import Conic, Asphere
+from ..raytracer.surfShape import Conic, Asphere, LinearCombination, ZernikeFringe
 from ..raytracer.aperture import CircularAperture, RectangularAperture
 from ..raytracer.ray import RayBundle
 from ..core.log import BaseLogger
@@ -154,6 +154,7 @@ class ZMXParser(BaseLogger):
     def readSurfBlock(self, surfblk):
         paramsdict = {}
         zmxparams = {}
+        zmxxdat = {}
 
         # U mode in file read sets line ending to \n        
         blocklines = [x.lstrip() for x in surfblk.split("\n")]
@@ -177,13 +178,26 @@ class ZMXParser(BaseLogger):
         self.addKeywordToDict(blocklines, "SQAP", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
         self.addKeywordToDict(blocklines, "CLAP", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
 
+        self.addKeywordToDict(blocklines, "XDAT", zmxxdat, self.extractArgsForMultipleKeywordFromBlock, int, float, int, int, float)
+        # XDAT n val v pus sca
+
+
         # rewrite params into dict to better access them
         reconstruct_param = {}        
-        for [num, val] in zmxparams.get("PARM", []):
+        for (num, val) in zmxparams.get("PARM", []):
             reconstruct_param[num] = val
         paramsdict["PARM"] = reconstruct_param
         
-        
+        reconstruct_xdat = {}
+        for (num, val, v, pus, sca) in zmxxdat.get("XDAT", []):
+            reconstruct_xdat[num] = {}
+            reconstruct_xdat[num]["value"] = val
+            reconstruct_xdat[num]["status"] = v
+            reconstruct_xdat[num]["pickupsurface"] = pus 
+            reconstruct_xdat[num]["scaling"] = sca
+            # TODO: what are the other variables?
+        paramsdict["XDAT"] = reconstruct_xdat
+                
         return paramsdict
         
     def filterBlockStrings(self, keyword):
@@ -272,6 +286,7 @@ class ZMXParser(BaseLogger):
             stop = surfres["STOP"]
             surftype = surfres["TYPE"]
             parms = surfres["PARM"]
+            xdat = surfres["XDAT"]
             
             sqap = surfres.get("SQAP", None)
             clap = surfres.get("CLAP", None)
@@ -287,7 +302,8 @@ class ZMXParser(BaseLogger):
                 mat = lastmat
                 surf_options_dict["is_mirror"] = True
 
-            lc = optical_system.addLocalCoordinateSystem(LocalCoordinates(name=surfname, decz=lastthickness), refname=refname)
+            lc = optical_system.addLocalCoordinateSystem(
+                LocalCoordinates(name=surfname, decz=lastthickness), refname=refname)
             if sqap is None and clap is None:
                 ap = None
             elif sqap is not None:
@@ -299,10 +315,33 @@ class ZMXParser(BaseLogger):
                 self.debug("Standard surface found")                
                 actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc), apert=ap)
             elif surftype == "EVENASPH":
-                self.debug("Polynomial asphere found")
+                self.debug("Polynomial asphere surface found")
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
                 self.debug(acoeffs)
                 actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc, coefficients=acoeffs), apert=ap)
+            elif surftype == "FZERNSAG": # Zernike Fringe Sag
+                self.debug("Zernike standard surface found")
+                # ignore extrapolate flag
+                # curv, cc, parms, xdat
+                acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
+                extrapolate = parms.get(0, 1)
+                zdecx = parms.get(9, 0.)
+                zdecy = parms.get(10, 0.)
+                self.debug("extrapolate: %d zdecx: %f zdecy: %f" % (extrapolate, zdecx, zdecy))
+                numterms = int(xdat[1]["value"])                
+                normradius = xdat[2]["value"]
+                self.debug("numterms: %d normradius: %f" % (numterms, normradius))
+
+                zcoeffs = [xdat[i+3].get("value", 0.) for i in range(numterms)]
+
+                lcz = lc.addChild(LocalCoordinates(name=surfname + "_zerndec", decx=zdecx, decy=zdecy))
+                actsurf = Surface(lc, 
+                                  shape=LinearCombination(lc,
+                                  list_of_coefficients_and_shapes=[
+                                      (1.0, Asphere(lcz, curv=curv, cc=cc, name=surfname+"_zernasph")),
+                                        (1.0, ZernikeFringe(lc, normradius=normradius,
+                                                            coefficients=zcoeffs, name=surfname+"_zernike"))]))                
+                
             elif surftype == "COORDBRK":
                 self.debug("Coordinate break found")
                 """
