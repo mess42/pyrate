@@ -833,7 +833,19 @@ class Zernike(ExplicitShape):
             return res
         
         def gradzf(x, y, z):
-            return np.zeros((3, len(x)))
+            (normradius, zcoefficients) = self.getZernikeParameters()            
+            res = np.zeros((3, len(x)))            
+            xp = x/normradius
+            yp = y/normradius
+
+            for (num, val) in enumerate(zcoefficients):
+                (dZdxp, dZdyp) = self.gradzernike_norm_j(num + 1, xp, yp)
+                res[0] += val*dZdxp/normradius
+                res[1] += val*dZdyp/normradius
+            
+            res[2] = 1.
+            
+            return res
             
         def hesszf(x, y, z):
             return np.zeros((3, 3, len(x)))
@@ -864,20 +876,22 @@ class Zernike(ExplicitShape):
         k = np.arange(0, (n-omega)//2)
         print(k)
         return (-1)**k * factorial(n-k) / ( factorial(k) * factorial((n+m)/2 - k) * factorial((n-m)/2-k) );
-
-    def radialfunction_norm(self, n, m, xp, yp):
-        rho = np.sqrt(xp**2 + yp**2)
-        k = np.arange(0, (n-abs(m))//2)
-        (RHO, K) = np.meshgrid(rho, k)
-        M = RHO**(2.*n - K)
-        radcoeffs = self.radial_coefficients(n, m)[:, np.newaxis]
-        #print(k)
-        #print(radcoeffs)
-        #print(M.shape)
-        #print(radcoeffs.shape)
-        
-        return np.sum(radcoeffs*M, axis=0)
     """
+    def rc(self, n, m, l):
+        return (-1.)**l*factorial(n - l)/(factorial(l)*factorial((n+m)/2.0 - l)*factorial((n-m)/2.0 - l))
+
+    def radialfunction_norm2(self, n, m, xp, yp):
+        # TODO: perform lookup table for radial functions coefficients
+        # TODO: examine possibility of looking up zernike functions directly
+        
+        rho = np.sqrt(xp**2 + yp**2)
+        omega = abs(m)
+
+        final = np.zeros_like(rho)
+
+        for l in range((n - omega)//2 + 1):
+            final += self.rc(n, omega, l)*rho**(n-2.*l)
+        return final
         
     def radialfunction_norm(self, n, m, xp, yp):
         rho = np.sqrt(xp**2 + yp**2)
@@ -885,15 +899,34 @@ class Zernike(ExplicitShape):
         sumlimit = (n-omega)//2
         return (-1)**sumlimit*rho**omega*jacobi(sumlimit, omega, 0)(1. - 2.*rho**2)        
 
+    def radialfunction_norm_rho_derivative(self, n, m, xp, yp):
+        # TODO: remove code doubling
+        
+        rho = np.sqrt(xp**2 + yp**2)
+        omega = abs(m)
+
+        final = np.zeros_like(rho)
+
+        for l in range((n - omega)//2 + 1):
+            final += (n - 2.*l)*self.rc(n, omega, l)*rho**(n-2.*l - 1)
+        return final
+        
+
     def angularfunction_norm(self, n, m, xp, yp):
         omega = abs(m)
         phi = np.arctan2(yp, xp)
         return np.where(m < 0, np.sin(omega*phi), np.cos(omega*phi))
 
+    def angularfunction_norm_phi_derivative(self, n, m, xp, yp):
+        omega = abs(m)
+        phi = np.arctan2(yp, xp)
+        return np.where(m < 0, omega*np.cos(omega*phi), -omega*np.sin(omega*phi))
+
+
     def zernike_norm_j(self, j, xp, yp):
         (n, m) = self.jtonm(j)                
         return self.zernike_norm(n, m, xp, yp)
-
+        
     def zernike_norm2(self, n, m, xp, yp):
         return self.radialfunction_norm(n, m, xp, yp)*self.angularfunction_norm(n, m, xp, yp)        
 
@@ -923,6 +956,23 @@ class Zernike(ExplicitShape):
             result = rho*np.cos(omega*phi)
         
         return result
+
+
+    def gradzernike_norm(self, n, m, xp, yp):
+        radder = self.radialfunction_norm_rho_derivative(n, m, xp, yp)
+        angder = self.angularfunction_norm_phi_derivative(n, m, xp, yp)
+        rad = self.radialfunction_norm(n, m, xp, yp)
+        ang = self.angularfunction_norm(n, m, xp, yp)
+        rho = np.sqrt(xp**2 + yp**2)
+        dZdxp = (radder*ang*xp + rad*angder*(-yp))/rho
+        dZdyp = (radder*ang*yp + rad*angder*xp)/rho
+        
+        return (dZdxp, dZdyp)
+                
+    def gradzernike_norm_j(self, j, xp, yp):
+        (n, m) = self.jtonm(j)
+        
+        return self.gradzernike_norm(n, m, xp, yp)
         
         
 class ZernikeFringe(Zernike):
