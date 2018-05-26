@@ -28,20 +28,24 @@ import numpy as np
 import math
 
 from ..raytracer.globalconstants import standard_wavelength
+from ..core.base import OptimizableVariable
 
 from material_isotropic import IsotropicMaterial
 
 class IsotropicGrinMaterial(IsotropicMaterial):
-    def __init__(self, lc, fun, dfdx, dfdy, dfdz, bndfunction, ds, energyviolation, name="", comment=""):
+    def __init__(self, lc, fun, dfdx, dfdy, dfdz, parameterlist=[], name="", comment=""):
         super(IsotropicGrinMaterial, self).__init__(lc, name=name, comment=comment)
         self.nfunc = fun
         self.dndx = dfdx
         self.dndy = dfdy
         self.dndz = dfdz
-        self.ds = ds
-        self.energyviolation = energyviolation
-        self.boundaryfunction = bndfunction
+        self.ds = 0.1
+        self.energyviolation = 1e-3
+        self.boundaryfunction = lambda x: x[0]**2 + x[1]**2 <= 10.0**2
 
+        self.params = {}
+        for (name, value) in parameterlist:
+            self.params[name] = OptimizableVariable(name=name, value=value)
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)
@@ -50,10 +54,10 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         mat[1, 1, :] = 1.
         mat[2, 2, :] = 1.
         
-        return mat*self.nfunc(x)**2
+        return mat*self.nfunc(x, **self.params)**2
 
     def getIndex(self, x, wave=standard_wavelength):
-        return self.nfunc(x)**2
+        return self.nfunc(x, **self.params)**2
 
     def returnLocalDtoK(self, d, wave=standard_wavelength):
         return 2.*math.pi/wave*d
@@ -67,18 +71,15 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         startpoint = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
         startdirection = self.lc.returnGlobalToLocalDirections(raybundle.returnKtoD()[-1])
 
-        ci = [1.0/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),1.0/(2.0*(2.0 - 2.0**(1./3.)))]
-        di = [1.0/(2.0 - 2.0**(1./3.)),(-2.0**(1./3.))/((2.0 - 2.0**(1./3.))),1.0/(2.0 - 2.0**(1./3.)),0.0]
+        clist = [1.0/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),(1.0-2.0**(1./3.))/(2.0*(2.0 - 2.0**(1./3.))),1.0/(2.0*(2.0 - 2.0**(1./3.)))]
+        dlist = [1.0/(2.0 - 2.0**(1./3.)),(-2.0**(1./3.))/((2.0 - 2.0**(1./3.))),1.0/(2.0 - 2.0**(1./3.)),0.0]
 
 
-        optindstart = self.nfunc(startpoint)
+        optindstart = self.nfunc(startpoint, **self.params)
         positions = [1.*startpoint]
         velocities = [1.*optindstart*startdirection]
 
         energies = []
-        phasespace4d = []
-
-        path = 0.
 
         loopcount = 0
 
@@ -97,16 +98,16 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             lastpos = positions[-1]
             lastvel = velocities[-1]
 
-            for i in range(len(ci)):
-                newpos = lastpos + tau*ci[i]*2.0*lastvel
+            for (ci, di) in zip(clist, dlist):
+                newpos = lastpos + tau*ci*2.0*lastvel
                 newvel = lastvel
 
-                optin = self.nfunc(newpos)
+                optin = self.nfunc(newpos, **self.params)
 
-                newvel = newvel + tau*di[i]*2.0*optin*np.array( \
-                 [self.dndx(newpos),
-                  self.dndy(newpos),
-                  self.dndz(newpos)])
+                newvel = newvel + tau*di*2.0*optin*np.array( \
+                 [self.dndx(newpos, **self.params),
+                  self.dndy(newpos, **self.params),
+                  self.dndz(newpos, **self.params)])
 
                 lastpos = newpos
                 lastvel = newvel
@@ -125,12 +126,9 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             # and invalidate all rays
 
             if abs(totalenergy) > self.energyviolation:
-                #FreeCAD.Console.PrintMessage('WARNING: integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation) + '\n')
-                #FreeCAD.Console.PrintMessage('Please reduce integration step size.\n')
                 self.warning('integration aborted due to energy violation: abs(' + str(totalenergy) + ') > ' + str(self.energyviolation))
                 self.warning('Please reduce integration step size.')
                 valid[:] = False # all rays with energy violation are not useful due to integration errors
-                # TODO: report to user via some kind of fancy interface
 
             self.debug("step(" + str(loopcount) + ") -> energy conservation violation: " + str(totalenergy))
 
@@ -150,7 +148,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             updatedvel[:,True ^ final] = newvel[:,True ^ final]
 
             k0 = 1. #2.*math.pi/raybundle.wave
-            newk = k0*updatedvel/self.nfunc(updatedpos)
+            newk = k0*updatedvel/self.nfunc(updatedpos, **self.params)
             Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))
             kapp = self.lc.returnLocalToGlobalDirections(newk)            
             xapp = self.lc.returnLocalToGlobalPoints(updatedpos)            
@@ -164,12 +162,6 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             # for energy and phase space analysis
 
             energies.append(totalenergy)
-
-        # TODO: hier gehts schon in die hose
-        # TODO: somehow the pointstodraw array is overwritten after the integration!
-
-        #for ind, pt in enumerate(pointstodraw):
-        #    FreeCAD.Console.PrintMessage("symint: " + str(ind) + ": " + str(pt)+"\n")
 
         return (positions, velocities, pointstodraw, momentatodraw, energies, valid)
 

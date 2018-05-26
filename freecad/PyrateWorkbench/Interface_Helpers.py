@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from string import maketrans
 import os
 
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 from Interface_Checks import *
 
 import FreeCAD, FreeCADGui

@@ -26,11 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from Interface_Helpers import *
 from Interface_Checks import *
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
-from core.observers import AbstractObserver
-from core.surfShape import Conic, Asphere, ExplicitShape
-from core.aperture import BaseAperture, CircularAperture
+from pyrateoptics.observers import AbstractObserver
+from pyrateoptics.surfShape import Conic, Asphere, ExplicitShape
+from pyrateoptics.aperture import BaseAperture, CircularAperture
 
 import Part, FreeCAD
 

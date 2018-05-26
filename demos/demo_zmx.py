@@ -24,23 +24,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-import math
 import sys
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
-from pyrateoptics.raytracer.globalconstants import standard_wavelength, numerical_tolerance
+from pyrateoptics.raytracer.globalconstants import standard_wavelength
 from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.io.zmx import ZMXParser
 
 from pyrateoptics.sampling2d import raster
+from pyrateoptics import collimated_bundle, draw
 
-import matplotlib
-import matplotlib.pyplot as plt
-from distutils.version import StrictVersion
 
 
 # download ZMX files from e.g.:
@@ -66,41 +62,19 @@ matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168)}
 #matdict = {"LAFN21":ConstantIndexGlass(lctmp, 1.788), "SF53":ConstantIndexGlass(lctmp, 1.72)}    
 
 (s, seq) = p.createOpticalSystem(matdict)
+#(o, k, E0) = collimated_bundle(11, {"opticalsystem":s, "radius":enpd*0.5, "startz":-5., "raster":raster.MeridionalFan()}, wave=standard_wavelength)
+if s is None:
+    sys.exit()
+
+initialbundles_dict = p.createInitialBundle("N")
 
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(num_rays)
+ray_paths = []
+for d in initialbundles_dict:
+    d["opticalsystem"] = s
+    d["raster"] = raster.MeridionalFan()
+    (o, k, E0) = collimated_bundle(11, d, wave=standard_wavelength)
+    initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=standard_wavelength)
+    ray_paths.append(s.seqtrace(initialbundle, seq))
 
-rpup = enpd*0.5 #7.5
-o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-
-k = np.zeros_like(o)
-k[1,:] = math.sin(0.0)
-k[2,:] = math.cos(0.0)
-
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
-
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=standard_wavelength)
-rays = s.seqtrace(initialbundle, seq)
-
-
-
-
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-for r in rays:
-    r.draw2d(ax, color="blue")
-
-s.draw2d(ax, color="grey", vertices=50, inyzplane=False)
-
-plt.show()
+draw(s, ray_paths)

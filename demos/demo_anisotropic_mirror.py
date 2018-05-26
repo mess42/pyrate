@@ -25,10 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-
-import matplotlib
-from distutils.version import StrictVersion
+import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 from pyrateoptics.sampling2d import raster
@@ -41,12 +40,12 @@ from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
+from pyrateoptics.raytracer.globalconstants import degree
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey
 
-import math
-import logging
-logging.basicConfig(level=logging.DEBUG)
+from pyrateoptics import draw, divergent_bundle
+
+
 
 wavelength = 0.5876e-3
 
@@ -84,27 +83,7 @@ elem.addSurface("image", image, ("crystal", None))
 
 s.addElement("crystalelem", elem)
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(10)
-
-rpup = 8.0
-
-phik = 20.*math.pi/180.0
-
-o = np.vstack((np.zeros_like(px), np.zeros_like(px), -5*np.ones_like(px)))
-k = np.zeros_like(o)
-k0 = 1. #2.*math.pi/wavelength
-k[1, :] = k0*np.sin(phik*py)
-k[2, :] = k0*np.cos(phik*py)
-#o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-#k = np.zeros_like(o)
-#k[1,:] = k0*math.sin(phik)
-#k[2,:] = k0*math.cos(phik)
-
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
+(o, k, E0) = divergent_bundle(10, {"opticalsystem":s, "startz":-5., "radius":20*degree, "raster":raster.MeridionalFan()}, wave=wavelength)
 
 sysseq = [
     ("crystalelem", [
@@ -114,31 +93,8 @@ sysseq = [
         ("image", {})]
     )]
 
-phi = 5.*math.pi/180.0
-
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq)
 
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-for r in r2:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up) 
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-
-plt.show()
-
+draw(s, r2)
 

@@ -33,7 +33,7 @@ import FreeCADGui
 
 
 import PyrateInterface
-from Interface_Identifiers import *
+from .Interface_Identifiers import *
 
 
 class LoadSystemCommand:

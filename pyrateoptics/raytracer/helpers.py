@@ -75,20 +75,6 @@ def choose_nearest(kvec, kvecs_new):
 
     
 
-
-def collimated_bundle(nrays, startz, starty, radius, rast):
-    # FIXME: this function does not respect the dispersion relation in the material
-
-    rstobj = rast
-    (px, py) = rstobj.getGrid(nrays)
-    rpup = radius
-    o = np.vstack((rpup*px, rpup*py + starty, startz*np.ones_like(px)))
-    k = np.zeros_like(o)
-    k[2,:] = 1. #2.*math.pi/wavelength
-    E0 = np.cross(k, canonical_ey, axisa=0, axisb=0).T
-    return (o, k, E0)
-
-
 def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, 
                       kunitvector=None, lck=None, wave=standard_wavelength, 
                       num_sampling_points=5, random_xy=False):

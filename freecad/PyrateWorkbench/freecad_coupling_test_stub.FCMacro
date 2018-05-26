@@ -45,8 +45,8 @@ too tightly coupled.
 import math
 import numpy as np
 
-from core.optimize import ClassWithOptimizableVariables, OptimizableVariable
-from core.observers import AbstractObserver
+from pyrateoptics.optimize import ClassWithOptimizableVariables, OptimizableVariable
+from pyrateoptics.observers import AbstractObserver
 
 class CoreObject(ClassWithOptimizableVariables):
     
@@ -62,7 +62,7 @@ class CoreObject(ClassWithOptimizableVariables):
 
 class FreeCAD_CoreObject(AbstractObserver):
     # Derivation from AbstractObserver to maintain connection
-    # from CoreObject to this FreeCAD frontend object    
+    # from pyrateopticsObject to this FreeCAD frontend object    
     
     # The code is mainly taken from
     # https://freecadweb.org/wiki/Scripted_objects

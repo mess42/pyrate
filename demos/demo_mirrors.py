@@ -25,17 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-from distutils.version import StrictVersion
 
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
-from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
 from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
-from pyrateoptics.analysis.optical_element_analysis import OpticalElementAnalysis
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.ray import RayBundle
@@ -43,13 +38,12 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey
-
 import math
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 import pyrateoptics.raytracer.helpers
+from pyrateoptics import collimated_bundle, draw
 
 wavelength = 0.5876e-3
 
@@ -103,16 +97,8 @@ s.addElement("TMA", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(11)
-
-rpup = 10
-o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-k = np.zeros_like(o)
-k[2,:] = 1.0 #2.*math.pi/wavelength
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
+(o, k, E0) = collimated_bundle(11, {"opticalsystem": s, "startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, wave=wavelength)
+initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 sysseq = [("TMA", 
            [
@@ -127,8 +113,6 @@ sysseq = [("TMA",
             ])
         ] 
 
-# TODO: integrate mirrors (is_mirror:True) also into options dict
-
 sysseq_pilot = [("TMA", 
                  [
                     ("object", True, {}), 
@@ -142,6 +126,7 @@ sysseq_pilot = [("TMA",
                     ("m2", False, {})
                 ])
                 ] 
+r2 = s.seqtrace(initialbundle, sysseq)
                 
 phi = 5.*math.pi/180.0
 
@@ -149,9 +134,6 @@ obj_dx = 0.1
 obj_dphi = 1.*math.pi/180.0
 
 kwave = 2.*math.pi/wavelength
-
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq)
 
 #pilotbundle = RayBundle(
 #                x0 = np.array([[0], [0], [0]]), 
@@ -221,38 +203,5 @@ logging.info(str(s.sequence_to_hitlist(sysseq)))
 #initialbundle = RayBundle(x0=lc0.returnLocalToGlobalPoints(o), k0=lc0.returnLocalToGlobalDirections(k), Efield0=lc0.returnLocalToGlobalDirections(E0), wave=wavelength)
 #r4 = s.seqtrace(initialbundle, sysseq)
 
-
-
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-
-
-phi = 0. #math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-#print("drawing!")
-for (i, r) in enumerate(r2):
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
-for r_p in rays_pilot:
-    for (i, r) in enumerate(r_p):    
-        r.draw2d(ax, color="red", plane_normal=pn, up=up)
-
-r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
-pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
-
-#r4.draw2d(ax, color="pink", plane_normal=pn, up=up)
-#pilotray.draw2d(ax, color="darkgreen", plane_normal=pn, up=up)
-
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-plt.show()
+draw(s, [r2, r3, pilotray2])
 

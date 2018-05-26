@@ -27,18 +27,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from ..core.log import BaseLogger
 from ray_analysis import RayBundleAnalysis
+from ..sampling2d.raster import RectGrid
 import matplotlib.pyplot as plt
 
+# TODO: update this class and use this as an interface for the convenience functions
 
 class OpticalSystemAnalysis(BaseLogger):
     
-    def __init__(self, os, name=''):
+    def __init__(self, os, seq, name=''):
         super(OpticalSystemAnalysis, self).__init__(name=name)
         self.opticalsystem = os
+        self.sequence = seq
+        self.field_raster = RectGrid() # [-1, 1] x [-1, 1]
+        self.pupil_raster = RectGrid() # [-1, 1] x [-1, 1]
+        self.initial_bundles = None
+
         
-    def trace(self, initialbundle, fullsequence):
+    def trace(self, initialbundle):
         self.info("tracing rays")
-        list_of_raypaths = s.seqtrace(initialbundle, sysseq)
+        list_of_raypaths = self.opticalsystem.seqtrace(initialbundle, self.sequence)
         return list_of_raypaths
         
     def getFootprint(self, raypath, fullsequence, hitlist_part):
@@ -49,9 +56,9 @@ class OpticalSystemAnalysis(BaseLogger):
 
         return xpos_in_surface_lc
         
-    def getSpot(self, raypath, fullsequence):
+    def getSpot(self, raypath):
         
-        (last_oe, last_oe_sequence) = fullsequence[-1]
+        (last_oe, last_oe_sequence) = self.sequence[-1]
         (last_surf_name, last_opt_dict) = last_oe_sequence[-1]
         
         last_surf = self.opticalsystem.elements[last_oe].surfaces[last_surf_name]
@@ -67,21 +74,30 @@ class OpticalSystemAnalysis(BaseLogger):
         return (last_x_surf[0:2, :], rmscentroidsize)
 
     
-    def drawSpotDiagram(self, raypath, fullsequence, ax=None):
-        (spot_xy, rmscentroidsize) = self.getSpot(raypath, fullsequence)
+    def drawSpotDiagram(self, initialbundle, raypath_numbers, ax=None):
+        # TODO: optimize calling convention such that it is usable by convenience functions
+        # drawSpotDiagram(numrays, raypath_numbers, rays_dict)
+        raypaths = self.trace(initialbundle)
 
         if ax is None:
             fig = plt.figure()
-            ax = fig.add_subplot(111)
+        
+        for num in raypath_numbers:
+            (spot_xy, rmscentroidsize) = self.getSpot(raypaths[num])
 
-        ax.plot(spot_xy[0], spot_xy[1],'.')
-        ax.set_xlabel('x [mm]')
-        ax.set_ylabel('y [mm]')
-    
-        # xlabel, ylabel auf spot beziehen
-        ax.text(0.05, 0.05,'Centroid RMS spot radius: '+str(1000.*rmscentroidsize)+' um', transform=ax.transAxes)
-    
-        ax.set_title('Spot diagram')
+            if ax is None:
+                ax = fig.add_subplot(len(raypath_numbers), 1, 1)
+
+
+
+            ax.plot(spot_xy[0], spot_xy[1],'.')
+            ax.set_xlabel('x [mm]')
+            ax.set_ylabel('y [mm]')
+        
+            # xlabel, ylabel auf spot beziehen
+            ax.text(0.05, 0.05,'Centroid RMS spot radius: '+str(1000.*rmscentroidsize)+' um', transform=ax.transAxes)
+        
+            ax.set_title('Spot diagram %d' % (num,))
         
         if ax is None:
             plt.show()

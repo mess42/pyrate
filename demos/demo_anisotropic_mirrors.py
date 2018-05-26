@@ -25,16 +25,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-from distutils.version import StrictVersion
+import math
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
 from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
-from pyrateoptics.analysis.optical_element_analysis import OpticalElementAnalysis
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.ray import RayBundle
@@ -42,11 +41,8 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey
+from pyrateoptics import draw, collimated_bundle
 
-import math
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 import pyrateoptics.raytracer.helpers
 
@@ -97,18 +93,7 @@ s.addElement("TMA", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(5)
-
-rpup = 10
-o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-ke = np.zeros_like(o)
-ke[2,:] = 1.
-
-(k_sorted, E_sorted) = crystal.sortKnormEField(np.zeros_like(o), ke, np.zeros_like(o), ke, wave=wavelength)
-
-k = k_sorted[3, :, :].copy()
-E0 = E_sorted[3, :, :].copy()
+(o, k, E0) = collimated_bundle(5, {"opticalsystem":s, "startz":-5., "radius":10., "raster":raster.MeridionalFan()}, wave=wavelength)
 
 sysseq = [("TMA", [
             ("object", {}), 
@@ -133,8 +118,6 @@ sysseq_pilot = [("TMA",
                 ])
                 ] 
                 
-phi = 5.*math.pi/180.0
-
 obj_dx = 0.1
 obj_dphi = 1.*math.pi/180.0
 
@@ -155,24 +138,4 @@ kw = 5*math.pi/180.
 pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objectsurf, crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]), num_sampling_points=3)
 (pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq)
 
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-
-phi = 0. #math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-for r in r2:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
-r3.draw2d(ax, color="orange", plane_normal=pn, up=up)
-pilotray2.draw2d(ax, color="red", plane_normal=pn, up=up)
-
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-plt.show()
+draw(s, [(r2, "blue"), (r3, "orange"), (pilotray2, "red")])

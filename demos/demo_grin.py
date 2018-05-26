@@ -25,13 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib
-from distutils.version import StrictVersion
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_grin import IsotropicGrinMaterial
-from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
@@ -41,7 +37,7 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics.raytracer.globalconstants import canonical_ey
+from pyrateoptics import collimated_bundle, draw
 
 import math
 import logging
@@ -68,23 +64,26 @@ elem = OpticalElement(lc0, name="grinelement")
 grin_strength = 0.5
 
 
-def nfunc(x):
+def nfunc(x, **kw):
     return grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)+1.0#(2.5 - (x**2 + 100.0*y**4)/10.**2)
 
-def dndx(x):
+def dndx(x, **kw):
     return -2.*x[0]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)#-2*x/10.**2
 
-def dndy(x):
+def dndy(x, **kw):
     return -2.*4.*x[1]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2) #-100.0*4.0*y**3/10.**2
 
-def dndz(x):
+def dndz(x, **kw):
     return np.zeros_like(x[0])
 
 def bnd(x):
     return x[0]**2 + x[1]**2 < 10.**2
 
 #grinmaterial = ConstantIndexGlass(lc1, 1.0 + grin_strength) 
-grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz, bnd, ds=0.05, energyviolation=0.01)
+grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz, parameterlist=[("n0", 0.5)])
+grinmaterial.ds = 0.05
+grinmaterial.energyviolation = 0.01
+grinmaterial.boundaryfunction = bnd
 
 elem.addMaterial("grin", grinmaterial)
 
@@ -95,43 +94,13 @@ elem.addSurface("image", image, (None, None))
 
 s.addElement("grinelement", elem)
 
-rstobj = raster.MeridionalFan()
-(px, py) = rstobj.getGrid(21)
-
-rpup = 2.5
-o = np.vstack((rpup*px, rpup*py, -5.*np.ones_like(px)))
-
-k = np.zeros_like(o)
-k[2,:] = 1. #2.*math.pi/wavelength
-
-ey = np.zeros_like(o)
-ey[1,:] =  1.
-
-E0 = np.cross(k, ey, axisa=0, axisb=0).T
-
 sysseq = [("grinelement", [("object", {"is_stop":True}), ("surf1", {}), ("surf2", {}), ("image", {})])]
+
+
+(o, k, E0) = collimated_bundle(21, {"opticalsystem": s, "startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()}, wave=wavelength)
+
 
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 r2 = s.seqtrace(initialbundle, sysseq, splitup=False)
 
-fig = plt.figure(1)
-ax = fig.add_subplot(111)
-
-ax.axis('equal')
-if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-    ax.set_axis_bgcolor('white')
-else:
-    ax.set_facecolor('white')
-    
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
-up = canonical_ey
-
-for r in r2:
-    r.draw2d(ax, color="blue", plane_normal=pn, up=up)
-s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-
-
-plt.show()
-
+draw(s, r2)

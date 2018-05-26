@@ -31,7 +31,7 @@ Use this file for convenience functions which should be called at the main packa
 """
 
 import logging
-import uuid
+import numpy as np
 
 from matplotlib import pyplot as plt
 import matplotlib
@@ -43,12 +43,12 @@ from raytracer.localcoordinates import LocalCoordinates
 from raytracer.optical_element import OpticalElement
 from raytracer.surface import Surface
 import raytracer.surfShape as Shapes
-from raytracer.globalconstants import numerical_tolerance
+from raytracer.globalconstants import numerical_tolerance, degree, standard_wavelength
+from raytracer.ray import RayBundle, RayPath
 from material.material_isotropic import ConstantIndexGlass
 from material.material_glasscat import refractiveindex_dot_info_glasscatalog
+from sampling2d.raster import RectGrid
 
-# TODO: provide code for simple creation of elements
-# TODO: integrate elements code into build...system helper functions
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions
 
@@ -89,6 +89,55 @@ def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
     
     return build_simple_optical_system(builduplist_build_simple_os, **kwargs)
         
+def build_simple_optical_element(lc0, builduplist, material_db_path="", name=""):
+    logger = logging.getLogger(__name__)    
+    logger.info("Element name %s" % (name,))
+
+    elem = OpticalElement(lc0, name=name)
+        
+    refname = lc0.name
+    lastmat = None
+    surflist_for_sequence = []
+
+    gcat = refractiveindex_dot_info_glasscatalog(material_db_path)
+
+    for (surfdict, coordbreakdict, mat, surf_name, optdict) in builduplist:    
+        lc = elem.addLocalCoordinateSystem(LocalCoordinates(name=surf_name + "_lc", **coordbreakdict), refname=refname)
+        shapetype = surfdict.pop("shape", "Conic")
+        if shapetype == "LinearCombination":
+            # linear combination accepts pairs of coefficients and surfdicts            
+            
+            list_of_coefficients_and_shapes = surfdict.get("list_of_coefficients_and_shapes", [])
+            new_list_coeffs_shapes = []            
+            for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
+                shapetype_part = surfdict_part.pop("shape", "Conic")
+                new_list_coeffs_shapes.append((coeff_part, eval("Shapes." + shapetype_part)(lc, name=name + "_shape" + str(ind), **surfdict_part)))
+                
+            actsurf = Surface(lc, name=surf_name + "_surf",\
+                        shape=Shapes.LinearCombination(lc, name=surf_name + "_linearcombi",\
+                        list_of_coefficients_and_shapes=new_list_coeffs_shapes))
+        else:
+            actsurf = Surface(lc, name=surf_name + "_surf",\
+                        shape=eval("Shapes." + shapetype)(lc, name=name + "_shape", **surfdict))
+        
+        if mat is not None:
+            try:
+                n = float(mat)
+            except:
+                gcat.getMaterialDictFromLongName(mat)
+                
+                elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat))
+            else:
+                elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
+
+        elem.addSurface(surf_name, actsurf, (lastmat, mat))
+        logger.info("Added surface: %s at material boundary %s" % (surf_name, (lastmat, mat)))        
+        
+        lastmat = mat
+        refname = lc.name
+        surflist_for_sequence.append((surf_name, optdict))
+
+    return (elem, (name, surflist_for_sequence))
 
 def build_simple_optical_system(builduplist, material_db_path="", name=""):
 
@@ -112,9 +161,8 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
              s is an OpticalSystem object
              stdseq is a sequence for sequential raytracing
     """
-    logger = logging.getLogger(__name__)    
-    
-    logger.info("Creating optical system")    
+    logger = logging.getLogger(__name__)        
+    logger.info("Creating simple optical system")    
     s = OpticalSystem(name=name) 
     
     
@@ -123,61 +171,42 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     elem_name = "stdelem"
     logger.info("Element name %s" % (elem_name,))
 
-    elem = OpticalElement(lc0, name=elem_name)
-        
-    refname = lc0.name
-    lastmat = None
-    surflist_for_sequence = []
-
-    gcat = refractiveindex_dot_info_glasscatalog( material_db_path )
-
-    #for (r, cc, thickness, mat, name) in builduplist:
-    for (surfdict, coordbreakdict, mat, name, optdict) in builduplist:    
-    
-    
-    
-        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=name + "_lc", **coordbreakdict), refname=refname)
-        shapetype = surfdict.pop("shape", "Conic")
-        if shapetype == "LinearCombination":
-            # linear combination accepts pairs of coefficients and surfdicts            
-            
-            list_of_coefficients_and_shapes = surfdict.get("list_of_coefficients_and_shapes", [])
-            new_list_coeffs_shapes = []            
-            for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
-                shapetype_part = surfdict_part.pop("shape", "Conic")
-                new_list_coeffs_shapes.append((coeff_part, eval("Shapes." + shapetype_part)(lc, name=name + "_shape" + str(ind), **surfdict_part)))
-                
-            actsurf = Surface(lc, name=name + "_surf",\
-                        shape=Shapes.LinearCombination(lc, name=name + "_linearcombi",\
-                        list_of_coefficients_and_shapes=new_list_coeffs_shapes))
-        else:
-            actsurf = Surface(lc, name=name + "_surf",\
-                        shape=eval("Shapes." + shapetype)(lc, name=name + "_shape", **surfdict))
-        
-        if mat is not None:
-            try:
-                n = float(mat)
-            except:
-                gcat.getMaterialDictFromLongName(mat)
-                
-                elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat))
-            else:
-                elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
-
-        elem.addSurface(name, actsurf, (lastmat, mat))
-        logger.info("Added surface: %s at material boundary %s" % (name, (lastmat, mat)))        
-        
-        lastmat = mat
-        refname = lc.name
-        surflist_for_sequence.append((name, optdict))
-            
+    (elem, elem_seq) = build_simple_optical_element(lc0, builduplist,\
+        material_db_path=material_db_path, name=elem_name)        
     s.addElement(elem_name, elem)
+
     s.material_background.setName("background")
-    stdseq = [(elem_name, surflist_for_sequence)]    
+    stdseq = [(elem_seq)]    
+    logger.info("Created simple optical system")    
+
 
     return (s, stdseq)
+    
+def build_optical_system(builduplist, material_db_path="", name=""):
 
-def draw(os, rb=None):
+    logger = logging.getLogger(__name__)        
+    logger.info("Creating multiple element optical system")    
+    s = OpticalSystem(name=name) 
+    lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+
+    full_elements_seq = []
+    refname=lc0.name
+    for (element_list, coordbreakdict, elem_name) in builduplist:
+        logger.info("Element name %s" % (elem_name,))
+        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=elem_name + "_lc", **coordbreakdict), refname=refname)
+        refname=lc.name        
+        
+        (elem, elem_seq) = build_simple_optical_element(lc, builduplist,\
+            material_db_path=material_db_path, name=elem_name)
+        full_elements_seq.append(elem_seq)
+        s.addElement(elem_name, elem)
+
+    s.material_background.setName("background")
+    logger.info("Created multiple element optical system")    
+
+    return (s, full_elements_seq)
+
+def draw(os, rays=None, **kwargs):
 
     """
     Convenience function for drawing optical system and list of raybundles
@@ -196,13 +225,49 @@ def draw(os, rb=None):
     else:
         ax.set_facecolor('white')
         
-    if rb is not None:
-        for r in rb:
-            r.draw2d(ax, color="blue") 
+    if rays is not None:
+        if isinstance(rays, list):
+            for rpl in rays:
+                ray_color = tuple(np.random.random(3))
+                if isinstance(rpl, list):                    
+                    for rp in rpl:
+                        ray_color = tuple(np.random.random(3))
+                        rp.draw2d(ax, color=ray_color, **kwargs)
+                elif isinstance(rpl, tuple):
+                    (rl, ray_color) = rpl
+                    if isinstance(rl, list): # draw(s, [([rp1, ..], color1), (....)])
+                        for r in rl:
+                            r.draw2d(ax, color=ray_color, **kwargs)
+                    else: # draw(s, [(rp1, color1), (....)])
+                        rl.draw2d(ax, color=ray_color, **kwargs)                    
+                else:
+                    rpl.draw2d(ax, color=ray_color, **kwargs)
+        elif isinstance(rays, RayPath): # draw(s, raypath)
+            ray_color = tuple(np.random.random(3))
+            rays.draw2d(ax, color=ray_color, **kwargs)
+        elif isinstance(rays, RayBundle): # draw(s, raybundle)
+            ray_color = tuple(np.random.random(3))
+            rays.draw2d(ax, color=ray_color, **kwargs)
+        elif isinstance(rays, tuple): 
+            (rl, ray_color) = rays
+            if isinstance(rl, list): # draw(s, ([raypath1, ...], color))
+                for r in rl:
+                    r.draw2d(ax, color=ray_color, **kwargs)
+            else: # draw(s, (raypath, color))
+                rl.draw2d(ax, color=ray_color, **kwargs)
+            
+            
     
-    os.draw2d(ax, color="grey") 
+    os.draw2d(ax, color="grey", **kwargs) 
     
     plt.show()
+
+def raytrace(s, seq, numrays, rays_dict, bundletype="collimated", wave=standard_wavelength):
+    call_dict = {"collimated":collimated_bundle, "divergent":divergent_bundle}
+    rays_dict["opticalsystem"] = s    
+    (o1, k1, E1) = call_dict[bundletype](numrays, rays_dict, wave=wave)
+    initialbundle = RayBundle(x0=o1, k0=k1, Efield0=E1, wave=wave)
+    return s.seqtrace(initialbundle, seq)
     
 
 def listOptimizableVariables(os, filter_status=None, maxcol=None):
@@ -250,3 +315,66 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
     return lst 
 
 
+def collimated_bundle(nrays, properties_dict={}, wave=standard_wavelength):
+
+    logger = logging.getLogger(__name__)        
+
+    optical_system = properties_dict.get("opticalsystem", None)
+    if optical_system is not None:
+        material = properties_dict.get("material", optical_system.material_background)
+    else:
+        logger.warn("Material has no reference to optical system coordinates!")
+        logger.warn("Please provide 'opticalsystem' key.")
+        material = ConstantIndexGlass(LocalCoordinates(name="mat_lc"))
+        
+    startx = properties_dict.get("startx", 0.)
+    starty = properties_dict.get("starty", 0.)
+    startz = properties_dict.get("startz", 0.)
+    rasterobj = properties_dict.get("raster", RectGrid())
+    radius = properties_dict.get("radius", 1.0)
+    angley = properties_dict.get("angley", 0.0)
+    anglex = properties_dict.get("anglex", 0.0)
+
+    (px, py) = rasterobj.getGrid(nrays)
+
+    origin = np.vstack((radius*px + startx, radius*py + starty, startz*np.ones_like(px)))
+    unitvector = np.zeros_like(origin)
+    unitvector[0, :] = np.sin(angley)*np.cos(anglex)
+    unitvector[1, :] = np.sin(anglex)
+    unitvector[2, :] = np.cos(angley)*np.cos(anglex)
+    
+    (k0, E0) = material.sortKnormUnitEField(origin, unitvector, unitvector, wave=wave)
+        
+    return (origin, k0[2, :, :], E0[2, :, :])
+
+def divergent_bundle(nrays, properties_dict={}, wave=standard_wavelength):
+
+    logger = logging.getLogger(__name__)        
+
+    optical_system = properties_dict.get("opticalsystem", None)
+    if optical_system is not None:
+        material = properties_dict.get("material", optical_system.material_background)
+    else:
+        logger.warn("Material has no reference to optical system coordinates!")
+        logger.warn("Please provide 'opticalsystem' key.")
+        material = ConstantIndexGlass(LocalCoordinates(name="mat_lc"))
+        
+    startx = properties_dict.get("startx", 0.)
+    starty = properties_dict.get("starty", 0.)
+    startz = properties_dict.get("startz", 0.)
+    rasterobj = properties_dict.get("raster", RectGrid())
+    radius = properties_dict.get("radius", 45.0*degree)
+    angley = properties_dict.get("angley", 0.0)
+    anglex = properties_dict.get("anglex", 0.0)
+
+    (ax, ay) = rasterobj.getGrid(nrays)
+
+    origin = np.vstack((startx*np.ones_like(ax), starty*np.ones_like(ax), startz*np.ones_like(ax)))
+    unitvector = np.zeros_like(origin)
+    unitvector[0, :] = np.sin(angley + radius*ax)*np.cos(anglex + radius*ay)
+    unitvector[1, :] = np.sin(anglex + radius*ay)
+    unitvector[2, :] = np.cos(angley + radius*ax)*np.cos(anglex + radius*ay)
+    
+    (k0, E0) = material.sortKnormUnitEField(origin, unitvector, unitvector, wave=wave)
+        
+    return (origin, k0[2, :, :], E0[2, :, :])
