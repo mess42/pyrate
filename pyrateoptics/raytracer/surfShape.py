@@ -840,8 +840,8 @@ class Zernike(ExplicitShape):
 
             for (num, val) in enumerate(zcoefficients):
                 (dZdxp, dZdyp) = self.gradzernike_norm_j(num + 1, xp, yp)
-                res[0] += val*dZdxp/normradius
-                res[1] += val*dZdyp/normradius
+                res[0] += -val*dZdxp/normradius
+                res[1] += -val*dZdyp/normradius
             
             res[2] = 1.
             
