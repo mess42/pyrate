@@ -44,7 +44,7 @@ from distutils.version import StrictVersion
 
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 db_path = "refractiveindex.info-database/database"
 
@@ -92,6 +92,7 @@ rba = RayBundleAnalysis(None)
 	 (0, 	0, 	5, 	None, 			"lens4rear", {}),
 	 (0, 	0, 	150., 	None, 			"image", {})
          ], material_db_path=db_path, name="os")
+
 
 def bundle_step1(nrays = 100, rpup = 7.5):
     """
@@ -149,6 +150,8 @@ def updatefunction_allsteps(s):
 # optimize
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
+#s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("pickup", function=lambda x: -x, args=(s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
+
 
 listOptimizableVariables(s, maxcol=80)
 

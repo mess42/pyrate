@@ -115,9 +115,38 @@ class OptimizableVariable(BaseLogger):
             self.inv_transform = lambda x: left + (right - left)/(1. + math.exp(-x/math.fabs(right - left)))
             self.transform = lambda x: math.log((-x + left)/(x - right))*math.fabs(left - right)
 
+    """
+    all -> fixed: value is conserved
+    all -> variable: value is conserved
+    all -> pickup: value is not conserved
+    all -> external: value is not conserved
+    """
+
     def changetype(self, vtype, **kwargs):
+        try:        
+            last_value = self.evaluate()
+        except:
+            last_value = "not initialized"
+        vtype_lower = vtype.lower()
+
+        try:
+            self.debug("last type: %s" % (self.var_type,))        
+        except:
+            self.debug("last type: not initialized")
+        self.debug("last value: %s" % (str(last_value),))
+        try:        
+            self.debug("last params: %s" % (str(self.parameters),))
+        except:
+            self.debug("last params: not initialized")
+            
+        
         self.var_type = vtype
         self.evalfunc = self.evaldict[self.var_type]
+
+        self.debug("new type: %s" % (vtype_lower,))        
+        self.debug("new value: %s" % (str(self.evaluate()),))
+        self.debug("new params: %s" % (str(kwargs),))
+
         try:        
             parameter_backup = self.parameters
         except:
@@ -127,6 +156,12 @@ class OptimizableVariable(BaseLogger):
             and self.var_type in ["variable", "fixed"] \
             and parameter_backup["value"] != None:
             self.parameters["value"] = parameter_backup["value"]
+        if vtype.lower() in ["variable", "fixed"] \
+            and self.var_type == "pickup":
+                self.parameters = {}
+                self.parameters["value"] = self.evaluate()
+
+
 
     def setvalue(self, value):
         # TODO: overload assign operator
@@ -135,11 +170,14 @@ class OptimizableVariable(BaseLogger):
 
     def eval_fixed(self):
         # if type = variable then give only access to value
-        return self.parameters["value"]
+        try:        
+            return self.parameters.get("value", None)
+        except:
+            return None
 
     def eval_variable(self):
         # if type = variable then give only access to value
-        return self.parameters["value"]
+        return self.parameters.get("value", None)
 
     def eval_pickup(self):
         # if type = pickup then pack all arguments into one tuple
