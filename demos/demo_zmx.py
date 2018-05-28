@@ -35,9 +35,9 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.io.zmx import ZMXParser
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics import collimated_bundle, draw
+from pyrateoptics import draw
 
-
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 # download ZMX files from e.g.:
 # http://astro.dur.ac.uk/~rsharp/opticaldesign/
@@ -68,13 +68,12 @@ if s is None:
 
 initialbundles_dict = p.createInitialBundle("N")
 
+osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 
 ray_paths = []
 for d in initialbundles_dict:
-    d["opticalsystem"] = s
     d["raster"] = raster.MeridionalFan()
-    (o, k, E0) = collimated_bundle(11, d, wave=standard_wavelength)
-    initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=standard_wavelength)
-    ray_paths.append(s.seqtrace(initialbundle, seq))
+    osa.aim(11, d, wave=standard_wavelength)
+    ray_paths.append(osa.trace()[0])
 
 draw(s, ray_paths)
