@@ -74,6 +74,9 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
     def getSurfaces(self):
         return self.__surfaces
+
+    def getConnection(self, key):
+        return self.__surf_mat_connection[key]
         
     surfaces = property(fget=getSurfaces)
         

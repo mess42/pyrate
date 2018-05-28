@@ -73,7 +73,8 @@ osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 ray_paths = []
 for d in initialbundles_dict:
     d["raster"] = raster.MeridionalFan()
-    osa.aim(11, d, wave=standard_wavelength)
+    osa.aim(num_rays, d, wave=standard_wavelength)
     ray_paths.append(osa.trace()[0])
 
 draw(s, ray_paths)
+osa.prettyprint()

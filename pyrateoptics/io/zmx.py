@@ -27,12 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import codecs
 import re
 import math
+import numpy as np
 
 from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.optical_element import OpticalElement
 from ..raytracer.localcoordinates import LocalCoordinates
 from ..raytracer.surface import Surface
-from ..raytracer.surfShape import Conic, Asphere, LinearCombination, ZernikeFringe
+from ..raytracer.surfShape import Conic, Asphere, LinearCombination, ZernikeFringe, GridSag
 from ..raytracer.aperture import CircularAperture, RectangularAperture
 from ..raytracer.ray import RayBundle
 from ..core.log import BaseLogger
@@ -344,6 +345,9 @@ class ZMXParser(BaseLogger):
                     else:
                         mat = ModelGlass(lc)
                         mat.calcCoefficientsFrom_nd_vd(nd=nd, vd=vd)
+            else: 
+                if surftype == "COORDBRK":
+                    mat = lastmat
 
             if sqap is None and clap is None:
                 ap = None
@@ -353,15 +357,15 @@ class ZMXParser(BaseLogger):
                 ap = CircularAperture(lc, semidiameter=clap[1])
 
             if surftype == "STANDARD":
-                self.debug("Standard surface found")                
+                self.debug("SURFACE: Standard surface found")                
                 actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc), apert=ap)
             elif surftype == "EVENASPH":
-                self.debug("Polynomial asphere surface found")
+                self.debug("SURFACE: Polynomial asphere surface found")
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
                 self.debug(acoeffs)
                 actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc, coefficients=acoeffs), apert=ap)
             elif surftype == "FZERNSAG": # Zernike Fringe Sag
-                self.debug("Zernike standard surface found")
+                self.debug("SURFACE: Zernike standard surface found")
                 # ignore extrapolate flag
                 # curv, cc, parms, xdat
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
@@ -379,18 +383,26 @@ class ZMXParser(BaseLogger):
                 actsurf = Surface(lc, 
                                   shape=LinearCombination(lc,
                                   list_of_coefficients_and_shapes=[
-                                      (1.0, Asphere(lcz, curv=curv, cc=cc, name=surfname+"_zernasph")),
-                                        (1.0, ZernikeFringe(lc, normradius=normradius,
-                                                            coefficients=zcoeffs, name=surfname+"_zernike"))]))                
+                                      (1.0, Asphere(lc, curv=curv, cc=cc, name=surfname+"_zernasph")),
+                                        (1.0, ZernikeFringe(lcz, normradius=normradius,
+                                                            coefficients=zcoeffs, name=surfname+"_zernike"))]))
                 
-            elif surftype == "GRIDSAG":
+            elif surftype == "GRID_SAG":
                 # TODO: conic + aspheric polynomials + zernike standard sag
-                self.debug("Grid Sag found")
-                self.debug(surfres["GDAT"])                
-                [surfres["GARR"][key] for key in sorted(surfres["GARR"].iterkeys())]
-                    
+                self.debug("SURFACE: Grid Sag found")
+                (nx, ny, dx, dy) = surfres["GDAT"]
+                self.debug("nx %d ny %d dx %f dy %f" % (nx, ny, dx, dy))                
+                sagarray = np.array([surfres["GARR"][key] for key in sorted(surfres["GARR"].iterkeys())])
+                self.debug(sagarray)
+                xv = np.linspace(-nx*dx*0.5, nx*dx*0.5, nx)
+                yv = np.linspace(-ny*dy*0.5, ny*dy*0.5, ny)
+                (X, Y) = np.meshgrid(xv, yv)
+                Z = sagarray[:, 0].reshape(nx, ny) # first line                
+                
+                actsurf = Surface(lc, shape=GridSag(lc, (xv, yv, Z)))                
+                
             elif surftype == "COORDBRK":
-                self.debug("Coordinate break found")
+                self.debug("SURFACE: Coordinate break found")
                 """
                 COORDBRK
                 parm1: decx

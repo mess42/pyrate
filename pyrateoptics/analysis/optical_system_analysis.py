@@ -187,3 +187,15 @@ class OpticalSystemAnalysis(BaseLogger):
         
         if ax is None:
             plt.show()
+
+    def prettyprint(self):
+        for (elem, lstelem) in self.sequence:
+            self.info(elem)
+            for (surf1, surfdict1) in lstelem:
+                (mat1, mat2) = self.opticalsystem.elements[elem].getConnection(surf1)
+                if mat1 is not None:
+                    self.info("mat1: %f" % (mat1.getIndex(None, wave=standard_wavelength),))
+                if mat2 is not None:
+                    self.info("mat2: %f" % (mat2.getIndex(None, wave=standard_wavelength),))
+                self.info(" " + surf1 + ": " + str())
+        
