@@ -57,7 +57,7 @@ enpd = float(sys.argv[2])
 num_rays = int(sys.argv[3])
 show_spot = False
 if len(sys.argv) > 4:
-    show_spot = bool(sys.argv[4])    
+    show_spot = bool(int(sys.argv[4]))
 
 
 p = ZMXParser(file_to_read, name='ZMXParser')
@@ -72,7 +72,7 @@ matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168)}
 if s is None:
     sys.exit()
 
-initialbundles_dict = p.createInitialBundle("N")
+initialbundles_dict = [p.createInitialBundle("N")[0]]
 
 osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 
