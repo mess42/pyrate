@@ -45,7 +45,7 @@ from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 # http://astro.dur.ac.uk/~rsharp/opticaldesign/
 # some good demonstration of coordinate breaks is: FIELDROTATOR-LECT5.ZMX
 
-if len(sys.argv) != 4:
+if len(sys.argv) < 4:
     print("usage:")
     print("python -m demos.demo_zmx file.zmx entrance_pupil_diameter num_rays_for_yfan")
     print("only collimated light")
@@ -55,6 +55,10 @@ if len(sys.argv) != 4:
 file_to_read = sys.argv[1]
 enpd = float(sys.argv[2])
 num_rays = int(sys.argv[3])
+show_spot = False
+if len(sys.argv) > 4:
+    show_spot = bool(sys.argv[4])    
+
 
 p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
@@ -78,13 +82,18 @@ if initialbundles_dict == []:
     initialbundles_dict = [{"radius":enpd*0.5}]
 
 for d in initialbundles_dict:
-    #d["raster"] = raster.MeridionalFan()
-    #osa.aim(num_rays, d, wave=standard_wavelength)
-    #ray_paths.append(osa.trace()[0])
-    d["raster"] = raster.RectGrid()
-    osa.aim(num_rays*num_rays, d, wave=standard_wavelength)
-    osa.drawSpotDiagram()
+    if show_spot:
+        d["raster"] = raster.RectGrid()
+        osa.aim(num_rays*num_rays, d, wave=standard_wavelength)
+        osa.drawSpotDiagram()
+    else:
+        d["raster"] = raster.MeridionalFan()
+        osa.aim(num_rays, d, wave=standard_wavelength)
+        ray_paths.append(osa.trace()[0])
 
-#draw(s, ray_paths)
+if not show_spot:
+    draw(s, ray_paths)
+else:
+    plt.show()
 osa.prettyprint()
-plt.show()
+

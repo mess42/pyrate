@@ -108,7 +108,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
         :param current_mat (Material object)
         
         :return (Material object)
-        """        
+        """
         
         if id(mat1) == id(current_mat):
             returnmat = mat2

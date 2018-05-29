@@ -28,6 +28,7 @@ import codecs
 import re
 import math
 import numpy as np
+import uuid
 
 from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.optical_element import OpticalElement
@@ -300,7 +301,10 @@ class ZMXParser(BaseLogger):
 
         refname = lc0.name
         lastlc = lc0
-        lastmat = None
+        lastmatname = None
+        lastsurfname = None
+        surfname = None
+        
         surflist_for_sequence = []
         lastthickness = 0
         thickness = 0
@@ -315,6 +319,7 @@ class ZMXParser(BaseLogger):
             surf_options_dict = {}
             
             comment = surfres.get("COMM", "")
+            lastsurfname = surfname
             surfname = "surf" + str(surfres["SURF"])
             thickness = surfres["DISZ"]
             curv = surfres["CURV"]
@@ -338,12 +343,20 @@ class ZMXParser(BaseLogger):
 
             read_glass = surfres.get("GLAS", None)
             self.debug("MATERIAL: %s" % (str(read_glass),))
+            matname = None
             mat = None
+            
+            # TODO: tidy up!
+            
             if read_glass is not None:
                 if read_glass["name"] == "MIRROR":
-                    mat = lastmat
+                    matname = lastmatname
                     surf_options_dict["is_mirror"] = True
+                if matdict.get(read_glass["name"], None) is not None:
+                    matname = read_glass["name"]
                 if read_glass["code"] == 1:
+                    matname = "modelglass" + str(uuid.uuid4())
+                    # TODO: use global known uuid function
                     nd = read_glass["nd"]
                     vd = read_glass["vd"]
                     if abs(vd) < numerical_tolerance:
@@ -351,9 +364,10 @@ class ZMXParser(BaseLogger):
                     else:
                         mat = ModelGlass(lc)
                         mat.calcCoefficientsFrom_nd_vd(nd=nd, vd=vd)
+                    elem.addMaterial(matname, mat)
             else: 
                 if surftype == "COORDBRK":
-                    mat = lastmat
+                    matname = lastmatname
 
             if sqap is None and clap is None:
                 ap = None
@@ -429,13 +443,14 @@ class ZMXParser(BaseLogger):
                 lc.tiltThenDecenter = bool(parms.get(6, 0))
                 lc.update()
                 actsurf = Surface(lc)
-                
-            elem.addSurface(surfname, actsurf, (lastmat, mat))
-            self.info("addsurf: %s at material boundary %s" % (surfname, (lastmat, mat)))        
             
-            lastmat = mat
+            if lastsurfname is not None:
+                elem.addSurface(surfname, actsurf, (lastmatname, matname))
+                self.info("addsurf: %s at material boundary %s" % (surfname, (lastmatname, matname)))        
+                surflist_for_sequence.append((surfname, surf_options_dict))
+            
+            lastmatname = matname
             refname = lc.name
-            surflist_for_sequence.append((surfname, surf_options_dict))
             
             lastlc = lc            
             

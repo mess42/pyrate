@@ -191,11 +191,18 @@ class OpticalSystemAnalysis(BaseLogger):
     def prettyprint(self):
         for (elem, lstelem) in self.sequence:
             self.info(elem)
-            for (surf1, surfdict1) in lstelem:
-                (mat1, mat2) = self.opticalsystem.elements[elem].getConnection(surf1)
+            for (surf, surfdict) in lstelem:
+                this_surf = self.opticalsystem.elements[elem].surfaces[surf]
+                (mat1, mat2) = self.opticalsystem.elements[elem].getConnection(surf)
+                mat1str = ""
+                mat2str = ""                
                 if mat1 is not None:
-                    self.info("mat1: %f" % (mat1.getIndex(None, wave=standard_wavelength),))
+                    mat1str = "mat1: %s" % (mat1,)
+                else:
+                    mat1str = "mat1: None"
                 if mat2 is not None:
-                    self.info("mat2: %f" % (mat2.getIndex(None, wave=standard_wavelength),))
-                self.info(" " + surf1 + ": " + str())
+                    mat2str = "mat2: %s" % (mat2,)
+                else:
+                    mat2str = "mat2: None"
+                self.info(" " + surf + ": " + mat1str + " " + mat2str)
         
