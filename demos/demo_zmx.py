@@ -37,6 +37,8 @@ from pyrateoptics.io.zmx import ZMXParser
 from pyrateoptics.sampling2d import raster
 from pyrateoptics import draw
 
+import matplotlib.pyplot as plt
+
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 # download ZMX files from e.g.:
@@ -71,10 +73,18 @@ initialbundles_dict = p.createInitialBundle("N")
 osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 
 ray_paths = []
-for d in initialbundles_dict:
-    d["raster"] = raster.MeridionalFan()
-    osa.aim(num_rays, d, wave=standard_wavelength)
-    ray_paths.append(osa.trace()[0])
 
-draw(s, ray_paths)
+if initialbundles_dict == []:
+    initialbundles_dict = [{"radius":enpd*0.5}]
+
+for d in initialbundles_dict:
+    #d["raster"] = raster.MeridionalFan()
+    #osa.aim(num_rays, d, wave=standard_wavelength)
+    #ray_paths.append(osa.trace()[0])
+    d["raster"] = raster.RectGrid()
+    osa.aim(num_rays*num_rays, d, wave=standard_wavelength)
+    osa.drawSpotDiagram()
+
+#draw(s, ray_paths)
 osa.prettyprint()
+plt.show()

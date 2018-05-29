@@ -776,14 +776,18 @@ class GridSag(ExplicitShape):
         kind = kwargs_dict.pop('kind', 'cubic')
         name = kwargs_dict.pop('name', '')
     
-        self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
+    
+        self.interpolant = RectBivariateSpline(xlinspace, ylinspace, Zgrid)
+        #self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
     
         def gsf(x, y):
             
-            res = np.zeros_like(x)
+            #res = np.zeros_like(x)
             
-            for i in range(len(x)):            
-                res[i] = self.interpolant(x[i], y[i])[0]
+            #for i in range(len(x)):            
+            #    res[i] = self.interpolant(x[i], y[i])[0]
+
+            res = self.interpolant.ev(x, y)
 
             # interpolants give a not perfect return value            
                         
@@ -792,9 +796,11 @@ class GridSag(ExplicitShape):
         def gradgsf(x, y, z): # gradient for implicit function z - af(x, y) = 0
             res = np.zeros((3, len(x)))
             
-            for i in range(len(x)):
-                res[0, i] = -self.interpolant(x[i], y[i], dx=1)[0]
-                res[1, i] = -self.interpolant(x[i], y[i], dy=1)[0]
+            #for i in range(len(x)):
+            #    res[0, i] = -self.interpolant(x[i], y[i], dx=1)[0]
+            #    res[1, i] = -self.interpolant(x[i], y[i], dy=1)[0]
+            res[0, :] = -self.interpolant.ev(x, y, dx=1)
+            res[1, :] = -self.interpolant.ev(x, y, dy=1)
             res[2, :] = 1.
             
             return res

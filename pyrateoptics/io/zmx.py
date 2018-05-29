@@ -74,7 +74,8 @@ class ZMXParser(BaseLogger):
         self.__textlines = list([line for line in fh])
         fh.close()
         self.__full_textlines = "".join(self.__textlines)
-        
+        self.debug(self.__textlines[:10])
+        self.debug(self.__full_textlines[:100])        
 
 
     def returnBlockStrings(self):
@@ -83,7 +84,12 @@ class ZMXParser(BaseLogger):
         # match if look-ahead gives non-whitespace after line break
 
     def returnBlockKeyword(self, blk):
-        return re.findall("^\w+(?=\s+)", blk)[0]
+        findblockkeywords = re.findall("^\w+(?=\s*)", blk)
+        self.debug("BLOCK KEYWORDS: " + str(findblockkeywords))
+        if findblockkeywords == []:
+            return None
+        else:
+            return findblockkeywords[0]
 
     def readArgsForKeyword(self, linestr, keywordstr, *args):
         stringargs = linestr.split()
@@ -236,11 +242,11 @@ class ZMXParser(BaseLogger):
     def createInitialBundle(self, d_or_n="N"):
         raybundle_dicts = []
         
-        enpd = filter(lambda x: x != None, [self.readStringForKeyword(l, "ENPD") for l in self.__textlines])[0]
-        self.info(enpd)
+        enpd = filter(lambda x: x != None, [self.readStringForKeyword(l, "ENPD") for l in self.__textlines])
+        self.debug(enpd)
                 
-        if enpd is not None:
-            enpd = float(enpd)
+        if enpd != []:
+            enpd = float(enpd[0])
             xfldlist = [self.readStringForKeyword(l, "XFL" + d_or_n) for l in self.__textlines]
             yfldlist = [self.readStringForKeyword(l, "YFL" + d_or_n) for l in self.__textlines]
             xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
@@ -396,8 +402,7 @@ class ZMXParser(BaseLogger):
                 self.debug(sagarray)
                 xv = np.linspace(-nx*dx*0.5, nx*dx*0.5, nx)
                 yv = np.linspace(-ny*dy*0.5, ny*dy*0.5, ny)
-                (X, Y) = np.meshgrid(xv, yv)
-                Z = sagarray[:, 0].reshape(nx, ny) # first line                
+                Z = np.flipud(sagarray[:, 0].reshape(nx, ny)).T # first line                
                 
                 actsurf = Surface(lc, shape=GridSag(lc, (xv, yv, Z)))                
                 
