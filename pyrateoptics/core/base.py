@@ -103,12 +103,13 @@ class OptimizableVariable(BaseLogger):
         self.parameters = {}
         self.parameters["function"] = kwargs.get("function", None)
         self.parameters["args"] = kwargs.get("args", ())
-
+        # TODO: function also as string, string tuple or as code object
 
     def init_external(self, **kwargs):
         self.parameters = {}
         self.parameters["function"] = kwargs.get("function", None)
         self.parameters["args"] = kwargs.get("args", ())
+        # TODO: function also as string, string tuple or as code object
     
 
     def getVariableType(self):
