@@ -796,9 +796,9 @@ class GridSag(ExplicitShape):
         def hessgsf(x, y, z):
             res = np.zeros((3, 3, len(x)))
             
-            res[0, 0, :] = -self.interpolant(x, y, dx=2)            
-            res[0, 1, :] = res[1, 0, :] = -self.interpolant(x, y, dx=1, dy=1)            
-            res[1, 1, :] = -self.interpolant(x, y, dy=2)            
+            res[0, 0, :] = -self.interpolant.ev(x, y, dx=2)            
+            res[0, 1, :] = res[1, 0, :] = -self.interpolant.ev(x, y, dx=1, dy=1)            
+            res[1, 1, :] = -self.interpolant.ev(x, y, dy=2)            
             
             
             return res

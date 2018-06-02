@@ -41,6 +41,8 @@ import matplotlib.pyplot as plt
 
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
+# TODO: use argparse library to make the argument parsing more elaborate
+
 # download ZMX files from e.g.:
 # http://astro.dur.ac.uk/~rsharp/opticaldesign/
 # some good demonstration of coordinate breaks is: FIELDROTATOR-LECT5.ZMX
