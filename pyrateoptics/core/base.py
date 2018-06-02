@@ -35,7 +35,7 @@ class OptimizableVariable(BaseLogger):
     Class that contains an optimizable variable. Used to get a pointer on a variable.
     The value is not constrained to float. Also other dependent variables are possible to define.
     """
-    def __init__(self, variable_type="fixed", name='', **kwargs):
+    def __init__(self, variable_type="fixed", name="", **kwargs):
 
         super(OptimizableVariable, self).__init__(name=name, **kwargs)
 
@@ -74,25 +74,50 @@ class OptimizableVariable(BaseLogger):
                     "pickup"   : self.eval_pickup,
                     "external" : self.eval_external
                     }
-
-
-        self.changetype(variable_type)
-        self.parameters = kwargs
-
-        self.initial_value = self.evaluate()
+        
+        self.initdict = {
+                    "fixed"    : self.init_fixed,
+                    "variable" : self.init_variable,
+                    "pickup"   : self.init_pickup,
+                    "external" : self.init_external
+                    }
+        
+        self.var_type = variable_type
+        self.evalfunc = self.evaldict[self.var_type]
+        self.initdict[self.var_type](**kwargs)
         self.set_interval(None, None)
 
 
     #def __str__(self, *args, **kwargs):
     #    return self.name + "('" + self.var_type + "') = " + str(self.parameters)
 
-    def getVarType(self):
+    def init_fixed(self, **kwargs):
+        self.parameters = {}
+        self.parameters["value"] = kwargs.get("value", None)
+
+    def init_variable(self, **kwargs):
+        self.parameters = {}
+        self.parameters["value"] = kwargs.get("value", None)
+        
+    def init_pickup(self, **kwargs):
+        self.parameters = {}
+        self.parameters["function"] = kwargs.get("function", None)
+        self.parameters["args"] = kwargs.get("args", ())
+
+
+    def init_external(self, **kwargs):
+        self.parameters = {}
+        self.parameters["function"] = kwargs.get("function", None)
+        self.parameters["args"] = kwargs.get("args", ())
+    
+
+    def getVariableType(self):
         return self.__var_type.lower()
     
-    def setVarType(self, vtype):
+    def setVariableType(self, vtype):
         self.__var_type = vtype.lower()
 
-    var_type = property(fget=getVarType, fset=setVarType)
+    var_type = property(fget=getVariableType, fset=setVariableType)
 
     def set_interval(self, left=None, right=None):
         """
@@ -122,45 +147,35 @@ class OptimizableVariable(BaseLogger):
     all -> external: value is not conserved
     """
 
-    def changetype(self, vtype, **kwargs):
-        try:        
-            last_value = self.evaluate()
-        except:
-            last_value = "not initialized"
-        vtype_lower = vtype.lower()
-
-        try:
-            self.debug("last type: %s" % (self.var_type,))        
-        except:
-            self.debug("last type: not initialized")
-        self.debug("last value: %s" % (str(last_value),))
-        try:        
-            self.debug("last params: %s" % (str(self.parameters),))
-        except:
-            self.debug("last params: not initialized")
-            
+    def changetype_from_to(self, from_type, to_type, **kwargs):
+        """
+        Function only called indirectly from changetype() to make program
+        logic more clear.
+        """
         
-        self.var_type = vtype
-        self.evalfunc = self.evaldict[self.var_type]
+        # first: backup value
+        # second: backup parameters
+        # third: erase parameters (will be done in init functions)
+        # reset parameters: also done in init functions
 
-        self.debug("new type: %s" % (vtype_lower,))        
-        self.debug("new value: %s" % (str(self.evaluate()),))
-        self.debug("new params: %s" % (str(kwargs),))
+        self.debug("changing type from \'%s\' to \'%s\'" % (from_type, to_type))
+        value_backup = self.evaluate()
+        parameters_backup = self.parameters
+        self.debug("old value %s and old parameters %s" % (str(value_backup), str(parameters_backup)))
+        self.initdict[to_type](**kwargs)
+        if to_type == "fixed" or to_type == "variable":
+            if not kwargs.has_key("value"):            
+                self.parameters["value"] = value_backup
+        if (from_type == "pickup" and to_type == "external") or\
+            (from_type == "external" and to_type == "pickup"):
+            if not kwargs.has_key("function"):
+                self.parameters["function"] = parameters_backup["function"]
+        self.evalfunc = self.evaldict[to_type]
+        self.var_type = to_type
+        self.debug("new value %s and new parameters %s" % (str(self.evaluate()), str(self.parameters)))
 
-        try:        
-            parameter_backup = self.parameters
-        except:
-            parameter_backup = {"value":None}
-        self.parameters = kwargs
-        if vtype.lower() in ["variable", "fixed"] \
-            and self.var_type in ["variable", "fixed"] \
-            and parameter_backup["value"] != None:
-            self.parameters["value"] = parameter_backup["value"]
-        if vtype.lower() in ["variable", "fixed"] \
-            and self.var_type == "pickup":
-                self.parameters = {}
-                self.parameters["value"] = self.evaluate()
-
+    def changetype(self, vtype, **kwargs):
+        self.changetype_from_to(self.var_type, vtype.lower(), **kwargs)
 
 
     def setvalue(self, value):
@@ -170,17 +185,14 @@ class OptimizableVariable(BaseLogger):
 
     def eval_fixed(self):
         # if type = variable then give only access to value
-        try:        
-            return self.parameters.get("value", None)
-        except:
-            return None
+        return self.parameters.get("value", None)
 
     def eval_variable(self):
         # if type = variable then give only access to value
         return self.parameters.get("value", None)
 
     def eval_pickup(self):
-        # if type = pickup then pack all arguments into one tuple
+        # if type = pickup then package up all arguments into one tuple
         # and put it into the userdefined function
         # evaluate the result
         arguments_for_function_eval = (argfunc.evaluate() for argfunc in self.parameters["args"])
