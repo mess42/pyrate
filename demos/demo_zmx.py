@@ -41,36 +41,37 @@ import matplotlib.pyplot as plt
 
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
-# TODO: use argparse library to make the argument parsing more elaborate
+import argparse
 
 # download ZMX files from e.g.:
 # http://astro.dur.ac.uk/~rsharp/opticaldesign/
 # some good demonstration of coordinate breaks is: FIELDROTATOR-LECT5.ZMX
 
-if len(sys.argv) < 4:
-    print("usage:")
-    print("python -m demos.demo_zmx file.zmx entrance_pupil_diameter num_rays_for_yfan")
-    print("only collimated light")
-    print("file.zmx relative to local directory")
-    exit()
+parser = argparse.ArgumentParser(description="Read ZMX files.")
+parser.add_argument("file", help="File to be interpreted", type=str)
+parser.add_argument("--bundletype", nargs='?', help="Bundle type", type=str, default='collimated')
+parser.add_argument("--epd", nargs='?', help="Entrance pupil diameter", type=float, default=1.0)
+parser.add_argument("--numrays", nargs='?', help="Number of rays", type=int, default=11)
+parser.add_argument("--showspot", help="Show spot diagram?", action="store_true")
+parsed = parser.parse_args()
 
-file_to_read = sys.argv[1]
-enpd = float(sys.argv[2])
-num_rays = int(sys.argv[3])
-show_spot = False
-if len(sys.argv) > 4:
-    show_spot = bool(int(sys.argv[4]))
+# TODO: add materials via command line
 
+show_spot = parsed.showspot
+file_to_read = parsed.file
+enpd = parsed.epd
+num_rays = parsed.numrays
+bundletype = parsed.bundletype
 
 p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
 
-#matdict = {}
-matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168)}
-#matdict = {"LAFN21":ConstantIndexGlass(lctmp, 1.788), "SF53":ConstantIndexGlass(lctmp, 1.72)}    
+matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168), 
+           "LAFN21":ConstantIndexGlass(lctmp, 1.788),
+           "SF53":ConstantIndexGlass(lctmp, 1.72)}    
 
 (s, seq) = p.createOpticalSystem(matdict)
-#(o, k, E0) = collimated_bundle(11, {"opticalsystem":s, "radius":enpd*0.5, "startz":-5., "raster":raster.MeridionalFan()}, wave=standard_wavelength)
+
 if s is None:
     sys.exit()
 
