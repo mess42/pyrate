@@ -41,8 +41,10 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics import draw, collimated_bundle
+from pyrateoptics import draw, raytrace
+from pyrateoptics.raytracer.globalconstants import degree
 
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 import pyrateoptics.raytracer.helpers
 
@@ -93,8 +95,6 @@ s.addElement("TMA", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-(o, k, E0) = collimated_bundle(5, {"opticalsystem":s, "startz":-5., "radius":10., "raster":raster.MeridionalFan()}, wave=wavelength)
-
 sysseq = [("TMA", [
             ("object", {}), 
             ("m1", {"is_mirror":True}), 
@@ -117,25 +117,25 @@ sysseq_pilot = [("TMA",
                     ("m2", {"is_mirror":True})
                 ])
                 ] 
+
+
                 
 obj_dx = 0.1
-obj_dphi = 1.*math.pi/180.0
+obj_dphi = 1.*degree
 
-kwave = 2.*math.pi/wavelength
+osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
 
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq)
+raysdict = {"opticalsystem":s, "startz":-5., "radius":10., "raster":raster.MeridionalFan()}
+osa.aim(5, raysdict, bundletype="collimated", wave=wavelength)
 
-#pilotbundle = RayBundle(
-#                x0 = np.array([[0], [0], [0]]), 
-#                k0 = np.array([[0], [kwave*math.sin(phi)], [kwave*math.cos(phi)]]), 
-#                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
-#                )
-#pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
+r2 = osa.trace()[0]
 
-kw = 5*math.pi/180.
 
-pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objectsurf, crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi), kunitvector=np.array([0, math.sin(kw), math.cos(kw)]), num_sampling_points=3)
-(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq)
+kw = 5.*degree
+
+pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objectsurf,\
+    crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi),\
+    kunitvector=np.array([0, math.sin(kw), math.cos(kw)]), num_sampling_points=3)
+(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], osa.initial_bundles[0], sysseq)
 
 draw(s, [(r2, "blue"), (r3, "orange"), (pilotray2, "red")])

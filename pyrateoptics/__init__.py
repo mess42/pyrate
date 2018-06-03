@@ -264,11 +264,11 @@ def draw(os, rays=None, **kwargs):
 
 
 
-def raytrace(s, seq, numrays, rays_dict, bundletype="collimated", wave=standard_wavelength):
+def raytrace(s, seq, numrays, rays_dict, bundletype="collimated", traceoptions={}, wave=standard_wavelength):
     osa = OpticalSystemAnalysis(s, seq)
     osa.aim(numrays, rays_dict, bundletype=bundletype, wave=wave)    
     
-    return osa.trace()
+    return osa.trace(**traceoptions)
 
     
 

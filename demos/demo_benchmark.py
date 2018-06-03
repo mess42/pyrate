@@ -28,10 +28,11 @@ import time
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
-from pyrateoptics import build_rotationally_symmetric_optical_system, draw, divergent_bundle
+from pyrateoptics import build_rotationally_symmetric_optical_system, draw
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.globalconstants import standard_wavelength, degree
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 wavelength = standard_wavelength
 
@@ -53,7 +54,9 @@ db_path = "refractiveindex.info-database/database"
 nrays = 100000
 nrays_draw = 21
 
-(x0, k0, E0) = divergent_bundle(nrays, {"radius": 10.*degree, "raster": raster.RectGrid()})
+osa = OpticalSystemAnalysis(s, seq, name="Analysis")
+
+(x0, k0, E0) = osa.divergent_bundle(nrays, {"radius": 10.*degree, "raster": raster.RectGrid()})
 t0 = time.clock()
 initialraybundle = RayBundle(x0=x0, k0=k0, Efield0=E0)
 raypath = s.seqtrace(initialraybundle, seq)
@@ -62,7 +65,7 @@ logging.info("             That is " + str(int(round(nrays * (len(s.elements["st
 
 # plot
 
-(x0_draw, k0_draw, E0_draw) = divergent_bundle(nrays_draw, {"radius": 10.*degree, "raster": raster.MeridionalFan()})
+(x0_draw, k0_draw, E0_draw) = osa.divergent_bundle(nrays_draw, {"radius": 10.*degree, "raster": raster.MeridionalFan()})
 initialraybundle_draw = RayBundle(x0=x0_draw, k0=k0_draw, Efield0=E0_draw)
 raypath_draw = s.seqtrace(initialraybundle_draw, seq)
 

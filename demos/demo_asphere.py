@@ -28,11 +28,12 @@ import numpy as np
 
 
 from pyrateoptics.raytracer.ray import RayBundle
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend
 
-from pyrateoptics import build_simple_optical_system, draw, collimated_bundle
+from pyrateoptics import build_simple_optical_system, draw, raytrace
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -50,8 +51,10 @@ wavelength = 0.5876e-3
                     ({"shape": "Conic"}, {"decz":100.0}, None, "image", {})
                 ],
                 )
-                
-(o, k, E0) = collimated_bundle(121, {"startz":-5., "radius":11.43}, wave=wavelength)
+
+osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
+
+(o, k, E0) = osa.collimated_bundle(121, {"startz":-5., "radius":11.43}, wave=wavelength)
 initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
 
 #initialbundle = generatebundle(openangle=10.*math.pi/180, numrays=121)

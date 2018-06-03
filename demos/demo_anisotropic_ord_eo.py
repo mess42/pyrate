@@ -40,7 +40,7 @@ from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.raytracer.globalconstants import degree
 
-from pyrateoptics import draw, divergent_bundle
+from pyrateoptics import draw, raytrace
 
 wavelength = 0.5876e-3
 
@@ -78,16 +78,13 @@ elem.addSurface("image", image, (None, None))
 
 s.addElement("crystalelem", elem)
 
-(o, k, E0) = divergent_bundle(10, {"opticalsystem":s, "startz":-5., "radius":20*degree, "raster":raster.MeridionalFan()}, wave=wavelength)
-
 sysseq = [("crystalelem", [("stop", {"is_stop":True}), ("front", {}), ("rear", {}), ("image", {})])]
 
 
-
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-
+raysdict = {"opticalsystem":s, "startz":-5., "radius":20*degree, "raster":raster.MeridionalFan()}
 splitup = True
-r2 = s.seqtrace(initialbundle, sysseq, splitup=splitup)
+r2 = raytrace(s, sysseq, 10, raysdict, bundletype="divergent",\
+    traceoptions={"splitup":splitup}, wave=wavelength)[0]
 
 
 if splitup:

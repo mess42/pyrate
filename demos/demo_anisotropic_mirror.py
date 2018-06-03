@@ -43,7 +43,7 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.raytracer.globalconstants import degree
 
 
-from pyrateoptics import draw, divergent_bundle
+from pyrateoptics import draw, raytrace
 
 
 
@@ -83,8 +83,6 @@ elem.addSurface("image", image, ("crystal", None))
 
 s.addElement("crystalelem", elem)
 
-(o, k, E0) = divergent_bundle(10, {"opticalsystem":s, "startz":-5., "radius":20*degree, "raster":raster.MeridionalFan()}, wave=wavelength)
-
 sysseq = [
     ("crystalelem", [
         ("stop", {}), 
@@ -93,8 +91,10 @@ sysseq = [
         ("image", {})]
     )]
 
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq)
+rays = raytrace(s, sysseq, 10,\
+         {"radius":20*degree, "startz":-5., "raster":raster.MeridionalFan()},\
+         bundletype="divergent", traceoptions={"splitup":True}, wave=wavelength)
 
-draw(s, r2)
+
+draw(s, rays)
 

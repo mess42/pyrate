@@ -240,7 +240,12 @@ class ZMXParser(BaseLogger):
         
         return filteredBlockStrings
 
-    def createInitialBundle(self, d_or_n="N"):
+    def createInitialBundle(self, d_or_n="N", entrancepupildiameter=1.0):
+        """
+        Convenience function to extract field points and initial bundles from
+        ZMX files.
+        """
+
         raybundle_dicts = []
         
         enpd = filter(lambda x: x != None, [self.readStringForKeyword(l, "ENPD") for l in self.__textlines])
@@ -248,14 +253,19 @@ class ZMXParser(BaseLogger):
                 
         if enpd != []:
             enpd = float(enpd[0])
-            xfldlist = [self.readStringForKeyword(l, "XFL" + d_or_n) for l in self.__textlines]
-            yfldlist = [self.readStringForKeyword(l, "YFL" + d_or_n) for l in self.__textlines]
-            xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
-            yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
-            xfield_list = [float(x) for x in xfield_str_list.split(" ")]
-            yfield_list = [float(y) for y in yfield_str_list.split(" ")]
-        
-            raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in zip(xfield_list, yfield_list)]
+        else:
+            enpd = entrancepupildiameter
+        xfldlist = [self.readStringForKeyword(l, "XFL" + d_or_n) for l in self.__textlines]
+        yfldlist = [self.readStringForKeyword(l, "YFL" + d_or_n) for l in self.__textlines]
+        xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
+        yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
+        xfield_list = [float(x) for x in xfield_str_list.split(" ")]
+        yfield_list = [float(y) for y in yfield_str_list.split(" ")]
+
+        xyfield_list = zip(xfield_list, yfield_list)
+        xyfield_list = sorted(list(set(xyfield_list)))
+    
+        raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in xyfield_list]
                 
         return raybundle_dicts
 
