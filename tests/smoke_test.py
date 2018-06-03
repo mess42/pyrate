@@ -100,7 +100,7 @@ def test_smoke_zmx():
     import sys
     
     sys.argv = (sys.argv[0] + " tests/lenssystem.ZMX --bundletype collimated\
---epd 2.0 --numrays 10").split()
+ --epd 2.0 --numrays 10").split()
     #[sys.argv[0], 'tests/lenssystem.ZMX', '10', '2']
     import demos.demo_zmx
     assert True
