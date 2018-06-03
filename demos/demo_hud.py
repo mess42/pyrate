@@ -43,7 +43,9 @@ from pyrateoptics.raytracer.globalconstants import degree, standard_wavelength
 
 import pyrateoptics.raytracer.helpers
 
-from pyrateoptics import collimated_bundle, draw
+from pyrateoptics import draw
+
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 # definition of optical system
 
@@ -118,11 +120,6 @@ s.addElement("HUD", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-(o, k1, E1) = collimated_bundle(3, {"opticalsystem": s, "radius": 2, "raster": raster.MeridionalFan()}, wave=standard_wavelength)
-(o, k2, E2) = collimated_bundle(3, {"opticalsystem": s, "radius": 2, "raster": raster.MeridionalFan(), "anglex": 15*degree}, wave=standard_wavelength)
-(o, k3, E3) = collimated_bundle(3, {"opticalsystem": s, "radius": 2, "raster": raster.MeridionalFan(), "anglex": -15*degree}, wave=standard_wavelength)
-
-
 sysseq = [("HUD", 
            [
                 ("object", {"is_stop":True}), 
@@ -141,6 +138,13 @@ sysseq = [("HUD",
                 ("image", {}) 
             ])
         ] 
+
+
+osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
+
+(o, k1, E1) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan()}, wave=standard_wavelength)
+(o, k2, E2) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan(), "anglex": 15*degree}, wave=standard_wavelength)
+(o, k3, E3) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan(), "anglex": -15*degree}, wave=standard_wavelength)
 
 
 initialbundle1 = RayBundle(x0=o, k0=k1, Efield0=E1, wave=standard_wavelength)

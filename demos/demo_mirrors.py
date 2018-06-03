@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+import math
+import logging
 
 
 from pyrateoptics.sampling2d import raster
@@ -33,17 +35,18 @@ from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.surface import Surface
-from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-import math
-import logging
+import pyrateoptics.raytracer.helpers
+from pyrateoptics import raytrace, draw
+
+from pyrateoptics.raytracer.globalconstants import degree
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+
 logging.basicConfig(level=logging.DEBUG)
 
-import pyrateoptics.raytracer.helpers
-from pyrateoptics import collimated_bundle, draw
 
 wavelength = 0.5876e-3
 
@@ -97,9 +100,6 @@ s.addElement("TMA", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-(o, k, E0) = collimated_bundle(11, {"opticalsystem": s, "startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, wave=wavelength)
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-
 sysseq = [("TMA", 
            [
                 ("object", {}), 
@@ -113,41 +113,20 @@ sysseq = [("TMA",
             ])
         ] 
 
-sysseq_pilot = [("TMA", 
-                 [
-                    ("object", True, {}), 
-                    ("m1", False, {}), 
-                    ("m2", False, {"is_stop":True}), 
-                    ("m3", False, {}), 
-                    ("m2", False, {}),
-                    ("m1", False, {}),
-                    ("m2", False, {}),
-                    ("m1", False, {}),
-                    ("m2", False, {})
-                ])
-                ] 
-r2 = s.seqtrace(initialbundle, sysseq)
+osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
+osa.aim(11, {"startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, bundletype="collimated", wave=wavelength)
+r2 = osa.trace()[0]
                 
-phi = 5.*math.pi/180.0
+phi = 5.*degree
 
 obj_dx = 0.1
-obj_dphi = 1.*math.pi/180.0
-
-kwave = 2.*math.pi/wavelength
-
-#pilotbundle = RayBundle(
-#                x0 = np.array([[0], [0], [0]]), 
-#                k0 = np.array([[0], [kwave*math.sin(phi)], [kwave*math.cos(phi)]]), 
-#                Efield0 = np.array([[1], [0], [0]]), wave=wavelength
-#                )
-#pilotray = s.seqtrace(pilotbundle, sysseq_pilot)
-
+obj_dphi = 1.*degree
 
 pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 
 rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
 
-(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], initialbundle, sysseq, use6x6=True)
+(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], osa.initial_bundles[0], sysseq, use6x6=True)
 
 (m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=True)
 
