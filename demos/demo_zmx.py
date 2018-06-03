@@ -53,6 +53,7 @@ parser.add_argument("--bundletype", nargs='?', help="Bundle type", type=str, def
 parser.add_argument("--epd", nargs='?', help="Entrance pupil diameter", type=float, default=1.0)
 parser.add_argument("--numrays", nargs='?', help="Number of rays", type=int, default=11)
 parser.add_argument("--showspot", help="Show spot diagram?", action="store_true")
+parser.add_argument("--anglex", help="Angle", type=float, default=0.0)
 parsed = parser.parse_args()
 
 # TODO: add materials via command line
@@ -62,6 +63,7 @@ file_to_read = parsed.file
 enpd = parsed.epd
 num_rays = parsed.numrays
 bundletype = parsed.bundletype
+anglex = parsed.anglex
 
 p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
@@ -91,6 +93,7 @@ for d in initialbundles_dict:
         osa.drawSpotDiagram()
     else:
         d["raster"] = raster.MeridionalFan()
+        d["anglex"] = anglex        
         osa.aim(num_rays, d, wave=standard_wavelength)
         ray_paths.append(osa.trace()[0])
 

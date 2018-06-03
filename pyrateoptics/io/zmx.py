@@ -188,6 +188,7 @@ class ZMXParser(BaseLogger):
 
         self.addKeywordToDict(blocklines, "SQAP", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
         self.addKeywordToDict(blocklines, "CLAP", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
+        self.addKeywordToDict(blocklines, "OBDC", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
 
         self.addKeywordToDict(blocklines, "XDAT", zmxxdat, self.extractArgsForMultipleKeywordFromBlock, int, float, int, int, float)
         # XDAT n val v pus sca
@@ -269,7 +270,7 @@ class ZMXParser(BaseLogger):
                 
         return raybundle_dicts
 
-    def createOpticalSystem(self, matdict = {}, elementname="zmxelem"):
+    def createOpticalSystem(self, matdict = {}, options = {}, elementname="zmxelem"):
 
         self.info("Creating optical system from ZMX")
         optical_system = OpticalSystem()
@@ -341,6 +342,7 @@ class ZMXParser(BaseLogger):
             
             sqap = surfres.get("SQAP", None)
             clap = surfres.get("CLAP", None)
+            obdc = surfres.get("OBDC", None)
             
             if math.isinf(thickness):
                 self.info("infinite object distance!")
@@ -379,12 +381,20 @@ class ZMXParser(BaseLogger):
                 if surftype == "COORDBRK":
                     matname = lastmatname
 
+            if obdc is None:
+                lcapdec = optical_system.addLocalCoordinateSystem(
+                LocalCoordinates(name=surfname + "_ap"), refname=surfname)
+            else:
+                self.info("Aperture decenter %f %f" % tuple(obdc))
+                lcapdec = optical_system.addLocalCoordinateSystem(
+                LocalCoordinates(name=surfname + "_ap", decx=obdc[0], decy=obdc[1]), refname=surfname)
+
             if sqap is None and clap is None:
                 ap = None
             elif sqap is not None:
-                ap = RectangularAperture(lc, w=sqap[0]*2, h=sqap[1]*2)
+                ap = RectangularAperture(lcapdec, w=sqap[0]*2, h=sqap[1]*2)
             elif clap is not None:
-                ap = CircularAperture(lc, semidiameter=clap[1])
+                ap = CircularAperture(lcapdec, semidiameter=clap[1])
 
             if surftype == "STANDARD":
                 self.debug("SURFACE: Standard surface found")                
