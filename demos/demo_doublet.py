@@ -77,7 +77,7 @@ s.addElement("AC254-100", elem)
 sysseq = [("AC254-100", [("stop", {"is_stop":True}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
 
-r2 = raytrace(s, sysseq, 20, {"startz": -5, "radius": 11.43, "raster": raster.MeridionalFan()}, wave=wavelength)
+r2 = raytrace(s, sysseq, 20, {"startz": -5, "radius": 11.43, "raster": raster.MeridionalFan()}, wave=wavelength)[0]
 
-draw(s, r2)
+draw(s, (r2, "blue"))
 
