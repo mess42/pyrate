@@ -293,6 +293,10 @@ class ClassWithOptimizableVariables(BaseLogger):
         (dict_opt_vars, idlist) = addOptimizableVariablesToList(self)
         return dict_opt_vars
 
+        # TODO: due to the dict the order of the variables is sometimes not
+        # maintained between to consecutive runs of the programs; this is
+        # maybe not good
+
 
     def getAllValues(self):
         """
