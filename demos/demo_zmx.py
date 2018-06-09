@@ -54,6 +54,7 @@ parser.add_argument("--epd", nargs='?', help="Entrance pupil diameter", type=flo
 parser.add_argument("--numrays", nargs='?', help="Number of rays", type=int, default=11)
 parser.add_argument("--showspot", help="Show spot diagram?", action="store_true")
 parser.add_argument("--anglex", help="Angle", type=float, default=0.0)
+parser.add_argument("--reverse", help="Send light in reverse direction?", action="store_true")
 parsed = parser.parse_args()
 
 # TODO: add materials via command line
@@ -64,6 +65,7 @@ enpd = parsed.epd
 num_rays = parsed.numrays
 bundletype = parsed.bundletype
 anglex = parsed.anglex
+reverse = parsed.reverse
 
 p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
