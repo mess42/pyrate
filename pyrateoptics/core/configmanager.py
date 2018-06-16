@@ -30,9 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # TODO: serialization via JSONEncode derived class decorator (thomas annotator concept)
 
 from pyrateoptics import listOptimizableVariables
+from pyrateoptics.raytracer.optical_system import OpticalSystem
+from pyrateoptics.core.base import OptimizableVariable
 
 from log import BaseLogger
 import copy
+import re
 
 
 
@@ -61,22 +64,48 @@ class MulticonfigManager(BaseLogger):
             if len(dict_of_keys_and_value_tuples) > 0:
                 length_value_tuples = len(dict_of_keys_and_value_tuples.values()[0])
                 # use "first" element in dict to obtain no. of copies
-            """            
-            for index in range(length_value_tuples):
-                print(index)
-                new_instance = copy.deepcopy(self.base_instance)
-                dictoptvariables = new_instance.getAllOptimizableVariables()    
-                for (key, val_tuples) in dict_of_keys_and_value_tuples.items():
-                    dictoptvariables[key].setvalue(val_tuples[index])
-                instance_tuple.append(new_instance)                
-            """
+ 
+                for index in range(length_value_tuples):
+                    new_instance = copy.copy(self.base_instance) # shallow copy
+                    base_dictoptvariables = self.base_instance.getAllVariables()
+
+                    for (key, val_tuples) in dict_of_keys_and_value_tuples.iteritems():
+                        (variable, longkey) = base_dictoptvariables[key]
+                        longkey_nonames = re.sub("\([a-zA-Z0-9_ ]+\)", "", longkey)
+                        new_variable = copy.deepcopy(variable)
+                        new_variable.setvalue(val_tuples[index])
+                        print(new_variable.__dict__)                        
+                        to_be_evaluated = "new_instance" + longkey_nonames + " = new_variable"
+                        print(locals()["new_variable"])                        
+                        exec(to_be_evaluated)
+                        locals()
+                        # FIXME: this exec call is maybe not the best way to
+                        # perform an overwrite of the variables;
+                        # further it seems that the variables are not updated
+                        # within the loop.
+                    instance_tuple.append(new_instance)                
             
-        return (copy.deepcopy(self.base_instance))
+        return instance_tuple
 
 if __name__ == "__main__":
+    
+    s = OpticalSystem(name="s")
+    s.lst = []
+    s.lst.append({})
+    s.lst.append({})
+    s.lst[0]["a"] = OptimizableVariable(variable_type="fixed", name="v1", value=3.0)
+    s.lst[1]["b"] = OptimizableVariable(variable_type="fixed", name="v2", value=7.0)
 
-    s = OpticalSystem()
+    s.rootcoordinatesystem.decz = OptimizableVariable(name="decz")
+        
     m = MulticonfigManager(s)
 
-    [s2, s3, s4] = m.setOptimizableVariables({"s.global.object.decz": (2.0, 3.0, 4.0)})
-    listOptimizableVariables(s2)
+    listOptimizableVariables(s)
+
+    [s2, s3, s4] = m.setOptimizableVariables({"s.global.decz": (2.0, 3.0, 4.0)})
+    for ss in (s2, s3, s4):    
+        mydict = listOptimizableVariables(ss)
+        (var, longkey) = mydict["s.global.decz"]
+        print(var())        
+        print(id(var))
+        

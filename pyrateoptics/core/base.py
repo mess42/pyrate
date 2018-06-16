@@ -225,6 +225,9 @@ class OptimizableVariable(BaseLogger):
         """
         value = self.inv_transform(value_transformed)
         self.setvalue(value)
+
+
+        
         
 class ClassWithOptimizableVariables(BaseLogger):
     """
@@ -272,7 +275,7 @@ class ClassWithOptimizableVariables(BaseLogger):
                         dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, newredkeystring) 
                 elif isinstance(var, dict):
                     for (k, v) in var.items():
-                        newkeystring = keystring + "[" + str(k) + "]" 
+                        newkeystring = keystring + "[\"" + str(k) + "\"]" 
                         dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, reducedkeystring)                        
     
                 elif isinstance(var, list) or isinstance(var, tuple):
@@ -290,7 +293,7 @@ class ClassWithOptimizableVariables(BaseLogger):
 
 
 
-        (dict_opt_vars, idlist) = addOptimizableVariablesToList(self)
+        (dict_opt_vars, idlist) = addOptimizableVariablesToList(self, keystring="")
         return dict_opt_vars
 
         # TODO: due to the dict the order of the variables is sometimes not
