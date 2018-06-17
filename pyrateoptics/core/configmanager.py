@@ -134,7 +134,8 @@ if __name__ == "__main__":
     m = ConfigManager(s, name="mc")
 
     [s2, s3] = m.setOptimizableVariables(("s2", "s3"), 
-                {"s.global.decz": (("pickup", lambda x: x + 2.0), ("pickup", lambda x: x + 3.0)), 
+                {"s.global.decz": (("pickup", lambda x: x + 2.0), 
+                                   ("pickup", lambda x: x + 3.0)), 
                 "s.global.decy": (("fixed", -2.), ("fixed", -3.))})
     s.rootcoordinatesystem.decx.setvalue(-98.0)    
     for ss in (s2, s3):    

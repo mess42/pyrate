@@ -24,6 +24,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+from pyrateoptics.core.log import BaseLogger
+
 class aimy(BaseLogger):
     
     """
@@ -40,4 +42,8 @@ class aimy(BaseLogger):
         super(aimy, self).__init(name=name, **kwargs)
         
         
-    def aim(self)
+    def aim(self):
+        """
+        Should generate bundles.
+        """
+        pass
