@@ -35,11 +35,10 @@ from pyrateoptics.core.base import OptimizableVariable
 
 from log import BaseLogger
 import copy
-import re
+import logging
 
 
-
-class MulticonfigManager(BaseLogger):
+class ConfigManager(BaseLogger):
     """
     Purpose is to make a deep copy of all variables which are subject to change
     and to perform a swallow copy of the variables which are shared between the
@@ -48,15 +47,19 @@ class MulticonfigManager(BaseLogger):
 
     
     def __init__(self, base_instance=None, **kwargs):
-        super(MulticonfigManager, self).__init__(**kwargs)
+        super(ConfigManager, self).__init__(**kwargs)
         self.base_instance = base_instance
         
     def setOptimizableVariables(self, names_tuple, dict_of_keys_and_value_tuples):
         """
         Set values in different instance of base instance.
         (deep copy). What about pickups?
+        
+        @param names_tuple (tuple of strings): names of the new systems (changes also keys)
+        @param dict_of_keys_and_tuples (dict of tuples): consists of values for fixed or
+                variable optimizable variables.
+        
         """
-                
         length_value_tuples = 0
         if self.base_instance is None:
             instance_list = None
@@ -64,29 +67,43 @@ class MulticonfigManager(BaseLogger):
             instance_list = []
             if names_tuple is None:
                 names_tuple = tuple([self.base_instance.name for r in dict_of_keys_and_value_tuples.values()[0]])             
+            self.info("Constructing multiple configs with names: %s" % (str(names_tuple)))
             if len(names_tuple) > 0:
                 length_value_tuples = len(names_tuple)
-                # use "first" element in dict to obtain no. of copies
+                # use names_tuple to obtain no. of copies
+                # notice that first flat copying instances and only deep copying
+                # of variables does not work. Therefore we did it the other way
+                # around.
+
+                self.debug("Deep copying base instance")                
                 for index in range(length_value_tuples):
+                    self.debug(str(index))
                     instance_list.append(copy.deepcopy(self.base_instance))
                     # deep copy instance
-                    
+                
+                self.debug("Constructing variables")
                 for (index, instance) in enumerate(instance_list):
+                    self.debug(str(index))
                     # reset all non-changing variables to instances of base_instance
                     # components.
                     for (key, variable) in instance.getAllVariables()["vars"].iteritems():
                         
                         if key in dict_of_keys_and_value_tuples:
                             val_tuple = dict_of_keys_and_value_tuples[key]
+                            self.debug("%s to %s" % (key, val_tuple[index]))
                             variable.setvalue(val_tuple[index])
                         else:
+                            self.debug("Reseting %s" % (key,))
                             instance.resetVariable(key, self.base_instance.getVariable(key))
                     # set names of the new instances accordingly
+                    self.debug("Setting name of instance %s" % (names_tuple[index]))
                     instance.setName(names_tuple[index])
                 
         return instance_list
 
 if __name__ == "__main__":
+    
+    logging.basicConfig(level=logging.DEBUG)
     
     s = OpticalSystem(name="s")
     s.lst = []
@@ -99,7 +116,7 @@ if __name__ == "__main__":
 
     listOptimizableVariables(s)
         
-    m = MulticonfigManager(s)
+    m = ConfigManager(s, name="mc")
 
     [s2, s3, s4] = m.setOptimizableVariables(("s2", "s3", "s4"), 
                 {"s.global.decz": (2.0, 3.0, 4.0), "s.global.decy": (-2., -3., -4.)})
