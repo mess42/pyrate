@@ -362,10 +362,12 @@ class ClassWithOptimizableVariables(BaseLogger):
         
         dict_of_vars = self.getAllVariables()
         deref = dict_of_vars["deref"][key]
-        exec("self" + deref + " = var") in locals()
-        print(id(locals()["var"]))        
+        exec(compile("self" + deref + " = var", "<string>", "exec"))
         
     def getVariable(self, key):
+        """
+        Gets variable from short key.
+        """
         dict_of_vars = self.getAllVariables()
         variable = dict_of_vars["vars"][key]
         return variable        
