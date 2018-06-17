@@ -105,6 +105,8 @@ class ConfigManager(BaseLogger):
                                     instance.resetVariable(key, OptimizableVariable(variable_type="fixed", value=mcv_contents, name=variable.name))
                                 elif mcv_type.lower() == "pickup":
                                     instance.reserVariable(key, OptimizableVariable(variable_type="pickup", function=mcv_contents, args=(variable,), name=variable.name))
+                                else:
+                                    self.warning("Unknown type for multi config values")
                         else:
                             self.debug("Reseting %s" % (key,))
                             instance.resetVariable(key, self.base_instance.getVariable(key))
