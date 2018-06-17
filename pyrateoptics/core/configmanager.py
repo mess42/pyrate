@@ -104,7 +104,7 @@ class ConfigManager(BaseLogger):
                                 if mcv_type.lower() == "fixed":
                                     instance.resetVariable(key, OptimizableVariable(variable_type="fixed", value=mcv_contents, name=variable.name))
                                 elif mcv_type.lower() == "pickup":
-                                    instance.reserVariable(key, OptimizableVariable(variable_type="pickup", function=mcv_contents, args=(variable,), name=variable.name))
+                                    instance.resetVariable(key, OptimizableVariable(variable_type="pickup", function=mcv_contents, args=(variable,), name=variable.name))
                                 else:
                                     self.warning("Unknown type for multi config values")
                         else:
@@ -133,10 +133,10 @@ if __name__ == "__main__":
         
     m = ConfigManager(s, name="mc")
 
-    [s2, s3, s4] = m.setOptimizableVariables(("s2", "s3", "s4"), 
-                {"s.global.decz": (("fixed", 2.0), ("fixed", 3.0), ("fixed", 4.0)), 
-                "s.global.decy": (("fixed", -2.), ("fixed", -3.), ("fixed", -4.))})
+    [s2, s3] = m.setOptimizableVariables(("s2", "s3"), 
+                {"s.global.decz": (("pickup", lambda x: x + 2.0), ("pickup", lambda x: x + 3.0)), 
+                "s.global.decy": (("fixed", -2.), ("fixed", -3.))})
     s.rootcoordinatesystem.decx.setvalue(-98.0)    
-    for ss in (s2, s3, s4):    
+    for ss in (s2, s3):    
         mydict = listOptimizableVariables(ss)
         
