@@ -91,7 +91,20 @@ class ConfigManager(BaseLogger):
                         if key in dict_of_keys_and_value_tuples:
                             val_tuple = dict_of_keys_and_value_tuples[key]
                             self.debug("%s to %s" % (key, val_tuple[index]))
-                            variable.setvalue(val_tuple[index])
+                            #variable.setvalue(val_tuple[index])
+                            # TODO: how to get pickup functions with multiple arguments?
+                            # TODO: how to improve this code?                            
+                            if type(val_tuple) is not tuple:
+                                self.warning("Incorrect format for multi config values!")
+                                self.debug("Values must be of type (string, contents):")
+                                self.debug("For fixed values: (\"fixed\", fixed_val)")
+                                self.debug("For pickup values: (\"pickup\", function)")
+                            else:
+                                (mcv_type, mcv_contents) = val_tuple[index]
+                                if mcv_type.lower() == "fixed":
+                                    instance.resetVariable(key, OptimizableVariable(variable_type="fixed", value=mcv_contents, name=variable.name))
+                                elif mcv_type.lower() == "pickup":
+                                    instance.reserVariable(key, OptimizableVariable(variable_type="pickup", function=mcv_contents, args=(variable,), name=variable.name))
                         else:
                             self.debug("Reseting %s" % (key,))
                             instance.resetVariable(key, self.base_instance.getVariable(key))
@@ -119,7 +132,8 @@ if __name__ == "__main__":
     m = ConfigManager(s, name="mc")
 
     [s2, s3, s4] = m.setOptimizableVariables(("s2", "s3", "s4"), 
-                {"s.global.decz": (2.0, 3.0, 4.0), "s.global.decy": (-2., -3., -4.)})
+                {"s.global.decz": (("fixed", 2.0), ("fixed", 3.0), ("fixed", 4.0)), 
+                "s.global.decy": (("fixed", -2.), ("fixed", -3.), ("fixed", -4.))})
     s.rootcoordinatesystem.decx.setvalue(-98.0)    
     for ss in (s2, s3, s4):    
         mydict = listOptimizableVariables(ss)
