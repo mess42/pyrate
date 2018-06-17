@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 import yaml
+import re
 
 from log import BaseLogger
 
@@ -255,13 +256,22 @@ class ClassWithOptimizableVariables(BaseLogger):
                 
     def getAllVariables(self):
 
-        def addOptimizableVariablesToList(var, dictOfOptVars = {}, idlist=[], keystring="", reducedkeystring=""):
+        def addOptimizableVariablesToList(var, dictOfOptVars = {"vars":{}, "longkeystrings":{}, "deref":{}}, idlist=[], keystring="", reducedkeystring=""):
             """
             Accumulates optimizable variables in var and its linked objects.
-            Ignores ring-links and double links.       
+            Ignores ring-links and double links.
+            
+            Variables are accumulated under the "vars" key.
+            Longkeystrings are accumulated under the "longkeystrings" key.
+            Strings for object dereference by eval are accumulated under the
+            "deref" key.
+                        
+            Below those main keys there is a dict in which the key is a
+            combination of names of the variables for an easy-to-remember-reference 
+            to the variables.
             
             @param var: object to evaluate (object)
-            @param dictOfOptVars: optimizable variables found so far (dict of objects)
+            @param dictOfOptVars: optimizable variables found so far (dict of dict of objects)
             @param idlist: ids of objects already evaluated (list of int)
             """ 
             
@@ -287,8 +297,11 @@ class ClassWithOptimizableVariables(BaseLogger):
                     newkeystring = keystring + "(" + var.name + ")"
                     newreducedkeystring = reducedkeystring + var.name
                     #dictOfOptVars.append((var, newkeystring, newreducedkeystring))
-                    dictOfOptVars[newreducedkeystring] = (var, newkeystring)
-    
+                    dictOfOptVars["vars"][newreducedkeystring] = var
+                    dictOfOptVars["longkeystrings"][newreducedkeystring] = newkeystring
+                    derefstring = re.sub("\([a-zA-Z0-9_ ]+\)", "", newkeystring)
+                    dictOfOptVars["deref"][newreducedkeystring] = derefstring
+
             return dictOfOptVars, idlist
 
 
@@ -305,7 +318,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         """
         For fast evaluation of value vector
         """
-        return np.array([a.evaluate() for (a, b) in self.getAllVariables().values()])
+        return np.array([a.evaluate() for a in self.getAllVariables()["vars"].values()])
 
     def getActiveVariables(self):
         """
@@ -313,7 +326,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         but it does not matter since the variable references are still in the
         original dictionary in the class
         """
-        return [x for (x, y) in self.getAllVariables().values() if x.var_type == "variable"]
+        return [x for x in self.getAllVariables()["vars"].values() if x.var_type == "variable"]
 
 
     def getActiveValues(self):
@@ -338,6 +351,25 @@ class ClassWithOptimizableVariables(BaseLogger):
         """
         for i, var in enumerate(self.getActiveVariables()):
             var.setvalue_transformed(x[i])
+            
+            
+    def resetVariable(self, key, var):
+        """
+        Resets variable by evaluating deref string from getAllVariables
+        dictionary. Maybe this could be solved by using less black magic.
+        Although this method is necessary for maintaining multi configs.
+        """
+        
+        dict_of_vars = self.getAllVariables()
+        deref = dict_of_vars["deref"][key]
+        exec("self" + deref + " = var") in locals()
+        print(id(locals()["var"]))        
+        
+    def getVariable(self, key):
+        dict_of_vars = self.getAllVariables()
+        variable = dict_of_vars["vars"][key]
+        return variable        
+        
 
 
 def optimizablevariable_representer(dumper, data):

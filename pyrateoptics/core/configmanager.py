@@ -67,22 +67,13 @@ class MulticonfigManager(BaseLogger):
  
                 for index in range(length_value_tuples):
                     new_instance = copy.copy(self.base_instance) # shallow copy
-                    base_dictoptvariables = self.base_instance.getAllVariables()
 
                     for (key, val_tuples) in dict_of_keys_and_value_tuples.iteritems():
-                        (variable, longkey) = base_dictoptvariables[key]
-                        longkey_nonames = re.sub("\([a-zA-Z0-9_ ]+\)", "", longkey)
+                        variable = self.base_instance.getVariable(key)
                         new_variable = copy.deepcopy(variable)
                         new_variable.setvalue(val_tuples[index])
-                        print(new_variable.__dict__)                        
-                        to_be_evaluated = "new_instance" + longkey_nonames + " = new_variable"
-                        print(locals()["new_variable"])                        
-                        exec(to_be_evaluated)
-                        locals()
-                        # FIXME: this exec call is maybe not the best way to
-                        # perform an overwrite of the variables;
-                        # further it seems that the variables are not updated
-                        # within the loop.
+                        new_instance.resetVariable(key, new_variable)
+
                     instance_tuple.append(new_instance)                
             
         return instance_tuple
@@ -100,12 +91,12 @@ if __name__ == "__main__":
         
     m = MulticonfigManager(s)
 
-    listOptimizableVariables(s)
-
     [s2, s3, s4] = m.setOptimizableVariables({"s.global.decz": (2.0, 3.0, 4.0)})
     for ss in (s2, s3, s4):    
         mydict = listOptimizableVariables(ss)
-        (var, longkey) = mydict["s.global.decz"]
-        print(var())        
-        print(id(var))
+        var = mydict["vars"]["s.global.decz"]
+        longkey = mydict["longkeystrings"]["s.global.decz"]
+        print("sid: ", id(ss))
+        print("varval: ", var())        
+        print("varid: ", id(var))
         

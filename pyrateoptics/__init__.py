@@ -284,7 +284,9 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
     :returns os.getAllVariables()
     """
 
-    lst = os.getAllVariables()
+    dict_variables = os.getAllVariables()
+    
+    lst = dict_variables["vars"]
 
     def shorten_string(s, maxlen=None, intermediate_string="..."):
         
@@ -305,7 +307,7 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
                                     for i, x in enumerate(line)))
 
     table = [(shorten_string(a, maxlen=maxcol), b.var_type, str(b.evaluate())) \
-        for (a, (b, c)) in \
+        for (a, b) in \
             sorted(lst.items(), key=lambda x: (len(x[0].split('.')) - 1, x[0]))]
     # sort by number of . in dict key and afterwards by lexical order
     
@@ -314,5 +316,5 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
 
     print_table(table)
 
-    return lst 
+    return dict_variables
 
