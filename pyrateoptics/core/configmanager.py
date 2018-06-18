@@ -31,11 +31,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from pyrateoptics import listOptimizableVariables
 from pyrateoptics.raytracer.optical_system import OpticalSystem
-from pyrateoptics.core.base import OptimizableVariable
+from pyrateoptics.core.base import OptimizableVariable, ClassWithOptimizableVariables
 
 from log import BaseLogger
 import copy
 import logging
+
+
+class ConfigContainer(ClassWithOptimizableVariables):
+    """
+    Contains all instances from config manager to be compatible with the optimizer
+    frontend.
+    """
+    
+    def __init__(self, instance_list=None, **kwargs):
+        super(ConfigContainer, self).__init__(**kwargs)
+        self.instance_list = instance_list
+        
+    # TODO: to be tested
 
 
 class ConfigManager(BaseLogger):
@@ -58,6 +71,8 @@ class ConfigManager(BaseLogger):
         @param names_tuple (tuple of strings): names of the new systems (changes also keys)
         @param dict_of_keys_and_tuples (dict of tuples): consists of values for fixed or
                 variable optimizable variables.
+
+        @return instance_list (list of instances)
         
         """
         length_value_tuples = 0
