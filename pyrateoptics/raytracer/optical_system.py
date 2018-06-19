@@ -90,8 +90,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         if pilotraypathsequence is None:
             pilotraypathsequence = tuple([0 for i in range(len(elementsequence))])
             # choose first pilotray in every element by default
-        print("pilot ray path sequence")
-        print(pilotraypathsequence)
+        self.info("pilot ray path sequence")
+        self.info(pilotraypathsequence)
         for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
             (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr, use6x6=use6x6)
             rpath.appendRayPath(append_rpath) 
@@ -107,8 +107,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         if pilotraypathsequence is None:
             pilotraypathsequence = tuple([0 for i in range(len(elementsequence))])
             # choose first pilotray in every element by default
-        print("pilot ray path sequence")
-        print(pilotraypathsequence)
+        self.info("pilot ray path sequence")
+        self.info(pilotraypathsequence)
 
         stops_found = 0
 
@@ -118,8 +118,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                     stops_found += 1
 
         if stops_found != 1:
-            print("WARNING: %d stops found. need exactly 1!" % (stops_found,))
-            print("Returning None.")
+            self.warning("%d stops found. need exactly 1!" % (stops_found,))
+            self.info("Returning None.")
             return None
 
         lst_matrix_pairs = []

@@ -27,8 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from ..core.log import BaseLogger
 from ray_analysis import RayBundleAnalysis
+from optical_element_analysis import OpticalElementAnalysis
 from ..sampling2d.raster import RectGrid
-from ..raytracer.globalconstants import standard_wavelength, degree
+from ..raytracer.globalconstants import standard_wavelength, degree, canonical_ey
 from ..raytracer.ray import RayBundle
 
 
@@ -37,14 +38,29 @@ import matplotlib.pyplot as plt
 # TODO: update this class and use this as an interface for the convenience functions
 
 class OpticalSystemAnalysis(BaseLogger):
+
     
-    def __init__(self, os, seq, name=''):
+    def __init__(self, os, seq, name=""):
         super(OpticalSystemAnalysis, self).__init__(name=name)
         self.opticalsystem = os
-        self.sequence = seq
+        self.sequence = seq        
+        # TODO: field_raster and pupil raster belong into the (to be written) aim class
+        
         self.field_raster = RectGrid() # [-1, 1] x [-1, 1]
         self.pupil_raster = RectGrid() # [-1, 1] x [-1, 1]
         self.initial_bundles = None
+
+    def setSequence(self, seq):
+        self.__sequence = seq
+        self.opticalelementanalysis_dict = {} # reset dict
+        for (elem, elemseq) in seq:
+            self.opticalelementanalysis_dict[elem] = OpticalElementAnalysis(self.opticalsystem.elements[elem], elemseq, name="oea_" + elem)
+
+    def getSequence(self):
+        return self.__sequence
+
+    sequence = property(fget=getSequence, fset=setSequence)
+
 
     def collimated_bundle(self, nrays, properties_dict={}, wave=standard_wavelength):
         """
@@ -133,7 +149,62 @@ class OpticalSystemAnalysis(BaseLogger):
         self.info("tracing rays")
         return [self.opticalsystem.seqtrace(ib, self.sequence, **kwargs) for ib in self.initial_bundles]
 
-    def getFootprint(self, raypath, fullsequence, hitlist_part):
+    def trace3Dglobal(self, x0, k0, wave=standard_wavelength, **kwargs):
+        
+        self.info("tracing rays to perform 3D global analysis")
+        self.info("setting E0 to canonical_ey")
+
+        (num_dim, num_pts) = np.shape(x0)        
+        
+        E0 = np.repeat(canonical_ey[:, np.newaxis], num_pts, axis=1)
+
+        self.initial_bundles = [RayBundle(x0, k0, E0, wave=wave)]        
+        fp_raypaths = self.trace(**kwargs)
+        return [[[(rb.x[0, :, :], rb.k[0, :, :]) for rb in rp.raybundles] for rp in fp] for fp in fp_raypaths]
+    
+    def trace3Dlocal(self, **kwargs):
+        self.info("tracing rays to perform 3D local analysis")
+        fp_raypaths_3dglobal = self.trace3Dglobal(**kwargs)
+        
+        flattened_seq = []
+        for (elem, elemseq) in self.sequence:
+            flattened_seq += [(elem, surf, surf_opts) for (surf, surf_opts) in elemseq]
+        
+                
+        
+        return [
+                    [
+                        [
+                            (self.opticalsystem.elements[elemkey].surfaces[surfkey].rootcoordinatesystem.returnGlobalToLocalPoints(X),
+                            self.opticalsystem.elements[elemkey].surfaces[surfkey].rootcoordinatesystem.returnGlobalToLocalDirections(K))
+                            for ((elemkey, surfkey, surf_opts), (X, K)) in zip(flattened_seq, rp)
+                        ] for rp in fp
+                    ] for fp in fp_raypaths_3dglobal
+                ]
+            
+    def trace2Dlocal(self, **kwargs):
+        self.info("tracing rays to perform 3D local analysis")
+        fp_raypaths_3dlocal = self.trace3Dlocal(**kwargs)
+        
+        return [
+                    [
+                        [
+                            (X[:2], K[:2])
+                            for (X, K) in rp
+                        ] for rp in fp
+                    ] for fp in fp_raypaths_3dlocal
+                ]
+        
+    def getMatrices(self, **kwargs):
+        
+        #pilotbundle = RayBundle(x0=np.array([[0., 0.1., -0.1.], [0., 0., 0.], [0., 0., 0.]]))        
+        
+        (m_obj_stop, m_stop_img) = self.opticalsystem.extractXYUV(self, pilotbundle, self.sequence, **kwargs)
+    
+        return (m_obj_stop, m_stop_img)
+        
+
+    def getFootprint(self, hitlist_part):
         self.info("getting footprint")
         # use hitlist_part to select raypath part
 

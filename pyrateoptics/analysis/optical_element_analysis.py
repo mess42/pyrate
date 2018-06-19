@@ -29,9 +29,12 @@ from ..core.log import BaseLogger
 
 class OpticalElementAnalysis(BaseLogger):
     
-    def __init__(self, oe, name=''):
-        super(OpticalElementAnalysis, self).__init__(self, name=name)
+    def __init__(self, oe, elemseq, name="", **kwargs):
+        super(OpticalElementAnalysis, self).__init__(name=name, **kwargs)
         self.opticalelement = oe
+        self.elementsequence = elemseq
+        
+        
         
     def calcXYUV(self, parthitlist, pilotbundle, fullsequence, background_medium):
         
