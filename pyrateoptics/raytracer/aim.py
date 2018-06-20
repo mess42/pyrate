@@ -24,27 +24,26 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-from ..core.log import BaseLogger
+from pyrateoptics.core.log import BaseLogger
 
-class OpticalElementAnalysis(BaseLogger):
+class aimy(BaseLogger):
     
-    def __init__(self, oe, elemseq, name="", **kwargs):
-        super(OpticalElementAnalysis, self).__init__(name=name, **kwargs)
-        self.opticalelement = oe
-        self.elementsequence = elemseq
+    """
+    Should take care about ray aiming (approximatively and real).
+    Should generate aiming matrices and raybundles according to
+    aiming specifications and field specifications.
+    """
+    
+    def __init__(self, s, seq, name="", **kwargs):
+        
+        self.field_raster = ""
+        self.pupil_raster = ""         
+        
+        super(aimy, self).__init(name=name, **kwargs)
         
         
-        
-    def calcXYUV(self, parthitlist, pilotbundle, fullsequence, background_medium):
-        
-        # FIXME: to many parameters in call, maybe set pilotbundle and background medium in advance        
-        
-        (pilotpath, matrices) = self.opticalelement.calculateXYUV(pilotbundle, fullsequence, background_medium)
-        
-        tmp = np.eye(4)
-        
-        for hit in parthitlist:
-            tmp = np.dot(matrices[hit], tmp)            
-
-        return tmp
+    def aim(self):
+        """
+        Should generate bundles.
+        """
+        pass

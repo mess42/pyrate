@@ -27,17 +27,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import codecs
 import re
 import math
+import numpy as np
+import uuid
 
 from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.optical_element import OpticalElement
 from ..raytracer.localcoordinates import LocalCoordinates
 from ..raytracer.surface import Surface
-from ..raytracer.surfShape import Conic, Asphere, LinearCombination, ZernikeFringe
+from ..raytracer.surfShape import Conic, Asphere, LinearCombination, ZernikeFringe, GridSag
 from ..raytracer.aperture import CircularAperture, RectangularAperture
 from ..raytracer.ray import RayBundle
 from ..core.log import BaseLogger
-
-
+from ..material.material_isotropic import ModelGlass, ConstantIndexGlass
+from ..raytracer.globalconstants import numerical_tolerance
 
 class ZMXParser(BaseLogger):
 
@@ -73,7 +75,8 @@ class ZMXParser(BaseLogger):
         self.__textlines = list([line for line in fh])
         fh.close()
         self.__full_textlines = "".join(self.__textlines)
-        
+        self.debug(self.__textlines[:10])
+        self.debug(self.__full_textlines[:100])        
 
 
     def returnBlockStrings(self):
@@ -82,7 +85,12 @@ class ZMXParser(BaseLogger):
         # match if look-ahead gives non-whitespace after line break
 
     def returnBlockKeyword(self, blk):
-        return re.findall("^\w+(?=\s+)", blk)[0]
+        findblockkeywords = re.findall("^\w+(?=\s*)", blk)
+        self.debug("BLOCK KEYWORDS: " + str(findblockkeywords))
+        if findblockkeywords == []:
+            return None
+        else:
+            return findblockkeywords[0]
 
     def readArgsForKeyword(self, linestr, keywordstr, *args):
         stringargs = linestr.split()
@@ -155,6 +163,8 @@ class ZMXParser(BaseLogger):
         paramsdict = {}
         zmxparams = {}
         zmxxdat = {}
+        zmxgarr = {}
+        zmxglasdict = {}
 
         # U mode in file read sets line ending to \n        
         blocklines = [x.lstrip() for x in surfblk.split("\n")]
@@ -172,14 +182,33 @@ class ZMXParser(BaseLogger):
         self.addKeywordToDict(blocklines, "CURV", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, float)
         self.addKeywordToDict(blocklines, "CONI", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, float)
 
-        self.addKeywordToDict(blocklines, "GLAS", paramsdict, self.extractFirstArgForFirstKeywordFromBlock, str)
-        # what are the other parameters in GLAS line?
+        self.addKeywordToDict(blocklines, "GLAS", zmxglasdict, self.extractArgsForFirstKeywordFromBlock, str, int, int, float, float, float, int, int, int)
+        # GLAS name code pu nd vd pd vnd vvd vpd (name string, code 0 fixed, 1 model, 2 pickup, pu pickup surface,
+        # nd, vd, pd - index, abbe, partial dispersion, vnd, vvd, vpd are 1 if they are variable
 
         self.addKeywordToDict(blocklines, "SQAP", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
         self.addKeywordToDict(blocklines, "CLAP", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
+        self.addKeywordToDict(blocklines, "OBDC", paramsdict, self.extractArgsForFirstKeywordFromBlock, float, float)
 
         self.addKeywordToDict(blocklines, "XDAT", zmxxdat, self.extractArgsForMultipleKeywordFromBlock, int, float, int, int, float)
         # XDAT n val v pus sca
+        self.addKeywordToDict(blocklines, "GARR", zmxgarr, self.extractArgsForMultipleKeywordFromBlock, int, float, float, float, float)
+        # GARR n sag dzdx dzdy d2zdxdy
+        self.addKeywordToDict(blocklines, "GDAT", paramsdict, self.extractArgsForFirstKeywordFromBlock, int, int, float, float)
+        # GDAT ix iy dx dy
+
+        reconstruct_glass = {}
+        if zmxglasdict != {}:
+            reconstruct_glass["name"] = zmxglasdict["GLAS"][0]        
+            reconstruct_glass["code"] = zmxglasdict["GLAS"][1]        
+            reconstruct_glass["pickupsurface"] = zmxglasdict["GLAS"][2]        
+            reconstruct_glass["nd"] = zmxglasdict["GLAS"][3]        
+            reconstruct_glass["vd"] = zmxglasdict["GLAS"][4]        
+            reconstruct_glass["pd"] = zmxglasdict["GLAS"][5]        
+            reconstruct_glass["vnd"] = zmxglasdict["GLAS"][6]        
+            reconstruct_glass["vvd"] = zmxglasdict["GLAS"][7]        
+            reconstruct_glass["vpd"] = zmxglasdict["GLAS"][8]        
+            paramsdict["GLAS"] = reconstruct_glass
 
 
         # rewrite params into dict to better access them
@@ -197,7 +226,12 @@ class ZMXParser(BaseLogger):
             reconstruct_xdat[num]["scaling"] = sca
             # TODO: what are the other variables?
         paramsdict["XDAT"] = reconstruct_xdat
-                
+        
+        reconstruct_garr = {}
+        for (num, sag, sagdx, sagdy, sagdxdy) in zmxgarr.get("GARR", []):
+            reconstruct_garr[num] = (sag, sagdx, sagdy, sagdxdy)
+        paramsdict["GARR"] = reconstruct_garr
+
         return paramsdict
         
     def filterBlockStrings(self, keyword):
@@ -207,26 +241,36 @@ class ZMXParser(BaseLogger):
         
         return filteredBlockStrings
 
-    def createInitialBundle(self, d_or_n="D"):
+    def createInitialBundle(self, d_or_n="N", entrancepupildiameter=1.0):
+        """
+        Convenience function to extract field points and initial bundles from
+        ZMX files.
+        """
+
         raybundle_dicts = []
         
-        enpd = filter(lambda x: x != None, [self.readStringForKeyword(l, "ENPD") for l in self.__textlines])[0]
-        self.info(enpd)
+        enpd = filter(lambda x: x != None, [self.readStringForKeyword(l, "ENPD") for l in self.__textlines])
+        self.debug(enpd)
                 
-        if enpd is not None:
-            enpd = float(enpd)
-            xfldlist = [self.readStringForKeyword(l, "XFL" + d_or_n) for l in self.__textlines]
-            yfldlist = [self.readStringForKeyword(l, "YFL" + d_or_n) for l in self.__textlines]
-            xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
-            yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
-            xfield_list = [float(x) for x in xfield_str_list.split(" ")]
-            yfield_list = [float(y) for y in yfield_str_list.split(" ")]
-        
-            raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in zip(xfield_list, yfield_list)]
+        if enpd != []:
+            enpd = float(enpd[0])
+        else:
+            enpd = entrancepupildiameter
+        xfldlist = [self.readStringForKeyword(l, "XFL" + d_or_n) for l in self.__textlines]
+        yfldlist = [self.readStringForKeyword(l, "YFL" + d_or_n) for l in self.__textlines]
+        xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
+        yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
+        xfield_list = [float(x) for x in xfield_str_list.split(" ")]
+        yfield_list = [float(y) for y in yfield_str_list.split(" ")]
+
+        xyfield_list = zip(xfield_list, yfield_list)
+        xyfield_list = sorted(list(set(xyfield_list)))
+    
+        raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in xyfield_list]
                 
         return raybundle_dicts
 
-    def createOpticalSystem(self, matdict = {}, elementname="zmxelem"):
+    def createOpticalSystem(self, matdict = {}, options = {}, elementname="zmxelem"):
 
         self.info("Creating optical system from ZMX")
         optical_system = OpticalSystem()
@@ -253,9 +297,12 @@ class ZMXParser(BaseLogger):
             found_necessary_glasses = False
             for blk in surface_blockstrings:
                 surfres = self.readSurfBlock(blk)
-                material_name = surfres.get("GLAS", None)
-                if material_name is not None and material_name != "MIRROR":
-                    found_necessary_glasses = True
+                glass_dict = surfres.get("GLAS", None)
+                if glass_dict is not None:
+                    material_name = glass_dict.get("NAME", None)
+                    material_code = glass_dict.get("code", None)
+                    if material_name != "MIRROR" and material_code != 1:
+                        found_necessary_glasses = True
                     self.info(material_name)
             if found_necessary_glasses:
                 self.error("found material names: exiting")
@@ -265,7 +312,10 @@ class ZMXParser(BaseLogger):
 
         refname = lc0.name
         lastlc = lc0
-        lastmat = None
+        lastmatname = None
+        lastsurfname = None
+        surfname = None
+        
         surflist_for_sequence = []
         lastthickness = 0
         thickness = 0
@@ -274,11 +324,13 @@ class ZMXParser(BaseLogger):
             lastthickness = thickness
             self.debug("----")
             surfres = self.readSurfBlock(blk)
-            self.debug(surfres)    
+            self.debug("Found surface with contents (except GARR):")
+            self.debug([(k, v) for (k, v) in surfres.iteritems() if k != "GARR"])    
 
             surf_options_dict = {}
             
             comment = surfres.get("COMM", "")
+            lastsurfname = surfname
             surfname = "surf" + str(surfres["SURF"])
             thickness = surfres["DISZ"]
             curv = surfres["CURV"]
@@ -290,6 +342,7 @@ class ZMXParser(BaseLogger):
             
             sqap = surfres.get("SQAP", None)
             clap = surfres.get("CLAP", None)
+            obdc = surfres.get("OBDC", None)
             
             if math.isinf(thickness):
                 self.info("infinite object distance!")
@@ -297,30 +350,62 @@ class ZMXParser(BaseLogger):
             if stop:
                 surf_options_dict["is_stop"] = True
 
-            mat = surfres.get("GLAS", None)
-            if mat == "MIRROR":
-                mat = lastmat
-                surf_options_dict["is_mirror"] = True
-
             lc = optical_system.addLocalCoordinateSystem(
                 LocalCoordinates(name=surfname, decz=lastthickness), refname=refname)
+
+            read_glass = surfres.get("GLAS", None)
+            self.debug("MATERIAL: %s" % (str(read_glass),))
+            matname = None
+            mat = None
+            
+            # TODO: tidy up!
+            
+            if read_glass is not None:
+                if read_glass["name"] == "MIRROR":
+                    matname = lastmatname
+                    surf_options_dict["is_mirror"] = True
+                if matdict.get(read_glass["name"], None) is not None:
+                    matname = read_glass["name"]
+                if read_glass["code"] == 1:
+                    matname = "modelglass" + str(uuid.uuid4())
+                    # TODO: use global known uuid function
+                    nd = read_glass["nd"]
+                    vd = read_glass["vd"]
+                    if abs(vd) < numerical_tolerance:
+                        mat = ConstantIndexGlass(lc, nd)
+                    else:
+                        mat = ModelGlass(lc)
+                        mat.calcCoefficientsFrom_nd_vd(nd=nd, vd=vd)
+                    elem.addMaterial(matname, mat)
+            else: 
+                if surftype == "COORDBRK":
+                    matname = lastmatname
+
+            if obdc is None:
+                lcapdec = optical_system.addLocalCoordinateSystem(
+                LocalCoordinates(name=surfname + "_ap"), refname=surfname)
+            else:
+                self.info("Aperture decenter %f %f" % tuple(obdc))
+                lcapdec = optical_system.addLocalCoordinateSystem(
+                LocalCoordinates(name=surfname + "_ap", decx=obdc[0], decy=obdc[1]), refname=surfname)
+
             if sqap is None and clap is None:
                 ap = None
             elif sqap is not None:
-                ap = RectangularAperture(lc, w=sqap[0]*2, h=sqap[1]*2)
+                ap = RectangularAperture(lcapdec, w=sqap[0]*2, h=sqap[1]*2)
             elif clap is not None:
-                ap = CircularAperture(lc, semidiameter=clap[1])
+                ap = CircularAperture(lcapdec, semidiameter=clap[1])
 
             if surftype == "STANDARD":
-                self.debug("Standard surface found")                
+                self.debug("SURFACE: Standard surface found")                
                 actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc), apert=ap)
             elif surftype == "EVENASPH":
-                self.debug("Polynomial asphere surface found")
+                self.debug("SURFACE: Polynomial asphere surface found")
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
                 self.debug(acoeffs)
                 actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc, coefficients=acoeffs), apert=ap)
             elif surftype == "FZERNSAG": # Zernike Fringe Sag
-                self.debug("Zernike standard surface found")
+                self.debug("SURFACE: Zernike standard surface found")
                 # ignore extrapolate flag
                 # curv, cc, parms, xdat
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
@@ -338,12 +423,25 @@ class ZMXParser(BaseLogger):
                 actsurf = Surface(lc, 
                                   shape=LinearCombination(lc,
                                   list_of_coefficients_and_shapes=[
-                                      (1.0, Asphere(lcz, curv=curv, cc=cc, name=surfname+"_zernasph")),
-                                        (1.0, ZernikeFringe(lc, normradius=normradius,
-                                                            coefficients=zcoeffs, name=surfname+"_zernike"))]))                
+                                      (1.0, Asphere(lc, curv=curv, cc=cc, name=surfname+"_zernasph")),
+                                        (1.0, ZernikeFringe(lcz, normradius=normradius,
+                                                            coefficients=zcoeffs, name=surfname+"_zernike"))]))
+                
+            elif surftype == "GRID_SAG":
+                # TODO: conic + aspheric polynomials + zernike standard sag
+                self.debug("SURFACE: Grid Sag found")
+                (nx, ny, dx, dy) = surfres["GDAT"]
+                self.debug("nx %d ny %d dx %f dy %f" % (nx, ny, dx, dy))                
+                sagarray = np.array([surfres["GARR"][key] for key in sorted(surfres["GARR"].iterkeys())])
+                self.debug(sagarray)
+                xv = np.linspace(-nx*dx*0.5, nx*dx*0.5, nx)
+                yv = np.linspace(-ny*dy*0.5, ny*dy*0.5, ny)
+                Z = np.flipud(sagarray[:, 0].reshape(nx, ny)).T # first line                
+                
+                actsurf = Surface(lc, shape=GridSag(lc, (xv, yv, Z)))                
                 
             elif surftype == "COORDBRK":
-                self.debug("Coordinate break found")
+                self.debug("SURFACE: Coordinate break found")
                 """
                 COORDBRK
                 parm1: decx
@@ -365,13 +463,14 @@ class ZMXParser(BaseLogger):
                 lc.tiltThenDecenter = bool(parms.get(6, 0))
                 lc.update()
                 actsurf = Surface(lc)
-                
-            elem.addSurface(surfname, actsurf, (lastmat, mat))
-            self.info("addsurf: %s at material boundary %s" % (surfname, (lastmat, mat)))        
             
-            lastmat = mat
+            if lastsurfname is not None:
+                elem.addSurface(surfname, actsurf, (lastmatname, matname))
+                self.info("addsurf: %s at material boundary %s" % (surfname, (lastmatname, matname)))        
+                surflist_for_sequence.append((surfname, surf_options_dict))
+            
+            lastmatname = matname
             refname = lc.name
-            surflist_for_sequence.append((surfname, surf_options_dict))
             
             lastlc = lc            
             

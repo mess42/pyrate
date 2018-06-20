@@ -44,7 +44,7 @@ from distutils.version import StrictVersion
 
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 db_path = "refractiveindex.info-database/database"
 
@@ -93,6 +93,7 @@ rba = RayBundleAnalysis(None)
 	 (0, 	0, 	150., 	None, 			"image", {})
          ], material_db_path=db_path, name="os")
 
+
 def bundle_step1(nrays = 100, rpup = 7.5):
     """
     Creates an on-axis collimated RayBundle for step 1.
@@ -137,8 +138,8 @@ def meritfunction_step2(s):
     # TODO: adding the exp-x is a dirty trick. The prefactor also has to be adapted for each system. Is there a more elegant solution ?
 
     # biconvex lens with same radii
-    merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature() \
-                     + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature()  )**2
+    #merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature() \
+    #                 + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature()  )**2
     # TODO: OptimizableVariable() documentation does not explain what an OptimizableVariable is and makes it cumbersome to use
 
     return merit
@@ -149,6 +150,8 @@ def updatefunction_allsteps(s):
 # optimize
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("pickup", function=lambda x: -x, args=(s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
+
 
 listOptimizableVariables(s, maxcol=80)
 
@@ -211,16 +214,16 @@ def final_meritfunction(s, rpup, fno, maxfield_deg):
         merit += 1./(len(x) + 1e-18) #10000.*math.exp(-len(x))
 
     # biconvex lens with same radii
-    merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature() \
-                     + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature()  )**2
+    #merit += 10000* (  s.elements["stdelem"].surfaces["lens4front"].shape.curvature() \
+    #                 + s.elements["stdelem"].surfaces["lens4rear"].shape.curvature()  )**2
 
     # outer radii of both doulets should be symmetric
-    merit += 10000* (  s.elements["stdelem"].surfaces["elem2front"].shape.curvature() \
-                     + s.elements["stdelem"].surfaces["elem3rear"].shape.curvature()  )**2
+    #merit += 10000* (  s.elements["stdelem"].surfaces["elem2front"].shape.curvature() \
+    #                 + s.elements["stdelem"].surfaces["elem3rear"].shape.curvature()  )**2
 
     # inner radii of both doulets should be symmetric
-    merit += 10000* (  s.elements["stdelem"].surfaces["elem2rear"].shape.curvature() \
-                     + s.elements["stdelem"].surfaces["elem3front"].shape.curvature()  )**2
+    #merit += 10000* (  s.elements["stdelem"].surfaces["elem2rear"].shape.curvature() \
+    #                 + s.elements["stdelem"].surfaces["elem3front"].shape.curvature()  )**2
     # f number
     o = np.array([[0],[7.5],[0]])
     k = np.zeros_like(o)
@@ -244,12 +247,27 @@ def meritfunction_step3(s):
 
 # optimize
 s.elements["stdelem"].surfaces["lens1front"].shape.curvature.changetype("variable")
-s.elements["stdelem"].surfaces["elem2front"].shape.curvature.changetype("variable")
-s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.changetype("variable")
+#s.elements["stdelem"].surfaces["elem2front"].shape.curvature.changetype("variable")
+#s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["elem3front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.changetype("variable")
 
+# outer radii of both doulets should be symmetric
+s.elements["stdelem"].surfaces["elem2front"].shape.curvature.changetype("pickup",\
+    function=lambda x: -x,\
+    args=(s.elements["stdelem"].surfaces["elem3rear"].shape.curvature,))
+
+# inner radii of both doulets should be symmetric
+s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.changetype("pickup",\
+    function=lambda x: -x,\
+    args=(s.elements["stdelem"].surfaces["elem3front"].shape.curvature,))
+
 s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.changetype("variable")
+
+# biconvex lens with same radii
+#s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("pickup",\
+#    function=lambda x: -x,\
+#    args=(s.elements["stdelem"].surfaces["lens4rear"].shape.curvature,))
 
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("fixed")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("fixed")

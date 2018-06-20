@@ -66,6 +66,7 @@ class ScipyBackend(Backend):
     """
     
     def run(self, x0):
+        self.debug("start point: %s" % (str(x0)))
         res = minimize(self.func, x0, args=(), **self.options)
         return res.x
         

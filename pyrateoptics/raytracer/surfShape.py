@@ -354,7 +354,7 @@ class Cylinder(Conic):
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
 
 class FreeShape(Shape):
-    def __init__(self, lc, F, gradF, hessF, paramlist=[], eps=1e-6, iterations=10, **kwargs):
+    def __init__(self, lc, F, gradF, hessF, paramlist=[], tol=1e-6, iterations=10, **kwargs):
         """
         Freeshape surface defined by abstract function F (either implicitly
         or explicitly) and its x, y, z derivatives
@@ -373,7 +373,7 @@ class FreeShape(Shape):
             self.params[name] = OptimizableVariable(name=name, value=value)
             
         
-        self.eps = eps
+        self.tol = tol
         self.iterations = iterations
         self.F = F # implicit function in x, y, z, paramslst
         self.gradF = gradF # closed form gradient in x, y, z, paramslst
@@ -400,7 +400,7 @@ class ExplicitShape(FreeShape):
         :param gradF: closed form gradient in x, y, z, paramslst
         :param hessH: closed form Hessian in x, y, z, paramslst
         :param paramlist: real valued parameters of the functions
-        :param eps: convergence parameter
+        :param tol: convergence parameter
         :param iterations: convergence parameter
     """
 
@@ -416,7 +416,7 @@ class ExplicitShape(FreeShape):
         def Fwrapper(t, r0, rayDir):
             return r0[2] + t*rayDir[2] - self.F(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1])
 
-        t = fsolve(Fwrapper, t, args=(r0, rayDir))
+        t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.tol)
 
         globalinter = self.lc.returnLocalToGlobalPoints(r0 + rayDir * t)
 
@@ -450,7 +450,7 @@ class ImplicitShape(FreeShape):
         # (without performing too much calculations)
 
         #(res, info, ier, msg) = fsolve(Fwrapper, x0=zstart, args=(x, y, paramlst), xtol=self.eps, full_output=True, *finalargs)
-        res = fsolve(self.Fwrapper, x0=zstart, args=(x, y), xtol=self.eps, *finalargs)
+        res = fsolve(self.Fwrapper, x0=zstart, args=(x, y), xtol=self.tol, *finalargs)
         return res
 
 
@@ -469,7 +469,7 @@ class ImplicitShape(FreeShape):
         def Fwrapper(t, r0, rayDir):
             return self.F(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1], r0[2] + t*rayDir[2])
 
-        t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.eps)
+        t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.tol)
 
         intersection = r0 + rayDir * t
 
@@ -773,28 +773,22 @@ class GridSag(ExplicitShape):
     def __init__(self, lc, (xlinspace, ylinspace, Zgrid), *args, **kwargs):
     
         kwargs_dict = kwargs
-        kind = kwargs_dict.pop('kind', 'cubic')
         name = kwargs_dict.pop('name', '')
     
-        self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
     
-        def gsf(x, y):
-            
-            res = np.zeros_like(x)
-            
-            for i in range(len(x)):            
-                res[i] = self.interpolant(x[i], y[i])[0]
-
-            # interpolants give a not perfect return value            
+        self.interpolant = RectBivariateSpline(xlinspace, ylinspace, Zgrid)
+        #self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
+    
+        def gsf(x, y):            
+            res = self.interpolant.ev(x, y)
                         
             return res
 
         def gradgsf(x, y, z): # gradient for implicit function z - af(x, y) = 0
             res = np.zeros((3, len(x)))
             
-            for i in range(len(x)):
-                res[0, i] = -self.interpolant(x[i], y[i], dx=1)[0]
-                res[1, i] = -self.interpolant(x[i], y[i], dy=1)[0]
+            res[0, :] = -self.interpolant.ev(x, y, dx=1)
+            res[1, :] = -self.interpolant.ev(x, y, dy=1)
             res[2, :] = 1.
             
             return res
@@ -802,15 +796,14 @@ class GridSag(ExplicitShape):
         def hessgsf(x, y, z):
             res = np.zeros((3, 3, len(x)))
             
-            for i in range(len(x)):
-                res[0, 0, i] = -self.interpolant(x, y, dx=2)[0]            
-                res[0, 1, i] = res[1, 0, i] = -self.interpolant(x, y, dx=1, dy=1)[0]            
-                res[1, 1, i] = -self.interpolant(x, y, dy=2)[0]            
+            res[0, 0, :] = -self.interpolant.ev(x, y, dx=2)            
+            res[0, 1, :] = res[1, 0, :] = -self.interpolant.ev(x, y, dx=1, dy=1)            
+            res[1, 1, :] = -self.interpolant.ev(x, y, dy=2)            
             
             
             return res
 
-        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-6, iterations=10, name=name)
+        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-4, iterations=10, name=name)
 
 class Zernike(ExplicitShape):
     """

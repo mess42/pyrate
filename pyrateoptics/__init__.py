@@ -37,7 +37,7 @@ from matplotlib import pyplot as plt
 import matplotlib
 from distutils.version import StrictVersion
 
-
+from analysis.optical_system_analysis import OpticalSystemAnalysis
 from raytracer.optical_system import OpticalSystem
 from raytracer.localcoordinates import LocalCoordinates
 from raytracer.optical_element import OpticalElement
@@ -262,12 +262,14 @@ def draw(os, rays=None, **kwargs):
     
     plt.show()
 
-def raytrace(s, seq, numrays, rays_dict, bundletype="collimated", wave=standard_wavelength):
-    call_dict = {"collimated":collimated_bundle, "divergent":divergent_bundle}
-    rays_dict["opticalsystem"] = s    
-    (o1, k1, E1) = call_dict[bundletype](numrays, rays_dict, wave=wave)
-    initialbundle = RayBundle(x0=o1, k0=k1, Efield0=E1, wave=wave)
-    return s.seqtrace(initialbundle, seq)
+
+
+def raytrace(s, seq, numrays, rays_dict, bundletype="collimated", traceoptions={}, wave=standard_wavelength):
+    osa = OpticalSystemAnalysis(s, seq)
+    osa.aim(numrays, rays_dict, bundletype=bundletype, wave=wave)    
+    
+    return osa.trace(**traceoptions)
+
     
 
 def listOptimizableVariables(os, filter_status=None, maxcol=None):
@@ -282,7 +284,9 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
     :returns os.getAllVariables()
     """
 
-    lst = os.getAllVariables()
+    dict_variables = os.getAllVariables()
+    
+    lst = dict_variables["vars"]
 
     def shorten_string(s, maxlen=None, intermediate_string="..."):
         
@@ -303,7 +307,7 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
                                     for i, x in enumerate(line)))
 
     table = [(shorten_string(a, maxlen=maxcol), b.var_type, str(b.evaluate())) \
-        for (a, (b, c)) in \
+        for (a, b) in \
             sorted(lst.items(), key=lambda x: (len(x[0].split('.')) - 1, x[0]))]
     # sort by number of . in dict key and afterwards by lexical order
     
@@ -312,69 +316,5 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
 
     print_table(table)
 
-    return lst 
+    return dict_variables
 
-
-def collimated_bundle(nrays, properties_dict={}, wave=standard_wavelength):
-
-    logger = logging.getLogger(__name__)        
-
-    optical_system = properties_dict.get("opticalsystem", None)
-    if optical_system is not None:
-        material = properties_dict.get("material", optical_system.material_background)
-    else:
-        logger.warn("Material has no reference to optical system coordinates!")
-        logger.warn("Please provide 'opticalsystem' key.")
-        material = ConstantIndexGlass(LocalCoordinates(name="mat_lc"))
-        
-    startx = properties_dict.get("startx", 0.)
-    starty = properties_dict.get("starty", 0.)
-    startz = properties_dict.get("startz", 0.)
-    rasterobj = properties_dict.get("raster", RectGrid())
-    radius = properties_dict.get("radius", 1.0)
-    angley = properties_dict.get("angley", 0.0)
-    anglex = properties_dict.get("anglex", 0.0)
-
-    (px, py) = rasterobj.getGrid(nrays)
-
-    origin = np.vstack((radius*px + startx, radius*py + starty, startz*np.ones_like(px)))
-    unitvector = np.zeros_like(origin)
-    unitvector[0, :] = np.sin(angley)*np.cos(anglex)
-    unitvector[1, :] = np.sin(anglex)
-    unitvector[2, :] = np.cos(angley)*np.cos(anglex)
-    
-    (k0, E0) = material.sortKnormUnitEField(origin, unitvector, unitvector, wave=wave)
-        
-    return (origin, k0[2, :, :], E0[2, :, :])
-
-def divergent_bundle(nrays, properties_dict={}, wave=standard_wavelength):
-
-    logger = logging.getLogger(__name__)        
-
-    optical_system = properties_dict.get("opticalsystem", None)
-    if optical_system is not None:
-        material = properties_dict.get("material", optical_system.material_background)
-    else:
-        logger.warn("Material has no reference to optical system coordinates!")
-        logger.warn("Please provide 'opticalsystem' key.")
-        material = ConstantIndexGlass(LocalCoordinates(name="mat_lc"))
-        
-    startx = properties_dict.get("startx", 0.)
-    starty = properties_dict.get("starty", 0.)
-    startz = properties_dict.get("startz", 0.)
-    rasterobj = properties_dict.get("raster", RectGrid())
-    radius = properties_dict.get("radius", 45.0*degree)
-    angley = properties_dict.get("angley", 0.0)
-    anglex = properties_dict.get("anglex", 0.0)
-
-    (ax, ay) = rasterobj.getGrid(nrays)
-
-    origin = np.vstack((startx*np.ones_like(ax), starty*np.ones_like(ax), startz*np.ones_like(ax)))
-    unitvector = np.zeros_like(origin)
-    unitvector[0, :] = np.sin(angley + radius*ax)*np.cos(anglex + radius*ay)
-    unitvector[1, :] = np.sin(anglex + radius*ay)
-    unitvector[2, :] = np.cos(angley + radius*ax)*np.cos(anglex + radius*ay)
-    
-    (k0, E0) = material.sortKnormUnitEField(origin, unitvector, unitvector, wave=wave)
-        
-    return (origin, k0[2, :, :], E0[2, :, :])

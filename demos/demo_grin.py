@@ -37,7 +37,7 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics import collimated_bundle, draw
+from pyrateoptics import raytrace, draw
 
 import math
 import logging
@@ -97,10 +97,7 @@ s.addElement("grinelement", elem)
 sysseq = [("grinelement", [("object", {"is_stop":True}), ("surf1", {}), ("surf2", {}), ("image", {})])]
 
 
-(o, k, E0) = collimated_bundle(21, {"opticalsystem": s, "startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()}, wave=wavelength)
-
-
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq, splitup=False)
-
+r2 = raytrace(s, sysseq, 21,\
+    {"startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()},\
+    wave=wavelength)
 draw(s, r2)

@@ -30,12 +30,11 @@ from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.optical_system import OpticalSystem
-from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics import collimated_bundle, draw
+from pyrateoptics import draw, raytrace
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -78,9 +77,7 @@ s.addElement("AC254-100", elem)
 sysseq = [("AC254-100", [("stop", {"is_stop":True}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
 
-(o, k, E0) = collimated_bundle(20, {"opticalsystem": s, "startz": -5, "radius": 11.43, "raster": raster.MeridionalFan()}, wave=wavelength)
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq)
+r2 = raytrace(s, sysseq, 20, {"startz": -5, "radius": 11.43, "raster": raster.MeridionalFan()}, wave=wavelength)[0]
 
 draw(s, (r2, "blue"))
 

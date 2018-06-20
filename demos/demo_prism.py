@@ -35,7 +35,7 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics import collimated_bundle, draw
+from pyrateoptics import raytrace, draw
 from pyrateoptics.raytracer.globalconstants import degree
 
 import logging
@@ -83,13 +83,11 @@ sysseq = [("prism",
                 ("surf2", {}), 
                 ("image", {})])]
 
-(o, k_red, E0_red) = collimated_bundle(20, {"opticalsystem": s, "radius": 5.0, "startz":-5., "starty":-20., "anglex":23*degree, "raster":raster.MeridionalFan()}, wave=wave_red)
-(o, k_blue, E0_blue) = collimated_bundle(20, {"opticalsystem": s, "radius": 5.0, "startz":-5., "starty":-20., "anglex":23*degree, "raster":raster.MeridionalFan()}, wave=wave_blue)
+raysdict = {"radius": 5.0, "startz":-5., "starty":-20., "anglex":23*degree, "raster":raster.MeridionalFan()}
 
-initialbundle_red = RayBundle(x0=o, k0=k_red, Efield0=E0_red, wave=wave_red)
-initialbundle_blue = RayBundle(x0=o, k0=k_blue, Efield0=E0_blue, wave=wave_blue)
-r_red = s.seqtrace(initialbundle_red, sysseq)
-r_blue = s.seqtrace(initialbundle_blue, sysseq)
+r_red = raytrace(s, sysseq, 20, raysdict, wave=wave_red)[0]
+r_blue = raytrace(s, sysseq, 20, raysdict, wave=wave_blue)[0]
+
 
 draw(s, [(r_red, "red"), (r_blue, "blue")])
 

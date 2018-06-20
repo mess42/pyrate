@@ -40,7 +40,10 @@ from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics import draw, collimated_bundle
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+
+from pyrateoptics import draw
+
 
 wavelength = 0.5876e-3
 
@@ -98,10 +101,8 @@ s.addElement("AC254-100", elem)
 
 sysseq = [("AC254-100", [("stop", {}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
 
-
-(o, k, E0) = collimated_bundle(10, {"opticalsystem":s, "radius":11.43, "startz":-5., "raster":raster.MeridionalFan()}, wave=wavelength)
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-r2 = s.seqtrace(initialbundle, sysseq, splitup=True)
-
+osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
+osa.aim(10, {"radius":11.43, "startz":-5., "raster":raster.MeridionalFan()}, bundletype="collimated", wave=wavelength)
+r2 = osa.trace(splitup=True)[0]
 draw(s, [(r2[0], "blue"), (r2[1], "green")])
 

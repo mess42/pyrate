@@ -30,7 +30,7 @@ import re
 
 class BaseLogger(object):
     
-    def __init__(self, name='', **kwargs):
+    def __init__(self, name="", **kwargs):
         self.setName(name)
         self.logger = logging.getLogger(name=self.__name)
         self.debug("logger \"" + name + "\" created")
@@ -60,3 +60,21 @@ class BaseLogger(object):
 
     def critical(self, msg, *args, **kwargs):
         self.logger.critical(msg, *args, **kwargs)
+
+    def __getstate__(self):
+        """
+        Deleting logger is necessary to prevent deepcopy from aborting due to
+        a not pickleable thread.lock object.
+        """
+        state = self.__dict__.copy()
+        del state["logger"]
+
+        return state
+        
+    def __setstate__(self, state):
+        """
+        We have to restore the logger manually.
+        """
+        self.__dict__.update(state)        
+        self.logger = logging.getLogger(name=self.name)        
+

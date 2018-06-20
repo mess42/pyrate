@@ -98,6 +98,8 @@ def test_smoke_rainbow():
 def test_smoke_zmx():
     """Smoke test based on demo_zmx.py."""
     import sys
-    sys.argv = [sys.argv[0], 'tests/lenssystem.ZMX', '10', '2']
+    sys.argv = [sys.argv[0], "tests/lenssystem.ZMX", "--bundletype", "collimated",
+ "--epd", "2.0", "--numrays", "10"]
+    #[sys.argv[0], 'tests/lenssystem.ZMX', '10', '2']
     import demos.demo_zmx
     assert True

@@ -55,7 +55,7 @@ from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 from pyrateoptics.analysis.surfShape_analysis import ShapeAnalysis
 from pyrateoptics.sampling2d.raster import RandomGrid
 
-from pyrateoptics import divergent_bundle
+from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 wavelength = standard_wavelength
 
@@ -177,12 +177,6 @@ s.addElement("lenssys", elem)
 
 
 
-divbundledict = {"opticalsystem":s, "radius":10*degree, "raster":RandomGrid()}
-(o, k, E0) = divergent_bundle(900, divbundledict, wave=wavelength)
-
-initialbundle = RayBundle(x0=o, k0=k, Efield0=E0)
-
-#generatebundle(openangle=10.*math.pi/180., numrays=30)
 
 sysseq = [("lenssys", [
             ("object", {}), 
@@ -194,8 +188,14 @@ sysseq = [("lenssys", [
             ("surf6", {}), 
             ("surf7", {}), 
             ("image", {})])]
-r2 = s.seqtrace(initialbundle, sysseq)
 
+
+osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
+
+divbundledict = {"radius":10*degree, "raster":RandomGrid()}
+(o, k, E0) = osa.divergent_bundle(900, divbundledict, wave=wavelength)
+initialbundle = RayBundle(x0=o, k0=k, Efield0=E0)
+r2 = s.seqtrace(initialbundle, sysseq)
 
 fig = plt.figure(1)
 ax = fig.add_subplot(311)
@@ -273,8 +273,9 @@ listOptimizableVariables(s, filter_status='variable', maxcol=80)
 
 s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 #s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
-osa = OpticalSystemAnalysis(s, sysseq)
-osa.drawSpotDiagram(r2[0].raybundles[0], [0,])
+
+osa.aim(51, divbundledict, wave=wavelength)
+osa.drawSpotDiagram()
 sa = ShapeAnalysis(surf1.shape)
 sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
 
