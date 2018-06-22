@@ -45,6 +45,8 @@ from pyrateoptics import raytrace, draw
 from pyrateoptics.raytracer.globalconstants import degree
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
+from pyrateoptics.raytracer.aim import Aimy
+
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -116,7 +118,13 @@ sysseq = [("TMA",
 osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
 osa.aim(11, {"startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, bundletype="collimated", wave=wavelength)
 r2 = osa.trace()[0]
+
+a = Aimy(s, sysseq, name="Aimy")
+print(a.aim(np.array([0, 0])))
                 
+draw(s, [r2]) #, r3, pilotray2])
+
+"""
 phi = 5.*degree
 
 obj_dx = 0.1
@@ -134,7 +142,7 @@ logging.info(np.array_str(m_obj_stop, precision=5, suppress_small=True))
 logging.info(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
 logging.info(str(s.sequence_to_hitlist(sysseq)))
-
+"""
 
 ### TODO:
 ### first tries to implement aiming, but the code is somewhat hard to use
@@ -182,5 +190,4 @@ logging.info(str(s.sequence_to_hitlist(sysseq)))
 #initialbundle = RayBundle(x0=lc0.returnLocalToGlobalPoints(o), k0=lc0.returnLocalToGlobalDirections(k), Efield0=lc0.returnLocalToGlobalDirections(E0), wave=wavelength)
 #r4 = s.seqtrace(initialbundle, sysseq)
 
-draw(s, [r2, r3, pilotray2])
 
