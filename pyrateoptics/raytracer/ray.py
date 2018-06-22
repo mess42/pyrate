@@ -130,7 +130,7 @@ class RayBundle(object):
         
         self.append(xglob, kglob, Eglob, valid)
         
-        
+
     def returnKtoD(self):
         # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
 
@@ -229,6 +229,17 @@ class RayPath(object):
     def containsSplitted(self):
         return any([r.splitted for r in self.raybundles])
         
+
+def returnDtoK(direction):
+    # TODO: this is a fake implementation
+    # notice: this function is independent from the RayBundle class
+    # properties needed:
+    # k solves dispersion relation
+    # S is proportional to d
+    # fix degrees of freedom
+    # (wishlist for polarization)
+    return direction
+
 
 
 if __name__ == "__main__":

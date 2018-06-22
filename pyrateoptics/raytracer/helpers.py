@@ -44,7 +44,7 @@ from helpers_math import rodrigues
 # <Re k, S> > 0 and <Im k, S> > 0
 
 
-def choose_nearest(kvec, kvecs_new):
+def choose_nearest(kvec, kvecs_new, returnindex=False):
     """
     Choose kvec from solution vector which is nearest to a specified kvec.
     
@@ -71,7 +71,10 @@ def choose_nearest(kvec, kvecs_new):
                     choosing_index = i
                     diff_comparison = hermite_abs_square
             res[:, j] = kvecs_new[choosing_index, :, j]
-    return res
+    if returnindex:
+        return (choosing_index, res)
+    else:   
+        return res
 
     
 

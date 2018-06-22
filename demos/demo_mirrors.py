@@ -47,7 +47,7 @@ from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 from pyrateoptics.raytracer.aim import Aimy
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 wavelength = 0.5876e-3
@@ -117,9 +117,13 @@ sysseq = [("TMA",
 
 a = Aimy(s, sysseq, name="Aimy", stopsize=2., num_pupil_points=3)
 a.pupil_raster = raster.MeridionalFan()
+
+def correctKRayBundle(bundle):
+    pass
+
 initbundle1 = a.aim(np.array([0, 0]))
-initbundle2 = a.aim(np.array([0.,0.05]))
-initbundle3 = a.aim(np.array([0.,-0.05]))
+initbundle2 = a.aim(np.array([0, 1*degree]))
+initbundle3 = a.aim(np.array([0,-1*degree]))
 
 
 #osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")

@@ -27,10 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 
 from pyrateoptics.core.log import BaseLogger
-from pyrateoptics.raytracer.helpers import build_pilotbundle
+from pyrateoptics.raytracer.helpers import build_pilotbundle, choose_nearest
 from pyrateoptics.raytracer.globalconstants import degree, standard_wavelength
 from pyrateoptics.sampling2d.raster import RectGrid
-from pyrateoptics.raytracer.ray import RayBundle
+from pyrateoptics.raytracer.ray import RayBundle, returnDtoK
+from pyrateoptics.raytracer.helpers_math import rodrigues
 
 class FieldManager(BaseLogger):
     pass
@@ -73,10 +74,13 @@ class Aimy(BaseLogger):
         (objsurfname, objsurfoptions) = first_element_seq[0]
         
         self.objectsurface = s.elements[first_element_name].surfaces[objsurfname]        
+        self.start_material = s.material_background
+        # TODO: pilotray starts always in background (how about immersion?)
+        # if mat is None: ....
         
         pilotbundles = build_pilotbundle(
             self.objectsurface, 
-            s.material_background, 
+            self.start_material, 
             (obj_dx, obj_dx), 
             (obj_dphi, obj_dphi), 
             num_sampling_points=3) # TODO: wavelength?
@@ -92,6 +96,50 @@ class Aimy(BaseLogger):
         self.info(np.array_str(self.m_obj_stop, precision=5, suppress_small=True))
         self.info(np.array_str(self.m_stop_img, precision=5, suppress_small=True))
         
+
+    def aim_core_angle_known(self, theta2d):
+        """
+        knows about xyuv matrices
+        """
+        
+        (thetax, thetay) = theta2d
+        
+        rmx = rodrigues(thetax, [0, 1, 0])
+        rmy = rodrigues(thetay, [1, 0, 0])
+        rmfinal = np.dot(rmy, rmx)        
+        self.info(rmfinal)
+       
+        (A_obj_stop, B_obj_stop, C_obj_stop, D_obj_stop) = self.extractABCD(self.m_obj_stop)
+
+        A_obj_stop_inv = np.linalg.inv(A_obj_stop)
+        
+        
+        # TODO: calcDR func        
+        (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
+        dr_stop = (np.vstack((xp, yp))*self.stopsize)
+        
+        (dim, num_points) = np.shape(dr_stop)
+
+        #dd_obj2 = np.repeat(dd_obj[:, np.newaxis], num_points, axis=1)
+
+        dpilot_global = self.pilotbundle.returnKtoD()[0, :, 0]
+        kpilot_global = self.pilotbundle.k[0, :, 0]
+        dpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(dpilot_global)[:, np.newaxis]
+        kpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(kpilot_global)[:, np.newaxis]
+        kpilot_object = np.repeat(kpilot_object, num_points, axis=1)
+        d = np.repeat(np.dot(rmfinal, dpilot_object), num_points, axis=1)
+        self.info(dpilot_object)
+        self.info(d)
+
+        k = returnDtoK(d) # so dass D ~ S, k Dispersionsrelation erfuellen
+        dk = k - kpilot_object
+        dk_obj = dk[0:2, :]
+
+        intermediate = np.dot(B_obj_stop, dk_obj) 
+        dr_obj = np.dot(A_obj_stop_inv, dr_stop - intermediate)
+        
+        return (dr_obj, dk_obj)
+
         
     def aim_core_k_known(self, dk_obj):
         """
@@ -123,12 +171,13 @@ class Aimy(BaseLogger):
         return dk_obj
 
         
-    def aim(self, dk_obj, E_obj=None): # TODO: change calling convention
+    def aim(self, dk_obj): # TODO: change calling convention
         """
         Should generate bundles.
         """
       
-        (dr_obj, dk_obj2) = self.aim_core_k_known(dk_obj)
+        # TODO: make the right choice
+        (dr_obj, dk_obj2) = self.aim_core_angle_known(dk_obj)
         
         
         (dim, num_points) = np.shape(dr_obj)
@@ -140,20 +189,47 @@ class Aimy(BaseLogger):
         xp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalPoints(self.pilotbundle.x[0, :, 0])
         xp_objsurf = np.repeat(xp_objsurf[:, np.newaxis], num_points, axis=1)
         dx3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dr_obj3d)
-        xfinal = xp_objsurf + dx3d
+        xparabasal = xp_objsurf + dx3d
 
         kp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(self.pilotbundle.k[0, :, 0])
         kp_objsurf = np.repeat(kp_objsurf[:, np.newaxis], num_points, axis=1)
         dk3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dk_obj3d)
         # TODO: k coordinate system for which dispersion relation is respected
 
-        kfinal = kp_objsurf + dk3d
+        kparabasal = kp_objsurf + dk3d
+        E_obj = self.pilotbundle.Efield[0, :, 0]
+        Eparabasal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
 
-        if E_obj is None:
-            E_obj = self.pilotbundle.Efield[0, :, 0]
-            
+
+        """        
+        k_unit = kparabasal/np.linalg.norm(kparabasal)
+
+        k_unit_mat = self.start_material.lc.returnOtherToActualDirections(k_unit, self.objectsurface.rootcoordinatesystem)
+        surfnormalmat = self.start_material.lc.returnOtherToActualDirections(self.objectsurface.shape.getNormal(xfinal[0], xfinal[1]), self.objectsurface.shape.lc)    
+        
+        (k_4, E_4) = self.start_material.sortKnormUnitEField(xfinal, k_unit_mat, surfnormalmat, wave=self.wave)
+
+        
+        #kfinal = kparabasal
+
+        #s.material_background.sorted # TODO: not applicable for immersion
+                
+        
+        (ind, kfinal) = choose_nearest(kparabasal, k_4, returnindex=True)
+        #Efinal = E_4[ind, :, :]
+
+        print(k_4)
+        print(kparabasal)
+        print(k_unit)
+        print(ind)
+        
+        E_obj = self.pilotbundle.Efield[0, :, 0]
         Efinal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
-
+    
+        # TODO: it is not possible to choose a specific dispersion branch
 
         #self.objectsurface
-        return RayBundle(xfinal, kfinal, Efinal, wave=self.wave)
+        """
+    
+        # Aimy: returns only linearized results which are not exact
+        return RayBundle(xparabasal, kparabasal, Eparabasal, wave=self.wave)
