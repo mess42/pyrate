@@ -28,8 +28,9 @@ import numpy as np
 
 from pyrateoptics.core.log import BaseLogger
 from pyrateoptics.raytracer.helpers import build_pilotbundle
-from pyrateoptics.raytracer.globalconstants import degree
+from pyrateoptics.raytracer.globalconstants import degree, standard_wavelength
 from pyrateoptics.sampling2d.raster import RectGrid
+from pyrateoptics.raytracer.ray import RayBundle
 
 class FieldManager(BaseLogger):
     pass
@@ -42,7 +43,7 @@ class Aimy(BaseLogger):
     aiming specifications and field specifications.
     """
     
-    def __init__(self, s, seq, num_pupil_points=100, stopsize=10, name="", **kwargs):
+    def __init__(self, s, seq, wave=standard_wavelength, num_pupil_points=100, stopsize=10, name="", **kwargs):
 
         super(Aimy, self).__init__(name=name, **kwargs)
         
@@ -50,6 +51,7 @@ class Aimy(BaseLogger):
         self.pupil_raster = RectGrid()
         self.stopsize = stopsize
         self.num_pupil_points = num_pupil_points
+        self.wave = wave
         
         self.update(s, seq)
         
@@ -77,7 +79,7 @@ class Aimy(BaseLogger):
             s.material_background, 
             (obj_dx, obj_dx), 
             (obj_dphi, obj_dphi), 
-            num_sampling_points=3)
+            num_sampling_points=3) # TODO: wavelength?
             
         self.pilotbundle = pilotbundles[-1] 
         # TODO: one solution selected hard coded
@@ -112,7 +114,7 @@ class Aimy(BaseLogger):
         intermediate = np.dot(B_obj_stop, dk_obj2) 
         dr_obj = np.dot(A_obj_stop_inv, dr_stop - intermediate)
         
-        return dr_obj
+        return (dr_obj, dk_obj2)
         
     def aim_core_r_known(self, dr_obj):
         
@@ -121,23 +123,37 @@ class Aimy(BaseLogger):
         return dk_obj
 
         
-    def aim(self, dk_obj): # TODO: change calling convention
+    def aim(self, dk_obj, E_obj=None): # TODO: change calling convention
         """
         Should generate bundles.
         """
+      
+        (dr_obj, dk_obj2) = self.aim_core_k_known(dk_obj)
         
-        self.info(self.pilotbundle)        
-        self.info(self.pilotbundle.x)
-        self.info(self.pilotbundle.k)
         
-        dr_obj = self.aim_core_k_known(dk_obj)
         (dim, num_points) = np.shape(dr_obj)
         
         dr_obj3d = np.vstack((dr_obj, np.zeros(num_points)))
+        dk_obj3d = np.vstack((dk_obj2, np.zeros(num_points)))
+            
         
+        xp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalPoints(self.pilotbundle.x[0, :, 0])
+        xp_objsurf = np.repeat(xp_objsurf[:, np.newaxis], num_points, axis=1)
+        dx3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dr_obj3d)
+        xfinal = xp_objsurf + dx3d
 
-        
-        x0 = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dr_obj3d)
-        #k0 = #
+        kp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(self.pilotbundle.k[0, :, 0])
+        kp_objsurf = np.repeat(kp_objsurf[:, np.newaxis], num_points, axis=1)
+        dk3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dk_obj3d)
+        # TODO: k coordinate system for which dispersion relation is respected
+
+        kfinal = kp_objsurf + dk3d
+
+        if E_obj is None:
+            E_obj = self.pilotbundle.Efield[0, :, 0]
+            
+        Efinal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
+
+
         #self.objectsurface
-        return x0
+        return RayBundle(xfinal, kfinal, Efinal, wave=self.wave)
