@@ -147,7 +147,6 @@ class Aimy(BaseLogger):
         A_obj_stop_inv = np.linalg.inv(A_obj_stop)
         
         
-        # TODO: calcDR func        
         (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
         dr_stop = (np.vstack((xp, yp))*self.stopsize)
         
@@ -161,14 +160,8 @@ class Aimy(BaseLogger):
         
         return (dr_obj, dk_obj2)
         
-    def aim_core_r_known(self, dr_obj):
         
-        dk_obj = np.zeros_like(dr_obj)
-        
-        return dk_obj
-
-        
-    def aim(self, delta_xy, fieldtype="angle"): # TODO: change calling convention
+    def aim(self, delta_xy, fieldtype="angle"): 
         """
         Generates bundles.
         """
@@ -176,9 +169,15 @@ class Aimy(BaseLogger):
         if fieldtype == "angle":
             (dr_obj, dk_obj) = self.aim_core_angle_known(delta_xy)
         elif fieldtype == "objectheight":
-            (dr_obj, dk_obj) = self.aim_core_r_known(delta_xy)
+
+            raise NotImplemented()
+            
+            #(dr_obj, dk_obj) = self.aim_core_r_known(delta_xy)
         elif fieldtype == "kvector":
-            (dr_obj, dk_obj) = self.aim_core_k_known(delta_xy)
+            
+            raise NotImplemented()
+            
+            #(dr_obj, dk_obj) = self.aim_core_k_known(delta_xy)
         
         
         (dim, num_points) = np.shape(dr_obj)
