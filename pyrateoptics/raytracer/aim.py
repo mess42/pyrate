@@ -114,13 +114,10 @@ class Aimy(BaseLogger):
         A_obj_stop_inv = np.linalg.inv(A_obj_stop)
         
         
-        # TODO: calcDR func        
         (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
         dr_stop = (np.vstack((xp, yp))*self.stopsize)
         
         (dim, num_points) = np.shape(dr_stop)
-
-        #dd_obj2 = np.repeat(dd_obj[:, np.newaxis], num_points, axis=1)
 
         dpilot_global = self.pilotbundle.returnKtoD()[0, :, 0]
         kpilot_global = self.pilotbundle.k[0, :, 0]
@@ -131,7 +128,7 @@ class Aimy(BaseLogger):
         self.info(dpilot_object)
         self.info(d)
 
-        k = returnDtoK(d) # so dass D ~ S, k Dispersionsrelation erfuellen
+        k = returnDtoK(d) # TODO: implement fake implementation
         dk = k - kpilot_object
         dk_obj = dk[0:2, :]
 
@@ -171,19 +168,23 @@ class Aimy(BaseLogger):
         return dk_obj
 
         
-    def aim(self, dk_obj): # TODO: change calling convention
+    def aim(self, delta_xy, fieldtype="angle"): # TODO: change calling convention
         """
-        Should generate bundles.
+        Generates bundles.
         """
       
-        # TODO: make the right choice
-        (dr_obj, dk_obj2) = self.aim_core_angle_known(dk_obj)
+        if fieldtype == "angle":
+            (dr_obj, dk_obj) = self.aim_core_angle_known(delta_xy)
+        elif fieldtype == "objectheight":
+            (dr_obj, dk_obj) = self.aim_core_r_known(delta_xy)
+        elif fieldtype == "kvector":
+            (dr_obj, dk_obj) = self.aim_core_k_known(delta_xy)
         
         
         (dim, num_points) = np.shape(dr_obj)
         
         dr_obj3d = np.vstack((dr_obj, np.zeros(num_points)))
-        dk_obj3d = np.vstack((dk_obj2, np.zeros(num_points)))
+        dk_obj3d = np.vstack((dk_obj, np.zeros(num_points)))
             
         
         xp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalPoints(self.pilotbundle.x[0, :, 0])
@@ -200,36 +201,6 @@ class Aimy(BaseLogger):
         E_obj = self.pilotbundle.Efield[0, :, 0]
         Eparabasal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
 
-
-        """        
-        k_unit = kparabasal/np.linalg.norm(kparabasal)
-
-        k_unit_mat = self.start_material.lc.returnOtherToActualDirections(k_unit, self.objectsurface.rootcoordinatesystem)
-        surfnormalmat = self.start_material.lc.returnOtherToActualDirections(self.objectsurface.shape.getNormal(xfinal[0], xfinal[1]), self.objectsurface.shape.lc)    
-        
-        (k_4, E_4) = self.start_material.sortKnormUnitEField(xfinal, k_unit_mat, surfnormalmat, wave=self.wave)
-
-        
-        #kfinal = kparabasal
-
-        #s.material_background.sorted # TODO: not applicable for immersion
-                
-        
-        (ind, kfinal) = choose_nearest(kparabasal, k_4, returnindex=True)
-        #Efinal = E_4[ind, :, :]
-
-        print(k_4)
-        print(kparabasal)
-        print(k_unit)
-        print(ind)
-        
-        E_obj = self.pilotbundle.Efield[0, :, 0]
-        Efinal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
-    
-        # TODO: it is not possible to choose a specific dispersion branch
-
-        #self.objectsurface
-        """
-    
+   
         # Aimy: returns only linearized results which are not exact
         return RayBundle(xparabasal, kparabasal, Eparabasal, wave=self.wave)

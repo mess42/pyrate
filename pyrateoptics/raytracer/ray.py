@@ -132,20 +132,6 @@ class RayBundle(object):
         
 
     def returnKtoD(self):
-        # S_j = Re((conj(E)_i E_i delta_{jl} - conj(E)_j E_l) k_l)
-
-        # FIXME: improve this by using np.einsum?
-        
-#        absE2 = np.sum(np.conj(self.Efield)*self.Efield, axis=1)
-#        Ek = np.sum(self.Efield * self.k, axis=1)
-#        S = np.zeros_like( self.k, dtype=float)
-#        for j in np.arange(3):
-#            S[:,j,:] = np.real(absE2*self.k[:,j,:] - Ek*np.conj(self.Efield)[:,j,:])
-#        absS = np.sqrt(np.sum(S**2, axis=1))
-#        d = np.zeros_like( self.k, dtype=float)        
-#        for j in np.arange(3):
-#            d[:,j,:] = S[:,j,:] / absS
-#        return d
 
         (num_bund, num_dim, num_pts) = np.shape(self.Efield)
 
@@ -238,6 +224,9 @@ def returnDtoK(direction):
     # S is proportional to d
     # fix degrees of freedom
     # (wishlist for polarization)
+
+    # for vacuum and real k vectors this implementation is correct
+
     return direction
 
 
