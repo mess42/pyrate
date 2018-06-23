@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 
 from pyrateoptics.core.log import BaseLogger
-from pyrateoptics.raytracer.helpers import build_pilotbundle, choose_nearest
+from pyrateoptics.raytracer.helpers import build_pilotbundle, build_pilotbundle_complex, choose_nearest
 from pyrateoptics.raytracer.globalconstants import degree, standard_wavelength
 from pyrateoptics.sampling2d.raster import RectGrid
 from pyrateoptics.raytracer.ray import RayBundle, returnDtoK
@@ -78,21 +78,29 @@ class Aimy(BaseLogger):
         # TODO: pilotray starts always in background (how about immersion?)
         # if mat is None: ....
         
-        pilotbundles = build_pilotbundle(
-            self.objectsurface, 
-            self.start_material, 
-            (obj_dx, obj_dx), 
-            (obj_dphi, obj_dphi), 
-            num_sampling_points=3) # TODO: wavelength?
+        #build_pilotbundle(
+        #    self.objectsurface, 
+        #    self.start_material, 
+        #    (obj_dx, obj_dx), 
+        #    (obj_dphi, obj_dphi), 
+        #    num_sampling_points=3) # TODO: wavelength?
             
+
+        self.info("call complex sampled pilotbundle")
+        pilotbundles = build_pilotbundle_complex(
+            self.objectsurface,
+            self.start_material,
+            (obj_dx, obj_dx),
+            (obj_dphi, obj_dphi),
+            num_sampling_points=3)            
+       
+        self.info("choose last raybundle (hard coded)")
         self.pilotbundle = pilotbundles[-1] 
         # TODO: one solution selected hard coded
         
-        #rays_pilot = [s.seqtrace(p, seq) for p in pilotbundles]
-        #(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], osa.initial_bundles[0], sysseq, use6x6=True)
-        
         (self.m_obj_stop, self.m_stop_img) = s.extractXYUV(self.pilotbundle, seq, use6x6=True)
         
+        self.info("show linear matrices")
         self.info(np.array_str(self.m_obj_stop, precision=5, suppress_small=True))
         self.info(np.array_str(self.m_stop_img, precision=5, suppress_small=True))
         
@@ -107,7 +115,6 @@ class Aimy(BaseLogger):
         rmx = rodrigues(thetax, [0, 1, 0])
         rmy = rodrigues(thetay, [1, 0, 0])
         rmfinal = np.dot(rmy, rmx)        
-        self.info(rmfinal)
        
         (A_obj_stop, B_obj_stop, C_obj_stop, D_obj_stop) = self.extractABCD(self.m_obj_stop)
 
@@ -125,8 +132,6 @@ class Aimy(BaseLogger):
         kpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(kpilot_global)[:, np.newaxis]
         kpilot_object = np.repeat(kpilot_object, num_points, axis=1)
         d = np.repeat(np.dot(rmfinal, dpilot_object), num_points, axis=1)
-        self.info(dpilot_object)
-        self.info(d)
 
         k = returnDtoK(d) # TODO: implement fake implementation
         dk = k - kpilot_object

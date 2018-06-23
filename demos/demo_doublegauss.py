@@ -38,13 +38,13 @@ from pyrateoptics.optimize.optimize_backends import ScipyBackend
 from pyrateoptics.sampling2d.raster import RectGrid
 from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
 from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
-
+from pyrateoptics.core.functionobject import FunctionObject
 
 from distutils.version import StrictVersion
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 db_path = "refractiveindex.info-database/database"
 
@@ -150,7 +150,9 @@ def updatefunction_allsteps(s):
 # optimize
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("pickup", function=lambda x: -x, args=(s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("pickup", 
+    functionobject=(FunctionObject("f = lambda x: -x"), "f"), 
+    args=(s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
 
 
 listOptimizableVariables(s, maxcol=80)
@@ -254,12 +256,12 @@ s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.changetype("variable
 
 # outer radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2front"].shape.curvature.changetype("pickup",\
-    function=lambda x: -x,\
+    functionobject=(FunctionObject("f = lambda x: -x"), "f"),\
     args=(s.elements["stdelem"].surfaces["elem3rear"].shape.curvature,))
 
 # inner radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.changetype("pickup",\
-    function=lambda x: -x,\
+    functionobject=(FunctionObject("f = lambda x: -x"), "f"),\
     args=(s.elements["stdelem"].surfaces["elem3front"].shape.curvature,))
 
 s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.changetype("variable")

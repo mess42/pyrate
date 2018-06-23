@@ -458,9 +458,8 @@ class MaxwellMaterial(Material):
         
         Bmatrix = np.zeros((3, 3, num_pts), dtype=complex)
         Amatrix = eps
-        self.info(e)
         scalar_product_ee = np.sum(e*e, axis=0)
-        self.info(scalar_product_ee)
+
         for j in range(num_pts):
             Bmatrix[:, :, j] = -(-np.eye(3)*scalar_product_ee[j] + np.outer(e[:, j], e[:, j]))
 

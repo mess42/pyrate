@@ -125,11 +125,6 @@ initbundle1 = a.aim(np.array([0, 0]))
 initbundle2 = a.aim(np.array([0, 1*degree]))
 initbundle3 = a.aim(np.array([0,-1*degree]))
 
-
-#osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
-#osa.aim(11, {"startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, bundletype="collimated", wave=wavelength)
-#r2 = osa.trace()[0]
-
 (pp1, r1p) = s.para_seqtrace(a.pilotbundle, initbundle1, sysseq)
 (pp2, r2p) = s.para_seqtrace(a.pilotbundle, initbundle2, sysseq)            
 (pp3, r3p) = s.para_seqtrace(a.pilotbundle, initbundle3, sysseq)            
@@ -139,28 +134,9 @@ r2r = s.seqtrace(initbundle2, sysseq)
 r3r = s.seqtrace(initbundle3, sysseq)            
              
              
-draw(s, [(pp1, "red"), (r1p, "blue"), (r2p, "green"), (r3p, "orange")])
-draw(s, [(pp1, "red"), (r1r, "blue"), (r2r, "green"), (r3r, "orange")])
+draw(s, [(r1p, "blue"), (r2p, "green"), (r3p, "orange")])
+draw(s, [(r1r, "blue"), (r2r, "green"), (r3r, "orange")])
 
-"""
-phi = 5.*degree
-
-obj_dx = 0.1
-obj_dphi = 1.*degree
-
-pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
-
-rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
-
-(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], osa.initial_bundles[0], sysseq, use6x6=True)
-
-(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=True)
-
-logging.info(np.array_str(m_obj_stop, precision=5, suppress_small=True))
-logging.info(np.array_str(m_stop_img, precision=5, suppress_small=True))
-
-logging.info(str(s.sequence_to_hitlist(sysseq)))
-"""
 
 ### TODO:
 ### first tries to implement aiming, but the code is somewhat hard to use
