@@ -595,8 +595,8 @@ From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \remark{to do: check whether sqrt may become zero}
 with
 \begin{eqnarray}
- d a_4 &=& - k_0^2  e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} \\
- d a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{ki} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_j
+ d a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,ij} e_{k\,i} e_{k\,j}) e_{k\,\ell} de_\ell\\
+ d a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_{j}
 \end{eqnarray}
 
 The change in unit direction vector is complex valued, so it contains 6 real valued degrees of freedom.
