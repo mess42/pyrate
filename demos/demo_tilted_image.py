@@ -32,6 +32,7 @@ from pyrateoptics.raytracer.globalconstants import degree
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.sampling2d.raster import MeridionalFan
+from pyrateoptics.raytracer.helpers import build_pilotbundle
 
 alpha = 10.*degree
 
@@ -59,7 +60,7 @@ raypaths2 = s.seqtrace(mybundle2,seq)
 obj_dx = 0.1
 obj_dphi = 1.*degree
 
-pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objsurf, s.material_background, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+pilotbundles = build_pilotbundle(objsurf, s.material_background, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 (m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], seq, use6x6=True)
 
 
