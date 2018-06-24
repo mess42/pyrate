@@ -24,15 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import math
-import logging
 
 from pyrateoptics import build_rotationally_symmetric_optical_system, draw
 from pyrateoptics.raytracer.globalconstants import degree
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.sampling2d.raster import MeridionalFan
-from pyrateoptics.raytracer.helpers import build_pilotbundle
+from pyrateoptics.raytracer.helpers import build_pilotbundle_complex
 
 alpha = 10.*degree
 
@@ -58,10 +56,12 @@ raypaths1 = s.seqtrace(mybundle1,seq)
 raypaths2 = s.seqtrace(mybundle2,seq)
 
 obj_dx = 0.1
-obj_dphi = 1.*degree
+obj_dphi = 0.1*degree
 
-pilotbundles = build_pilotbundle(objsurf, s.material_background, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
-(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], seq, use6x6=True)
+pilotbundles = build_pilotbundle_complex(objsurf, s.material_background, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], seq)
 
+print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
+print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
 draw(s, [raypaths1, raypaths2])
