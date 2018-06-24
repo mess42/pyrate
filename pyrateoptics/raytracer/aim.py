@@ -98,7 +98,7 @@ class Aimy(BaseLogger):
         self.pilotbundle = pilotbundles[-1] 
         # TODO: one solution selected hard coded
         
-        (self.m_obj_stop, self.m_stop_img) = s.extractXYUV(self.pilotbundle, seq, use6x6=True)
+        (self.m_obj_stop, self.m_stop_img) = s.extractXYUV(self.pilotbundle, seq)
         
         self.info("show linear matrices")
         self.info(np.array_str(self.m_obj_stop, precision=5, suppress_small=True))
@@ -115,28 +115,25 @@ class Aimy(BaseLogger):
         rmx = rodrigues(thetax, [0, 1, 0])
         rmy = rodrigues(thetay, [1, 0, 0])
         rmfinal = np.dot(rmy, rmx)        
-       
-        (A_obj_stop, B_obj_stop, C_obj_stop, D_obj_stop) = self.extractABCD(self.m_obj_stop)
-
-        A_obj_stop_inv = np.linalg.inv(A_obj_stop)
-        
-        
-        (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
-        dr_stop = (np.vstack((xp, yp))*self.stopsize)
-        
-        (dim, num_points) = np.shape(dr_stop)
 
         dpilot_global = self.pilotbundle.returnKtoD()[0, :, 0]
         kpilot_global = self.pilotbundle.k[0, :, 0]
         dpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(dpilot_global)[:, np.newaxis]
         kpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(kpilot_global)[:, np.newaxis]
-        kpilot_object = np.repeat(kpilot_object, num_points, axis=1)
-        d = np.repeat(np.dot(rmfinal, dpilot_object), num_points, axis=1)
+        kpilot_object = np.repeat(kpilot_object, self.num_pupil_points, axis=1)
+        d = np.dot(rmfinal, dpilot_object)
 
         k = returnDtoK(d) # TODO: implement fake implementation
         dk = k - kpilot_object
         dk_obj = dk[0:2, :]
 
+        (A_obj_stop, B_obj_stop, C_obj_stop, D_obj_stop) = self.extractABCD(self.m_obj_stop)
+
+        A_obj_stop_inv = np.linalg.inv(A_obj_stop)
+        
+        (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
+        dr_stop = (np.vstack((xp, yp))*self.stopsize)
+        
         intermediate = np.dot(B_obj_stop, dk_obj) 
         dr_obj = np.dot(A_obj_stop_inv, dr_stop - intermediate)
         
@@ -155,9 +152,7 @@ class Aimy(BaseLogger):
         (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
         dr_stop = (np.vstack((xp, yp))*self.stopsize)
         
-        (dim, num_points) = np.shape(dr_stop)
-
-        dk_obj2 = np.repeat(dk_obj[:, np.newaxis], num_points, axis=1)
+        dk_obj2 = np.repeat(dk_obj[:, np.newaxis], self.num_pupil_points, axis=1)
 
 
         intermediate = np.dot(B_obj_stop, dk_obj2) 

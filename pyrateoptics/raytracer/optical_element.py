@@ -153,7 +153,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
                 seq.append(pair)
         return seq
 
-    def calculateXYUV(self, pilotinitbundle, sequence, background_medium, pilotraypath_nr=0, use6x6=True):
+    def calculateXYUV(self, pilotinitbundle, sequence, background_medium, pilotraypath_nr=0):
 
         # TODO: needs heavy testing        
         
@@ -184,30 +184,13 @@ class OpticalElement(LocalCoordinatesTreeBase):
             """
             return (np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])).imag
 
-        def bestfit_transfer(X, Y, use6x6=False):
+        def bestfit_transfer(X, Y):
 
 
             XX = np.einsum('ij, kj', X, X).T
             YX = np.einsum('ij, kj', X, Y).T
 
-            if use6x6:
-                Ximag = X[4:, :]
-                Yimag = Y[4:, :]
-    
-                if np.linalg.norm(Ximag) < numerical_tolerance or np.linalg.norm(Yimag) < numerical_tolerance:
-                    self.warning("Start or end matrix contain zero rows: setting them to unity")
-                    XX[4:, 4:] = np.eye(2)
-                    YX[4:, 4:] = np.eye(2)
-                # TODO: this is somehow arbitrary.
-                # The other possibility is to given k a slight imag component
-                    # may not be complex                
-                
-                        
             transfer = np.dot(YX, np.linalg.inv(XX))
-
-            if not use6x6:
-                if np.linalg.norm(transfer[0:2, 0:2].imag) > numerical_tolerance:
-                    self.warning("The XX transfer part contains imaginary values. please consider using use6x6=True.")
 
             self.debug("\n" + np.array_str(transfer, precision=5, suppress_small=True))
            
@@ -251,22 +234,18 @@ class OpticalElement(LocalCoordinatesTreeBase):
             endk = lcend.returnGlobalToLocalDirections(pb2.k[-1])
                         
             startxred = reduce_matrix_x(startx)
-            startkred = reduce_matrix_k(startk)
             startkred_real = reduce_matrix_k_real(startk)
             startkred_imag = reduce_matrix_k_imag(startk)
 
             fspropxred = reduce_matrix_x(fspropx)
-            fspropkred = reduce_matrix_k(fspropk)
             fspropkred_real = reduce_matrix_k_real(fspropk)
             fspropkred_imag = reduce_matrix_k_imag(fspropk)
 
             endx_lcstart_red = reduce_matrix_x(endx_lcstart)
-            endk_lcstart_red = reduce_matrix_k(endk_lcstart)
             endk_lcstart_red_real = reduce_matrix_k_real(endk_lcstart)
             endk_lcstart_red_imag = reduce_matrix_k_imag(endk_lcstart)
 
             endxred = reduce_matrix_x(endx)
-            endkred = reduce_matrix_k(endk)
             endkred_real = reduce_matrix_k_real(endk)
             endkred_imag = reduce_matrix_k_imag(endk)
 
@@ -274,28 +253,22 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
 
             self.debug(str([s1, s2]))
-            if use6x6:
-                startmatrix = np.vstack((startxred, startkred_real, startkred_imag))
-                fspropmatrix = np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
-                endmatrix_lcstart = np.vstack((endx_lcstart_red, endk_lcstart_red_real, endk_lcstart_red_imag))
-                endmatrix = np.vstack((endxred, endkred_real, endkred_imag))
-            else:
-                startmatrix = np.vstack((startxred, startkred))
-                fspropmatrix = np.vstack((fspropxred, fspropkred))
-                endmatrix_lcstart = np.vstack((endx_lcstart_red, endk_lcstart_red))
-                endmatrix = np.vstack((endxred, endkred))
+            startmatrix = np.vstack((startxred, startkred_real, startkred_imag))
+            fspropmatrix = np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
+            endmatrix_lcstart = np.vstack((endx_lcstart_red, endk_lcstart_red_real, endk_lcstart_red_imag))
+            endmatrix = np.vstack((endxred, endkred_real, endkred_imag))
                        
 
             self.debug("refraction")
-            refractmatrix = bestfit_transfer(startmatrix, fspropmatrix, use6x6=use6x6)
+            refractmatrix = bestfit_transfer(startmatrix, fspropmatrix)
             self.debug("propagation")                    
-            propagatematrix = bestfit_transfer(fspropmatrix, endmatrix_lcstart, use6x6=use6x6)
+            propagatematrix = bestfit_transfer(fspropmatrix, endmatrix_lcstart)
             self.debug("coordinate trafo")                    
-            coordinatetrafomatrix = bestfit_transfer(endmatrix_lcstart, endmatrix, use6x6=use6x6)
+            coordinatetrafomatrix = bestfit_transfer(endmatrix_lcstart, endmatrix)
             self.debug("full transfer")                                        
             transfer = np.dot(coordinatetrafomatrix, np.dot(propagatematrix, refractmatrix)) 
             self.debug(np.array_str(transfer, precision=5, suppress_small=True))
-            transfer_comparison = bestfit_transfer(startmatrix, endmatrix, use6x6=use6x6) 
+            #transfer_comparison = bestfit_transfer(startmatrix, endmatrix) 
             
             self.debug("condition number:")
             self.debug(np.linalg.cond(transfer))
@@ -377,10 +350,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
         return rpaths
         
     
-    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, pilotraypath_nr=0, use6x6=True):
+    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, pilotraypath_nr=0):
         
         rpath = RayPath(raybundle)
-        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, pilotraypath_nr=pilotraypath_nr, use6x6=use6x6)
+        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, pilotraypath_nr=pilotraypath_nr)
 
         (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)
         
@@ -405,24 +378,17 @@ class OpticalElement(LocalCoordinatesTreeBase):
             pk1 = surf_end.rootcoordinatesystem.returnGlobalToLocalDirections(pe.k[-1][:, 0].reshape((3, 1)))
             
             dx0 = (x0 - px0)[0:2]
-            if use6x6:
-                dk0_real = (k0 - pk0)[0:2].real
-                dk0_imag = (k0 - pk0)[0:2].imag
-                
-                DX0 = np.vstack((dx0, dk0_real, dk0_imag))
-            else:
-                dk0 = (k0 - pk0)[0:2]
-                DX0 = np.vstack((dx0, dk0))
+            dk0_real = (k0 - pk0)[0:2].real
+            dk0_imag = (k0 - pk0)[0:2].imag
+            
+            DX0 = np.vstack((dx0, dk0_real, dk0_imag))
 
             DX1 = np.dot(matrices[surfhit], DX0)
             # multiplication is somewhat contra-intuitive
             # Xend = M("surf2", "surf3", 1) M("surf1", "surf2", 1) X0
                         
             dx1 = DX1[0:2]
-            if use6x6:
-                dk1 = DX1[2:4] + complex(0, 1)*DX1[4:6]
-            else:
-                dk1 = DX1[2:4]
+            dk1 = DX1[2:4] + complex(0, 1)*DX1[4:6]
 
             (num_dims, num_pts) = np.shape(dx1)            
             
