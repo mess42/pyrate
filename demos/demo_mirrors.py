@@ -28,6 +28,8 @@ import numpy as np
 import math
 import logging
 
+import matplotlib.pyplot as plt
+
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
@@ -115,15 +117,15 @@ sysseq = [("TMA",
             ])
         ] 
 
-a = Aimy(s, sysseq, name="Aimy", stopsize=2., num_pupil_points=3)
+a = Aimy(s, sysseq, name="Aimy", stopsize=2., num_pupil_points=5)
 a.pupil_raster = raster.MeridionalFan()
 
 def correctKRayBundle(bundle):
     pass
 
 initbundle1 = a.aim(np.array([0, 0]))
-initbundle2 = a.aim(np.array([0, 1*degree]))
-initbundle3 = a.aim(np.array([0,-1*degree]))
+initbundle2 = a.aim(np.array([0, 0.5*degree]))
+initbundle3 = a.aim(np.array([0,-0.5*degree]))
 
 (pp1, r1p) = s.para_seqtrace(a.pilotbundle, initbundle1, sysseq)
 (pp2, r2p) = s.para_seqtrace(a.pilotbundle, initbundle2, sysseq)            
@@ -135,7 +137,7 @@ r3r = s.seqtrace(initbundle3, sysseq)
              
              
 draw(s, [(r1p, "blue"), (r2p, "green"), (r3p, "orange")])
-draw(s, [(r1r, "blue"), (r2r, "green"), (r3r, "orange")])
+#draw(s, [(r1r, "blue"), (r2r, "green"), (r3r, "orange")])
 
 
 ### TODO:
