@@ -102,13 +102,14 @@ class OptimizableVariable(BaseLogger):
         
     def init_pickup(self, **kwargs):
         self.parameters = {}
-        self.parameters["function"] = kwargs.get("function", None)
+        self.parameters["functionobject"] = kwargs.get("functionobject", None)
+        #self.parameters["function"] = kwargs.get("function", None)
         self.parameters["args"] = kwargs.get("args", ())
         # TODO: function also as string, string tuple or as code object
 
     def init_external(self, **kwargs):
         self.parameters = {}
-        self.parameters["function"] = kwargs.get("function", None)
+        self.parameters["functionobject"] = kwargs.get("functionobject", None)
         self.parameters["args"] = kwargs.get("args", ())
         # TODO: function also as string, string tuple or as code object
     
@@ -165,13 +166,24 @@ class OptimizableVariable(BaseLogger):
         parameters_backup = self.parameters
         self.debug("old value %s and old parameters %s" % (str(value_backup), str(parameters_backup)))
         self.initdict[to_type](**kwargs)
+
         if to_type == "fixed" or to_type == "variable":
             if not kwargs.has_key("value"):            
                 self.parameters["value"] = value_backup
+
+        if to_type == "pickup" or to_type == "external":
+            (functionobject, functionname) = self.parameters["functionobject"]
+            functionobject.generateFunctionsFromSource([functionname])
+
+
         if (from_type == "pickup" and to_type == "external") or\
             (from_type == "external" and to_type == "pickup"):
-            if not kwargs.has_key("function"):
-                self.parameters["function"] = parameters_backup["function"]
+            #if not kwargs.has_key("function"):
+            #    self.parameters["function"] = parameters_backup["function"]
+            if not kwargs.has_key("functionobject"):
+                self.parameters["functionobject"] = parameters_backup["functionobject"]
+            self.info("PICKUP SET")
+            
         self.evalfunc = self.evaldict[to_type]
         self.var_type = to_type
         self.debug("new value %s and new parameters %s" % (str(self.evaluate()), str(self.parameters)))
@@ -198,11 +210,13 @@ class OptimizableVariable(BaseLogger):
         # and put it into the userdefined function
         # evaluate the result
         arguments_for_function_eval = (argfunc.evaluate() for argfunc in self.parameters["args"])
-        return self.parameters["function"](*arguments_for_function_eval)
+        (functionobject, functionname) = self.parameters["functionobject"]
+        return functionobject.functiondict[functionname](*arguments_for_function_eval)
 
     def eval_external(self):
         # same as for solve except that there are no further OptimizableVariables to be considered
-        return self.parameters["function"](*self.parameters["args"])
+        (functionobject, functionname) = self.parameters["functionobject"]
+        return functionobject.functiondict[functionname](*self.parameters["args"])
 
     def evaluate(self):
         # notice: evaluation code is not limited to floats

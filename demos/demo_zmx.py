@@ -79,7 +79,7 @@ matdict = {"BK7":ConstantIndexGlass(lctmp, 1.5168),
 if s is None:
     sys.exit()
 
-initialbundles_dict = [p.createInitialBundle("N")[0]]
+initialbundles_dict = p.createInitialBundle()
 
 osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 

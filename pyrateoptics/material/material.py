@@ -103,15 +103,15 @@ class MaxwellMaterial(Material):
             
         return (k_norm_4, efield_4)
 
-    def calcKnormUnitEfield(self, x, e, wave=standard_wavelength):
-        (k_4, efield_4) = self.calcKEigenvectorsNorm(x, e, wave=wave)
+    def calcKnormDirectionEfield(self, x, kd, wave=standard_wavelength):
+        (k_4, efield_4) = self.calcKnormEigenvectorsDirection(x, kd, wave=wave)
         
         # xi_4: 4xN
         # efield_4: 4x3xN
         
         k_norm_4 = np.zeros_like(efield_4)        
         for i in range(4):
-            k_norm_4[i, :, :] = k_4[i, :]*e
+            k_norm_4[i, :, :] = k_4[i, :]*kd
             
         return (k_norm_4, efield_4)    
     
@@ -163,7 +163,7 @@ class MaxwellMaterial(Material):
         
         (num_dims, num_pts) = np.shape(kd)        
 
-        (k_norm_4, Efield_4) = self.calcKnormUnitEfield(x, kd, wave=wave)
+        (k_norm_4, Efield_4) = self.calcKnormDirectionEfield(x, kd, wave=wave)
         
         k_norm_4_sorted = np.zeros_like(k_norm_4)
         Efield_4_sorted = np.zeros_like(Efield_4)
@@ -219,10 +219,10 @@ class MaxwellMaterial(Material):
             - np.einsum("i...,i...", k_norm, Efield)*np.conj(Efield))
         return S
     
-    def calcKfromUnitVector(self, x, e, wave=standard_wavelength):
+    def calcKfromUnitVector(self, x, kd, wave=standard_wavelength):
         k0 = 2.*math.pi/wave
 
-        return k0*self.calcKNormfromUnitVector(x, e, wave=wave)
+        return k0*self.calcKnormfromDirectionVector(x, kd, wave=wave)
     
     def calcKNormfromUnitVector(self, x, e, wave=standard_wavelength):
         """
@@ -262,7 +262,7 @@ class MaxwellMaterial(Material):
         return kvectors
 
 
-    def calcKNormfromDirectionVector(self, x, kd, wave=standard_wavelength):
+    def calcKnormfromDirectionVector(self, x, kd, wave=standard_wavelength):
         """
         Calculate k from dispersion direction vector 
         in general anisotropic materials.
@@ -440,7 +440,15 @@ class MaxwellMaterial(Material):
 
         return (eigenvalues, eigenvectors)
 
-    def calcKEigenvectorsNorm(self, x, e, wave=standard_wavelength):
+    def calcKnormEigenvectorsDirection(self, x, e, wave=standard_wavelength):
+        """
+        Solve generalized eigenvalue problem
+        [k^2 (-delta_ij (e_k e_k) + e_i e_j) + eps_ij] E_j = 0
+        
+        @params: e (3 x N of complex) complex three dimensional vector
+                (e is complex proportional to k vector)
+        """        
+        
         
         (num_dims, num_pts) = np.shape(x)
         eps = self.getEpsilonTensor(x, wave=wave)
@@ -448,11 +456,12 @@ class MaxwellMaterial(Material):
         eigenvectors = np.zeros((4, 3, num_pts), dtype=complex)
         eigenvalues = np.zeros((4, num_pts), dtype=complex)
         
-        # solve generalized EVP [k^2 (-delta_ij + e_i e_j) + eps_ij] E_j = 0
         Bmatrix = np.zeros((3, 3, num_pts), dtype=complex)
         Amatrix = eps
+        scalar_product_ee = np.sum(e*e, axis=0)
+
         for j in range(num_pts):
-            Bmatrix[:, :, j] = -(-np.eye(3) + np.outer(e[:, j], e[:, j]))
+            Bmatrix[:, :, j] = -(-np.eye(3)*scalar_product_ee[j] + np.outer(e[:, j], e[:, j]))
 
         for j in range(num_pts):
             (w, vr) = sla.eig(Amatrix[:, :, j], b=Bmatrix[:, :, j])

@@ -381,6 +381,43 @@ For systems where an explicit calculation is not possible
 it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
 
 
+\subsection{Inversion and Backward Propagation}
+
+\remark{How to invert with dr dk term?}
+
+\newcommand{\dr}[2]{\Delta {r}_{#1\,#2}}
+\newcommand{\dk}[2]{\Delta {k}_{#1\,#2}}
+
+Starting point:
+
+\begin{eqnarray}
+ \dr{\text{im}}{i} & = A_{ij} \dr{\text{obj}}{j} + B_{ij} \dk{\text{obj}}{j} + M_{ij\ell} \dr{\text{obj}}{j} \dk{\text{obj}}{\ell}\,,\\
+ \dk{\text{im}}{i} & = C_{ij} \dr{\text{obj}}{j} + D_{ij} \dk{\text{obj}}{j} + N_{ij\ell} \dr{\text{obj}}{j} \dk{\text{obj}}{\ell}\,.
+\end{eqnarray}
+
+First case:
+
+Second case:
+
+Perturbative inversion:
+
+\begin{eqnarray}
+ \dr{2}{i} & = A_{ij} \dr{1}{j} + B_{ij} \dk{1}{j} + M_{ij\ell} \dr{1}{j} \dk{1}{\ell}\,,\\
+ \dk{2}{i} & = C_{ij} \dr{1}{j} + D_{ij} \dk{1}{j} + N_{ij\ell} \dr{2}{j} \dk{1}{\ell}\,.
+\end{eqnarray}
+
+\begin{eqnarray}
+ \dr{1}{i} & = \dr{(0)}{i} + \alpha \dr{(1)}{i}\\
+ \dk{1}{i} & = \dk{(0)}{i} + \alpha \dk{(1)}{i}\,.
+\end{eqnarray}
+
+\begin{eqnarray}
+ \dr{2}{i} & = A_{ij} \dr{(0)}{j} + \alpha A_{ij} \dr{(1)}{j} + B_{ij} \dk{(0)}{j} + \alpha B_{ij}\dk{(1)}{j}\nonumber\\
+  & + M_{ij\ell} (\dr{(0)}{j} + \alpha \dr{(1)}{j}) (\dk{(0)}{\ell} + \alpha \dk{(1)}{\ell})\,,\\
+ \dk{2}{i} & = C_{ij} \dr{(0)}{j} + \alpha C_{ij} \dr{(1)}{i} + D_{ij} \dk{(0)}{j} + \alpha D_{ij}\dk{(1)}{j} + N_{ij\ell} \dr{1}{j} \dk{1}{\ell}\,.
+\end{eqnarray}
+
+The zeroth order also has to be inverted for being able to perform the backward propagation.
 
 
 \subsection{Propagation Between Planes in Homogeneous Media (contains errors)}

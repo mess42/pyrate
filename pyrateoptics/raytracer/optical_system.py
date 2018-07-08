@@ -93,7 +93,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         self.info("pilot ray path sequence")
         self.info(pilotraypathsequence)
         for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
-            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr, use6x6=use6x6)
+            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr)
             rpath.appendRayPath(append_rpath) 
             pilotpath.appendRayPath(append_pilotpath) 
         return (pilotpath, rpath)
@@ -102,7 +102,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         return [(elem, self.elements[elem].sequence_to_hitlist(seq)) for (elem, seq) in elementsequence]
             
 
-    def extractXYUV(self, pilotbundle, elementsequence, pilotraypathsequence=None, use6x6=True):
+    def extractXYUV(self, pilotbundle, elementsequence, pilotraypathsequence=None):
         pilotpath = RayPath(pilotbundle)
         if pilotraypathsequence is None:
             pilotraypathsequence = tuple([0 for i in range(len(elementsequence))])
@@ -129,7 +129,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             (hitlist, optionshitlist_dict) = self.elements[elem].sequence_to_hitlist(subseq)
             # hitlist may contain exactly one stophit
             
-            (append_pilotpath, elem_matrices) = self.elements[elem].calculateXYUV(pilotpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr, use6x6=use6x6)
+            (append_pilotpath, elem_matrices) = self.elements[elem].calculateXYUV(pilotpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr)
             pilotpath.appendRayPath(append_pilotpath) 
             
             ls1 = []
@@ -145,12 +145,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                 else:
                     ls2.append(elem_matrices[h])
             
-            if not use6x6:
-                m1 = np.eye(4, dtype=complex)
-                m2 = np.eye(4, dtype=complex)
-            else:
-                m1 = np.eye(6)
-                m2 = np.eye(6)
+            m1 = np.eye(14)
+            m2 = np.eye(14)
                 
             for m in ls1:
                 m1 = np.dot(m, m1)
@@ -159,12 +155,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
 
             lst_matrix_pairs.append((m1, m2, found_stop))
         
-        if not use6x6:
-            m_obj_stop = np.eye(4, dtype=complex)
-            m_stop_img = np.eye(4, dtype=complex)
-        else:
-            m_obj_stop = np.eye(6)
-            m_stop_img = np.eye(6)
+        m_obj_stop = np.eye(14)
+        m_stop_img = np.eye(14)
 
         obj_stop_branch = True
         for (m1, m2, found_stop) in lst_matrix_pairs:

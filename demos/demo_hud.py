@@ -142,6 +142,7 @@ sysseq = [("HUD",
 
 osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
 
+print("collimated bundles")
 (o, k1, E1) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan()}, wave=standard_wavelength)
 (o, k2, E2) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan(), "anglex": 15*degree}, wave=standard_wavelength)
 (o, k3, E3) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan(), "anglex": -15*degree}, wave=standard_wavelength)
@@ -150,21 +151,26 @@ osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
 initialbundle1 = RayBundle(x0=o, k0=k1, Efield0=E1, wave=standard_wavelength)
 initialbundle2 = RayBundle(x0=o, k0=k2, Efield0=E2, wave=standard_wavelength)
 initialbundle3 = RayBundle(x0=o, k0=k3, Efield0=E3, wave=standard_wavelength)
+print("performing sequential raytrace")
 r1 = s.seqtrace(initialbundle1, sysseq)
 r2 = s.seqtrace(initialbundle2, sysseq)
 r3 = s.seqtrace(initialbundle3, sysseq)
 
 obj_dx = 0.1
 obj_dphi = 5*degree
-pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 
-rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles[2:]]
+print("calculating pilotbundles")
+pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle_complex(objsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+
+#print("seqtrace of rays_pilot")
+#rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles[2:]]
 # only last two bundles hit the next surface
 
+#print("para seqtrace")
+#(pilotray, r_pilot) = s.para_seqtrace(pilotbundles[-1], initialbundle1, sysseq)
 
-(pilotray, r_pilot) = s.para_seqtrace(pilotbundles[-1], initialbundle1, sysseq, use6x6=True)
-
-(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=True)
+print("calculating XYUV")
+(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq)
 
 print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
 print(np.array_str(m_stop_img, precision=5, suppress_small=True))
@@ -172,7 +178,7 @@ print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 #print(s.sequence_to_hitlist(sysseq))
 
 
-draw(s, [r1, r2, r3, pilotray])
+draw(s, [r1, r2, r3])
 
 #pz = np.array([26.36, 33.339, 18.817])
 #py = np.array([-24.028, 19.109, -35.215])

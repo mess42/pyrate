@@ -39,7 +39,7 @@ from ..raytracer.aperture import CircularAperture, RectangularAperture
 from ..raytracer.ray import RayBundle
 from ..core.log import BaseLogger
 from ..material.material_isotropic import ModelGlass, ConstantIndexGlass
-from ..raytracer.globalconstants import numerical_tolerance
+from ..raytracer.globalconstants import numerical_tolerance, degree
 
 class ZMXParser(BaseLogger):
 
@@ -84,9 +84,10 @@ class ZMXParser(BaseLogger):
         return re.split("\n(?=\S)", self.__full_textlines)
         # match if look-ahead gives non-whitespace after line break
 
-    def returnBlockKeyword(self, blk):
+    def returnBlockKeyword(self, blk, show_all_keywords=False):
         findblockkeywords = re.findall("^\w+(?=\s*)", blk)
-        self.debug("BLOCK KEYWORDS: " + str(findblockkeywords))
+        if show_all_keywords:        
+            self.debug("BLOCK KEYWORDS: " + str(findblockkeywords))
         if findblockkeywords == []:
             return None
         else:
@@ -231,6 +232,7 @@ class ZMXParser(BaseLogger):
         for (num, sag, sagdx, sagdy, sagdxdy) in zmxgarr.get("GARR", []):
             reconstruct_garr[num] = (sag, sagdx, sagdy, sagdxdy)
         paramsdict["GARR"] = reconstruct_garr
+        
 
         return paramsdict
         
@@ -240,40 +242,110 @@ class ZMXParser(BaseLogger):
         filteredBlockStrings = filter(lambda x: self.returnBlockKeyword(x) == keyword, blockstrings)
         
         return filteredBlockStrings
+        
+    def filterKeywords(self, keyword):
+        filteredKeywords = filter(lambda x: x != None, [self.readStringForKeyword(l, keyword) for l in self.__textlines])
+        
+        return filteredKeywords
 
-    def createInitialBundle(self, d_or_n="N", entrancepupildiameter=1.0):
+    def readNameAndNotes(self):
+        
+        zmxnamenotes = {}
+        
+        zmxnamenotes["NOTE"] = filter(lambda x: x != None and x != u"4" and x != u"0", [self.readStringForKeyword(l, "NOTE") for l in self.__textlines])
+        self.addKeywordToDict(self.__textlines, "NAME", zmxnamenotes, self.extractStringForFirstKeywordFromBlock)
+
+        return (zmxnamenotes["NAME"], zmxnamenotes["NOTE"])
+
+    def readField(self):
+
+        zmxpuptype = {}
+
+        self.addKeywordToDict(self.__textlines, "ENPD", zmxpuptype, self.extractFirstArgForFirstKeywordFromBlock, float)
+        self.addKeywordToDict(self.__textlines, "FNUM", zmxpuptype, self.extractArgsForFirstKeywordFromBlock, float, int)
+        self.addKeywordToDict(self.__textlines, "OBNA", zmxpuptype, self.extractArgsForFirstKeywordFromBlock, float, int)
+        self.addKeywordToDict(self.__textlines, "FLOA", zmxpuptype, self.extractStringForFirstKeywordFromBlock)
+        
+        # ENPD x -- Entrance pupil diameter
+        # FNUM x 0 -- Object Space F/#
+        # FNUM x 1 -- Paraxial working F/#
+        # OBNA x 0 -- Object Space NA
+        # OBNA x 1 -- Object cone angle        
+        
+        self.debug(zmxpuptype)
+
+
+
+
+        zmxftyp = {}
+
+        self.addKeywordToDict(self.__textlines, "FTYP", zmxftyp, self.extractArgsForFirstKeywordFromBlock, int, int, int, int, int, int, int)
+        # FTYP type (0 - Angle(Deg), 1 - Obj. height, 2 - Paraxial img. height, 3 - Real img. height) 
+        #      telecentric_obj_space (0 - no, 1 - yes)
+        #       number_of_fieldpoints (>= 1)
+        #       one (1)
+        #       normalization (0 - radial, 1 - rectangular)
+        #       iterate_solves_when_updating (0 - no, 1 - yes)
+        #       afocal_image_space (0 - no, 1 - yes)
+
+
+        
+        reconstruct_ftyp = {}
+        if zmxftyp != {}:
+            reconstruct_ftyp["fieldpoints_type"] = zmxftyp["FTYP"][0]
+            reconstruct_ftyp["telecentric_object_space"] = bool(zmxftyp["FTYP"][1])
+            num_fp = reconstruct_ftyp["fieldpoints_number"] = zmxftyp["FTYP"][2]
+            reconstruct_ftyp["fieldpoints_normalization"] = ["radial", "rectangle"][zmxftyp["FTYP"][4]]
+            reconstruct_ftyp["afocal_image_space"] = bool(zmxftyp["FTYP"][6])
+            reconstruct_ftyp["fieldpoints_pupildef"] = zmxpuptype
+
+            xfldlist = [self.readStringForKeyword(l, "XFLN") for l in self.__textlines]
+            yfldlist = [self.readStringForKeyword(l, "YFLN") for l in self.__textlines]
+            xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
+            yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
+            xfield_list = [float(x) for x in xfield_str_list.split(" ")[:num_fp]]
+            yfield_list = [float(y) for y in yfield_str_list.split(" ")[:num_fp]]
+    
+            xyfield_list = zip(xfield_list, yfield_list)
+            
+            reconstruct_ftyp["fieldpoints"] = xyfield_list
+
+
+        self.debug(reconstruct_ftyp)
+
+        return reconstruct_ftyp
+        
+
+
+    def createInitialBundle(self):
         """
         Convenience function to extract field points and initial bundles from
         ZMX files.
         """
-
-        raybundle_dicts = []
         
-        enpd = filter(lambda x: x != None, [self.readStringForKeyword(l, "ENPD") for l in self.__textlines])
-        self.debug(enpd)
-                
-        if enpd != []:
-            enpd = float(enpd[0])
-        else:
-            enpd = entrancepupildiameter
-        xfldlist = [self.readStringForKeyword(l, "XFL" + d_or_n) for l in self.__textlines]
-        yfldlist = [self.readStringForKeyword(l, "YFL" + d_or_n) for l in self.__textlines]
-        xfield_str_list = filter(lambda x: x != None, xfldlist)[0]
-        yfield_str_list = filter(lambda x: x != None, yfldlist)[0]
-        xfield_list = [float(x) for x in xfield_str_list.split(" ")]
-        yfield_list = [float(y) for y in yfield_str_list.split(" ")]
+        raybundle_dicts = []
+        fielddict = self.readField()
 
-        xyfield_list = zip(xfield_list, yfield_list)
-        xyfield_list = sorted(list(set(xyfield_list)))
-    
-        raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in xyfield_list]
-                
+        
+        enpd = fielddict["fieldpoints_pupildef"].get("ENPD", None)
+        xyfield_list = fielddict["fieldpoints"]
+        self.debug(enpd)
+                    
+        if fielddict["fieldpoints_type"] == 1:
+            raybundle_dicts = [{"startx":xf, "starty":yf, "radius":enpd*0.5} for (xf, yf) in xyfield_list]
+        elif fielddict["fieldpoints_type"] == 0:
+            raybundle_dicts = [{"anglex":-xf*degree, "angley":-yf*degree, "radius":enpd*0.5} for (xf, yf) in xyfield_list]
+            
+        
         return raybundle_dicts
 
     def createOpticalSystem(self, matdict = {}, options = {}, elementname="zmxelem"):
 
         self.info("Creating optical system from ZMX")
-        optical_system = OpticalSystem()
+        
+        (name, notes) = self.readNameAndNotes()        
+        
+        optical_system = OpticalSystem(name=name)
 
         # extract surface blockstrings
 
@@ -309,6 +381,13 @@ class ZMXParser(BaseLogger):
                 return (None, [("zmxelem", [])])
             else:
                 self.info("found only mirrors or no material: continuing")
+
+        self.info("Reading field")
+
+        self.debug(self.readField())
+
+
+        self.info("Reading surface blocks")
 
         refname = lc0.name
         lastlc = lc0
@@ -392,9 +471,12 @@ class ZMXParser(BaseLogger):
             if sqap is None and clap is None:
                 ap = None
             elif sqap is not None:
+                self.debug("Rectangular aperture %f x %f" % tuple(sqap))
                 ap = RectangularAperture(lcapdec, w=sqap[0]*2, h=sqap[1]*2)
             elif clap is not None:
+                self.debug("Circular aperture %f" % (clap[0],))
                 ap = CircularAperture(lcapdec, semidiameter=clap[1])
+
 
             if surftype == "STANDARD":
                 self.debug("SURFACE: Standard surface found")                
@@ -476,6 +558,9 @@ class ZMXParser(BaseLogger):
             
         optical_system.addElement(elementname, elem)
         seq = [(elementname, surflist_for_sequence)]    
+
+        self.info(optical_system.rootcoordinatesystem.pprint())
+
 
         return (optical_system, seq)
 

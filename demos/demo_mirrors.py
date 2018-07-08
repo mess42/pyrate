@@ -28,6 +28,8 @@ import numpy as np
 import math
 import logging
 
+import matplotlib.pyplot as plt
+
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
@@ -45,7 +47,9 @@ from pyrateoptics import raytrace, draw
 from pyrateoptics.raytracer.globalconstants import degree
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
-logging.basicConfig(level=logging.DEBUG)
+from pyrateoptics.raytracer.aim import Aimy
+
+logging.basicConfig(level=logging.INFO)
 
 
 wavelength = 0.5876e-3
@@ -70,15 +74,15 @@ lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30
 lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image1", decz=-50, decy=-15, tiltx=-math.pi/16), refname=lc3.name)
 lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="oapara", decz=-100, decy=-35), refname=lc4.name)
 lc5ap = s.addLocalCoordinateSystem(LocalCoordinates(name="oaparaap", decz=0, decy=35), refname=lc5.name)
-lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=55, tiltx=1*math.pi/32), refname=lc5.name)
+lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=52.8, tiltx=1*math.pi/32), refname=lc5.name)
 lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="image3", decz=5), refname=lc6.name)
 
 objectsurf = Surface(lc0)
-m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01), apert=CircularAperture(lc1, 20.))
-m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01), apert=CircularAperture(lc2, 12.7))
-m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006), apert=CircularAperture(lc3, 12.7))
+m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01))
+m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01))
+m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006))
 image1 = Surface(lc4)
-oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 30.0))
+oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.))
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 image3 = Surface(lc7, apert=CircularAperture(lc7, 20.0))
 
@@ -113,27 +117,27 @@ sysseq = [("TMA",
             ])
         ] 
 
-osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
-osa.aim(11, {"startz": -5., "radius": 10., "raster": raster.MeridionalFan()}, bundletype="collimated", wave=wavelength)
-r2 = osa.trace()[0]
-                
-phi = 5.*degree
+a = Aimy(s, sysseq, name="Aimy", stopsize=2., num_pupil_points=5)
+a.pupil_raster = raster.MeridionalFan()
 
-obj_dx = 0.1
-obj_dphi = 1.*degree
+def correctKRayBundle(bundle):
+    pass
 
-pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objectsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+initbundle1 = a.aim(np.array([0, 0]))
+initbundle2 = a.aim(np.array([0, 0.5*degree]))
+initbundle3 = a.aim(np.array([0,-0.5*degree]))
 
-rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles]
+(pp1, r1p) = s.para_seqtrace(a.pilotbundle, initbundle1, sysseq)
+(pp2, r2p) = s.para_seqtrace(a.pilotbundle, initbundle2, sysseq)            
+(pp3, r3p) = s.para_seqtrace(a.pilotbundle, initbundle3, sysseq)            
 
-(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], osa.initial_bundles[0], sysseq, use6x6=True)
-
-(m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq, use6x6=True)
-
-logging.info(np.array_str(m_obj_stop, precision=5, suppress_small=True))
-logging.info(np.array_str(m_stop_img, precision=5, suppress_small=True))
-
-logging.info(str(s.sequence_to_hitlist(sysseq)))
+r1r = s.seqtrace(initbundle1, sysseq)
+r2r = s.seqtrace(initbundle2, sysseq)            
+r3r = s.seqtrace(initbundle3, sysseq)            
+             
+             
+draw(s, [(r1p, "blue"), (r2p, "green"), (r3p, "orange")])
+#draw(s, [(r1r, "blue"), (r2r, "green"), (r3r, "orange")])
 
 
 ### TODO:
@@ -182,5 +186,4 @@ logging.info(str(s.sequence_to_hitlist(sysseq)))
 #initialbundle = RayBundle(x0=lc0.returnLocalToGlobalPoints(o), k0=lc0.returnLocalToGlobalDirections(k), Efield0=lc0.returnLocalToGlobalDirections(E0), wave=wavelength)
 #r4 = s.seqtrace(initialbundle, sysseq)
 
-draw(s, [r2, r3, pilotray2])
 
