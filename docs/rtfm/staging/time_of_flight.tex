@@ -1,0 +1,234 @@
+\documentclass[12pt,a4paper,twoside,openright,BCOR10mm,headsepline,titlepage,abstracton,chapterprefix,final]{scrreprt}
+
+\usepackage{ae}
+\usepackage[ngerman, english]{babel}
+%\usepackage{SIunits}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{dsfont}
+
+% load hyperref as the last package to avoid redefinitions of e.g. footnotes after hyperref invokation
+
+\RequirePackage{ifpdf}  % flag for pdf or dvi backend
+\ifpdf
+  \usepackage[pdftex]{graphicx}
+  \usepackage[pdftitle={RTFM on Imaging Theory and Basics of Optical Raytracing},%
+              pdfsubject={},%
+              pdfauthor={M. Esslinger, J. Hartung, U. Lippmann},%
+              pdfkeywords={},%
+              bookmarks=true,%
+%              colorlinks=true,%
+              urlcolor=blue,%
+              pdfpagelayout=TwoColumnRight,%
+              pdfpagemode=UseNone,%
+              pdfstartview=Fit,%
+	      pdfpagelabels,
+              pdftex]{hyperref}
+\else
+  \usepackage[dvips]{graphicx}
+  \usepackage[colorlinks=false,dvips]{hyperref}
+\fi
+%\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
+
+\usepackage{ae}
+%\usepackage[ngerman, english]{babel}
+
+%\usepackage{SIunits}
+\newcommand\elementarycharge{\textrm{e}}
+\newcommand\sccm{\textrm{sccm}}
+\newcommand\mbar{\milli\textrm{bar}}
+
+
+\usepackage{amsmath}
+%\usepackage{amssymb}
+\usepackage{setspace}
+
+%\widowpenalty = 1000
+
+
+\newcommand*{\doi}[1]{\href{https://doi.org/\detokenize{#1}}{doi: \detokenize{#1}}}
+
+\newcommand\Vector[1]{{\mathbf{#1}}}
+%\newcommand\Vector[1]{{\vec{#1}}}
+
+\newcommand\vacuum{0}
+
+\newcommand\location{r}
+\newcommand\Location{\Vector{r}}
+
+
+\newcommand\wavenumber{k}
+\newcommand\vacuumWavenumber{\wavenumber_{\vacuum}}
+\newcommand\Wavevector{\Vector{\wavenumber}}
+
+\newcommand\Nabla{\Vector{\nabla}}
+\newcommand\Laplace{\Delta}
+\newcommand\timederivative[1]{\dot{{#1}}}
+\newcommand\Tensor[1]{\hat{#1}}
+\newcommand\conjugate[1]{\overline{#1}}
+\newcommand\transpose[1]{#1^{T}}
+\newcommand\Norm[1]{\left| #1 \right|}
+\newcommand{\ket}[1]{\left\vert{#1}\right\rangle}
+\newcommand{\bra}[1]{\left\langle{#1}\right\vert}
+\newcommand{\braket}[2]{\left\langle{#1}\vert{#2}\right\rangle}
+\newcommand{\bracket}[1]{\left\langle{#1}\right\rangle}
+
+\newcommand{\scpm}[2]{(#1\,\cdot\,#2)}
+
+\newcommand\unittensor{\mathds{1}}
+
+\newcommand\Greenfunction{\Tensor{G}}
+
+\newcommand\scalarEfield{E}
+\newcommand\scalarBfield{B}
+\newcommand\scalarHfield{H}
+\newcommand\scalarDfield{D}
+\newcommand\Efield{\Vector{\scalarEfield}}
+\newcommand\Bfield{\Vector{\scalarBfield}}
+\newcommand\Hfield{\Vector{\scalarHfield}}
+\newcommand\Dfield{\Vector{\scalarDfield}}
+
+\newcommand\permeability{\Tensor{\scalarpermeability}}
+\newcommand\vacuumpermeability{\scalarpermeability_{\vacuum}}
+\newcommand\scalarpermeability{\mu}
+\newcommand\scalarrelativepermeability{\mu_{rel}}
+\newcommand\relativepermeability{\Tensor{\mu}_{rel}}
+
+\newcommand\permittivity{\Tensor{\scalarpermittivity}}
+\newcommand\vacuumpermittivity{\scalarpermittivity_{\vacuum}}
+\newcommand\scalarrelativepermittivity{\epsilon}
+\newcommand\relativepermittivity{\Tensor{\scalarrelativepermittivity}}
+\newcommand\scalarpermittivity{\varepsilon}
+
+\newcommand\conductivity{\Tensor{\sigma}}
+\newcommand\susceptibility{\Tensor{\chi}}
+\newcommand\currentdensity{\Vector{j}}
+\newcommand\chargedensity{\rho}
+\newcommand\PoyntingVector{\Vector{S}}
+
+\newcommand\ordi{\text{ord}}
+\newcommand\eo{\text{eo}}
+
+\newcommand\materialone{I}
+\newcommand\materialtwo{{II}}
+
+\newcommand{\kpa}[1]{{\wavenumber_{\parallel#1}}}
+\newcommand\tr{\text{tr}}
+
+\newcommand{\timeavg}[1]{{\langle\,#1\,\rangle}}
+
+\newcommand{\remark}[1]{{\color{red}$\blacksquare$}\footnote{{\color{red}#1}}}
+\newcommand{\chk}[1]{\color{green}{$\checkmark$#1}}
+
+\newcommand{\orderof}[1]{\mathcal{O}(#1)}
+
+\newcommand\ppol{p}
+\newcommand\spol{s}
+\newcommand\normconst{N}
+
+\newcommand\kilogram{\textrm{kg}}
+\newcommand\meter{\textrm{m}}
+\newcommand\second{\textrm{s}}
+\newcommand\ampere{\textrm{A}}
+\newcommand\volt{\textrm{V}}
+\newcommand\watt{\textrm{W}}
+\newcommand\tesla{\textrm{T}}
+
+
+\begin{document}
+
+\section{Time of Flight}
+\subsection{General Linear Media}
+We consider a monochromatic laser. 
+In front of the laser, there is an amplitude or phase modulator, impressing a signal on the monochromatic carrier frequency.
+The modulated light then enters a bulk block of the medium we want to test.
+After passing the medium, the light intensity is detected.
+
+We consider the light right after the incoupling into the medium.
+We assume the medium permittivity $\permittivity$ is known,
+as well as the wavevector $\Wavevector$ and polarisation $\Efield_0$ of the light at the monochromatic carrier frequency $\omega_0$.
+We calculate the Poynting vector $\Vector{S}$ of the carrier frequency wave 
+and consider a plane perpendicular to the Poynting vector as start plane.
+We choose our coordinate system such that the Poynting vector is along the $z$-direction, $\Vector{S} \propto \Vector{e}_z$,
+and the ray starts at the origin.
+\begin{eqnarray}
+ \Efield(x,y,0, t) &=& \Efield_0 \exp (i ( \wavenumber_x x + \wavenumber_y y - \omega_0 t)) f(t)
+\end{eqnarray}
+where the locations $\Location_\parallel$ are in the start plane and $f(t)$ is the time-dependent transmission of the modulator.
+We Fourier transform the electric field in the time domain and yield
+\begin{eqnarray}
+ \Efield(x,y,0, \omega) &=& \Efield_0  \exp (i ( \wavenumber_x x+ \wavenumber_y y)) F(\omega-\omega_0) \label{eq:tof_startplane}\\
+ F(\omega) &=& \frac{1}{\sqrt{2\pi}} \int dt f(t) \exp(-i \omega t)
+\end{eqnarray}
+The detector shall be located on a line from the ray start point $(0,0,0)$ in the direction of the Poynting vector $(0,0,S_z)$
+at $(0,0,z_{det})$.
+For each frequency, we know 
+(i) the electric field is a single plane wave and 
+(ii) the in-plane components are $\wavenumber_x$,$\wavenumber_y$ are fixed by \eqref{eq:tof_startplane}.
+The remaining wavevector component is determined by the dispersion relation.
+\begin{eqnarray}
+ \Wavevector(\omega) &=& \Wavevector_x + \Wavevector_y + \Wavevector_z(\omega)
+\end{eqnarray}
+We propagate to the position of the detector
+\begin{eqnarray}
+\Efield(0, 0, z_{det}, \omega) &=& \Efield_0  \exp (i \wavenumber_z(\omega) z_{det}) F(\omega-\omega_0) 
+\end{eqnarray}
+Next we Fourier transform back into time domain and determine the point in time when the signal arrives.
+
+\subsection{Example 1: Gau\ss\, pulse}
+\begin{itemize}
+ \item A Gau\ss\, pulse has an infinite extent in time.
+       If we know the information is encoded in a set of Gau\ss\, shaped pulses,
+       and we know the pulse duration,
+       and we have a noise-free detector, 
+       we can measure the signal for some time long before the first peak,
+       deconvolute the signal and anticipate the temporal location of all peaks.
+       Strictly speaking, the signal transmission starts at minus infinity.
+       This males time-of-flight measurements with noise-free detectors difficult.
+ \item So let's assume we have a noisy detector.
+       It needs a minimum intensity to trigger.
+       In low transmission materials, the signal may never reach the desired level.
+       The choice of start pulse strength and detector trigger level are arbitrary and influence the measurement result.
+ \item If we define the peak position as signal position, we also may run into trouble.
+       We consider a Sellmeier-oscillator and put our laser close to the resonance.
+       The Gau\ss\, pulse will disperse and will be damped.
+       If the damping of the slow moving components is stronger than the damping of the fast moving components,
+       the center of mass is shifted in positive z direction.
+       In some materials, the pulse center of mass can even move faster than the vacuum speed of light.
+\end{itemize}
+
+\subsection{Example 2: Heaviside Step}
+\begin{itemize}
+ \item The Heaviside function has the advantage that the time of switching is unambiguous -- at least at the position of the modulator.
+ \item The second advantage is that the function is exactly zero for $t<0$.
+       For an observer at the detector position, it is impossible to forsee the time of switching.
+ \item The Heaviside function has an infinite spectrum.
+       It creates (weak) components at frequencies far from the carrier frequency.
+       An observer with a noise-free detector could therefore listen to a frequency far from the carrier frequency,
+       where the Sellmeier oscillators have all faded out.
+       At this frequency, the material has no dispersion, $n=1$, 
+       and the observer would always measure the vacuum speed of light.
+\end{itemize}
+
+\subsection{Example 3}
+We need a bandwidth-limited step modulation.
+\begin{eqnarray}
+ f( t < 0 ) &=& 0 \\
+ f( t > \tau) &\approx& f(\infty) \neq 0 \\
+ F(|\omega - \omega_0| > \Omega_{max}) &=& 0
+\end{eqnarray}
+with finite $\tau$ and $\Omega_{max}$.
+Both should be as small as possible, which is a contradiction.
+
+\subsection{lossless media}
+\begin{eqnarray}
+ \wavenumber_z(\omega) &\in& \mathbb{R} \\
+ t_{flight} &=& \left. \frac{\partial \wavenumber_z}{\partial \omega}\right|_{\omega_0} z_{det}
+\end{eqnarray}
+
+
+\end{document}
