@@ -2330,6 +2330,75 @@ By didviding with the vacuum wavelength, we obtain the wave aberration in number
 \end{tabular}
 
 \chapter{Some Math Notes}
+\section{Rotating Coordinate Systems (Rodrigues Formula)}
+We assume two right handed cartesian coordinate systems,
+$(\Vector{e}_x,\Vector{e}_y,\Vector{e}_z)$ and 
+$(\tilde{\Vector{e}}_x,\tilde{\Vector{e}}_y,\tilde{\Vector{e}}_z)$.
+We want to convert the coordinate representation of a vector $\Vector{a}$ from one system to the other.
+\begin{eqnarray}
+\Vector{a} = x \Vector{e}_x + y \Vector{e}_y + z \Vector{e}_z &=& \tilde{x} \tilde{\Vector{e}}_x + \tilde{y} \tilde{\Vector{e}}_y + \tilde{z} \tilde{\Vector{e}}_z
+\\
+\begin{pmatrix}  x \\ y \\ z \end{pmatrix}
+&=&
+\hat{R} \begin{pmatrix}  \tilde{x} \\ \tilde{y} \\ \tilde{z} \end{pmatrix}
+\end{eqnarray}
+The coordinate transformation matrix $\hat{R}$ was found by Olinde Rodrigues 
+and is known as Rodrigues formula [rodrigues:1815].
+When rotating around the axis $\Vector{e}_{r}$ by the angle $\vartheta$, the coordinate transform is
+\begin{eqnarray}
+    \hat{R} &=& 
+    \unittensor + \sin(\vartheta)
+      \begin{pmatrix}
+        0    & -e_{rz} &  e_{ry} \\
+        e_{rz} &     0 & -e_{rx} \\
+        -e_{ry} &  e_{rx} &    0                                     
+      \end{pmatrix}
+    + (1 - \cos(\vartheta))
+    \left[
+      \begin{pmatrix}
+        0    & -e_{rz} &  e_{ry} \\
+        e_{rz} &     0 & -e_{rx} \\
+        -e_{ry} &  e_{rx} &    0                                     
+      \end{pmatrix}^2
+    \right]\nonumber\\\label{eq:rodgrigues_formula}
+\end{eqnarray}
+where the axis $\Vector{e}_r$ is a unit vector.
+The matrix in the sine term is fully antisymmetric and represents the cross product with $\Vector{e}_r$.
+In the cosine term, the same matrix is squared.
+From the Rodrigues formula follow some special cases:
+\begin{align}
+ \text{rotation about $\Vector{e}_x$:} && 
+   \hat{R}_x &= 
+   \begin{pmatrix}
+     1 & 0 & 0 \\
+     0 & \cos \vartheta & -\sin \vartheta \\
+     0 & \sin \vartheta &  \cos \vartheta
+   \end{pmatrix}
+ \\
+ \text{rotation about $\Vector{e}_y$:} && 
+   \hat{R}_y &= 
+   \begin{pmatrix}
+   \cos \vartheta & 0 & \sin \vartheta \\
+   0 & 1 & 0 \\
+   -\sin \vartheta & 0 & \cos \vartheta
+   \end{pmatrix}
+ \\
+ \text{rotation about $\Vector{e}_z$:} && 
+   \hat{R}_z &= 
+   \begin{pmatrix}
+     \cos \vartheta & -\sin \vartheta & 0 \\
+     \sin \vartheta & \cos \vartheta & 0 \\
+     0 & 0 & 1
+   \end{pmatrix}
+\end{align}
+Multiple Rodrigues matrices may be multiplied.
+As $\hat{R}$ is unitary, also the products are unitary matrices.
+That is, each coordinate transform conserves the value of scalar products of vectors.
+In particular, it also conserves the scalar product of a vector with itself -- the length of vectors does not change upon transformation.
+Rodrigues matrices do not commutate.
+
+
+
 \section{Determining in-plane Vectors}
 Assume we have a given surface normal unit vector $\Vector{n}$ 
 and want to determine both vectors orthogonal to it $\Vector{e}_1, \Vector{e}_2$.
