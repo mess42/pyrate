@@ -2373,7 +2373,7 @@ From the Rodrigues formula follow some special cases:
      1 & 0 & 0 \\
      0 & \cos \vartheta & -\sin \vartheta \\
      0 & \sin \vartheta &  \cos \vartheta
-   \end{pmatrix}
+   \end{pmatrix} \label{eq:rodrigues_x}
  \\
  \text{rotation about $\Vector{e}_y$:} && 
    \hat{R}_y &= 
@@ -2381,7 +2381,7 @@ From the Rodrigues formula follow some special cases:
    \cos \vartheta & 0 & \sin \vartheta \\
    0 & 1 & 0 \\
    -\sin \vartheta & 0 & \cos \vartheta
-   \end{pmatrix}
+   \end{pmatrix} \label{eq:rodrigues_y}
  \\
  \text{rotation about $\Vector{e}_z$:} && 
    \hat{R}_z &= 
@@ -2389,33 +2389,121 @@ From the Rodrigues formula follow some special cases:
      \cos \vartheta & -\sin \vartheta & 0 \\
      \sin \vartheta & \cos \vartheta & 0 \\
      0 & 0 & 1
-   \end{pmatrix}
+   \end{pmatrix} \label{eq:rodrigues_z}
 \end{align}
-Multiple Rodrigues matrices may be multiplied.
-As $\hat{R}$ is unitary, also the products are unitary matrices.
-That is, each coordinate transform conserves the value of scalar products of vectors.
-In particular, it also conserves the scalar product of a vector with itself -- the length of vectors does not change upon transformation.
 Rodrigues matrices do not commutate.
 
 
+\section{Determining Orthogonal Vectors}
+Assume we have a given unit vector $\Vector{e}_0 \in \mathbb{C}^3$
+and we want and want to determine vectors orthogonal to it $\Vector{e}_{\perp}$.
 
-\section{Determining in-plane Vectors}
-Assume we have a given surface normal unit vector $\Vector{n}$ 
-and want to determine both vectors orthogonal to it $\Vector{e}_1, \Vector{e}_2$.
-We assume further we have a cartesian base $\Vector{e}_x, \Vector{e}_y, \Vector{e}_z$.
-We define a rotation operator $\hat{R}$ to rotate vectors.
-We choose $\hat{R}$ so that
+We start with an orthogonal, cartesian base $\Vector{e}_x, \Vector{e}_y, \Vector{e}_z$.
+Next we search for an unitary matrix $\hat{R}$ that transforms $\Vector{e}_z$ to $\Vector{e}_1$.
 \begin{eqnarray}
- \Vector{n} &=& \hat{R}(\Vector{e}_z)
+ \Vector{e}_0 &=& \hat{R} \Vector{e}_z \\
+ \hat{R}^\dagger &=& \hat{R}^{-1}
 \end{eqnarray}
-\remark{todo: write down explicit form of Rodrigues matrix in a numerically stable way}
-Then follows
-\begin{subequations}
+We build up this transformation $\hat{R}$ from multiple steps.
+
+\subsection{Step 0}
+Check whether $\Vector{e}_0$ is a unit vector.
 \begin{eqnarray}
- \Vector{e_1} &=& \hat{R}(\Vector{e}_x) \\
- \Vector{e_2} &=& \hat{R}(\Vector{e}_y)
-\end{eqnarray} \label{eq:normal_to_inplane_vectors}
- \end{subequations}
+ e_{0i} \overline{e}_{0i} &=& 1
+\end{eqnarray}
+The transformation cannot change the length of a vector.
+
+\subsection{Step i}
+Form a vector from the absolute of each component of the target vector $\Vector{e}_0$.
+\begin{eqnarray}
+ \Vector{a} &=&
+ \begin{pmatrix}
+  \sqrt{ e_{0x} \overline{e}_{0x} } \\
+  \sqrt{ e_{0y} \overline{e}_{0y} } \\
+  \sqrt{ e_{0z} \overline{e}_{0z} }
+ \end{pmatrix}
+\end{eqnarray}
+We assume a Rodrigues matrix that rotates around $x$ and apply it on $\Vector{e}_z$.
+We call the result $\Vector{b}$.
+\begin{eqnarray}
+ \begin{pmatrix}
+  b_x \\ b_y \\ b_z
+ \end{pmatrix}
+ &=&
+ \hat{R}_x(\vartheta_x) \Vector{e}_z
+\end{eqnarray}
+We choose the angle of rotation in a way that $b_z = a_z$.
+\begin{eqnarray}
+ \vartheta_x &=& \arccos(a_z)
+\end{eqnarray}
+With this, the $z$ component of $\Vector{b}$ has the same absolute as our target vector $\Vector{e}_0$.
+To also match the other components, we have to apply further steps:
+
+\subsection{Step ii}
+We start from the intermediate result $\Vector{b}$ and rotate it around $z$.
+\begin{eqnarray}
+  \begin{pmatrix}
+  c_x \\ c_y \\ c_z
+ \end{pmatrix}
+ &=&
+ \hat{R}_z(\vartheta_z) 
+ \begin{pmatrix}
+  b_x \\ b_y \\ a_z
+ \end{pmatrix}
+\end{eqnarray}
+We choose the angle of rotation in a way that $c_x = a_x$.
+\begin{eqnarray}
+ c_x &=& b_x \cos \vartheta_z - b_y \sin \vartheta_z \\
+     &=& 0 \cdot \cos \vartheta_z + \sin \vartheta_x \sin \vartheta_z \\
+ \vartheta_z &=& \arcsin\left(\frac{a_x}{\sin \vartheta_x}\right)
+\end{eqnarray}
+With the $x$ and $z$ component being equal, also the third component of the unit vector $\Vector{c}$ is equal to $\Vector{a}$,
+up to a sign prefactor.
+\begin{eqnarray}
+ \begin{pmatrix}
+  c_x \\ c_y \\ c_z
+ \end{pmatrix}
+ =
+ \begin{pmatrix}
+  a_x \\ \pm a_y \\ a_z
+ \end{pmatrix}
+ &=& \hat{R}_z(\vartheta_z) \hat{R}_x(\vartheta_x) \Vector{e}_z
+\end{eqnarray}
+We have found a transformation that transforms the start vector $\Vector{e}_z$ to a vector 
+that has the same absolute of its components like the target vector $\Vector{e}_0$.
+To obtain the target vector $\Vector{e}_0$, the sign of each component has to be matched.
+For complex valued target vectors, also the complex phase has to be matched.
+
+\subsection{Step iii}
+We consider the unitary matrix
+\begin{eqnarray}
+ \hat{R}_\varphi &=&
+ \begin{pmatrix}
+  e^{i\varphi_x} & 0 & 0 \\
+  0 & e^{i\varphi_y} & 0 \\
+  0 & 0 & e^{i\varphi_z} 
+ \end{pmatrix} \label{eq:unitary_phase_rot}
+\end{eqnarray}
+and choose the phase factors $e^{i \varphi_j}$ so that
+\begin{eqnarray}
+ e^{i \varphi_j} &=& \frac{e_{0j}}{|e_{0j}|} \cdot \text{sign}(c_j)
+\end{eqnarray}
+We apply all matrices on the start vector and end up with the desired target vector.
+\begin{eqnarray}
+ \Vector{e}_0 &=& \hat{R}_\varphi \cdot \hat{R}_z \cdot \hat{R}_x \cdot \Vector{e}_z \\[2ex]
+ \Vector{e}_0 &=& \hat{R} \Vector{e}_z 
+\end{eqnarray}
+The individual matrices are defined in \eqref{eq:rodrigues_x}, \eqref{eq:rodrigues_z}, and \eqref{eq:unitary_phase_rot}.
+The angles of rotation are defined above in this section.
+The product of unitary matrices is again unitary.
+The unitarity conserves scalar products, so it conserves orthogonality.
+We find $\Vector{e}_0$ and the orthogonal vectors
+\begin{eqnarray}
+ \Vector{e}_0 &=& \hat{R} \Vector{e}_z \\
+ \Vector{e}_{\perp1} &=& \hat{R} \Vector{e}_x \\
+ \Vector{e}_{\perp2} &=& \hat{R} \Vector{e}_y
+\end{eqnarray}
+With $\Vector{e}_\perp$, also $e^{i\phi} \cdot \Vector{e}_\perp$ is orthogonal, in particular with $\phi = \tfrac{\pi}{2}$.
 
 
 
