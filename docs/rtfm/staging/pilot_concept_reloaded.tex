@@ -244,17 +244,17 @@ we can write
 In general, the operators do not commutate. $\hat{G}_0$ is the propagator representing the subsystem adjacent to the object.
 In the following, we consider the most simple case: the case of two subsystems.
 \begin{eqnarray}
- \Delta \Vector{r}_2  &=& \hat{A}_1 \Delta \Vector{r}_1 + \hat{B}_1 \Delta \Vector{k}_1 + \hat{M}_1 \Vector{r}_1 \Vector{k}_1 \\ 
- \Delta \Wavevector_2 &=& \hat{C}_1 \Delta \Vector{r}_1 + \hat{D}_1 \Delta \Vector{k}_1 + \hat{N}_1 \Vector{r}_1 \Vector{k}_1 \\
- \Delta \Vector{r}_1  &=& \hat{A}_0 \Delta \Vector{r}_0 + \hat{B}_0 \Delta \Vector{k}_0 + \hat{M}_0 \Vector{r}_0 \Vector{k}_0 \\ 
- \Delta \Wavevector_1 &=& \hat{C}_0 \Delta \Vector{r}_0 + \hat{D}_0 \Delta \Vector{k}_0 + \hat{N}_0 \Vector{r}_0 \Vector{k}_0
+ \Delta \Vector{r}_2  &=& \hat{A}_1 \Delta \Vector{r}_1 + \hat{B}_1 \Delta \Vector{k}_1 + \hat{M}_1 \Delta \Vector{r}_1 \Delta \Vector{k}_1 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_1 \Delta \Vector{r}_1 + \hat{D}_1 \Delta \Vector{k}_1 + \hat{N}_1 \Delta \Vector{r}_1 \Delta \Vector{k}_1 \\
+ \Delta \Vector{r}_1  &=& \hat{A}_0 \Delta \Vector{r}_0 + \hat{B}_0 \Delta \Vector{k}_0 + \hat{M}_0 \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
+ \Delta \Wavevector_1 &=& \hat{C}_0 \Delta \Vector{r}_0 + \hat{D}_0 \Delta \Vector{k}_0 + \hat{N}_0 \Delta \Vector{r}_0 \Delta \Vector{k}_0
 \end{eqnarray}
 We neglect all quadratic or higher order terms except for the bilinear term and obtain the total operators, 
 propagating from surface $0$ to surface $2$:
 \begin{subequations}
 \begin{eqnarray}
- \Delta \Vector{r}_2  &=& \hat{A}_{tot} \Delta \Vector{r}_0 + \hat{B}_{tot} \Delta \Vector{k}_0 + \hat{M}_{tot} \Vector{r}_0 \Vector{k}_0 \\ 
- \Delta \Wavevector_2 &=& \hat{C}_{tot} \Delta \Vector{r}_0 + \hat{D}_{tot} \Delta \Vector{k}_0 + \hat{N}_{tot} \Vector{r}_0 \Vector{k}_0
+ \Delta \Vector{r}_2  &=& \hat{A}_{tot} \Delta \Vector{r}_0 + \hat{B}_{tot} \Delta \Vector{k}_0 + \hat{M}_{tot} \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_{tot} \Delta \Vector{r}_0 + \hat{D}_{tot} \Delta \Vector{k}_0 + \hat{N}_{tot} \Delta \Vector{r}_0 \Delta \Vector{k}_0
 \end{eqnarray}
 \end{subequations}
 with
@@ -381,7 +381,42 @@ For systems where an explicit calculation is not possible
 it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
 
 
-\subsection{Inversion and Backward Propagation}
+\subsection{Inversion and Backward Propagation - Sequence Ansatz}
+Often, we know the propagation operator from plane 0 to plane 1, and we want to know the inverse operator,
+propagating from plane 1 back to plane 0.
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
+ \end{pmatrix}
+ &=&
+ \hat{G}^{-1}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{1} \\ \Delta \Wavevector_{1}
+ \end{pmatrix}
+\end{eqnarray}
+We consider a sequence of an operator and its inverse operator.
+After applying both, we should end up where we started.
+\begin{subequations}
+\begin{eqnarray}
+ \hat{A}_{tot} &= \unittensor =& \hat{A}_{\text{inv}} \hat{A}_0 + \hat{B}_{\text{inv}} \hat{C}_0 \\
+ \hat{B}_{tot} &= 0           =& \hat{A}_{\text{inv}} \hat{B}_0 + \hat{B}_{\text{inv}} \hat{D}_0 \\
+ \hat{C}_{tot} &= 0           =& \hat{C}_{\text{inv}} \hat{A}_0 + \hat{D}_{\text{inv}} \hat{C}_0\\
+ \hat{D}_{tot} &= \unittensor =& \hat{C}_{\text{inv}} \hat{B}_0 + \hat{D}_{\text{inv}} \hat{D}_0 \\
+ \hat{M}_{tot} &= 0           =& \hat{A}_{\text{inv}} \hat{M}_0 + \hat{B}_{\text{inv}} \hat{N}_0 + \hat{M}_{\text{inv}} \hat{A}_0 \hat{D}_0 + \hat{M}_{\text{inv}} \hat{B}_0 \hat{C}_0 \\
+ \hat{N}_{tot} &= 0           =& \hat{C}_{\text{inv}} \hat{M}_0 + \hat{D}_{\text{inv}} \hat{N}_0 + \hat{N}_{\text{inv}} \hat{A}_0 \hat{D}_0 + \hat{N}_{\text{inv}} \hat{B}_0 \hat{C}_0
+\end{eqnarray}
+\end{subequations}
+In order not to confuse the inverse (nonlinear) operator with the inverse of its constituting matrices,
+we mark all matrices belonging to the inverse operator with the lower index $_\text{inv}$.
+An upper $^{-1}$ denotes the inverse of a matrix.
+In the following, we solve the system for the inverse operator $\hat{G}_{\text{inv}}$.
+
+
+
+
+
+
+\subsection{Inversion and Backward Propagation - Perturbation Ansatz}
 
 \remark{How to invert with dr dk term?}
 
