@@ -138,6 +138,9 @@
 \newcommand\watt{\textrm{W}}
 \newcommand\tesla{\textrm{T}}
 
+\newcommand\im{\textrm{im}}
+\newcommand\obj{\textrm{obj}}
+\newcommand\tot{\textrm{tot}}
 
 \begin{document}
 
@@ -180,19 +183,19 @@ surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${
 We represent the propagation of these deviations through the optical system by a propagation operator $\hat{G}$
 \begin{eqnarray}
  \begin{pmatrix}
-  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
  \end{pmatrix}
  &=&
  \hat{G}
  \begin{pmatrix}
-  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+  \Delta \Vector{r}_\obj \\ \Delta \Wavevector_\obj
  \end{pmatrix}
 \end{eqnarray}
-We are interested in rays close to the pilot ray, $\Delta \Vector{r}_{obj}, \Delta \Wavevector_{obj} \rightarrow 0$,
+We are interested in rays close to the pilot ray, $\Delta \Vector{r}_\obj, \Delta \Wavevector_\obj \rightarrow 0$,
 so we approximate the operators by a Taylor expansion around the pilot ray
 \begin{eqnarray}
  \begin{pmatrix}
-  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
  \end{pmatrix}_i
  &=&
    G^{00}_i
@@ -210,7 +213,7 @@ In analogy to the ABCD formalism, we neglect terms quadratic or higher in the ch
 $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$.
 \begin{eqnarray}
  \begin{pmatrix}
-  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
  \end{pmatrix}_i
  &\approx&
    G^{10}_{ij} \Delta r_j
@@ -221,8 +224,8 @@ In contrast to the ABCD formalism, we do not drop the bilinear $\hat{G}^{11}$ te
 \remark{todo: write a more elegant explanation why all quadratic forms but the bilinear one are dropped.}
 We split up the $\hat{G}$ operators into separate operators for location and direction.
 \begin{eqnarray}
- \Delta \Vector{r}_{im}  &=& \hat{A} \Delta \Vector{r}_{ob} + \hat{B} \Delta \Vector{k}_{ob} + \hat{M} \Delta \Vector{r}_{ob} \Delta \Vector{k}_{ob} \\ 
- \Delta \Wavevector_{im} &=& \hat{C} \Delta \Vector{r}_{ob} + \hat{D} \Delta \Vector{k}_{ob} + \hat{N} \Delta \Vector{r}_{ob} \Delta \Vector{k}_{ob}
+ \Delta r_{\im,\,i}  &=& A_{ij} \Delta r_{\obj,\,j} + B_{ij} \Delta k_{\obj,\,j} + M_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m} \\ 
+ \Delta \wavenumber_{\im,\,i} &=& C_{ij} \Delta r_{\obj,\,j} + D_{ij} \Delta k_{\obj,\,j} + N_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m}
 \end{eqnarray}
 We name the linear operators $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ in analogy to the ABCD formalism.
 We name the bilinear operators $\hat{M}$ and $\hat{N}$.
@@ -233,12 +236,12 @@ and we know the propagator of each subsystem $\hat{G}_i$,
 we can write
 \begin{eqnarray}
  \begin{pmatrix}
-  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
  \end{pmatrix}
  &=&
  \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot \hat{G}_0 \cdot
  \begin{pmatrix}
-  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+  \Delta \Vector{r}_\obj \\ \Delta \Wavevector_\obj
  \end{pmatrix}
 \end{eqnarray}
 In general, the operators do not commutate. $\hat{G}_0$ is the propagator representing the subsystem adjacent to the object.
@@ -253,19 +256,19 @@ We neglect all quadratic or higher order terms except for the bilinear term and 
 propagating from surface $0$ to surface $2$:
 \begin{subequations}
 \begin{eqnarray}
- \Delta \Vector{r}_2  &=& \hat{A}_{tot} \Delta \Vector{r}_0 + \hat{B}_{tot} \Delta \Vector{k}_0 + \hat{M}_{tot} \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
- \Delta \Wavevector_2 &=& \hat{C}_{tot} \Delta \Vector{r}_0 + \hat{D}_{tot} \Delta \Vector{k}_0 + \hat{N}_{tot} \Delta \Vector{r}_0 \Delta \Vector{k}_0
+ \Delta \Vector{r}_2  &=& \hat{A}_\tot \Delta \Vector{r}_0 + \hat{B}_\tot \Delta \Vector{k}_0 + \hat{M}_\tot \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_\tot \Delta \Vector{r}_0 + \hat{D}_\tot \Delta \Vector{k}_0 + \hat{N}_\tot \Delta \Vector{r}_0 \Delta \Vector{k}_0
 \end{eqnarray}
 \end{subequations}
 with
 \begin{subequations}\label{eq:xyuv_total_propagation}
 \begin{eqnarray}
- \hat{A}_{tot} &=& \hat{A}_1 \hat{A}_0 + \hat{B}_1 \hat{C}_0 \\
- \hat{B}_{tot} &=& \hat{A}_1 \hat{B}_0 + \hat{B}_1 \hat{D}_0 \\
- \hat{C}_{tot} &=& \hat{C}_1 \hat{A}_0 + \hat{D}_1 \hat{C}_0\\
- \hat{D}_{tot} &=& \hat{C}_1 \hat{B}_0 + \hat{D}_1 \hat{D}_0 \\
- \hat{M}_{tot} &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
- \hat{N}_{tot} &=& \hat{C}_1 \hat{M}_0 + \hat{D}_1 \hat{N}_0 + \hat{N}_1 \hat{A}_0 \hat{D}_0 + \hat{N}_1 \hat{B}_0 \hat{C}_0
+ \hat{A}_\tot &=& \hat{A}_1 \hat{A}_0 + \hat{B}_1 \hat{C}_0 \\
+ \hat{B}_\tot &=& \hat{A}_1 \hat{B}_0 + \hat{B}_1 \hat{D}_0 \\
+ \hat{C}_\tot &=& \hat{C}_1 \hat{A}_0 + \hat{D}_1 \hat{C}_0\\
+ \hat{D}_\tot &=& \hat{C}_1 \hat{B}_0 + \hat{D}_1 \hat{D}_0 \\
+ \hat{M}_\tot &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
+ \hat{N}_\tot &=& \hat{C}_1 \hat{M}_0 + \hat{D}_1 \hat{N}_0 + \hat{N}_1 \hat{A}_0 \hat{D}_0 + \hat{N}_1 \hat{B}_0 \hat{C}_0
 \end{eqnarray}
  \end{subequations}
 
@@ -332,8 +335,8 @@ and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
 The propagator equation becomes
 \begin{subequations}
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj} + \hat{B} \cdot \Vector{K}_{obj} + \hat{M} \cdot \Vector{R}_{obj} \cdot \Vector{K}_{obj}\label{eq:xyuv_imaging_equation}\\
- \Vector{K}_{im} &=& \hat{C} \cdot \Vector{R}_{obj} + \hat{D} \cdot \Vector{K}_{obj} + \hat{N} \cdot \Vector{R}_{obj} \cdot \Vector{K}_{obj}
+ \Vector{R}_\im &=& \hat{A} \cdot \Vector{R}_\obj + \hat{B} \cdot \Vector{K}_\obj + \hat{M} \cdot \Vector{R}_\obj \cdot \Vector{K}_\obj\label{eq:xyuv_imaging_equation}\\
+ \Vector{K}_\im &=& \hat{C} \cdot \Vector{R}_\obj + \hat{D} \cdot \Vector{K}_\obj + \hat{N} \cdot \Vector{R}_\obj \cdot \Vector{K}_\obj
 \end{eqnarray}
 \end{subequations}
 with the Jacobi matrices
@@ -341,25 +344,25 @@ with the Jacobi matrices
  A_{ij} &=
    \left.
      \frac{\partial R_{i\,im}}{\partial R_{j\,obj}} 
-   \right|_{\Vector{K_{obj}}=0}
+   \right|_{\Vector{K_\obj}=0}
    & (2\times2 \,\textrm{matrix})
  \\
  B_{ij} &=
    \left.
      \frac{\partial R_{i\,im}}{\partial K_{j\,obj}} 
-   \right|_{\Vector{R_{obj}}=0}
+   \right|_{\Vector{R_\obj}=0}
    & (2\times4 \,\textrm{matrix})
  \\
  C_{ij} &=
    \left.
      \frac{\partial K_{i\,im}}{\partial R_{j\,obj}} 
-   \right|_{\Vector{K_{obj}}=0}
+   \right|_{\Vector{K_\obj}=0}
    & (4\times2 \,\textrm{matrix})
  \\
  D_{ij} &=
    \left.
      \frac{\partial K_{i\,im}}{\partial K_{j\,obj}} 
-   \right|_{\Vector{R_{obj}}=0}
+   \right|_{\Vector{R_\obj}=0}
    & (4\times4 \,\textrm{matrix})
  \\
  M_{ijl} &=
@@ -398,18 +401,18 @@ We consider a sequence of an operator and its inverse operator.
 After applying both, we should end up where we started.
 \begin{subequations}
 \begin{eqnarray}
- \hat{A}_{tot} &= \unittensor =& \hat{A}_{\text{inv}} \hat{A}_0 + \hat{B}_{\text{inv}} \hat{C}_0 \\
- \hat{B}_{tot} &= 0           =& \hat{A}_{\text{inv}} \hat{B}_0 + \hat{B}_{\text{inv}} \hat{D}_0 \\
- \hat{C}_{tot} &= 0           =& \hat{C}_{\text{inv}} \hat{A}_0 + \hat{D}_{\text{inv}} \hat{C}_0\\
- \hat{D}_{tot} &= \unittensor =& \hat{C}_{\text{inv}} \hat{B}_0 + \hat{D}_{\text{inv}} \hat{D}_0 \\
- \hat{M}_{tot} &= 0           =& \hat{A}_{\text{inv}} \hat{M}_0 + \hat{B}_{\text{inv}} \hat{N}_0 + \hat{M}_{\text{inv}} \hat{A}_0 \hat{D}_0 + \hat{M}_{\text{inv}} \hat{B}_0 \hat{C}_0 \\
- \hat{N}_{tot} &= 0           =& \hat{C}_{\text{inv}} \hat{M}_0 + \hat{D}_{\text{inv}} \hat{N}_0 + \hat{N}_{\text{inv}} \hat{A}_0 \hat{D}_0 + \hat{N}_{\text{inv}} \hat{B}_0 \hat{C}_0
+ \hat{A}_\tot &= \unittensor =& \hat{A}_{\text{inv}} \hat{A} + \hat{B}_{\text{inv}} \hat{C} \\
+ \hat{B}_\tot &= 0           =& \hat{A}_{\text{inv}} \hat{B} + \hat{B}_{\text{inv}} \hat{D} \\
+ \hat{C}_\tot &= 0           =& \hat{C}_{\text{inv}} \hat{A} + \hat{D}_{\text{inv}} \hat{C}\\
+ \hat{D}_\tot &= \unittensor =& \hat{C}_{\text{inv}} \hat{B} + \hat{D}_{\text{inv}} \hat{D} \\
+ \hat{M}_\tot &= 0           =& \hat{A}_{\text{inv}} \hat{M} + \hat{B}_{\text{inv}} \hat{N} + \hat{M}_{\text{inv}} \hat{A} \hat{D} + \hat{M}_{\text{inv}} \hat{B} \hat{C} \\
+ \hat{N}_\tot &= 0           =& \hat{C}_{\text{inv}} \hat{M} + \hat{D}_{\text{inv}} \hat{N} + \hat{N}_{\text{inv}} \hat{A} \hat{D} + \hat{N}_{\text{inv}} \hat{B} \hat{C}
 \end{eqnarray}
 \end{subequations}
 In order not to confuse the inverse (nonlinear) operator with the inverse of its constituting matrices,
 we mark all matrices belonging to the inverse operator with the lower index $_\text{inv}$.
 An upper $^{-1}$ denotes the inverse of a matrix.
-In the following, we solve the system for the inverse operator $\hat{G}_{\text{inv}}$.
+In the following, we solve the system for the inverse operator.
 
 
 
@@ -813,15 +816,15 @@ We use this result to fill the $(2\times4)$ matrix $\hat{C}$.
 
 \subsection{Image Plane Position in a Finite Conjugate Image Space (contains errors)} \label{sec:xyuv_image_plane_position}
 A ray fan is being imaged, 
-if for a common ray starting position $\Vector{R}_{obj}$, all multiples of a
-ray directions $\Vector{K}_{obj} \neq 0$ are propagated on a common point in image space.
+if for a common ray starting position $\Vector{R}_\obj$, all multiples of a
+ray directions $\Vector{K}_\obj \neq 0$ are propagated on a common point in image space.
 The imaging equation \eqref{eq:xyuv_imaging_equation} becomes
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{A} \cdot \Vector{R}_{obj} + 0
+ \Vector{R}_\im &=& \hat{A} \cdot \Vector{R}_\obj + 0
 \end{eqnarray}
 or, in other words,
 \begin{eqnarray}
- \hat{B} \cdot \Vector{K}_{obj} &=& 0
+ \hat{B} \cdot \Vector{K}_\obj &=& 0
 \end{eqnarray}
 The matrix $\hat{B}$ is of rank 2, the input vector $\Vector{K}$ contains 4 independent real valued degrees of freedom.
 For a unique solution, we need to impose more constraints on the input vector. 
@@ -854,12 +857,12 @@ $\Vector{e}_{\kappa i}$ are four-dimensional, have real valued components and ca
 \end{eqnarray}
 The base vectors $\Vector{e}_{\kappa i}$ shall be normalized and orthogonal, 
 $\Delta \Wavevector(\Vector{e}_{\kappa i}) \cdot \overline{\Delta \Wavevector (\Vector{e}_{\kappa j})} = \delta_{ij}$.
-Choosing the wavevector deviation in the object plane $\Delta \Wavevector_{obj}$ as a multiple of these two directions,
+Choosing the wavevector deviation in the object plane $\Delta \Wavevector_\obj$ as a multiple of these two directions,
 we ensure a real valued grating in the object plane. 
 The intensity distribution in intermediate planes and in the image plane, however, 
 may contain also imaginary components in $\Delta \Wavevector \cdot \Vector{e}_{X,Y}$.
 \begin{eqnarray}
- \Delta \Wavevector_{obj} &=& \kappa_1 \Vector{e}_{\kappa1} + \kappa_2 \Vector{e}_{\kappa2} \label{eq:deltaK_as_kappa}
+ \Delta \Wavevector_\obj &=& \kappa_1 \Vector{e}_{\kappa1} + \kappa_2 \Vector{e}_{\kappa2} \label{eq:deltaK_as_kappa}
 \end{eqnarray}
 $\kappa_{1,2} \in \mathbb{R}$ are coordinates in this 2-dimensional representation of wavevector deviations.
 Our imaging condition reduces to
@@ -901,7 +904,7 @@ This problem is similar to an eigenvalue problem, so we call the solutions $s_{1
 If both solutions $s_1 = s_2$ are degenerate, the corresponding eigen-space is two-dimensional.
 Any combination $(\kappa_1, \kappa_2)$ will be imaged on the pilot image point.
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}}(s) \cdot \Vector{R}_{obj}
+ \Vector{R}_\im &=& \hat{\tilde{A}}(s) \cdot \Vector{R}_\obj
 \end{eqnarray}
 For example, centro-symmetric systems have no (on-axis) astigmatism if the pilot ray is chosen on the optical axis.
 
@@ -926,18 +929,18 @@ We represent the 2-dimensional wavevector deviation in the base of the eigen dir
 The imaging equation \eqref{eq:xyuv_imaging_equation} becomes
 
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{\tilde{B}}(s_i) \cdot b(s_i,\Delta\Wavevector) \cdot \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix}
+ \Vector{R}_\im &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_\obj + \hat{\tilde{B}}(s_i) \cdot b(s_i,\Delta\Wavevector) \cdot \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix}
 \end{eqnarray}
 The coefficient $b$ depends on the object sided wavevector deviation.
 We introduce the projection operator $\hat{P}$ with
 \begin{eqnarray}
- \Vector{R}_{im} &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_{obj} + \hat{P} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} \\
+ \Vector{R}_\im &=& \hat{\tilde{A}}(s_i) \cdot \Vector{R}_\obj + \hat{P} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} \\
  \hat{P} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} &=& 
     \left( \hat{\tilde{B}}(s_i) \cdot \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix} \right) 
     \cdot
     \left( \begin{pmatrix} \kappa_{2\,eig\,si} \\ - \kappa_{1\,eig\,si} \end{pmatrix} \cdot \begin{pmatrix} \kappa_{1} \\ \kappa_{2} \end{pmatrix} \right)
 \end{eqnarray}
-The image position $\Vector{R}_{im}$ of a near-pilot ray depends on both object position $\Vector{R}_{obj}$ and wavevector choice $(\kappa_1,\kappa_2)$.
+The image position $\Vector{R}_\im$ of a near-pilot ray depends on both object position $\Vector{R}_\obj$ and wavevector choice $(\kappa_1,\kappa_2)$.
 In general, a point in the object plane is imaged to a line in the image plane.
 To characterize this line, we can use, for example,
 \begin{itemize}
@@ -1193,23 +1196,23 @@ The object sided ray height is obtained from the image sided ray height by the i
 
 
 \subsection{Ray Direction for Finite Conjugate Objects}
-The ray originates from a point $\Vector{R}_{obj}$, defined by the field definition (see above).
+The ray originates from a point $\Vector{R}_\obj$, defined by the field definition (see above).
 Additionally to this constraint, it shall hit the stop plane at a certain ray height $\Vector{R}_{stop}$.
 In the following, we search for a ray direction to fulfill this constraint.
 We reduce the 4 dimensional wavevector deviation $\Vector{K}$ to the 2 dimensional $\kappa$ base according to \eqref{eq:deltaK_as_kappa}
 and find in parabasal approximation
 \begin{eqnarray}
-% \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj}
+% \Vector{R}_{stop} &=& \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_\obj
 %                  +    \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
 % \\
-% \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} &=& 
+% \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_\obj &=& 
 %                  \hat{\tilde{B}}_{obj\rightarrow stop} \cdot \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
 % \\
  \begin{pmatrix}\kappa_1 \\ \kappa_2\end{pmatrix}
  &=&
  \hat{\tilde{B}}_{obj\rightarrow stop}^{-1}
  \left(
-    \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_{obj} 
+    \Vector{R}_{stop} - \hat{\tilde{A}}_{obj\rightarrow stop} \cdot \Vector{R}_\obj 
  \right) 
 \end{eqnarray}
 
