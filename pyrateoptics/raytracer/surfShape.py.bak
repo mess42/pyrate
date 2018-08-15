@@ -31,7 +31,7 @@ from ..core.base import ClassWithOptimizableVariables, OptimizableVariable
 from scipy.optimize import fsolve
 from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
 from scipy.special import jacobi
-from .globalconstants import numerical_tolerance
+from globalconstants import numerical_tolerance
 import ctypes
 
 class Shape(ClassWithOptimizableVariables):
@@ -770,9 +770,8 @@ class GridSag(ExplicitShape):
     Class for gridsag
     """
     
-    def __init__(self, lc, xxx_todo_changeme, *args, **kwargs):
+    def __init__(self, lc, (xlinspace, ylinspace, Zgrid), *args, **kwargs):
     
-        (xlinspace, ylinspace, Zgrid) = xxx_todo_changeme
         kwargs_dict = kwargs
         name = kwargs_dict.pop('name', '')
     
@@ -858,11 +857,10 @@ class Zernike(ExplicitShape):
         """
         raise NotImplementedError()
 
-    def nmtoj(self, xxx_todo_changeme1):
+    def nmtoj(self, (n, m)):
         """
         Get single index from double indices
         """
-        (n, m) = xxx_todo_changeme1
         raise NotImplementedError()
 
     """
@@ -985,8 +983,7 @@ class ZernikeFringe(Zernike):
         m = int((-1)**((next_sq - j) % 2))*m
         return (n, m)        
 
-    def nmtoj(self, xxx_todo_changeme2):
-        (n, m) = xxx_todo_changeme2
+    def nmtoj(self, (n, m)):
         return int(((n + abs(m))/2 + 1)**2 - 2*abs(m) + (1 - np.sign(m))/2)
 
 
@@ -1004,8 +1001,7 @@ class ZernikeStandard(Zernike):
         
         return (n, m)
         
-    def nmtoj(self, xxx_todo_changeme3):
-        (n, m) = xxx_todo_changeme3
+    def nmtoj(self, (n, m)):
         return 0
 
 ################################################
@@ -1113,20 +1109,20 @@ class ZMXDLLShape(Conic):
             self.dll = ctypes.CDLL(dllfile)
             
         self.param = {}
-        for (key, (value_int, value_float)) in param_dict.items():
+        for (key, (value_int, value_float)) in param_dict.iteritems():
             self.param[value_int] = OptimizableVariable(name="param"+str(value_int), value=value_float)
         self.xdata = {}
-        for (key, (value_int, value_float)) in xdata_dict.items():
+        for (key, (value_int, value_float)) in xdata_dict.iteritems():
             self.xdata[value_int] = OptimizableVariable(name="xdata"+str(value_int), value=value_float)
         self.us_surf = self.dll.UserDefinedSurface
 
     def writeParam(self, f):
-        for (key, var) in self.param.items():
+        for (key, var) in self.param.iteritems():
             f.param[key] = var()
         return f
     
     def writeXdata(self, f):
-        for (key, var) in self.xdata.items():
+        for (key, var) in self.xdata.iteritems():
             f.xdata[key] = var()
         return f
 
@@ -1200,7 +1196,7 @@ class ZMXDLLShape(Conic):
             
 if __name__=="__main__":
     
-    from .localcoordinates import LocalCoordinates
+    from localcoordinates import LocalCoordinates
     import matplotlib.pyplot as plt    
     
     
@@ -1220,8 +1216,8 @@ if __name__=="__main__":
     
     sz = ZernikeFringe(lc)
 
-    for ind in (np.array(list(range(36)))+1).tolist():
-        print((ind, sz.jtonm(ind), sz.nmtoj(sz.jtonm(ind))))
+    for ind in (np.array(range(36))+1).tolist():
+        print(ind, sz.jtonm(ind), sz.nmtoj(sz.jtonm(ind)))
             
     x = np.linspace(-1, 1, 50)
     y = np.linspace(-1, 1, 50)    

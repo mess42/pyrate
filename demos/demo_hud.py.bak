@@ -118,7 +118,7 @@ elem.addSurface("image", imgsurf, (None, None))
 
 s.addElement("HUD", elem)
 
-print((s.rootcoordinatesystem.pprint()))
+print(s.rootcoordinatesystem.pprint())
 
 sysseq = [("HUD", 
            [
@@ -172,8 +172,8 @@ pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle_complex(objsurf,
 print("calculating XYUV")
 (m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq)
 
-print((np.array_str(m_obj_stop, precision=5, suppress_small=True)))
-print((np.array_str(m_stop_img, precision=5, suppress_small=True)))
+print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
+print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
 #print(s.sequence_to_hitlist(sysseq))
 

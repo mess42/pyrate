@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 from ..core.log import BaseLogger
-from ray_analysis import RayBundleAnalysis
-from optical_element_analysis import OpticalElementAnalysis
+from .ray_analysis import RayBundleAnalysis
+from .optical_element_analysis import OpticalElementAnalysis
 from ..sampling2d.raster import RectGrid
 from ..raytracer.globalconstants import standard_wavelength, degree, canonical_ey
 from ..raytracer.ray import RayBundle

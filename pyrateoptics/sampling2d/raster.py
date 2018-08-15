@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import math
 import numpy as np
-import pds
+from . import pds
 
 # FIXME: Why do we have to cut-off almost all of these rasters to the unit disk?
 # For a further usage of raster object to be used to construct the field this

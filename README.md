@@ -99,7 +99,15 @@ For win64 you also need to take care of additional scipy support:
 
 Please test this workflow. If there is anything incorrect, please fill an issue.
 
+Testing
+---
+>cd pyrate
+>python setup.py --user
+>python demos/demo_prism.py 
+
+
 IRC
 ---
+
 
 Visit us on freenode (ports 6697, 7000, 7070 for SSL) channel #pyrate for some real time communication.

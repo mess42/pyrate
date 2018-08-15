@@ -36,18 +36,17 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib
 from distutils.version import StrictVersion
-
-from analysis.optical_system_analysis import OpticalSystemAnalysis
-from raytracer.optical_system import OpticalSystem
-from raytracer.localcoordinates import LocalCoordinates
-from raytracer.optical_element import OpticalElement
-from raytracer.surface import Surface
-import raytracer.surfShape as Shapes
-from raytracer.globalconstants import numerical_tolerance, degree, standard_wavelength
-from raytracer.ray import RayBundle, RayPath
-from material.material_isotropic import ConstantIndexGlass
-from material.material_glasscat import refractiveindex_dot_info_glasscatalog
-from sampling2d.raster import RectGrid
+from .analysis.optical_system_analysis import OpticalSystemAnalysis
+from .raytracer.optical_system import OpticalSystem
+from .raytracer.localcoordinates import LocalCoordinates
+from .raytracer.optical_element import OpticalElement
+from .raytracer.surface import Surface
+from .raytracer import surfShape as Shapes
+from .raytracer.globalconstants import numerical_tolerance, degree, standard_wavelength
+from .raytracer.ray import RayBundle, RayPath
+from .material.material_isotropic import ConstantIndexGlass
+from .material.material_glasscat import refractiveindex_dot_info_glasscatalog
+from .sampling2d.raster import RectGrid
 
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions

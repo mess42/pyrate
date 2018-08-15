@@ -102,7 +102,7 @@ elem.addSurface("image3", image3, (None, None))
 
 s.addElement("TMA", elem)
 
-print((s.rootcoordinatesystem.pprint()))
+print(s.rootcoordinatesystem.pprint())
 
 sysseq = [("TMA", 
            [

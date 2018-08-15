@@ -1,3 +1,4 @@
+*.bak
 *.pyc
 *.aux
 *.bib

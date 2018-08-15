@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 
-from .globalconstants import standard_wavelength, canonical_ex, canonical_ey
+from globalconstants import standard_wavelength, canonical_ex, canonical_ey
 
 class RayBundle(object):
     def __init__(self, x0, k0, Efield0, rayID = [], wave = standard_wavelength, splitted=False):
@@ -249,11 +249,11 @@ if __name__ == "__main__":
     r.append(x1, k0, E0, validity)
     
     d = r.returnKtoD()
-    print("d=",r.returnKtoD())
-    print(np.sum(d**2, axis=1))
+    print "d=",r.returnKtoD()
+    print np.sum(d**2, axis=1)
 
     print(x0)
     print(x1)
-    print((r.getArcLength()))    
+    print(r.getArcLength())    
     
     

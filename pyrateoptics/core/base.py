@@ -29,7 +29,7 @@ import math
 import yaml
 import re
 
-from log import BaseLogger
+from .log import BaseLogger
 
 class OptimizableVariable(BaseLogger):
     """

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import yaml
 import numpy as np
 import scipy.interpolate
-from .material_isotropic import IsotropicMaterial
+from material_isotropic import IsotropicMaterial
 from ..raytracer.globalconstants import Fline, dline, Cline
 from ..core.log import BaseLogger
 
@@ -146,7 +146,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
 
         :return shelves: (list of str)
         """
-        return list(self.librarydict.keys())
+        return self.librarydict.keys()
 
         
     def getBooks(self, shelf):
@@ -157,7 +157,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         
         :return books: (list of str)
         """
-        return list(self.librarydict[shelf]["content"].keys())
+        return self.librarydict[shelf]["content"].keys()
 
         
     def getPages(self, shelf, book):
@@ -169,7 +169,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         
         :return pages: (list of str)
         """
-        return list(self.librarydict[shelf]["content"][book]["content"].keys())
+        return self.librarydict[shelf]["content"][book]["content"].keys()
 
     
     def getPageLongName(self, shelf, book, page):
@@ -231,7 +231,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
             errormsg = "glass name "+ str(glassName) + " not found."
             similarnames = self.findPagesWithLongNameContaining( glassName )
             if len(similarnames) != 0:
-                errormsg += " Did you mean: " + str(list(similarnames.keys()) )
+                errormsg += " Did you mean: " + str(similarnames.keys() )
             else:
                 errormsg += " No glass names containing this string found."
             raise Exception(errormsg)
@@ -459,14 +459,14 @@ if __name__ == "__main__":
     
     gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
     
-    print("Shelves:", gcat.getShelves())
-    print("")
-    print("Books in Shelf glass:", gcat.getBooks(shelf = shelf))
-    print("")    
-    print("Pages in BK7 book:", gcat.getPages(shelf = shelf, book=book))
-    print("")
-    print("Long name of SCHOTT page is:", gcat.getPageLongName(shelf = shelf, book = book, page = page))
-    print("")
+    print "Shelves:", gcat.getShelves()
+    print ""
+    print "Books in Shelf glass:", gcat.getBooks(shelf = shelf)
+    print ""    
+    print "Pages in BK7 book:", gcat.getPages(shelf = shelf, book=book)
+    print ""
+    print "Long name of SCHOTT page is:", gcat.getPageLongName(shelf = shelf, book = book, page = page)
+    print ""
     
     schottNBK7dict = gcat.getMaterialDict(shelf, book, page)
     schottNBK7 = CatalogMaterial(None, schottNBK7dict)
@@ -475,8 +475,8 @@ if __name__ == "__main__":
     nd = schottNBK7.getIndex(0, dline)
     nC = schottNBK7.getIndex(0, Cline)
     
-    print("nd = ", nd)
-    print("vd = ", (nd-1) / (nF-nC))
+    print "nd = ", nd
+    print "vd = ", (nd-1) / (nF-nC)
 
 
 # TODO: glasscatalog readin and from that a material factory which throws out 

@@ -28,7 +28,7 @@ import numpy as np
 import math
 import random
 
-from .helpers_math import rodrigues
+from helpers_math import rodrigues
 
 from ..core.base import ClassWithOptimizableVariables, OptimizableVariable
 
@@ -435,7 +435,7 @@ if __name__ == "__main__":
         surfrt1 = surfrt0.addChild(LocalCoordinates("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, tiltThenDecenter=tiltThenDecenter))
         (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, tiltThenDecenter)
         if printouttestcase2:    
-            print(("diffs %d %f %f %f: %f %f %f" % (tiltThenDecenter, tiltx, tilty, tiltz, tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz)))
+            print("diffs %d %f %f %f: %f %f %f" % (tiltThenDecenter, tiltx, tilty, tiltz, tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
     '''testcase3: aimAt function'''
     surfaa0 = LocalCoordinates("aa0")   
     surfaa05 = surfaa0.addChild(LocalCoordinates("aa05", decz=20, tiltx=20*math.pi/180.0))

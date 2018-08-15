@@ -34,7 +34,7 @@ from pyrateoptics.raytracer.optical_system import OpticalSystem
 
 s = OpticalSystem()
 
-print("pickle dump")
+print "pickle dump"
 frozen = jsonpickle.encode(s)
 
 with open('optical_sys.jpkl', 'w') as output:
