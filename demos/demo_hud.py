@@ -54,7 +54,7 @@ from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 logging.basicConfig(level=logging.INFO)
 
-s = OpticalSystem() 
+s = OpticalSystem()
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
@@ -118,26 +118,26 @@ elem.addSurface("image", imgsurf, (None, None))
 
 s.addElement("HUD", elem)
 
-print((s.rootcoordinatesystem.pprint()))
+print(s.rootcoordinatesystem.pprint())
 
-sysseq = [("HUD", 
+sysseq = [("HUD",
            [
-                ("object", {"is_stop":True}), 
-                ("d1", {}), 
-                ("s1", {}), 
-                ("d1p", {}), 
-                ("d2", {}), 
-                ("s2", {"is_mirror":True}), 
-                ("d2p", {}), 
-                ("d3", {}), 
-                ("s3", {"is_mirror":True}), 
-                ("d3p", {}), 
-                ("d4", {}), 
-                ("s4", {}), 
-                ("d4p", {}), 
-                ("image", {}) 
+                ("object", {"is_stop":True}),
+                ("d1", {}),
+                ("s1", {}),
+                ("d1p", {}),
+                ("d2", {}),
+                ("s2", {"is_mirror":True}),
+                ("d2p", {}),
+                ("d3", {}),
+                ("s3", {"is_mirror":True}),
+                ("d3p", {}),
+                ("d4", {}),
+                ("s4", {}),
+                ("d4p", {}),
+                ("image", {})
             ])
-        ] 
+        ]
 
 
 osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
@@ -172,8 +172,8 @@ pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle_complex(objsurf,
 print("calculating XYUV")
 (m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq)
 
-print((np.array_str(m_obj_stop, precision=5, suppress_small=True)))
-print((np.array_str(m_stop_img, precision=5, suppress_small=True)))
+print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
+print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
 #print(s.sequence_to_hitlist(sysseq))
 

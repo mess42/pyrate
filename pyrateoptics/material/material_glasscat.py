@@ -35,21 +35,21 @@ from ..core.log import BaseLogger
 class refractiveindex_dot_info_glasscatalog(BaseLogger):
     def __init__(self, database_basepath, **kwargs):
         """
-        Reads the refractiveindex.info database and provides glass data. 
-        
+        Reads the refractiveindex.info database and provides glass data.
+
         :param database_basepath: (str)
                path of the database folder
-               
+
         References:
         [1] https://github.com/polyanskiy/refractiveindex.info-database.git
             The refractiveindex.info database including optical glasses,
             metals, crystals, organic materials, ...
             License: Creative Commons Zero (public domain)
         [2] https://github.com/polyanskiy/refractiveindex.info-scripts.git
-            Scripts to make your own database, including a Zemax AGF 
+            Scripts to make your own database, including a Zemax AGF
             import tool
             License: GNU General Public License 3
-            
+
         Example:
         gcat = refractiveindex_dot_info_glasscatalog("/home/user/refractiveindex.info-database/database")
         """
@@ -58,20 +58,20 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
 
         self.database_basepath = database_basepath
         self.librarydict = self.read_library(database_basepath + "/library.yml")
-        
+
 
 
     def read_yml_file(self, ymlfilename):
         """
         Reads a .yml file and converts it into python data types.
-        
+
         :param ymlfilename: (str)
         :return data: (list or dict)
         """
-        try:        
+        try:
             f = open(ymlfilename, "r")
         except:
-            self.info("Glass catalogue file not found: %s" % (ymlfilename,))            
+            self.info("Glass catalogue file not found: %s" % (ymlfilename,))
             data = []
         else:
             data = yaml.safe_load(f)
@@ -82,11 +82,11 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
     def list2dict(self, yaml_list, namekey):
         """
         Converts a list of dicts into a dict of dicts.
-            
+
         :param yaml_list: (list of dict)
                each dict must contain the entry [namekey]
         :param namekey: (str)
-        
+
         :return newdict (dict)
               the value of yaml_list[i][namekey] is extracted and used as key of
               this dictionary.
@@ -97,19 +97,19 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
                 xname = x.pop(namekey)
                 newdict[xname] = x
         return newdict
-    
-    
+
+
     def read_library(self, library_yml_filename):
         """
         Converts the library.yml file from refractiveindex.info into a dict
-        
+
         :param library_yml_filename: (str)
-        
-        :return lib: (dict)    
+
+        :return lib: (dict)
         """
 
         yaml_library = self.read_yml_file(library_yml_filename)
-        
+
         lib = self.list2dict(yaml_library, "SHELF")
         for shelfname in lib:
             lib[shelfname]["content"] = self.list2dict(lib[shelfname]["content"], "BOOK")
@@ -121,15 +121,15 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
     def getMaterialDict(self, shelf, book, page):
         """
         Reads and returns a page of the refractiveindex.info database.
-        
+
         :param shelf: (str)
         :param book:  (str)
         :param page:  (str)
-         
+
         :return ymldict: (dict)
         """
         ymlfilename  = self.database_basepath + "/data/"
-        
+
         self.logger.info("Material dict: %s" % (str(self.librarydict[shelf]["content"][book]["content"][page]),))
         ymlfilename += self.librarydict[shelf]["content"][book]["content"][page]["data"]
         self.logger.info("Material file: %s" % (ymlfilename,))
@@ -138,7 +138,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         return data
 
 
-    # start of higher functionality section   
+    # start of higher functionality section
 
     def getShelves(self):
         """
@@ -146,32 +146,33 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
 
         :return shelves: (list of str)
         """
+        print("self.librarydict=%s"%(repr(self.librarydict)))
         return list(self.librarydict.keys())
 
-        
+
     def getBooks(self, shelf):
         """
         Lists all books of a given shelf in the database.
-        
+
         :param shelf: (str)
-        
+
         :return books: (list of str)
         """
         return list(self.librarydict[shelf]["content"].keys())
 
-        
+
     def getPages(self, shelf, book):
         """
         Lists all pages of a given book in the database.
-        
+
         :param shelf: (str)
         :param book: (str)
-        
+
         :return pages: (list of str)
         """
         return list(self.librarydict[shelf]["content"][book]["content"].keys())
 
-    
+
     def getPageLongName(self, shelf, book, page):
         return self.librarydict[shelf]["content"][book]["content"][page]["name"]
 
@@ -179,13 +180,14 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
     def getDictOfLongNames(self):
         """
         Returns a lookup table in which shelf, book and page a glass name can be found.
-        
+
         :return dic: (dict)
                    keys are glass long names
                    values are tuples (shelf, book, page)
         """
         dic = {}
         for shelf in self.getShelves():
+            print("shelf=%s"%repr(shelf))
             for book in self.getBooks(shelf):
                 for page in self.getPages(shelf, book):
                     longname = self.getPageLongName(shelf, book, page)
@@ -193,16 +195,16 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
                     dic[longname] = (shelf, book, page)
         return dic
 
-        
+
     def findPagesWithLongNameContaining(self, searchterm):
         """
         Returns a dict of pages containing a search pattern.
-        
+
         :param searchterm: (str)
                            search pattern may occur in some pages' longnames
         :return result: (dict)
                    keys are glass long names
-                   values are tuples (shelf, book, page)        
+                   values are tuples (shelf, book, page)
         """
         allpages = self.getDictOfLongNames()
         result = {}
@@ -210,23 +212,24 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
             if longname.find(searchterm) != -1:
                 result[longname] = allpages[longname]
         return result
-                   
-                    
+
+
     def getMaterialDictFromLongName(self, glassName):
         """
         Identify and return a material from a given name.
-        
+
         Imagine you know a glass name, like 'BK7' or 'LaK35',
-        but don't know the shelf, book and page in the 
+        but don't know the shelf, book and page in the
         refractiveindex.info database.
         """
 
         allpages = self.getDictOfLongNames()
+        print("allpages=%s"%repr(allpages))
         result = []
         for longname in allpages:
             if longname == glassName:
                 result = allpages[longname]
-                
+
         if len(result) == 0: # no glass found, throwing exception
             errormsg = "glass name "+ str(glassName) + " not found."
             similarnames = self.findPagesWithLongNameContaining( glassName )
@@ -242,7 +245,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
     def createGlassObjectFromLongName(self, lc, glassName):
         """
         Creates a pyrate material object from a given glass name.
-        
+
         :param lc: (object)
                    local coordinate system
         :param glassName: (str)
@@ -252,15 +255,15 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         matdict = self.getMaterialDictFromLongName(glassName)
         matobj  = CatalogMaterial(lc, matdict)
         return matobj
-        
+
 
     def getMaterialDictCloseTo_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
         """
         Search a material close to given parameters.
         """
         raise NotImplementedError()
-        
-        
+
+
     def getMaterialDictCloseTo_nd_vd(self, nd=1.51680, vd=64.17):
         """
         Search a material close to given parameters.
@@ -279,7 +282,7 @@ class IndexFormulaContainer(object):
     def __init__(self, typ, coeff, waverange):
         """
         Stores refractive index formula and coefficients.
-        
+
         :param typ: (str)
                index dispersion formula name
                Must be according to refractiveindex.info naming scheme.
@@ -293,7 +296,7 @@ class IndexFormulaContainer(object):
         self.setDispFunction(typ, coeff)
         self.waverange = waverange
 
-        
+
     def setDispFunction(self, typ, coeff):
         self.coeff = coeff
 
@@ -372,13 +375,13 @@ class IndexFormulaContainer(object):
             self.__dispFunction = Exotic
         elif typ == "tabulated n":
             self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0],      self.coeff[:,1])
-        elif typ == "tabulated k": 
+        elif typ == "tabulated k":
             self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0], 1j * self.coeff[:,1])
         elif typ == "tabulated nk":
             self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:,0], self.coeff[:,1] + 1j * self.coeff[:,2])
         else:
             raise Exception("Bad dispersion function type: "+str(typ))
-            
+
 
     def getIndex(self, wavelength):
         """
@@ -388,33 +391,33 @@ class IndexFormulaContainer(object):
                refractive index real part
         """
         wave_um = 1000 * wavelength # wavelength in um
-        # The refractiveindex.info database uses units of um 
+        # The refractiveindex.info database uses units of um
         # for its dispersion formulas.
         # It would be a huge effort to rewrite the whole database,
-        # so we leave the database as it is and adapt 
+        # so we leave the database as it is and adapt
         # the pyrate wavelength in mm to fit the dispersion formulas.
-        
+
         # TODO: this is an if statement in a time-critical place
         if wave_um < self.waverange[0] or wave_um > self.waverange[1]:
             raise Exception("wavelength out of range")
-        
+
         n = self.__dispFunction(wave_um)
         return n
 
-                
+
 class CatalogMaterial(IsotropicMaterial):
     def __init__(self, lc, ymldict, **kwargs):
         """
         Material from the refractiveindex.info database.
-        
+
         :param ymldict: (dict)
                 dictionary from a refractiveindex.info page yml file.
         :param name: (str)
         :param comment: (str)
-        
-        example:        
-            import yaml                
-            f = open("n-bk7.yml")        
+
+        example:
+            import yaml
+            f = open("n-bk7.yml")
             ymldict = yaml.safe_load(f)
             f.close()
             bk7 = CatalogMaterial(lc, ymldict)
@@ -423,14 +426,14 @@ class CatalogMaterial(IsotropicMaterial):
         super(CatalogMaterial, self).__init__(lc, **kwargs)
 
         data = ymldict["DATA"]
-        
+
         if len(data) > 2:
             raise Exception("Max 2 entries for dispersion allowed - n and k.")
-        
+
         self.__nk = []
         for i in np.arange(len(data)): # i=0 is n  ;  i=1 is k
             dispersionDict = data[i]
-            typ= dispersionDict["type"]            
+            typ= dispersionDict["type"]
             if dispersionDict["type"].startswith("tabulated"):
                 coeff = dispersionDict["data"].split("\n")[:-1]
                 for j in np.arange(len(coeff)):
@@ -448,38 +451,38 @@ class CatalogMaterial(IsotropicMaterial):
         for dispFun in self.__nk:
             n += dispFun.getIndex(wave)
         return n
-        
+
 
 if __name__ == "__main__":
 
-    database_basepath = "refractiveindex.info-database/database"     
+    database_basepath = "refractiveindex.info-database/database"
     shelf = "glass"
     book  = "BK7"
-    page  = "SCHOTT"    
-    
+    page  = "SCHOTT"
+
     gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
-    
+
     print("Shelves:", gcat.getShelves())
     print("")
     print("Books in Shelf glass:", gcat.getBooks(shelf = shelf))
-    print("")    
+    print("")
     print("Pages in BK7 book:", gcat.getPages(shelf = shelf, book=book))
     print("")
     print("Long name of SCHOTT page is:", gcat.getPageLongName(shelf = shelf, book = book, page = page))
     print("")
-    
+
     schottNBK7dict = gcat.getMaterialDict(shelf, book, page)
     schottNBK7 = CatalogMaterial(None, schottNBK7dict)
 
     nF = schottNBK7.getIndex(0, Fline)
     nd = schottNBK7.getIndex(0, dline)
     nC = schottNBK7.getIndex(0, Cline)
-    
+
     print("nd = ", nd)
     print("vd = ", (nd-1) / (nF-nC))
 
 
-# TODO: glasscatalog readin and from that a material factory which throws out 
+# TODO: glasscatalog readin and from that a material factory which throws out
 # several materials compliant with your search results
 
 

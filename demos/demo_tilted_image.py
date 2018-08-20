@@ -37,10 +37,10 @@ alpha = 10.*degree
 epd = 5.
 
 (s, seq) = build_rotationally_symmetric_optical_system(
-        [(0, 	0, 0.,	None, 		"object", {}),
+        [(0,    0, 0.,  None,       "object", {}),
          (100., 0, 5, 1.5, "lens1front", {"is_stop":True}),
          (0., 0, 5, None, "lens1rear", {}),
-         (0, 	0, 196.228, 	None, 			"image", {})], name="os")
+         (0,    0, 196.228,     None,           "image", {})], name="os")
 
 imsurf = s.elements["stdelem"].surfaces["image"]
 imsurf.rootcoordinatesystem.tiltx.setvalue(alpha)
@@ -61,7 +61,7 @@ obj_dphi = 0.1*degree
 pilotbundles = build_pilotbundle_complex(objsurf, s.material_background, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
 (m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], seq)
 
-print((np.array_str(m_obj_stop, precision=5, suppress_small=True)))
-print((np.array_str(m_stop_img, precision=5, suppress_small=True)))
+print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
+print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
 draw(s, [raypaths1, raypaths2])

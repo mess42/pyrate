@@ -33,7 +33,7 @@ def decorator_timer(f):
         t1 = timer()
         erg = f(x)
         t2 = timer()
-        print(("time elapsed: %7.2f" % (t2 - t1)))
+        print("time elapsed: %7.2f" % (t2 - t1))
         return erg
     return helper
 

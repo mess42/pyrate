@@ -41,8 +41,8 @@ class Shape(ClassWithOptimizableVariables):
         The shape of a surface provides a function to calculate
         the intersection point with a ray.
         """
-        self.lc = lc        
-        
+        self.lc = lc
+
         super(Shape, self).__init__(**kwargs)
 
 
@@ -73,7 +73,7 @@ class Shape(ClassWithOptimizableVariables):
         :return curv: (float)
         """
         raise NotImplementedError()
-        
+
     def getGrad(self, x, y):
         """
         Returns the gradient of the surface.
@@ -82,7 +82,7 @@ class Shape(ClassWithOptimizableVariables):
         :return grad: gradient (2d numpy 3xN array of float)
         """
         raise NotImplementedError()
-        
+
 
     def getNormal(self, x, y):
         """
@@ -93,9 +93,9 @@ class Shape(ClassWithOptimizableVariables):
         """
         gradient = self.getGrad(x, y)
         absgradient = np.sqrt(np.sum(gradient**2, axis=0))
-        
+
         return gradient/absgradient
-        
+
 
     def getHessian(self, x, y):
         """
@@ -111,33 +111,33 @@ class Shape(ClassWithOptimizableVariables):
         Returns the normal derivative in local coordinates.
         This function in the base class serves as fail safe solution in case the user did not implement
         it analytically or in an optimized way
-        
+
         partial_j n_i = Hess_jk/|grad|*(delta_ki - n_k n_i), see staged part of manual :>
         """
 
         x = xveclocal[0]
         y = xveclocal[1]
-        
+
         (num_dims, num_pts) = np.shape(xveclocal)
-        
+
         normalvector = self.getNormal(x, y)
         gradient = self.getGrad(x, y)
         absgrad = np.sqrt(np.sum(gradient**2, axis=0))
-        
+
         hessian = self.getHessian(x, y)/absgrad # first part
         normal_projection = np.zeros_like(hessian)
-        
+
         for i in range(num_pts):
-            normal_projection[:, :, i] += np.eye(num_dims) - np.outer(normalvector[:, i], normalvector[:, i]) 
-        
+            normal_projection[:, :, i] += np.eye(num_dims) - np.outer(normalvector[:, i], normalvector[:, i])
+
         return np.einsum("ij...,jk...", hessian, normal_projection) # TODO: to be tested
 
 
     def getLocalRayBundleForIntersect(self, raybundle):
         localo = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
-        globald = raybundle.returnKtoD()        
-        locald = self.lc.returnGlobalToLocalDirections(globald[-1])                
-        return (localo, locald)        
+        globald = raybundle.returnKtoD()
+        locald = self.lc.returnGlobalToLocalDirections(globald[-1])
+        return (localo, locald)
 
 
 class Conic(Shape):
@@ -192,8 +192,8 @@ class Conic(Shape):
 
         curv = self.curvature.evaluate()
         cc = self.conic.evaluate()
-        
-        # gradient calculated from -1/2(1+cc)c z^2 + z -1/2 c (x^2 + y^2) = 0 
+
+        # gradient calculated from -1/2(1+cc)c z^2 + z -1/2 c (x^2 + y^2) = 0
 
         gradient = np.zeros((3,len(x)), dtype=float)
         gradient[0] = -curv * x
@@ -221,15 +221,15 @@ class Conic(Shape):
 
         return hessian
 
-       
+
 
     def getNormalDerivative(self, xveclocal):
         """
-        :param xveclocal (3xN array float) 
-        
-        :return (3x3xN numpy array of float) 
+        :param xveclocal (3xN array float)
+
+        :return (3x3xN numpy array of float)
         """
-                
+
         (x, y, z) = (xveclocal[0], xveclocal[1], xveclocal[2])
         rho = self.curvature()
         cc = self.conic()
@@ -237,21 +237,21 @@ class Conic(Shape):
         (num_dims, num_points) = np.shape(xveclocal)
 
         factor = 1. - cc*rho**2*(x**2 + y**2)
-        
+
         curvmatrix = np.array([[rho, 0, 0], [0, rho, 0], [0, 0, rho*(1.+cc)]])
-        curvmatrix = np.repeat(curvmatrix[:, :, np.newaxis], num_points, axis=2)        
-        
+        curvmatrix = np.repeat(curvmatrix[:, :, np.newaxis], num_points, axis=2)
+
         prematrix = 1./np.sqrt(factor)*curvmatrix
-                
+
         innermatrix = np.repeat(np.eye(3)[:, :, np.newaxis], num_points, axis=2) \
             - 1./factor*np.array([
                 [rho**2*x**2, rho**2*x*y, rho*x*(rho*(1+cc)*z - 1.)],
                 [rho**2*y*x, rho**2*y**2, rho*y*(rho*(1+cc)*z - 1.)],
-                [rho*x*(rho*(1+cc)*z - 1.), rho*y*(rho*(1+cc)*z - 1.), 1 - rho**2*(1+cc)*(x**2 + y**2)] 
+                [rho*x*(rho*(1+cc)*z - 1.), rho*y*(rho*(1+cc)*z - 1.), 1 - rho**2*(1+cc)*(x**2 + y**2)]
             ])
-        
+
         return np.einsum('ij...,jk...', prematrix, innermatrix).T
-                
+
 
     def getCentralCurvature(self):
         return self.curvature.evaluate()
@@ -259,7 +259,7 @@ class Conic(Shape):
     def intersect(self, raybundle):
         """
         Calculates intersection from raybundle.
-        
+
         :param raybundle (RayBundle object), gets changed!
         """
 
@@ -282,13 +282,13 @@ class Conic(Shape):
         square = F**2 + H*G
         division_part = F + np.sqrt(square)
 
-        
+
         #H_nearly_zero = (np.abs(H) < numerical_tolerance)
         #G_nearly_zero = (np.abs(G) < numerical_tolerance)
-        #F_nearly_zero = (np.abs(F) < numerical_tolerance)                
+        #F_nearly_zero = (np.abs(F) < numerical_tolerance)
         #t = np.where(H_nearly_zero, G/(2.*F), np.where(G_nearly_zero, -2.*F/H, G / division_part))
 
-        t = G/division_part 
+        t = G/division_part
 
         intersection = r0 + rayDir * t
 
@@ -296,9 +296,9 @@ class Conic(Shape):
         validIndices = square > 0 #*(True - F_nearly_zero)
 
         globalinter = self.lc.returnLocalToGlobalPoints(intersection)
-        
+
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
-        
+
 
 class Cylinder(Conic):
     def __init__(self, lc, curv=0.0, cc=0.0, **kwargs):
@@ -315,7 +315,7 @@ class Cylinder(Conic):
              cc > 1 hyperbolic
         """
         super(Cylinder, self).__init__(lc, **kwargs)
-        
+
         self.curvature = OptimizableVariable(name="curvature", value=curv)
         self.conic = OptimizableVariable(name="conic constant", value=cc)
 
@@ -350,7 +350,7 @@ class Cylinder(Conic):
         validIndices = (square > 0) # TODO: damping criterion
 
         globalinter = self.lc.returnLocalToGlobalPoints(intersection)
-        
+
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
 
 class FreeShape(Shape):
@@ -371,8 +371,8 @@ class FreeShape(Shape):
         self.params = {}
         for (name, value) in paramlist:
             self.params[name] = OptimizableVariable(name=name, value=value)
-            
-        
+
+
         self.tol = tol
         self.iterations = iterations
         self.F = F # implicit function in x, y, z, paramslst
@@ -387,7 +387,7 @@ class FreeShape(Shape):
     def getHessian(self, x, y):
         z = self.getSag(x, y)
         return self.hessF(x, y, z)
-        
+
     # TODO: this could be speed up by updating a class internal z array
     # which could be done by using an internal update procedure and using
     # this z array by the get-functions
@@ -439,7 +439,7 @@ class ImplicitShape(FreeShape):
 
         C1 = self.F(x, y, z1)
         C2 = self.F(x, y, z2)
-        
+
         zstart = z1 - (z2 - z1)/(C2 - C1)*C1
 
         # F(x, y, z) = F(x, y, z0) + DFz(x, y, z0) (z - z0) = 0
@@ -499,15 +499,15 @@ class Asphere(ExplicitShape):
         def sqrtfun(r2):
             (curv, cc, acoeffs) = self.getAsphereParameters()
             return np.sqrt(1 - curv**2*(1+cc)*r2)
-            
+
 
 
 
         def af(x, y):
             (curv, cc, acoeffs) = self.getAsphereParameters()
-            
-            r2 = x**2 + y**2            
-            
+
+            r2 = x**2 + y**2
+
             res = curv*r2/(1 + sqrtfun(r2))
             for (n, an) in enumerate(acoeffs):
                 res += an*r2**(n+1)
@@ -516,40 +516,40 @@ class Asphere(ExplicitShape):
         def gradaf(x, y, z): # gradient for implicit function z - af(x, y) = 0
             res = np.zeros((3, len(x)))
             (curv, cc, acoeffs) = self.getAsphereParameters()
-            
+
             r2 = x**2 + y**2
-            sq = sqrtfun(r2)            
-            
+            sq = sqrtfun(r2)
+
 
             res[2] = np.ones_like(x) # z-component always 1
             res[0] = -curv*x/sq
             res[1] = -curv*y/sq
-            
-            for (n, an) in enumerate(acoeffs):          
+
+            for (n, an) in enumerate(acoeffs):
                 res[0] += -2.*x*(n+1)*an*r2**n
                 res[1] += -2.*y*(n+1)*an*r2**n
-            
+
             return res
 
         def hessaf(x, y, z):
             res = np.zeros((3, 3, len(x)))
 
             (curv, cc, acoeffs) = self.getAsphereParameters()
-            
+
             r2 = x**2 + y**2
-            sq = sqrtfun(r2)            
-            
+            sq = sqrtfun(r2)
+
             maindev = -curv/(2.*sq)
-            maindev2 = -curv**3*(1+cc)/(4.*sq)            
-            
+            maindev2 = -curv**3*(1+cc)/(4.*sq)
+
             for (n, an) in enumerate(acoeffs):
                 maindev += -an*(n+1)*r2**n
                 maindev2 += -an*(n+1)*n*r2**(n-1)
-            
+
             res[0, 0] = 2*(2*maindev2*x*x + maindev)
             res[1, 1] = 2*(2*maindev2*y*y + maindev)
             res[0, 1] = res[1, 0] = 4*maindev2*x*y
-            
+
             return res
 
         super(Asphere, self).__init__(lc, af, gradaf, hessaf, \
@@ -559,7 +559,7 @@ class Asphere(ExplicitShape):
         return (self.params["curv"](), \
                 self.params["cc"](), \
                 [self.params["A"+str(2*i+2)]() for i in range(self.numcoefficients)])
-        
+
     def getCentralCurvature(self):
         return self.params["curv"].evaluate()
 
@@ -574,7 +574,7 @@ class Biconic(ExplicitShape):
 
         if coefficients is None:
             coefficients = []
-        
+
 
         self.numcoefficients = len(coefficients)
         initacoeffs = [("A"+str(2*i+2), vala) for (i, (vala, valb)) in enumerate(coefficients)]
@@ -583,18 +583,18 @@ class Biconic(ExplicitShape):
         def sqrtfun(x, y):
             (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
             return np.sqrt(1 - curvx**2*(1+ccx)*x**2 - curvy**2*(1+ccy)*y**2)
-            
+
 
 
 
         def bf(x, y):
             (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
-            
+
             r2 = x**2 + y**2
             ast2 = x**2 - y**2
-            
+
             res = (curvx*x**2 + curvy*y**2)/(1 + sqrtfun(x, y))
-            
+
             for (n, (an, bn)) in enumerate(coeffs):
                 res += an*(r2 - bn*ast2)**(n+1)
             return res
@@ -602,21 +602,21 @@ class Biconic(ExplicitShape):
         def gradbf(x, y, z): # gradient for implicit function z - af(x, y) = 0
             res = np.zeros((3, len(x)))
             (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
-            
+
             r2 = x**2 + y**2
             ast2 = x**2 - y**2
 
-            sq = sqrtfun(x, y)            
-            
+            sq = sqrtfun(x, y)
+
 
             res[2] = np.ones_like(x) # z-component always 1
             res[0] = -cx*x*(cx*(ccx + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
-            res[1] = -cy*y*(cy*(ccy + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq) 
-            
-            for (n, (an, bn)) in enumerate(coeffs):          
+            res[1] = -cy*y*(cy*(ccy + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
+
+            for (n, (an, bn)) in enumerate(coeffs):
                 res[0] += 2*an*(n+1)*x*(bn - 1)*(-bn*ast2 + r2)**n
                 res[1] += -2*an*(n+1)*y*(bn + 1)*(-bn*ast2 + r2)**n
-            
+
             return res
 
         def hessbf(x, y, z):
@@ -625,7 +625,7 @@ class Biconic(ExplicitShape):
             (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
 
             z = self.getSag(x, y)
-            
+
 
             res[0, 0] = -2*cx*(6*cx*x**2 + cx*z**2*(ccx + 1) + 2*cy*y**2 - 2*z)
             res[0, 1] = res[1, 0] = -8*cx*cy*x*y
@@ -634,8 +634,8 @@ class Biconic(ExplicitShape):
             res[1, 2] = res[2, 1] = -4*cy*y*(cy*z*(ccy + 1) - 1)
             res[2, 2] = -2*cx**2*x**2*(ccx + 1) + 2*cy**2*y**2*(ccy + 1)
 
-            # TODO: corrections missing            
-            
+            # TODO: corrections missing
+
             return res
 
         super(Biconic, self).__init__(lc, bf, gradbf, hessbf, \
@@ -648,7 +648,7 @@ class Biconic(ExplicitShape):
                 self.params["ccy"](), \
                 [(self.params["A"+str(2*i+2)](), self.params["B"+str(2*i+2)]()) for i in range(self.numcoefficients)]
                 )
-        
+
     def getCentralCurvature(self):
         return 0.5*(self.params["curvx"]() + self.params["curvy"]())
 
@@ -656,18 +656,18 @@ class LinearCombination(ExplicitShape):
     """
     Class for combining several principal forms with arbitray corrections
     """
-    
+
     def __init__(self, lc, list_of_coefficients_and_shapes = [], **kwargs):
         self.list_of_coefficient_and_shapes = list_of_coefficients_and_shapes
-        
-        
-        
-        
+
+
+
+
         def licosag(x, y):
-            
+
             xlocal = np.vstack((x, y, np.zeros_like(x)))
             zfinal = np.zeros_like(x)
-            
+
             for (coefficient, shape) in self.list_of_coefficient_and_shapes:
                 xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
                 xs = xshape[0, :]
@@ -675,30 +675,30 @@ class LinearCombination(ExplicitShape):
                 zs = shape.getSag(xs, ys)
                 xshape[2, :] = zs
                 xtransform_shape = shape.lc.returnActualToOtherPoints(xshape, self.lc)
-                
+
                 zfinal += coefficient*xtransform_shape[2]
-                
+
             return zfinal
-            
+
         def licograd(x, y, z):
             xlocal = np.vstack((x, y, np.zeros_like(x)))
             gradfinal = np.zeros_like(xlocal)
-            
+
             for (coefficient, shape) in self.list_of_coefficient_and_shapes:
                 xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
                 xs = xshape[0, :]
                 ys = xshape[1, :]
                 grads = shape.getGrad(xs, ys)
                 gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
-                
+
                 gradfinal += -coefficient*gradtransform_shape
-                
+
             return gradfinal
-        
+
         def licohess(x, y, z):
             # TODO: Hessian
             pass
-        
+
         super(LinearCombination, self).__init__(lc, licosag, licograd, licohess, **kwargs)
 
 class XYPolynomials(ExplicitShape):
@@ -715,9 +715,9 @@ class XYPolynomials(ExplicitShape):
 
         def xyf(x, y):
             (normradius, coeffs) = self.getXYParameters()
-            
+
             res = np.zeros_like(x)
-            
+
             for (xpow, ypow, coefficient) in coeffs:
                 normalization = 1./normradius**(xpow+ypow)
                 res += x**xpow*y**ypow*coefficient*normalization
@@ -734,13 +734,13 @@ class XYPolynomials(ExplicitShape):
                 res[0, :] += -xpow*xpm1*y**ypow*coefficient*normalization
                 res[1, :] += -ypow*x**xpow*ypm1*coefficient*normalization
             res[2, :] = 1.
-                        
+
             return res
 
         def hessxyf(x, y, z):
             res = np.zeros((3, 3, len(x)))
 
-            (normradius, coeffs) = self.getXYParameters()            
+            (normradius, coeffs) = self.getXYParameters()
 
             for (xpow, ypow, coefficient) in coeffs:
                 normalization = 1./normradius**(xpow+ypow)
@@ -752,9 +752,9 @@ class XYPolynomials(ExplicitShape):
                 res[0, 0] += -xpow*(xpow-1)*xpm2*y**ypow*coefficient*normalization
                 res[0, 1] += -xpow*ypow*xpm1*ypm1*coefficient*normalization
                 res[1, 1] += -ypow*(ypow-1)*x**xpow*ypm2*coefficient*normalization
-                
+
             res[1, 0] = res[0, 1]
-            
+
             return res
 
         super(XYPolynomials, self).__init__(lc, xyf, gradxyf, hessxyf, \
@@ -763,45 +763,45 @@ class XYPolynomials(ExplicitShape):
     def getXYParameters(self):
         return (self.params["normradius"](),
                 [(xpow, ypow, self.params["CX"+str(xpow)+"Y"+str(ypow)]()) for (xpow, ypow) in self.list_coefficients])
-                
+
 
 class GridSag(ExplicitShape):
     """
     Class for gridsag
     """
-    
+
     def __init__(self, lc, xxx_todo_changeme, *args, **kwargs):
-    
+
         (xlinspace, ylinspace, Zgrid) = xxx_todo_changeme
         kwargs_dict = kwargs
         name = kwargs_dict.pop('name', '')
-    
-    
+
+
         self.interpolant = RectBivariateSpline(xlinspace, ylinspace, Zgrid)
         #self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
-    
-        def gsf(x, y):            
+
+        def gsf(x, y):
             res = self.interpolant.ev(x, y)
-                        
+
             return res
 
         def gradgsf(x, y, z): # gradient for implicit function z - af(x, y) = 0
             res = np.zeros((3, len(x)))
-            
+
             res[0, :] = -self.interpolant.ev(x, y, dx=1)
             res[1, :] = -self.interpolant.ev(x, y, dy=1)
             res[2, :] = 1.
-            
+
             return res
 
         def hessgsf(x, y, z):
             res = np.zeros((3, 3, len(x)))
-            
-            res[0, 0, :] = -self.interpolant.ev(x, y, dx=2)            
-            res[0, 1, :] = res[1, 0, :] = -self.interpolant.ev(x, y, dx=1, dy=1)            
-            res[1, 1, :] = -self.interpolant.ev(x, y, dy=2)            
-            
-            
+
+            res[0, 0, :] = -self.interpolant.ev(x, y, dx=2)
+            res[0, 1, :] = res[1, 0, :] = -self.interpolant.ev(x, y, dx=1, dy=1)
+            res[1, 1, :] = -self.interpolant.ev(x, y, dy=2)
+
+
             return res
 
         super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-4, iterations=10, name=name)
@@ -810,25 +810,25 @@ class Zernike(ExplicitShape):
     """
     Class for Zernike
     """
-    
+
     def __init__(self, lc, normradius=1., coefficients=None, **kwargs):
         if coefficients is None:
             coefficients = []
 
         self.numcoefficients = len(coefficients)
         initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
-            
+
         def zf(x, y):
-            (normradius, zcoefficients) = self.getZernikeParameters()            
-            res = np.zeros_like(x)            
+            (normradius, zcoefficients) = self.getZernikeParameters()
+            res = np.zeros_like(x)
             for (num, val) in enumerate(zcoefficients):
                 res += val*self.zernike_norm_j(num + 1, x/normradius, y/normradius)
-            
+
             return res
-        
+
         def gradzf(x, y, z):
-            (normradius, zcoefficients) = self.getZernikeParameters()            
-            res = np.zeros((3, len(x)))            
+            (normradius, zcoefficients) = self.getZernikeParameters()
+            res = np.zeros((3, len(x)))
             xp = x/normradius
             yp = y/normradius
 
@@ -836,11 +836,11 @@ class Zernike(ExplicitShape):
                 (dZdxp, dZdyp) = self.gradzernike_norm_j(num + 1, xp, yp)
                 res[0] += -val*dZdxp/normradius
                 res[1] += -val*dZdyp/normradius
-            
+
             res[2] = 1.
-            
+
             return res
-            
+
         def hesszf(x, y, z):
             return np.zeros((3, 3, len(x)))
 
@@ -878,7 +878,7 @@ class Zernike(ExplicitShape):
     def radialfunction_norm2(self, n, m, xp, yp):
         # TODO: perform lookup table for radial functions coefficients
         # TODO: examine possibility of looking up zernike functions directly
-        
+
         rho = np.sqrt(xp**2 + yp**2)
         omega = abs(m)
 
@@ -887,16 +887,16 @@ class Zernike(ExplicitShape):
         for l in range((n - omega)//2 + 1):
             final += self.rc(n, omega, l)*rho**(n-2.*l)
         return final
-        
+
     def radialfunction_norm(self, n, m, xp, yp):
         rho = np.sqrt(xp**2 + yp**2)
         omega = abs(m)
         sumlimit = (n-omega)//2
-        return (-1)**sumlimit*rho**omega*jacobi(sumlimit, omega, 0)(1. - 2.*rho**2)        
+        return (-1)**sumlimit*rho**omega*jacobi(sumlimit, omega, 0)(1. - 2.*rho**2)
 
     def radialfunction_norm_rho_derivative(self, n, m, xp, yp):
         # TODO: remove code doubling
-        
+
         rho = np.sqrt(xp**2 + yp**2)
         omega = abs(m)
 
@@ -905,7 +905,7 @@ class Zernike(ExplicitShape):
         for l in range((n - omega)//2 + 1):
             final += (n - 2.*l)*self.rc(n, omega, l)*rho**(n-2.*l - 1)
         return final
-        
+
 
     def angularfunction_norm(self, n, m, xp, yp):
         omega = abs(m)
@@ -919,37 +919,37 @@ class Zernike(ExplicitShape):
 
 
     def zernike_norm_j(self, j, xp, yp):
-        (n, m) = self.jtonm(j)                
+        (n, m) = self.jtonm(j)
         return self.zernike_norm(n, m, xp, yp)
-        
+
     def zernike_norm2(self, n, m, xp, yp):
-        return self.radialfunction_norm(n, m, xp, yp)*self.angularfunction_norm(n, m, xp, yp)        
+        return self.radialfunction_norm(n, m, xp, yp)*self.angularfunction_norm(n, m, xp, yp)
 
-    def zernike_norm(self, n, m, xp, yp):        
+    def zernike_norm(self, n, m, xp, yp):
 
 
-        R = np.zeros(n+1)                        
+        R = np.zeros(n+1)
         omega = abs(m)
-        
+
         a = np.arange(omega, n+1, 2)
-        k = (n-a)/2        
-    
+        k = (n-a)/2
+
         R[a] = (-1)**k * factorial(n-k) / ( factorial(k) * factorial((n+m)/2 - k) * factorial((n-m)/2-k) )
-        
+
         r = np.sqrt(xp**2 + yp**2)
         phi = np.arctan2(yp, xp)
-        
+
         rho = np.zeros_like(r)
 
         for i in range(n+1):
             rho += R[i]*r**i
-                
+
         result = np.zeros_like(rho)
         if m < 0:
             result = rho*np.sin(omega*phi)
         else:
             result = rho*np.cos(omega*phi)
-        
+
         return result
 
 
@@ -961,17 +961,17 @@ class Zernike(ExplicitShape):
         rho = np.sqrt(xp**2 + yp**2)
         dZdxp = (radder*ang*xp + rad*angder*(-yp))/rho
         dZdyp = (radder*ang*yp + rad*angder*xp)/rho
-        
+
         return (dZdxp, dZdyp)
-                
+
     def gradzernike_norm_j(self, j, xp, yp):
         (n, m) = self.jtonm(j)
-        
+
         return self.gradzernike_norm(n, m, xp, yp)
-        
-        
+
+
 class ZernikeFringe(Zernike):
-    
+
     def __init__(self, lc, **kwargs):
 
         super(ZernikeFringe, self).__init__(lc, **kwargs)
@@ -983,7 +983,7 @@ class ZernikeFringe(Zernike):
         m = int(math.ceil((next_sq - j)/2))
         n = m_plus_n - m
         m = int((-1)**((next_sq - j) % 2))*m
-        return (n, m)        
+        return (n, m)
 
     def nmtoj(self, xxx_todo_changeme2):
         (n, m) = xxx_todo_changeme2
@@ -991,7 +991,7 @@ class ZernikeFringe(Zernike):
 
 
 class ZernikeStandard(Zernike):
-    
+
     def __init__(self, lc, **kwargs):
 
         super(ZernikeStandard, self).__init__(lc, **kwargs)
@@ -1001,9 +1001,9 @@ class ZernikeStandard(Zernike):
         n = math.floor((-1.+math.sqrt(1.+8.*j))*0.5);
         m = n-2*j+n*(n+1);
 
-        
+
         return (n, m)
-        
+
     def nmtoj(self, xxx_todo_changeme3):
         (n, m) = xxx_todo_changeme3
         return 0
@@ -1016,7 +1016,7 @@ class ZernikeStandard(Zernike):
 '''
 typedef struct
 {
- 
+
 double x, y, z;     /* the coordinates */
 double l, m, n;     /* the ray direction cosines */
 double ln, mn, nn;  /* the surface normals */
@@ -1026,16 +1026,16 @@ double index, dndx, dndy, dndz; /* for GRIN surfaces only */
    double rel_surf_tran; /* for relative surface transmission data, if any */
    double udreserved1, udreserved2, udreserved3, udreserved4; /* for future expansion */
    char string[20];    /* for returning string data */
- 
+
 }USER_DATA;
 '''
 class USER_DATA(ctypes.Structure):
-	_fields_ = [("x", ctypes.c_double), ("y", ctypes.c_double), ("z", ctypes.c_double),
-			("l", ctypes.c_double), ("m", ctypes.c_double), ("n", ctypes.c_double),
+    _fields_ = [("x", ctypes.c_double), ("y", ctypes.c_double), ("z", ctypes.c_double),
+            ("l", ctypes.c_double), ("m", ctypes.c_double), ("n", ctypes.c_double),
                         ("ln", ctypes.c_double), ("mn", ctypes.c_double), ("nn", ctypes.c_double),
-			("path", ctypes.c_double), ("sag1", ctypes.c_double), ("sag2", ctypes.c_double),
-			("index", ctypes.c_double), ("dndx", ctypes.c_double), ("dndy", ctypes.c_double), ("dndz", ctypes.c_double),
-                ("rel_surf_tran", ctypes.c_double), 
+            ("path", ctypes.c_double), ("sag1", ctypes.c_double), ("sag2", ctypes.c_double),
+            ("index", ctypes.c_double), ("dndx", ctypes.c_double), ("dndy", ctypes.c_double), ("dndz", ctypes.c_double),
+                ("rel_surf_tran", ctypes.c_double),
                 ("udreserved1", ctypes.c_double),
                 ("udreserved2", ctypes.c_double),
                 ("udreserved3", ctypes.c_double),
@@ -1063,8 +1063,8 @@ class FIXED_DATA(ctypes.Structure):
             ("numb", ctypes.c_int),
             ("surf", ctypes.c_int),
             ("wave", ctypes.c_int),
-            ("wavelength", ctypes.c_double), 
-            ("pwavelength", ctypes.c_double), 
+            ("wavelength", ctypes.c_double),
+            ("pwavelength", ctypes.c_double),
             ("n1", ctypes.c_double),
             ("n2", ctypes.c_double),
             ("cv", ctypes.c_double),
@@ -1074,29 +1074,29 @@ class FIXED_DATA(ctypes.Structure):
             ("param", 9*ctypes.c_double),
             ("fdreserved1", ctypes.c_double),
             ("xdata", 201*ctypes.c_double),
-            ("glass", 21*ctypes.c_byte) 
+            ("glass", 21*ctypes.c_byte)
         ]
 
 
 
-   
+
 class ZMXDLLShape(Conic):
     """
     This surface is able to calculate certain shape quantities from a DLL loaded externally.
     """
-    
+
     def __init__(self, lc, dllfile, param_dict={}, xdata_dict={}, isWinDLL=False, curv=0.0, cc=0.0, **kwargs):
         """
         param: lc LocalCoordinateSystem of shape
         param: dllfile (string) path to DLL file
         param: param_dict (dictionary) key: string, value: (int 0 to 8, float); initializes optimizable variables.
         param: xdata_dict (dictionary) key: string, value: (int  0 to 200, float); initializes optimizable variables.
-        param: isWinDLL (bool): is DLL compiled in Windows or Linux?        
-        
+        param: isWinDLL (bool): is DLL compiled in Windows or Linux?
+
         Notice that this class only calls the appropriate functions from the DLL.
         The user is responsible to get all necessary functions running to use this DLL.
         (i.e. intersect, sag, normal, ...)
-        
+
         To compile the DLL for Linux, remove all Windows and calling convention stuff an build it
         via:
 
@@ -1106,12 +1106,12 @@ class ZMXDLLShape(Conic):
 
         """
         super(ZMXDLLShape, self).__init__(lc, curv=curv, cc=cc, **kwargs)
-        
+
         if isWinDLL:
             self.dll = ctypes.WinDLL(dllfile)
         else:
             self.dll = ctypes.CDLL(dllfile)
-            
+
         self.param = {}
         for (key, (value_int, value_float)) in param_dict.items():
             self.param[value_int] = OptimizableVariable(name="param"+str(value_int), value=value_float)
@@ -1124,7 +1124,7 @@ class ZMXDLLShape(Conic):
         for (key, var) in self.param.items():
             f.param[key] = var()
         return f
-    
+
     def writeXdata(self, f):
         for (key, var) in self.xdata.items():
             f.xdata[key] = var()
@@ -1134,7 +1134,7 @@ class ZMXDLLShape(Conic):
         (r0, rayDir) = self.getLocalRayBundleForIntersect(raybundle)
 
         intersection = np.zeros_like(r0)
-        
+
         u = USER_DATA()
         f = FIXED_DATA()
 
@@ -1143,11 +1143,11 @@ class ZMXDLLShape(Conic):
         f.cv = self.curvature()
         f.wavelength = raybundle.wave
 
-        
+
         f = self.writeParam(f)
         f = self.writeXdata(f)
-        
-        
+
+
         x = r0[0, :]
         y = r0[1, :]
         z = r0[2, :]
@@ -1157,23 +1157,23 @@ class ZMXDLLShape(Conic):
         n = rayDir[2, :]
 
         for (ind, (xl, yl, zl, ll, ml, nl)) in zip(x.tolist(), y.tolist(), z.tolist(), l.tolist(), m.tolist(), n.tolist()):
-            
+
             u.x = xl
             u.y = yl
             u.z = zl
             u.l = ll
             u.m = ml
-            u.n = nl            
-            
-            self.us_surf(ctypes.byref(u), ctypes.byref(f))            
-            
+            u.n = nl
+
+            self.us_surf(ctypes.byref(u), ctypes.byref(f))
+
             intersection[0, ind] = u.x
             intersection[1, ind] = u.y
-            intersection[2, ind] = u.z        
+            intersection[2, ind] = u.z
 
 
         globalinter = self.lc.returnLocalToGlobalPoints(intersection)
-        
+
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], raybundle.valid[-1])
 
     def getSag(self, x, y):
@@ -1190,47 +1190,47 @@ class ZMXDLLShape(Conic):
 
         z = np.zeros_like(x)
 
-        for (ind, (xp, yp)) in enumerate(zip(x.tolist(), y.tolist())):        
+        for (ind, (xp, yp)) in enumerate(zip(x.tolist(), y.tolist())):
             u.x = xp
             u.y = yp
             retval = self.us_surf(ctypes.byref(u), ctypes.byref(f))
             z[ind] = u.sag1 if retval == 0 else u.sag2
-            
+
         return z
-            
+
 if __name__=="__main__":
-    
+
     from .localcoordinates import LocalCoordinates
-    import matplotlib.pyplot as plt    
-    
-    
+    import matplotlib.pyplot as plt
+
+
     lc = LocalCoordinates()
-    
-    s = ZMXDLLShape(lc, 
-                    "../us_stand_gcc.so", 
-                    xdata_dict={"xd1":(1, 0.1), "xd2":(2, 0.2)}, 
+
+    s = ZMXDLLShape(lc,
+                    "../us_stand_gcc.so",
+                    xdata_dict={"xd1":(1, 0.1), "xd2":(2, 0.2)},
                     param_dict={"p1":(1, 0.3), "p2":(2, 0.4)}, curv=0.01, cc=0)
 
     x = np.random.random(100)
     y = np.random.random(100)
-    
+
     z = s.getSag(x, y)
 
-    print(z)    
-    
+    print(z)
+
     sz = ZernikeFringe(lc)
 
     for ind in (np.array(list(range(36)))+1).tolist():
-        print((ind, sz.jtonm(ind), sz.nmtoj(sz.jtonm(ind))))
-            
+        print(ind, sz.jtonm(ind), sz.nmtoj(sz.jtonm(ind)))
+
     x = np.linspace(-1, 1, 50)
-    y = np.linspace(-1, 1, 50)    
+    y = np.linspace(-1, 1, 50)
 
     (X, Y) = np.meshgrid(x, y)
-    
+
     XN = X
     YN = Y
-        
+
     fig = plt.figure()
     for ind in range(36):
         j = ind+1
@@ -1239,8 +1239,8 @@ if __name__=="__main__":
         ax = fig.add_subplot(9, 4, j)
         ZN[XN**2 + YN**2 > 1] = np.nan
         ax.imshow(ZN)
-    
+
     plt.show()
-    
-           
-    
+
+
+

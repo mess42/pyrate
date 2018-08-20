@@ -24,11 +24,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from log import BaseLogger
+from .log import BaseLogger
 
 class FunctionObject(BaseLogger):
-    
-    
+
+
     def __init__(self, initial_sourcecode="", initial_funcnamelist=[], name="", **kwargs):
         super(FunctionObject, self).__init__(name=name, **kwargs)
         self.source = initial_sourcecode
@@ -43,12 +43,12 @@ class FunctionObject(BaseLogger):
         f.close()
         self.info(self.source)
         self.sourcecode_security_checked = False
-        
+
     def save(self, filename):
         f = open(filename, "w")
         f.write(self.source)
         f.close()
-        
+
     def generateFunctionsFromSource(self, funcnamelist):
         self.info("Generating Functions from source")
         if not self.sourcecode_security_checked:
@@ -58,13 +58,13 @@ class FunctionObject(BaseLogger):
             localsdict = {}
             self.functiondict = {}
             try:
-                exec(self.source, localsdict) 
+                exec(self.source, localsdict)
             except:
                 self.error("Exception caught")
 
             for fn in funcnamelist:
                 self.functiondict[fn] = localsdict.get(fn, None)
-        
+
 if __name__ == "__main__":
     s = """
 import math
@@ -75,22 +75,22 @@ import os
 f = lambda x: -x**2
 def g(x):
     return x**2
-    
+
 def h(x):
     return math.sqrt(x**2 + 1)
-    
+
 def r(x, y, z):
     os.system("kcalc")
     print("Usage of FunctionObject is a security risk, be careful!")
     return np.dot(rodrigues(0.01, np.array([0, 1, 0])), np.array([x, y, z]))
-"""    
-    
+"""
+
     foo1 = FunctionObject(s, name="myfoo1")
     foo1.save("./myfunc.py")
-    
+
     foo2 = FunctionObject(name="myfoo2")
     foo2.load("./myfunc.py")
     foo2.sourcecode_security_checked = True
     foo2.generateFunctionsFromSource(["f", "g", "h", "r"])
     print(foo2.functiondict["r"](3, 4, 5))
-    
+
