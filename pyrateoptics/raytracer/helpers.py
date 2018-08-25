@@ -202,9 +202,9 @@ def build_pilotbundle_complex(surfobj, mat, xxx_todo_changeme5, xxx_todo_changem
         """
         Generates cone for direction vector on real S_6 
         (x^2 + y^2 + z^2 + u^2 + v^2 + w^2 = 1)
+        and generates cartesian raster for x and y
         """
         
-        #generates cartesian raster for x and y
         (dx, dy) = xxx_todo_changeme2
         num_pts_lspace = num_pts_dir
         if num_pts_dir % 2 == 1:
