@@ -103,6 +103,10 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
     param random_xy: (bool) choose xy distribution randomly?
     
     """
+    # TODO: remove code doubling from material due to sorting of K and E
+    # TODO: check K and E from unit vector (fulfill ev equation?)
+    # TODO: check why there are singular matrices generated in calculateXYUV
+    
     (dx, dy) = xxx_todo_changeme3
     (phix, phiy) = xxx_todo_changeme4
     def generate_cone_xy_bilinear(
