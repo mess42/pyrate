@@ -144,9 +144,9 @@
 \section{Time of Flight}
 \subsection{General Linear Media}
 We consider a monochromatic laser. 
-In front of the laser, there is an amplitude or phase modulator, impressing a signal on the monochromatic carrier frequency.
+In front of the laser, there is an amplitude or phase modulator, impressing a signal on the monochromatic laser carrier frequency.
 The modulated light then enters a bulk block of the medium we want to test.
-After passing the medium, the light intensity is detected.
+After passing the medium, the light intensity or interferometric phase is detected.
 
 We consider the light right after the incoupling into the medium.
 We assume the medium permittivity $\permittivity$ is known,
@@ -158,17 +158,17 @@ and the ray starts at the origin.
 \begin{eqnarray}
  \Efield(x,y,0, t) &=& \Efield_0 \exp (i ( \wavenumber_x x + \wavenumber_y y - \omega_0 t)) f(t)
 \end{eqnarray}
-where the locations $\Location_\parallel$ are in the start plane and $f(t)$ is the time-dependent transmission of the modulator.
+where $f(t)$ represents the time-dependent transmission and phase-shift of the modulator.
+In isotropic media, the phase velocity points in the same direction as the Poynting vector, 
+so in this case $\wavenumber_x = \wavenumber_y = 0$ holds.
 We Fourier transform the electric field in the time domain and yield
 \begin{eqnarray}
  \Efield(x,y,0, \omega) &=& \Efield_0  \exp (i ( \wavenumber_x x+ \wavenumber_y y)) F(\omega-\omega_0) \label{eq:tof_startplane}\\
  F(\omega) &=& \frac{1}{\sqrt{2\pi}} \int dt f(t) \exp(-i \omega t)
 \end{eqnarray}
-The detector shall be located on a line from the ray start point $(0,0,0)$ in the direction of the Poynting vector $(0,0,S_z)$
-at $(0,0,z_{det})$.
-For each frequency, we know 
-(i) the electric field is a single plane wave and 
-(ii) the in-plane components are $\wavenumber_x$,$\wavenumber_y$ are fixed by \eqref{eq:tof_startplane}.
+The detector shall be located on a line from the ray start point $(0,0,0)$ in the direction of the Poynting vector at $(0,0,z_{det})$.
+From angular spectrum representation, we derive that for each frequency, the electric field is a single plane wave.
+The in-plane components are $\wavenumber_x$,$\wavenumber_y$ of this plane wave are fixed by \eqref{eq:tof_startplane}.
 The remaining wavevector component is determined by the dispersion relation.
 \begin{eqnarray}
  \Wavevector(\omega) &=& \Wavevector_x + \Wavevector_y + \Wavevector_z(\omega)
@@ -179,20 +179,34 @@ We propagate to the position of the detector
 \end{eqnarray}
 Next we Fourier transform back into time domain and determine the point in time when the signal arrives.
 
-\subsection{Example 1: Gau\ss\, pulse}
+\subsection{Attempt 1: Gau\ss\, pulse}
+We assume an amplitude modulator which impresses a series of Gau\ss\, pulses on the laser intensity.
+\begin{eqnarray}
+  f(t) &=& \sum_j \exp\left(- \frac{i(t-t_j)^2}{\tau^2}\right) 
+\end{eqnarray}
+where $t_j$ are the peak positions and $\tau$ is the pulse duration.
+We assume the pulse duration is sufficiently slow compared to the laser carrier frequency 
+so that we can treat the problem in a near-monochromatic way.
+The peak positions shall be well separated.
+Now let's assume we have a noise-free detector and we know the signal consists only of Gau\ss\, pulses.
+We measure the signal for some time long before the first peak.
+
+We deconvolute the signal with the known Gau\ss\, shape and anticipate the temporal location of all peaks.
+We can do this for measurements at any time before, during, or after the series of pulses.
+The problem is that Gau\ss pulses have an infinite extent in time.
+Strictly speaking, the signal transmission starts at minus infinity.
+
+From this attempt, we conclude that we may not combine infinitely extended signals and noise-free transmission channels.
+
+\subsection{Attempt 2: Noisy detector}
+We assume the same series of Gau\ss\, pulses as above, but this time with some noise on the detected signal.
+We determine the detector noise level and define a minimum intensity above the noise level, on which the detector triggers.
+
+The choice of start pulse strength and detector trigger level are arbitrary and influence the measurement result.
+
+\subsection{Attempt 3:}
+
 \begin{itemize}
- \item A Gau\ss\, pulse has an infinite extent in time.
-       If we know the information is encoded in a set of Gau\ss\, shaped pulses,
-       and we know the pulse duration,
-       and we have a noise-free detector, 
-       we can measure the signal for some time long before the first peak,
-       deconvolute the signal and anticipate the temporal location of all peaks.
-       Strictly speaking, the signal transmission starts at minus infinity.
-       This males time-of-flight measurements with noise-free detectors difficult.
- \item So let's assume we have a noisy detector.
-       It needs a minimum intensity to trigger.
-       In low transmission materials, the signal may never reach the desired level.
-       The choice of start pulse strength and detector trigger level are arbitrary and influence the measurement result.
  \item If we define the peak position as signal position, we also may run into trouble.
        We consider a Sellmeier-oscillator and put our laser close to the resonance.
        The Gau\ss\, pulse will disperse and will be damped.
