@@ -1,4 +1,4 @@
 ln -s ./pyrate/refractiveindex.info-database/ ./
 for a in $(ls demos/demo*.py); do
-	python -m $(echo $a | sed 's/\//./g' | sed 's/.py//g');
+	python3 -m $(echo $a | sed 's/\//./g' | sed 's/.py//g');
 done
