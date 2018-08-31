@@ -118,7 +118,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="", name="")
         else:
             actsurf = Surface(lc, name=surf_name + "_surf",\
                         shape=eval("Shapes." + shapetype)(lc, name=name + "_shape", **surfdict))
-        print("mat=%s"%repr(mat))
+        logger.debug("mat=%s"%repr(mat))
         if mat is not None:
             try:
                 n = float(mat)
