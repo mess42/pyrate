@@ -38,7 +38,7 @@ epd = 5.
 
 (s, seq) = build_rotationally_symmetric_optical_system(
         [(0,    0, 0.,  None,       "object", {}),
-         (100., 0, 5, 1.5, "lens1front", {"is_stop":True}),
+         (100., 0, 5, 1.5, "lens1front", {"is_stop": True}),
          (0., 0, 5, None, "lens1rear", {}),
          (0,    0, 196.228,     None,           "image", {})], name="os")
 
@@ -47,18 +47,24 @@ imsurf.rootcoordinatesystem.tiltx.setvalue(alpha)
 imsurf.rootcoordinatesystem.update()
 objsurf = s.elements["stdelem"].surfaces["object"]
 osa = OpticalSystemAnalysis(s, seq, name="Analysis")
-(x01, k01, E01) = osa.collimated_bundle(11, {"radius":epd, "raster":MeridionalFan()})
-(x02, k02, E02) = osa.collimated_bundle(11, {"radius":epd, "raster":MeridionalFan(), "anglex":1.*degree})
+(x01, k01, E01) = osa.collimated_bundle(11, {"radius": epd,
+                                             "raster": MeridionalFan()})
+(x02, k02, E02) = osa.collimated_bundle(11, {"radius": epd,
+                                             "raster": MeridionalFan(),
+                                             "anglex": 1.*degree})
 mybundle1 = RayBundle(x01, k01, E01)
 mybundle2 = RayBundle(x02, k02, E02)
 
-raypaths1 = s.seqtrace(mybundle1,seq)
-raypaths2 = s.seqtrace(mybundle2,seq)
+raypaths1 = s.seqtrace(mybundle1, seq)
+raypaths2 = s.seqtrace(mybundle2, seq)
 
 obj_dx = 0.1
 obj_dphi = 0.1*degree
 
-pilotbundles = build_pilotbundle_complex(objsurf, s.material_background, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+pilotbundles = build_pilotbundle_complex(objsurf, s.material_background,
+                                         (obj_dx, obj_dx),
+                                         (obj_dphi, obj_dphi),
+                                         num_sampling_points=3)
 (m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], seq)
 
 print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
