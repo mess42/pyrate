@@ -25,10 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import jsonpickle
+from pyrateoptics.raytracer.optical_system import OpticalSystem
 import logging
 logging.basicConfig(level=logging.DEBUG)
-
-from pyrateoptics.raytracer.optical_system import OpticalSystem
 
 # definition of optical system
 

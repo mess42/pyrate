@@ -41,11 +41,10 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics.raytracer.globalconstants import degree, standard_wavelength
 
-import pyrateoptics.raytracer.helpers
-
 from pyrateoptics import draw
 
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+from pyrateoptics.raytracer.helpers import build_pilotbundle_complex
 
 # definition of optical system
 
@@ -56,7 +55,8 @@ logging.basicConfig(level=logging.INFO)
 
 s = OpticalSystem()
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0),
+                                 refname=s.rootcoordinatesystem.name)
 
 air = ConstantIndexGlass(lc0, 1.0)
 glass = ConstantIndexGlass(lc0, 1.492)
@@ -80,19 +80,33 @@ lcimage = s.addLocalCoordinateSystem(LocalCoordinates(name="image",         decy
 
 objsurf = Surface(lc0)
 D1surf = Surface(lcD1)
-#S1surf = Surface(lcS1, shape=Conic(lcS1, curv=si*1./108.187, cc=0), apert=CircularAperture(lcS1, 100.0))
-S1surf = Surface(lcS1, shape=Biconic(lcS1, curvy=si*1./108.187, curvx=si*1./73.105, coefficients=[(0., 0.), (-si*5.542e-7, -0.08), (-si*8.176e-11, -1.379)]), apert=CircularAperture(lcS1, 40.0))
+S1surf = Surface(lcS1, shape=Biconic(lcS1, curvy=si*1./108.187,
+                                     curvx=si*1./73.105,
+                                     coefficients=[(0., 0.),
+                                                   (-si*5.542e-7, -0.08),
+                                                   (-si*8.176e-11, -1.379)]),
+                 apert=CircularAperture(lcS1, 40.0))
 D1Psurf = Surface(lcD1prime)
 D2surf = Surface(lcD2)
-#S2surf = Surface(lcS2, shape=Conic(lcS2, curv=si*1./69.871, cc=-0.1368), apert=CircularAperture(lcS2, 60.0))
-S2surf = Surface(lcS2, shape=Biconic(lcS2, curvy=si*1./69.871, curvx=si*1./60.374, ccy=-0.1368, ccx=-0.123, coefficients=[(0., 0.), (si*7.233e-11, 29.075), (si*4.529e-12, -2.085)]), apert=CircularAperture(lcS2, 40.0))
+S2surf = Surface(lcS2, shape=Biconic(lcS2, curvy=si*1./69.871,
+                                     curvx=si*1./60.374, ccy=-0.1368,
+                                     ccx=-0.123,
+                                     coefficients=[(0., 0.),
+                                                   (si*7.233e-11, 29.075),
+                                                   (si*4.529e-12, -2.085)]),
+                 apert=CircularAperture(lcS2, 40.0))
 D2Psurf = Surface(lcD2prime)
 D3surf = Surface(lcD3)
-#S3surf = Surface(lcS3, shape=Conic(lcS3, curv=si*1./108.187, cc=0.0001), apert=CircularAperture(lcS3, 100.0))
-S3surf = Surface(lcS3, shape=Biconic(lcS3, curvy=si*1./108.187, curvx=si*1./73.105, coefficients=[(0., 0.), (-si*5.542e-7, -0.08), (-si*8.176e-11, -1.379)]), apert=CircularAperture(lcS3, 40.0))
+S3surf = Surface(lcS3, shape=Biconic(lcS3, curvy=si*1./108.187,
+                                     curvx=si*1./73.105,
+                                     coefficients=[(0., 0.),
+                                                   (-si*5.542e-7, -0.08),
+                                                   (-si*8.176e-11, -1.379)]),
+                 apert=CircularAperture(lcS3, 40.0))
 D3Psurf = Surface(lcD3prime)
 D4surf = Surface(lcD4)
-S4surf = Surface(lcS4, shape=Conic(lcS4, curv=1./77.772), apert=CircularAperture(lcS4, 40.0))
+S4surf = Surface(lcS4, shape=Conic(lcS4, curv=1./77.772),
+                 apert=CircularAperture(lcS4, 40.0))
 D4Psurf = Surface(lcD4prime)
 imgsurf = Surface(lcimage)
 
@@ -122,30 +136,39 @@ print(s.rootcoordinatesystem.pprint())
 
 sysseq = [("HUD",
            [
-                ("object", {"is_stop":True}),
+                ("object", {"is_stop": True}),
                 ("d1", {}),
                 ("s1", {}),
                 ("d1p", {}),
                 ("d2", {}),
-                ("s2", {"is_mirror":True}),
+                ("s2", {"is_mirror": True}),
                 ("d2p", {}),
                 ("d3", {}),
-                ("s3", {"is_mirror":True}),
+                ("s3", {"is_mirror": True}),
                 ("d3p", {}),
                 ("d4", {}),
                 ("s4", {}),
                 ("d4p", {}),
                 ("image", {})
-            ])
-        ]
+            ]
+           )
+          ]
 
 
 osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
 
 print("collimated bundles")
-(o, k1, E1) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan()}, wave=standard_wavelength)
-(o, k2, E2) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan(), "anglex": 15*degree}, wave=standard_wavelength)
-(o, k3, E3) = osa.collimated_bundle(3, {"radius": 2, "raster": raster.MeridionalFan(), "anglex": -15*degree}, wave=standard_wavelength)
+(o, k1, E1) = osa.collimated_bundle(3, {"radius": 2,
+                                        "raster": raster.MeridionalFan()},
+                                    wave=standard_wavelength)
+(o, k2, E2) = osa.collimated_bundle(3, {"radius": 2,
+                                        "raster": raster.MeridionalFan(),
+                                        "anglex": 15*degree},
+                                    wave=standard_wavelength)
+(o, k3, E3) = osa.collimated_bundle(3, {"radius": 2,
+                                        "raster": raster.MeridionalFan(),
+                                        "anglex": -15*degree},
+                                    wave=standard_wavelength)
 
 
 initialbundle1 = RayBundle(x0=o, k0=k1, Efield0=E1, wave=standard_wavelength)
@@ -160,14 +183,19 @@ obj_dx = 0.1
 obj_dphi = 5*degree
 
 print("calculating pilotbundles")
-pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle_complex(objsurf, air, (obj_dx, obj_dx), (obj_dphi, obj_dphi), num_sampling_points=3)
+pilotbundles = build_pilotbundle_complex(objsurf,
+                                         air,
+                                         (obj_dx, obj_dx),
+                                         (obj_dphi, obj_dphi),
+                                         num_sampling_points=3)
 
-#print("seqtrace of rays_pilot")
-#rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles[2:]]
+# print("seqtrace of rays_pilot")
+# rays_pilot = [s.seqtrace(p, sysseq) for p in pilotbundles[2:]]
 # only last two bundles hit the next surface
 
-#print("para seqtrace")
-#(pilotray, r_pilot) = s.para_seqtrace(pilotbundles[-1], initialbundle1, sysseq)
+# print("para seqtrace")
+# (pilotray, r_pilot) = s.para_seqtrace(pilotbundles[-1], initialbundle1,
+#                                       sysseq)
 
 print("calculating XYUV")
 (m_obj_stop, m_stop_img) = s.extractXYUV(pilotbundles[-1], sysseq)
@@ -175,11 +203,10 @@ print("calculating XYUV")
 print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
 print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
-#print(s.sequence_to_hitlist(sysseq))
+# print(s.sequence_to_hitlist(sysseq))
 
 
 draw(s, [r1, r2, r3])
 
-#pz = np.array([26.36, 33.339, 18.817])
-#py = np.array([-24.028, 19.109, -35.215])
-
+# pz = np.array([26.36, 33.339, 18.817])
+# py = np.array([-24.028, 19.109, -35.215])
