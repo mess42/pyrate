@@ -29,7 +29,7 @@ import math
 import yaml
 import re
 
-from log import BaseLogger
+from .log import BaseLogger
 
 class OptimizableVariable(BaseLogger):
     """
@@ -44,13 +44,13 @@ class OptimizableVariable(BaseLogger):
         kwargs depend on type
         "variable" is value=value
         "pickup" gets function=f, args=tuple of optimizablevariables
-        "external" gets function=f, args=tuple of external standard variables 
+        "external" gets function=f, args=tuple of external standard variables
         (or values)
 
-        :param variable_type (string): which kind of variable do we have? 
+        :param variable_type (string): which kind of variable do we have?
         valid choices are: 'fixed', 'variable', 'pickup', 'external'
 
-        :param kwargs (keyword arguments): used to fill up parameters 
+        :param kwargs (keyword arguments): used to fill up parameters
         dictionary for variable.
 
         kwargs:
@@ -61,8 +61,8 @@ class OptimizableVariable(BaseLogger):
         'pickup'        function=f, args=(other_optvar1, other_optvar2, ...)
         'external'        function=f, args=(other_externalvar/value, ...)
 
-        Notice: f must take exactly as many arguments as args=... long is. 
-        The only constraint on f is that it has to convert the variables into 
+        Notice: f must take exactly as many arguments as args=... long is.
+        The only constraint on f is that it has to convert the variables into
         some final float variable. If this is not the case some
         low-level optimizer might break down.
 
@@ -75,14 +75,14 @@ class OptimizableVariable(BaseLogger):
                     "pickup"   : self.eval_pickup,
                     "external" : self.eval_external
                     }
-        
+
         self.initdict = {
                     "fixed"    : self.init_fixed,
                     "variable" : self.init_variable,
                     "pickup"   : self.init_pickup,
                     "external" : self.init_external
                     }
-        
+
         self.var_type = variable_type
         self.evalfunc = self.evaldict[self.var_type]
         self.initdict[self.var_type](**kwargs)
@@ -99,7 +99,7 @@ class OptimizableVariable(BaseLogger):
     def init_variable(self, **kwargs):
         self.parameters = {}
         self.parameters["value"] = kwargs.get("value", None)
-        
+
     def init_pickup(self, **kwargs):
         self.parameters = {}
         self.parameters["functionobject"] = kwargs.get("functionobject", None)
@@ -112,11 +112,11 @@ class OptimizableVariable(BaseLogger):
         self.parameters["functionobject"] = kwargs.get("functionobject", None)
         self.parameters["args"] = kwargs.get("args", ())
         # TODO: function also as string, string tuple or as code object
-    
+
 
     def getVariableType(self):
         return self.__var_type.lower()
-    
+
     def setVariableType(self, vtype):
         self.__var_type = vtype.lower()
 
@@ -128,11 +128,11 @@ class OptimizableVariable(BaseLogger):
         The reason for this is that the optimizer backend has
         only to deal with infinite range variables and the user
         can transparently change the interval. The idea and
-        verification is (up to a slight change in the 
+        verification is (up to a slight change in the
         transformation) taken from:
         M. Roeber, "Multikriterielle Optimierungsverfahren fuer
         rechenzeitintensive technische Aufgabenstellungen",
-        Diploma Thesis, Technische Universitaet Chemnitz, 
+        Diploma Thesis, Technische Universitaet Chemnitz,
         2010-03-31
         """
         # TODO: fine-tune for one-sided intervals
@@ -155,7 +155,7 @@ class OptimizableVariable(BaseLogger):
         Function only called indirectly from changetype() to make program
         logic more clear.
         """
-        
+
         # first: backup value
         # second: backup parameters
         # third: erase parameters (will be done in init functions)
@@ -164,11 +164,12 @@ class OptimizableVariable(BaseLogger):
         self.debug("changing type from \'%s\' to \'%s\'" % (from_type, to_type))
         value_backup = self.evaluate()
         parameters_backup = self.parameters
-        self.debug("old value %s and old parameters %s" % (str(value_backup), str(parameters_backup)))
+        self.debug("old value (%s) and old parameters (%s)" % (str(value_backup), str(parameters_backup)))
+        self.debug("kwargs=%s"%repr(kwargs))
         self.initdict[to_type](**kwargs)
 
         if to_type == "fixed" or to_type == "variable":
-            if not kwargs.has_key("value"):            
+            if "value" not in kwargs:
                 self.parameters["value"] = value_backup
 
         if to_type == "pickup" or to_type == "external":
@@ -180,10 +181,10 @@ class OptimizableVariable(BaseLogger):
             (from_type == "external" and to_type == "pickup"):
             #if not kwargs.has_key("function"):
             #    self.parameters["function"] = parameters_backup["function"]
-            if not kwargs.has_key("functionobject"):
+            if "functionobject" not in kwargs:
                 self.parameters["functionobject"] = parameters_backup["functionobject"]
             self.info("PICKUP SET")
-            
+
         self.evalfunc = self.evaldict[to_type]
         self.var_type = to_type
         self.debug("new value %s and new parameters %s" % (str(self.evaluate()), str(self.parameters)))
@@ -223,17 +224,17 @@ class OptimizableVariable(BaseLogger):
         # do not use if-else construct because for many cases dict lookup is faster
 
         return self.evalfunc()
-        
+
     def __call__(self):
         return self.evaluate()
-        
+
     def evaluate_transformed(self):
         """
-        Transform variable value from finite interval 
+        Transform variable value from finite interval
         to infinite IR before evaluation
         """
         return self.transform(self.evaluate())
-        
+
     def setvalue_transformed(self, value_transformed):
         """
         Transform value back from infinite IR before setting value
@@ -242,12 +243,12 @@ class OptimizableVariable(BaseLogger):
         self.setvalue(value)
 
 
-        
-        
+
+
 class ClassWithOptimizableVariables(BaseLogger):
     """
-    Implementation of some class with optimizable variables with the help 
-    of a dictionary. This class is also able to collect the variables and 
+    Implementation of some class with optimizable variables with the help
+    of a dictionary. This class is also able to collect the variables and
     their values from its subclasses per recursion.
     """
     def __init__(self, name = "", **kwargs):
@@ -256,7 +257,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         """
         super(ClassWithOptimizableVariables, self).__init__(name=name, **kwargs)
 
-        self.list_observers = [] 
+        self.list_observers = []
         # for the optimizable variable class it is useful to have some observer links
         # they get informed if variables change their values
 
@@ -267,46 +268,46 @@ class ClassWithOptimizableVariables(BaseLogger):
         for obs in self.list_observers:
             obs.informAboutUpdate()
 
-                
+
     def getAllVariables(self):
 
         def addOptimizableVariablesToList(var, dictOfOptVars = {"vars":{}, "longkeystrings":{}, "deref":{}}, idlist=[], keystring="", reducedkeystring=""):
             """
             Accumulates optimizable variables in var and its linked objects.
             Ignores ring-links and double links.
-            
+
             Variables are accumulated under the "vars" key.
             Longkeystrings are accumulated under the "longkeystrings" key.
             Strings for object dereference by eval are accumulated under the
             "deref" key.
-                        
+
             Below those main keys there is a dict in which the key is a
-            combination of names of the variables for an easy-to-remember-reference 
+            combination of names of the variables for an easy-to-remember-reference
             to the variables.
-            
+
             @param var: object to evaluate (object)
             @param dictOfOptVars: optimizable variables found so far (dict of dict of objects)
             @param idlist: ids of objects already evaluated (list of int)
-            """ 
-            
+            """
+
             if id(var) not in idlist:
                 idlist.append(id(var))
-    
+
                 if isinstance(var, ClassWithOptimizableVariables):
                     for (k, v) in var.__dict__.items():
                         newkeystring = keystring + "(" + var.name + ")." + str(k)
                         newredkeystring = reducedkeystring + var.name + "."
-                        dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, newredkeystring) 
+                        dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, newredkeystring)
                 elif isinstance(var, dict):
                     for (k, v) in var.items():
-                        newkeystring = keystring + "[\"" + str(k) + "\"]" 
-                        dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, reducedkeystring)                        
-    
+                        newkeystring = keystring + "[\"" + str(k) + "\"]"
+                        dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, reducedkeystring)
+
                 elif isinstance(var, list) or isinstance(var, tuple):
                     for (ind, v) in enumerate(var):
-                        newkeystring = keystring + "[" + str(ind) + "]" 
+                        newkeystring = keystring + "[" + str(ind) + "]"
                         dictOfOptVars, idlist = addOptimizableVariablesToList(v, dictOfOptVars, idlist, newkeystring, reducedkeystring)
-    
+
                 elif isinstance(var, OptimizableVariable):
                     newkeystring = keystring + "(" + var.name + ")"
                     newreducedkeystring = reducedkeystring + var.name
@@ -365,27 +366,27 @@ class ClassWithOptimizableVariables(BaseLogger):
         """
         for i, var in enumerate(self.getActiveVariables()):
             var.setvalue_transformed(x[i])
-            
-            
+
+
     def resetVariable(self, key, var):
         """
         Resets variable by evaluating deref string from getAllVariables
         dictionary. Maybe this could be solved by using less black magic.
         Although this method is necessary for maintaining multi configs.
         """
-        
+
         dict_of_vars = self.getAllVariables()
         deref = dict_of_vars["deref"][key]
         exec(compile("self" + deref + " = var", "<string>", "exec"))
-        
+
     def getVariable(self, key):
         """
         Gets variable from short key.
         """
         dict_of_vars = self.getAllVariables()
         variable = dict_of_vars["vars"][key]
-        return variable        
-        
+        return variable
+
 
 
 def optimizablevariable_representer(dumper, data):
@@ -394,7 +395,7 @@ def optimizablevariable_representer(dumper, data):
     if data.var_type == 'pickup':
         params["args"] = tuple([o.name for o in params["args"]])
     result_dict["parameters"] = params
-        
+
     return dumper.represent_scalar(u'!optvar', str(result_dict))
 
 yaml.add_representer(OptimizableVariable, optimizablevariable_representer)

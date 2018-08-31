@@ -26,9 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 
-from globalconstants import canonical_ey, standard_wavelength
-from ray import RayBundle
-from helpers_math import rodrigues
+from .globalconstants import canonical_ey, standard_wavelength
+from .ray import RayBundle
+from .helpers_math import rodrigues
 
 
 
@@ -78,7 +78,7 @@ def choose_nearest(kvec, kvecs_new, returnindex=False):
 
    
 
-def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, 
+def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Elock=None, 
                       kunitvector=None, lck=None, wave=standard_wavelength, 
                       num_sampling_points=5, random_xy=False):
 
@@ -103,16 +103,18 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None,
     param random_xy: (bool) choose xy distribution randomly?
     
     """
-    
     # TODO: remove code doubling from material due to sorting of K and E
     # TODO: check K and E from unit vector (fulfill ev equation?)
     # TODO: check why there are singular matrices generated in calculateXYUV
-
+    
+    (dx, dy) = xxx_todo_changeme3
+    (phix, phiy) = xxx_todo_changeme4
     def generate_cone_xy_bilinear(
-        direction_vec, lim_angle, 
-        (centerx, centery), (dx, dy), 
+        direction_vec, lim_angle, xxx_todo_changeme, xxx_todo_changeme1, 
         num_pts_dir, random_xy=False):
 
+        (centerx, centery) = xxx_todo_changeme
+        (dx, dy) = xxx_todo_changeme1
         if not random_xy:
             num_pts_lspace = num_pts_dir
             if num_pts_dir % 2 == 1:
@@ -191,17 +193,19 @@ def build_pilotbundle(surfobj, mat, (dx, dy), (phix, phiy), Elock=None,
     return pilotbundles
 
 
-def build_pilotbundle_complex(surfobj, mat, (dx, dy), (phix, phiy), Elock=None, 
+def build_pilotbundle_complex(surfobj, mat, xxx_todo_changeme5, xxx_todo_changeme6, Elock=None, 
                       kunitvector=None, lck=None, wave=standard_wavelength, 
                       num_sampling_points=3):
-    def generate_cone(direction_vec, lim_angle, (dx, dy), num_pts_dir):
+    (dx, dy) = xxx_todo_changeme5
+    (phix, phiy) = xxx_todo_changeme6
+    def generate_cone(direction_vec, lim_angle, xxx_todo_changeme2, num_pts_dir):
         """
         Generates cone for direction vector on real S_6 
         (x^2 + y^2 + z^2 + u^2 + v^2 + w^2 = 1)
         and generates cartesian raster for x and y
         """
-
-        # generate xy sampling and set pilot ray at position 0 in array
+        
+        (dx, dy) = xxx_todo_changeme2
         num_pts_lspace = num_pts_dir
         if num_pts_dir % 2 == 1:
             num_pts_lspace -= 1

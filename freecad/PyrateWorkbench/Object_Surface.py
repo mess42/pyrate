@@ -40,8 +40,8 @@ class SurfaceObject(AbstractObserver):
         self.__group = group # surface group
         self.__obj = doc.addObject("Part::FeaturePython", name)
         self.__group.addObject(self.__obj)
-        
-        if kwargs.has_key("surface"):
+
+        if "surface" in kwargs:
             # initialization from pre defined optical system
             # override shapetype, aptype, lclabel, matlabel could be set later
             surf = kwargs["surface"]
@@ -63,8 +63,8 @@ class SurfaceObject(AbstractObserver):
                 aptype = Aperture_Base
             if isinstance(surf.aperture, CircularAperture):
                 aptype = Aperture_Circular
-                
-                
+
+
 
         self.initshapedict = {
             Shape_Conic:self.initShConic,
@@ -72,87 +72,87 @@ class SurfaceObject(AbstractObserver):
             Shape_Asphere:self.initShAsphere,
             Shape_Explicit:self.initShExplicit
             }
-            
+
         self.initaperturedict = {
             Aperture_Base:self.initApBase,
             Aperture_Circular:self.initApCircular,
             Aperture_UserDefined:self.initApUserDefined
         }
-        
+
         self.writebackshapefunc = { # for shape
             Shape_Conic:self.writebackShConic,
             Shape_Cylinder:self.writebackShCylinder,
             Shape_Asphere:self.writebackShAsphere,
             Shape_Explicit:self.writebackShExplicit
         }
-        
+
         self.readshapefunc = { # for shape
             Shape_Conic:self.readShConic,
             Shape_Cylinder:self.readShCylinder,
             Shape_Asphere:self.readShAsphere,
             Shape_Explicit:self.readShExplicit
         }
-          
-        # TODO: set values from initialized matclass coming from a predefined optical system
-        
 
-        self.__obj.addProperty("App::PropertyPythonObject", 
-                               "shapeclass", 
-                               "Shape", 
+        # TODO: set values from initialized matclass coming from a predefined optical system
+
+
+        self.__obj.addProperty("App::PropertyPythonObject",
+                               "shapeclass",
+                               "Shape",
                                "surfShape class from pyrateoptics code")
-                               
-        self.__obj.addProperty("App::PropertyString", 
-                               "shapetype", 
-                               "Shape", 
+
+        self.__obj.addProperty("App::PropertyString",
+                               "shapetype",
+                               "Shape",
                                "specifies type").shapetype = shapetype
 
-        self.__obj.addProperty("App::PropertyPythonObject", 
-                               "apertureclass", 
-                               "Aperture", 
+        self.__obj.addProperty("App::PropertyPythonObject",
+                               "apertureclass",
+                               "Aperture",
                                "aperture class from pyrateoptics code")
-                               
-        self.__obj.addProperty("App::PropertyString", 
-                               "aperturetype", 
-                               "Aperture", 
+
+        self.__obj.addProperty("App::PropertyString",
+                               "aperturetype",
+                               "Aperture",
                                "specifies type").aperturetype = aptype
 
 
-        self.__obj.addProperty("App::PropertyString", 
-                               "comment", 
-                               "Surface", 
+        self.__obj.addProperty("App::PropertyString",
+                               "comment",
+                               "Surface",
                                "comments").comment = ""
 
-        self.__obj.addProperty("App::PropertyLink", 
-                               "LocalCoordinatesLink", 
-                               "Coordinates", 
+        self.__obj.addProperty("App::PropertyLink",
+                               "LocalCoordinatesLink",
+                               "Coordinates",
                                "local coordinate system").LocalCoordinatesLink = doc.getObjectsByLabel(lclabel)[0]
 
-        self.__obj.addProperty("App::PropertyLink", 
-                               "MaterialLink", 
-                               "Material", 
+        self.__obj.addProperty("App::PropertyLink",
+                               "MaterialLink",
+                               "Material",
                                "material associated with surface").MaterialLink = doc.getObjectsByLabel(matlabel)[0]
 
 
         self.initshapedict[shapetype](**kwargs)
         self.initaperturedict[aptype](**kwargs)
-        
+
         self.__obj.shapeclass.appendObservers([self])
         self.__obj.Proxy = self
 
     def getObject(self):
         return self.__obj
 
-    # shape initialization    
-    
+    # shape initialization
+
     def initShConic(self, curv=0., cc=0., **kwargs):
         shapeclass = None
-        if kwargs.has_key("surface"):
+        if "surface" in kwargs:
             shapeclass = kwargs["surface"].shape
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
             shapeclass = Conic(self.__obj.LocalCoordinatesLink.getLC(), curv=curv, cc=cc)
-            
+
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
         self.__obj.shapeclass = shapeclass
@@ -160,7 +160,7 @@ class SurfaceObject(AbstractObserver):
     def initShCylinder(self, curv=0., cc=0., **kwargs):
 
         shapeclass = None
-        if kwargs.has_key("surface"):
+        if "surface" in kwargs:
             shapeclass = kwargs["surface"].shape
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
@@ -171,11 +171,11 @@ class SurfaceObject(AbstractObserver):
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature y").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant y").cc = cc
         self.__obj.shapeclass = shapeclass
-    
+
     def initShAsphere(self, curv=0., cc=0., asphereparams=[], **kwargs):
 
         shapeclass = None
-        if kwargs.has_key("surface"):
+        if "surface" in kwargs:
             shapeclass = kwargs["surface"].shape
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
@@ -209,7 +209,7 @@ class SurfaceObject(AbstractObserver):
     def readShExplicit(self):
         pass
 
-    # shape writeback 
+    # shape writeback
 
     def writebackShConic(self, fp):
         self.__obj.shapeclass.curvature.setvalue(fp.curv)
@@ -230,30 +230,30 @@ class SurfaceObject(AbstractObserver):
 
     def initApBase(self, **kwargs):
         self.__obj.apertureclass = BaseAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC())
-        
+
     def initApCircular(self, semidiameter=1.0, tx=0., ty=0., **kwargs):
 
         apclass = None
-        if kwargs.has_key("surface"):
+        if "surface" in kwargs:
             apclass = kwargs["surface"].aperture
             semidiameter = apclass.semidiameter
             tx = apclass.tx
-            ty = apclass.ty            
+            ty = apclass.ty
         else:
-            apclass = CircularAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC(), semidiameter=semidiameter, tx=tx, ty=ty)        
+            apclass = CircularAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC(), semidiameter=semidiameter, tx=tx, ty=ty)
 
 
         self.__obj.addProperty("App::PropertyFloat", "semidiameter", "Aperture", "semidiameter").semidiameter = semidiameter
         self.__obj.addProperty("App::PropertyFloat", "tx", "Aperture", "decentration x").tx = tx
         self.__obj.addProperty("App::PropertyFloat", "ty", "Aperture", "decentration y").ty = ty
-      
+
         self.__obj.apertureclass = apclass
-    
+
     def initApUserDefined(self, **kwargs):
         self.__obj.apertureclass = BaseAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC())
-        
-        
-        
+
+
+
     def onChanged(self, fp, prop):
         FreeCAD.Console.PrintMessage("Changed Surface in GUI " + self.__obj.Name + "\n")
         if prop == "Label":
@@ -263,7 +263,7 @@ class SurfaceObject(AbstractObserver):
         if prop in Surface_GUIChangeableProperties:
             # write back changed properties to underlying material
             self.writebackshapefunc[self.__obj.shapetype](fp)
-            
+
         #if prop in Aperture_GUIChangeableProperties:
         #    self.writebackaperturefunc[self.__obj.aperturetype](fp)
 

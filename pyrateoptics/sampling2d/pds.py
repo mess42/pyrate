@@ -66,9 +66,9 @@ class Poisson2D:
         self.activelist = []
         self.samplelist = []
 
-        print "w: ", self.w, " h: ", self.h
-        print "gridsize: ", self.gridcellsize
-        print "r: ", self.radius
+        print("w: ", self.w, " h: ", self.h)
+        print("gridsize: ", self.gridcellsize)
+        print("r: ", self.radius)
 
 
     def createGrid(self):
@@ -85,7 +85,7 @@ class Poisson2D:
         Initialize and put first sampling point into grid and sampling lists.
         """
         self.createGrid()
-        print "max grid: ", self.maxgx, " ", self.maxgy
+        print("max grid: ", self.maxgx, " ", self.maxgy)
         self.addsample((np.random.random()*self.w, np.random.random()*self.h))
 
     def addsample(self, sample):
@@ -127,12 +127,12 @@ class Poisson2D:
         [1,-2],[1,-1],[1,0],[1,1],[1,2],
         [2,1],[2,0],[2,-1]]
 
-        newcheckgps = np.array(map(lambda e: [e[0] + gp[0],e[1]+gp[1]], checkgps))
-        toreducegps = np.array(map(lambda e: e[0] >= 0 and e[1] >= 0 and e[0] < self.maxgx and e[1] < self.maxgy, newcheckgps))
+        newcheckgps = np.array([[e[0] + gp[0],e[1]+gp[1]] for e in checkgps])
+        toreducegps = np.array([e[0] >= 0 and e[1] >= 0 and e[0] < self.maxgx and e[1] < self.maxgy for e in newcheckgps])
 
         #print newcheckgps
         #print toreducegps
-        return map(lambda e: tuple(e), newcheckgps[toreducegps])
+        return [tuple(e) for e in newcheckgps[toreducegps]]
 
     def chooseRandomPointSphericalAnnulus1(self, radius): # between radius and 2*radius
         '''chooses random point within spherical annulus, points are NOT equally distributed over radius'''
@@ -189,7 +189,7 @@ class Poisson2D:
 
         #print "chpts near: ", checkgridpoints
 
-        indices = np.array(map(lambda e: int(self.grid[e]), checkgridpoints))
+        indices = np.array([int(self.grid[e]) for e in checkgridpoints])
 
         #print "chpts near: ",pt, "inds: ", indices
 
@@ -199,15 +199,15 @@ class Poisson2D:
 
         #print "chpts near: ",pt, "valinds: ", allvalidindices
 
-        pointsinrange = map(lambda ind: self.samplelist[ind], allvalidindices)
-        somethinginrange = map(lambda p: ((np.array(pt) - np.array(p))**2).sum() < self.radius**2, pointsinrange)
+        pointsinrange = [self.samplelist[ind] for ind in allvalidindices]
+        somethinginrange = [((np.array(pt) - np.array(p))**2).sum() < self.radius**2 for p in pointsinrange]
 
         result = any(somethinginrange)
 
         return result
 
     def checkPointsNearbySlow(self, pt):
-        return any(map(lambda p: ((np.array(p) - np.array(pt))**2).sum() < self.radius**2, self.samplelist))
+        return any([((np.array(p) - np.array(pt))**2).sum() < self.radius**2 for p in self.samplelist])
 
     def chooseNewpointAroundRefpointList(self, refpoint, numpoints):
         newpoints = np.array(refpoint) + self.chooseRandomPointSphericalAnnulus1List(self.radius, numpoints)
@@ -239,7 +239,7 @@ class Poisson2D:
         while self.activelist:
             loopcount += 1
             if loopcount % 100 == 0:
-                print "loop#",loopcount," len active list: ", len(self.activelist)
+                print("loop#",loopcount," len active list: ", len(self.activelist))
             #self.gridstages.append(1*self.grid) # copy
             self.onestep()
 

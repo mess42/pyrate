@@ -60,7 +60,7 @@ wavelength = 0.5876e-3
 #myeps = np.diag(v)
 
 
-s = OpticalSystem() 
+s = OpticalSystem()
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 
@@ -104,18 +104,18 @@ s.addElement("TMA", elem)
 
 print(s.rootcoordinatesystem.pprint())
 
-sysseq = [("TMA", 
+sysseq = [("TMA",
            [
-                ("object", {}), 
-                ("m1", {"is_mirror":True}), 
-                ("m2", {"is_stop":True, "is_mirror":True}), 
-                ("m3", {"is_mirror":True}), 
-                ("image1", {}), 
-                ("oapara", {"is_mirror":True}), 
-                ("image2", {}), 
-                ("image3", {}) 
+                ("object", {}),
+                ("m1", {"is_mirror":True}),
+                ("m2", {"is_stop":True, "is_mirror":True}),
+                ("m3", {"is_mirror":True}),
+                ("image1", {}),
+                ("oapara", {"is_mirror":True}),
+                ("image2", {}),
+                ("image3", {})
             ])
-        ] 
+        ]
 
 a = Aimy(s, sysseq, name="Aimy", stopsize=2., num_pupil_points=5)
 a.pupil_raster = raster.MeridionalFan()
@@ -128,14 +128,14 @@ initbundle2 = a.aim(np.array([0, 0.5*degree]))
 initbundle3 = a.aim(np.array([0,-0.5*degree]))
 
 (pp1, r1p) = s.para_seqtrace(a.pilotbundle, initbundle1, sysseq)
-(pp2, r2p) = s.para_seqtrace(a.pilotbundle, initbundle2, sysseq)            
-(pp3, r3p) = s.para_seqtrace(a.pilotbundle, initbundle3, sysseq)            
+(pp2, r2p) = s.para_seqtrace(a.pilotbundle, initbundle2, sysseq)
+(pp3, r3p) = s.para_seqtrace(a.pilotbundle, initbundle3, sysseq)
 
 r1r = s.seqtrace(initbundle1, sysseq)
-r2r = s.seqtrace(initbundle2, sysseq)            
-r3r = s.seqtrace(initbundle3, sysseq)            
-             
-             
+r2r = s.seqtrace(initbundle2, sysseq)
+r3r = s.seqtrace(initbundle3, sysseq)
+
+
 draw(s, [(r1p, "blue"), (r2p, "green"), (r3p, "orange")])
 #draw(s, [(r1r, "blue"), (r2r, "green"), (r3r, "orange")])
 

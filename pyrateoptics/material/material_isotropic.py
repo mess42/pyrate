@@ -32,7 +32,7 @@ from ..raytracer.ray import RayBundle
 from ..raytracer.helpers_math import checkfinite
 from ..raytracer.globalconstants import standard_wavelength
 
-from material import MaxwellMaterial
+from .material import MaxwellMaterial
 
 
 class IsotropicMaterial(MaxwellMaterial):
@@ -249,7 +249,7 @@ class ModelGlass(IsotropicMaterial):
             nd = 1 + 0.001 * first3digits
             vd = 0.1 * last3digits
         else:
-            print "Warning: Schott Code must be a 6 digit positive integer number. Substituting invalid number with N-BK7."
+            print("Warning: Schott Code must be a 6 digit positive integer number. Substituting invalid number with N-BK7.")
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)

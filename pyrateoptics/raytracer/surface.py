@@ -24,11 +24,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import surfShape
-import aperture
-from localcoordinatestreebase import LocalCoordinatesTreeBase
+from . import surfShape
+from . import aperture
+from .localcoordinatestreebase import LocalCoordinatesTreeBase
 import numpy as np
-from globalconstants import canonical_ex, canonical_ey
+from .globalconstants import canonical_ex, canonical_ey
 
 
 

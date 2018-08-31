@@ -30,7 +30,7 @@ import math
 from ..raytracer.globalconstants import standard_wavelength
 from ..core.base import OptimizableVariable
 
-from material_isotropic import IsotropicMaterial
+from .material_isotropic import IsotropicMaterial
 
 class IsotropicGrinMaterial(IsotropicMaterial):
     def __init__(self, lc, fun, dfdx, dfdy, dfdz, parameterlist=[], name="", comment=""):

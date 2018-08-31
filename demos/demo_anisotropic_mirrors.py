@@ -59,7 +59,7 @@ crystal = AnisotropicMaterial(lc, myeps)
 
 
 # definition of optical system
-s = OpticalSystem(matbackground=crystal) 
+s = OpticalSystem(matbackground=crystal)
 
 lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
@@ -96,30 +96,30 @@ s.addElement("TMA", elem)
 print(s.rootcoordinatesystem.pprint())
 
 sysseq = [("TMA", [
-            ("object", {}), 
-            ("m1", {"is_mirror":True}), 
-            ("m2", {"is_mirror":True}), 
-            ("m3", {"is_mirror":True}), 
-            ("image1", {}), 
-            ("oapara", {"is_mirror":True}), 
-            ("image2", {}) ])] 
+            ("object", {}),
+            ("m1", {"is_mirror":True}),
+            ("m2", {"is_mirror":True}),
+            ("m3", {"is_mirror":True}),
+            ("image1", {}),
+            ("oapara", {"is_mirror":True}),
+            ("image2", {}) ])]
 
-sysseq_pilot = [("TMA", 
+sysseq_pilot = [("TMA",
                  [
-                    ("object", {}), 
-                    ("m1", {"is_mirror":True}), 
-                    ("m2", {"is_mirror":True}), 
-                    ("m3", {"is_mirror":True}), 
+                    ("object", {}),
+                    ("m1", {"is_mirror":True}),
+                    ("m2", {"is_mirror":True}),
+                    ("m3", {"is_mirror":True}),
                     ("m2", {"is_mirror":True}),
                     ("m1", {"is_mirror":True}),
                     ("m2", {"is_mirror":True}),
                     ("m1", {"is_mirror":True}),
                     ("m2", {"is_mirror":True})
                 ])
-                ] 
+                ]
 
 
-                
+
 obj_dx = 0.1
 obj_dphi = 1.*degree
 

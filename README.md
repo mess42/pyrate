@@ -46,7 +46,7 @@ installed.
 
 In Ubuntu, Mint and Debian you can use:
 
-    $ sudo apt-get install python3 python3-pip 
+    $ sudo apt-get install python3 python3-pip
     $ sudo pip3 install mypy-lang
     $ sudo python3 -m pip install typed-ast
 
@@ -99,7 +99,15 @@ For win64 you also need to take care of additional scipy support:
 
 Please test this workflow. If there is anything incorrect, please fill an issue.
 
+Testing
+---
+>cd pyrate
+>python setup.py install --user
+>python demos/demo_prism.py
+
+
 IRC
 ---
+
 
 Visit us on freenode (ports 6697, 7000, 7070 for SSL) channel #pyrate for some real time communication.
