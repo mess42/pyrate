@@ -49,11 +49,11 @@ logging.basicConfig(level=logging.INFO)
 db_path = "refractiveindex.info-database/database"
 
 # drawing parameters
-phi = 0.#math.pi/4
-pn = np.array([math.cos(phi), 0, math.sin(phi)]) # canonical_ex
+phi = 0.  # math.pi/4
+pn = np.array([math.cos(phi), 0, math.sin(phi)])  # canonical_ex
 up = canonical_ey
 
-fig, axarr = plt.subplots(4,1)
+fig, axarr = plt.subplots(4, 1)
 for ax in axarr:
     ax.axis('equal')
     if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
@@ -67,10 +67,8 @@ for ax in axarr:
 # or
 # LAK8 / BK7 / N-F2
 
-# gcat = material_glasscat.refractiveindex_dot_info_glasscatalog(db_path) 
+# gcat = material_glasscat.refractiveindex_dot_info_glasscatalog(db_path)
 # print gcat.findPagesWithLongNameContaining("BK7")
-
-
 
 
 # Step 1: set up system of glass plates
@@ -98,7 +96,7 @@ def bundle_step1(nrays = 100, rpup = 7.5):
     """
     Creates an on-axis collimated RayBundle for step 1.
     """
- 
+
     (px, py) = RectGrid().getGrid(nrays)
     o = np.vstack((rpup*px, rpup*py, np.zeros_like(px)))
     k = np.zeros_like(o)
@@ -111,7 +109,7 @@ def bundle_step1(nrays = 100, rpup = 7.5):
 s.draw2d(axarr[0], color="grey", vertices=50, plane_normal=pn, up=up)
 r2 = s.seqtrace(bundle_step1(nrays=9), seq)
 for r in r2:
-    r.draw2d(axarr[0], color="blue", plane_normal=pn, up=up) 
+    r.draw2d(axarr[0], color="blue", plane_normal=pn, up=up)
 
 
 
@@ -128,12 +126,12 @@ def meritfunction_step2(s):
     Merit function (=function to be minimized) for step 2.
     """
     initialbundle = bundle_step1()
-    rpaths = s.seqtrace(initialbundle, seq)   
+    rpaths = s.seqtrace(initialbundle, seq)
     x = rpaths[0].raybundles[-1].x[-1, 0, :]
     #y = rpaths[0].raybundles[-1].x[-1, 1, :]
     rba.raybundle = rpaths[0].raybundles[-1]
-    
-    merit = rba.getRMSspotSizeCentroid() #np.sum(x**2 + y**2) 
+
+    merit = rba.getRMSspotSizeCentroid() #np.sum(x**2 + y**2)
     merit += 1000000.*math.exp(-len(x))
     # TODO: adding the exp-x is a dirty trick. The prefactor also has to be adapted for each system. Is there a more elegant solution ?
 
@@ -150,14 +148,14 @@ def updatefunction_allsteps(s):
 # optimize
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.changetype("variable")
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable")
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("pickup", 
-    functionobject=(FunctionObject("f = lambda x: -x"), "f"), 
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("pickup",
+    functionobject=(FunctionObject("f = lambda x: -x"), "f"),
     args=(s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
 
 
 listOptimizableVariables(s, maxcol=80)
 
-optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step2") 
+optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step2")
 # TODO: Optimizer() is not well documented
 s = optimi.run()
 
@@ -165,7 +163,7 @@ s = optimi.run()
 s.draw2d(axarr[1], color="grey", vertices=50, plane_normal=pn, up=up) # try for phi=0.
 r2 = s.seqtrace(bundle_step1(nrays=9), seq) # trace again
 for r in r2:
-    r.draw2d(axarr[1], color="blue", plane_normal=pn, up=up) 
+    r.draw2d(axarr[1], color="blue", plane_normal=pn, up=up)
 
 
 
@@ -187,8 +185,8 @@ def bundles_step3(nrays = 100, rpup = 7.5, maxfield_deg=2.):
         k = np.zeros_like(o)
         k[1,:] = np.sin( field )
         k[2,:] = np.cos( field )
-        E0 = np.cross(k, canonical_ex, axisa=0, axisb=0).T 
-        
+        E0 = np.cross(k, canonical_ex, axisa=0, axisb=0).T
+
         bundles += [RayBundle( o, k, E0, wave= Fline)]
         bundles += [RayBundle( o, k, E0, wave= dline)]
         bundles += [RayBundle( o, k, E0, wave= Cline)]
@@ -203,15 +201,15 @@ def final_meritfunction(s, rpup, fno, maxfield_deg):
 
     initialbundles = bundles_step3(rpup=rpup, maxfield_deg=maxfield_deg)
     for (ind, b) in enumerate(initialbundles):
-        rpaths = s.seqtrace(b, seq)   
+        rpaths = s.seqtrace(b, seq)
         x = rpaths[0].raybundles[-1].x[-1, 0, :]
         #y = rpaths[0].raybundles[-1].x[-1, 1, :]
 
         #x = x - np.sum(x) / ( float(len(x)) + 1E-200 )
         #y = y - np.sum(y) / ( float(len(y)) + 1E-200 )
         rba.raybundle = rpaths[0].raybundles[-1]
-        merit += rba.getRMSspotSizeCentroid() #np.sum(x**2 + y**2) 
-        # FIXME: somehow this former calculation leads not to a useful rms spot calculation and therefore 
+        merit += rba.getRMSspotSizeCentroid() #np.sum(x**2 + y**2)
+        # FIXME: somehow this former calculation leads not to a useful rms spot calculation and therefore
         # the decz variable is not changed; the rba.getRMS... function is slower but leads to a change in thickness
         merit += 1./(len(x) + 1e-18) #10000.*math.exp(-len(x))
 
@@ -230,11 +228,11 @@ def final_meritfunction(s, rpup, fno, maxfield_deg):
     o = np.array([[0],[7.5],[0]])
     k = np.zeros_like(o)
     k[2,:] = 1
-    E0 = np.cross(k, canonical_ex, axisa=0, axisb=0).T 
+    E0 = np.cross(k, canonical_ex, axisa=0, axisb=0).T
 
     initial_marginal = RayBundle( o, k, E0, wave= dline)
     marginal_path = s.seqtrace(initial_marginal, seq)
-    
+
     kyim = marginal_path[0].raybundles[-1].k[-1,1,:]
     kzim = marginal_path[0].raybundles[-1].k[-1,2,:]
 
@@ -283,9 +281,9 @@ s.draw2d(axarr[2], color="grey", vertices=50, plane_normal=pn, up=up) # try for 
 b = bundles_step3(nrays=9)
 for i in np.arange(len(b)):
     r2 = s.seqtrace(b[i], seq)
-    color = [ "blue", "green", "red" ][int(i / 3)] 
+    color = [ "blue", "green", "red" ][int(i / 3)]
     for r in r2:
-        r.draw2d(axarr[2], color=color, plane_normal=pn, up=up) 
+        r.draw2d(axarr[2], color=color, plane_normal=pn, up=up)
     #TODO: conveniently colour ray plots y wavelength, field, or some other criteria
 
 
@@ -305,7 +303,7 @@ s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.changetype("variable
 
 optimi = Optimizer(s, meritfunction_step4a, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step4a")
 s = optimi.run()
-optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step4b") 
+optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(), updatefunction=updatefunction_allsteps, name="step4b")
 s = optimi.run()
 
 
@@ -326,9 +324,9 @@ s.draw2d(ax2,      color="grey", vertices=50, plane_normal=pn, up=up) # try for 
 b = bundles_step3(nrays=9, rpup = 7.5, maxfield_deg=5.)
 for i in np.arange(len(b)):
     r2 = s.seqtrace(b[i], seq)
-    color = [ "blue", "green", "red" ][int(i / 3)] 
+    color = [ "blue", "green", "red" ][int(i / 3)]
     for r in r2:
-        r.draw2d(axarr[3], color=color, plane_normal=pn, up=up) 
+        r.draw2d(axarr[3], color=color, plane_normal=pn, up=up)
 
 b = bundles_step3(nrays=36, rpup = 7.5, maxfield_deg=5.)
 r2 = s.seqtrace(b[0], seq)
