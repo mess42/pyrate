@@ -24,14 +24,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import logging
+import math
+from distutils.version import StrictVersion
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-from distutils.version import StrictVersion
-
-import logging
-
-import math
 
 from pyrateoptics import listOptimizableVariables
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
@@ -227,7 +227,8 @@ up = canonical_ey
 for r in r2:
     r.draw2d(ax, color="blue", plane_normal=pn, up=up)
 s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
-#s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
+# s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn,
+#          up=up) # try for phi=pi/4
 
 curv2 = s.elements["lenssys"].surfaces["surf2"].shape.curvature
 curv2.changetype("variable")
@@ -248,17 +249,28 @@ tltx_var.set_interval(-3.*math.pi/180., 3.*math.pi/180.)
 listOptimizableVariables(s, filter_status='variable', maxcol=80)
 
 
-def osnone(s):
+def osnone(my_s):
+    """
+    Do nothing
+    """
     pass
 
 
-def osupdate(s):
-    s.rootcoordinatesystem.update()
+def osupdate(my_s):
+    """
+    Update all coordinate systems during run
+    """
+    my_s.rootcoordinatesystem.update()
 
 
-def meritfunctionrms(s):
-    initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
-    rpaths = s.seqtrace(initialbundle, sysseq)
+def meritfunctionrms(my_s):
+    """
+    Merit function for tracing a raybundle through system and calculate
+    rms spot radius without centroid subtraction. Punish low number of
+    rays, too.
+    """
+    my_initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
+    rpaths = my_s.seqtrace(my_initialbundle, sysseq)
 
     x = rpaths[0].raybundles[-1].x[-1, 0, :]
     y = rpaths[0].raybundles[-1].x[-1, 1, :]
@@ -275,6 +287,8 @@ def meritfunctionrms(s):
 
 opt_backend = SimulatedAnnealingBackend(Nt=30,
                                         Tt=20.*np.exp(-np.linspace(0, 10, 20)))
+# pylint3 E1130: false positive
+
 optimi = Optimizer(s,
                    meritfunctionrms,
                    backend=opt_backend,

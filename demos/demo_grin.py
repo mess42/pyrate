@@ -23,6 +23,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+import math
+import logging
 
 import numpy as np
 
@@ -38,8 +40,6 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics import raytrace, draw
 
-import math
-import logging
 logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
@@ -73,25 +73,40 @@ grin_strength = 0.5
 
 
 def nfunc(x, **kw):
+    """
+    Refractive index function.
+    """
     return grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)+1.0
     # (2.5 - (x**2 + 100.0*y**4)/10.**2)
 
 
 def dndx(x, **kw):
+    """
+    d/dx of refractive index function
+    """
     return -2.*x[0]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)
     # -2*x/10.**2
 
 
 def dndy(x, **kw):
+    """
+    d/dy of refractive index function
+    """
     return -2.*4.*x[1]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)
     # -100.0*4.0*y**3/10.**2
 
 
 def dndz(x, **kw):
+    """
+    d/dz of refractive index function
+    """
     return np.zeros_like(x[0])
 
 
 def bnd(x):
+    """
+    Boundary function.
+    """
     return x[0]**2 + x[1]**2 < 10.**2
 
 

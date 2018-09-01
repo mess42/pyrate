@@ -26,22 +26,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import sys
 import logging
-logging.basicConfig(level=logging.DEBUG)
+import argparse
+
+import matplotlib.pyplot as plt
+
 
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.raytracer.globalconstants import standard_wavelength
-from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.io.zmx import ZMXParser
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics import draw
 
-import matplotlib.pyplot as plt
-
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
-import argparse
+
+logging.basicConfig(level=logging.DEBUG)
 
 # download ZMX files from e.g.:
 # http://astro.dur.ac.uk/~rsharp/opticaldesign/

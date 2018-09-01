@@ -24,6 +24,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import logging
+
+
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ModelGlass
 from pyrateoptics.raytracer import surfShape
@@ -37,7 +40,6 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics import raytrace, draw
 from pyrateoptics.raytracer.globalconstants import degree
 
-import logging
 logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3

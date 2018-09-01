@@ -24,10 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
 import math
 import logging
 
+import numpy as np
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
@@ -138,6 +138,9 @@ a.pupil_raster = raster.MeridionalFan()
 
 
 def correctKRayBundle(bundle):
+    """
+    Should get correct k from raybundle.
+    """
     pass
 
 

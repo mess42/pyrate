@@ -23,10 +23,13 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+import logging
+
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
-from pyrateoptics.material.material_glasscat import refractiveindex_dot_info_glasscatalog, CatalogMaterial
+from pyrateoptics.material.material_glasscat import\
+      refractiveindex_dot_info_glasscatalog, CatalogMaterial
 from pyrateoptics.raytracer.surfShape import Asphere
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
@@ -38,7 +41,6 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.raytracer.globalconstants import degree
 from pyrateoptics import raytrace, draw
 
-import logging
 logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
@@ -95,8 +97,8 @@ try:
     waterdict = gcat.getMaterialDict(shelf, book, page)
     water = CatalogMaterial(lc0, waterdict, name="water (catalogue)")
 except:  # TODO: which exception to be handled?
-    logging.warn("refractive index database not found. please download it\
-                 and symlink\nto it in your local pyrate directory")
+    logging.warning("refractive index database not found. please download it\
+                     and symlink\nto it in your local pyrate directory")
     water = ConstantIndexGlass(lc0, n=1.336, name="water (failsafe)")
 
 logging.info("wavelength %f, index %f" %

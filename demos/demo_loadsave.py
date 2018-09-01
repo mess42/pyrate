@@ -24,9 +24,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import jsonpickle
-from pyrateoptics.raytracer.optical_system import OpticalSystem
 import logging
+import jsonpickle
+
+from pyrateoptics.raytracer.optical_system import OpticalSystem
+
+
 logging.basicConfig(level=logging.DEBUG)
 
 # definition of optical system

@@ -37,10 +37,10 @@ alpha = 10.*degree
 epd = 5.
 
 (s, seq) = build_rotationally_symmetric_optical_system(
-        [(0,    0, 0.,  None,       "object", {}),
+        [(0, 0, 0., None, "object", {}),
          (100., 0, 5, 1.5, "lens1front", {"is_stop": True}),
          (0., 0, 5, None, "lens1rear", {}),
-         (0,    0, 196.228,     None,           "image", {})], name="os")
+         (0, 0, 196.228, None, "image", {})], name="os")
 
 imsurf = s.elements["stdelem"].surfaces["image"]
 imsurf.rootcoordinatesystem.tiltx.setvalue(alpha)
