@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from .log import BaseLogger
+from pyrateoptics.core.log import BaseLogger
 
 
 class FunctionObject(BaseLogger):
@@ -61,8 +61,8 @@ class FunctionObject(BaseLogger):
             self.functiondict = {}
             try:
                 exec(self.source, localsdict)
-            except:
-                self.error("Exception caught")
+            except SyntaxError:
+                self.error("Syntax error caught")
 
             for fn in funcnamelist:
                 self.functiondict[fn] = localsdict.get(fn, None)
