@@ -70,7 +70,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         """
         try:
             f = open(ymlfilename, "r")
-        except:
+        except FileNotFoundError:
             self.info("Glass catalogue file not found: %s" % (ymlfilename,))
             data = []
         else:

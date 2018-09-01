@@ -88,15 +88,16 @@ image = Surface(lc4, apert=CircularAperture(lc4, 7.*dropletradius))
 elem = OpticalElement(lc0, name="droplet")
 
 
+database_basepath = "refractiveindex.info-database/database"
+shelf = "3d"
+book = "liquids"
+page = "water"
+gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
+waterdict = gcat.getMaterialDict(shelf, book, page)
+
 try:
-    database_basepath = "refractiveindex.info-database/database"
-    shelf = "3d"
-    book = "liquids"
-    page = "water"
-    gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
-    waterdict = gcat.getMaterialDict(shelf, book, page)
     water = CatalogMaterial(lc0, waterdict, name="water (catalogue)")
-except:  # TODO: which exception to be handled?
+except KeyError:
     logging.warning("refractive index database not found. please download it\
                      and symlink\nto it in your local pyrate directory")
     water = ConstantIndexGlass(lc0, n=1.336, name="water (failsafe)")
