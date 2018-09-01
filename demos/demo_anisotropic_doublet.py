@@ -23,10 +23,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+import logging
 
 import numpy as np
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 
 from pyrateoptics.sampling2d import raster
@@ -35,7 +34,6 @@ from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.optical_system import OpticalSystem
-from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
@@ -43,6 +41,8 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 from pyrateoptics import draw
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 wavelength = 0.5876e-3
