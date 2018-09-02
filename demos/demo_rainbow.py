@@ -92,10 +92,10 @@ database_basepath = "refractiveindex.info-database/database"
 shelf = "3d"
 book = "liquids"
 page = "water"
-gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
-waterdict = gcat.getMaterialDict(shelf, book, page)
 
 try:
+    gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
+    waterdict = gcat.getMaterialDict(shelf, book, page)
     water = CatalogMaterial(lc0, waterdict, name="water (catalogue)")
 except KeyError:
     logging.warning("refractive index database not found. please download it\
