@@ -28,9 +28,9 @@ import FreeCADGui
 
 from PySide import QtGui
 
-from Object_Functions import FunctionsObject, FunctionsView
+from .Object_Functions import FunctionsObject, FunctionsView
 
-from Interface_Helpers import *
+from .Interface_Helpers import *
 from .Interface_Identifiers import *
 
 class FunctionsTaskPanelAdd:

@@ -24,11 +24,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from string import maketrans
+try:
+    from string import maketrans
+except ImportError:
+    maketrans = str.maketrans
+
 import os
 
 from .Interface_Identifiers import *
-from Interface_Checks import *
+from .Interface_Checks import *
 
 import FreeCAD, FreeCADGui
 

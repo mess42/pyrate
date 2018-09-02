@@ -46,14 +46,14 @@ from pyrateoptics.raytracer import ray
 import FreeCAD, Part
 
 # TODO: rename Observer to object (developer sees if it is derived from Observer)
-from Observer_LocalCoordinates import LC
+from .Observer_LocalCoordinates import LC
 
-from Object_Surface import SurfaceObject
-from View_Surface import SurfaceView
+from .Object_Surface import SurfaceObject
+from .View_Surface import SurfaceView
 
 from .Interface_Identifiers import *
-from Interface_Helpers import *
-from Interface_Checks import *
+from .Interface_Helpers import *
+from .Interface_Checks import *
 
 
 class OpticalSystemObserver(AbstractObserver):

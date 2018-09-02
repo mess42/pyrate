@@ -35,7 +35,7 @@ import FreeCADGui
 
 from PySide import QtGui
 
-from Interface_Helpers import *
+from .Interface_Helpers import *
 
 
 class FieldPointsTaskPanel:

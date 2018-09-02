@@ -28,6 +28,12 @@ import platform
 import os
 import sys
 
+import FreeCAD
+
+Msg = FreeCAD.Console.PrintMessage
+Log = FreeCAD.Console.PrintLog
+Err = FreeCAD.Console.PrintError
+
 # TODO: at the moment only available for scipy, add further libs in the future
 try:
     print("checking for scipy support")

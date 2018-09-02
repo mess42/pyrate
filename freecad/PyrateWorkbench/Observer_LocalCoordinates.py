@@ -36,7 +36,7 @@ import FreeCADGui, FreeCAD, Part
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.core.observers import AbstractObserver
 
-from Interface_Checks import *
+from .Interface_Checks import *
 
 class LC(AbstractObserver):
     def __init__(self, obj, coupling, doc, group):
