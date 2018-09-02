@@ -55,6 +55,6 @@ Supports:
   - interface to refractive-index.info material data base
 
 
-Is intended to with Python 2.7; Python 3.5 support is ongoing.
+Is intended to work with Python 2.7; Python 3.5 support is ongoing.
 """
 )
