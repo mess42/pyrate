@@ -28,30 +28,31 @@ import logging
 import uuid
 import re
 
+
 class BaseLogger(object):
-    
+
     def __init__(self, name="", **kwargs):
         self.setName(name)
         self.logger = logging.getLogger(name=self.__name)
-        self.debug("logger \"" + name + "\" created")
-                
+        # self.debug("logger \"" + name + "\" created")
+
     def setName(self, name):
         if name == "":
-            name = re.sub('-', '_', str(uuid.uuid4()).lower()) 
+            name = re.sub('-', '_', str(uuid.uuid4()).lower())
             # bring into form which can also be used by FreeCAD
         self.__name = name
-        
+
     def getName(self):
         return self.__name
-        
+
     name = property(getName, setName)
-    
+
     def info(self, msg, *args, **kwargs):
         self.logger.info(msg, *args, **kwargs)
-    
+
     def debug(self, msg, *args, **kwargs):
         self.logger.debug(msg, *args, **kwargs)
-        
+
     def warning(self, msg, *args, **kwargs):
         self.logger.warning(msg, *args, **kwargs)
 
@@ -70,11 +71,11 @@ class BaseLogger(object):
         del state["logger"]
 
         return state
-        
+
     def __setstate__(self, state):
         """
         We have to restore the logger manually.
         """
-        self.__dict__.update(state)        
-        self.logger = logging.getLogger(name=self.name)        
+        self.__dict__.update(state)
+        self.logger = logging.getLogger(name=self.name)
 

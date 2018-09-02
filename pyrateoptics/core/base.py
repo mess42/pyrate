@@ -102,14 +102,14 @@ class OptimizableVariable(BaseLogger):
 
     def init_pickup(self, **kwargs):
         self.parameters = {}
-        self.parameters["functionobject"] = kwargs.get("functionobject", None)
+        self.parameters["functionobject"] = kwargs.get("functionobject", (None, ()))
         #self.parameters["function"] = kwargs.get("function", None)
         self.parameters["args"] = kwargs.get("args", ())
         # TODO: function also as string, string tuple or as code object
 
     def init_external(self, **kwargs):
         self.parameters = {}
-        self.parameters["functionobject"] = kwargs.get("functionobject", None)
+        self.parameters["functionobject"] = kwargs.get("functionobject", (None, ()))
         self.parameters["args"] = kwargs.get("args", ())
         # TODO: function also as string, string tuple or as code object
 

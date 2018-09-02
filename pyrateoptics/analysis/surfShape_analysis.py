@@ -84,8 +84,8 @@ class ShapeAnalysis(BaseLogger):
 
         return self.shape.getSag(x, y) - z
 
-    def plot(self, xlinspace, ylinspace,
-             *args, contours=10, ax=None, **kwargs):
+    def plot(self, xlinspace, ylinspace, contours=10, ax=None,
+             *args, **kwargs):
         """
         Plots sag table to axis.
         """
