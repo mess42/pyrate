@@ -28,8 +28,7 @@ import FreeCAD
 import FreeCADGui
 
 
-#from pyrateoptics import merit
-from pyrateoptics import optimize
+from pyrateoptics.optimize import optimize
 
 from .Observer_OpticalSystem import OpticalSystemObserver
 from Dialog_Optimization import OptimizationDialog

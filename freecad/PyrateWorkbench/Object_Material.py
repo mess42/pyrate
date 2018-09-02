@@ -28,9 +28,9 @@ from Interface_Helpers import *
 from Interface_Checks import *
 from .Interface_Identifiers import *
 
-from pyrateoptics.observers import AbstractObserver
-from pyrateoptics.material_isotropic import ConstantIndexGlass, ModelGlass
-from pyrateoptics.material_grin import IsotropicGrinMaterial
+from pyrateoptics.core.observers import AbstractObserver
+from pyrateoptics.material.material_isotropic import ConstantIndexGlass, ModelGlass
+from pyrateoptics.material.material_grin import IsotropicGrinMaterial
 
 import numpy as np
 

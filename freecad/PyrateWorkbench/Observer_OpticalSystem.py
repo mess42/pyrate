@@ -30,20 +30,16 @@ import math
 
 import numpy as np
 
-from pyrateoptics import material_isotropic
-from pyrateoptics import surfShape
+from pyrateoptics.material import material_isotropic
+from pyrateoptics.raytracer import surfShape
 
-from pyrateoptics.optical_system import OpticalSystem
-from pyrateoptics.optical_element import OpticalElement
-from pyrateoptics.surface import Surface
-from pyrateoptics.observers import AbstractObserver
-from pyrateoptics.localcoordinates import LocalCoordinates
-from pyrateoptics.aperture import CircularAperture
+from pyrateoptics.raytracer.optical_system import OpticalSystem
+from pyrateoptics.raytracer.optical_element import OpticalElement
+from pyrateoptics.raytracer.surface import Surface
+from pyrateoptics.core.observers import AbstractObserver
+from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-from pyrateoptics import pupil
-from pyrateoptics import raster
-#from pyrateoptics import aim
-from pyrateoptics import ray
+from pyrateoptics.raytracer import ray
 
 # freecad modules
 
@@ -58,7 +54,7 @@ from View_Surface import SurfaceView
 from .Interface_Identifiers import *
 from Interface_Helpers import *
 from Interface_Checks import *
-    
+
 
 class OpticalSystemObserver(AbstractObserver):
     def __init__(self, doc, name):
@@ -68,18 +64,18 @@ class OpticalSystemObserver(AbstractObserver):
         obj.Proxy = self
 
         self.__NameOSGroup = Group_OS_Label + "_" + uuidToName(uuid.uuid4())
-        self.__NameSurfaceGroup = Group_Surface_Label + "_" + uuidToName(uuid.uuid4())        
+        self.__NameSurfaceGroup = Group_Surface_Label + "_" + uuidToName(uuid.uuid4())
         self.__NameFunctionsGroup = Group_Functions_Label + "_" + uuidToName(uuid.uuid4())
         self.__NameCoordinatesGroup = Group_Coordinates_Label + "_" + uuidToName(uuid.uuid4())
-        
+
         self.__group = doc.addObject("App::DocumentObjectGroup", self.__NameOSGroup)
         self.__group.addObject(obj)
-        
+
         self.__surfacegroup = doc.addObject("App::DocumentObjectGroup", self.__NameSurfaceGroup)
         self.__functionsgroup = doc.addObject("App::DocumentObjectGroup", self.__NameFunctionsGroup)
         self.__coordinatesgroup = doc.addObject("App::DocumentObjectGroup", self.__NameCoordinatesGroup)
 
-        
+
         self.__group.addObject(self.__surfacegroup)
         self.__group.addObject(self.__functionsgroup)
         self.__group.addObject(self.__coordinatesgroup)
@@ -89,7 +85,7 @@ class OpticalSystemObserver(AbstractObserver):
         self.__coordinatesgroup.Label = Group_Coordinates_Label + "_" + name
         self.__group.Label = Group_OS_Label + "_" + name
 
-        
+
         # TODO: all properties are not really operational
 
         # group links
@@ -98,28 +94,28 @@ class OpticalSystemObserver(AbstractObserver):
         obj.addProperty("App::PropertyString", "NameFunctionsGroup", "Groups", "Name of Functions Group").NameFunctionsGroup = self.__NameFunctionsGroup
         obj.addProperty("App::PropertyString", "NameSurfaceGroup", "Groups", "Name of Surface Group").NameSurfaceGroup = self.__NameSurfaceGroup
         obj.addProperty("App::PropertyString", "NameCoordinatesGroup", "Groups", "Name of Coordinates Group").NameCoordinatesGroup = self.__NameCoordinatesGroup
-        
-        obj.setEditorMode("NameOSGroup", 1) # readonly 
+
+        obj.setEditorMode("NameOSGroup", 1) # readonly
         obj.setEditorMode("NameFunctionsGroup", 1) # readonly
         obj.setEditorMode("NameSurfaceGroup", 1) # readonly
         obj.setEditorMode("NameCoordinatesGroup", 1) # readonly
 
 
         # OS Properties
-    
-        obj.addProperty("App::PropertyPythonObject", 
-                        "osclass", 
-                        "OS", 
+
+        obj.addProperty("App::PropertyPythonObject",
+                        "osclass",
+                        "OS",
                         "os class interface").osclass = OpticalSystem()
 
-                        
-        
-                        
-                        
-                        
-        obj.addProperty("App::PropertyPythonObject", 
-                        "coords", 
-                        "OS", 
+
+
+
+
+
+        obj.addProperty("App::PropertyPythonObject",
+                        "coords",
+                        "OS",
                         "os coords interface").coords = LC(None, obj.osclass.rootcoordinatesystem, doc, self.__coordinatesgroup)
         obj.addProperty("App::PropertyFloatList",
                         "wavelengths",
@@ -137,7 +133,7 @@ class OpticalSystemObserver(AbstractObserver):
         obj.addProperty("App::PropertyPythonObject",
                         "fieldpointsbool",
                         "Field",
-                        "Field points used?").fieldpointsbool = np.array([True], dtype=bool) 
+                        "Field points used?").fieldpointsbool = np.array([True], dtype=bool)
         obj.addProperty("App::PropertyEnumeration",
                         "fieldtype",
                         "Field",
@@ -197,17 +193,17 @@ class OpticalSystemObserver(AbstractObserver):
         '''Do something when a property has changed'''
         FreeCAD.Console.PrintMessage("For fp: " + str(fp) + "\n")
         FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
-        
+
     def informUpdate(self):
         """ can be used if there are any observers coupled to the optical system """
         pass
-        
+
     def __getstate__(self):
         '''When saving the document this object gets stored using Python's json module.\
                 Since we have some un-serializable parts here -- the Coin stuff -- we must define this method\
                 to return a tuple of all serializable objects or None.'''
         return None
- 
+
     def __setstate__(self,state):
         '''When restoring the serialized object from document we have the chance to set some internals here.\
                 Since no data were serialized nothing needs to be done here.'''
@@ -217,17 +213,17 @@ class OpticalSystemObserver(AbstractObserver):
         lstboolfun = [o for o in grp.Group if boolfun(o)]
         lstsubgroups = sum([self.getObjectsFromGroupTree(o, boolfun) for o in grp.Group if isGroup(o)], []) # flatten
         return sum([lstboolfun, lstsubgroups], [])
-        
-        
-    
+
+
+
     def returnObjectsFromCoordinatesGroup(self):
         return self.getObjectsFromGroupTree(self.__coordinatesgroup, isLocalCoordinatesObserver)
 
 
     def initDemoSystem(self):
         s = OpticalSystem()
-        
-        lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)                
+
+        lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
         lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0), refname=lc0.name) # objectDist
         lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0), refname=lc1.name)
         lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0), refname=lc2.name)
@@ -236,8 +232,8 @@ class OpticalSystemObserver(AbstractObserver):
         lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0), refname=lc5.name)
         lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0), refname=lc6.name)
         lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0), refname=lc7.name)
-        
-        
+
+
         objectsurf = Surface(lc0)
         surf1 = Surface(lc1, shape=surfShape.Conic(lc1, curv=1/-5.922))
         surf2 = Surface(lc2, shape=surfShape.Conic(lc2, curv=1/-3.160))
@@ -247,16 +243,16 @@ class OpticalSystemObserver(AbstractObserver):
         surf6 = Surface(lc6, shape=surfShape.Conic(lc6, curv=1/3.125))
         surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=1/1.479))
         image = Surface(lc8)
-        
-        
+
+
         elem = OpticalElement(lc0, label="lenssystem")
-        
+
         glass = material_isotropic.ConstantIndexGlass(lc0, n=1.7)
         glass2 = material_isotropic.ConstantIndexGlass(lc0, n=1.5)
-        
+
         elem.addMaterial("glass", glass)
         elem.addMaterial("glass2", glass2)
-        
+
         elem.addSurface("object", objectsurf, (None, None))
         elem.addSurface("surf1", surf1, (None, "glass"))
         elem.addSurface("surf2", surf2, ("glass", None))
@@ -266,26 +262,26 @@ class OpticalSystemObserver(AbstractObserver):
         elem.addSurface("surf6", surf6, (None, "glass2"))
         elem.addSurface("surf7", surf7, ("glass2", None))
         elem.addSurface("image", image, (None, None))
-        
+
         s.addElement("lenssys", elem)
-        
+
         return s
 
 
     def initFromGivenOpticalSystem(self, s):
-        
+
         # delete surfaces and coordinate systems before fill them up from s
-        # do not remove functions objects        
-        
+        # do not remove functions objects
+
         self.__surfacegroup.removeObjectsFromDocument()
         self.__coordinatesgroup.removeObjectsFromDocument()
-        
+
         # TODO: reference error induced because reference to variables in objects vanishes
         # due to reference counting
-        
+
         self.__obj.osclass = s
         self.__obj.coords = LC(None, s.rootcoordinatesystem, self.__doc, self.__coordinatesgroup)
-        
+
         # first init coordinate systems then surfaces
 
         for (key_elem, elem) in s.elements.iteritems():
@@ -293,7 +289,7 @@ class OpticalSystemObserver(AbstractObserver):
                 so = SurfaceObject(self.__doc, self.__surfacegroup, key_surf, shapetype="", aptype="", lclabel="global", matlabel="Vacuum", surface=surf)
                 SurfaceView(so.getObject().ViewObject)
                 so.getObject().LocalCoordinatesLink = self.__doc.getObject(surf.rootcoordinatesystem.name) # update local coordinates links
-            
+
 
     def makeRayBundle(self, raybundle, offset):
         raysorigin = raybundle.o
@@ -389,7 +385,7 @@ class OpticalSystemObserver(AbstractObserver):
                 raypath = ray.RayPath(initialBundle, self.__obj.osclass)
                 raypaths.append(raypath)
         return raypaths
-        
+
     def drawRaypaths(self, raypaths):
         for rp in raypaths: # per field point
             compoundlist = []
@@ -407,6 +403,6 @@ class OpticalSystemObserver(AbstractObserver):
             FCrayview.LineColor = tuple(np.random.random(3).tolist())
             FCrayview.PointColor = (1.0, 1.0, 0.0)
 
-            
+
             #Part.show(cp)
 
