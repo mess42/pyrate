@@ -30,10 +30,10 @@ from PySide.QtGui import QInputDialog, QLineEdit, QComboBox
 import FreeCADGui, FreeCAD
 
 
-from Object_Functions import FunctionsObject
-from TaskPanel_Functions_Add import FunctionsTaskPanelAdd
+from .Object_Functions import FunctionsObject
+from .TaskPanel_Functions_Add import FunctionsTaskPanelAdd
 
-from Interface_Checks import *
+from .Interface_Checks import *
 
 
 class CreateFunctionTool:

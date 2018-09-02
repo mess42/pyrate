@@ -26,11 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import FreeCADGui
 
-from Interface_Helpers import *
-from Interface_Checks import *
+from .Interface_Helpers import *
+from .Interface_Checks import *
 
-from Object_Surface import SurfaceObject
-from View_Surface import SurfaceView
+from .Object_Surface import SurfaceObject
+from .View_Surface import SurfaceView
 
 class SurfacesTaskPanelAdd:
     def __init__(self, doc):

@@ -29,9 +29,9 @@ from PySide.QtGui import QLineEdit
 
 import FreeCADGui, FreeCAD
 
-from Interface_Checks import *
+from .Interface_Checks import *
 
-from TaskPanel_LocalCoordinates_Add import LocalCoordinatesTaskPanelAdd
+from .TaskPanel_LocalCoordinates_Add import LocalCoordinatesTaskPanelAdd
 
 
 class CreateLocalCoordinatesTool:

@@ -29,7 +29,7 @@ import FreeCADGui
 from PySide import QtGui
 
 from .Interface_Identifiers import *
-from TaskPanel_Functions_Edit import FunctionsTaskPanelEdit
+from .TaskPanel_Functions_Edit import FunctionsTaskPanelEdit
 
 
 class FunctionsView:

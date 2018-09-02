@@ -31,12 +31,12 @@ from PySide.QtGui import QLineEdit, QInputDialog, QMessageBox
 
 
 from .Observer_OpticalSystem import OpticalSystemObserver 
-from Object_MaterialCatalogue import MaterialCatalogueObject
+from .Object_MaterialCatalogue import MaterialCatalogueObject
 
 from .Interface_Identifiers import *
-from Interface_Checks import *
+from .Interface_Checks import *
 
-from TaskPanel_SurfaceList_Edit import SurfaceListTaskPanelEdit
+from .TaskPanel_SurfaceList_Edit import SurfaceListTaskPanelEdit
 
 class CreateSystemTool:
     "Tool for creating optical system"

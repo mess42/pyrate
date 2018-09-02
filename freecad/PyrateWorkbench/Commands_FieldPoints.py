@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import FreeCAD, FreeCADGui
 
-from TaskPanel_FieldPoints import FieldPointsTaskPanel
-from Interface_Checks import *
+from .TaskPanel_FieldPoints import FieldPointsTaskPanel
+from .Interface_Checks import *
 
 
 class ShowAimDialogCommand:
