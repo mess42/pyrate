@@ -32,15 +32,53 @@ directly in the sources.
 
 Want to [contribute](CONTRIBUTING.md)?
 
+Testing
+---
+
+Perform the demos:
+
+    $ cd pyrate
+    $ python setup.py install --user
+    $ python demos/demo_prism.py
+
+or perform directly in a script:
+
+    >>> from pyrateoptics import build_rotationally_symmetric_optical_system
+    >>> from pyrateoptics import draw
+    >>> from pyrateoptics import raytrace
+    >>> components = [(100, 0, 20, 1.5, "lens1front", {"is_stop": True}),
+        ... (-100, 0, 5, None, "lens1back", {}),
+        ... (0, 0, 100, None, "image", {})]
+    >>> # (radius, cc, thickness, material, name, options)
+    >>> (s, seq) = build_rotationally_symmetric_optical_system(components, name="my_opticalsystem")
+    >>> draw(s) # show system
+    >>> r = raytrace(s, seq, 11, {"radius": 9.0})
+    >>> draw(s, r) # show system + rays
+
+Notice that `build_rotationally_symmetric_optical_system`, `draw`, and `raytrace`
+are convenience functions to reduce the "administrative" overhead to generate
+a system. The system `s` and the raybundles `r` can be easily modified or
+generated manually:
+
+    >>> s.elements["stdelem"].surfaces["lens1front"].rootcoordinatesystem.tiltx.setvalue(0.1) # tilt first surface
+    >>> s.rootcoordinatesystem.update() # update all coordinate systems
+    >>> r = raytrace(s, seq, 21, {"radius": 9.0}) # trace again
+    >>> draw(s, r) # show system + rays
+
 Requirements
 ------------
 
-You need Python 2.x with NumPy, SciPy, Yaml, Sympy, and matplotlib installed to run pyrate.
+You need Python 2.7 or 3.x with NumPy, SciPy, Yaml, Sympy, and matplotlib installed to run pyrate.
 
-In Ubuntu, Mint and Debian you can use:
+In Ubuntu, Mint and Debian you can use for Python 2.7
 
     $ sudo apt-get install python python-numpy python-scipy python-matplotlib python-yaml python-sympy
 
+or
+
+    $ sudo apt-get install python3 python3-numpy python3-scipy python3-matplotlib python3-yaml python3-sympy
+
+for Python 3.x.
 If you want to run mypy on the project, you need also Python 3.x with mypy
 installed.
 
@@ -55,8 +93,9 @@ FreeCAD Workbench
 
 - You need at least FreeCAD 0.16
 - copy (or symlink) the pyrate directory into `~/.FreeCAD/Mod` (Windows: `c:\program files\FreeCAD\Mod` or user directory [not tested, yet])
+- (in newer versions of FreeCAD >= 0.18 there is also the possibility to install pyrate via pip interface.)
 - choose workbench in FreeCAD
-- execution of build_rc is not necessary anymore
+- happy optical design :-)
 
 Additional Notes for Windows 32
 -----------------------------------------
@@ -97,14 +136,7 @@ For win64 you also need to take care of additional scipy support:
 - independently of whether scipy is found or not, there may still be a DLL initialization error: check whether MSVC version of your scipy binaries and the ones of FreeCAD are identical
 - It seems that for windows 64 there is no solution to integrate scipy into FreeCAD in a generic way, see also http://forum.freecadweb.org/viewtopic.php?f=4&t=20674 for a discussion about this issue
 
-Please test this workflow. If there is anything incorrect, please fill an issue.
-
-Testing
----
->cd pyrate
->python setup.py install --user
->python demos/demo_prism.py
-
+Please test this workflow. If there is anything incorrect, please file an issue.
 
 IRC
 ---
