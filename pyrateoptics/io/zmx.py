@@ -433,7 +433,7 @@ class ZMXParser(BaseLogger):
         # construct materials
         self.info("Construct materials")
         if matdict != {}:
-            for (key, mat) in matdict.items():
+            for (key, mat) in list(matdict.items()):
                 mat.lc = lc0
                 # different material coordinate systems are not supported
                 elem.addMaterial(key, mat)
@@ -477,7 +477,7 @@ class ZMXParser(BaseLogger):
             self.debug("----")
             surfres = self.readSurfBlock(blk)
             self.debug("Found surface with contents (except GARR):")
-            self.debug([(k, v) for (k, v) in surfres.items() if k != "GARR"])
+            self.debug([(k, v) for (k, v) in list(surfres.items()) if k != "GARR"])
 
             surf_options_dict = {}
 
