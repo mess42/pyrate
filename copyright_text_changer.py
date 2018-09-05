@@ -78,7 +78,7 @@ for subdir, dirs, filenames in os.walk('./'):
             a2 = txt.find("\nfrom ")
 
             if a1 == -1 and a2 == -1:
-                print relative_filename + " has no imports"
+                print(relative_filename + " has no imports")
             else:
                 if a1 == -1:
                     start = a2
