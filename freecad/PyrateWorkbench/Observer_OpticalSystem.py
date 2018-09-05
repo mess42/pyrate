@@ -284,8 +284,8 @@ class OpticalSystemObserver(AbstractObserver):
 
         # first init coordinate systems then surfaces
 
-        for (key_elem, elem) in s.elements.iteritems():
-            for (key_surf, surf) in elem.surfaces.iteritems():
+        for (key_elem, elem) in list(s.elements.items()):
+            for (key_surf, surf) in list(elem.surfaces.items()):
                 so = SurfaceObject(self.__doc, self.__surfacegroup, key_surf, shapetype="", aptype="", lclabel="global", matlabel="Vacuum", surface=surf)
                 SurfaceView(so.getObject().ViewObject)
                 so.getObject().LocalCoordinatesLink = self.__doc.getObject(surf.rootcoordinatesystem.name) # update local coordinates links

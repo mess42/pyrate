@@ -34,23 +34,23 @@ from .View_Surface import SurfaceView
 
 class SurfacesTaskPanelAdd:
     def __init__(self, doc):
-        # doc needs to be initialized first        
+        # doc needs to be initialized first
         self.doc = doc
 
 
-        fn = getRelativeFilePath(__file__, 'Qt/dlg_surface_add.ui')        
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_surface_add.ui')
         self.form = FreeCADGui.PySideUic.loadUi(fn)
 
         # now add all optical systems to combobox
-        self.form.comboBoxOS.activated.connect(self.onActivatedCBOS)        
+        self.form.comboBoxOS.activated.connect(self.onActivatedCBOS)
 
 
         self.form.comboBoxOS.clear()
         self.form.comboBoxOS.addItems([os.Label for os in getAllOpticalSystemObservers(self.doc)])
-        
+
         self.form.comboBoxLC.clear()
         self.updateComboLCfromComboOS(self.form.comboBoxOS, self.form.comboBoxLC)
-        
+
         self.form.comboBoxMaterial.clear()
         self.form.comboBoxMaterial.addItems([mat.Label for mat in getAllMaterials(self.doc)])
 
@@ -61,7 +61,7 @@ class SurfacesTaskPanelAdd:
         if oss != None:
             combolc.clear()
             combolc.addItems([lc.Label for lc in oss[0].Proxy.returnObjectsFromCoordinatesGroup()])
-    
+
     def onActivatedCBOS(self, index):
         self.updateComboLCfromComboOS(self.form.comboBoxOS, self.form.comboBoxLC)
 
@@ -72,7 +72,7 @@ class SurfacesTaskPanelAdd:
         return {"curv":self.form.doubleSpinBoxCurvatureConic.value(),
                 "cc":self.form.doubleSpinBoxConicConstantConic.value()
                 }
-        
+
     def extractShCylinder(self):
         return {"curv":self.form.doubleSpinBoxCurvatureCylinder.value(),
                 "cc":self.form.doubleSpinBoxConicConstantCylinder.value()
@@ -85,7 +85,7 @@ class SurfacesTaskPanelAdd:
 
     def extractShExplicit(self):
         return {}
-        
+
     # extraction functions for different aperture classes
 
     def extractApBase(self):
@@ -95,31 +95,31 @@ class SurfacesTaskPanelAdd:
         return {"semidiameter":self.form.doubleSpinBoxRadius.value(),
                 "tx":0.0, # TODO: could also be given in dialog
                 "ty":0.0}
-            
+
     def extractApUserDefined(self):
         return {}
 
     def accept(self):
-        
+
         oslabel = self.form.comboBoxOS.currentText()
         name_of_surfaceobject = self.form.lineEditName.text()
-        
-        try:        
+
+        try:
             os = self.doc.getObjectsByLabel(oslabel)[0]
         except IndexError:
-            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "No optical system available! Please create one.")            
+            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "No optical system available! Please create one.")
         else:
 
             shapetype = Surface_GUI_TaskPanel_Add_Shape_TabWidget[self.form.tabWidgetShapes.currentIndex()]
             aperturetype = Surface_GUI_TaskPanel_Add_Aperture_TabWidget[self.form.tabWidgetApertures.currentIndex()]
-            
+
             shapeextractfunc = {
                 Shape_Conic:    self.extractShConic,
                 Shape_Cylinder: self.extractShCylinder,
                 Shape_Asphere:  self.extractShAsphere,
                 Shape_Explicit: self.extractShExplicit
             }
-            
+
             apertureextractfunc = {
                 Aperture_Base:      self.extractApBase,
                 Aperture_Circular:  self.extractApCircular,
@@ -128,15 +128,15 @@ class SurfacesTaskPanelAdd:
 
             shapedict = shapeextractfunc[shapetype]()
             aperturedict = apertureextractfunc[aperturetype]()
-            
-            wholedict = dict(shapedict.items() + aperturedict.items())
+
+            wholedict = dict(list(shapedict.items()) + list(aperturedict.items()))
             print(wholedict)
 
             srgroupname = os.NameSurfaceGroup
             srgroup = self.doc.getObject(srgroupname)
-    
-            so = SurfaceObject(self.doc, 
-                          srgroup, 
+
+            so = SurfaceObject(self.doc,
+                          srgroup,
                           name_of_surfaceobject,
                           shapetype,
                           aperturetype,

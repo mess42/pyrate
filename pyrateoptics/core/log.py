@@ -31,9 +31,11 @@ import re
 
 class BaseLogger(object):
 
-    def __init__(self, name="", **kwargs):
+    def __init__(self, name="", logger=None, **kwargs):
         self.setName(name)
-        self.logger = logging.getLogger(name=self.__name)
+        if logger is None:
+            logger = logging.getLogger(name=self.__name)
+        self.logger = logger
         # self.debug("logger \"" + name + "\" created")
 
     def setName(self, name):
