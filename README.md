@@ -91,11 +91,12 @@ In Ubuntu, Mint and Debian you can use:
 FreeCAD Workbench
 -----------------
 
-- You need at least FreeCAD 0.16
-- copy (or symlink) the pyrate directory into `~/.FreeCAD/Mod` (Windows: `c:\program files\FreeCAD\Mod` or user directory [not tested, yet])
-- (in newer versions of FreeCAD >= 0.18 there is also the possibility to install pyrate via pip interface.)
-- choose workbench in FreeCAD
-- happy optical design :-)
+- You need at least FreeCAD 0.18
+- Install pyrate by using the AddonManager (use new pip style install)
+- Choose workbench in FreeCAD
+- Happy optical design :-)
+
+TODO: update windows sections. (pip for Python2.7 not available for windows)
 
 Additional Notes for Windows 32
 -----------------------------------------
