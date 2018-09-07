@@ -33,10 +33,10 @@ from PySide.QtGui import QInputDialog
 from PySide.QtGui import QLineEdit
 
 import FreeCADGui, FreeCAD, Part
-from pyrateoptics.localcoordinates import LocalCoordinates
-from pyrateoptics.observers import AbstractObserver
+from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
+from pyrateoptics.core.observers import AbstractObserver
 
-from Interface_Checks import *
+from .Interface_Checks import *
 
 class LC(AbstractObserver):
     def __init__(self, obj, coupling, doc, group):
@@ -66,19 +66,19 @@ class LC(AbstractObserver):
         obj.addProperty("App::PropertyVector", "localbasisZ", "LC", "local basis vector z").localbasisZ = FreeCAD.Base.Vector(tuple(coupling.localbasis[:,2]))
 
         obj.setEditorMode("Placement", 2) # readonly and hide
-        obj.setEditorMode("globalcoordinates", 1) # readonly, is determined by tilt, decenter, order 
-        obj.setEditorMode("localbasisX", 1) # readonly, is determined by tilt, decenter, order 
-        obj.setEditorMode("localbasisY", 1) # readonly, is determined by tilt, decenter, order 
-        obj.setEditorMode("localbasisZ", 1) # readonly, is determined by tilt, decenter, order 
+        obj.setEditorMode("globalcoordinates", 1) # readonly, is determined by tilt, decenter, order
+        obj.setEditorMode("localbasisX", 1) # readonly, is determined by tilt, decenter, order
+        obj.setEditorMode("localbasisY", 1) # readonly, is determined by tilt, decenter, order
+        obj.setEditorMode("localbasisZ", 1) # readonly, is determined by tilt, decenter, order
 
 
         obj.Proxy = self
-        
+
         obj.ViewObject.Proxy=0
 
         for ch in coupling.getChildren():
             self.createSubgroupForChild(ch)
-    
+
     def returnGroupLabel(self, s):
         return s + "_LCS"
     def returnStructureLabel(self, s):
@@ -88,7 +88,7 @@ class LC(AbstractObserver):
         subgroup = self.__doc.addObject("App::DocumentObjectGroup", self.returnGroupLabel(lcclasschild.name))
         self.__group.addObject(subgroup)
         chobj = self.__doc.addObject("Part::FeaturePython", self.returnStructureLabel(lcclasschild.name))
-        subgroup.addObject(chobj)                        
+        subgroup.addObject(chobj)
         LC(chobj, lcclasschild, self.__doc, subgroup)
 
 
@@ -99,7 +99,7 @@ class LC(AbstractObserver):
 
     def getGroup(self):
         return self.__group
-        
+
     def getLC(self):
         return self.__lc
 
@@ -113,7 +113,7 @@ class LC(AbstractObserver):
         self.__obj.localbasisX = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,0]))
         self.__obj.localbasisY = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,1]))
         self.__obj.localbasisZ = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,2]))
-        
+
 
     def onChanged(self, fp, prop):
         '''Do something when a property has changed'''
@@ -147,10 +147,10 @@ class LC(AbstractObserver):
             fp.localbasisZ = FreeCAD.Base.Vector(tuple(self.__lc.localbasis[:,2]))
 
         if prop != "Shape":
-            # prevent recursive call        
+            # prevent recursive call
             self.execute(fp)
-                             
- 
+
+
     def execute(self, fp):
         '''Do something when doing a recomputation, this method is mandatory'''
 
@@ -180,11 +180,11 @@ class LC(AbstractObserver):
                 Since we have some un-serializable parts here -- the Coin stuff -- we must define this method\
                 to return a tuple of all serializable objects or None.'''
         return None
- 
+
     def __setstate__(self,state):
         '''When restoring the serialized object from document we have the chance to set some internals here.\
                 Since no data were serialized nothing needs to be done here.'''
         return None
-        
+
 
 

@@ -174,8 +174,10 @@ def test_anisotropic_xi_calculation_polynomial_zeros(rnd_data1, rnd_data2,
        rnd_data4=floats(0.1, 1),
        rnd_data5=arrays(np.float, (3, 1), elements=floats(0.1, 1)),
        rnd_data6=arrays(np.float, (3, 1), elements=floats(0.1, 1)))
-def test_anisotropic_xi_eigenvalues(rnd_data1, rnd_data2, rnd_data3,
-                                    rnd_data4, rnd_data5, rnd_data6):
+def test_anisotropic_xi_eigenvalues(rnd_data1, rnd_data2,
+                                    rnd_data3,
+                                    rnd_data4,
+                                    rnd_data5, rnd_data6):
     """
     Comparison of eigenvalue calculation for xi from random complex material
     data. Comparing polynomial calculation from determinant, from quadratic
@@ -185,11 +187,11 @@ def test_anisotropic_xi_eigenvalues(rnd_data1, rnd_data2, rnd_data3,
     myeps = np.zeros((3, 3), dtype=complex)
     myeps[0:2, 0:2] = rnd_data1 + complex(0, 1)*rnd_data2
     myeps[2, 2] = rnd_data3 + complex(0, 1)*rnd_data4
-    #np.random.random((3, 3)) + complex(0, 1)*np.random.random((3, 3))
+
     ((epsxx, epsxy, _), (epsyx, epsyy, _), (_, _, epszz)) = \
         tuple(myeps)
     m = AnisotropicMaterial(lc, myeps)
-    #n = np.random.random((3, 1))
+
     #n = n/np.sqrt(np.sum(n*n, axis=0))
     n = np.zeros((3, 1))
     n[2, :] = 1

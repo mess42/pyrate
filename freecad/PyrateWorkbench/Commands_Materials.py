@@ -29,10 +29,10 @@ import FreeCADGui, FreeCAD
 
 from PySide.QtGui import QLineEdit, QInputDialog
 
-from TaskPanel_Materials_Add import MaterialsTaskPanelAdd
-from Object_MaterialCatalogue import MaterialCatalogueObject
+from .TaskPanel_Materials_Add import MaterialsTaskPanelAdd
+from .Object_MaterialCatalogue import MaterialCatalogueObject
 
-from Interface_Checks import *
+from .Interface_Checks import *
 from .Interface_Identifiers import *
 
 

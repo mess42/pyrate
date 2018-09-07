@@ -28,11 +28,17 @@ import platform
 import os
 import sys
 
+import FreeCAD
+
+Msg = FreeCAD.Console.PrintMessage
+Log = FreeCAD.Console.PrintLog
+Err = FreeCAD.Console.PrintError
+
 # TODO: at the moment only available for scipy, add further libs in the future
 try:
     print("checking for scipy support")
     import scipy
-except:
+except ImportError:
     print("scipy not found:")
     print("please add appropriate paths to paths.txt, i.e. c:/yourpython/Lib/site-packages/")
     if platform.system() == 'Windows':
@@ -48,7 +54,7 @@ except:
     import scipy
 else:
     print("found scipy")
-    
+
 
 
 # access to global variables for the FreeCAD interface
@@ -103,7 +109,7 @@ class PyrateWorkbench ( FreeCADGui.Workbench ):
 #                            "DeleteSystemCommand",
 #                            "UpdateVisualizationCommand",
 #                            "Separator",
-                            "CreateLocalCoordinatesCommand", 
+                            "CreateLocalCoordinatesCommand",
                             "CreateFunctionsCommand",
                             "Separator",
                             "CreateMaterialsCatalogueCommand",
@@ -114,8 +120,8 @@ class PyrateWorkbench ( FreeCADGui.Workbench ):
 #                            "SaveSystemCommand"
                             ])
         #self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"]) # TODO: update
-        self.appendMenu("Pyrate System", 
-                        ["CreateSystemCommand", 
+        self.appendMenu("Pyrate System",
+                        ["CreateSystemCommand",
                         "CreateLocalCoordinatesCommand",
                         "CreateFunctionsCommand",
                         "CreateSurfacesCommand",
@@ -135,14 +141,14 @@ class PyrateWorkbench ( FreeCADGui.Workbench ):
 #                        )
 
 
-        self.appendMenu("Pyrate Field", 
+        self.appendMenu("Pyrate Field",
                         [
-#                        "ShowAimDialogCommand", 
+#                        "ShowAimDialogCommand",
                         "ShowFieldDialogCommand"
                         ])
         self.appendMenu("Pyrate Analysis", ["ShowSpotDiagramCommand"])
         self.appendMenu("Pyrate Optimization", ["StartOptimizationCommand"])
-        
+
 
         Log ("Loading Create System Module... done\n")
 
@@ -153,37 +159,37 @@ class PyrateWorkbench ( FreeCADGui.Workbench ):
 
         if selection == []:
             self.appendContextMenu("Separator", [])
-            self.appendContextMenu( "Pyrate View", 
-                                       ["ShowSystemDraw2DCommand", 
+            self.appendContextMenu( "Pyrate View",
+                                       ["ShowSystemDraw2DCommand",
                                        "ContextIncreaseScaleOfAllLocalCoordinatesCommand",
                                        "ContextDecreaseScaleOfAllLocalCoordinatesCommand"])
             self.appendContextMenu("Separator", [])
-            
-        
+
+
         if len(selection) == 1:
             obj = selection[0] # TODO: better classification of selections
             # TODO: why CheckObjects function not working here?
-            if 'lcclass' in obj.PropertiesList:            
+            if 'lcclass' in obj.PropertiesList:
             #if isLocalCoordinatesObserver(obj):
                 self.appendContextMenu("Separator", [])
-                self.appendContextMenu( "Pyrate Local Coordinate System", 
+                self.appendContextMenu( "Pyrate Local Coordinate System",
                                        ["ContextAddChildToLocalCoordinatesCommand"])
                 self.appendContextMenu("Separator", [])
             if 'wavelengths' in obj.PropertiesList:
                 self.appendContextMenu("Separator", [])
-                self.appendContextMenu( "Pyrate Field", 
+                self.appendContextMenu( "Pyrate Field",
                                        ["ShowFieldDialogCommand"])
-                self.appendContextMenu( "Pyrate Surfaces", 
+                self.appendContextMenu( "Pyrate Surfaces",
                                        ["ShowSurfaceDialogCommand"])
                 self.appendContextMenu("ShowRaybundlesCommand", [])
                 self.appendContextMenu("Separator", [])
-                
-                                       
+
+
 
     def Activated(self):
 # do something here if needed...
 
-    
+
         Msg ("PyrateWorkbench.Activated()\n")
 
     def Deactivated(self):

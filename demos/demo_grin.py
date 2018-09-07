@@ -23,6 +23,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+import math
+import logging
 
 import numpy as np
 
@@ -32,31 +34,37 @@ from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.optical_system import OpticalSystem
-from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics import raytrace, draw
 
-import math
-import logging
 logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem() 
+s = OpticalSystem()
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="obj", decz=0.0), refname=s.rootcoordinatesystem.name)
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=10.0, tiltx=5.*math.pi/180.0), refname=lc0.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=20.0, tiltx=10.*math.pi/180.0), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=10.0), refname=lc2.name)
+lc0 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="obj", decz=0.0),
+            refname=s.rootcoordinatesystem.name)
+lc1 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="surf1", decz=10.0, tiltx=5.*math.pi/180.0),
+            refname=lc0.name)  # objectDist
+lc2 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="surf2", decz=20.0, tiltx=10.*math.pi/180.0),
+            refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="image", decz=10.0), refname=lc2.name)
 
 
 stopsurf = Surface(lc0)
-surf1 = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./24.0), apert=CircularAperture(lc1, 5.0))
-surf2 = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./24.0), apert=CircularAperture(lc2, 5.0))
+surf1 = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./24.0),
+                apert=CircularAperture(lc1, 5.0))
+surf2 = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./24.0),
+                apert=CircularAperture(lc2, 5.0))
 image = Surface(lc3)
 
 elem = OpticalElement(lc0, name="grinelement")
@@ -65,22 +73,46 @@ grin_strength = 0.5
 
 
 def nfunc(x, **kw):
-    return grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)+1.0#(2.5 - (x**2 + 100.0*y**4)/10.**2)
+    """
+    Refractive index function.
+    """
+    return grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)+1.0
+    # (2.5 - (x**2 + 100.0*y**4)/10.**2)
+
 
 def dndx(x, **kw):
-    return -2.*x[0]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)#-2*x/10.**2
+    """
+    d/dx of refractive index function
+    """
+    return -2.*x[0]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)
+    # -2*x/10.**2
+
 
 def dndy(x, **kw):
-    return -2.*4.*x[1]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2) #-100.0*4.0*y**3/10.**2
+    """
+    d/dy of refractive index function
+    """
+    return -2.*4.*x[1]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)
+    # -100.0*4.0*y**3/10.**2
+
 
 def dndz(x, **kw):
+    """
+    d/dz of refractive index function
+    """
     return np.zeros_like(x[0])
 
+
 def bnd(x):
+    """
+    Boundary function.
+    """
     return x[0]**2 + x[1]**2 < 10.**2
 
-#grinmaterial = ConstantIndexGlass(lc1, 1.0 + grin_strength) 
-grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz, parameterlist=[("n0", 0.5)])
+
+# grinmaterial = ConstantIndexGlass(lc1, 1.0 + grin_strength)
+grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz,
+                                     parameterlist=[("n0", 0.5)])
 grinmaterial.ds = 0.05
 grinmaterial.energyviolation = 0.01
 grinmaterial.boundaryfunction = bnd
@@ -94,10 +126,13 @@ elem.addSurface("image", image, (None, None))
 
 s.addElement("grinelement", elem)
 
-sysseq = [("grinelement", [("object", {"is_stop":True}), ("surf1", {}), ("surf2", {}), ("image", {})])]
+sysseq = [("grinelement",
+           [("object", {"is_stop": True}),
+            ("surf1", {}), ("surf2", {}),
+            ("image", {})])]
 
 
-r2 = raytrace(s, sysseq, 21,\
-    {"startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()},\
-    wave=wavelength)
+r2 = raytrace(s, sysseq, 21,
+              {"startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()},
+              wave=wavelength)
 draw(s, r2)

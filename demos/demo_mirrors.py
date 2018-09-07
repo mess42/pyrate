@@ -24,12 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
 import math
 import logging
 
-import matplotlib.pyplot as plt
-
+import numpy as np
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
@@ -41,11 +39,9 @@ from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
-import pyrateoptics.raytracer.helpers
-from pyrateoptics import raytrace, draw
+from pyrateoptics import draw
 
 from pyrateoptics.raytracer.globalconstants import degree
-from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
 from pyrateoptics.raytracer.aim import Aimy
 
@@ -56,26 +52,45 @@ wavelength = 0.5876e-3
 
 # definition of optical system
 
-#v = np.ones(3)# + 0.001*np.random.random(3)
-#myeps = np.diag(v)
+# v = np.ones(3)# + 0.001*np.random.random(3)
+# myeps = np.diag(v)
 
 
 s = OpticalSystem()
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0),
+                                 refname=s.rootcoordinatesystem.name)
 
-#air = AnisotropicMaterial(lc0, myeps)  # tests for anisotropic mirror
+# air = AnisotropicMaterial(lc0, myeps)  # tests for anisotropic mirror
 air = ConstantIndexGlass(lc0, 1.0)
 s.material_background = air
 
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2_stop", decz=-50.0, decy=-20, tiltx=math.pi/16), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=3*math.pi/32), refname=lc2.name)
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image1", decz=-50, decy=-15, tiltx=-math.pi/16), refname=lc3.name)
-lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="oapara", decz=-100, decy=-35), refname=lc4.name)
-lc5ap = s.addLocalCoordinateSystem(LocalCoordinates(name="oaparaap", decz=0, decy=35), refname=lc5.name)
-lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=52.8, tiltx=1*math.pi/32), refname=lc5.name)
-lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="image3", decz=5), refname=lc6.name)
+lc1 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8),
+            refname=lc0.name)  # objectDist
+lc2 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="m2_stop",
+                             decz=-50.0,
+                             decy=-20,
+                             tiltx=math.pi/16),
+            refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="m3", decz=50.0, decy=-30,
+                             tiltx=3*math.pi/32), refname=lc2.name)
+lc4 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="image1", decz=-50, decy=-15,
+                             tiltx=-math.pi/16), refname=lc3.name)
+lc5 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="oapara", decz=-100, decy=-35),
+            refname=lc4.name)
+lc5ap = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="oaparaap", decz=0, decy=35),
+            refname=lc5.name)
+lc6 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="image2", decz=52.8, tiltx=1*math.pi/32),
+            refname=lc5.name)
+lc7 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="image3", decz=5), refname=lc6.name)
 
 objectsurf = Surface(lc0)
 m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01))
@@ -107,25 +122,31 @@ print(s.rootcoordinatesystem.pprint())
 sysseq = [("TMA",
            [
                 ("object", {}),
-                ("m1", {"is_mirror":True}),
-                ("m2", {"is_stop":True, "is_mirror":True}),
-                ("m3", {"is_mirror":True}),
+                ("m1", {"is_mirror": True}),
+                ("m2", {"is_stop": True, "is_mirror": True}),
+                ("m3", {"is_mirror": True}),
                 ("image1", {}),
-                ("oapara", {"is_mirror":True}),
+                ("oapara", {"is_mirror": True}),
                 ("image2", {}),
                 ("image3", {})
-            ])
-        ]
+            ]
+           )
+          ]
 
 a = Aimy(s, sysseq, name="Aimy", stopsize=2., num_pupil_points=5)
 a.pupil_raster = raster.MeridionalFan()
 
+
 def correctKRayBundle(bundle):
+    """
+    Should get correct k from raybundle.
+    """
     pass
+
 
 initbundle1 = a.aim(np.array([0, 0]))
 initbundle2 = a.aim(np.array([0, 0.5*degree]))
-initbundle3 = a.aim(np.array([0,-0.5*degree]))
+initbundle3 = a.aim(np.array([0, -0.5*degree]))
 
 (pp1, r1p) = s.para_seqtrace(a.pilotbundle, initbundle1, sysseq)
 (pp2, r2p) = s.para_seqtrace(a.pilotbundle, initbundle2, sysseq)
@@ -137,53 +158,56 @@ r3r = s.seqtrace(initbundle3, sysseq)
 
 
 draw(s, [(r1p, "blue"), (r2p, "green"), (r3p, "orange")])
-#draw(s, [(r1r, "blue"), (r2r, "green"), (r3r, "orange")])
+# draw(s, [(r1r, "blue"), (r2r, "green"), (r3r, "orange")])
 
 
-### TODO:
-### first tries to implement aiming, but the code is somewhat hard to use
-### we need to get rid of the pilot ray in every call
-### we need to convert between XK representation local 3D coordinates and
-### global raybundle coordinates in a more easy way
-###
-#oea = OpticalElementAnalysis(s.elements["TMA"])
+# TODO:
+# first tries to implement aiming, but the code is somewhat hard to use
+# we need to get rid of the pilot ray in every call
+# we need to convert between XK representation local 3D coordinates and
+# global raybundle coordinates in a more easy way
 #
-#xyuvobjectstop = oea.calcXYUV([("object", "m1", 1), ("m1", "m2", 1)], pilotbundle2, sysseq[0][1], air)
+# oea = OpticalElementAnalysis(s.elements["TMA"])
 #
-#Axyuv = xyuvobjectstop[0:2, 0:2]
-#Bxyuv = xyuvobjectstop[0:2, 2:4]
-#Cxyuv = xyuvobjectstop[2:4, 0:2]
-#Dxyuv = xyuvobjectstop[2:4, 2:4]
+# xyuvobjectstop = oea.calcXYUV([("object", "m1", 1), ("m1", "m2", 1)],
+#                               pilotbundle2, sysseq[0][1], air)
 #
-#
-#
-#alpha = np.linspace(0, 360, 20)*math.pi/180.
-#pts = np.vstack((8.*np.cos(alpha), 8.*np.sin(alpha), np.zeros_like(alpha), np.zeros_like(alpha)))
-#ptsXY = pts[0:2]
-#
-#kobj = np.dot(np.linalg.inv(Bxyuv), ptsXY)
-#
-#ptsobj = np.dot(np.linalg.inv(xyuvobjectstop), pts)
+# Axyuv = xyuvobjectstop[0:2, 0:2]
+# Bxyuv = xyuvobjectstop[0:2, 2:4]
+# Cxyuv = xyuvobjectstop[2:4, 0:2]
+# Dxyuv = xyuvobjectstop[2:4, 2:4]
 #
 #
 #
-#xobj = ptsobj[0]
-#yobj = ptsobj[1]
+# alpha = np.linspace(0, 360, 20)*math.pi/180.
+# pts = np.vstack((8.*np.cos(alpha), 8.*np.sin(alpha), np.zeros_like(alpha),
+#                 np.zeros_like(alpha)))
+# ptsXY = pts[0:2]
 #
-#kxobj = kobj[0]
-#kyobj = kobj[1]
+# kobj = np.dot(np.linalg.inv(Bxyuv), ptsXY)
 #
-#o = np.vstack((xobj, yobj, np.zeros_like(xobj)))
-#k = np.zeros_like(o)
-#k[0,:] = kxobj
-#k[1,:] = kyobj
-#k[2,:] = np.sqrt((2.*math.pi/wavelength)**2 - kxobj**2 - kyobj**2)
+# ptsobj = np.dot(np.linalg.inv(xyuvobjectstop), pts)
 #
-#ey = np.zeros_like(o)
-#ey[1,:] =  1.
 #
-#E0 = np.cross(k, ey, axisa=0, axisb=0).T
-#initialbundle = RayBundle(x0=lc0.returnLocalToGlobalPoints(o), k0=lc0.returnLocalToGlobalDirections(k), Efield0=lc0.returnLocalToGlobalDirections(E0), wave=wavelength)
-#r4 = s.seqtrace(initialbundle, sysseq)
-
-
+#
+# xobj = ptsobj[0]
+# yobj = ptsobj[1]
+#
+# kxobj = kobj[0]
+# kyobj = kobj[1]
+#
+# o = np.vstack((xobj, yobj, np.zeros_like(xobj)))
+# k = np.zeros_like(o)
+# k[0,:] = kxobj
+# k[1,:] = kyobj
+# k[2,:] = np.sqrt((2.*math.pi/wavelength)**2 - kxobj**2 - kyobj**2)
+#
+# ey = np.zeros_like(o)
+# ey[1,:] =  1.
+#
+# E0 = np.cross(k, ey, axisa=0, axisb=0).T
+# initialbundle = RayBundle(x0=lc0.returnLocalToGlobalPoints(o),
+#                           k0=lc0.returnLocalToGlobalDirections(k),
+#                           Efield0=lc0.returnLocalToGlobalDirections(E0),
+#                           wave=wavelength)
+# r4 = s.seqtrace(initialbundle, sysseq)

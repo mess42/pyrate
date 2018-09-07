@@ -15,7 +15,8 @@ If you communicate with others be respectful and open minded.
 
 For providing any contributions:
 
- * Ensure that code does not break at least the demos 
+ * Ensure that code does not break at least the demos
+ * Ensure that the code contributed respects the PEP8 standard (if this is not the case before your change it, file an issue) 
  * Create issues for any major changes and enhancements that you wish to make. Discuss things transparently and get community feedback.
  * Keep feature versions as small as possible, preferably one new feature per version.
  * Be welcoming to newcomers and encourage diverse new contributors from all backgrounds. See the [Python Community Code of Conduct](https://www.python.org/psf/codeofconduct/).

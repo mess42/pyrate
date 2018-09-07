@@ -24,11 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
 import math
 import logging
-logging.basicConfig(level=logging.DEBUG)
 
+import numpy as np
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
@@ -36,52 +35,72 @@ from pyrateoptics.raytracer import surfShape
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.surface import Surface
-from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
+from pyrateoptics.raytracer.helpers import build_pilotbundle
 
-from pyrateoptics import draw, raytrace
+from pyrateoptics import draw
 from pyrateoptics.raytracer.globalconstants import degree
 
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
 
-import pyrateoptics.raytracer.helpers
+
+logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
-rnd_data1 = np.random.random((3, 3)) #np.eye(3)
-rnd_data2 = np.random.random((3, 3))#np.zeros((3, 3))#
+rnd_data1 = np.random.random((3, 3))  # np.eye(3)
+rnd_data2 = np.random.random((3, 3))  # np.zeros((3, 3))#
 lc = LocalCoordinates("1")
-myeps = np.eye(3) + 0.1*rnd_data1 + 0.01*complex(0, 1)*rnd_data2 # aggressive complex choice of myeps
-#myeps = np.eye(3) + 0.01*np.random.random((3, 3))
+myeps = np.eye(3) + 0.1*rnd_data1 + 0.01*complex(0, 1)*rnd_data2
+# aggressive complex choice of myeps
+# myeps = np.eye(3) + 0.01*np.random.random((3, 3))
 crystal = AnisotropicMaterial(lc, myeps)
 
 
 # definition of optical system
 s = OpticalSystem(matbackground=crystal)
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8), refname=lc0.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="m2_stop", decz=-50.0, decy=-20, tiltx=math.pi/16), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=3*math.pi/32), refname=lc2.name)
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image1", decz=-50, decy=-15, tiltx=-math.pi/16), refname=lc3.name)
-lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="oapara", decz=-100, decy=-35), refname=lc4.name)
-lc5ap = s.addLocalCoordinateSystem(LocalCoordinates(name="oaparaap", decz=0, decy=35), refname=lc5.name)
-lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="image2", decz=55, tiltx=1*math.pi/32), refname=lc5.name)
+lc0 = s.addLocalCoordinateSystem(
+        LocalCoordinates(name="object", decz=0.0),
+        refname=s.rootcoordinatesystem.name)
+lc1 = s.addLocalCoordinateSystem(
+        LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8),
+        refname=lc0.name)  # objectDist
+lc2 = s.addLocalCoordinateSystem(
+        LocalCoordinates(name="m2_stop", decz=-50.0, decy=-20,
+                         tiltx=math.pi/16), refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(
+        LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=3*math.pi/32),
+        refname=lc2.name)
+lc4 = s.addLocalCoordinateSystem(
+        LocalCoordinates(name="image1", decz=-50, decy=-15, tiltx=-math.pi/16),
+        refname=lc3.name)
+lc5 = s.addLocalCoordinateSystem(
+        LocalCoordinates(name="oapara", decz=-100, decy=-35), refname=lc4.name)
+lc5ap = s.addLocalCoordinateSystem(
+        LocalCoordinates(name="oaparaap", decz=0, decy=35), refname=lc5.name)
+lc6 = s.addLocalCoordinateSystem(
+        LocalCoordinates(name="image2", decz=55, tiltx=1*math.pi/32),
+        refname=lc5.name)
 
 objectsurf = Surface(lc0)
-m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01), apert=CircularAperture(lc1, 20.))
-m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01), apert=CircularAperture(lc2, 12.7))
-m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006), apert=CircularAperture(lc3, 20.7))
+m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01),
+                 apert=CircularAperture(lc1, 20.))
+m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01),
+                 apert=CircularAperture(lc2, 12.7))
+m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006),
+                 apert=CircularAperture(lc3, 20.7))
 image1 = Surface(lc4)
-oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.), apert=CircularAperture(lc5ap, 30.0))
+oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.),
+                 apert=CircularAperture(lc5ap, 30.0))
 image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
 
 
 elem = OpticalElement(lc0, name="TMA")
 
-#elem.addMaterial("crystal", crystal)
+# elem.addMaterial("crystal", crystal)
 
 elem.addSurface("object", objectsurf, (None, None))
 elem.addSurface("m1", m1surf, (None, None))
@@ -97,27 +116,26 @@ print(s.rootcoordinatesystem.pprint())
 
 sysseq = [("TMA", [
             ("object", {}),
-            ("m1", {"is_mirror":True}),
-            ("m2", {"is_mirror":True}),
-            ("m3", {"is_mirror":True}),
+            ("m1", {"is_mirror": True}),
+            ("m2", {"is_mirror": True}),
+            ("m3", {"is_mirror": True}),
             ("image1", {}),
-            ("oapara", {"is_mirror":True}),
-            ("image2", {}) ])]
+            ("oapara", {"is_mirror": True}),
+            ("image2", {})])]
 
 sysseq_pilot = [("TMA",
                  [
                     ("object", {}),
-                    ("m1", {"is_mirror":True}),
-                    ("m2", {"is_mirror":True}),
-                    ("m3", {"is_mirror":True}),
-                    ("m2", {"is_mirror":True}),
-                    ("m1", {"is_mirror":True}),
-                    ("m2", {"is_mirror":True}),
-                    ("m1", {"is_mirror":True}),
-                    ("m2", {"is_mirror":True})
-                ])
+                    ("m1", {"is_mirror": True}),
+                    ("m2", {"is_mirror": True}),
+                    ("m3", {"is_mirror": True}),
+                    ("m2", {"is_mirror": True}),
+                    ("m1", {"is_mirror": True}),
+                    ("m2", {"is_mirror": True}),
+                    ("m1", {"is_mirror": True}),
+                    ("m2", {"is_mirror": True})
+                 ])
                 ]
-
 
 
 obj_dx = 0.1
@@ -125,7 +143,8 @@ obj_dphi = 1.*degree
 
 osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
 
-raysdict = {"opticalsystem":s, "startz":-5., "radius":10., "raster":raster.MeridionalFan()}
+raysdict = {"opticalsystem": s, "startz": -5., "radius": 10.,
+            "raster": raster.MeridionalFan()}
 osa.aim(5, raysdict, bundletype="collimated", wave=wavelength)
 
 r2 = osa.trace()[0]
@@ -133,9 +152,15 @@ r2 = osa.trace()[0]
 
 kw = 5.*degree
 
-pilotbundles = pyrateoptics.raytracer.helpers.build_pilotbundle(objectsurf,\
-    crystal, (obj_dx, obj_dx), (obj_dphi, obj_dphi),\
-    kunitvector=np.array([0, math.sin(kw), math.cos(kw)]), num_sampling_points=3)
-(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1], osa.initial_bundles[0], sysseq)
+pilotbundles = build_pilotbundle(objectsurf,
+                                 crystal,
+                                 (obj_dx, obj_dx),
+                                 (obj_dphi, obj_dphi),
+                                 kunitvector=np.array([0,
+                                                       math.sin(kw),
+                                                       math.cos(kw)]),
+                                 num_sampling_points=3)
+(pilotray2, r3) = s.para_seqtrace(pilotbundles[-1],
+                                  osa.initial_bundles[0], sysseq)
 
 draw(s, [(r2, "blue"), (r3, "orange"), (pilotray2, "red")])

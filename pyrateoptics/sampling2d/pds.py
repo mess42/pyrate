@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import math
 import numpy as np
 from timeit import default_timer as timer
+from pyrateoptics.core.log import BaseLogger
+
 
 def decorator_timer(f):
     def helper(x):
@@ -41,14 +43,14 @@ def decorator_timer(f):
 
 # TODO: Method headers, Comments
 
-class Poisson2D:
+class Poisson2D(BaseLogger):
     """
     Slow implementation of Poisson disk sampling. Works for 2D.
     There are more sophisticated and a lot faster codes available.
     Although the code is slow, it is grid based to reduce the time
     needed for scanning a certain area for sampling points.
     """
-    def __init__(self, w, h, r, k):
+    def __init__(self, w, h, r, k, **kwargs):
         """
         Constructor of PoissonDisk 2D sampling generator.
 
@@ -57,6 +59,7 @@ class Poisson2D:
         :param r: (float) minimal distance from one sampling point to another (hard core algorithm)
         :param k: (float) number of sampling points during each cycle
         """
+        super(Poisson2D, self).__init__(**kwargs)
 
         self.w = float(w)
         self.h = float(h)
@@ -66,9 +69,9 @@ class Poisson2D:
         self.activelist = []
         self.samplelist = []
 
-        print("w: ", self.w, " h: ", self.h)
-        print("gridsize: ", self.gridcellsize)
-        print("r: ", self.radius)
+        self.info("w: "+ str(self.w) + " h: " + str(self.h))
+        self.info("gridsize: " + str(self.gridcellsize))
+        self.info("r: " + str(self.radius))
 
 
     def createGrid(self):
@@ -85,7 +88,7 @@ class Poisson2D:
         Initialize and put first sampling point into grid and sampling lists.
         """
         self.createGrid()
-        print("max grid: ", self.maxgx, " ", self.maxgy)
+        self.info("max grid: ", self.maxgx, " ", self.maxgy)
         self.addsample((np.random.random()*self.w, np.random.random()*self.h))
 
     def addsample(self, sample):
@@ -130,8 +133,6 @@ class Poisson2D:
         newcheckgps = np.array([[e[0] + gp[0],e[1]+gp[1]] for e in checkgps])
         toreducegps = np.array([e[0] >= 0 and e[1] >= 0 and e[0] < self.maxgx and e[1] < self.maxgy for e in newcheckgps])
 
-        #print newcheckgps
-        #print toreducegps
         return [tuple(e) for e in newcheckgps[toreducegps]]
 
     def chooseRandomPointSphericalAnnulus1(self, radius): # between radius and 2*radius
@@ -179,25 +180,16 @@ class Poisson2D:
         if self.activelist:
             ind = np.random.randint(len(self.activelist))
             alind = self.activelist[ind]
-            #print "choose random: ", ind
             return (ind, self.samplelist[alind])
 
     def checkPointsNearby(self, pt):
         newgridpoint = self.XYtoG(pt)
 
         checkgridpoints = self.checkNearbyGridPoints(newgridpoint)
-
-        #print "chpts near: ", checkgridpoints
-
         indices = np.array([int(self.grid[e]) for e in checkgridpoints])
-
-        #print "chpts near: ",pt, "inds: ", indices
-
         allvalidindices = list(indices[indices != -1])
         if not allvalidindices:
             return False
-
-        #print "chpts near: ",pt, "valinds: ", allvalidindices
 
         pointsinrange = [self.samplelist[ind] for ind in allvalidindices]
         somethinginrange = [((np.array(pt) - np.array(p))**2).sum() < self.radius**2 for p in pointsinrange]
@@ -239,7 +231,7 @@ class Poisson2D:
         while self.activelist:
             loopcount += 1
             if loopcount % 100 == 0:
-                print("loop#",loopcount," len active list: ", len(self.activelist))
+                self.debug("loop#" + str(loopcount) + " len active list: " + str(len(self.activelist)))
             #self.gridstages.append(1*self.grid) # copy
             self.onestep()
 
@@ -258,8 +250,7 @@ if __name__ == "__main__":
 
     bla.run()
     completesample = np.transpose(bla.returnCompleteSample())
-    #blub = bla.chooseNewpointAroundRefpointList((10.,10.), 10000).transpose()
-    #print(str(blub))
+
     plt.scatter(*completesample)
     plt.show()
 

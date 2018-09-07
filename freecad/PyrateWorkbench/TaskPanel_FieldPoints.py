@@ -35,7 +35,7 @@ import FreeCADGui
 
 from PySide import QtGui
 
-from Interface_Helpers import *
+from .Interface_Helpers import *
 
 
 class FieldPointsTaskPanel:
@@ -46,10 +46,10 @@ class FieldPointsTaskPanel:
         # grab boolean values from osobj
 
         # add, del rows, change bool values, save, load from files (default boolean=true)
-        # either accept or reject. in the first case: write back to osobj (incl boolvals)        
-        
+        # either accept or reject. in the first case: write back to osobj (incl boolvals)
+
         self.osobj = osobj
-                
+
         self.form = FreeCADGui.PySideUic.loadUi(fn)
         self.form.pbAdd.clicked.connect(self.onAdd)
         self.form.pbRemove.clicked.connect(self.onRemove)
@@ -60,9 +60,9 @@ class FieldPointsTaskPanel:
         self.form.tblFieldPoints.cellClicked.connect(self.onCellClicked)
         self.form.tblFieldPoints.cellActivated.connect(self.onCellActivated)
 
-        self.writeNumpyArraysIntoTable(osobj.fieldpoints, osobj.fieldpointsbool, self.form.tblFieldPoints)        
+        self.writeNumpyArraysIntoTable(osobj.fieldpoints, osobj.fieldpointsbool, self.form.tblFieldPoints)
 
-        
+
         self.row = -1
 
     def onSample(self):
@@ -70,15 +70,15 @@ class FieldPointsTaskPanel:
             # bilinear sampling
             minx = float(self.form.leMinX.text())
             maxx = float(self.form.leMaxX.text())
-            numx = int(self.form.leNumPointsX.text())            
-                
+            numx = int(self.form.leNumPointsX.text())
+
             miny = float(self.form.leMinY.text())
             maxy = float(self.form.leMaxY.text())
             numy = int(self.form.leNumPointsY.text())
-            
+
             xvals = np.linspace(minx, maxx, numx)
             yvals = np.linspace(miny, maxy, numy)
-            
+
             Xvals, Yvals = np.meshgrid(xvals, yvals)
             Xvals = Xvals.reshape((numx*numy,1))
             Yvals = Yvals.reshape((numx*numy,1))
@@ -87,18 +87,18 @@ class FieldPointsTaskPanel:
 
             (numrows, _) = xyvalues.shape
             boolvalues = np.ones((numrows,), dtype=bool)
-            
+
             # TODO: rounding?
-            
+
             self.writeNumpyArraysIntoTable(xyvalues, boolvalues, self.form.tblFieldPoints)
-            
+
         if self.form.tabWidgetSampling.currentIndex() == 1:
             # circular sampling
-            
+
             minr = float(self.form.leMinRadius.text())
             maxr = float(self.form.leMaxRadius.text())
-            numr = int(self.form.leNumPointsRadius.text())            
-                
+            numr = int(self.form.leNumPointsRadius.text())
+
             minphi = float(self.form.leMinPhi.text())
             maxphi = float(self.form.leMaxPhi.text())
             numphi = int(self.form.leNumPointsPhi.text())
@@ -107,12 +107,12 @@ class FieldPointsTaskPanel:
 
             rvals = np.linspace(minr, maxr, numr)
             phivals = np.linspace(minphi, maxphi, numphi)
-            
+
             Rvals, Phivals = np.meshgrid(rvals, phivals)
 
             Xvals = Rvals*np.cos(Phivals*math.pi/180.0)
             Yvals = Rvals*np.sin(Phivals*math.pi/180.0)
-            
+
             Xvals = Xvals.reshape((numr*numphi,1))
             Yvals = Yvals.reshape((numr*numphi,1))
 
@@ -125,8 +125,6 @@ class FieldPointsTaskPanel:
 
     def writeNumpyArraysIntoTable(self, xyarray, boolarray, tbl):
         tbl.setRowCount(0)
-
-        print(xyarray, boolarray)
 
         (lenb,) = np.shape(boolarray)
 
@@ -141,7 +139,7 @@ class FieldPointsTaskPanel:
             rb = QtGui.QCheckBox()
             rb.setChecked(boolarray[ind])
             tbl.setCellWidget(ind, 2, rb)
-    
+
     def writeTableIntoNumpyArrays(self, tbl):
         vlength = tbl.rowCount()
         xylist = []
@@ -149,13 +147,13 @@ class FieldPointsTaskPanel:
             xylist.append([float(tbl.item(i, j).text()) for j in range(2)])
         xyarray = np.array(xylist)
         boolarray = np.array([bool(tbl.cellWidget(i, 2).isChecked()) for i in range(vlength)], dtype=bool)
-        print(xyarray, boolarray)
-        return (xyarray, boolarray)    
-        
+
+        return (xyarray, boolarray)
+
     def onCellClicked(self, r, c):
         '''is cell clicked?'''
         self.row = r
-    
+
     def onCellActivated(self, r, c):
         '''is cell activated?'''
         self.row = r
@@ -164,15 +162,15 @@ class FieldPointsTaskPanel:
         '''Call Function to add field point'''
         self.form.tblFieldPoints.insertRow(self.form.tblFieldPoints.rowCount())
         pair = [0., 0.]
-        for colindex in range(2):        
-            self.form.tblFieldPoints.setItem(self.form.tblFieldPoints.rowCount()-1, colindex, QtGui.QTableWidgetItem(str(pair[colindex])))    
+        for colindex in range(2):
+            self.form.tblFieldPoints.setItem(self.form.tblFieldPoints.rowCount()-1, colindex, QtGui.QTableWidgetItem(str(pair[colindex])))
         rb = QtGui.QCheckBox()
         rb.setChecked(True)
         self.form.tblFieldPoints.setCellWidget(self.form.tblFieldPoints.rowCount()-1, 2, rb)
-    
+
     def onRemove(self):
         '''Call Function to remove field point'''
-        if self.row != -1:        
+        if self.row != -1:
             self.form.tblFieldPoints.removeRow(self.row)
         else:
             self.form.tblFieldPoints.removeRow(self.form.tblFieldPoints.rowCount())
@@ -180,20 +178,20 @@ class FieldPointsTaskPanel:
     def onLoadFile(self):
         '''Call Function to load field points from file'''
         fname, _ = QtGui.QFileDialog.getOpenFileName(None, 'Open file', os.getcwd())
-                
-        xyvalues = np.loadtxt(fname)        
+
+        xyvalues = np.loadtxt(fname)
         (numrows, _) = xyvalues.shape
         boolvalues = np.ones((numrows,), dtype=bool)
 
-        self.writeNumpyArraysIntoTable(xyvalues, boolvalues, self.form.tblFieldPoints)         
+        self.writeNumpyArraysIntoTable(xyvalues, boolvalues, self.form.tblFieldPoints)
 
 
     def onSaveFile(self):
         '''Call Function to save field points to file'''
         (xyvalues, boolvalues) = self.writeTableIntoNumpyArrays(self.form.tblFieldPoints)
-        
-        fname, _ = QtGui.QFileDialog.getSaveFileName(None, 'Save file', os.getcwd())        
-        
+
+        fname, _ = QtGui.QFileDialog.getSaveFileName(None, 'Save file', os.getcwd())
+
         np.savetxt(fname, xyvalues)
 
 
@@ -209,12 +207,12 @@ class FieldPointsTaskPanel:
         #Part.show(box)
         (self.osobj.fieldpoints, self.osobj.fieldpointsbool) = \
             self.writeTableIntoNumpyArrays(self.form.tblFieldPoints)
-    
+
         FreeCADGui.Control.closeDialog()
-        
+
     def reject(self):
         FreeCADGui.Control.closeDialog()
-        
+
 
 
 

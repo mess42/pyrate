@@ -26,11 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import FreeCADGui
 
-from Interface_Helpers import *
-from Interface_Checks import *
+from .Interface_Helpers import *
+from .Interface_Checks import *
 from .Interface_Identifiers import *
 
-from Object_Material import MaterialObject
+from .Object_Material import MaterialObject
 
 class MaterialsTaskPanelAdd:
     def __init__(self, doc):

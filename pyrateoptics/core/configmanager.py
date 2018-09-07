@@ -27,15 +27,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # TODO: YAML for serialization
 # TODO: Can ZMX converted into YAML easily?
-# TODO: serialization via JSONEncode derived class decorator (thomas annotator concept)
+# TODO: serialization via JSONEncode derived class decorator
+# (thomas annotator concept)
+
+import copy
+import logging
+
 
 from pyrateoptics import listOptimizableVariables
 from pyrateoptics.raytracer.optical_system import OpticalSystem
-from pyrateoptics.core.base import OptimizableVariable, ClassWithOptimizableVariables
+from pyrateoptics.core.base import (OptimizableVariable,
+                                    ClassWithOptimizableVariables)
 
-from log import BaseLogger
-import copy
-import logging
+from .log import BaseLogger
 
 
 class ConfigContainer(ClassWithOptimizableVariables):
@@ -43,11 +47,11 @@ class ConfigContainer(ClassWithOptimizableVariables):
     Contains all instances from config manager to be compatible with the optimizer
     frontend.
     """
-    
+
     def __init__(self, instance_list=None, **kwargs):
         super(ConfigContainer, self).__init__(**kwargs)
         self.instance_list = instance_list
-        
+
     # TODO: to be tested
 
 
@@ -58,22 +62,22 @@ class ConfigManager(BaseLogger):
     different instances.
     """
 
-    
+
     def __init__(self, base_instance=None, **kwargs):
         super(ConfigManager, self).__init__(**kwargs)
         self.base_instance = base_instance
-        
+
     def setOptimizableVariables(self, names_tuple, dict_of_keys_and_value_tuples):
         """
         Set values in different instance of base instance.
         (deep copy). What about pickups?
-        
+
         @param names_tuple (tuple of strings): names of the new systems (changes also keys)
         @param dict_of_keys_and_tuples (dict of tuples): consists of values for fixed or
                 variable optimizable variables.
 
         @return instance_list (list of instances)
-        
+
         """
         length_value_tuples = 0
         if self.base_instance is None:
@@ -81,7 +85,7 @@ class ConfigManager(BaseLogger):
         else:
             instance_list = []
             if names_tuple is None:
-                names_tuple = tuple([self.base_instance.name for r in dict_of_keys_and_value_tuples.values()[0]])             
+                names_tuple = tuple([self.base_instance.name for r in dict_of_keys_and_value_tuples.values()[0]])
             self.info("Constructing multiple configs with names: %s" % (str(names_tuple)))
             if len(names_tuple) > 0:
                 length_value_tuples = len(names_tuple)
@@ -90,25 +94,25 @@ class ConfigManager(BaseLogger):
                 # of variables does not work. Therefore we did it the other way
                 # around.
 
-                self.debug("Deep copying base instance")                
+                self.debug("Deep copying base instance")
                 for index in range(length_value_tuples):
                     self.debug(str(index))
                     instance_list.append(copy.deepcopy(self.base_instance))
                     # deep copy instance
-                
+
                 self.debug("Constructing variables")
                 for (index, instance) in enumerate(instance_list):
                     self.debug(str(index))
                     # reset all non-changing variables to instances of base_instance
                     # components.
-                    for (key, variable) in instance.getAllVariables()["vars"].iteritems():
-                        
+                    for (key, variable) in instance.getAllVariables()["vars"].items():
+
                         if key in dict_of_keys_and_value_tuples:
                             val_tuple = dict_of_keys_and_value_tuples[key]
                             self.debug("%s to %s" % (key, val_tuple[index]))
                             #variable.setvalue(val_tuple[index])
                             # TODO: how to get pickup functions with multiple arguments?
-                            # TODO: how to improve this code?                            
+                            # TODO: how to improve this code?
                             if type(val_tuple) is not tuple:
                                 self.warning("Incorrect format for multi config values!")
                                 self.debug("Values must be of type (string, contents):")
@@ -128,13 +132,13 @@ class ConfigManager(BaseLogger):
                     # set names of the new instances accordingly
                     self.debug("Setting name of instance %s" % (names_tuple[index]))
                     instance.setName(names_tuple[index])
-                
+
         return instance_list
 
 if __name__ == "__main__":
-    
+
     logging.basicConfig(level=logging.DEBUG)
-    
+
     s = OpticalSystem(name="s")
     s.lst = []
     s.lst.append({})
@@ -145,14 +149,13 @@ if __name__ == "__main__":
     s.rootcoordinatesystem.decz = OptimizableVariable(name="decz", value=-99.0)
 
     listOptimizableVariables(s)
-        
+
     m = ConfigManager(s, name="mc")
 
-    [s2, s3] = m.setOptimizableVariables(("s2", "s3"), 
-                {"s.global.decz": (("pickup", lambda x: x + 2.0), 
-                                   ("pickup", lambda x: x + 3.0)), 
+    [s2, s3] = m.setOptimizableVariables(("s2", "s3"),
+                {"s.global.decz": (("pickup", lambda x: x + 2.0),
+                                   ("pickup", lambda x: x + 3.0)),
                 "s.global.decy": (("fixed", -2.), ("fixed", -3.))})
-    s.rootcoordinatesystem.decx.setvalue(-98.0)    
-    for ss in (s2, s3):    
+    s.rootcoordinatesystem.decx.setvalue(-98.0)
+    for ss in (s2, s3):
         mydict = listOptimizableVariables(ss)
-        

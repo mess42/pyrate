@@ -1,9 +1,7 @@
 #!/usr/bin/env/python
 """
 Pyrate - Optical raytracing based on Python
-"""
 
-"""
 Copyright (C) 2014-2018
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
@@ -26,35 +24,50 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-"""
-Use this file for convenience functions which should be called at the main package level.
-"""
+# Use this file for convenience functions which should be called
+# at the main package level.
 
 import logging
+from distutils.version import StrictVersion
+
 import numpy as np
 
 from matplotlib import pyplot as plt
 import matplotlib
-from distutils.version import StrictVersion
 from .analysis.optical_system_analysis import OpticalSystemAnalysis
 from .raytracer.optical_system import OpticalSystem
 from .raytracer.localcoordinates import LocalCoordinates
 from .raytracer.optical_element import OpticalElement
 from .raytracer.surface import Surface
 from .raytracer import surfShape as Shapes
-from .raytracer.globalconstants import numerical_tolerance, degree, standard_wavelength
+from .raytracer.globalconstants import numerical_tolerance, standard_wavelength
 from .raytracer.ray import RayBundle, RayPath
 from .material.material_isotropic import ConstantIndexGlass
 from .material.material_glasscat import refractiveindex_dot_info_glasscatalog
-from .sampling2d.raster import RectGrid
 
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions
 
-def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
+accessible_shapes_type_dict = {
+        "Conic": Shapes.Conic,
+        "Cylinder": Shapes.Cylinder,
+        "ExplicitShape": Shapes.ExplicitShape,
+        "ImplicitShape": Shapes.ImplicitShape,
+        "Asphere": Shapes.Asphere,
+        "Biconic": Shapes.Biconic,
+        "LinearCombination": Shapes.LinearCombination,
+        "XYPolynomials": Shapes.XYPolynomials,
+        "GridSag": Shapes.GridSag,
+        "ZernikeFringe": Shapes.ZernikeFringe,
+        "ZernikeStandard": Shapes.ZernikeStandard,
+        "ZMXDLLShape": Shapes.ZMXDLLShape
+        }
 
+
+def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
     """
-    Convenience function to build up a centrosymmetric system with conic lenses.
+    Convenience function to build up a centrosymmetric system with
+    conic lenses.
 
     :param builduplist: (list of tuple)
              elements are (r, cc, thickness, mat, name, optdict)
@@ -62,8 +75,10 @@ def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
              cc - conic constant (float)
              thickness - (float)
              mat - material index or name (str)
-                   if convertable to float, a ConstantIndexGlass will be created
-                   if not, a material from the refractiveindex.info will be created
+                   if convertable to float,
+                       a ConstantIndexGlass will be created
+                   if not, a material from
+                       the refractiveindex.info will be created
             name - name of surf (str)
             optdict - {"is_mirror": True|False, "is_stop": True|False}
 
@@ -84,11 +99,18 @@ def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
             curv = 0.
         coordbrkdict = {"decz": thickness}
         surfdict = {"shape": "Conic", "curv": curv, "cc": cc}
-        builduplist_build_simple_os.append((surfdict, coordbrkdict, mat, name, optdict))
+        builduplist_build_simple_os.append((surfdict, coordbrkdict, mat, name,
+                                            optdict))
 
     return build_simple_optical_system(builduplist_build_simple_os, **kwargs)
 
-def build_simple_optical_element(lc0, builduplist, material_db_path="", name=""):
+
+def build_simple_optical_element(lc0, builduplist, material_db_path="",
+                                 name=""):
+    """
+    Convenience function to build up an optical element.
+
+    """
     logger = logging.getLogger(__name__)
     logger.info("Element name %s" % (name,))
 
@@ -101,41 +123,55 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="", name="")
     gcat = refractiveindex_dot_info_glasscatalog(material_db_path)
 
     for (surfdict, coordbreakdict, mat, surf_name, optdict) in builduplist:
-        lc = elem.addLocalCoordinateSystem(LocalCoordinates(name=surf_name + "_lc", **coordbreakdict), refname=refname)
+        lc = elem.addLocalCoordinateSystem(
+                LocalCoordinates(name=surf_name + "_lc", **coordbreakdict),
+                refname=refname)
         shapetype = surfdict.pop("shape", "Conic")
         if shapetype == "LinearCombination":
             # linear combination accepts pairs of coefficients and surfdicts
 
-            list_of_coefficients_and_shapes = surfdict.get("list_of_coefficients_and_shapes", [])
+            list_of_coefficients_and_shapes =\
+                surfdict.get("list_of_coefficients_and_shapes", [])
             new_list_coeffs_shapes = []
             for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
                 shapetype_part = surfdict_part.pop("shape", "Conic")
-                new_list_coeffs_shapes.append((coeff_part, eval("Shapes." + shapetype_part)(lc, name=name + "_shape" + str(ind), **surfdict_part)))
+                new_list_coeffs_shapes.append((coeff_part,
+                                               accessible_shapes_type_dict[shapetype_part]
+                                               (lc,
+                                                name=name + "_shape" + str(ind),
+                                                **surfdict_part)))
 
-            actsurf = Surface(lc, name=surf_name + "_surf",\
-                        shape=Shapes.LinearCombination(lc, name=surf_name + "_linearcombi",\
-                        list_of_coefficients_and_shapes=new_list_coeffs_shapes))
+            actsurf = Surface(lc, name=surf_name + "_surf",
+                              shape=Shapes.LinearCombination(lc,
+                                                             name=surf_name +
+                                                             "_linearcombi",
+                                                             list_of_coefficients_and_shapes=new_list_coeffs_shapes))
         else:
-            actsurf = Surface(lc, name=surf_name + "_surf",\
-                        shape=eval("Shapes." + shapetype)(lc, name=name + "_shape", **surfdict))
-        print("mat=%s"%repr(mat))
+            actsurf = Surface(lc, name=surf_name + "_surf",
+                              shape=accessible_shapes_type_dict[shapetype]
+                              (lc, name=name + "_shape", **surfdict))
+        logger.debug("mat=%s" % repr(mat))
         if mat is not None:
             try:
                 n = float(mat)
-            except:
+            except ValueError:
                 gcat.getMaterialDictFromLongName(mat)
-                elem.addMaterial(mat, gcat.createGlassObjectFromLongName(lc, mat))
+                elem.addMaterial(mat,
+                                 gcat.createGlassObjectFromLongName(lc, mat))
             else:
                 elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
 
         elem.addSurface(surf_name, actsurf, (lastmat, mat))
-        logger.info("Added surface: %s at material boundary %s" % (surf_name, (lastmat, mat)))
+        logger.info("Added surface: %s at material boundary %s" % (surf_name,
+                                                                   (lastmat,
+                                                                    mat)))
 
         lastmat = mat
         refname = lc.name
         surflist_for_sequence.append((surf_name, optdict))
 
     return (elem, (name, surflist_for_sequence))
+
 
 def build_simple_optical_system(builduplist, material_db_path="", name=""):
 
@@ -146,8 +182,10 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
             elements are (surfdict, coordbreakdict, mat, name, optdict)
             surfdict - {"shape": "Conic, ...", "curv": ..., "cc": ...}
             (such that surfdict can be used for **kwargs in surfShape)
-            coordbreakdict - {"decz": thickness, decx: ..., decy: ..., tiltx: ..., ..., order: 0 or 1}
-            (such that coordbreakdict can be used for **kwargs in LocalCoordinates)
+            coordbreakdict - {"decz": thickness, decx: ..., decy: ...,
+                              tiltx: ..., ..., order: 0 or 1}
+            (such that coordbreakdict can be used for **kwargs in
+             LocalCoordinates)
             mat - material index or name (str)
             name - name of surf (str)
             optdict - {"is_mirror":True|False, "is_stop":True|False}
@@ -163,39 +201,50 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     logger.info("Creating simple optical system")
     s = OpticalSystem(name=name)
 
-
-    lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+    lc0 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="object", decz=0.0),
+            refname=s.rootcoordinatesystem.name)
 
     elem_name = "stdelem"
     logger.info("Element name %s" % (elem_name,))
 
-    (elem, elem_seq) = build_simple_optical_element(lc0, builduplist,\
-        material_db_path=material_db_path, name=elem_name)
+    (elem, elem_seq) = build_simple_optical_element(
+            lc0, builduplist,
+            material_db_path=material_db_path, name=elem_name)
     s.addElement(elem_name, elem)
 
     s.material_background.setName("background")
     stdseq = [(elem_seq)]
     logger.info("Created simple optical system")
 
-
     return (s, stdseq)
 
-def build_optical_system(builduplist, material_db_path="", name=""):
 
+def build_optical_system(builduplist, material_db_path="", name=""):
+    """
+    Convenience function to build up non-centrosymmetric optical system.
+
+    TODO: parameters and return type
+    """
     logger = logging.getLogger(__name__)
     logger.info("Creating multiple element optical system")
     s = OpticalSystem(name=name)
-    lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+    lc0 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="object", decz=0.0),
+            refname=s.rootcoordinatesystem.name)
 
     full_elements_seq = []
-    refname=lc0.name
+    refname = lc0.name
     for (element_list, coordbreakdict, elem_name) in builduplist:
         logger.info("Element name %s" % (elem_name,))
-        lc = s.addLocalCoordinateSystem(LocalCoordinates(name=elem_name + "_lc", **coordbreakdict), refname=refname)
-        refname=lc.name
+        lc = s.addLocalCoordinateSystem(
+                LocalCoordinates(name=elem_name + "_lc", **coordbreakdict),
+                refname=refname)
+        refname = lc.name
 
-        (elem, elem_seq) = build_simple_optical_element(lc, builduplist,\
-            material_db_path=material_db_path, name=elem_name)
+        (elem, elem_seq) = build_simple_optical_element(
+                lc, element_list,  # builduplist?
+                material_db_path=material_db_path, name=elem_name)
         full_elements_seq.append(elem_seq)
         s.addElement(elem_name, elem)
 
@@ -203,6 +252,7 @@ def build_optical_system(builduplist, material_db_path="", name=""):
     logger.info("Created multiple element optical system")
 
     return (s, full_elements_seq)
+
 
 def draw(os, rays=None, **kwargs):
 
@@ -233,51 +283,58 @@ def draw(os, rays=None, **kwargs):
                         rp.draw2d(ax, color=ray_color, **kwargs)
                 elif isinstance(rpl, tuple):
                     (rl, ray_color) = rpl
-                    if isinstance(rl, list): # draw(s, [([rp1, ..], color1), (....)])
+                    if isinstance(rl, list):
+                        # draw(s, [([rp1, ..], color1), (....)])
                         for r in rl:
                             r.draw2d(ax, color=ray_color, **kwargs)
-                    else: # draw(s, [(rp1, color1), (....)])
+                    else:
+                        # draw(s, [(rp1, color1), (....)])
                         rl.draw2d(ax, color=ray_color, **kwargs)
                 else:
                     rpl.draw2d(ax, color=ray_color, **kwargs)
-        elif isinstance(rays, RayPath): # draw(s, raypath)
+        elif isinstance(rays, RayPath):
+            # draw(s, raypath)
             ray_color = tuple(np.random.random(3))
             rays.draw2d(ax, color=ray_color, **kwargs)
-        elif isinstance(rays, RayBundle): # draw(s, raybundle)
+        elif isinstance(rays, RayBundle):
+            # draw(s, raybundle)
             ray_color = tuple(np.random.random(3))
             rays.draw2d(ax, color=ray_color, **kwargs)
         elif isinstance(rays, tuple):
             (rl, ray_color) = rays
-            if isinstance(rl, list): # draw(s, ([raypath1, ...], color))
+            if isinstance(rl, list):
+                # draw(s, ([raypath1, ...], color))
                 for r in rl:
                     r.draw2d(ax, color=ray_color, **kwargs)
-            else: # draw(s, (raypath, color))
+            else:
+                # draw(s, (raypath, color))
                 rl.draw2d(ax, color=ray_color, **kwargs)
-
-
 
     os.draw2d(ax, color="grey", **kwargs)
 
     plt.show()
 
 
-
-def raytrace(s, seq, numrays, rays_dict, bundletype="collimated", traceoptions={}, wave=standard_wavelength):
+def raytrace(s, seq, numrays, rays_dict, bundletype="collimated",
+             traceoptions={}, wave=standard_wavelength):
+    """
+    Convenience function for raytracing.
+    """
     osa = OpticalSystemAnalysis(s, seq)
     osa.aim(numrays, rays_dict, bundletype=bundletype, wave=wave)
 
     return osa.trace(**traceoptions)
 
 
-
 def listOptimizableVariables(os, filter_status=None, maxcol=None):
-
     """
     Convenience function to list all optimizable variables within
     an object.
 
-    :param os (ClassWithOptimizableVariables) - Container with optimizable variables.
-    :param filter_status (str or None) - filter table for "variable", "fixed", ...
+    :param os (ClassWithOptimizableVariables) -
+            Container with optimizable variables.
+    :param filter_status (str or None) -
+            filter table for "variable", "fixed", ...
 
     :returns os.getAllVariables()
     """
@@ -289,24 +346,25 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
     def shorten_string(s, maxlen=None, intermediate_string="..."):
 
         if maxlen is None:
-            return(s)
+            return s
         else:
             if len(s) > maxlen:
                 to_remove = len(s) - maxlen + len(intermediate_string)
                 interpos = (len(s) - to_remove) // 2
-                return(s[:interpos] + intermediate_string + s[len(s) - interpos:])
+                return (s[:interpos] + intermediate_string +
+                        s[len(s) - interpos:])
             else:
-                return(s)
+                return s
 
     def print_table(table):
         col_width = [max(len(str(x)) for x in col) for col in zip(*table)]
         for line in table:
             print(" ".join("{:{}}".format(x, col_width[i])
-                                    for i, x in enumerate(line)))
+                           for i, x in enumerate(line)))
 
-    table = [(shorten_string(a, maxlen=maxcol), b.var_type, str(b.evaluate())) \
-        for (a, b) in \
-            sorted(lst.items(), key=lambda x: (len(x[0].split('.')) - 1, x[0]))]
+    table = [(shorten_string(a, maxlen=maxcol), b.var_type, str(b.evaluate()))
+             for (a, b) in sorted(lst.items(), key=lambda x: (
+                     len(x[0].split('.')) - 1, x[0]))]
     # sort by number of . in dict key and afterwards by lexical order
 
     if filter_status is not None:
@@ -315,4 +373,3 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
     print_table(table)
 
     return dict_variables
-

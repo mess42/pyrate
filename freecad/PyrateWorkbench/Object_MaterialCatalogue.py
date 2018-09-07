@@ -25,12 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from .Interface_Identifiers import *
-from Interface_Helpers import *
+from .Interface_Helpers import *
 
 
 import uuid
 
-from Object_Material import MaterialObject
+from .Object_Material import MaterialObject
 
 class MaterialCatalogueObject:
     

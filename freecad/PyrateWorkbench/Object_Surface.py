@@ -24,13 +24,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from Interface_Helpers import *
-from Interface_Checks import *
+from .Interface_Helpers import *
+from .Interface_Checks import *
 from .Interface_Identifiers import *
 
-from pyrateoptics.observers import AbstractObserver
-from pyrateoptics.surfShape import Conic, Cylinder, Asphere, ExplicitShape
-from pyrateoptics.aperture import BaseAperture, CircularAperture
+from pyrateoptics.core.observers import AbstractObserver
+from pyrateoptics.raytracer.surfShape import Conic, Cylinder, Asphere, ExplicitShape
+from pyrateoptics.raytracer.aperture import BaseAperture, CircularAperture
 
 class SurfaceObject(AbstractObserver):
 

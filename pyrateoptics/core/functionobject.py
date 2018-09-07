@@ -24,12 +24,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from .log import BaseLogger
+from pyrateoptics.core.log import BaseLogger
+
 
 class FunctionObject(BaseLogger):
 
-
-    def __init__(self, initial_sourcecode="", initial_funcnamelist=[], name="", **kwargs):
+    def __init__(self, initial_sourcecode="",
+                 initial_funcnamelist=[], name="", **kwargs):
         super(FunctionObject, self).__init__(name=name, **kwargs)
         self.source = initial_sourcecode
         self.sourcecode_security_checked = True
@@ -39,7 +40,7 @@ class FunctionObject(BaseLogger):
 
     def load(self, filename):
         f = open(filename, "rU")
-        self.source = f.read() # TODO: does exec need an array of lines?
+        self.source = f.read()  # TODO: does exec need an array of lines?
         f.close()
         self.info(self.source)
         self.sourcecode_security_checked = False
@@ -53,17 +54,19 @@ class FunctionObject(BaseLogger):
         self.info("Generating Functions from source")
         if not self.sourcecode_security_checked:
             self.warning("Cannot execute unchecked code: " + self.source)
-            self.info("Please check code and set the sourcecode_security_checked flag to True")
+            self.info("Please check code and set the \
+                      sourcecode_security_checked flag to True")
         else:
             localsdict = {}
             self.functiondict = {}
             try:
                 exec(self.source, localsdict)
-            except:
-                self.error("Exception caught")
+            except SyntaxError:
+                self.error("Syntax error caught")
 
             for fn in funcnamelist:
                 self.functiondict[fn] = localsdict.get(fn, None)
+
 
 if __name__ == "__main__":
     s = """
@@ -93,4 +96,3 @@ def r(x, y, z):
     foo2.sourcecode_security_checked = True
     foo2.generateFunctionsFromSource(["f", "g", "h", "r"])
     print(foo2.functiondict["r"](3, 4, 5))
-

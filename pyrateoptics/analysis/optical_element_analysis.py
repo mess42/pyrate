@@ -27,24 +27,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 from ..core.log import BaseLogger
 
+
 class OpticalElementAnalysis(BaseLogger):
-    
+    """
+    Class for optical element analysis.
+    """
+
     def __init__(self, oe, elemseq, name="", **kwargs):
         super(OpticalElementAnalysis, self).__init__(name=name, **kwargs)
         self.opticalelement = oe
         self.elementsequence = elemseq
-        
-        
-        
-    def calcXYUV(self, parthitlist, pilotbundle, fullsequence, background_medium):
-        
-        # FIXME: to many parameters in call, maybe set pilotbundle and background medium in advance        
-        
-        (pilotpath, matrices) = self.opticalelement.calculateXYUV(pilotbundle, fullsequence, background_medium)
-        
+
+    def calcXYUV(self, parthitlist, pilotbundle, fullsequence,
+                 background_medium):
+        """
+        Calculate XYUV matrices.
+        """
+
+        # FIXME: to many parameters in call
+        # maybe set pilotbundle and background medium in advance
+
+        (_, matrices) = self.opticalelement.\
+            calculateXYUV(pilotbundle, fullsequence, background_medium)
+
         tmp = np.eye(4)
-        
+
         for hit in parthitlist:
-            tmp = np.dot(matrices[hit], tmp)            
+            tmp = np.dot(matrices[hit], tmp)
 
         return tmp

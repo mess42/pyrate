@@ -267,7 +267,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         :return pmag: real space paraxial magnification (float)
         """
         abcd = self.getABCDMatrix(ray)
-        print(abcd)
+        self.debug(str(abcd))
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
 

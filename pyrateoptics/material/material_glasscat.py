@@ -70,8 +70,8 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         """
         try:
             f = open(ymlfilename, "r")
-        except:
-            self.info("Glass catalogue file not found: %s" % (ymlfilename,))
+        except IOError:
+            self.info("Glass catalogue file IO error: %s" % (ymlfilename,))
             data = []
         else:
             data = yaml.safe_load(f)
@@ -146,7 +146,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
 
         :return shelves: (list of str)
         """
-        print("self.librarydict=%s"%(repr(self.librarydict)))
+        self.debug("self.librarydict=%s"%(repr(self.librarydict)))
         return list(self.librarydict.keys())
 
 
@@ -187,7 +187,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         """
         dic = {}
         for shelf in self.getShelves():
-            print("shelf=%s"%repr(shelf))
+            self.debug("shelf=%s"%repr(shelf))
             for book in self.getBooks(shelf):
                 for page in self.getPages(shelf, book):
                     longname = self.getPageLongName(shelf, book, page)
@@ -224,7 +224,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         """
 
         allpages = self.getDictOfLongNames()
-        print("allpages=%s"%repr(allpages))
+        self.debug("allpages=%s"%repr(allpages))
         result = []
         for longname in allpages:
             if longname == glassName:

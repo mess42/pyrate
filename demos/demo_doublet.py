@@ -23,6 +23,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+import logging
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
@@ -36,25 +37,34 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics import draw, raytrace
 
-import logging
 logging.basicConfig(level=logging.DEBUG)
 
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem() 
+s = OpticalSystem()
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0), refname=s.rootcoordinatesystem.name)
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-1.048), refname=lc0.name) # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=4.0), refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=2.5), refname=lc2.name)
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=97.2), refname=lc3.name)
+lc0 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="stop", decz=0.0),
+            refname=s.rootcoordinatesystem.name)
+lc1 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="surf1", decz=-1.048), refname=lc0.name)
+# objectDist
+lc2 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="surf2", decz=4.0), refname=lc1.name)
+lc3 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="surf3", decz=2.5), refname=lc2.name)
+lc4 = s.addLocalCoordinateSystem(
+            LocalCoordinates(name="image", decz=97.2), refname=lc3.name)
 
 
 stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./62.8), apert=CircularAperture(lc1, 12.7))
-cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./45.7), apert=CircularAperture(lc2, 12.7))
-rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2), apert=CircularAperture(lc3, 12.7))
+frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./62.8),
+                    apert=CircularAperture(lc1, 12.7))
+cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./45.7),
+                     apert=CircularAperture(lc2, 12.7))
+rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2),
+                   apert=CircularAperture(lc3, 12.7))
 image = Surface(lc4)
 
 
@@ -74,10 +84,17 @@ elem.addSurface("image", image, (None, None))
 
 s.addElement("AC254-100", elem)
 
-sysseq = [("AC254-100", [("stop", {"is_stop":True}), ("front", {}), ("cement", {}), ("rear", {}), ("image", {})])]
+sysseq = [("AC254-100",
+           [
+            ("stop", {"is_stop": True}),
+            ("front", {}),
+            ("cement", {}),
+            ("rear", {}),
+            ("image", {})])]
 
 
-r2 = raytrace(s, sysseq, 20, {"startz": -5, "radius": 11.43, "raster": raster.MeridionalFan()}, wave=wavelength)[0]
+r2 = raytrace(s, sysseq, 20,
+              {"startz": -5, "radius": 11.43, "raster": raster.MeridionalFan()},
+              wave=wavelength)[0]
 
 draw(s, (r2, "blue"))
-

@@ -29,8 +29,10 @@ import math
 
 from .globalconstants import standard_wavelength, canonical_ex, canonical_ey
 
+
 class RayBundle(object):
-    def __init__(self, x0, k0, Efield0, rayID = [], wave = standard_wavelength, splitted=False):
+    def __init__(self, x0, k0, Efield0, rayID=None, wave=standard_wavelength,
+                 splitted=False):
         """
         Class representing a bundle of rays.
 
@@ -48,7 +50,7 @@ class RayBundle(object):
         """
         self.splitted = splitted
         numray = np.shape(x0)[1]
-        if rayID == [] or len(rayID) == 0:
+        if rayID is None or len(rayID) == 0:
             rayID = np.arange(numray)
         self.rayID = rayID
 

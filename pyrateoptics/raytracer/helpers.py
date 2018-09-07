@@ -47,19 +47,19 @@ from .helpers_math import rodrigues
 def choose_nearest(kvec, kvecs_new, returnindex=False):
     """
     Choose kvec from solution vector which is nearest to a specified kvec.
-    
+
     param kvec: specified k-vector (3xN numpy array of complex) which is used as reference.
     param kvecs_new: (4x3xN numpy array of complex) solution arrays of kvectors.
-    
+
     return: vector from kvecs_new which is nearest to kvec.
     """
-    
+
     tol = 1e-3
     (kvec_dim, kvec_len) = np.shape(kvec)
     (kvec_new_no, kvec_new_dim, kvec_new_len) = np.shape(kvecs_new)
-    
-    res = np.zeros_like(kvec)    
-    
+
+    res = np.zeros_like(kvec)
+
     if kvec_new_dim == kvec_dim and kvec_len == kvec_new_len:
         for j in range(kvec_len):
             diff_comparison = 1e10
@@ -73,18 +73,18 @@ def choose_nearest(kvec, kvecs_new, returnindex=False):
             res[:, j] = kvecs_new[choosing_index, :, j]
     if returnindex:
         return (choosing_index, res)
-    else:   
+    else:
         return res
 
-   
 
-def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Elock=None, 
-                      kunitvector=None, lck=None, wave=standard_wavelength, 
+
+def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Elock=None,
+                      kunitvector=None, lck=None, wave=standard_wavelength,
                       num_sampling_points=5, random_xy=False):
 
     """
     Simplified pilotbundle generation.
-    
+
     param surfobj: (Surface object) denotes the object surface, where to start
                         the raytracing
     param mat: (Material object) denotes the background material in which the
@@ -101,16 +101,16 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
     param wavelength: (float) wavelength of the pilotbundle
     param num_sampling_points: (int) number of sampling points in every direction
     param random_xy: (bool) choose xy distribution randomly?
-    
+
     """
     # TODO: remove code doubling from material due to sorting of K and E
     # TODO: check K and E from unit vector (fulfill ev equation?)
     # TODO: check why there are singular matrices generated in calculateXYUV
-    
+
     (dx, dy) = xxx_todo_changeme3
     (phix, phiy) = xxx_todo_changeme4
     def generate_cone_xy_bilinear(
-        direction_vec, lim_angle, xxx_todo_changeme, xxx_todo_changeme1, 
+        direction_vec, lim_angle, xxx_todo_changeme, xxx_todo_changeme1,
         num_pts_dir, random_xy=False):
 
         (centerx, centery) = xxx_todo_changeme
@@ -119,13 +119,13 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
             num_pts_lspace = num_pts_dir
             if num_pts_dir % 2 == 1:
                 num_pts_lspace -= 1
-    
+
             lspace = np.hstack(
-                (np.linspace(-1, 0, num_pts_lspace/2, endpoint=False), 
-                 np.linspace(1, 0, num_pts_lspace/2, endpoint=False)
+                (np.linspace(-1, 0, num_pts_lspace//2, endpoint=False),
+                 np.linspace(1, 0, num_pts_lspace//2, endpoint=False)
                  )
                  )
-            
+
             lspace = np.hstack((0, lspace))
 
             x = centerx + dx*lspace
@@ -133,18 +133,18 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
         else:
             x = centerx + dx*np.hstack((0, 1.-2.*np.random.random(num_pts_dir-1)))
             y = centery + dy*np.hstack((0, 1.-2.*np.random.random(num_pts_dir-1)))
-        
+
         phi = np.arctan2(direction_vec[1], direction_vec[0])
         theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
 
         alpha = np.linspace(-lim_angle, 0, num_pts_dir, endpoint=False)
         angle = np.linspace(0, 2.*np.pi, num_pts_dir, endpoint=False)
-        
+
         (Alpha, Angle, X, Y) = np.meshgrid(alpha, angle, x, y)
         Xc = np.cos(Angle)*np.sin(Alpha)
         Yc = np.sin(Angle)*np.sin(Alpha)
-        Zc = np.cos(Alpha)        
-        
+        Zc = np.cos(Alpha)
+
         start_pts = np.vstack((X.flatten(), Y.flatten(), np.zeros_like(X.flatten())))
 
         cone = np.vstack((Xc.flatten(), Yc.flatten(), Zc.flatten()))
@@ -156,7 +156,7 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
 
         final_cone = np.dot(finalrot, cone)
 
-        return (start_pts, final_cone)        
+        return (start_pts, final_cone)
 
 
 
@@ -166,63 +166,63 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
     if kunitvector is None:
         # standard direction is in z in lck
         kunitvector = np.array([0, 0, 1])
-        
-    cone_angle = 0.5*(phix + phiy)     
+
+    cone_angle = 0.5*(phix + phiy)
     (xlocobj, kconek) = generate_cone_xy_bilinear(kunitvector, cone_angle, (0.0, 0.0), (dx, dy), num_sampling_points, random_xy=random_xy)
 
     xlocmat = mat.lc.returnOtherToActualPoints(xlocobj, lcobj)
     kconemat = mat.lc.returnOtherToActualDirections(kconek, lck)
-    xlocsurf = surfobj.shape.lc.returnOtherToActualPoints(xlocobj, lcobj)    
-    surfnormalmat = mat.lc.returnOtherToActualDirections(surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]), surfobj.shape.lc)    
-    
+    xlocsurf = surfobj.shape.lc.returnOtherToActualPoints(xlocobj, lcobj)
+    surfnormalmat = mat.lc.returnOtherToActualDirections(surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]), surfobj.shape.lc)
+
     (k_4, E_4) = mat.sortKnormUnitEField(xlocmat, kconemat, surfnormalmat, wave=wave)
-    
-    
+
+
     pilotbundles =[]
     for j in range(4):
-       
+
         xglob = lcobj.returnLocalToGlobalPoints(xlocobj)
         kglob = mat.lc.returnLocalToGlobalDirections(k_4[j])
         Eglob = mat.lc.returnLocalToGlobalDirections(E_4[j])
-                
+
         pilotbundles.append(RayBundle(
-                x0 = xglob, 
-                k0 = kglob, 
+                x0 = xglob,
+                k0 = kglob,
                 Efield0 = Eglob, wave=wave
                 ))
     return pilotbundles
 
 
-def build_pilotbundle_complex(surfobj, mat, xxx_todo_changeme5, xxx_todo_changeme6, Elock=None, 
-                      kunitvector=None, lck=None, wave=standard_wavelength, 
+def build_pilotbundle_complex(surfobj, mat, xxx_todo_changeme5, xxx_todo_changeme6, Elock=None,
+                      kunitvector=None, lck=None, wave=standard_wavelength,
                       num_sampling_points=3):
     (dx, dy) = xxx_todo_changeme5
     (phix, phiy) = xxx_todo_changeme6
     def generate_cone(direction_vec, lim_angle, xxx_todo_changeme2, num_pts_dir):
         """
-        Generates cone for direction vector on real S_6 
+        Generates cone for direction vector on real S_6
         (x^2 + y^2 + z^2 + u^2 + v^2 + w^2 = 1)
         and generates cartesian raster for x and y
         """
-        
+
         (dx, dy) = xxx_todo_changeme2
         num_pts_lspace = num_pts_dir
         if num_pts_dir % 2 == 1:
             num_pts_lspace -= 1
 
         lspace = np.hstack(
-            (np.linspace(-1, 0, num_pts_lspace/2, endpoint=False), 
-             np.linspace(1, 0, num_pts_lspace/2, endpoint=False)
+            (np.linspace(-1, 0, num_pts_lspace//2, endpoint=False),
+             np.linspace(1, 0, num_pts_lspace//2, endpoint=False)
              )
              )
-        
+
         lspace = np.hstack((0, lspace))
 
         # generate vectors in z direction
 
         x = dx*lspace
         y = dy*lspace
-        
+
         kxr = lim_angle*lspace
         kxi = lim_angle*lspace
 
@@ -232,29 +232,29 @@ def build_pilotbundle_complex(surfobj, mat, xxx_todo_changeme5, xxx_todo_changem
         kzi = lim_angle*lspace
 
         (X, Y, KXR, KXI, KYR, KYI, KZI) = np.meshgrid(x, y, kxr, kxi, kyr, kyi, kzi)
-        
+
         KZR = np.sqrt(1. - KXR**2 - KXI**2 - KYR**2 - KYI**2 - KZI**2)
-        
-        
-        complex_ek = np.vstack((KXR.flatten() + 1j*KXI.flatten(), 
-                               KYR.flatten() + 1j*KYI.flatten(), 
+
+
+        complex_ek = np.vstack((KXR.flatten() + 1j*KXI.flatten(),
+                               KYR.flatten() + 1j*KYI.flatten(),
                                 KZR.flatten() + 1j*KZI.flatten()))
 
         start_pts = np.vstack((X.flatten(), Y.flatten(), np.zeros_like(X.flatten())))
-        
-        
+
+
         # TODO: complex rotate complex_ek into right direction
         # this means: generalize rodrigues to unitary matrices
         # and get 5 angles from dir_vector
 
         #print(np.linalg.norm(complex_ek, axis=0))
         #print(complex_ek)
-        
+
         #kz = np.cos(lim_angle)
         #kinpl = np.sin(lim_angle)
-        
-        # rotate back into direction_vec direction        
-        
+
+        # rotate back into direction_vec direction
+
         #phi = np.arctan2(direction_vec[1], direction_vec[0])
         #theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
 
@@ -269,26 +269,26 @@ def build_pilotbundle_complex(surfobj, mat, xxx_todo_changeme5, xxx_todo_changem
 
 
     (xlocobj, kconek) = generate_cone(kunitvector, 0.5*(phix + phiy), (dx, dy), num_sampling_points)
-    
+
     xlocmat = mat.lc.returnOtherToActualPoints(xlocobj, lcobj)
     kconemat = mat.lc.returnOtherToActualDirections(kconek, lck)
-    xlocsurf = surfobj.shape.lc.returnOtherToActualPoints(xlocobj, lcobj)    
-    surfnormalmat = mat.lc.returnOtherToActualDirections(surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]), surfobj.shape.lc)    
-    
+    xlocsurf = surfobj.shape.lc.returnOtherToActualPoints(xlocobj, lcobj)
+    surfnormalmat = mat.lc.returnOtherToActualDirections(surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]), surfobj.shape.lc)
+
     (k_4, E_4) = mat.sortKnormUnitEField(xlocmat, kconemat, surfnormalmat, wave=wave)
-    
-    
+
+
     pilotbundles =[]
     for j in range(4):
-       
+
         xglob = lcobj.returnLocalToGlobalPoints(xlocobj)
         kglob = mat.lc.returnLocalToGlobalDirections(k_4[j])
         Eglob = mat.lc.returnLocalToGlobalDirections(E_4[j])
-                
+
         pilotbundles.append(RayBundle(
-                x0 = xglob, 
-                k0 = kglob, 
+                x0 = xglob,
+                k0 = kglob,
                 Efield0 = Eglob, wave=wave
                 ))
     return pilotbundles
-    
+
