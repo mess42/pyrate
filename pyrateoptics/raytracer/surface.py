@@ -43,11 +43,11 @@ class Surface(LocalCoordinatesTreeBase):
     def __init__(self, rootlc, shape=None, apert=None, **kwargs):
         super(Surface, self).__init__(rootlc, **kwargs)
 
-        if shape is None:        
+        if shape is None:
             shape = surfShape.Conic(rootlc)
         if apert is None:
             apert = aperture.BaseAperture(rootlc)
-            
+
         self.setShape(shape)
         self.setAperture(apert)
 
@@ -63,11 +63,11 @@ class Surface(LocalCoordinatesTreeBase):
         if self.checkForRootConnection(apert.lc):
             self.__aperture = apert
         else:
-            raise Exception("Aperture coordinate system should be connected to surface coordinate system")            
-       
+            raise Exception("Aperture coordinate system should be connected to surface coordinate system")
+
     def getAperture(self):
         return self.__aperture
-        
+
     aperture = property(getAperture, setAperture)
 
 
@@ -82,34 +82,38 @@ class Surface(LocalCoordinatesTreeBase):
         if self.checkForRootConnection(shape.lc):
             self.__shape = shape
         else:
-            raise Exception("Shape coordinate system should be connected to surface coordinate system")            
-        
+            raise Exception("Shape coordinate system should be connected to surface coordinate system")
+
     def getShape(self):
         return self.__shape
-        
+
     shape = property(getShape, setShape)
-    
+
 
     def intersect(self, raybundle, remove_rays_outside_aperture=True):
         """
         Calculates intersection from raybundle. Knows shape and aperture and
         can remove rays due to aperture.
-        
+
         :param raybundle (RayBundle object), gets changed!
         """
-        
+
         self.shape.intersect(raybundle)
-        
+
         if remove_rays_outside_aperture:
             globalintersection = raybundle.x[-1]
             local_ap_intersection = self.aperture.lc.returnGlobalToLocalPoints(globalintersection)
-        
+
             valid = self.aperture.arePointsInAperture(local_ap_intersection[0], local_ap_intersection[1])
-        
+
             raybundle.valid[-1] = raybundle.valid[-1]*valid
 
 
-    def draw2d(self, ax, vertices=100, inyzplane=True, color="grey", plane_normal=canonical_ex, up=canonical_ey):
+    def draw2d(self, ax, vertices=50,
+               inyzplane=True,
+               color="grey",
+               plane_normal=canonical_ex,
+               up=canonical_ey, style="meander"):
         """
         :param ax (Axis object)
         :param vertices (int), vertices in xy for aperture sampling
@@ -117,15 +121,16 @@ class Surface(LocalCoordinatesTreeBase):
         :param color (string), "red", "blue", "grey", "green", ...
         :param plane_normal (1D numpy array of float), new x projection axis
         :param up (1D numpy array), invariant y axis, z = x x y
-        
+        :param style (string), "points", "meander"
+
         """
 
 
         sizelimit = 1000.0
-        failsafevalue = 11.0        
+        failsafevalue = 11.0
         if self.aperture == None:
             effsemidia = failsafevalue
-            # TODO: choose max ray height of all bundles instead 
+            # TODO: choose max ray height of all bundles instead
             # ( cosmetic but absolutely necessary for beauty )
         else:
             if self.aperture.getTypicalDimension() <= sizelimit:
@@ -133,31 +138,31 @@ class Surface(LocalCoordinatesTreeBase):
                 effsemidia = self.aperture.getTypicalDimension() #self.sdia.val if self.sdia.val < 10.0 else 10.0
             else:
                 effsemidia = failsafevalue
-        
+
         xl = effsemidia * np.linspace(-1, 1, num=vertices)
         yl = effsemidia * np.linspace(-1, 1, num=vertices)
-        
+
         X, Y = np.meshgrid(xl, yl)
         x = X.flatten()
         y = Y.flatten()
-        
+
         isinap = np.array(self.aperture.arePointsInAperture(x, y))
-        xinap = x[isinap]        
+        xinap = x[isinap]
         yinap = y[isinap]
         zinap = np.zeros_like(xinap)
-        
+
         localpts_aperture = np.row_stack((xinap, yinap, zinap))
         localpts_shape = self.shape.lc.returnOtherToActualPoints(localpts_aperture, self.aperture.lc)
-        
+
         xinap_shape = localpts_shape[0, :]
-        yinap_shape = localpts_shape[1, :]        
+        yinap_shape = localpts_shape[1, :]
         zinap_shape = self.shape.getSag(xinap_shape, yinap_shape)
-        
+
         localpts_shape = np.row_stack((xinap_shape, yinap_shape, zinap_shape))
-        localpts_surf = self.rootcoordinatesystem.returnOtherToActualPoints(localpts_shape, self.shape.lc)        
-        
-        # ebenenprojektion hier!        
-        
+        localpts_surf = self.rootcoordinatesystem.returnOtherToActualPoints(localpts_shape, self.shape.lc)
+
+        # ebenenprojektion hier!
+
         globalpts = self.rootcoordinatesystem.returnLocalToGlobalPoints(localpts_surf)
 
         # doubled code begin (also in RayBundleNew.draw2d)
@@ -187,7 +192,7 @@ class Surface(LocalCoordinatesTreeBase):
 
         globalptsinplane = globalpts - np.sum(globalpts*plane_normal, axis=0)*plane_normal
 
-       
+
         # calculate y-components
         ypt = np.sum(globalptsinplane * up, axis=0)
         # calculate z-components
@@ -195,17 +200,17 @@ class Surface(LocalCoordinatesTreeBase):
 
         # doubled code (see ray.py)
 
-        
+
         #ax.plot(zinap+offset[1], yinap+offset[0], color)
-        ax.plot(zpt, ypt, color)
-        
-        
-        #self.shape.draw2d(ax, offset, vertices, color, self.aperture)
+        if style.lower() == "points":
+            ax.scatter(zpt, ypt, 1)
+        elif style.lower() == "meander":
+            ax.plot(zpt, ypt, color)
 
     def getCentralCurvature(self, ray):
         curvature = self.shape.getCentralCurvature()
         # TODO: curvature at ray position
-        
+
         return curvature
-        
+
 

@@ -32,15 +32,20 @@ from distutils.version import StrictVersion
 
 import numpy as np
 
-from matplotlib import pyplot as plt
 import matplotlib
+from matplotlib import pyplot as plt
+from matplotlib.widgets import Slider
+
+
 from .analysis.optical_system_analysis import OpticalSystemAnalysis
 from .raytracer.optical_system import OpticalSystem
 from .raytracer.localcoordinates import LocalCoordinates
 from .raytracer.optical_element import OpticalElement
 from .raytracer.surface import Surface
 from .raytracer import surfShape as Shapes
-from .raytracer.globalconstants import numerical_tolerance, standard_wavelength
+from .raytracer.globalconstants import (numerical_tolerance,
+                                        standard_wavelength,
+                                        degree)
 from .raytracer.ray import RayBundle, RayPath
 from .material.material_isotropic import ConstantIndexGlass
 from .material.material_glasscat import refractiveindex_dot_info_glasscatalog
@@ -254,7 +259,7 @@ def build_optical_system(builduplist, material_db_path="", name=""):
     return (s, full_elements_seq)
 
 
-def draw(os, rays=None, **kwargs):
+def draw(os, rays=None, interactive=False, **kwargs):
 
     """
     Convenience function for drawing optical system and list of raybundles
@@ -264,52 +269,93 @@ def draw(os, rays=None, **kwargs):
 
     """
 
+    axis_color = "lightgoldenrodyellow"
+
     fig = plt.figure(1)
     ax = fig.add_subplot(111)
 
-    ax.axis('equal')
-    if StrictVersion(matplotlib.__version__) < StrictVersion('2.0.0'):
-        ax.set_axis_bgcolor('white')
+    if interactive:
+        fig.subplots_adjust(left=0.25, bottom=0.25)
+        xz_angle_slider_ax = fig.add_axes([0.25, 0.15, 0.65, 0.03],
+                                          axisbg=axis_color)
+        up_angle_slider_ax = fig.add_axes([0.25, 0.10, 0.65, 0.03],
+                                          axisbg=axis_color)
+
+        xz_angle_slider = Slider(xz_angle_slider_ax,
+                                 "XZ angle",
+                                 0.0, 360.0,
+                                 valinit=0.0, valfmt="%0.0f")
+        up_angle_slider = Slider(up_angle_slider_ax,
+                                 "UP angle",
+                                 0.0, 90.0,
+                                 valinit=0.0, valfmt="%0.0f")
+
+    ax.axis("equal")
+    if StrictVersion(matplotlib.__version__) < StrictVersion("2.0.0"):
+        ax.set_axis_bgcolor("white")
     else:
-        ax.set_facecolor('white')
+        ax.set_facecolor("white")
 
-    if rays is not None:
-        if isinstance(rays, list):
-            for rpl in rays:
-                ray_color = tuple(np.random.random(3))
-                if isinstance(rpl, list):
-                    for rp in rpl:
-                        ray_color = tuple(np.random.random(3))
-                        rp.draw2d(ax, color=ray_color, **kwargs)
-                elif isinstance(rpl, tuple):
-                    (rl, ray_color) = rpl
-                    if isinstance(rl, list):
-                        # draw(s, [([rp1, ..], color1), (....)])
-                        for r in rl:
-                            r.draw2d(ax, color=ray_color, **kwargs)
+    def draw_rays(ax, rays, **kwargs):
+        if rays is not None:
+            if isinstance(rays, list):
+                for rpl in rays:
+                    ray_color = tuple(np.random.random(3))
+                    if isinstance(rpl, list):
+                        for rp in rpl:
+                            ray_color = tuple(np.random.random(3))
+                            rp.draw2d(ax, color=ray_color, **kwargs)
+                    elif isinstance(rpl, tuple):
+                        (rl, ray_color) = rpl
+                        if isinstance(rl, list):
+                            # draw(s, [([rp1, ..], color1), (....)])
+                            for r in rl:
+                                r.draw2d(ax, color=ray_color, **kwargs)
+                        else:
+                            # draw(s, [(rp1, color1), (....)])
+                            rl.draw2d(ax, color=ray_color, **kwargs)
                     else:
-                        # draw(s, [(rp1, color1), (....)])
-                        rl.draw2d(ax, color=ray_color, **kwargs)
+                        rpl.draw2d(ax, color=ray_color, **kwargs)
+            elif isinstance(rays, RayPath):
+                # draw(s, raypath)
+                ray_color = tuple(np.random.random(3))
+                rays.draw2d(ax, color=ray_color, **kwargs)
+            elif isinstance(rays, RayBundle):
+                # draw(s, raybundle)
+                ray_color = tuple(np.random.random(3))
+                rays.draw2d(ax, color=ray_color, **kwargs)
+            elif isinstance(rays, tuple):
+                (rl, ray_color) = rays
+                if isinstance(rl, list):
+                    # draw(s, ([raypath1, ...], color))
+                    for r in rl:
+                        r.draw2d(ax, color=ray_color, **kwargs)
                 else:
-                    rpl.draw2d(ax, color=ray_color, **kwargs)
-        elif isinstance(rays, RayPath):
-            # draw(s, raypath)
-            ray_color = tuple(np.random.random(3))
-            rays.draw2d(ax, color=ray_color, **kwargs)
-        elif isinstance(rays, RayBundle):
-            # draw(s, raybundle)
-            ray_color = tuple(np.random.random(3))
-            rays.draw2d(ax, color=ray_color, **kwargs)
-        elif isinstance(rays, tuple):
-            (rl, ray_color) = rays
-            if isinstance(rl, list):
-                # draw(s, ([raypath1, ...], color))
-                for r in rl:
-                    r.draw2d(ax, color=ray_color, **kwargs)
-            else:
-                # draw(s, (raypath, color))
-                rl.draw2d(ax, color=ray_color, **kwargs)
+                    # draw(s, (raypath, color))
+                    rl.draw2d(ax, color=ray_color, **kwargs)
 
+    def sliders_on_changed(val):
+        ax.clear()
+
+        round_val_xz = np.round(xz_angle_slider.val)
+        round_val_up = np.round(up_angle_slider.val)
+
+        new_ex = np.array([np.cos(round_val_xz*degree),
+                           0,
+                           np.sin(round_val_xz*degree)])
+        new_up = np.array([-np.sin(round_val_up*degree),
+                           np.cos(round_val_up*degree),
+                           0.])
+        inyzplane = np.abs(round_val_xz) < numerical_tolerance
+        os.draw2d(ax, color="grey", inyzplane=inyzplane,
+                  plane_normal=new_ex, up=new_up, **kwargs)
+        draw_rays(ax, rays, plane_normal=new_ex, up=new_up, **kwargs)
+
+    if interactive:
+        xz_angle_slider.on_changed(sliders_on_changed)
+        up_angle_slider.on_changed(sliders_on_changed)
+
+    draw_rays(ax, rays, **kwargs)
     os.draw2d(ax, color="grey", **kwargs)
 
     plt.show()

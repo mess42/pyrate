@@ -112,7 +112,7 @@ sysseq = [("AC254-100", [("stop", {}), ("front", {}), ("cement", {}),
                          ("rear", {}), ("image", {})])]
 
 osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
-osa.aim(10, {"radius": 11.43, "startz": -5., "raster": raster.MeridionalFan()},
+osa.aim(11, {"radius": 11.43, "startz": -5., "raster": raster.MeridionalFan()},
         bundletype="collimated", wave=wavelength)
 r2 = osa.trace(splitup=True)[0]
-draw(s, [(r2[0], "blue"), (r2[1], "green")])
+draw(s, [(r2[0], "blue"), (r2[1], "green")], interactive=True)
