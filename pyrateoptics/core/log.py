@@ -64,6 +64,9 @@ class BaseLogger(object):
     def critical(self, msg, *args, **kwargs):
         self.logger.critical(msg, *args, **kwargs)
 
+    def getDictionary(self):
+        return {"name": self.name}
+
     def __getstate__(self):
         """
         Deleting logger is necessary to prevent deepcopy from aborting due to
@@ -80,4 +83,3 @@ class BaseLogger(object):
         """
         self.__dict__.update(state)
         self.logger = logging.getLogger(name=self.name)
-

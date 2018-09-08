@@ -46,7 +46,7 @@ class BaseAperture(BaseLogger):
     def __init__(self, lc, **kwargs):
         super(BaseAperture, self).__init__(**kwargs)
         self.lc = lc
-        self.typicaldimension = 1e10
+        self.typicaldimension = 1e16
 
     def getTypicalDimension(self):
         """
@@ -88,7 +88,7 @@ class CircularAperture(BaseAperture):
     Circular aperture of a surface.
     """
 
-    def __init__(self, lc, minradius=0.0, maxradius=1.0, **kwargs):
+    def __init__(self, lc, maxradius=1.0, minradius=0.0, **kwargs):
         super(CircularAperture, self).__init__(lc, **kwargs)
         self.maxradius = maxradius
         self.minradius = minradius
@@ -98,16 +98,23 @@ class CircularAperture(BaseAperture):
         return (lambda x, y: (x**2 + y**2 >= self.minradius**2) *
                              (x**2 + y**2 <= self.maxradius**2))
 
+    def getDictionary(self):
+        res = super(CircularAperture, self).getDictionary()
+        res["type"] = "CircularAperture"
+        res["minradius"] = self.minradius
+        res["maxradius"] = self.maxradius
+        return res
+
 
 class RectangularAperture(BaseAperture):
     """
     Rectangular aperture of a surface.
     """
 
-    def __init__(self, lc, w=1.0, h=1.0, **kwargs):
+    def __init__(self, lc, width=1.0, height=1.0, **kwargs):
         super(RectangularAperture, self).__init__(lc, **kwargs)
-        self.width = w
-        self.height = h
+        self.width = width
+        self.height = height
         self.typicaldimension = np.sqrt(self.width**2 + self.height**2)
 
     def getBooleanFunction(self):
@@ -115,6 +122,13 @@ class RectangularAperture(BaseAperture):
                 (x <= self.width * 0.5) *
                 (y >= -self.height * 0.5) *
                 (y <= self.height * 0.5))
+
+    def getDictionary(self):
+        res = super(CircularAperture, self).getDictionary()
+        res["type"] = "RectangularAperture"
+        res["width"] = self.width
+        res["height"] = self.height
+        return res
 
 
 accessible_apertures = {None: BaseAperture,

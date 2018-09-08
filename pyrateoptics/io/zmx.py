@@ -549,7 +549,7 @@ class ZMXParser(BaseLogger):
                 ap = None
             elif sqap is not None:
                 self.debug("Rectangular aperture %f x %f" % tuple(sqap))
-                ap = RectangularAperture(lcapdec, w=sqap[0]*2, h=sqap[1]*2)
+                ap = RectangularAperture(lcapdec, width=sqap[0]*2, height=sqap[1]*2)
             elif clap is not None:
                 self.debug("Circular aperture %f" % (clap[0],))
                 ap = CircularAperture(lcapdec, minradius=clap[0], maxradius=clap[1])
