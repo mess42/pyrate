@@ -146,7 +146,7 @@ class Surface(LocalCoordinatesTreeBase):
         x = X.flatten()
         y = Y.flatten()
 
-        isinap = np.array(self.aperture.arePointsInAperture(x, y))
+        isinap = self.aperture.arePointsInAperture(x, y)
         xinap = x[isinap]
         yinap = y[isinap]
         zinap = np.zeros_like(xinap)
@@ -174,10 +174,14 @@ class Surface(LocalCoordinatesTreeBase):
         (num_dims, num_rays) = np.shape(globalpts)
 
         # arrange num_ray copies of simple vectors in appropriate form
-        plane_normal = np.column_stack((plane_normal for i in np.arange(num_rays)))
-        ez = np.column_stack((ez for i in np.arange(num_rays)))
-        up = np.column_stack((up for i in np.arange(num_rays)))
-        # doubled code (also in RayBundleNew.draw2d)
+        # plane_normal = np.column_stack((plane_normal
+        # for i in np.arange(num_rays)))
+        # ez = np.column_stack((ez for i in np.arange(num_rays)))
+        # up = np.column_stack((up for i in np.arange(num_rays)))
+
+        plane_normal = np.repeat(plane_normal[:, np.newaxis], num_rays, axis=1)
+        ez = np.repeat(ez[:, np.newaxis], num_rays, axis=1)
+        up = np.repeat(up[:, np.newaxis], num_rays, axis=1)
 
         # doubled code (see ray.py)
 

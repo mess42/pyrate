@@ -98,8 +98,8 @@ m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01))
 m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006))
 image1 = Surface(lc4)
 oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.))
-image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
-image3 = Surface(lc7, apert=CircularAperture(lc7, 20.0))
+image2 = Surface(lc6, apert=CircularAperture(lc6, maxradius=20.0))
+image3 = Surface(lc7, apert=CircularAperture(lc7, maxradius=20.0))
 
 
 elem = OpticalElement(lc0, name="TMA")

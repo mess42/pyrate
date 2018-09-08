@@ -158,13 +158,13 @@ s.addElement("lenssys", elem)
 
 
 # reintroduced apertures after optimization run
-# s.surfaces[1].aperture = CircularAperture(0.55)
-# s.surfaces[2].aperture = CircularAperture(1.0)
-# s.surfaces[3].aperture = CircularAperture(1.3)
-# s.surfaces[4].aperture = CircularAperture(1.3)
-# s.surfaces[5].aperture = CircularAperture(1.01)
-# s.surfaces[6].aperture = CircularAperture(1.0)
-# s.surfaces[7].aperture = CircularAperture(1.0)
+# s.surfaces[1].aperture = CircularAperture(maxradius=0.55)
+# s.surfaces[2].aperture = CircularAperture(maxradius=1.0)
+# s.surfaces[3].aperture = CircularAperture(maxradius=1.3)
+# s.surfaces[4].aperture = CircularAperture(maxradius=1.3)
+# s.surfaces[5].aperture = CircularAperture(maxradius=1.01)
+# s.surfaces[6].aperture = CircularAperture(maxradius=1.0)
+# s.surfaces[7].aperture = CircularAperture(maxradius=1.0)
 
 
 # aimy.setPupilRaster(rasterType= raster.RectGrid, nray=100)

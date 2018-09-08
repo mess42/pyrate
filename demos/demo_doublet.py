@@ -60,11 +60,11 @@ lc4 = s.addLocalCoordinateSystem(
 
 stopsurf = Surface(lc0)
 frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./62.8),
-                    apert=CircularAperture(lc1, 12.7))
+                    apert=CircularAperture(lc1, maxradius=12.7))
 cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./45.7),
-                     apert=CircularAperture(lc2, 12.7))
+                     apert=CircularAperture(lc2, maxradius=12.7))
 rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2),
-                   apert=CircularAperture(lc3, 12.7))
+                   apert=CircularAperture(lc3, maxradius=12.7))
 image = Surface(lc4)
 
 

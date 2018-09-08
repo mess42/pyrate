@@ -552,7 +552,7 @@ class ZMXParser(BaseLogger):
                 ap = RectangularAperture(lcapdec, w=sqap[0]*2, h=sqap[1]*2)
             elif clap is not None:
                 self.debug("Circular aperture %f" % (clap[0],))
-                ap = CircularAperture(lcapdec, semidiameter=clap[1])
+                ap = CircularAperture(lcapdec, minradius=clap[0], maxradius=clap[1])
 
             if surftype == "STANDARD":
                 self.debug("SURFACE: Standard surface found")

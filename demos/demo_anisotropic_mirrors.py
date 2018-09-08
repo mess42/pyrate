@@ -87,15 +87,15 @@ lc6 = s.addLocalCoordinateSystem(
 
 objectsurf = Surface(lc0)
 m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01),
-                 apert=CircularAperture(lc1, 20.))
+                 apert=CircularAperture(lc1, maxradius=20.))
 m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01),
-                 apert=CircularAperture(lc2, 12.7))
+                 apert=CircularAperture(lc2, maxradius=12.7))
 m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006),
-                 apert=CircularAperture(lc3, 20.7))
+                 apert=CircularAperture(lc3, maxradius=20.7))
 image1 = Surface(lc4)
 oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.),
-                 apert=CircularAperture(lc5ap, 30.0))
-image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
+                 apert=CircularAperture(lc5ap, maxradius=30.0))
+image2 = Surface(lc6, apert=CircularAperture(lc6, maxradius=20.0))
 
 
 elem = OpticalElement(lc0, name="TMA")

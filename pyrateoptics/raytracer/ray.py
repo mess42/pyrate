@@ -168,9 +168,9 @@ class RayBundle(object):
             return
 
         # arrange num_ray copies of simple vectors in appropriate form
-        plane_normal = np.column_stack((plane_normal for i in np.arange(num_rays)))
-        ez = np.column_stack((ez for i in np.arange(num_rays)))
-        up = np.column_stack((up for i in np.arange(num_rays)))
+        plane_normal = np.repeat(plane_normal[:, np.newaxis], num_rays, axis=1)
+        ez = np.repeat(ez[:, np.newaxis], num_rays, axis=1)
+        up = np.repeat(up[:, np.newaxis], num_rays, axis=1)
 
         ptlist = [self.x[i] for i in np.arange(num_points)]
         validity = [self.valid[i] for i in np.arange(num_points)]
