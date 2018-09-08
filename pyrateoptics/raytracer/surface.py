@@ -113,7 +113,7 @@ class Surface(LocalCoordinatesTreeBase):
                inyzplane=True,
                color="grey",
                plane_normal=canonical_ex,
-               up=canonical_ey, style="meander"):
+               up=canonical_ey, style="meander", **kwargs):
         """
         :param ax (Axis object)
         :param vertices (int), vertices in xy for aperture sampling
@@ -203,9 +203,10 @@ class Surface(LocalCoordinatesTreeBase):
 
         #ax.plot(zinap+offset[1], yinap+offset[0], color)
         if style.lower() == "points":
-            ax.scatter(zpt, ypt, 1)
+            kwargs.pop("linewidth", None)
+            ax.scatter(zpt, ypt, 1, **kwargs)
         elif style.lower() == "meander":
-            ax.plot(zpt, ypt, color)
+            ax.plot(zpt, ypt, color, **kwargs)
 
     def getCentralCurvature(self, ray):
         curvature = self.shape.getCentralCurvature()

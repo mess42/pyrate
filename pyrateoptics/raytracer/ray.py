@@ -154,7 +154,7 @@ class RayBundle(object):
         return nlocmat
 
 
-    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey):
+    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey, **kwargs):
 
         # normalizing plane_normal, up direction
         plane_normal = plane_normal/np.linalg.norm(plane_normal)
@@ -191,7 +191,7 @@ class RayBundle(object):
 
             y = np.vstack((ypt1, ypt2))[:, todraw]
             z = np.vstack((zpt1, zpt2))[:, todraw]
-            ax.plot(z, y, color=color)
+            ax.plot(z, y, color=color, **kwargs)
 
 
 
@@ -210,9 +210,11 @@ class RayPath(object):
     def appendRayPath(self, raypath):
         self.raybundles += raypath.raybundles
 
-    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey):
+    def draw2d(self, ax, color="blue",
+               plane_normal=canonical_ex, up=canonical_ey, **kwargs):
         for r in self.raybundles:
-            r.draw2d(ax, color=color, plane_normal=plane_normal, up=up)
+            r.draw2d(ax, color=color,
+                     plane_normal=plane_normal, up=up, **kwargs)
 
     def containsSplitted(self):
         return any([r.splitted for r in self.raybundles])

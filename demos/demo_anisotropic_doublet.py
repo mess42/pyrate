@@ -115,4 +115,8 @@ osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
 osa.aim(11, {"radius": 11.43, "startz": -5., "raster": raster.MeridionalFan()},
         bundletype="collimated", wave=wavelength)
 r2 = osa.trace(splitup=True)[0]
-draw(s, [(r2[0], "blue"), (r2[1], "green")], interactive=True)
+draw(s, [(r2[0], "blue"), (r2[1], "green")],
+     interactive=True,
+     show_box=False,
+     figsize=None,
+     export=None)

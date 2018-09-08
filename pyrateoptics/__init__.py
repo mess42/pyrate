@@ -259,20 +259,38 @@ def build_optical_system(builduplist, material_db_path="", name=""):
     return (s, full_elements_seq)
 
 
-def draw(os, rays=None, interactive=False, **kwargs):
+def draw(os, rays=None,
+         interactive=False,
+         show_box=True,
+         linewidth=1.0,
+         export_type="pdf",
+         export=None, **kwargs):
 
     """
     Convenience function for drawing optical system and list of raybundles
+    Use figsize=(..,..) to control aspect ratio for export.
 
     :param os - OpticalSystem
     :param rb - list of raybundles
 
     """
 
+    if export is not None:
+        interactive = False
+
     axis_color = "lightgoldenrodyellow"
 
-    fig = plt.figure(1)
-    ax = fig.add_subplot(111)
+    dpi = kwargs.pop("dpi", None)
+    figsize = kwargs.pop("figsize", None)
+
+    fig = plt.figure(1, dpi=dpi, figsize=figsize)
+
+    if not show_box:
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+    else:
+        ax = fig.add_subplot(1, 1, 1)
 
     if interactive:
         fig.subplots_adjust(left=0.25, bottom=0.25)
@@ -290,8 +308,6 @@ def draw(os, rays=None, interactive=False, **kwargs):
                                               facecolor=axis_color)
             up_angle_slider_ax = fig.add_axes(up_angle_slider_size,
                                               facecolor=axis_color)
-
-
 
         xz_angle_slider = Slider(xz_angle_slider_ax,
                                  "XZ angle",
@@ -367,8 +383,13 @@ def draw(os, rays=None, interactive=False, **kwargs):
         xz_angle_slider.on_changed(sliders_on_changed)
         up_angle_slider.on_changed(sliders_on_changed)
 
-    draw_rays(ax, rays, **kwargs)
-    os.draw2d(ax, color="grey", **kwargs)
+    draw_rays(ax, rays, linewidth=linewidth, **kwargs)
+    os.draw2d(ax, color="grey", linewidth=linewidth, **kwargs)
+
+    if export is not None:
+        # ax.autoscale(enable=True, axis='both', tight=True)
+        fig.savefig(export, format=export_type,
+                    bbox_inches='tight', pad_inches=0)
 
     plt.show()
 
