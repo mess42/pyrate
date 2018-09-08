@@ -276,10 +276,22 @@ def draw(os, rays=None, interactive=False, **kwargs):
 
     if interactive:
         fig.subplots_adjust(left=0.25, bottom=0.25)
-        xz_angle_slider_ax = fig.add_axes([0.25, 0.15, 0.65, 0.03],
-                                          axisbg=axis_color)
-        up_angle_slider_ax = fig.add_axes([0.25, 0.10, 0.65, 0.03],
-                                          axisbg=axis_color)
+
+        xz_angle_slider_size = [0.25, 0.15, 0.65, 0.03]
+        up_angle_slider_size = [0.25, 0.10, 0.65, 0.03]
+
+        if StrictVersion(matplotlib.__version__) < StrictVersion("2.0.0"):
+            xz_angle_slider_ax = fig.add_axes(xz_angle_slider_size,
+                                              axisbg=axis_color)
+            up_angle_slider_ax = fig.add_axes(up_angle_slider_size,
+                                              axisbg=axis_color)
+        else:
+            xz_angle_slider_ax = fig.add_axes(xz_angle_slider_size,
+                                              facecolor=axis_color)
+            up_angle_slider_ax = fig.add_axes(up_angle_slider_size,
+                                              facecolor=axis_color)
+
+
 
         xz_angle_slider = Slider(xz_angle_slider_ax,
                                  "XZ angle",
@@ -287,7 +299,7 @@ def draw(os, rays=None, interactive=False, **kwargs):
                                  valinit=0.0, valfmt="%0.0f")
         up_angle_slider = Slider(up_angle_slider_ax,
                                  "UP angle",
-                                 0.0, 90.0,
+                                 0.0, 360.0,
                                  valinit=0.0, valfmt="%0.0f")
 
     ax.axis("equal")
