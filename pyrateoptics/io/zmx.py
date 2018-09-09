@@ -557,14 +557,14 @@ class ZMXParser(BaseLogger):
             if surftype == "STANDARD":
                 self.debug("SURFACE: Standard surface found")
                 actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc),
-                                  apert=ap)
+                                  aperture=ap)
             elif surftype == "EVENASPH":
                 self.debug("SURFACE: Polynomial asphere surface found")
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
                 self.debug(acoeffs)
                 actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc,
                                                     coefficients=acoeffs),
-                                  apert=ap)
+                                  aperture=ap)
             elif surftype == "FZERNSAG":  # Zernike Fringe Sag
                 self.debug("SURFACE: Zernike standard surface found")
                 # ignore extrapolate flag
