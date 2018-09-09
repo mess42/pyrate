@@ -113,7 +113,8 @@ class Surface(LocalCoordinatesTreeBase):
                inyzplane=True,
                color="grey",
                plane_normal=canonical_ex,
-               up=canonical_ey, style="meander", **kwargs):
+               up=canonical_ey,
+               style="meander", style_swapped_lines=True, **kwargs):
         """
         :param ax (Axis object)
         :param vertices (int), vertices in xy for aperture sampling
@@ -143,6 +144,8 @@ class Surface(LocalCoordinatesTreeBase):
         yl = effsemidia * np.linspace(-1, 1, num=vertices)
 
         X, Y = np.meshgrid(xl, yl)
+        if style_swapped_lines:
+            X[::2, :] = X[::2, ::-1]
         x = X.flatten()
         y = Y.flatten()
 
