@@ -28,6 +28,8 @@ import numpy as np
 
 from ..core.log import BaseLogger
 
+type_key = "type"
+
 
 class BaseAperture(BaseLogger):
     # for optimizable aperture it would be good to
@@ -100,7 +102,7 @@ class CircularAperture(BaseAperture):
 
     def getDictionary(self):
         res = super(CircularAperture, self).getDictionary()
-        res["type"] = "CircularAperture"
+        res[type_key] = "CircularAperture"
         res["minradius"] = self.minradius
         res["maxradius"] = self.maxradius
         return res
@@ -125,7 +127,7 @@ class RectangularAperture(BaseAperture):
 
     def getDictionary(self):
         res = super(CircularAperture, self).getDictionary()
-        res["type"] = "RectangularAperture"
+        res[type_key] = "RectangularAperture"
         res["width"] = self.width
         res["height"] = self.height
         return res
@@ -138,5 +140,5 @@ accessible_apertures = {None: BaseAperture,
 
 def createAperture(lc, ap_dict):
 
-    ap_type = ap_dict.pop("type", None)
+    ap_type = ap_dict.pop(type_key, None)
     return accessible_apertures[ap_type](lc, **ap_dict)
