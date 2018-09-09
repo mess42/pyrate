@@ -42,7 +42,7 @@ from .raytracer.optical_system import OpticalSystem
 from .raytracer.localcoordinates import LocalCoordinates
 from .raytracer.optical_element import OpticalElement
 from .raytracer.surface import Surface
-from .raytracer import surface_shape as Shapes
+from .raytracer.surface_shape import accessible_shapes, LinearCombination
 from .raytracer.globalconstants import (numerical_tolerance,
                                         standard_wavelength,
                                         degree)
@@ -52,21 +52,6 @@ from .material.material_glasscat import refractiveindex_dot_info_glasscatalog
 
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions
-
-accessible_shapes_type_dict = {
-        "Conic": Shapes.Conic,
-        "Cylinder": Shapes.Cylinder,
-        "ExplicitShape": Shapes.ExplicitShape,
-        "ImplicitShape": Shapes.ImplicitShape,
-        "Asphere": Shapes.Asphere,
-        "Biconic": Shapes.Biconic,
-        "LinearCombination": Shapes.LinearCombination,
-        "XYPolynomials": Shapes.XYPolynomials,
-        "GridSag": Shapes.GridSag,
-        "ZernikeFringe": Shapes.ZernikeFringe,
-        "ZernikeStandard": Shapes.ZernikeStandard,
-        "ZMXDLLShape": Shapes.ZMXDLLShape
-        }
 
 
 def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
@@ -141,19 +126,19 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
             for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
                 shapetype_part = surfdict_part.pop("shape", "Conic")
                 new_list_coeffs_shapes.append((coeff_part,
-                                               accessible_shapes_type_dict[shapetype_part]
+                                               accessible_shapes[shapetype_part]
                                                (lc,
                                                 name=name + "_shape" + str(ind),
                                                 **surfdict_part)))
 
             actsurf = Surface(lc, name=surf_name + "_surf",
-                              shape=Shapes.LinearCombination(lc,
-                                                             name=surf_name +
-                                                             "_linearcombi",
-                                                             list_of_coefficients_and_shapes=new_list_coeffs_shapes))
+                              shape=LinearCombination(lc,
+                                                      name=surf_name +
+                                                      "_linearcombi",
+                                                      list_of_coefficients_and_shapes=new_list_coeffs_shapes))
         else:
             actsurf = Surface(lc, name=surf_name + "_surf",
-                              shape=accessible_shapes_type_dict[shapetype]
+                              shape=accessible_shapes[shapetype]
                               (lc, name=name + "_shape", **surfdict))
         logger.debug("mat=%s" % repr(mat))
         if mat is not None:

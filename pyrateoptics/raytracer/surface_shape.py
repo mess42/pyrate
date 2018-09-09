@@ -34,6 +34,8 @@ from scipy.special import jacobi
 from .globalconstants import numerical_tolerance
 import ctypes
 
+
+
 class Shape(ClassWithOptimizableVariables):
     def __init__(self, lc, **kwargs):
         """
@@ -1243,4 +1245,17 @@ if __name__=="__main__":
     plt.show()
 
 
-
+accessible_shapes = {
+        "Conic": Conic,
+        "Cylinder": Cylinder,
+        "ExplicitShape": ExplicitShape,
+        "ImplicitShape": ImplicitShape,
+        "Asphere": Asphere,
+        "Biconic": Biconic,
+        "LinearCombination": LinearCombination,
+        "XYPolynomials": XYPolynomials,
+        "GridSag": GridSag,
+        "ZernikeFringe": ZernikeFringe,
+        "ZernikeStandard": ZernikeStandard,
+        "ZMXDLLShape": ZMXDLLShape
+        }
