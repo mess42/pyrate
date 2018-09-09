@@ -24,33 +24,39 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from . import surfShape
-from . import aperture
+from .surfShape import Conic
+from .aperture import BaseAperture
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
 import numpy as np
 from .globalconstants import canonical_ex, canonical_ey
-
 
 
 class Surface(LocalCoordinatesTreeBase):
     """
     Represents a surface of an optical system.
 
-    :param shape: Shape of the surface. Calculates the intersection with rays. ( Shape object or child )
-    :param material: Material of the volume behind the surface. Calculates the refraction. ( Material object or child )
-    :param thickness: distance to next surface on the optical axis
+    :param shape: Shape of the surface.
+
+    Calculates the intersection with rays.
+
+    :param aperture: Aperture of the surface.
+
+    Calculates which rays pass the surface.
+
+    :param rootlc: local root coordinate system.
+
+    Is parent of shape and aperture coordinate system
     """
-    def __init__(self, rootlc, shape=None, apert=None, **kwargs):
+    def __init__(self, rootlc, shape=None, aperture=None, **kwargs):
         super(Surface, self).__init__(rootlc, **kwargs)
 
         if shape is None:
-            shape = surfShape.Conic(rootlc)
-        if apert is None:
-            apert = aperture.BaseAperture(rootlc)
+            shape = Conic(rootlc)
+        if aperture is None:
+            aperture = BaseAperture(rootlc)
 
         self.setShape(shape)
-        self.setAperture(apert)
-
+        self.setAperture(aperture)
 
     def setAperture(self, apert):
         """
@@ -63,13 +69,13 @@ class Surface(LocalCoordinatesTreeBase):
         if self.checkForRootConnection(apert.lc):
             self.__aperture = apert
         else:
-            raise Exception("Aperture coordinate system should be connected to surface coordinate system")
+            raise Exception("Aperture coordinate system should " +
+                            "be connected to surface coordinate system")
 
     def getAperture(self):
         return self.__aperture
 
     aperture = property(getAperture, setAperture)
-
 
     def setShape(self, shape):
         """
@@ -82,13 +88,13 @@ class Surface(LocalCoordinatesTreeBase):
         if self.checkForRootConnection(shape.lc):
             self.__shape = shape
         else:
-            raise Exception("Shape coordinate system should be connected to surface coordinate system")
+            raise Exception("Shape coordinate system should " +
+                            "be connected to surface coordinate system")
 
     def getShape(self):
         return self.__shape
 
     shape = property(getShape, setShape)
-
 
     def intersect(self, raybundle, remove_rays_outside_aperture=True):
         """
@@ -102,12 +108,13 @@ class Surface(LocalCoordinatesTreeBase):
 
         if remove_rays_outside_aperture:
             globalintersection = raybundle.x[-1]
-            local_ap_intersection = self.aperture.lc.returnGlobalToLocalPoints(globalintersection)
+            local_ap_intersection =\
+                self.aperture.lc.returnGlobalToLocalPoints(globalintersection)
 
-            valid = self.aperture.arePointsInAperture(local_ap_intersection[0], local_ap_intersection[1])
+            valid = self.aperture.arePointsInAperture(local_ap_intersection[0],
+                                                      local_ap_intersection[1])
 
             raybundle.valid[-1] = raybundle.valid[-1]*valid
-
 
     def draw2d(self, ax, vertices=50,
                inyzplane=True,
@@ -118,25 +125,26 @@ class Surface(LocalCoordinatesTreeBase):
         """
         :param ax (Axis object)
         :param vertices (int), vertices in xy for aperture sampling
-        :param inyzplane (bool), cuts globalpts in yz plane before projection on plane_normal
+        :param inyzplane (bool), cuts globalpts in yz plane before projection
+        on plane_normal
         :param color (string), "red", "blue", "grey", "green", ...
         :param plane_normal (1D numpy array of float), new x projection axis
         :param up (1D numpy array), invariant y axis, z = x x y
         :param style (string), "points", "meander"
-
         """
-
 
         sizelimit = 1000.0
         failsafevalue = 11.0
-        if self.aperture == None:
+
+        if self.aperture is None:
             effsemidia = failsafevalue
             # TODO: choose max ray height of all bundles instead
-            # ( cosmetic but absolutely necessary for beauty )
+            # (cosmetic but absolutely necessary for beauty)
         else:
             if self.aperture.getTypicalDimension() <= sizelimit:
-                # TODO: maybe introduce aperture types Object and Image to distuingish from very large normal apertures
-                effsemidia = self.aperture.getTypicalDimension() #self.sdia.val if self.sdia.val < 10.0 else 10.0
+                # TODO: aperture types Object and Image to distuingish
+                # from very large normal apertures
+                effsemidia = self.aperture.getTypicalDimension()
             else:
                 effsemidia = failsafevalue
 
@@ -155,18 +163,23 @@ class Surface(LocalCoordinatesTreeBase):
         zinap = np.zeros_like(xinap)
 
         localpts_aperture = np.row_stack((xinap, yinap, zinap))
-        localpts_shape = self.shape.lc.returnOtherToActualPoints(localpts_aperture, self.aperture.lc)
+        localpts_shape =\
+            self.shape.lc.returnOtherToActualPoints(localpts_aperture,
+                                                    self.aperture.lc)
 
         xinap_shape = localpts_shape[0, :]
         yinap_shape = localpts_shape[1, :]
         zinap_shape = self.shape.getSag(xinap_shape, yinap_shape)
 
         localpts_shape = np.row_stack((xinap_shape, yinap_shape, zinap_shape))
-        localpts_surf = self.rootcoordinatesystem.returnOtherToActualPoints(localpts_shape, self.shape.lc)
+        localpts_surf =\
+            self.rootcoordinatesystem.returnOtherToActualPoints(localpts_shape,
+                                                                self.shape.lc)
 
-        # ebenenprojektion hier!
+        # plane projection: here!
 
-        globalpts = self.rootcoordinatesystem.returnLocalToGlobalPoints(localpts_surf)
+        globalpts =\
+            self.rootcoordinatesystem.returnLocalToGlobalPoints(localpts_surf)
 
         # doubled code begin (also in RayBundleNew.draw2d)
         plane_normal = plane_normal/np.linalg.norm(plane_normal)
@@ -197,8 +210,8 @@ class Surface(LocalCoordinatesTreeBase):
             up = up[:, inYZplane]
             ez = ez[:, inYZplane]
 
-        globalptsinplane = globalpts - np.sum(globalpts*plane_normal, axis=0)*plane_normal
-
+        globalptsinplane = globalpts -\
+            np.sum(globalpts*plane_normal, axis=0)*plane_normal
 
         # calculate y-components
         ypt = np.sum(globalptsinplane * up, axis=0)
@@ -207,8 +220,7 @@ class Surface(LocalCoordinatesTreeBase):
 
         # doubled code (see ray.py)
 
-
-        #ax.plot(zinap+offset[1], yinap+offset[0], color)
+        # ax.plot(zinap+offset[1], yinap+offset[0], color)
         if style.lower() == "points":
             kwargs.pop("linewidth", None)
             ax.scatter(zpt, ypt, 1, **kwargs)
@@ -220,5 +232,3 @@ class Surface(LocalCoordinatesTreeBase):
         # TODO: curvature at ray position
 
         return curvature
-
-
