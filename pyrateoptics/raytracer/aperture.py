@@ -131,11 +131,12 @@ class RectangularAperture(BaseAperture):
         return res
 
 
-def createAperture(lc, ap_dict):
+accessible_apertures = {None: BaseAperture,
+                        "CircularAperture": CircularAperture,
+                        "RectangularAperture": RectangularAperture}
 
-    accessible_apertures = {None: BaseAperture,
-                            "CircularAperture": CircularAperture,
-                            "RectangularAperture": RectangularAperture}
+
+def createAperture(lc, ap_dict):
 
     ap_type = ap_dict.pop("type", None)
     return accessible_apertures[ap_type](lc, **ap_dict)
