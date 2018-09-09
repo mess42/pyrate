@@ -29,7 +29,7 @@ from .Interface_Checks import *
 from .Interface_Identifiers import *
 
 from pyrateoptics.core.observers import AbstractObserver
-from pyrateoptics.raytracer.surfShape import Conic, Asphere, ExplicitShape
+from pyrateoptics.raytracer.surface_shape import Conic, Asphere, ExplicitShape
 from pyrateoptics.raytracer.aperture import BaseAperture, CircularAperture
 
 import Part, FreeCAD

@@ -29,10 +29,10 @@ from hypothesis import given
 from hypothesis.strategies import floats
 from hypothesis.extra.numpy import arrays
 import numpy as np
-from pyrateoptics.raytracer.surfShape import (Conic,
-                                              Asphere,
-                                              Biconic,
-                                              XYPolynomials)
+from pyrateoptics.raytracer.surface_shape import (Conic,
+                                                  Asphere,
+                                                  Biconic,
+                                                  XYPolynomials)
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 

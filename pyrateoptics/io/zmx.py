@@ -35,11 +35,11 @@ from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.optical_element import OpticalElement
 from ..raytracer.localcoordinates import LocalCoordinates
 from ..raytracer.surface import Surface
-from ..raytracer.surfShape import (Conic,
-                                   Asphere,
-                                   LinearCombination,
-                                   ZernikeFringe,
-                                   GridSag)
+from ..raytracer.surface_shape import (Conic,
+                                       Asphere,
+                                       LinearCombination,
+                                       ZernikeFringe,
+                                       GridSag)
 from ..raytracer.aperture import CircularAperture, RectangularAperture
 from ..core.log import BaseLogger
 from ..material.material_isotropic import ModelGlass, ConstantIndexGlass

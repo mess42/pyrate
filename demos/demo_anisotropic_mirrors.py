@@ -31,7 +31,7 @@ import numpy as np
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
-from pyrateoptics.raytracer import surfShape
+from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.surface import Surface
@@ -86,14 +86,14 @@ lc6 = s.addLocalCoordinateSystem(
         refname=lc5.name)
 
 objectsurf = Surface(lc0)
-m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01),
+m1surf = Surface(lc1, shape=Conic(lc1, curv=-0.01),
                  aperture=CircularAperture(lc1, maxradius=20.))
-m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01),
+m2surf = Surface(lc2, shape=Conic(lc2, curv=0.01),
                  aperture=CircularAperture(lc2, maxradius=12.7))
-m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006),
+m3surf = Surface(lc3, shape=Conic(lc3, curv=-0.006),
                  aperture=CircularAperture(lc3, maxradius=20.7))
 image1 = Surface(lc4)
-oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.),
+oapara = Surface(lc3, shape=Conic(lc5, curv=0.01, cc=-1.),
                  aperture=CircularAperture(lc5ap, maxradius=30.0))
 image2 = Surface(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
 

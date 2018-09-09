@@ -27,7 +27,7 @@ import logging
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
-from pyrateoptics.raytracer import surfShape
+from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.optical_system import OpticalSystem
@@ -59,11 +59,11 @@ lc4 = s.addLocalCoordinateSystem(
 
 
 stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=surfShape.Conic(lc1, curv=1./62.8),
+frontsurf = Surface(lc1, shape=Conic(lc1, curv=1./62.8),
                     aperture=CircularAperture(lc1, maxradius=12.7))
-cementsurf = Surface(lc2, shape=surfShape.Conic(lc2, curv=-1./45.7),
+cementsurf = Surface(lc2, shape=Conic(lc2, curv=-1./45.7),
                      aperture=CircularAperture(lc2, maxradius=12.7))
-rearsurf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-1./128.2),
+rearsurf = Surface(lc3, shape=Conic(lc3, curv=-1./128.2),
                    aperture=CircularAperture(lc3, maxradius=12.7))
 image = Surface(lc4)
 

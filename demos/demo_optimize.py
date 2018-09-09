@@ -35,7 +35,7 @@ import matplotlib
 
 from pyrateoptics import listOptimizableVariables
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
-from pyrateoptics.raytracer import surfShape
+from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import (ScipyBackend,
                                                      Newton1DBackend,
@@ -54,7 +54,7 @@ from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.globalconstants import canonical_ey, degree
 
 from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
-from pyrateoptics.analysis.surfShape_analysis import ShapeAnalysis
+from pyrateoptics.analysis.surface_shape_analysis import ShapeAnalysis
 from pyrateoptics.sampling2d.raster import RandomGrid
 
 
@@ -88,13 +88,13 @@ lc8 = s.addLocalCoordinateSystem(
             LocalCoordinates(name="image", decz=19.0), refname=lc7.name)
 
 objectsurf = Surface(lc0)
-surf1 = Surface(lc1, shape=surfShape.Conic(lc1, curv=1/-5.922))
-surf2 = Surface(lc2, shape=surfShape.Conic(lc2, curv=1/-3.160))
-surf3 = Surface(lc3, shape=surfShape.Conic(lc3, curv=1/15.884))
-surf4 = Surface(lc4, shape=surfShape.Conic(lc4, curv=1/-12.756))
+surf1 = Surface(lc1, shape=Conic(lc1, curv=1/-5.922))
+surf2 = Surface(lc2, shape=Conic(lc2, curv=1/-3.160))
+surf3 = Surface(lc3, shape=Conic(lc3, curv=1/15.884))
+surf4 = Surface(lc4, shape=Conic(lc4, curv=1/-12.756))
 stopsurf = Surface(lc5)
-surf6 = Surface(lc6, shape=surfShape.Conic(lc6, curv=1/3.125))
-surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=0.1*1/1.479))
+surf6 = Surface(lc6, shape=Conic(lc6, curv=1/3.125))
+surf7 = Surface(lc7, shape=Conic(lc7, curv=0.1*1/1.479))
 image = Surface(lc8)
 
 

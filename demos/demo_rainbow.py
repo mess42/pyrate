@@ -30,7 +30,7 @@ from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.material.material_glasscat import\
       refractiveindex_dot_info_glasscatalog, CatalogMaterial
-from pyrateoptics.raytracer.surfShape import Asphere
+from pyrateoptics.raytracer.surface_shape import Asphere
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.optical_system import OpticalSystem

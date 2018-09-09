@@ -29,7 +29,10 @@ from .Interface_Checks import *
 from .Interface_Identifiers import *
 
 from pyrateoptics.core.observers import AbstractObserver
-from pyrateoptics.raytracer.surfShape import Conic, Cylinder, Asphere, ExplicitShape
+from pyrateoptics.raytracer.surface_shape import (Conic,
+                                                  Cylinder,
+                                                  Asphere,
+                                                  ExplicitShape)
 from pyrateoptics.raytracer.aperture import BaseAperture, CircularAperture
 
 class SurfaceObject(AbstractObserver):
@@ -99,7 +102,7 @@ class SurfaceObject(AbstractObserver):
         self.__obj.addProperty("App::PropertyPythonObject",
                                "shapeclass",
                                "Shape",
-                               "surfShape class from pyrateoptics code")
+                               "surface shape class from pyrateoptics code")
 
         self.__obj.addProperty("App::PropertyString",
                                "shapetype",

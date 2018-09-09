@@ -42,7 +42,7 @@ from .raytracer.optical_system import OpticalSystem
 from .raytracer.localcoordinates import LocalCoordinates
 from .raytracer.optical_element import OpticalElement
 from .raytracer.surface import Surface
-from .raytracer import surfShape as Shapes
+from .raytracer import surface_shape as Shapes
 from .raytracer.globalconstants import (numerical_tolerance,
                                         standard_wavelength,
                                         degree)
@@ -186,7 +186,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     :param builduplist: (list of tuple of dicts)
             elements are (surfdict, coordbreakdict, mat, name, optdict)
             surfdict - {"shape": "Conic, ...", "curv": ..., "cc": ...}
-            (such that surfdict can be used for **kwargs in surfShape)
+            (such that surfdict can be used for **kwargs in surface_shape)
             coordbreakdict - {"decz": thickness, decx: ..., decy: ...,
                               tiltx: ..., ..., order: 0 or 1}
             (such that coordbreakdict can be used for **kwargs in
