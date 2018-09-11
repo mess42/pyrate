@@ -78,6 +78,10 @@ class FunctionObject(BaseLogger):
             for fn in funcnamelist:
                 self.functiondict[fn] = localsdict.get(fn, None)
 
+    def getDictionary(self):
+        res = super(FunctionObject, self).getDictionary()
+        res["initial_sourcecode"] = self.source
+        return res
 
 if __name__ == "__main__":
     s = """

@@ -74,7 +74,7 @@ class BaseLogger(object):
         self.logger.critical(msg, *args, **kwargs)
 
     def getDictionary(self):
-        return {"name": self.name}
+        return {"name": self.name, "unique_id": self.unique_id}
 
     def __getstate__(self):
         """

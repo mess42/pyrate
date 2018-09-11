@@ -242,7 +242,12 @@ class OptimizableVariable(BaseLogger):
         value = self.inv_transform(value_transformed)
         self.setvalue(value)
 
-
+    def getDictionary(self):
+        res = super(OptimizableVariable, self).getDictionary()
+        res["variable_type"] = self.var_type
+        for (key, val) in self.parameters.items():
+            res[key] = val
+        return res
 
 
 class ClassWithOptimizableVariables(BaseLogger):
