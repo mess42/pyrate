@@ -33,9 +33,9 @@ class BaseLogger(object):
 
     def __init__(self, name="", logger=None, **kwargs):
         self.setName(name)
-        self.unique_id = str(uuid.uuid4()).lower()
+        self.__unique_id = str(uuid.uuid4()).lower()
         # this is used to identify every object uniquely without resorting to
-        # the id mechanism of Python
+        # the id mechanism of Python (unique_id may not be changed)
         if logger is None:
             logger = logging.getLogger(name=self.__name)
         self.logger = logger
@@ -50,7 +50,12 @@ class BaseLogger(object):
     def getName(self):
         return self.__name
 
-    name = property(getName, setName)
+    name = property(fget=getName, fset=setName)
+
+    def getUniqueId(self):
+        return self.__unique_id
+
+    unique_id = property(fget=getUniqueId, fset=None)
 
     def info(self, msg, *args, **kwargs):
         self.logger.info(msg, *args, **kwargs)
