@@ -31,9 +31,10 @@ import re
 
 class BaseLogger(object):
 
-    def __init__(self, name="", logger=None, **kwargs):
+    def __init__(self, name="", unique_id=None, logger=None, **kwargs):
         self.setName(name)
-        self.__unique_id = str(uuid.uuid4()).lower()
+        self.__unique_id = str(uuid.uuid4()).lower() if unique_id is None\
+            else unique_id
         # this is used to identify every object uniquely without resorting to
         # the id mechanism of Python (unique_id may not be changed)
         if logger is None:
