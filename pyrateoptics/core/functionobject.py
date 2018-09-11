@@ -30,23 +30,34 @@ from pyrateoptics.core.log import BaseLogger
 class FunctionObject(BaseLogger):
 
     def __init__(self, initial_sourcecode="",
-                 initial_funcnamelist=[], name="", **kwargs):
+                 initial_funcnamelist=[],
+                 sourcecode_security_checked=True,
+                 name="", **kwargs):
         super(FunctionObject, self).__init__(name=name, **kwargs)
-        self.source = initial_sourcecode
-        self.sourcecode_security_checked = True
+        self.setSource(initial_sourcecode)
+        self.sourcecode_security_checked = sourcecode_security_checked
         self.functiondict = {}
         if initial_sourcecode != "":
             self.generateFunctionsFromSource(initial_funcnamelist)
 
+    def setSource(self, source):
+        self.__source = source
+        self.sourcecode_security_checked = False
+
+    def getSource(self):
+        return self.__source
+
+    source = property(fget=getSource, fset=setSource)
+
     def load(self, filename):
-        f = open(filename, "rU")
+        f = open(filename, "rt")
         self.source = f.read()  # TODO: does exec need an array of lines?
         f.close()
         self.info(self.source)
         self.sourcecode_security_checked = False
 
     def save(self, filename):
-        f = open(filename, "w")
+        f = open(filename, "wt")
         f.write(self.source)
         f.close()
 
