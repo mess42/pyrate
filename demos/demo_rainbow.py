@@ -30,7 +30,7 @@ from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
 from pyrateoptics.material.material_glasscat import\
       refractiveindex_dot_info_glasscatalog, CatalogMaterial
-from pyrateoptics.raytracer.surfShape import Asphere
+from pyrateoptics.raytracer.surface_shape import Asphere
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.optical_system import OpticalSystem
@@ -74,15 +74,17 @@ lc4 = s.addLocalCoordinateSystem(
             refname=lccomprism.name)
 
 
-stopsurf = Surface(lc0, apert=CircularAperture(lc0, 7*dropletradius))
+stopsurf = Surface(lc0,
+                   aperture=CircularAperture(lc0, maxradius=7*dropletradius))
 frontsurf = Surface(lc1, shape=Asphere(lc1, curv=1./dropletradius),
-                    apert=CircularAperture(lc1, dropletradius))
+                    aperture=CircularAperture(lc1, maxradius=dropletradius))
 rearsurf = Surface(lc2, shape=Asphere(lc2, curv=-1./dropletradius),
-                   apert=CircularAperture(lc2, dropletradius))
+                   aperture=CircularAperture(lc2, maxradius=dropletradius))
 midsurf = Surface(lc3, shape=Asphere(lc3, curv=0),
-                  apert=CircularAperture(lc3, dropletradius))
+                  aperture=CircularAperture(lc3, maxradius=dropletradius))
 
-image = Surface(lc4, apert=CircularAperture(lc4, 7.*dropletradius))
+image = Surface(lc4,
+                aperture=CircularAperture(lc4, maxradius=7.*dropletradius))
 
 
 elem = OpticalElement(lc0, name="droplet")

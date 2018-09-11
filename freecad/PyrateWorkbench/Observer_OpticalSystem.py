@@ -31,7 +31,7 @@ import math
 import numpy as np
 
 from pyrateoptics.material import material_isotropic
-from pyrateoptics.raytracer import surfShape
+from pyrateoptics.raytracer.surface_shape import Conic
 
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.optical_element import OpticalElement
@@ -235,13 +235,13 @@ class OpticalSystemObserver(AbstractObserver):
 
 
         objectsurf = Surface(lc0)
-        surf1 = Surface(lc1, shape=surfShape.Conic(lc1, curv=1/-5.922))
-        surf2 = Surface(lc2, shape=surfShape.Conic(lc2, curv=1/-3.160))
-        surf3 = Surface(lc3, shape=surfShape.Conic(lc3, curv=1/15.884))
-        surf4 = Surface(lc4, shape=surfShape.Conic(lc4, curv=1/-12.756))
+        surf1 = Surface(lc1, shape=Conic(lc1, curv=1/-5.922))
+        surf2 = Surface(lc2, shape=Conic(lc2, curv=1/-3.160))
+        surf3 = Surface(lc3, shape=Conic(lc3, curv=1/15.884))
+        surf4 = Surface(lc4, shape=Conic(lc4, curv=1/-12.756))
         stopsurf = Surface(lc5)
-        surf6 = Surface(lc6, shape=surfShape.Conic(lc6, curv=1/3.125))
-        surf7 = Surface(lc7, shape=surfShape.Conic(lc7, curv=1/1.479))
+        surf6 = Surface(lc6, shape=Conic(lc6, curv=1/3.125))
+        surf7 = Surface(lc7, shape=Conic(lc7, curv=1/1.479))
         image = Surface(lc8)
 
 

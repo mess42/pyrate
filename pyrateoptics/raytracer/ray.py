@@ -154,7 +154,7 @@ class RayBundle(object):
         return nlocmat
 
 
-    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey):
+    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey, **kwargs):
 
         # normalizing plane_normal, up direction
         plane_normal = plane_normal/np.linalg.norm(plane_normal)
@@ -168,9 +168,9 @@ class RayBundle(object):
             return
 
         # arrange num_ray copies of simple vectors in appropriate form
-        plane_normal = np.column_stack((plane_normal for i in np.arange(num_rays)))
-        ez = np.column_stack((ez for i in np.arange(num_rays)))
-        up = np.column_stack((up for i in np.arange(num_rays)))
+        plane_normal = np.repeat(plane_normal[:, np.newaxis], num_rays, axis=1)
+        ez = np.repeat(ez[:, np.newaxis], num_rays, axis=1)
+        up = np.repeat(up[:, np.newaxis], num_rays, axis=1)
 
         ptlist = [self.x[i] for i in np.arange(num_points)]
         validity = [self.valid[i] for i in np.arange(num_points)]
@@ -191,7 +191,7 @@ class RayBundle(object):
 
             y = np.vstack((ypt1, ypt2))[:, todraw]
             z = np.vstack((zpt1, zpt2))[:, todraw]
-            ax.plot(z, y, color=color)
+            ax.plot(z, y, color=color, **kwargs)
 
 
 
@@ -210,9 +210,11 @@ class RayPath(object):
     def appendRayPath(self, raypath):
         self.raybundles += raypath.raybundles
 
-    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey):
+    def draw2d(self, ax, color="blue",
+               plane_normal=canonical_ex, up=canonical_ey, **kwargs):
         for r in self.raybundles:
-            r.draw2d(ax, color=color, plane_normal=plane_normal, up=up)
+            r.draw2d(ax, color=color,
+                     plane_normal=plane_normal, up=up, **kwargs)
 
     def containsSplitted(self):
         return any([r.splitted for r in self.raybundles])

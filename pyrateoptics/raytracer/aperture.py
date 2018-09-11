@@ -25,25 +25,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import math
 
-# TODO: method headers
+from ..core.log import BaseLogger
 
-class BaseAperture(object):
-    # for optimizable aperture it would be good to derive from optimizable class, but I think
+type_key = "type"
+
+
+class BaseAperture(BaseLogger):
+    # for optimizable aperture it would be good to
+    # derive from optimizable class, but I think
     # apertures will be inserted after optimization
     """
     Base class representing the aperture of a surface.
     Subclasses may define the actual shapes (circular,
     elliptic, rectangular, etc.)
 
+    Decentering of apertures do not make any sense, since
+    the local coordinate system can be redefined if desired.
+
     The base class does not limit the beam diameter.
     """
-    def __init__(self, lc, tx=0.0, ty=0.0):
+    def __init__(self, lc, **kwargs):
+        super(BaseAperture, self).__init__(**kwargs)
         self.lc = lc
-        self.typicaldimension = 1e10
-        self.tx = tx
-        self.ty = ty
+        self.typicaldimension = 1e16
 
     def getTypicalDimension(self):
         """
@@ -59,14 +64,14 @@ class BaseAperture(object):
 
         Returns of points given by numpy arrays x, y are within aperture
 
-        :param x: x location of points in local coordinate system (1d numpy array of n floats)
-        :param y: y location of points in local coordinate system (1d numpy array of n floats)
+        :param x: x in local coordinate system (1xn numpy array of floats)
+        :param y: y in local coordinate system (1xn numpy array of floats)
 
         :return True (1d numpy array of n bools)
         """
 
-
-        return np.ones_like(x, dtype=bool) # return true always
+        bool_func = self.getBooleanFunction()
+        return bool_func(x, y)  # return true always
 
     def getBooleanFunction(self):
         """
@@ -77,8 +82,7 @@ class BaseAperture(object):
 
         """
 
-
-        return (lambda x, y: True)
+        return (lambda x, y: np.ones_like(x, dtype=bool))
 
 
 class CircularAperture(BaseAperture):
@@ -86,18 +90,22 @@ class CircularAperture(BaseAperture):
     Circular aperture of a surface.
     """
 
-    def __init__(self, lc, semidiameter = 1.0, tx = 0.0, ty = 0.0):
-        super(CircularAperture, self).__init__(lc, tx, ty)
-        self.semidiameter = semidiameter
-        self.typicaldimension = self.semidiameter
-
-    def arePointsInAperture(self, x, y):
-        return (x - self.tx)**2 + (y - self.ty)**2 <= self.semidiameter**2
+    def __init__(self, lc, maxradius=1.0, minradius=0.0, **kwargs):
+        super(CircularAperture, self).__init__(lc, **kwargs)
+        self.maxradius = maxradius
+        self.minradius = minradius
+        self.typicaldimension = self.maxradius
 
     def getBooleanFunction(self):
-        return (lambda x, y: (x - self.tx)**2 + (y - self.ty)**2 <= self.semidiameter**2)
+        return (lambda x, y: (x**2 + y**2 >= self.minradius**2) *
+                             (x**2 + y**2 <= self.maxradius**2))
 
-
+    def getDictionary(self):
+        res = super(CircularAperture, self).getDictionary()
+        res[type_key] = "CircularAperture"
+        res["minradius"] = self.minradius
+        res["maxradius"] = self.maxradius
+        return res
 
 
 class RectangularAperture(BaseAperture):
@@ -105,21 +113,32 @@ class RectangularAperture(BaseAperture):
     Rectangular aperture of a surface.
     """
 
-    def __init__(self, lc, w=1.0, h=1.0, tx=0.0, ty=0.0):
-        super(RectangularAperture, self).__init__(lc, tx, ty)
-        self.width = w
-        self.height = h
-        self.typicaldimension = math.sqrt(self.width**2 + self.height**2)
-
-
-
-    def arePointsInAperture(self, x, y):
-        return (x >= -self.width*0.5 - self.tx)*(x <= self.width*0.5 - self.tx)* \
-            (y >= -self.height*0.5 - self.ty)*(y <= self.height*0.5 - self.ty)
+    def __init__(self, lc, width=1.0, height=1.0, **kwargs):
+        super(RectangularAperture, self).__init__(lc, **kwargs)
+        self.width = width
+        self.height = height
+        self.typicaldimension = np.sqrt(self.width**2 + self.height**2)
 
     def getBooleanFunction(self):
-        return (lambda x, y: (x >= -self.width*0.5 - self.tx)*(x <= self.width*0.5 - self.tx)* \
-            (y >= -self.height*0.5 - self.ty)*(y <= self.height*0.5 - self.ty))
+        return (lambda x, y: (x >= -self.width * 0.5) *
+                (x <= self.width * 0.5) *
+                (y >= -self.height * 0.5) *
+                (y <= self.height * 0.5))
+
+    def getDictionary(self):
+        res = super(CircularAperture, self).getDictionary()
+        res[type_key] = "RectangularAperture"
+        res["width"] = self.width
+        res["height"] = self.height
+        return res
 
 
+accessible_apertures = {None: BaseAperture,
+                        "CircularAperture": CircularAperture,
+                        "RectangularAperture": RectangularAperture}
 
+
+def createAperture(lc, ap_dict):
+
+    ap_type = ap_dict.pop(type_key, None)
+    return accessible_apertures[ap_type](lc, **ap_dict)

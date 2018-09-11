@@ -35,11 +35,11 @@ from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.optical_element import OpticalElement
 from ..raytracer.localcoordinates import LocalCoordinates
 from ..raytracer.surface import Surface
-from ..raytracer.surfShape import (Conic,
-                                   Asphere,
-                                   LinearCombination,
-                                   ZernikeFringe,
-                                   GridSag)
+from ..raytracer.surface_shape import (Conic,
+                                       Asphere,
+                                       LinearCombination,
+                                       ZernikeFringe,
+                                       GridSag)
 from ..raytracer.aperture import CircularAperture, RectangularAperture
 from ..core.log import BaseLogger
 from ..material.material_isotropic import ModelGlass, ConstantIndexGlass
@@ -549,22 +549,22 @@ class ZMXParser(BaseLogger):
                 ap = None
             elif sqap is not None:
                 self.debug("Rectangular aperture %f x %f" % tuple(sqap))
-                ap = RectangularAperture(lcapdec, w=sqap[0]*2, h=sqap[1]*2)
+                ap = RectangularAperture(lcapdec, width=sqap[0]*2, height=sqap[1]*2)
             elif clap is not None:
                 self.debug("Circular aperture %f" % (clap[0],))
-                ap = CircularAperture(lcapdec, semidiameter=clap[1])
+                ap = CircularAperture(lcapdec, minradius=clap[0], maxradius=clap[1])
 
             if surftype == "STANDARD":
                 self.debug("SURFACE: Standard surface found")
                 actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc),
-                                  apert=ap)
+                                  aperture=ap)
             elif surftype == "EVENASPH":
                 self.debug("SURFACE: Polynomial asphere surface found")
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
                 self.debug(acoeffs)
                 actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc,
                                                     coefficients=acoeffs),
-                                  apert=ap)
+                                  aperture=ap)
             elif surftype == "FZERNSAG":  # Zernike Fringe Sag
                 self.debug("SURFACE: Zernike standard surface found")
                 # ignore extrapolate flag

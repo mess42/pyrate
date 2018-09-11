@@ -34,6 +34,8 @@ from scipy.special import jacobi
 from .globalconstants import numerical_tolerance
 import ctypes
 
+type_key = "shape"
+
 class Shape(ClassWithOptimizableVariables):
     def __init__(self, lc, **kwargs):
         """
@@ -299,6 +301,13 @@ class Conic(Shape):
 
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
 
+    def getDictionary(self):
+        res = super(Conic, self).getDictionary()
+        res[type_key] = "Conic"
+        res["curv"] = self.curvature()
+        res["cc"] = self.conic()
+        return res
+
 
 class Cylinder(Conic):
     def __init__(self, lc, curv=0.0, cc=0.0, **kwargs):
@@ -353,6 +362,14 @@ class Cylinder(Conic):
 
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
 
+    def getDictionary(self):
+        res = super(Cylinder, self).getDictionary()
+        res[type_key] = "Cylinder"
+        res["curv"] = self.curvature()
+        res["cc"] = self.conic()
+        return res
+
+
 class FreeShape(Shape):
     def __init__(self, lc, F, gradF, hessF, paramlist=[], tol=1e-6, iterations=10, **kwargs):
         """
@@ -375,9 +392,9 @@ class FreeShape(Shape):
 
         self.tol = tol
         self.iterations = iterations
-        self.F = F # implicit function in x, y, z, paramslst
-        self.gradF = gradF # closed form gradient in x, y, z, paramslst
-        self.hessF = hessF # closed form Hessian in x, y, z, paramslst
+        self.F = F  # implicit function in x, y, z, paramslst
+        self.gradF = gradF  # closed form gradient in x, y, z, paramslst
+        self.hessF = hessF  # closed form Hessian in x, y, z, paramslst
 
     def getGrad(self, x, y):
         z = self.getSag(x, y)
@@ -1243,4 +1260,23 @@ if __name__=="__main__":
     plt.show()
 
 
+accessible_shapes = {
+        "Conic": Conic,
+        "Cylinder": Cylinder,
+        "ExplicitShape": ExplicitShape,
+        "ImplicitShape": ImplicitShape,
+        "Asphere": Asphere,
+        "Biconic": Biconic,
+        "LinearCombination": LinearCombination,
+        "XYPolynomials": XYPolynomials,
+        "GridSag": GridSag,
+        "ZernikeFringe": ZernikeFringe,
+        "ZernikeStandard": ZernikeStandard,
+        "ZMXDLLShape": ZMXDLLShape
+        }
+
+def createShape(lc, shape_dict):
+
+    shape_type = shape_dict.pop(type_key, "Conic")  # is key "type" better?
+    return accessible_shapes[shape_type](lc, **shape_dict)
 

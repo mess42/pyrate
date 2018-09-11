@@ -47,8 +47,8 @@ or perform directly in a script:
     >>> from pyrateoptics import draw
     >>> from pyrateoptics import raytrace
     >>> components = [(100, 0, 20, 1.5, "lens1front", {"is_stop": True}),
-        ... (-100, 0, 5, None, "lens1back", {}),
-        ... (0, 0, 100, None, "image", {})]
+    ... (-100, 0, 5, None, "lens1back", {}),
+    ... (0, 0, 100, None, "image", {})]
     >>> # (radius, cc, thickness, material, name, options)
     >>> (s, seq) = build_rotationally_symmetric_optical_system(components, name="my_opticalsystem")
     >>> draw(s) # show system

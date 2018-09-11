@@ -31,7 +31,7 @@ import numpy as np
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_isotropic import ConstantIndexGlass
-from pyrateoptics.raytracer import surfShape
+from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.surface import Surface
@@ -93,13 +93,13 @@ lc7 = s.addLocalCoordinateSystem(
             LocalCoordinates(name="image3", decz=5), refname=lc6.name)
 
 objectsurf = Surface(lc0)
-m1surf = Surface(lc1, shape=surfShape.Conic(lc1, curv=-0.01))
-m2surf = Surface(lc2, shape=surfShape.Conic(lc2, curv=0.01))
-m3surf = Surface(lc3, shape=surfShape.Conic(lc3, curv=-0.006))
+m1surf = Surface(lc1, shape=Conic(lc1, curv=-0.01))
+m2surf = Surface(lc2, shape=Conic(lc2, curv=0.01))
+m3surf = Surface(lc3, shape=Conic(lc3, curv=-0.006))
 image1 = Surface(lc4)
-oapara = Surface(lc3, shape=surfShape.Conic(lc5, curv=0.01, cc=-1.))
-image2 = Surface(lc6, apert=CircularAperture(lc6, 20.0))
-image3 = Surface(lc7, apert=CircularAperture(lc7, 20.0))
+oapara = Surface(lc3, shape=Conic(lc5, curv=0.01, cc=-1.))
+image2 = Surface(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
+image3 = Surface(lc7, aperture=CircularAperture(lc7, maxradius=20.0))
 
 
 elem = OpticalElement(lc0, name="TMA")

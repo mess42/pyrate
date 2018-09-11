@@ -30,7 +30,7 @@ import numpy as np
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
-from pyrateoptics.raytracer import surfShape
+from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.optical_system import OpticalSystem
@@ -63,14 +63,14 @@ lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=97.2),
 
 stopsurf = Surface(lc0, name="stopsurf")
 frontsurf = Surface(lc1, name="frontsurf",
-                    shape=surfShape.Conic(lc1, curv=1./62.8, name='conic1'),
-                    apert=CircularAperture(lc1, 12.7))
+                    shape=Conic(lc1, curv=1./62.8, name='conic1'),
+                    aperture=CircularAperture(lc1, maxradius=12.7))
 cementsurf = Surface(lc2, name="cementsurf",
-                     shape=surfShape.Conic(lc2, curv=-1./45.7, name='conic2'),
-                     apert=CircularAperture(lc2, 12.7))
+                     shape=Conic(lc2, curv=-1./45.7, name='conic2'),
+                     aperture=CircularAperture(lc2, maxradius=12.7))
 rearsurf = Surface(lc3, name="rearsurf",
-                   shape=surfShape.Conic(lc3, curv=-1./128.2, name='conic3'),
-                   apert=CircularAperture(lc3, 12.7))
+                   shape=Conic(lc3, curv=-1./128.2, name='conic3'),
+                   aperture=CircularAperture(lc3, maxradius=12.7))
 image = Surface(lc4, name="imagesurf")
 
 elem = OpticalElement(lc0, name="thorlabs_AC_254-100-A")
@@ -112,7 +112,11 @@ sysseq = [("AC254-100", [("stop", {}), ("front", {}), ("cement", {}),
                          ("rear", {}), ("image", {})])]
 
 osa = OpticalSystemAnalysis(s, sysseq, name="Analysis")
-osa.aim(10, {"radius": 11.43, "startz": -5., "raster": raster.MeridionalFan()},
+osa.aim(11, {"radius": 11.43, "startz": -5., "raster": raster.MeridionalFan()},
         bundletype="collimated", wave=wavelength)
 r2 = osa.trace(splitup=True)[0]
-draw(s, [(r2[0], "blue"), (r2[1], "green")])
+draw(s, [(r2[0], "blue"), (r2[1], "green")],
+     interactive=True,
+     show_box=False,
+     figsize=None,
+     export=None)
