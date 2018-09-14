@@ -32,11 +32,30 @@ import re
 class BaseLogger(object):
 
     def __init__(self, name="", unique_id=None, logger=None, **kwargs):
+        """
+        A name should be a mnemonic string which makes it easy to derive
+        the type and association of an object throughout the logs. Further
+        it may be used as a dict key. the name may not be unique.
+        (TODO: what about dict keys? Should we use a name data base to
+         force unique names? Is this the same concept like an optimizable
+         variable pool?)
+
+        A unique id is used to identify every object uniquely without
+        resorting to the id mechanism of Python (unique_id may not be changed).
+        If it is None it will be generated, if it is a string this string will
+        be used. This is only intended to be used to reconstruct an object
+        hierarchy after loading.
+
+        The logger is the object which is responsible for logging. If None
+        a new one is created with the name of the object. If it is not None
+        the one provided is used which is useful to spit out log files or logs
+        in e.g. a GUI.
+        """
+        self.kind = "baselogger"
         self.setName(name)
         self.__unique_id = str(uuid.uuid4()).lower() if unique_id is None\
             else unique_id
-        # this is used to identify every object uniquely without resorting to
-        # the id mechanism of Python (unique_id may not be changed)
+
         if logger is None:
             logger = logging.getLogger(name=self.__name)
         self.logger = logger
