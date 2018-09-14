@@ -212,12 +212,12 @@ class OptimizableVariable(BaseLogger):
         # evaluate the result
         arguments_for_function_eval = (argfunc.evaluate() for argfunc in self.parameters["args"])
         (functionobject, functionname) = self.parameters["functionobject"]
-        return functionobject.functiondict[functionname](*arguments_for_function_eval)
+        return functionobject.functions[functionname](*arguments_for_function_eval)
 
     def eval_external(self):
         # same as for solve except that there are no further OptimizableVariables to be considered
         (functionobject, functionname) = self.parameters["functionobject"]
-        return functionobject.functiondict[functionname](*self.parameters["args"])
+        return functionobject.functions[functionname](*self.parameters["args"])
 
     def evaluate(self):
         # notice: evaluation code is not limited to floats
