@@ -28,6 +28,8 @@ import logging
 import uuid
 import re
 
+import numpy as np
+from .names.adjectives import adjectives
 
 class BaseLogger(object):
 
@@ -63,8 +65,12 @@ class BaseLogger(object):
 
     def setName(self, name):
         if name == "":
-            name = re.sub('-', '_', str(uuid.uuid4()).lower())
+            my_index = np.random.randint(0, len(adjectives))
+            my_adjective = adjectives[my_index]
+            name = my_adjective + "_" + self.kind
+            # name = re.sub('-', '_', str(uuid.uuid4()).lower())
             # bring into form which can also be used by FreeCAD
+
         self.__name = name
 
     def getName(self):
