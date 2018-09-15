@@ -30,6 +30,7 @@ import re
 
 import numpy as np
 from .names.adjectives import adjectives
+from .names.nouns import nouns
 
 class BaseLogger(object):
 
@@ -67,9 +68,12 @@ class BaseLogger(object):
 
     def setName(self, name):
         if name == "":
-            my_index = np.random.randint(0, len(adjectives))
-            my_adjective = adjectives[my_index]
-            name = my_adjective + "_" + self.kind
+            my_index_ad = np.random.randint(0, len(adjectives))
+            my_index_no = np.random.randint(0, len(nouns))
+
+            my_adjective = adjectives[my_index_ad]
+            my_noun = nouns[my_index_no]
+            name = my_adjective + "_" + my_noun + "_" + self.kind
             # name = re.sub('-', '_', str(uuid.uuid4()).lower())
             # bring into form which can also be used by FreeCAD
 

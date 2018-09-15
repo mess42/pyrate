@@ -10,12 +10,19 @@ from nltk.corpus import wordnet as wn
 
 import numpy as np
 
-mysynsets = list(wn.all_synsets(wn.ADJ))
+search_types = ["adjectives", "nouns"]
+wordnets = {"adjectives": wn.ADJ, "nouns": wn.NOUN}
+
+my_search_type = ""
+while my_search_type not in search_types:
+    my_search_type = input("search type? from " + str(search_types) + ": ").lower()
+
+mysynsets = list(wn.all_synsets(wordnets[my_search_type]))
 
 adjectives_list = [synset.name().split(".")[0] for synset in mysynsets]
 
 try:
-    fp = open("adjectives.py", "rt")
+    fp = open(my_search_type + ".py", "rt")
     pysource = [l for l in fp]
     fp.close()
 except IOError:
@@ -25,16 +32,10 @@ pysource = "".join(pysource)
 
 localsdict = {}
 exec(pysource, localsdict)
-my_ad = localsdict["adjectives"]
-
-# my_ad = []
-# try:
-#     fp = open("myadjectives.txt", "rt")
-#     for l in fp:
-#         my_ad.append(l.rstrip())
-#     fp.close()
-# except IOError:
-#     pass
+try:
+    my_ad = localsdict[my_search_type]
+except KeyError:
+    my_ad = []
 
 print(my_ad)
 
@@ -54,18 +55,13 @@ my_ad = sorted(my_ad)
 print(my_ad)
 print(len(my_ad))
 
-# fp = open("myadjectives.txt", "wt")
-# for a in my_ad:
-#     fp.write(a + "\n")
-# fp.close()
-
-source = "adjectives = ["
+source = my_search_type + " = ["
 for a in my_ad:
     source += "    \"" + a + "\",\n"
 source = source.rstrip(",\n")
 source += "]\n"
 
 
-fp = open("adjectives.py", "wt")
+fp = open(my_search_type + ".py", "wt")
 fp.write(source)
 fp.close()
