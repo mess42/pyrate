@@ -36,9 +36,13 @@ class OptimizableVariable(BaseLogger):
     Class that contains an optimizable variable. Used to get a pointer on a variable.
     The value is not constrained to float. Also other dependent variables are possible to define.
     """
-    def __init__(self, variable_type="fixed", name="", **kwargs):
+    def __init__(self, variable_type="fixed",
+                 name="", kind="optimizablevariable", **kwargs):
 
-        super(OptimizableVariable, self).__init__(name=name, **kwargs)
+        super(OptimizableVariable, self).__init__(
+                name=name,
+                kind=kind,
+                **kwargs)
 
         """
         kwargs depend on type
@@ -256,11 +260,14 @@ class ClassWithOptimizableVariables(BaseLogger):
     of a dictionary. This class is also able to collect the variables and
     their values from its subclasses per recursion.
     """
-    def __init__(self, name = "", **kwargs):
+    def __init__(self, name="", kind="classwithoptimizablevariables", **kwargs):
         """
         Initialize with empty dict.
         """
-        super(ClassWithOptimizableVariables, self).__init__(name=name, **kwargs)
+        super(ClassWithOptimizableVariables, self).__init__(
+                name=name,
+                kind=kind,
+                **kwargs)
 
         self.list_observers = []
         # for the optimizable variable class it is useful to have some observer links

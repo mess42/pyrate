@@ -51,8 +51,8 @@ class ZMXParser(BaseLogger):
     Class for parsing ZMX files and constructing an optical system from them.
     """
 
-    def __init__(self, filename, **kwargs):
-        super(ZMXParser, self).__init__(**kwargs)
+    def __init__(self, filename, name="", kind="zmxparser", **kwargs):
+        super(ZMXParser, self).__init__(name=name, kind=kind, **kwargs)
         self.__textlines = []
         self.loadFile(filename)
 

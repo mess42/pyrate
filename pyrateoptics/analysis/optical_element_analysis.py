@@ -33,8 +33,12 @@ class OpticalElementAnalysis(BaseLogger):
     Class for optical element analysis.
     """
 
-    def __init__(self, oe, elemseq, name="", **kwargs):
-        super(OpticalElementAnalysis, self).__init__(name=name, **kwargs)
+    def __init__(self, oe, elemseq,
+                 name="",
+                 kind="opticalelementanalysis",
+                 **kwargs):
+        super(OpticalElementAnalysis, self).__init__(
+                kind=kind, name=name, **kwargs)
         self.opticalelement = oe
         self.elementsequence = elemseq
 

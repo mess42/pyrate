@@ -36,7 +36,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, rootlc = None, matbackground = None, **kwargs):
+    def __init__(self, rootlc=None, matbackground=None,
+                 name="", kind="opticalsystem", **kwargs):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -50,8 +51,9 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             rootlc = LocalCoordinates(name="global")
         self.rootcoordinatesystem = rootlc
 
-        super(OpticalSystem, self).__init__(self.rootcoordinatesystem, **kwargs)
-
+        super(OpticalSystem, self).__init__(
+                self.rootcoordinatesystem, name=name, kind=kind,
+                **kwargs)
         if matbackground is None:
             matbackground = ConstantIndexGlass(self.rootcoordinatesystem, 1.0, name="background")
 

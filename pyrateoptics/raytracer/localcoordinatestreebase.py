@@ -34,47 +34,48 @@ class LocalCoordinatesTreeBase(ClassWithOptimizableVariables):
     an optical system consists of many optical elements.
     Implements functionality for local coordinate system tree and connection
     checks.
-    
+
     :param rootcoordinatesystem (LocalCoordinates object)
     :param name (string)
     :param **kwargs (key word arguments)
     """
-    def __init__(self, rootcoordinatesystem, **kwargs):
+    def __init__(self, rootcoordinatesystem,
+                 name="", kind="localcoordinatestreebase", **kwargs):
         self.rootcoordinatesystem = rootcoordinatesystem
-                
-        super(LocalCoordinatesTreeBase, self).__init__(**kwargs)        
-        
+        super(LocalCoordinatesTreeBase, self).__init__(
+                name=name, kind=kind, **kwargs)
+
     def checkForRootConnection(self, lc):
         """
         Checks whether given local coordinate system is child of rootcoordinatesystem.
-        
+
         :param lc (LocalCoordinates object)
-        
+
         :return bool
         """
-        allconnectedchildren = self.rootcoordinatesystem.returnConnectedChildren()        
+        allconnectedchildren = self.rootcoordinatesystem.returnConnectedChildren()
         return (lc in allconnectedchildren)
-            
+
     def addLocalCoordinateSystem(self, lc, refname):
         """
         Adds local coordinate system as child to given reference.
-        
+
         :param lc (LocalCoordinates object)
         :param refname (string)
-        
-        :return lc        
+
+        :return lc
         """
         allnames = self.rootcoordinatesystem.returnConnectedNames()
-       
+
         if lc.name in allnames:
             lc.name = ''
-            
+
         if refname not in allnames:
             refname = self.rootcoordinatesystem.name
-        
+
         self.rootcoordinatesystem.addChildToReference(refname, lc)
-            
+
         return lc
 
-   
-   
+
+

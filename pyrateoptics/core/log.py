@@ -33,7 +33,9 @@ from .names.adjectives import adjectives
 
 class BaseLogger(object):
 
-    def __init__(self, name="", unique_id=None, logger=None, **kwargs):
+    def __init__(self, name="", kind="baselogger",
+                 unique_id=None,
+                 logger=None, **kwargs):
         """
         A name should be a mnemonic string which makes it easy to derive
         the type and association of an object throughout the logs. Further
@@ -53,7 +55,7 @@ class BaseLogger(object):
         the one provided is used which is useful to spit out log files or logs
         in e.g. a GUI.
         """
-        self.kind = "baselogger"
+        self.kind = kind
         self.setName(name)
         self.__unique_id = str(uuid.uuid4()).lower() if unique_id is None\
             else unique_id

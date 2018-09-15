@@ -32,8 +32,8 @@ class FunctionObject(BaseLogger):
     def __init__(self, initial_sourcecode="",
                  initial_function_names=[],
                  sourcecode_security_checked=True,
-                 name="", **kwargs):
-        super(FunctionObject, self).__init__(name=name, **kwargs)
+                 kind="functionobject", name="", **kwargs):
+        super(FunctionObject, self).__init__(name=name, kind=kind, **kwargs)
         self.setSource(initial_sourcecode)
         self.sourcecode_security_checked = sourcecode_security_checked
         self.functions = {}

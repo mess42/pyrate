@@ -45,8 +45,9 @@ class OpticalSystemAnalysis(BaseLogger):
     Class for analysis of optical system.
     """
 
-    def __init__(self, os, seq, name=""):
-        super(OpticalSystemAnalysis, self).__init__(name=name)
+    def __init__(self, os, seq, name="", kind="opticalsystemanalysis"):
+        super(OpticalSystemAnalysis, self).__init__(
+                kind=kind, name=name)
         self.opticalsystem = os
         self.sequence = seq
         # TODO: field_raster and pupil raster belong into the aim class
