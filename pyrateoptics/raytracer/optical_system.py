@@ -147,8 +147,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                 else:
                     ls2.append(elem_matrices[h])
 
-            m1 = np.eye(14)
-            m2 = np.eye(14)
+            m1 = np.eye(6)
+            m2 = np.eye(6)
 
             for m in ls1:
                 m1 = np.dot(m, m1)
@@ -157,8 +157,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
 
             lst_matrix_pairs.append((m1, m2, found_stop))
 
-        m_obj_stop = np.eye(14)
-        m_stop_img = np.eye(14)
+        m_obj_stop = np.eye(6)
+        m_stop_img = np.eye(6)
 
         obj_stop_branch = True
         for (m1, m2, found_stop) in lst_matrix_pairs:

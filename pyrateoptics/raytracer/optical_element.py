@@ -286,23 +286,13 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
 
             self.debug(str([s1, s2]))
-            startmatrix = generate_matrix_14xN(startx, startk) # np.vstack((startxred, startkred_real, startkred_imag))
-            # fspropmatrix = generate_matrix_6x6(fspropx, fspropk) # np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
-            # endmatrix_lcstart = generate_matrix_6x6(endx_lcstart, endk_lcstart) # np.vstack((endx_lcstart_red, endk_lcstart_red_real, endk_lcstart_red_imag))
-            endmatrix = generate_matrix_14xN(endx, endk) # np.vstack((endxred, endkred_real, endkred_imag))
+            startmatrix = generate_matrix_6xN(startx, startk)
+            endmatrix = generate_matrix_6xN(endx, endk)
             self.info(startmatrix.shape)
 
-            #self.debug("refraction")
-            #refractmatrix = bestfit_transfer(startmatrix, fspropmatrix)
-            #self.debug("propagation")
-            #propagatematrix = bestfit_transfer(fspropmatrix, endmatrix_lcstart)
-            #self.debug("coordinate trafo")
-            #coordinatetrafomatrix = bestfit_transfer(endmatrix_lcstart, endmatrix)
-            #self.debug("full transfer")
             transfer = bestfit_transfer(startmatrix, endmatrix) #np.dot(coordinatetrafomatrix, np.dot(propagatematrix, refractmatrix))
             invtransfer = bestfit_transfer(endmatrix, startmatrix)
             self.debug(np.array_str(transfer, precision=5, suppress_small=True))
-            #transfer_comparison = bestfit_transfer(startmatrix, endmatrix)
 
             self.debug("condition number:")
             self.debug(np.linalg.cond(transfer))
@@ -423,7 +413,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             dx0timesdk0_imag = np.reshape(np.einsum("i...,j...->ij...", dx0, dk0_imag), (num_dims*num_dims, num_pts))
 
 
-            DX0 = np.vstack((dx0, dk0_real, dk0_imag, dx0timesdk0_real, dx0timesdk0_imag))
+            DX0 = np.vstack((dx0, dk0_real, dk0_imag))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
 
             self.info("DX0\n" + np.array_str(DX0, precision=2, suppress_small=True))
 
