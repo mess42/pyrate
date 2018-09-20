@@ -163,6 +163,27 @@ class Aimy(BaseLogger):
 
         return (dr_obj, dk_obj2)
 
+    def aim_core_r_known(self, delta_xy):
+
+        (A_obj_stop,
+         B_obj_stop,
+         C_obj_stop,
+         D_obj_stop) = self.extractABCD(self.m_obj_stop)
+
+        B_obj_stop_inv = np.linalg.inv(B_obj_stop)
+
+        (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
+        dr_stop = (np.vstack((xp, yp))*self.stopsize)
+
+        dr_obj = np.repeat(delta_xy[:, np.newaxis], self.num_pupil_points, axis=1)
+        dk_obj = np.dot(B_obj_stop_inv, dr_stop - np.dot(A_obj_stop, dr_obj))
+
+        # TODO: in general some direction vector is derived
+        # TODO: this must been mapped to a k vector
+
+        # TODO: what about anamorphic systems?
+
+        return (dr_obj, dk_obj)
 
     def aim(self, delta_xy, fieldtype="angle"):
         """
@@ -172,10 +193,7 @@ class Aimy(BaseLogger):
         if fieldtype == "angle":
             (dr_obj, dk_obj) = self.aim_core_angle_known(delta_xy)
         elif fieldtype == "objectheight":
-
-            raise NotImplemented()
-
-            #(dr_obj, dk_obj) = self.aim_core_r_known(delta_xy)
+            (dr_obj, dk_obj) = self.aim_core_r_known(delta_xy)
         elif fieldtype == "kvector":
 
             raise NotImplemented()
