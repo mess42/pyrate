@@ -60,8 +60,11 @@ class Aimy(BaseLogger):
         self.update(s, seq)
 
     def extractABCD(self, xyuv):
+
+        self.info(str(xyuv.shape))
+
         Axyuv = xyuv[0:2, 0:2]
-        Bxyuv = xyuv[0:2, 2:4]
+        Bxyuv = xyuv[0:2, 2:4]  # take only real part of the k vectors
         Cxyuv = xyuv[2:4, 0:2]
         Dxyuv = xyuv[2:4, 2:4]
 
@@ -169,6 +172,8 @@ class Aimy(BaseLogger):
          B_obj_stop,
          C_obj_stop,
          D_obj_stop) = self.extractABCD(self.m_obj_stop)
+
+        self.info(str(B_obj_stop.shape))
 
         B_obj_stop_inv = np.linalg.inv(B_obj_stop)
 
