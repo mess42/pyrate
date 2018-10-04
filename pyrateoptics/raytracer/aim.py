@@ -200,17 +200,15 @@ class Aimy(BaseLogger):
         elif fieldtype == "objectheight":
             (dr_obj, dk_obj) = self.aim_core_r_known(delta_xy)
         elif fieldtype == "kvector":
-
-            raise NotImplemented()
-
-            #(dr_obj, dk_obj) = self.aim_core_k_known(delta_xy)
-
+            # (dr_obj, dk_obj) = self.aim_core_k_known(delta_xy)
+            raise NotImplementedError()
+        else:
+            raise NotImplementedError()
 
         (dim, num_points) = np.shape(dr_obj)
 
         dr_obj3d = np.vstack((dr_obj, np.zeros(num_points)))
         dk_obj3d = np.vstack((dk_obj, np.zeros(num_points)))
-
 
         xp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalPoints(self.pilotbundle.x[0, :, 0])
         xp_objsurf = np.repeat(xp_objsurf[:, np.newaxis], num_points, axis=1)
