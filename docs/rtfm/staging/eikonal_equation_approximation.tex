@@ -1,0 +1,54 @@
+\documentclass[a4paper,10pt]{revtex4-1}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+
+%opening
+\title{Eikonal approximation for eigenvalue equation}
+
+\begin{document}
+
+\section{Standard evaluation}
+
+For isotropic media it follows from
+\begin{align}
+ \partial_i D_i &= 0\,,
+\end{align}
+with $D_i = \varepsilon \delta_{ij} E_j = \varepsilon E_i$ that
+\begin{align}
+ \partial_i E_i &= 0\,.
+\end{align}
+
+Further from the wave equation
+\begin{align}
+ (\delta_{ij} \Delta - \partial_i \partial_j + \varepsilon \delta_{ij}) E_j &= 0
+\end{align}
+it follows the middle term can be neglected and this equation decomposes into three independent Helmholtz equations
+\begin{align}
+  (\Delta + \varepsilon) E_i &= 0\,. 
+\end{align}
+From the Eikonal approximation $E_i = A_i \exp(i \phi(\mathbf{x}))$ it follows that
+\begin{align}
+  (\Delta + \varepsilon) \exp(i \phi) &= 0\,,
+\end{align}
+which means
+\begin{align}
+ i \Delta \phi - \partial_i \phi \partial_i \phi + \varepsilon &= 0\,.
+\end{align}
+Rewriting the equation into a more convenient form leads to (with $\phi = \sqrt{\varepsilon} \phi'$)
+\begin{align}
+ \partial_i \phi' \partial_i \phi' &= 1 + \frac{i}{\sqrt{\varepsilon}} \Delta \phi'\,.
+\end{align}
+For a further examination let $\phi' = \phi^\prime_0 + \frac{1}{\sqrt{\varepsilon}} \phi^\prime_1$ and neglecting higher order terms in $1/\sqrt{\varepsilon}$:
+\begin{align}
+ (\partial_i \phi^\prime_0)^2 + \frac{1}{\sqrt{\varepsilon}} 2 \partial_i \phi^\prime_0 \partial_i \phi^\prime_1 &= 1 + \frac{i}{\sqrt{\varepsilon}} \Delta \phi^\prime_0\,,
+\end{align}
+leads to
+\begin{align}
+ (\partial_i \phi^\prime_0)^2 &= 1\,,\\
+ \partial_i \phi^\prime_0 \partial_i \phi^\prime_1 &= \frac{i}{2} \Delta \phi^\prime_0\,.
+\end{align}
+
+
+
+
+\end{document}
