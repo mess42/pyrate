@@ -353,13 +353,23 @@ def draw(os, rays=None,
         round_val_xz = np.round(xz_angle_slider.val)
         round_val_up = np.round(up_angle_slider.val)
 
-        new_ex = np.array([np.cos(round_val_xz*degree),
-                           0,
-                           np.sin(round_val_xz*degree)])
-        new_up = np.array([-np.sin(round_val_up*degree),
-                           np.cos(round_val_up*degree),
-                           0.])
-        inyzplane = np.abs(round_val_xz) < numerical_tolerance
+        phi = round_val_xz*degree
+        theta = round_val_up*degree
+
+#        new_ex = np.array([np.cos(phi),
+#                           0,
+#                           np.sin(phi)])
+#        new_up = np.array([-np.sin(theta),
+#                           np.cos(theta),
+#                           0.])
+        new_ex = np.array([np.cos(phi)*np.cos(theta),
+                           np.sin(theta),
+                           np.sin(phi)*np.cos(theta)])
+        new_up = np.array([-np.cos(phi)*np.sin(theta),
+                           np.cos(theta),
+                           -np.sin(phi)*np.sin(theta)])
+        inyzplane = np.abs(round_val_xz) < numerical_tolerance\
+            and np.abs(round_val_up) < numerical_tolerance
         os.draw2d(ax, color="grey", inyzplane=inyzplane,
                   plane_normal=new_ex, up=new_up, **kwargs)
         draw_rays(ax, rays, plane_normal=new_ex, up=new_up, **kwargs)
