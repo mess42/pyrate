@@ -321,8 +321,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
         for (surfkey, surfoptions) in sequence:
 
             refract_flag = not surfoptions.get("is_mirror", False)
-            # old: current_bundle = rpath.raybundles[-1]
-            # old: current_material.propagate(current_bundle, current_surface)
 
             rpaths_new = []
 
@@ -337,39 +335,29 @@ class OpticalElement(LocalCoordinatesTreeBase):
                 current_bundle = rp.raybundles[-1]
                 current_material.propagate(current_bundle, current_surface)
 
-
-            # TODO: remove code doubling
             if refract_flag:
-                # old: current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-                # old: rpath.appendRayBundle(current_material.refract(current_bundle, current_surface))
-                # old: finish
-
-                current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-
-                for rp in rpaths:
-                    current_bundle = rp.raybundles[-1]
-                    raybundles = current_material.refract(current_bundle, current_surface, splitup=splitup)
-
-                    for rb in raybundles[1:]: # if there are more than one return value, copy path
-                        rpathprime = deepcopy(rp)
-                        rpathprime.appendRayBundle(rb)
-                        rpaths_new.append(rpathprime)
-                    rp.appendRayBundle(raybundles[0])
-
-
+                current_material = self.findoutWhichMaterial(mnmat,
+                                                             pnmat,
+                                                             current_material)
             else:
-                # old: rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface))
-                # old: finish
+                pass
 
-                for rp in rpaths:
-                    current_bundle = rp.raybundles[-1]
-                    raybundles = current_material.reflect(current_bundle, current_surface, splitup=splitup)
+            current_material_deflection = {True: current_material.refract,
+                                           False: current_material.reflect}
 
-                    for rb in raybundles[1:]:
-                       rpathprime = deepcopy(rp)
-                       rpathprime.appendRayBundle(rb)
-                       rpaths_new.append(rpathprime)
-                    rp.appendRayBundle(raybundles[0])
+            for rp in rpaths:
+                current_bundle = rp.raybundles[-1]
+                raybundles = current_material_deflection[refract_flag](
+                        current_bundle,
+                        current_surface,
+                        splitup=splitup)
+
+                for rb in raybundles[1:]:
+                    # if there are more than one return value, copy path
+                    rpathprime = deepcopy(rp)
+                    rpathprime.appendRayBundle(rb)
+                    rpaths_new.append(rpathprime)
+                rp.appendRayBundle(raybundles[0])
 
             rpaths = rpaths + rpaths_new
 
