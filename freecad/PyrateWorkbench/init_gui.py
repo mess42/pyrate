@@ -186,16 +186,15 @@ class PyrateWorkbench(FreeCADGui.Workbench):
                 self.appendContextMenu("ShowRaybundlesCommand", [])
                 self.appendContextMenu("Separator", [])
 
-
-
     def Activated(self):
-# do something here if needed...
-
-
-        Msg ("PyrateWorkbench.Activated()\n")
+        "do something here if needed..."
+        pass
+        # Msg ("PyrateWorkbench.Activated()\n")
 
     def Deactivated(self):
-# do something here if needed...
-        Msg ("PyrateWorkbench.Deactivated()\n")
+        "do something here if needed..."
+        pass
+        # Msg ("PyrateWorkbench.Deactivated()\n")
+
 
 FreeCADGui.addWorkbench(PyrateWorkbench())
