@@ -47,8 +47,33 @@ leads to
  (\partial_i \phi^\prime_0)^2 &= 1\,,\\
  \partial_i \phi^\prime_0 \partial_i \phi^\prime_1 &= \frac{i}{2} \Delta \phi^\prime_0\,.
 \end{align}
+Now by using this approximative scheme we can extract further information for propagation of a raybundle through an isotropic medium.
+Inserting the phase approximation into the divergence equation leads to:
+\begin{align}
+ \partial_i E_i &= A_i \partial_i \exp(i \phi) = i A_i (\partial_i \phi) \exp(i \phi) = 0\,. 
+\end{align}
+This could also be used to neglect the divergence term after insertion of the phase approximation into the wave equation.
 
 
+\section{Anisotropic evaluation}
+
+
+For anisotropic media it follows from
+\begin{align}
+ \partial_i D_i &= 0\,,
+\end{align}
+with $D_i = \varepsilon_{ij} E_j$ that
+\begin{align}
+ \varepsilon_{ij} \partial_i E_j &= 0\,.
+\end{align}
+Further from the wave equation
+\begin{align}
+ (\delta_{ij} \Delta - \partial_i \partial_j + \varepsilon_{ij}) E_j &= 0
+\end{align}
+and the phase approximation $E_i = A_i \exp(i \phi)$ it is seen that
+\begin{align}
+ (\delta_{ij} (i \Delta \phi - (\partial_k \phi)^2) - (i \partial_i \partial_j \phi + \partial_i \phi \partial_j \phi) + \varepsilon_{ij}) E_j &= 0
+\end{align}
 
 
 \end{document}
