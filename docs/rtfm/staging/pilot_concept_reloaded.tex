@@ -392,13 +392,34 @@ propagating from plane 1 back to plane 0.
   \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
  \end{pmatrix}
  &=&
- \hat{G}^{-1}
+ \hat{G}_{\text{inv}}
  \begin{pmatrix}
   \Delta \Vector{r}_{1} \\ \Delta \Wavevector_{1}
  \end{pmatrix}
 \end{eqnarray}
-We consider a sequence of an operator and its inverse operator.
+To construct the inverse propagation form the forward propagator,
+we consider a sequence of forward and backward propagation.
 After applying both, we should end up where we started.
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
+ \end{pmatrix}
+ &=&
+ \hat{G}_{\text{inv}}
+ \hat{G}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
+ \end{pmatrix}
+ =  
+ \hat{G}_{tot}
+  \begin{pmatrix}
+  \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
+ \end{pmatrix}
+\end{eqnarray}
+We represent the operators $\hat{G}, \hat{G}_{\text{inv}}$ and $\hat{G}_{tot}$ by matrices $A,B,C,D,M,N$.
+The matrices representing the \emph{inverse propagator} are marked with an index $_\text{inv}$.
+In contrast, an upper $^{-1}$ denotes the \emph{inverse matrix}.
+We apply the propagation concatenation equation \eqref{eq:xyuv_total_propagation} on our sequence of forward and inverse propagation and yield:
 \begin{subequations}
 \begin{eqnarray}
  \hat{A}_\tot &= \unittensor =& \hat{A}_{\text{inv}} \hat{A} + \hat{B}_{\text{inv}} \hat{C} \\
@@ -409,12 +430,53 @@ After applying both, we should end up where we started.
  \hat{N}_\tot &= 0           =& \hat{C}_{\text{inv}} \hat{M} + \hat{D}_{\text{inv}} \hat{N} + \hat{N}_{\text{inv}} \hat{A} \hat{D} + \hat{N}_{\text{inv}} \hat{B} \hat{C}
 \end{eqnarray}
 \end{subequations}
-In order not to confuse the inverse (nonlinear) operator with the inverse of its constituting matrices,
-we mark all matrices belonging to the inverse operator with the lower index $_\text{inv}$.
-An upper $^{-1}$ denotes the inverse of a matrix.
-In the following, we solve the system for the inverse operator.
+We consider the subsystem of the first four equations and solve it for the inverse propagation matrices.
+\begin{eqnarray}
+ \begin{pmatrix}
+  \hat{A}_{\text{inv}} & \hat{B}_{\text{inv}} \\ \hat{C}_{\text{inv}} & \hat{D}_{\text{inv}}
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  \hat{A} & \hat{B} \\ \hat{C} & \hat{D}
+ \end{pmatrix}^{-1}
+\end{eqnarray}
+with
+\begin{eqnarray}
+ \begin{pmatrix}
+  \hat{A}_{\text{inv}} & \hat{B}_{\text{inv}} \\ \hat{C}_{\text{inv}} & \hat{D}_{\text{inv}}
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  A_{11\,\text{inv}} & A_{12\,\text{inv}} & B_{11\,\text{inv}} & B_{12\,\text{inv}} & B_{13\,\text{inv}} & B_{14\,\text{inv}} \\
+  A_{21\,\text{inv}} & A_{22\,\text{inv}} & B_{21\,\text{inv}} & B_{22\,\text{inv}} & B_{23\,\text{inv}} & B_{24\,\text{inv}} \\
+  C_{11\,\text{inv}} & C_{12\,\text{inv}} & D_{11\,\text{inv}} & D_{12\,\text{inv}} & D_{13\,\text{inv}} & D_{14\,\text{inv}} \\
+  C_{21\,\text{inv}} & C_{22\,\text{inv}} & D_{21\,\text{inv}} & D_{22\,\text{inv}} & D_{23\,\text{inv}} & D_{24\,\text{inv}} \\
+  C_{31\,\text{inv}} & C_{32\,\text{inv}} & D_{31\,\text{inv}} & D_{32\,\text{inv}} & D_{33\,\text{inv}} & D_{34\,\text{inv}} \\
+  C_{41\,\text{inv}} & C_{42\,\text{inv}} & D_{41\,\text{inv}} & D_{42\,\text{inv}} & D_{43\,\text{inv}} & D_{44\,\text{inv}}
+ \end{pmatrix}
+ \\
+ \begin{pmatrix}
+  \hat{A} & \hat{B} \\ \hat{C} & \hat{D}
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  A_{11} & A_{12} & B_{11} & B_{12} & B_{13} & B_{14} \\
+  A_{21} & A_{22} & B_{21} & B_{22} & B_{23} & B_{24} \\
+  C_{11} & C_{12} & D_{11} & D_{12} & D_{13} & D_{14} \\
+  C_{21} & C_{22} & D_{21} & D_{22} & D_{23} & D_{24} \\
+  C_{31} & C_{32} & D_{31} & D_{32} & D_{33} & D_{34} \\
+  C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
+ \end{pmatrix}
+\end{eqnarray}
+The inverse bilinear matrices read
+\begin{subequations}
+\begin{eqnarray}
+ \hat{M}_{\text{inv}} &=& - (\hat{A}_{\text{inv}} \hat{M} + \hat{B}_{\text{inv}} \hat{N}) \cdot \left( ( \hat{A} \hat{D} + \hat{B} \hat{C} )^{-1} \right)\\
+ \hat{N}_{\text{inv}} &=& - (\hat{C}_{\text{inv}} \hat{M} + \hat{D}_{\text{inv}} \hat{N}) \cdot \left( ( \hat{A} \hat{D} + \hat{B} \hat{C} )^{-1} \right)
+\end{eqnarray}
+\end{subequations}
 
-
+\remark{todo: explicit, component wise formula}
 
 
 
