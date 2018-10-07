@@ -36,26 +36,24 @@ Err = FreeCAD.Console.PrintError
 
 # TODO: at the moment only available for scipy, add further libs in the future
 try:
-    print("checking for scipy support")
     import scipy
 except ImportError:
-    print("scipy not found:")
-    print("please add appropriate paths to paths.txt, i.e. c:/yourpython/Lib/site-packages/")
+    Err("scipy not found:")
+    Log("please add appropriate paths to paths.txt, " +
+        "i.e. c:/yourpython/Lib/site-packages/")
     if platform.system() == 'Windows':
-
         winpathfile = os.path.join(os.path.dirname(__file__), "paths.txt")
         wpfile = open(winpathfile)
         for line in wpfile:
             sys.path.append(line)
         wpfile.close()
     if platform.system() == 'Linux':
-        print("please install scipy via your favourite package manager or download an appropriate python distribution")
-    print("retrying to import")
+        Log("please install scipy via your favourite package manager" +
+            " or download an appropriate python distribution")
+    Log("retrying to import")
     import scipy
 else:
-    print("found scipy")
-
-
+    pass
 
 # access to global variables for the FreeCAD interface
 
@@ -92,12 +90,16 @@ from freecad.PyrateWorkbench import Commands_Surface
 # access to the resource file
 from freecad.PyrateWorkbench import resources_rc
 
-class PyrateWorkbench ( FreeCADGui.Workbench ):
-    "Pyrate workbench object"
+class PyrateWorkbench(FreeCADGui.Workbench):
+    """
+    A FreeCAD workbench for optical design with the underlying
+    pyrate optics core.
+    """
+
     Icon = ":/icons/pyrate_logo_icon.svg"
 
-    MenuText = "Pyrate Workbench"
-    ToolTip = "Pyrate optical design Workbench"
+    MenuText = "Optical Design (Pyrate)"
+    ToolTip = "Optical design with Python"
     def GetClassName(self):
         return "Gui::PythonWorkbench"
 
