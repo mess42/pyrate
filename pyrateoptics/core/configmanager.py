@@ -48,8 +48,9 @@ class ConfigContainer(ClassWithOptimizableVariables):
     frontend.
     """
 
-    def __init__(self, instance_list=None, **kwargs):
-        super(ConfigContainer, self).__init__(**kwargs)
+    def __init__(self, instance_list=None,
+                 name="", kind="configcontainer", **kwargs):
+        super(ConfigContainer, self).__init__(name=name, kind=kind, **kwargs)
         self.instance_list = instance_list
 
     # TODO: to be tested

@@ -36,7 +36,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, rootlc = None, matbackground = None, **kwargs):
+    def __init__(self, rootlc=None, matbackground=None,
+                 name="", kind="opticalsystem", **kwargs):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -50,8 +51,9 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             rootlc = LocalCoordinates(name="global")
         self.rootcoordinatesystem = rootlc
 
-        super(OpticalSystem, self).__init__(self.rootcoordinatesystem, **kwargs)
-
+        super(OpticalSystem, self).__init__(
+                self.rootcoordinatesystem, name=name, kind=kind,
+                **kwargs)
         if matbackground is None:
             matbackground = ConstantIndexGlass(self.rootcoordinatesystem, 1.0, name="background")
 
@@ -145,8 +147,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                 else:
                     ls2.append(elem_matrices[h])
 
-            m1 = np.eye(14)
-            m2 = np.eye(14)
+            m1 = np.eye(6)
+            m2 = np.eye(6)
 
             for m in ls1:
                 m1 = np.dot(m, m1)
@@ -155,8 +157,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
 
             lst_matrix_pairs.append((m1, m2, found_stop))
 
-        m_obj_stop = np.eye(14)
-        m_stop_img = np.eye(14)
+        m_obj_stop = np.eye(6)
+        m_stop_img = np.eye(6)
 
         obj_stop_branch = True
         for (m1, m2, found_stop) in lst_matrix_pairs:

@@ -30,27 +30,38 @@ from pyrateoptics.core.log import BaseLogger
 class FunctionObject(BaseLogger):
 
     def __init__(self, initial_sourcecode="",
-                 initial_funcnamelist=[], name="", **kwargs):
-        super(FunctionObject, self).__init__(name=name, **kwargs)
-        self.source = initial_sourcecode
-        self.sourcecode_security_checked = True
-        self.functiondict = {}
+                 initial_function_names=[],
+                 sourcecode_security_checked=True,
+                 kind="functionobject", name="", **kwargs):
+        super(FunctionObject, self).__init__(name=name, kind=kind, **kwargs)
+        self.setSource(initial_sourcecode)
+        self.sourcecode_security_checked = sourcecode_security_checked
+        self.functions = {}
         if initial_sourcecode != "":
-            self.generateFunctionsFromSource(initial_funcnamelist)
+            self.generateFunctionsFromSource(initial_function_names)
+
+    def setSource(self, source):
+        self.__source = source
+        self.sourcecode_security_checked = False
+
+    def getSource(self):
+        return self.__source
+
+    source = property(fget=getSource, fset=setSource)
 
     def load(self, filename):
-        f = open(filename, "rU")
+        f = open(filename, "rt")
         self.source = f.read()  # TODO: does exec need an array of lines?
         f.close()
         self.info(self.source)
         self.sourcecode_security_checked = False
 
     def save(self, filename):
-        f = open(filename, "w")
+        f = open(filename, "wt")
         f.write(self.source)
         f.close()
 
-    def generateFunctionsFromSource(self, funcnamelist):
+    def generateFunctionsFromSource(self, function_names):
         self.info("Generating Functions from source")
         if not self.sourcecode_security_checked:
             self.warning("Cannot execute unchecked code: " + self.source)
@@ -58,15 +69,19 @@ class FunctionObject(BaseLogger):
                       sourcecode_security_checked flag to True")
         else:
             localsdict = {}
-            self.functiondict = {}
+            self.functions = {}
             try:
                 exec(self.source, localsdict)
             except SyntaxError:
                 self.error("Syntax error caught")
 
-            for fn in funcnamelist:
-                self.functiondict[fn] = localsdict.get(fn, None)
+            for fn in function_names:
+                self.functions[fn] = localsdict.get(fn, None)
 
+    def getDictionary(self):
+        res = super(FunctionObject, self).getDictionary()
+        res["initial_sourcecode"] = self.source
+        return res
 
 if __name__ == "__main__":
     s = """
@@ -95,4 +110,4 @@ def r(x, y, z):
     foo2.load("./myfunc.py")
     foo2.sourcecode_security_checked = True
     foo2.generateFunctionsFromSource(["f", "g", "h", "r"])
-    print(foo2.functiondict["r"](3, 4, 5))
+    print(foo2.functions["r"](3, 4, 5))

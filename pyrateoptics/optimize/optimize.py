@@ -32,20 +32,22 @@ class Optimizer(BaseLogger):
     attachment of other meritfunctions or other update functions with other
     parameters is possible.
     '''
-    def __init__(self, classwithoptvariables, meritfunction, backend, name='', updatefunction=None):
+    def __init__(self, classwithoptvariables,
+                 meritfunction, backend,
+                 name="", kind="optimizer", updatefunction=None):
 
         def noupdate(cl):
             pass
-        
-        super(Optimizer, self).__init__(name=name)
+
+        super(Optimizer, self).__init__(name=name, kind=kind)
         self.classwithoptvariables = classwithoptvariables
         self.meritfunction = meritfunction # function to minimize
         if updatefunction is None:
             updatefunction = noupdate
         self.updatefunction = updatefunction # function to be called to update classwithoptvariables
         self.setBackend(backend) # eats vector performs optimization, returns vector
-        # scipy Nelder-Mead, scipy ..., evolutionary, genetic, ...        
-       
+        # scipy Nelder-Mead, scipy ..., evolutionary, genetic, ...
+
         self.meritparameters = {}
         self.updateparameters = {}
         self.number_of_calls = 0 # how often is the merit function called during one run?
@@ -58,17 +60,17 @@ class Optimizer(BaseLogger):
 
     def MeritFunctionWrapper(self, x):
         """
-        Merit function wrapper for backend. 
+        Merit function wrapper for backend.
         Notice that x and length of active values must have the same size
-    
+
         :param x (np.array): active variable values
         :param meritfunction (function): meritfunction depending on s
-    
+
         :return value of the merit function
         """
         self.number_of_calls += 1
         self.classwithoptvariables.setActiveTransformedValues(x)
-        self.updatefunction(self.classwithoptvariables, **self.updateparameters)    
+        self.updatefunction(self.classwithoptvariables, **self.updateparameters)
         res = self.meritfunction(self.classwithoptvariables, **self.meritparameters)
         self.debug("call number " + str(self.number_of_calls) + " meritfunction: " + str(res))
         return res
@@ -77,9 +79,9 @@ class Optimizer(BaseLogger):
         '''
         Funtion to perform a certain number of optimization steps.
         '''
-        self.info("optimizer run start")        
+        self.info("optimizer run start")
         x0 = self.classwithoptvariables.getActiveTransformedValues()
-        
+
         self.info("initial x: " + str(x0))
         self.info("initial merit: " + str(self.MeritFunctionWrapper(x0)))
         self.debug("calling backend run")
@@ -91,6 +93,6 @@ class Optimizer(BaseLogger):
         # TODO: do not change original classwithoptvariables
         self.info("called merit function " + str(self.number_of_calls) + " times.")
         self.number_of_calls = 0
-        self.info("optimizer run finished")        
+        self.info("optimizer run finished")
         return self.classwithoptvariables
 

@@ -37,7 +37,7 @@ import ctypes
 type_key = "shape"
 
 class Shape(ClassWithOptimizableVariables):
-    def __init__(self, lc, **kwargs):
+    def __init__(self, lc, name="", kind="shape", **kwargs):
         """
         Virtual Class for all surface shapes.
         The shape of a surface provides a function to calculate
@@ -45,8 +45,7 @@ class Shape(ClassWithOptimizableVariables):
         """
         self.lc = lc
 
-        super(Shape, self).__init__(**kwargs)
-
+        super(Shape, self).__init__(name=name, kind=kind, **kwargs)
 
     def intersect(self, raybundle):
         """

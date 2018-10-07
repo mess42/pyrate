@@ -37,21 +37,22 @@ class OpticalElement(LocalCoordinatesTreeBase):
     """
     Represents an optical element (volume with surface boundary and inner
     surfaces representing material boundaries)
-    
+
     :param lc (Local Coordinates of optical element)
     :param name (string), if empty -> uuid
     """
-    def __init__(self, lc, **kwargs):
-        super(OpticalElement, self).__init__(lc, **kwargs)
-        self.__surfaces = {} # Append surfaces objects
-        self.__materials = {} # Append materials objects
-        self.__surf_mat_connection = {} # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
-    
-    
+    def __init__(self, lc, name="", kind="opticalelement", **kwargs):
+        super(OpticalElement, self).__init__(lc,
+            name=name, kind=kind, **kwargs)
+        self.__surfaces = {}  # Append surfaces objects
+        self.__materials = {}  # Append materials objects
+        self.__surf_mat_connection = {}  # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
+
+
     def addSurface(self, key, surface_object, materialkeys):
         """
         Adds surface class object to the optical element.
-        
+
         :param key (string ... dict key)
         :param surface_object (Surface class object)
         :param materialkeys (tuple of 2 strings)
@@ -68,18 +69,18 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
     def changeMaterialsForSurface(self, key, materialkeys):
         (minusNmat_key, plusNmat_key) = materialkeys
-        if key in self.__surf_mat_connection:        
+        if key in self.__surf_mat_connection:
             self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
-        
+
 
     def getSurfaces(self):
         return self.__surfaces
 
     def getConnection(self, key):
         return self.__surf_mat_connection[key]
-        
+
     surfaces = property(fget=getSurfaces)
-        
+
 
     def addMaterial(self, key, material_object, comment=""):
         """
@@ -96,25 +97,25 @@ class OpticalElement(LocalCoordinatesTreeBase):
             else:
                 self.warning("Material key " + str(key) + " already taken. Material will not be added.")
         else:
-            raise Exception("material coordinate system should be connected to OpticalElement root coordinate system")            
+            raise Exception("material coordinate system should be connected to OpticalElement root coordinate system")
 
     def findoutWhichMaterial(self, mat1, mat2, current_mat):
         """
-        Dirty method to determine material after refraction. 
+        Dirty method to determine material after refraction.
         (Reference comparison.)
-        
+
         :param mat1 (Material object)
         :param mat2 (Material object)
         :param current_mat (Material object)
-        
+
         :return (Material object)
         """
-        
+
         if id(mat1) == id(current_mat):
             returnmat = mat2
         else:
             returnmat = mat1
-            
+
         return returnmat
 
     def sequence_to_hitlist(self, seq):
@@ -123,29 +124,29 @@ class OpticalElement(LocalCoordinatesTreeBase):
         necessary to distinguish between multiple crossings of the pilot ray
         between surface boundaries, due to the changed transfer matrices.
         """
-        
+
         surfnames = [(name, options_dict) for (name, options_dict) in seq]
-    
+
         hitlist_dict = {}
-        
+
         hitlist = []
         optionshitlistdict = {}
-        
+
         for ((sb, optsb), (se, optse)) in zip(surfnames[:-1], surfnames[1:]):
-            
+
             hit = hitlist_dict.get((sb, se), 0)
             hit += 1
             hitlist_dict[(sb, se)] = hit
-            
+
             hitlist.append((sb, se, hit))
             optionshitlistdict[(sb, se, hit)] = (optsb, optse)
-        
+
         return (hitlist, optionshitlistdict)
-        
+
     def hitlist_to_sequence(self, xxx_todo_changeme):
         (hitlist, optionshitlistdict) = xxx_todo_changeme
         seq = []
-        
+
         for (ind, (sb, se, hit)) in enumerate(hitlist):
             pair = (sb, True, optionshitlistdict[(sb, se, hit)][0])
             seq.append(pair)
@@ -156,8 +157,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
     def calculateXYUV(self, pilotinitbundle, sequence, background_medium, pilotraypath_nr=0):
 
-        # TODO: needs heavy testing        
-        
+        # TODO: needs heavy testing
+
         def reduce_matrix_x(m):
             """
             Pilot ray is at position 0 (hail to the chief ray) in the pilot bundle.
@@ -168,8 +169,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
         def reduce_matrix_k(m):
             return reduce_matrix_x(m)
-        
-        def reduce_matrix_k_real(m):        
+
+        def reduce_matrix_k_real(m):
             """
             Pilot ray is at position 0 (hail to the chief ray) in the pilot bundle.
             We first subtract the pilot ray and afterwards take the first two lines (x, y) from
@@ -177,7 +178,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             """
             return (np.array((m - m[:, 0].reshape((3, 1)))[0:2, 1:])).real
 
-        def reduce_matrix_k_imag(m):        
+        def reduce_matrix_k_imag(m):
             """
             Pilot ray is at position 0 (hail to the chief ray) in the pilot bundle.
             We first subtract the pilot ray and afterwards take the first two lines (x, y) from
@@ -194,60 +195,60 @@ class OpticalElement(LocalCoordinatesTreeBase):
             transfer = np.dot(YX, np.linalg.inv(XX))
 
             self.debug("\n" + np.array_str(transfer, precision=1, suppress_small=True))
-           
+
             return transfer
-            
+
         def generate_matrix_6xN(x, k):
             xred = reduce_matrix_x(x)
             kred_real = reduce_matrix_k_real(k)
             kred_imag = reduce_matrix_k_imag(k)
-            
+
             return np.vstack((xred, kred_real, kred_imag))
 
         def generate_matrix_14xN(x, k):
             xred = reduce_matrix_x(x)
             kred_real = reduce_matrix_k_real(k)
             kred_imag = reduce_matrix_k_imag(k)
-            
+
             xred_times_kred_real = np.einsum("i...,j...->ij...", xred, kred_real)
             xred_times_kred_imag = np.einsum("i...,j...->ij...", xred, kred_imag)
-            
+
             (num_dims, num_dims, num_pts) = np.shape(xred_times_kred_real)
-            
+
             xred_times_kred_real = np.reshape(xred_times_kred_real, (num_dims*num_dims, num_pts))
             xred_times_kred_imag = np.reshape(xred_times_kred_imag, (num_dims*num_dims, num_pts))
 
-                        
-            return np.vstack((xred, 
-                              kred_real, 
-                              kred_imag, 
+
+            return np.vstack((xred,
+                              kred_real,
+                              kred_imag,
                               xred_times_kred_real,
                               xred_times_kred_imag
-                              ))            
+                              ))
 
 
-        
-        (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)        
-        
+
+        (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)
+
         pilotraypaths = self.seqtrace(pilotinitbundle, sequence, background_medium, splitup=True)
         self.info("found %d pilotraypaths" % (len(pilotraypaths,)))
-        self.info("selected no %d via pilotraypath_nr parameter" % (pilotraypath_nr,))        
+        self.info("selected no %d via pilotraypath_nr parameter" % (pilotraypath_nr,))
         # a pilotraypath may not contain an internally splitted raybundle
-        pilotraypath = pilotraypaths[pilotraypath_nr]        
-        
-        startpilotbundle = pilotraypath.raybundles[:-1]        
+        pilotraypath = pilotraypaths[pilotraypath_nr]
+
+        startpilotbundle = pilotraypath.raybundles[:-1]
         endpilotbundle = pilotraypath.raybundles[1:]
 
         XYUVmatrices = {}
-                
-               
+
+
         for (pb1, pb2, surfhit) in zip(startpilotbundle, endpilotbundle, hitlist):
-            
+
             (s1, s2, numhit) = surfhit
-            
+
             lcstart = self.surfaces[s1].rootcoordinatesystem
-            lcend = self.surfaces[s2].rootcoordinatesystem            
-            
+            lcend = self.surfaces[s2].rootcoordinatesystem
+
             # intersection point before refract/reflect (local coordinates surf1)
             startx = lcstart.returnGlobalToLocalPoints(pb1.x[-1])
             startk = lcstart.returnGlobalToLocalDirections(pb1.k[-1])
@@ -255,15 +256,15 @@ class OpticalElement(LocalCoordinatesTreeBase):
             # intersection point after refract/reflect (local coordinate surf1)
             # fspropx = lcstart.returnGlobalToLocalPoints(pb2.x[0])
             # fspropk = lcstart.returnGlobalToLocalDirections(pb2.k[0])
-            
-            # endx_lcstart = lcstart.returnGlobalToLocalPoints(pb2.x[-1])            
-            # endk_lcstart = lcstart.returnGlobalToLocalDirections(pb2.k[-1])            
-            
+
+            # endx_lcstart = lcstart.returnGlobalToLocalPoints(pb2.x[-1])
+            # endk_lcstart = lcstart.returnGlobalToLocalDirections(pb2.k[-1])
+
             # intersection point before refract/reflect (local coordinates surf2)
             endx = lcend.returnGlobalToLocalPoints(pb2.x[-1])
             endk = lcend.returnGlobalToLocalDirections(pb2.k[-1])
-                        
-            """            
+
+            """
             startxred = reduce_matrix_x(startx)
             startkred_real = reduce_matrix_k_real(startk)
             startkred_imag = reduce_matrix_k_imag(startk)
@@ -281,62 +282,50 @@ class OpticalElement(LocalCoordinatesTreeBase):
             endkred_imag = reduce_matrix_k_imag(endk)
             """
 
-            (num_dims, num_pts) = np.shape(startx) # check shape            
+            (num_dims, num_pts) = np.shape(startx) # check shape
 
 
             self.debug(str([s1, s2]))
-            startmatrix = generate_matrix_14xN(startx, startk) # np.vstack((startxred, startkred_real, startkred_imag))
-            # fspropmatrix = generate_matrix_6x6(fspropx, fspropk) # np.vstack((fspropxred, fspropkred_real, fspropkred_imag))
-            # endmatrix_lcstart = generate_matrix_6x6(endx_lcstart, endk_lcstart) # np.vstack((endx_lcstart_red, endk_lcstart_red_real, endk_lcstart_red_imag))
-            endmatrix = generate_matrix_14xN(endx, endk) # np.vstack((endxred, endkred_real, endkred_imag))
-            self.info(startmatrix.shape)                       
+            startmatrix = generate_matrix_6xN(startx, startk)
+            endmatrix = generate_matrix_6xN(endx, endk)
+            self.info(startmatrix.shape)
 
-            #self.debug("refraction")
-            #refractmatrix = bestfit_transfer(startmatrix, fspropmatrix)
-            #self.debug("propagation")                    
-            #propagatematrix = bestfit_transfer(fspropmatrix, endmatrix_lcstart)
-            #self.debug("coordinate trafo")                    
-            #coordinatetrafomatrix = bestfit_transfer(endmatrix_lcstart, endmatrix)
-            #self.debug("full transfer")                                        
-            transfer = bestfit_transfer(startmatrix, endmatrix) #np.dot(coordinatetrafomatrix, np.dot(propagatematrix, refractmatrix)) 
+            transfer = bestfit_transfer(startmatrix, endmatrix) #np.dot(coordinatetrafomatrix, np.dot(propagatematrix, refractmatrix))
             invtransfer = bestfit_transfer(endmatrix, startmatrix)
             self.debug(np.array_str(transfer, precision=5, suppress_small=True))
-            #transfer_comparison = bestfit_transfer(startmatrix, endmatrix) 
-            
+
             self.debug("condition number:")
             self.debug(np.linalg.cond(transfer))
-            
+
             XYUVmatrices[(s1, s2, numhit)] = transfer
-            XYUVmatrices[(s2, s1, numhit)] = invtransfer 
+            XYUVmatrices[(s2, s1, numhit)] = invtransfer
             invtransfer2 = np.linalg.inv(transfer)
             self.info("inv diff\n" + np.array_str(invtransfer - invtransfer2, precision=6, suppress_small=True))
 
 
         return (pilotraypath, XYUVmatrices)
-     
+
 
     def seqtrace(self, raybundle, sequence, background_medium, splitup=False):
-        
-        # FIXME: should depend on a list of RayPath        
-        
-        current_material = background_medium    
-    
-        rpath = RayPath(raybundle)    
-        rpaths = [rpath]
-        
-        # surfoptions is intended to be a comma separated list
-        # of keyword=value pairs        
-        
-        for (surfkey, surfoptions) in sequence:
-            
-            refract_flag = not surfoptions.get("is_mirror", False)
-            # old: current_bundle = rpath.raybundles[-1]            
-            # old: current_material.propagate(current_bundle, current_surface)
 
-            rpaths_new = []            
+        # FIXME: should depend on a list of RayPath
+
+        current_material = background_medium
+
+        rpath = RayPath(raybundle)
+        rpaths = [rpath]
+
+        # surfoptions is intended to be a comma separated list
+        # of keyword=value pairs
+
+        for (surfkey, surfoptions) in sequence:
+
+            refract_flag = not surfoptions.get("is_mirror", False)
+
+            rpaths_new = []
 
             current_surface = self.__surfaces[surfkey]
-                        
+
             (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
             mnmat = self.__materials.get(mnmat, background_medium)
             pnmat = self.__materials.get(pnmat, background_medium)
@@ -345,59 +334,49 @@ class OpticalElement(LocalCoordinatesTreeBase):
             for rp in rpaths:
                 current_bundle = rp.raybundles[-1]
                 current_material.propagate(current_bundle, current_surface)
-                
-                        
-            # TODO: remove code doubling
+
             if refract_flag:
-                # old: current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-                # old: rpath.appendRayBundle(current_material.refract(current_bundle, current_surface))
-                # old: finish
-
-                current_material = self.findoutWhichMaterial(mnmat, pnmat, current_material)
-
-                for rp in rpaths:
-                    current_bundle = rp.raybundles[-1]
-                    raybundles = current_material.refract(current_bundle, current_surface, splitup=splitup)
-                                            
-                    for rb in raybundles[1:]: # if there are more than one return value, copy path
-                        rpathprime = deepcopy(rp)
-                        rpathprime.appendRayBundle(rb)
-                        rpaths_new.append(rpathprime)
-                    rp.appendRayBundle(raybundles[0])
-
-
+                current_material = self.findoutWhichMaterial(mnmat,
+                                                             pnmat,
+                                                             current_material)
             else:
-                # old: rpath.appendRayBundle(current_material.reflect(current_bundle, current_surface))
-                # old: finish
-            
-                for rp in rpaths:
-                    current_bundle = rp.raybundles[-1]
-                    raybundles = current_material.reflect(current_bundle, current_surface, splitup=splitup)
-    
-                    for rb in raybundles[1:]:
-                       rpathprime = deepcopy(rp)
-                       rpathprime.appendRayBundle(rb)
-                       rpaths_new.append(rpathprime)
-                    rp.appendRayBundle(raybundles[0])
-            
+                pass
+
+            current_material_deflection = {True: current_material.refract,
+                                           False: current_material.reflect}
+
+            for rp in rpaths:
+                current_bundle = rp.raybundles[-1]
+                raybundles = current_material_deflection[refract_flag](
+                        current_bundle,
+                        current_surface,
+                        splitup=splitup)
+
+                for rb in raybundles[1:]:
+                    # if there are more than one return value, copy path
+                    rpathprime = deepcopy(rp)
+                    rpathprime.appendRayBundle(rb)
+                    rpaths_new.append(rpathprime)
+                rp.appendRayBundle(raybundles[0])
+
             rpaths = rpaths + rpaths_new
-            
+
         return rpaths
-        
-    
+
+
     def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, pilotraypath_nr=0):
-        
+
         rpath = RayPath(raybundle)
         (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, pilotraypath_nr=pilotraypath_nr)
 
         (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)
-        
+
         for (ps, pe, surfhit) in zip(pilotraypath.raybundles[:-1], pilotraypath.raybundles[1:], hitlist):
             (surf_start_key, surf_end_key, hit) = surfhit
 
             surf_start = self.__surfaces[surf_start_key]
             surf_end = self.__surfaces[surf_end_key]
-            
+
             x0_glob = rpath.raybundles[-1].x[-1]
             k0_glob = rpath.raybundles[-1].k[-1]
 
@@ -405,24 +384,24 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
             x0 = surf_start.rootcoordinatesystem.returnGlobalToLocalPoints(x0_glob)
             k0 = surf_start.rootcoordinatesystem.returnGlobalToLocalDirections(k0_glob)
-            
+
             px0 = surf_start.rootcoordinatesystem.returnGlobalToLocalPoints(ps.x[-1][:, 0].reshape((3, 1)))
             pk0 = surf_start.rootcoordinatesystem.returnGlobalToLocalDirections(ps.k[-1][:, 0].reshape((3, 1)))
 
             px1 = surf_end.rootcoordinatesystem.returnGlobalToLocalPoints(pe.x[-1][:, 0].reshape((3, 1)))
             pk1 = surf_end.rootcoordinatesystem.returnGlobalToLocalDirections(pe.k[-1][:, 0].reshape((3, 1)))
-            
+
             dx0 = (x0 - px0)[0:2]
             dk0_real = (k0 - pk0)[0:2].real
             dk0_imag = (k0 - pk0)[0:2].imag
-            
-            (num_dims, num_pts) = dx0.shape            
-            
+
+            (num_dims, num_pts) = dx0.shape
+
             dx0timesdk0_real = np.reshape(np.einsum("i...,j...->ij...", dx0, dk0_real), (num_dims*num_dims, num_pts))
             dx0timesdk0_imag = np.reshape(np.einsum("i...,j...->ij...", dx0, dk0_imag), (num_dims*num_dims, num_pts))
-          
-            
-            DX0 = np.vstack((dx0, dk0_real, dk0_imag, dx0timesdk0_real, dx0timesdk0_imag))
+
+
+            DX0 = np.vstack((dx0, dk0_real, dk0_imag))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
 
             self.info("DX0\n" + np.array_str(DX0, precision=2, suppress_small=True))
 
@@ -432,31 +411,31 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
             # multiplication is somewhat contra-intuitive
             # Xend = M("surf2", "surf3", 1) M("surf1", "surf2", 1) X0
-                        
+
             dx1 = DX1[0:2]
             dk1 = DX1[2:4] + complex(0, 1)*DX1[4:6]
 
-            (num_dims, num_pts) = np.shape(dx1)            
-            
+            (num_dims, num_pts) = np.shape(dx1)
+
             dx1 = np.vstack((dx1, np.zeros(num_pts, dtype=complex)))
             dk1 = np.vstack((dk1, np.zeros(num_pts, dtype=complex)))
-            
+
             x1 = surf_end.rootcoordinatesystem.returnLocalToGlobalPoints(dx1 + px1)
-            k1 = surf_end.rootcoordinatesystem.returnLocalToGlobalDirections(dk1 + pk1) 
+            k1 = surf_end.rootcoordinatesystem.returnLocalToGlobalDirections(dk1 + pk1)
 
             newbundle.append(x1, k1, newbundle.Efield[0], np.ones(num_pts, dtype=bool))
-            
-            #surf_end.intersect(newbundle)           
-            
+
+            #surf_end.intersect(newbundle)
+
             # FIXME: leads to changes in the linearized raybundles due to modifications
             # at the surface boundaries; we have to perform the aperture check ourselves
-            
-            
+
+
             rpath.appendRayBundle(newbundle)
 
         return (pilotraypath, rpath)
-        
-        
+
+
     def draw2d(self, ax, color="grey", vertices=50, inyzplane=True, **kwargs):
         for surfs in self.surfaces.values():
-            surfs.draw2d(ax, color=color, vertices=vertices, inyzplane=inyzplane, **kwargs) 
+            surfs.draw2d(ax, color=color, vertices=vertices, inyzplane=inyzplane, **kwargs)

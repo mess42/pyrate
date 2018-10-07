@@ -28,11 +28,39 @@ import logging
 import uuid
 import re
 
+import numpy as np
+from .names.adjectives import adjectives
+from .names.nouns import nouns
 
 class BaseLogger(object):
 
-    def __init__(self, name="", logger=None, **kwargs):
+    def __init__(self, name="", kind="baselogger",
+                 unique_id=None,
+                 logger=None, **kwargs):
+        """
+        A name should be a mnemonic string which makes it easy to derive
+        the type and association of an object throughout the logs. Further
+        it may be used as a dict key. the name may not be unique.
+        (TODO: what about dict keys? Should we use a name data base to
+         force unique names? Is this the same concept like an optimizable
+         variable pool?)
+
+        A unique id is used to identify every object uniquely without
+        resorting to the id mechanism of Python (unique_id may not be changed).
+        If it is None it will be generated, if it is a string this string will
+        be used. This is only intended to be used to reconstruct an object
+        hierarchy after loading.
+
+        The logger is the object which is responsible for logging. If None
+        a new one is created with the name of the object. If it is not None
+        the one provided is used which is useful to spit out log files or logs
+        in e.g. a GUI.
+        """
+        self.kind = kind
         self.setName(name)
+        self.__unique_id = str(uuid.uuid4()).lower() if unique_id is None\
+            else unique_id
+
         if logger is None:
             logger = logging.getLogger(name=self.__name)
         self.logger = logger
@@ -40,14 +68,26 @@ class BaseLogger(object):
 
     def setName(self, name):
         if name == "":
-            name = re.sub('-', '_', str(uuid.uuid4()).lower())
+            my_index_ad = np.random.randint(0, len(adjectives))
+            my_index_no = np.random.randint(0, len(nouns))
+
+            my_adjective = adjectives[my_index_ad]
+            my_noun = nouns[my_index_no]
+            name = my_adjective + "_" + my_noun + "_" + self.kind
+            # name = re.sub('-', '_', str(uuid.uuid4()).lower())
             # bring into form which can also be used by FreeCAD
+
         self.__name = name
 
     def getName(self):
         return self.__name
 
-    name = property(getName, setName)
+    name = property(fget=getName, fset=setName)
+
+    def getUniqueId(self):
+        return self.__unique_id
+
+    unique_id = property(fget=getUniqueId, fset=None)
 
     def info(self, msg, *args, **kwargs):
         self.logger.info(msg, *args, **kwargs)
@@ -65,7 +105,7 @@ class BaseLogger(object):
         self.logger.critical(msg, *args, **kwargs)
 
     def getDictionary(self):
-        return {"name": self.name}
+        return {"name": self.name, "unique_id": self.unique_id}
 
     def __getstate__(self):
         """
