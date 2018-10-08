@@ -222,60 +222,8 @@ $\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$.
 \end{eqnarray}
 In contrast to the ABCD formalism, we do not drop the bilinear $\hat{G}^{11}$ term right away.
 \remark{todo: write a more elegant explanation why all quadratic forms but the bilinear one are dropped.}
-We split up the $\hat{G}$ operators into separate operators for location and direction.
-\begin{eqnarray}
- \Delta r_{\im,\,i}  &=& A_{ij} \Delta r_{\obj,\,j} + B_{ij} \Delta k_{\obj,\,j} + M_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m} \\ 
- \Delta \wavenumber_{\im,\,i} &=& C_{ij} \Delta r_{\obj,\,j} + D_{ij} \Delta k_{\obj,\,j} + N_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m}
-\end{eqnarray}
-We name the linear operators $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ in analogy to the ABCD formalism.
-We name the bilinear operators $\hat{M}$ and $\hat{N}$.
-
-\subsection{Sequence of Systems}
-In case the path from object to image is built up from subsystems that are subsequently passed, 
-and we know the propagator of each subsystem $\hat{G}_i$,
-we can write
-\begin{eqnarray}
- \begin{pmatrix}
-  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
- \end{pmatrix}
- &=&
- \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot \hat{G}_0 \cdot
- \begin{pmatrix}
-  \Delta \Vector{r}_\obj \\ \Delta \Wavevector_\obj
- \end{pmatrix}
-\end{eqnarray}
-In general, the operators do not commutate. $\hat{G}_0$ is the propagator representing the subsystem adjacent to the object.
-In the following, we consider the most simple case: the case of two subsystems.
-\begin{eqnarray}
- \Delta \Vector{r}_2  &=& \hat{A}_1 \Delta \Vector{r}_1 + \hat{B}_1 \Delta \Vector{k}_1 + \hat{M}_1 \Delta \Vector{r}_1 \Delta \Vector{k}_1 \\ 
- \Delta \Wavevector_2 &=& \hat{C}_1 \Delta \Vector{r}_1 + \hat{D}_1 \Delta \Vector{k}_1 + \hat{N}_1 \Delta \Vector{r}_1 \Delta \Vector{k}_1 \\
- \Delta \Vector{r}_1  &=& \hat{A}_0 \Delta \Vector{r}_0 + \hat{B}_0 \Delta \Vector{k}_0 + \hat{M}_0 \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
- \Delta \Wavevector_1 &=& \hat{C}_0 \Delta \Vector{r}_0 + \hat{D}_0 \Delta \Vector{k}_0 + \hat{N}_0 \Delta \Vector{r}_0 \Delta \Vector{k}_0
-\end{eqnarray}
-We neglect all quadratic or higher order terms except for the bilinear term and obtain the total operators, 
-propagating from surface $0$ to surface $2$:
-\begin{subequations}
-\begin{eqnarray}
- \Delta \Vector{r}_2  &=& \hat{A}_\tot \Delta \Vector{r}_0 + \hat{B}_\tot \Delta \Vector{k}_0 + \hat{M}_\tot \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
- \Delta \Wavevector_2 &=& \hat{C}_\tot \Delta \Vector{r}_0 + \hat{D}_\tot \Delta \Vector{k}_0 + \hat{N}_\tot \Delta \Vector{r}_0 \Delta \Vector{k}_0
-\end{eqnarray}
-\end{subequations}
-with
-\begin{subequations}\label{eq:xyuv_total_propagation}
-\begin{eqnarray}
- \hat{A}_\tot &=& \hat{A}_1 \hat{A}_0 + \hat{B}_1 \hat{C}_0 \\
- \hat{B}_\tot &=& \hat{A}_1 \hat{B}_0 + \hat{B}_1 \hat{D}_0 \\
- \hat{C}_\tot &=& \hat{C}_1 \hat{A}_0 + \hat{D}_1 \hat{C}_0\\
- \hat{D}_\tot &=& \hat{C}_1 \hat{B}_0 + \hat{D}_1 \hat{D}_0 \\
- \hat{M}_\tot &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
- \hat{N}_\tot &=& \hat{C}_1 \hat{M}_0 + \hat{D}_1 \hat{N}_0 + \hat{N}_1 \hat{A}_0 \hat{D}_0 + \hat{N}_1 \hat{B}_0 \hat{C}_0
-\end{eqnarray}
- \end{subequations}
-
-
 In the following, we discuss the representation of the operators by matrices, 
 the rank of the matrices and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
-
 
 \subsection{Near-Pilot Basis Systems}
 
@@ -319,6 +267,14 @@ as described in the previous section.
 We trace the pilot ray to the final surface 
 and define the near-pilot base vectors in the final plane
 $\Vector{e}_{X,Y,U,V,W,Q,\,fin}$.
+We split up the $\hat{G}$ operators into separate operators for location and direction.
+\begin{eqnarray}
+ \Delta r_{\im,\,i}  &=& A_{ij} \Delta r_{\obj,\,j} + B_{ij} \Delta k_{\obj,\,j} + M_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m} \\ 
+ \Delta \wavenumber_{\im,\,i} &=& C_{ij} \Delta r_{\obj,\,j} + D_{ij} \Delta k_{\obj,\,j} + N_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m}
+\end{eqnarray}
+We name the linear operators $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ in analogy to the ABCD formalism.
+We name the bilinear operators $\hat{M}$ and $\hat{N}$.
+
 We abbreviate $(X,Y)$ as a vector of location deviation $\Vector{R}$
 and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
 \begin{eqnarray}
@@ -339,7 +295,7 @@ The propagator equation becomes
  \Vector{K}_\im &=& \hat{C} \cdot \Vector{R}_\obj + \hat{D} \cdot \Vector{K}_\obj + \hat{N} \cdot \Vector{R}_\obj \cdot \Vector{K}_\obj
 \end{eqnarray}
 \end{subequations}
-with the Jacobi matrices
+the operators $\hat{A},\hat{B},\hat{C},\hat{D},\hat{M},\hat{N}$ are represented by the Jacobi matrices
 \begin{align}
  A_{ij} &=
    \left.
@@ -379,12 +335,59 @@ To analytically obtain matrices of the total propagation from object to image,
 it is easiest to concatenate the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations,
 using \eqref{eq:xyuv_total_propagation}.
 To obtain these atomic matrices, we perform Taylor expansions around the pilot ray.
+
 For systems where an explicit calculation is not possible
 -- or the operator suffers from laziness --
 it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
+While this numerical approach is easy to implement, it may introduce additional inaccuracies or instabilities.
+
+\subsection{Sequence of Systems}
+In case the path from object to image is built up from subsystems that are subsequently passed, 
+and we know the propagator of each subsystem $\hat{G}_i$,
+we can write
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot \hat{G}_0 \cdot
+ \begin{pmatrix}
+  \Delta \Vector{r}_\obj \\ \Delta \Wavevector_\obj
+ \end{pmatrix}
+\end{eqnarray}
+In general, the operators do not commutate. $\hat{G}_0$ is the propagator representing the subsystem adjacent to the object.
+In the following, we consider the most simple case: the case of two subsystems.
+\begin{eqnarray}
+ \Delta \Vector{r}_2  &=& \hat{A}_1 \Delta \Vector{r}_1 + \hat{B}_1 \Delta \Vector{k}_1 + \hat{M}_1 \Delta \Vector{r}_1 \Delta \Vector{k}_1 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_1 \Delta \Vector{r}_1 + \hat{D}_1 \Delta \Vector{k}_1 + \hat{N}_1 \Delta \Vector{r}_1 \Delta \Vector{k}_1 \\
+ \Delta \Vector{r}_1  &=& \hat{A}_0 \Delta \Vector{r}_0 + \hat{B}_0 \Delta \Vector{k}_0 + \hat{M}_0 \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
+ \Delta \Wavevector_1 &=& \hat{C}_0 \Delta \Vector{r}_0 + \hat{D}_0 \Delta \Vector{k}_0 + \hat{N}_0 \Delta \Vector{r}_0 \Delta \Vector{k}_0
+\end{eqnarray}
+We neglect all quadratic or higher order terms except for the bilinear term and obtain the total operators, 
+propagating from surface $0$ to surface $2$:
+\begin{subequations}
+\begin{eqnarray}
+ \Delta \Vector{r}_2  &=& \hat{A}_\tot \Delta \Vector{r}_0 + \hat{B}_\tot \Delta \Vector{k}_0 + \hat{M}_\tot \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_\tot \Delta \Vector{r}_0 + \hat{D}_\tot \Delta \Vector{k}_0 + \hat{N}_\tot \Delta \Vector{r}_0 \Delta \Vector{k}_0
+\end{eqnarray}
+\end{subequations}
+with
+\begin{subequations}\label{eq:xyuv_total_propagation}
+\begin{eqnarray}
+ \hat{A}_\tot &=& \hat{A}_1 \hat{A}_0 + \hat{B}_1 \hat{C}_0 \\
+ \hat{B}_\tot &=& \hat{A}_1 \hat{B}_0 + \hat{B}_1 \hat{D}_0 \\
+ \hat{C}_\tot &=& \hat{C}_1 \hat{A}_0 + \hat{D}_1 \hat{C}_0\\
+ \hat{D}_\tot &=& \hat{C}_1 \hat{B}_0 + \hat{D}_1 \hat{D}_0 \\
+ \hat{M}_\tot &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
+ \hat{N}_\tot &=& \hat{C}_1 \hat{M}_0 + \hat{D}_1 \hat{N}_0 + \hat{N}_1 \hat{A}_0 \hat{D}_0 + \hat{N}_1 \hat{B}_0 \hat{C}_0
+\end{eqnarray}
+ \end{subequations}
+ 
+\remark{todo: explicit, component wise formula}
 
 
-\subsection{Inversion and Backward Propagation - Sequence Ansatz}
+
+\subsection{Inversion and Backward Propagation}
 Often, we know the propagation operator from plane 0 to plane 1, and we want to know the inverse operator,
 propagating from plane 1 back to plane 0.
 \begin{eqnarray}
@@ -416,7 +419,7 @@ After applying both, we should end up where we started.
   \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
  \end{pmatrix}
 \end{eqnarray}
-We represent the operators $\hat{G}, \hat{G}_{\text{inv}}$ and $\hat{G}_{tot}$ by matrices $A,B,C,D,M,N$.
+We represent the operators $\hat{G}, \hat{G}_{\text{inv}}$ and $\hat{G}_{tot}$ by matrices $\hat{A},\hat{B},\hat{C},\hat{D},\hat{M},\hat{N}$.
 The matrices representing the \emph{inverse propagator} are marked with an index $_\text{inv}$.
 In contrast, an upper $^{-1}$ denotes the \emph{inverse matrix}.
 We apply the propagation concatenation equation \eqref{eq:xyuv_total_propagation} on our sequence of forward and inverse propagation and yield:
@@ -480,6 +483,10 @@ The inverse bilinear matrices read
 
 
 
+
+
+
+\chapter{The Staging Attic}
 
 \subsection{Inversion and Backward Propagation - Perturbation Ansatz}
 
