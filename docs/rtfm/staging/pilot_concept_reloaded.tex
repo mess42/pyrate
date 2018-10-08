@@ -341,7 +341,7 @@ For systems where an explicit calculation is not possible
 it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
 While this numerical approach is easy to implement, it may introduce additional inaccuracies or instabilities.
 
-\subsection{Sequence of Systems}
+\subsection{Sequence of Propagators}
 In case the path from object to image is built up from subsystems that are subsequently passed, 
 and we know the propagator of each subsystem $\hat{G}_i$,
 we can write
@@ -387,7 +387,7 @@ with
 
 
 
-\subsection{Inversion and Backward Propagation}
+\subsection{Inverse Propagation}
 Often, we know the propagation operator from plane 0 to plane 1, and we want to know the inverse operator,
 propagating from plane 1 back to plane 0.
 \begin{eqnarray}
@@ -481,6 +481,27 @@ The inverse bilinear matrices read
 
 \remark{todo: explicit, component wise formula}
 
+\subsection{Propagation in Homogeneous Media}
+We consider the propagation between two planes in a homogeneous medium.
+In the homogeneous medium, rays are straight lines and the wavevector of each ray is the same in both planes.
+We assume the coordinate system to describe wavevector changes is the same in both plane 0 and plane 1.
+\begin{eqnarray}
+C_{ij} &=& 0 \\
+D_{ij} &=& \delta_{ij} \\
+N_{ij\ell} &=& 0 \\
+\text{for}\qquad \Vector{e}_{U,V,W,Q\,1} &=& \Vector{e}_{U,V,W,Q\,0} \nonumber
+\end{eqnarray}
+The task to determine $\hat{A},\hat{B}, \hat{M}$ remains. 
+We consider the ray position in both planes without any Taylor approximation
+\begin{align}
+ \text{plane 0:} && \Location_0 &= \Location_{0\,\text{pilot}} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} \\
+ \text{plane 1:} && \Location_1 &= \Location_{1\,\text{pilot}} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} \\
+ \text{ray :} && \Location_1 &= \Location_{0} + s \cdot \Vector{d}
+\end{align}
+where $s$ is the geometric path length, and $\Vector{d}$ is the direction unit vector of the ray.
+\begin{eqnarray}
+\Location_{1\,\text{pilot}} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} &= \Location_{0\,\text{pilot}} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  + s \cdot \Vector{d}
+\end{eqnarray}
 
 
 
