@@ -138,6 +138,7 @@
 \newcommand\watt{\textrm{W}}
 \newcommand\tesla{\textrm{T}}
 
+\renewcommand\d{\textrm{d}}
 
 \begin{document}
 
@@ -565,8 +566,8 @@ Once we found both mode prefactors $\varsigma, \tau$, we perturb the wavevector.
 The perturbed quantities are marked with a tilde, like $\tilde{\Wavevector}$.
 We start by perturbing the unit direction vector. 
 \begin{eqnarray}
- \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + d\Vector{e} \\
- \Vector{e}_\wavenumber \cdot d\Vector{e} &=& 0 \label{eq:perturbation_unit_orthogonality}
+ \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + \d\Vector{e} \\
+ \Vector{e}_\wavenumber \cdot \d\Vector{e} &=& 0 \label{eq:perturbation_unit_orthogonality}
 \end{eqnarray}
 For small perturbations, the length of the direction vector shall stay normalized.
 That is, unit direction and direction perturbation are orthogonal.
@@ -574,20 +575,20 @@ The change in direction may also lead to a change in wavevector length.
 \begin{eqnarray}
  \tilde{\Wavevector} &=& 
      \left( 
-         \wavenumber + \left. \frac{d \wavenumber}{d \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} 
+         \wavenumber + \left. \frac{\d \wavenumber}{\d \Vector{e}}\right|_{\Wavevector} \cdot \d\Vector{e} 
      \right)
      \tilde{\Vector{e}}_\wavenumber 
  \\
- d \Wavevector = \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot d\Vector{e} + \left( \left. \frac{d \wavenumber}{d \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
+ d \Wavevector = \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot \d\Vector{e} + \left( \left. \frac{\d \wavenumber}{\d \Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
 \end{eqnarray}
 From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \begin{eqnarray}
- \frac{d \wavenumber}{d \Vector{e}} d\Vector{e} &=&
+ \frac{\d \wavenumber}{\d \Vector{e}} \d\Vector{e} &=&
      \frac{\tau}{4 \wavenumber a_4}
      \left(
-         - d a_2 + \frac{a_2}{a_4} d a_4 
+         - \d a_2 + \frac{a_2}{a_4} \d a_4 
          +  \frac{\varsigma}{\sqrt{\frac{a_2^2}{4 a_4^2} - \frac{a_0}{a_4}}}
-                \left( \frac{a_2}{2 a_4} d a_2 + \left( \frac{a_0}{a_4} - \frac{a_2^2}{2 a_4^2} \right) d a_4 \right)
+                \left( \frac{a_2}{2 a_4} \d a_2 + \left( \frac{a_0}{a_4} - \frac{a_2^2}{2 a_4^2} \right) \d a_4 \right)
      \right)
  \nonumber\\
 \end{eqnarray}
@@ -595,8 +596,8 @@ From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \remark{to do: check whether sqrt may become zero}
 with
 \begin{eqnarray}
- d a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,ij} e_{k\,i} e_{k\,j}) e_{k\,\ell} de_\ell\\
- d a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_{j}
+ \d a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,ij} e_{k\,i} e_{k\,j}) e_{k\,\ell} de_\ell\\
+ \d a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_{j}
 \end{eqnarray}
 
 The change in unit direction vector is complex valued, so it contains 6 real valued degrees of freedom.
@@ -605,7 +606,7 @@ We can find four different wavevector perturbation directions $d\Vector{e}_{1,2,
 with corresponding wavevector perturbations $d \Wavevector_{1,2,3,4}$.
 In our first order Taylor expansion, the wavevector may deviate by any linear combination of these four directions.
 \begin{eqnarray}
- \tilde{\Wavevector} &=& \Wavevector + a_i \cdot d \Wavevector_i \label{eq:perturbed_wavevector}
+ \tilde{\Wavevector} &=& \Wavevector + a_i \cdot \d \Wavevector_i \label{eq:perturbed_wavevector}
 \end{eqnarray}
 with $a_i \in \mathbb{R}$.
 
@@ -628,7 +629,7 @@ The solution is degenerate for both polarisations,
 where $\Wavevector^2$ is the scalar product of the wavevector with itself and may be complex.
 Wavevector perturbations must fulfill
 \begin{eqnarray}
- d\Wavevector \cdot \Wavevector &=& 0 + 0i
+ \d\Wavevector \cdot \Wavevector &=& 0 + 0i
 \end{eqnarray}
 
 For plane waves in isotropic media, the Poynting vector becomes 
@@ -1317,8 +1318,19 @@ The direction vector points in the direction of the time averaged Poynting vecto
 \begin{eqnarray}
  \Vector{d} &=& \frac{\timeavg{\Vector{S}}}{|\timeavg{\Vector{S}}|}
 \end{eqnarray}
+In isotropic media, the ray direction is the direction of the real part of the wavevector.
 In general, the direction of the ray $\Vector{d}$ and its corresponding plane wave phase retardation $\Vector{k}$ may differ.
-\remark{todo: derivative $\partial \Vector{d} /\partial \Wavevector$}
+
+\subsection{Perturbation}
+Assume we have found a solution of the dispersion $( \Wavevector, \Efield )$.
+Additionally, we have found a perturbed solution $( \Wavevector + d \Wavevector, \Efield + d \Efield)$, 
+which deviates infinitessimally and also fulfills the dispersion relation.
+We are interested in the ray direction of the perturbed solution.
+
+
+\remark{todo}
+
+
 
 \section{Surface Normal}
 Assume the surface of a material boundary is given in the form
@@ -1327,12 +1339,12 @@ Assume the surface of a material boundary is given in the form
 \end{eqnarray}
 Two (infinitessimal) local in-plane vectors are 
 \begin{eqnarray}
-d\Vector{e}_1 = \begin{pmatrix}
-                 dx \\ 0 \\ \frac{\partial z}{\partial x} dx
+\d \Vector{e}_1 = \begin{pmatrix}
+                 \d x \\ 0 \\ \frac{\partial z}{\partial x} \d x
                 \end{pmatrix}
 \\
-d\Vector{e}_2 = \begin{pmatrix}
-                 0 \\ dy \\ \frac{\partial z}{\partial y} dy
+\d \Vector{e}_2 = \begin{pmatrix}
+                 0 \\ \d y \\ \frac{\partial z}{\partial y} \d y
                 \end{pmatrix}
 \end{eqnarray}
 We normalize these local vectors and form the surface normal, perpendicular to both
@@ -1350,7 +1362,7 @@ We define the optical path length as the time of travel of a near-monochromatic 
 
 In the special case of materials that can be described by an isotropic, real valued refractive index, the optical path length functional is given according to the Fermat principle,
 \begin{align}
- L &= \int_{s_1}^{s_2} \underbrace{n(\Vector{r}(s)) |\Vector{r}'(s)|}_{=\mathcal{L}} \text{d}s\,.\label{eq:fermatiso}
+ L &= \int_{s_1}^{s_2} \underbrace{n(\Vector{r}(s)) |\Vector{r}'(s)|}_{=\mathcal{L}} \d s\,.\label{eq:fermatiso}
 \end{align}
 with the corresponding ``Lagrangian'' $\mathcal{L}$.
 $s$ is the arc length and therefore the derivative $\Vector{r}'(s)$ is a unit vector. (For the Euler Lagrange
@@ -1365,7 +1377,7 @@ equations we may not set it to $1$ at the moment.)
 
 Euler-Lagrange-Equations are given by
 \begin{align}
- \frac{\text{d}}{\text{d}s} \frac{\partial \mathcal{L}}{\partial \Vector{r}'} &= \frac{\partial \mathcal{L}}{\partial \Vector{r}}\,.
+ \frac{\d }{\d s} \frac{\partial \mathcal{L}}{\partial \Vector{r}'} &= \frac{\partial \mathcal{L}}{\partial \Vector{r}}\,.
 \end{align}
 The sloppy notation with vector derivatives means a differentiation by components.
 \begin{align}
@@ -1373,7 +1385,7 @@ The sloppy notation with vector derivatives means a differentiation by component
 \end{align}
 Therefore the appropriate differential equation (the so-called equation of motion, EOM) is given by
 \begin{align}
- \frac{\text{d}}{\text{d}s} \left(n(\Vector{r}(s)) \frac{\text{d}\Vector{r}}{\text{d}s}\right) &= (\Vector{\nabla} n)(\Vector{r}(s)) \label{eq:ODEGRIN}\,.
+ \frac{\d }{\d s} \left(n(\Vector{r}(s)) \frac{\d \Vector{r}}{\d s}\right) &= (\Vector{\nabla} n)(\Vector{r}(s)) \label{eq:ODEGRIN}\,.
 \end{align}
 ( For a piecewise homogeneous medium the ODE system reduces to a system of algebraic equations 
 [btw. this corresponds to a reduction of the
@@ -1402,8 +1414,8 @@ the Hamiltonian becomes clear, since $|\Vector{d}| = 1$.) The canonical equation
 \begin{subequations}
 \label{eq:H3Deom}
 \begin{align}
- \frac{\text{d}\Vector{q}}{\text{d}s} &= \frac{\partial H}{\partial \Vector{p}} = 2 \Vector{p}\,,\\
- \frac{\text{d}\Vector{p}}{\text{d}s} &= -\frac{\partial H}{\partial \Vector{q}} = 2 n (\Vector{\nabla} n)\,, 
+ \frac{\d \Vector{q}}{\d s} &= \frac{\partial H}{\partial \Vector{p}} = 2 \Vector{p}\,,\\
+ \frac{\d \Vector{p}}{\d s} &= -\frac{\partial H}{\partial \Vector{q}} = 2 n (\Vector{\nabla} n)\,, 
 \end{align}
 \end{subequations}
 The second parametrisation is given by the $z$ position with respect to the optical axis. Here the Hamiltonian is
@@ -1430,8 +1442,8 @@ are therefore given by [remember $\Vector{Q} = (x,y)$, $\Vector{P} = n (d_x, d_y
 \begin{subequations}
 \label{eq:H2Deom}
 \begin{align}
- \frac{\text{d}\Vector{Q}}{\text{d}z} &= \frac{\partial H_{\text{2D}}}{\partial \Vector{P}} = \frac{\Vector{P}}{n \sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,,\\
- \frac{\text{d}\Vector{P}}{\text{d}z} &= -\frac{\partial H_{\text{2D}}}{\partial \Vector{Q}} = \frac{\Vector{\nabla}_{\Vector{Q}} n}{\sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,.    
+ \frac{\d \Vector{Q}}{\d z} &= \frac{\partial H_{\text{2D}}}{\partial \Vector{P}} = \frac{\Vector{P}}{n \sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,,\\
+ \frac{\d \Vector{P}}{\d z} &= -\frac{\partial H_{\text{2D}}}{\partial \Vector{Q}} = \frac{\Vector{\nabla}_{\Vector{Q}} n}{\sqrt{1 - \frac{\Vector{P}^2}{n^2}}}\,.    
 \end{align}
 \end{subequations}
 In general $n = n(\Vector{Q}, z)$ holds, so the Hamiltonian depends explicitly on the independent variable.
@@ -1482,7 +1494,7 @@ These can be implemented, e.g., by an extension of the phase space where
 the time is an additional canonical coordinate. The extension is achieved by
 a so-called Sundman transformation (which is in fact a Poincar{\'e} transformation)
 of the ``time'' coordinate
-$\text{d}s/\text{d}\sigma = g(\Vector{q}, \Vector{p})$.
+$\d s/\d \sigma = g(\Vector{q}, \Vector{p})$.
 By using a special form of this transformation $g$ the new Hamiltonian is separable and we
 may use a symplectic scheme like the one mentioned above to integrate the new formulation.
 
