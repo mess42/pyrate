@@ -247,6 +247,7 @@ We represent the ray height in this plane by
  \label{eq:deltaR_equals_XY}
 \end{eqnarray}
 where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
+$\Vector{e}_{X,Y}$ shall be real valued unit vectors and orthogonal on each other.
 
 \subsubsection{Wavevectors}
 Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
@@ -258,6 +259,7 @@ We represent the change of the wavevector $\Wavevector$ as
  \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q
 \end{eqnarray}
 where $U,V,W,Q$ are real valued prefactors.
+The complex valued unit vectors $\Vector{e}_{U,V,W,Q}$ shall be orthogonal on each other.
 
 \subsection{XYUV matrices}
 We choose the object sided base vectors 
@@ -500,10 +502,57 @@ We consider the ray position in both planes without any Taylor approximation
 \end{align}
 where $s$ is the geometric path length, and $\Vector{d}$ is the direction unit vector of the ray.
 \begin{eqnarray}
-\Location_{1\,\text{pilot}} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} &= \Location_{0\,\text{pilot}} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  + s \cdot \Vector{d}
+\Location_{1\,\text{pilot}} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} &=& \Location_{0\,\text{pilot}} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  + s \cdot \Vector{d}
 \end{eqnarray}
 
+\begin{eqnarray}
+  X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} 
+  &=& 
+  \Location_{0\,\text{pilot}} - \Location_{1\,\text{pilot}} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  + (s_{\text{pilot}} + \Delta s) ( \Vector{d}_{\text{pilot}} + \Delta \Vector{d} )
+\\
+  &=& 
+  \Location_{0\,\text{pilot}} - \Location_{1\,\text{pilot}} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  
+  + s_{\text{pilot}} \Vector{d}_{\text{pilot}} 
+  + s_{\text{pilot}} \Delta \Vector{d} 
+  + \Delta s \Vector{d}_{\text{pilot}}
+  + \Delta s \Delta \Vector{d}
+\\
+  &=& 
+  X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  
+  + s_{\text{pilot}} \Delta \Vector{d} 
+  + \Delta s \Vector{d}_{\text{pilot}}
+  + \Delta s \Delta \Vector{d}
+\end{eqnarray}
+We build a cartesian coordinate system from $\Vector{e}_{X1}, \Vector{e}_{Y1}$ and $\Vector{e}_{Z1} = \Vector{e}_{X1} \times \Vector{e}_{Y1}$.
+The unit vector $\Vector{e}_{Z1}$ points out of plane 1. We represent all vectors in this basis
 
+\begin{eqnarray}
+  X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} 
+  =&& 
+      X_0 ( (\Vector{e}_{X0} \Vector{e}_{X1}) \Vector{e}_{X1} + (\Vector{e}_{X0} \Vector{e}_{Y1}) \Vector{e}_{Y1} + (\Vector{e}_{X0} \Vector{e}_{Z1} ) \Vector{e}_{Z1}) \nonumber \\
+  &+& Y_0 ( (\Vector{e}_{Y0} \Vector{e}_{X1}) \Vector{e}_{X1} + (\Vector{e}_{Y0} \Vector{e}_{Y1}) \Vector{e}_{Y1} + (\Vector{e}_{Y0} \Vector{e}_{Z1} ) \Vector{e}_{Z1}) \nonumber \\  
+  &+& (s_{\text{pilot}}+ \Delta s )( (\Delta \Vector{d} \Vector{e}_{X1}) \Vector{e}_{X1} + (\Delta \Vector{d} \Vector{e}_{Y1}) \Vector{e}_{Y1} + (\Delta \Vector{d} \Vector{e}_{Z1} ) \Vector{e}_{Z1}) \nonumber \\  
+  &+& \Delta s ( (\Vector{d}_{\text{pilot}} \Vector{e}_{X1}) \Vector{e}_{X1} + (\Vector{d}_{\text{pilot}} \Vector{e}_{Y1}) \Vector{e}_{Y1} + (\Vector{d}_{\text{pilot}} \Vector{e}_{Z1} ) \Vector{e}_{Z1})  
+\end{eqnarray}
+and compare each coordinate
+\begin{eqnarray}
+  X_1 &=& X_0 (\Vector{e}_{X0} \Vector{e}_{X1}) + Y_0 (\Vector{e}_{Y0} \Vector{e}_{X1}) + (s_{\text{pilot}}+ \Delta s )(\Delta \Vector{d} \Vector{e}_{X1}) + \Delta s (\Vector{d}_{\text{pilot}} \Vector{e}_{X1}) \\
+  Y_1 &=& X_0 (\Vector{e}_{X0} \Vector{e}_{Y1}) + Y_0 (\Vector{e}_{Y0} \Vector{e}_{Y1}) + (s_{\text{pilot}}+ \Delta s )(\Delta \Vector{d} \Vector{e}_{Y1}) + \Delta s (\Vector{d}_{\text{pilot}} \Vector{e}_{Y1}) \\
+  0   &=& X_0 (\Vector{e}_{X0} \Vector{e}_{Z1}) + Y_0 (\Vector{e}_{Y0} \Vector{e}_{Z1}) + (s_{\text{pilot}}+ \Delta s )(\Delta \Vector{d} \Vector{e}_{Z1}) + \Delta s (\Vector{d}_{\text{pilot}} \Vector{e}_{Z1} )
+\end{eqnarray}
+The result is
+\begin{eqnarray}
+  X_1      &=& \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\text{pilot}}\Delta \Vector{d} + \Delta s \Delta \Vector{d} + \Delta s \Vector{d}_{\text{pilot}} \right) \Vector{e}_{X1} 
+  \\
+  Y_1      &=& \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\text{pilot}}\Delta \Vector{d} + \Delta s \Delta \Vector{d} + \Delta s \Vector{d}_{\text{pilot}} \right) \Vector{e}_{Y1} 
+\end{eqnarray}
+with
+\begin{eqnarray}
+  \Delta s &=& -\frac{ \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\text{pilot}} \Delta \Vector{d} \right) \Vector{e}_{Z1}}
+                     { \left( \Vector{d}_{\text{pilot}} + \Delta \Vector{d} \right)\Vector{e}_{Z1}  }
+  \\
+  s_{\text{pilot}} &=& \left| \Location_{1\,\text{pilot}} - \Location_{0\,\text{pilot}} \right|
+\end{eqnarray}
 
 
 
