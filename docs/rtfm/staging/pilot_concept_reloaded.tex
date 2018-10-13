@@ -550,9 +550,30 @@ with
 \begin{eqnarray}
   \Delta s &=& -\frac{ \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\text{pilot}} \Delta \Vector{d} \right) \Vector{e}_{Z1}}
                      { \left( \Vector{d}_{\text{pilot}} + \Delta \Vector{d} \right)\Vector{e}_{Z1}  }
-  \\
-  s_{\text{pilot}} &=& \left| \Location_{1\,\text{pilot}} - \Location_{0\,\text{pilot}} \right|
 \end{eqnarray}
+This is the exact equation for propagation between planes without any approximations.
+To fit this result to the XYUV formalism, we approximate in first order
+\begin{eqnarray}
+  \Delta s &\approx& - \frac{ X_0 e_{X0\,i}e_{Z1\,i} + Y_0 e_{Y0\,i}e_{Z1\,i} + s_{\text{pilot}} \Delta d_i e_{Z1\,i}  }
+                            {d_{\text{pilot}\,j} e_{Z1\,j}}
+                            \cdot
+                            \left(
+                            1 - \frac{ \Delta d_{\ell} e_{Z1\,\ell}}{d_{\text{pilot}\,j} e_{Z1\,j}}
+                            \right)
+\end{eqnarray}
+and further
+\begin{eqnarray}
+  \Delta s \approx &-& \frac{  e_{X0\,i}e_{Z1\,i} }{d_{\text{pilot}\,j} e_{Z1\,j}} X_0 \nonumber\\
+                   &-& \frac{  e_{Y0\,i}e_{Z1\,i} }{d_{\text{pilot}\,j} e_{Z1\,j}} Y_0 \nonumber\\
+                   &-& \frac{ s_{\text{pilot}}   }{d_{\text{pilot}\,j} e_{Z1\,j}}e_{Z1\,i} \Delta d_i \nonumber\\
+                   &+& \frac{ e_{X0\,i}e_{Z1\,i} }{ (d_{\text{pilot}\,j} e_{Z1\,j} )^2 }
+                             e_{Z1\,\ell} \Delta d_{\ell} X_0  \nonumber\\
+                   &+& \frac{ e_{Y0\,i}e_{Z1\,i} }{ (d_{\text{pilot}\,j} e_{Z1\,j} )^2 }
+                             e_{Z1\,\ell} \Delta d_{\ell} Y_0 
+\end{eqnarray}
+
+
+%  s_{\text{pilot}} &=& \left| \Location_{1\,\text{pilot}} - \Location_{0\,\text{pilot}} \right|
 
 
 
