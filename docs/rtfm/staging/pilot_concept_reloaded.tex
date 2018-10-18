@@ -445,7 +445,7 @@ We consider the subsystem of the first four equations and solve it for the inver
   \hat{A} & \hat{B} \\ \hat{C} & \hat{D}
  \end{pmatrix}^{-1}
 \end{eqnarray}
-with
+or, explicitly,
 \begin{eqnarray}
  \begin{pmatrix}
   \hat{A}_{\text{inv}} & \hat{B}_{\text{inv}} \\ \hat{C}_{\text{inv}} & \hat{D}_{\text{inv}}
@@ -460,9 +460,6 @@ with
   C_{41\,\text{inv}} & C_{42\,\text{inv}} & D_{41\,\text{inv}} & D_{42\,\text{inv}} & D_{43\,\text{inv}} & D_{44\,\text{inv}}
  \end{pmatrix}
  \\
- \begin{pmatrix}
-  \hat{A} & \hat{B} \\ \hat{C} & \hat{D}
- \end{pmatrix}
  &=&
  \begin{pmatrix}
   A_{11} & A_{12} & B_{11} & B_{12} & B_{13} & B_{14} \\
@@ -471,7 +468,7 @@ with
   C_{21} & C_{22} & D_{21} & D_{22} & D_{23} & D_{24} \\
   C_{31} & C_{32} & D_{31} & D_{32} & D_{33} & D_{34} \\
   C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
- \end{pmatrix}
+ \end{pmatrix}^{-1}
 \end{eqnarray}
 The inverse bilinear matrices read
 \begin{subequations}

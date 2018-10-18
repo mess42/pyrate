@@ -1322,40 +1322,38 @@ In isotropic media, the ray direction is the direction of the real part of the w
 In general, the direction of the ray $\Vector{d}$ and its corresponding plane wave phase retardation $\Vector{k}$ may differ.
 
 \subsection{Perturbation}
-Assume we have found a solution of the dispersion $( \Wavevector, \Efield )$.
-Additionally, we have found a perturbed solution $( \Wavevector + \totald\Wavevector, \Efield + \totald\Efield)$ 
-which also fulfills the dispersion relation.
-We assume the difference between both solutions to be proportional to a perturbation strength $\alpha$:
+Assume we have found a particular solution of the dispersion $( \Wavevector, \Efield )$.
+Additionally, we have found a particular perturbed solution, 
+which also fulfills the dispersion relation for infinitessimal changes 
+in wavevector and electric field $( \Wavevector + \totald\Wavevector, \Efield + \totald\Efield)$.
+We split the wavevector deviation in a unit direction vector and a real valued perturbation strength $\alpha$
 \begin{eqnarray}
- ( \totald \scalarEfield_m, \totald \wavenumber_\ell) &=& \lim_{\alpha \rightarrow 0} \alpha \cdot ( \Delta \scalarEfield_m, \Delta \wavenumber_\ell )
+ \totald \Wavevector &=& \alpha \Wavevector_\alpha
+ \\
+ \totald \Efield &=& \alpha \Efield_\alpha
+ \\
+ \Wavevector_\alpha \overline{\Wavevector}_\alpha &=& 1
 \end{eqnarray}
-The vectors $( \Delta \scalarEfield_m, \Delta \wavenumber_\ell )$ represent the direction of perturbation as well as the ratio of wavevector to field change.
-They shall be chosen in an order of magnitude so that all following calculations are numerically well conditioned and stable.
-We are interested in the change of the time averaged Poynting vector and consecutively in the ray direction.
+in the limit of infinitessimal perturbation, $\lim_{\alpha \rightarrow 0}$.
+The electric field direction $\Efield_\alpha$ is not normalised.
+Its amplitude reflects the change of field per change of wavevector.
+In the next step, we are interested in the change of the time averaged Poynting vector and consecutively in the ray direction.
 \begin{eqnarray}
-\timeavg{\totald \Vector{S}} =&& \timeavg{\Vector{S} ( \Wavevector + \totald\Wavevector, \Efield + \totald\Efield) } - \timeavg{\Vector{S}( \Wavevector, \Efield )} \\
- \timeavg{\totald S_j} =&&
+ \timeavg{\totald S_j} =
   \frac{\alpha}{2\omega \vacuumpermeability} \Re 
-    \left( 
-      (  \overline{\Efield}_m \delta_{ij} - \overline{\Efield}_j \delta_{im}  )
-      \wavenumber_i \Delta \Efield_m
-    \right)
+  \bigg( &&
+      (  \overline{\scalarEfield}_m \delta_{ij} - \overline{\scalarEfield}_j \delta_{im}  )
+      \wavenumber_i \scalarEfield_{\alpha\,m}
   \nonumber \\
   &+& 
-  \frac{\alpha}{2\omega \vacuumpermeability} \Re 
-    \left(
-      (  \Efield_m \delta_{ij} - \Efield_i \delta_{jm}   )
-      \wavenumber_i \overline{\Delta \Efield}_m 
-    \right)
+      (  \scalarEfield_m \delta_{ij} - \scalarEfield_i \delta_{jm}   )
+      \wavenumber_i \overline{\scalarEfield}_{\alpha\,m}
   \nonumber \\
   &+& 
-  \frac{\alpha}{2\omega \vacuumpermeability} \Re 
-    \left(
-      (  \overline{\Efield}_i \Efield_i \delta_{j\ell} - \overline{\Efield}_j \Efield_\ell  )
-      \Delta \wavenumber_\ell
-    \right) 
+      (  \overline{\scalarEfield}_i \scalarEfield_i \delta_{j\ell} - \overline{\scalarEfield}_j \scalarEfield_\ell  )
+      \wavenumber_{\alpha\,\ell}
+  \qquad \bigg)
 \end{eqnarray}
-
 
 
 
