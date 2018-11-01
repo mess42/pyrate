@@ -142,6 +142,8 @@
 \newcommand\obj{\textrm{obj}}
 \newcommand\tot{\textrm{tot}}
 
+\newcommand\totald{\textrm{d}}
+
 \begin{document}
 
 \section{Parabasal Optics} \label{sec:ParabasalOptics}
@@ -225,7 +227,7 @@ In contrast to the ABCD formalism, we do not drop the bilinear $\hat{G}^{11}$ te
 In the following, we discuss the representation of the operators by matrices, 
 the rank of the matrices and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
 
-\subsection{Near-Pilot Basis Systems}
+\subsection{Near-Pilot Base Systems}
 
 The deviations may not be chosen freely, but we need to choose
 $\Delta\Vector{r}$, $\Delta\Wavevector$ and $\Delta\Vector{d}$ 
@@ -521,7 +523,7 @@ where $s$ is the geometric path length, and $\Vector{d}$ is the direction unit v
   + \Delta s \Delta \Vector{d}
 \end{eqnarray}
 We build a cartesian coordinate system from $\Vector{e}_{X1}, \Vector{e}_{Y1}$ and $\Vector{e}_{Z1} = \Vector{e}_{X1} \times \Vector{e}_{Y1}$.
-The unit vector $\Vector{e}_{Z1}$ points out of plane 1. We represent all vectors in this basis
+The unit vector $\Vector{e}_{Z1}$ points out of plane 1. We represent all vectors in this base
 
 \begin{eqnarray}
   X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} 
@@ -538,11 +540,13 @@ and compare each coordinate
   0   &=& X_0 (\Vector{e}_{X0} \Vector{e}_{Z1}) + Y_0 (\Vector{e}_{Y0} \Vector{e}_{Z1}) + (s_{\text{pilot}}+ \Delta s )(\Delta \Vector{d} \Vector{e}_{Z1}) + \Delta s (\Vector{d}_{\text{pilot}} \Vector{e}_{Z1} )
 \end{eqnarray}
 The result is
+\begin{subequations}\label{eq:propagation_between_planes_exact_formula}
 \begin{eqnarray}
   X_1      &=& \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\text{pilot}}\Delta \Vector{d} + \Delta s \Delta \Vector{d} + \Delta s \Vector{d}_{\text{pilot}} \right) \Vector{e}_{X1} 
   \\
   Y_1      &=& \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\text{pilot}}\Delta \Vector{d} + \Delta s \Delta \Vector{d} + \Delta s \Vector{d}_{\text{pilot}} \right) \Vector{e}_{Y1} 
 \end{eqnarray}
+\end{subequations}
 with
 \begin{eqnarray}
   \Delta s &=& -\frac{ \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\text{pilot}} \Delta \Vector{d} \right) \Vector{e}_{Z1}}
@@ -568,9 +572,43 @@ and further
                    &+& \frac{ e_{Y0\,i}e_{Z1\,i} }{ (d_{\text{pilot}\,j} e_{Z1\,j} )^2 }
                              e_{Z1\,\ell} \Delta d_{\ell} Y_0 
 \end{eqnarray}
+We model the ray direction change in first order as
+\begin{eqnarray}
+ \Delta \Vector{d} &\approx& \frac{\totald \Vector{d}}{\totald \alpha} \cdot \alpha
+\end{eqnarray}
+with $\alpha \in \{ U,V,W,Q \}$. Now we can directly read the XYUV matrices from \eqref{eq:propagation_between_planes_exact_formula}.
+Additionally, we copy the matrices $\hat{C},\hat{D},\hat{N}$ from above.
+\begin{subequations}
+\begin{eqnarray}
+ \hat{A} &=& a_{j\ell}
+ \begin{pmatrix}
+  e_{X0j} e_{X1\ell} & e_{Y0j} e_{X1\ell} \\
+  e_{X0j} e_{Y1\ell} & e_{Y0j} e_{Y1\ell}
+ \end{pmatrix}
+\\
+ \hat{B} &=& s_{\text{pilot}} a_{j\ell}
+ \begin{pmatrix}
+ \frac{\totald d_j}{\totald U} e_{X1\ell} & \frac{\totald d_j}{\totald V} e_{X1\ell} & \frac{\totald d_j}{\totald W} e_{X1\ell} & \frac{\totald d_j}{\totald Q} e_{X1\ell} \\
+ \frac{\totald d_j}{\totald U} e_{Y1\ell} & \frac{\totald d_j}{\totald V} e_{Y1\ell} & \frac{\totald d_j}{\totald W} e_{Y1\ell} & \frac{\totald d_j}{\totald Q} e_{Y1\ell}
+ \end{pmatrix}
+\\
+\hat{C} &=& 0 \\
+\hat{D} &=& \unittensor \\
+M_{111} &=& m_{i\ell m} \frac{\totald d_{m}}{\totald U} e_{X0\,i} e_{X1\ell}  \\
+\hat{N} &=& 0
+\end{eqnarray}
+with
+\begin{eqnarray}
+ \Vector{e}_{U,V,W,Q\,1} &=& \Vector{e}_{U,V,W,Q\,0} 
+ \\
+ a_{j\ell} &=& \delta_{j\ell} -  \frac{e_{Z1j} d_{\text{pilot}\ell} }{e_{Z1i} d_{\text{pilot}i}}
+ \\
+ m_{i\ell m} &=& \left(   - \frac{ e_{Z1\,i} }{d_{\text{pilot}\,j} e_{Z1\,j}} \delta_{\ell m} 
+                  +   \frac{ e_{Z1\,i} }{ (d_{\text{pilot}\,j} e_{Z1\,j} )^2 } e_{Z1\,m}  d_{\text{pilot}\ell} 
+           \right)
+\end{eqnarray}
+\end{subequations}
 
-
-%  s_{\text{pilot}} &=& \left| \Location_{1\,\text{pilot}} - \Location_{0\,\text{pilot}} \right|
 
 
 
