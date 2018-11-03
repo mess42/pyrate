@@ -610,6 +610,52 @@ with
 \end{subequations}
 
 
+\subsection{Refraction}
+We assume two parallel planes 1,2 just in front of and behind a refracting surface.
+The planes shall be tangential to the surface 
+and shall have identical bases $\Vector{e}_{X,Y}$.
+The infinitessimal propagation length through the surface does not change the ray height
+\begin{eqnarray}
+ \hat{A} &=& \unittensor \\
+ \hat{B} &=& 0 \\
+ \hat{M} &=& 0
+\end{eqnarray}
+Deviations from the tangential plane (sag differences due to curvature) 
+are an effect quadratic in ray height and are neglected in this linear formalism.
+For the remaining matrices, we consider the wavevector.
+\begin{eqnarray}
+ \Wavevector_2 &=& \Wavevector_{\parallel2} + \xi_2 \Vector{n} \\
+               &=& \Wavevector_{\parallel2} + (\xi_{pilot 2} + \Delta \xi) ( \Vector{n}_{pilot} + \Delta \Vector{n})
+\end{eqnarray}
+with
+\begin{eqnarray}
+ \Wavevector_{\parallel2} 
+ &=& \Wavevector_{\parallel1} 
+\\
+ &=& \Wavevector_1 - (\Wavevector_1 \Vector{n}) \Vector{n} 
+\\
+ \wavenumber_{\parallel2i}
+ &=& (\wavenumber_{pilot1i} + \Delta \wavenumber_{1i}) - ( \wavenumber_{pilot1j} + \Delta \wavenumber_{1j} )( n_{pilotj} + \Delta n_j )( n_{piloti} + \Delta n_i )
+%\\
+% &=& \wavenumber_{pilot1i} - \wavenumber_{pilot1j}   n_{pilotj} n_{piloti}\nonumber \\
+% &&+ (\delta_{ij} -  n_{piloti} n_{pilotj}) \Delta \wavenumber_{1j}\nonumber\\
+% &&+ (- \wavenumber_{pilot1j}    n_{piloti} - \wavenumber_{pilot1\ell}   n_{pilot\ell} \delta_{ij}) \Delta n_j \nonumber\\
+% &&+( - n_{piloti} \delta_{j\ell} - n_{pilotj} \delta_{i\ell}) \Delta \wavenumber_{1j} \Delta n_\ell\nonumber\\
+% &&- \wavenumber_{pilot1j}   \Delta n_j \Delta n_i - \Delta \wavenumber_{1j} \Delta n_j \Delta n_i
+\end{eqnarray}
+We factor out all terms and yield
+\begin{align}
+ \wavenumber_{2i} =&& \wavenumber_{pilot 2i} \nonumber \\
+ &+& (\xi_{pilot 2i} \delta_{ij} - \wavenumber_{pilot1j}    n_{piloti} - \wavenumber_{pilot1\ell}   n_{pilot\ell} \delta_{ij}) &\Delta n_j \nonumber\\
+ &+& (\delta_{ij} -  n_{piloti} n_{pilotj}) &\Delta \wavenumber_{1j}\nonumber\\
+ &+& n_{pilot i} &\Delta \xi_i \nonumber\\
+ &+& ( - n_{piloti} \delta_{j\ell} - n_{pilotj} \delta_{i\ell}) &\Delta \wavenumber_{1j} \Delta n_\ell\nonumber\\
+ &+& &\Delta n_i \Delta \xi_i \nonumber\\
+ &-& \wavenumber_{pilot1j}  & \Delta n_j \Delta n_i \nonumber\\
+ &-& &\Delta \wavenumber_{1j} \Delta n_j \Delta n_i
+\end{align}
+In the next steps, we express $\Delta \Vector{n}$ and $\Delta \xi$ in terms of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+
 
 
 \chapter{The Staging Attic}
