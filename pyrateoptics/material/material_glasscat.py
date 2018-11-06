@@ -428,7 +428,7 @@ class CatalogMaterial(IsotropicMaterial):
         :param comment: (str)
 
         example:
-            import yaml
+            import ruamel.yaml as yaml
             f = open("n-bk7.yml")
             ymldict = yaml.safe_load(f)
             f.close()
