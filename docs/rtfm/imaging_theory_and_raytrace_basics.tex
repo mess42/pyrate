@@ -1852,8 +1852,13 @@ By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto
 \end{eqnarray}
 
 \chapter{Surface Intersections}\label{subsec:intersectionformulas}
+This section discusses how to calculate the intersection of a ray with a surface.
 
-\subsection{Biconics}
+
+
+
+\section{Analytically Solvable}
+\subsection{Biconic}
 The word ``conic" is short for conic section. 
 This refers to intersections of a plane with a cone.
 A biconic describes a surface with two perpendicular sections of conic shape. 
@@ -1882,13 +1887,16 @@ An invariant or implicit form of the biconic sag equation \eqref{eq:biconic} is 
  (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,\label{eq:biconicImplicitSag}
 \end{align}
 where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \rho_x x^2 + \rho_y y^2$. 
-Next we consider the ray straight equation
+
+We assume a homogeneous medium and describe the ray as a straight line
 \begin{eqnarray}
  \Location &=& \Location_0 + \Vector{d} t \label{eq:ray}
 \end{eqnarray}
-$\Location_0$ is the ray start point, $\Vector{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
+where $\Location_0$ is the ray start point, 
+$\Vector{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
+The goal is to find a value for $t$ for which the ray intersects the surface.
 
-Inserting the straight equation leads to a polynomial of fourth order in $t$.
+Solving the straight equation \eqref{eq:ray} leads to a polynomial of fourth order in $t$.
 The fourth order equation can be solved either analytically or numerically.
 The one physically valid solution must be real valued.
 
@@ -2101,6 +2109,63 @@ The solution further simplifies to
 \end{eqnarray}
 
 
+\section{Numerically Solvable}
+\subsection{Free Shape with Explicit Sag Formula}
+The free shape is the most general case of a surface.
+We describe the surface by its explicit sag formula
+\begin{eqnarray}
+ z = f(x,y)
+\end{eqnarray}
+the sag $z$ being a function of $x$ and $y$.
+In many cases, the sag equation is represented by the sum of an analytically solveable term, and a small perturbation.
+Numerical solvers typically first calculate the intersection with the unperturbed surface analytically,
+and then iteratively converge to the full solution.
+
+The normal of a general free shape is
+\begin{eqnarray}
+ \Vector{n} &=& \frac{1}{\sqrt{ 1 + \left( \frac{\partial z}{\partial x} \right)^2 + \left( \frac{\partial z}{\partial y} \right)^2}}
+ \begin{pmatrix}
+  - \frac{\partial z}{\partial x}
+  \\
+  - \frac{\partial z}{\partial y}
+  \\
+  1
+  \end{pmatrix}
+\end{eqnarray}
+The derivative of the normal with respect to $x$ and $y$ is
+\begin{eqnarray}
+ \frac{\partial \Vector{n}}{\partial x} &=&
+  \left(
+     \frac{\partial z}{\partial x} \frac{\partial^2 z}{\partial x^2}
+   + \frac{\partial z}{\partial y} \frac{\partial^2 z}{\partial x \partial y}
+  \right)
+  \gamma^2 \Vector{n}
+  +
+  \frac{\partial^2 z}{\partial x^2} \gamma \Vector{e}_x
+  +
+  \frac{\partial^2 z}{\partial x \partial y} \gamma \Vector{e}_y
+\\
+ \frac{\partial \Vector{n}}{\partial y} &=&
+  \left(
+     \frac{\partial z}{\partial x} \frac{\partial^2 z}{\partial x \partial y}
+   + \frac{\partial z}{\partial y} \frac{\partial^2 z}{\partial y^2}
+  \right)
+  \gamma^2 \Vector{n}
+  +
+  \frac{\partial^2 z}{\partial x \partial y} \gamma \Vector{e}_x
+  +
+  \frac{\partial^2 z}{\partial y^2} \gamma \Vector{e}_y
+\\
+  \gamma &=& \frac{1}{\sqrt{ 1 + \left( \frac{\partial z}{\partial x} \right)^2 + \left( \frac{\partial z}{\partial y} \right)^2}}
+\end{eqnarray}
+\remark{todo:check}
+
+
+\subsection{Free Shape with Implicit Sag Formula}
+\begin{eqnarray}
+ f(x,y,z) &=& 0
+\end{eqnarray}
+todo
 
 \subsection{Polynomial Even Asphere}
 
@@ -2125,11 +2190,10 @@ todo
 \subsection{Acylindric}
 todo
 
-\subsection{Free Shapes}
-todo
 
 \subsection{Linear Combinations}
 todo
+
 
 
 \chapter{Wave Aberrations}
