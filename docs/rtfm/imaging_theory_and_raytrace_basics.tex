@@ -1993,33 +1993,72 @@ The solution of the intersection with the straight equation is
 \end{eqnarray}
 
 \subsubsection{Surface Normal}
-todo
-%The surface normal of a quadratic form surface is
-%\begin{eqnarray}
-% \Vector{n} &=& 
-% \frac{1}{
-%    \sqrt{1 + (\rho_{xx} x + \rho_{xy} y)^2 + (\rho_{yy} y + \rho_{xy} x)^2 }
-% } 
-% \begin{pmatrix}
-%   - \rho_{xx} x - \rho_{xy} y \\
-%   - \rho_{yy} y - \rho_{xy} x \\
-%   1
-% \end{pmatrix}
-%\end{eqnarray}
-%In the limit of rays close to the origin, $\lim (x,y) \rightarrow 0$, 
-%we perform a Taylor expansion in first order
-%\begin{eqnarray}
-% \Vector{n} &\approx& 
-% \begin{pmatrix}
-%   - \rho_{xx} x - \rho_{xy} y \\
-%   - \rho_{yy} y - \rho_{xy} x \\
-%   1
-% \end{pmatrix}
-% \label{eq:quadratic_form_near_axis_normal}
-%\end{eqnarray}
+The surface normal of a quadratic form surface is (see \eqref{eq:freeshape_normal})
+\begin{eqnarray}
+ \Vector{n} &=& \gamma
+ \begin{pmatrix}
+  - \rho_{xx} x - \rho_{xy} y - m_x
+  \\
+  - \rho_{xy} x - \rho_{yy} y - m_y
+  \\
+  1
+  \end{pmatrix}
+  \\
+  \frac{1}{\gamma} &=& \sqrt{ 1 + \left( \rho_{xx} x + \rho_{xy} y + m_x \right)^2 + \left( \rho_{xy} x + \rho_{yy} y + m_y \right)^2}
+\end{eqnarray}
+and its derivates are
+\begin{eqnarray}
+ \frac{\partial \Vector{n}}{\partial x} =&&
+  \left(
+     (\rho_{xx} x + \rho_{xy} y + m_x) \rho_{xx}
+   + (\rho_{xy} x + \rho_{yy} y + m_y) \rho_{xy}
+  \right)
+  \gamma^2 \Vector{n}
+  \nonumber\\
+  &+&
+  \rho_{xx} \gamma \Vector{e}_x
+  +
+  \rho_{xy} \gamma \Vector{e}_y
+\\
+ \frac{\partial \Vector{n}}{\partial y} =&&
+  \left(
+     (\rho_{xx} x + \rho_{xy} y + m_x) \rho_{xy}
+   + (\rho_{xy} x + \rho_{yy} y + m_y) \rho_{yy}
+  \right)
+  \gamma^2 \Vector{n}
+  \nonumber\\
+  &+&
+  \rho_{xy} \gamma \Vector{e}_x
+  +
+  \rho_{yy} \gamma \Vector{e}_y
+\end{eqnarray}
+we rewrite this result in the cartesian coordinate system $(\Vector{e}_X, \Vector{e}_Y, \Vector{n})$,
+representing vectors by their components in the tangential plane and normal to it, respectively.
+The two in-plane unit vectors may be chosen independently 
+from the cartesian coordinate system $(\Vector{e}_x, \Vector{e}_y, \Vector{e}_z)$
+used to describe the surface sag.
+\begin{eqnarray}
+ \frac{\partial n_i}{\partial X} = &\gamma \Bigg(&
+     \frac{\partial^2 z}{\partial x^2} 
+     (e_{xj} e_{Xj})^2
+   +2\frac{\partial^2 z}{\partial x \partial y}
+     (e_{xj} e_{Xj})(e_{y\ell}e_{X\ell})
+   + \frac{\partial^2 z}{\partial y^2}
+     (e_{yj}e_{Xj})^2
+ \Bigg) e_{Xi} +
+\nonumber\\
+ &+ \gamma \Bigg(&
+     \frac{\partial^2 z}{\partial x^2}
+     (e_{xj} e_{Xj})(e_{x\ell}e_{Y\ell})
+   + \frac{\partial^2 z}{\partial x \partial y}
+     \left( (e_{xj} e_{Xj})(e_{y\ell}e_{Y\ell}) + (e_{xj} e_{Yj})(e_{y\ell}e_{X\ell}) \right) + 
+ \nonumber\\
+  &&
+   + \frac{\partial^2 z}{\partial y^2}
+     (e_{yj}e_{Xj})(e_{y\ell}e_{Y\ell})
+ \Bigg) e_{Yi}
+\end{eqnarray}
 
-\subsubsection{Local Approximation of Free Shapes by a Quadratic Form}
-todo
 
 \subsection{Conics}
 Conics are the rotationally symmetric special case of a biconic $\rho_x = \rho_y$, $c_x = c_y$ .
@@ -2130,7 +2169,7 @@ The normal of a general free shape is
   - \frac{\partial z}{\partial y}
   \\
   1
-  \end{pmatrix}
+  \end{pmatrix} \label{eq:freeshape_normal}
 \end{eqnarray}
 The derivative of the normal with respect to $x$ and $y$ is
 \begin{eqnarray}
