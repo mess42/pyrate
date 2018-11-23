@@ -551,20 +551,18 @@ one does not know the phase of the resulting wavevector $\Wavevector$ beforehand
 This makes the whole ansatz somewhat counter-intuitive.
 \remark{to do: find more intuitive ansatz}
 
-\subsubsection{Wavevector perturbation}
+\subsubsection{Wavevector Perturbation}
 
 Assume we found a solution to the dispersion relation $\Wavevector$ and its sign prefactors $\varsigma, \tau$ according to equation \eqref{eq:dispersion_for_known_direction}.
-
-In case we do not know the prefactors, but only the wavevector, we divide the wavevector by its length $\sqrt{\Wavevector \overline{\Wavevector}}$ 
-to obtain its unit direction vector $\Vector{e}_\wavenumber$. 
-Then we calculate the four modes $\varsigma, \tau$ corresponding to this unit direction vector employing \eqref{eq:dispersion_for_known_direction}.
-From those four modes, we choose the mode with minimum wavevector difference to the original wavevector and remember the prefactors chosen.
-For isotropic media, several modes will be degenerate and have zero difference within numerical accuracy.
-In this case, it does not matter which one to choose.
-
-Once we found both mode prefactors $\varsigma, \tau$, we perturb the wavevector. 
+We want to perturb the wavevector. 
 The perturbed quantities are marked with a tilde, like $\tilde{\Wavevector}$.
-We start by perturbing the unit direction vector. 
+In analogy to the unperturbed solution $\Wavevector$, we also split the perturbed solution $\tilde{\Wavevector}$
+in direction unit vector and complex amplitude.
+\begin{eqnarray}
+ \Wavevector &=& \wavenumber \Vector{e}_\wavenumber \\
+ \tilde{\Wavevector} &=& \tilde{\wavenumber} \tilde{\Vector{e}}_{\wavenumber}
+\end{eqnarray}
+We assume the perturbed direction changes infinitessimally form the unperturbed one.
 \begin{eqnarray}
  \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + \totald\Vector{e} \\
  \Vector{e}_\wavenumber \cdot \totald\Vector{e} &=& 0 \label{eq:perturbation_unit_orthogonality}
@@ -579,7 +577,7 @@ The change in direction may also lead to a change in wavevector length.
      \right)
      \tilde{\Vector{e}}_\wavenumber 
  \\
- d \Wavevector = \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot \totald\Vector{e} + \left( \left. \frac{\totald\wavenumber}{\totald\Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
+ \totald \Wavevector = \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot \totald\Vector{e} + \left( \left. \frac{\totald\wavenumber}{\totald\Vector{e}}\right|_{\Wavevector} \cdot \totald\Vector{e} \right) \Vector{e}_\wavenumber
 \end{eqnarray}
 From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \begin{eqnarray}
@@ -596,19 +594,21 @@ From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \remark{to do: check whether sqrt may become zero}
 with
 \begin{eqnarray}
- \totald a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,ij} e_{k\,i} e_{k\,j}) e_{k\,\ell} de_\ell\\
- \totald a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_{j}
+ \totald a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) \totald e_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,ij} e_{k\,i} e_{k\,j}) e_{k\,\ell} \totald e_\ell\\
+ \totald a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) \totald e_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) \totald e_{j}
 \end{eqnarray}
 
 The change in unit direction vector is complex valued, so it contains 6 real valued degrees of freedom.
 The orthogonality condition \eqref{eq:perturbation_unit_orthogonality} reduces the degrees of freedom by 2.
-We can find four different wavevector perturbation directions $d\Vector{e}_{1,2,3,4}$
-with corresponding wavevector perturbations $d \Wavevector_{1,2,3,4}$.
+We can find the four orthogonal vectors employing an algorithm discussed in section \ref{sec:ortho_vectors}. 
+Let's call the solutions $\totald \Vector{e}_{U,V,W,Q}$
+with corresponding wavevector perturbations $\totald \Wavevector_{U,V,W,Q}$.
 In our first order Taylor expansion, the wavevector may deviate by any linear combination of these four directions.
+All four solutions belong to the same branch of the dispersion $(\sigma, \tau)$.
 \begin{eqnarray}
- \tilde{\Wavevector} &=& \Wavevector + a_i \cdot \totald\Wavevector_i \label{eq:perturbed_wavevector}
+ \tilde{\Wavevector} &=& \Wavevector + U \cdot \totald\Wavevector_U + V \cdot \totald\Wavevector_V + W \cdot \totald\Wavevector_W + Q \cdot \totald\Wavevector_Q \label{eq:perturbed_wavevector}
 \end{eqnarray}
-with $a_i \in \mathbb{R}$.
+with $U,V,W,Q \in \mathbb{R}$ and in the limit of small perturbations. 
 
 
 \subsection{Isotropic media}
@@ -2513,7 +2513,7 @@ From the Rodrigues formula follow some special cases:
 Rodrigues matrices do not commutate.
 
 
-\section{Determining Orthogonal Vectors}
+\section{Determining Orthogonal Vectors} \label{sec:ortho_vectors}
 Assume we have a given unit vector $\Vector{e}_0 \in \mathbb{C}^3$
 and we want and want to determine vectors orthogonal to it $\Vector{e}_{\perp}$.
 
