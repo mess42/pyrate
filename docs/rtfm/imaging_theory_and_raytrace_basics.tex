@@ -551,20 +551,18 @@ one does not know the phase of the resulting wavevector $\Wavevector$ beforehand
 This makes the whole ansatz somewhat counter-intuitive.
 \remark{to do: find more intuitive ansatz}
 
-\subsubsection{Wavevector perturbation}
+\subsubsection{Wavevector Perturbation}
 
 Assume we found a solution to the dispersion relation $\Wavevector$ and its sign prefactors $\varsigma, \tau$ according to equation \eqref{eq:dispersion_for_known_direction}.
-
-In case we do not know the prefactors, but only the wavevector, we divide the wavevector by its length $\sqrt{\Wavevector \overline{\Wavevector}}$ 
-to obtain its unit direction vector $\Vector{e}_\wavenumber$. 
-Then we calculate the four modes $\varsigma, \tau$ corresponding to this unit direction vector employing \eqref{eq:dispersion_for_known_direction}.
-From those four modes, we choose the mode with minimum wavevector difference to the original wavevector and remember the prefactors chosen.
-For isotropic media, several modes will be degenerate and have zero difference within numerical accuracy.
-In this case, it does not matter which one to choose.
-
-Once we found both mode prefactors $\varsigma, \tau$, we perturb the wavevector. 
+We want to perturb the wavevector. 
 The perturbed quantities are marked with a tilde, like $\tilde{\Wavevector}$.
-We start by perturbing the unit direction vector. 
+In analogy to the unperturbed solution $\Wavevector$, we also split the perturbed solution $\tilde{\Wavevector}$
+in direction unit vector and complex amplitude.
+\begin{eqnarray}
+ \Wavevector &=& \wavenumber \Vector{e}_\wavenumber \\
+ \tilde{\Wavevector} &=& \tilde{\wavenumber} \tilde{\Vector{e}}_{\wavenumber}
+\end{eqnarray}
+We assume the perturbed direction changes infinitessimally form the unperturbed one.
 \begin{eqnarray}
  \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + \totald\Vector{e} \\
  \Vector{e}_\wavenumber \cdot \totald\Vector{e} &=& 0 \label{eq:perturbation_unit_orthogonality}
@@ -579,7 +577,7 @@ The change in direction may also lead to a change in wavevector length.
      \right)
      \tilde{\Vector{e}}_\wavenumber 
  \\
- d \Wavevector = \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot \totald\Vector{e} + \left( \left. \frac{\totald\wavenumber}{\totald\Vector{e}}\right|_{\Wavevector} \cdot d\Vector{e} \right) \Vector{e}_\wavenumber
+ \totald \Wavevector = \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot \totald\Vector{e} + \left( \left. \frac{\totald\wavenumber}{\totald\Vector{e}}\right|_{\Wavevector} \cdot \totald\Vector{e} \right) \Vector{e}_\wavenumber
 \end{eqnarray}
 From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \begin{eqnarray}
@@ -596,19 +594,21 @@ From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \remark{to do: check whether sqrt may become zero}
 with
 \begin{eqnarray}
- \totald a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,ij} e_{k\,i} e_{k\,j}) e_{k\,\ell} de_\ell\\
- \totald a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) de_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) de_{j}
+ \totald a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) \totald e_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,ij} e_{k\,i} e_{k\,j}) e_{k\,\ell} \totald e_\ell\\
+ \totald a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) \totald e_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) \totald e_{j}
 \end{eqnarray}
 
 The change in unit direction vector is complex valued, so it contains 6 real valued degrees of freedom.
 The orthogonality condition \eqref{eq:perturbation_unit_orthogonality} reduces the degrees of freedom by 2.
-We can find four different wavevector perturbation directions $d\Vector{e}_{1,2,3,4}$
-with corresponding wavevector perturbations $d \Wavevector_{1,2,3,4}$.
+We can find the four orthogonal vectors employing an algorithm discussed in section \ref{sec:ortho_vectors}. 
+Let's call the solutions $\totald \Vector{e}_{U,V,W,Q}$
+with corresponding wavevector perturbations $\totald \Wavevector_{U,V,W,Q}$.
 In our first order Taylor expansion, the wavevector may deviate by any linear combination of these four directions.
+All four solutions belong to the same branch of the dispersion $(\sigma, \tau)$.
 \begin{eqnarray}
- \tilde{\Wavevector} &=& \Wavevector + a_i \cdot \totald\Wavevector_i \label{eq:perturbed_wavevector}
+ \tilde{\Wavevector} &=& \Wavevector + U \cdot \totald\Wavevector_U + V \cdot \totald\Wavevector_V + W \cdot \totald\Wavevector_W + Q \cdot \totald\Wavevector_Q \label{eq:perturbed_wavevector}
 \end{eqnarray}
-with $a_i \in \mathbb{R}$.
+with $U,V,W,Q \in \mathbb{R}$ and in the limit of small perturbations. 
 
 
 \subsection{Isotropic media}
@@ -1852,8 +1852,13 @@ By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto
 \end{eqnarray}
 
 \chapter{Surface Intersections}\label{subsec:intersectionformulas}
+This section discusses how to calculate the intersection of a ray with a surface.
 
-\subsection{Biconics}
+
+
+
+\section{Analytically Solvable}
+\subsection{Biconic}
 The word ``conic" is short for conic section. 
 This refers to intersections of a plane with a cone.
 A biconic describes a surface with two perpendicular sections of conic shape. 
@@ -1882,13 +1887,16 @@ An invariant or implicit form of the biconic sag equation \eqref{eq:biconic} is 
  (a(x,y) - 1) z^2 + (z - b(x,y))^2 &= 0\,,\label{eq:biconicImplicitSag}
 \end{align}
 where $a(x,y) = (1 + c_x) \rho_x^2 x^2 + (1 + c_y) \rho_y^2 y^2$ and $b(x,y) = \rho_x x^2 + \rho_y y^2$. 
-Next we consider the ray straight equation
+
+We assume a homogeneous medium and describe the ray as a straight line
 \begin{eqnarray}
  \Location &=& \Location_0 + \Vector{d} t \label{eq:ray}
 \end{eqnarray}
-$\Location_0$ is the ray start point, $\Vector{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
+where $\Location_0$ is the ray start point, 
+$\Vector{d}$ the ray direction unit vector and $t$ the free parameter of the straight.
+The goal is to find a value for $t$ for which the ray intersects the surface.
 
-Inserting the straight equation leads to a polynomial of fourth order in $t$.
+Solving the straight equation \eqref{eq:ray} leads to a polynomial of fourth order in $t$.
 The fourth order equation can be solved either analytically or numerically.
 The one physically valid solution must be real valued.
 
@@ -1965,82 +1973,93 @@ Otherwise, the ray misses the surface.
 \remark{The quadratic form section is not double checked yet.}
 
 A quadratic form is the lowest order polynomial with curvatures.
-As it plays an important role for the parabasal approximation, we treat this shape explicitly.
-
+It plays an important role for the parabasal approximation.
 
 \begin{eqnarray}
- z(x,y) &=& \frac{1}{2} \rho_{xx} x^2 + \rho_{xy} x y + \frac{1}{2} \rho_{yy} y^2
+ z(x,y) &=& \frac{1}{2} \rho_{xx} x^2 + \rho_{xy} x y + \frac{1}{2} \rho_{yy} y^2 + m_x x + m_y y + n
  \label{eq:quadratic_form_sag}
 \end{eqnarray}
-The surface curvature parameters $\rho_{xx},\rho_{xy},\rho_{yy}$ are real valued. 
+The parameters $\rho_{xx},\rho_{xy},\rho_{yy}$ represent the surface curvature. 
+$m_x$ and $m_y$ describe the tilt of the tangential plane in the $xy$ origin, 
+and $n$ is an absolute sag offset.
 A nonzero $\rho_{xy}$ parameter denotes a nonzero rotation of the principal axes of the paraboloid with respect to the $x$ and $y$ axes.
 The solution of the intersection with the straight equation is
 \begin{eqnarray}
- F &=& d_z - \left( \rho_{xx} x_0 d_x + \rho_{xy} \left( x_0 d_y + y_0 d_x \right)  + \rho_{yy} y_0 d_y \right)   \\
- G &=& - 2 z_0 + \rho_{xx} x_0^2 + 2 \rho_{xy} x_0 y_0 + \rho_{yy} y_0^2 \\
+ F &=& d_z - \left( \rho_{xx} x_0 d_x + \rho_{xy} \left( x_0 d_y + y_0 d_x \right)  + \rho_{yy} y_0 d_y + m_x d_x + m_y d_y \right)   \\
+ G &=& - 2 z_0 + \rho_{xx} x_0^2 + 2 \rho_{xy} x_0 y_0 + \rho_{yy} y_0^2 + 2 m_x x_0 + 2 m_y y_0 + 2 n\\
  H &=& - \left( \rho_{xx} d_x^2 +  2 \rho_{xy} d_x d_y + \rho_{yy} d_y^2 \right) \\
  t &=& \frac{G}{ F + \sqrt{F^2 + H G} }
  \label{eq:quadratic_form_t}
 \end{eqnarray}
 
 \subsubsection{Surface Normal}
-The surface normal of a quadratic form surface is
+The surface normal of a quadratic form surface is (see \eqref{eq:freeshape_normal})
 \begin{eqnarray}
- \Vector{n} &=& 
- \frac{1}{
-    \sqrt{1 + (\rho_{xx} x + \rho_{xy} y)^2 + (\rho_{yy} y + \rho_{xy} x)^2 }
- } 
+ \Vector{n} &=& \gamma
  \begin{pmatrix}
-   - \rho_{xx} x - \rho_{xy} y \\
-   - \rho_{yy} y - \rho_{xy} x \\
-   1
- \end{pmatrix}
+  - \rho_{xx} x - \rho_{xy} y - m_x
+  \\
+  - \rho_{xy} x - \rho_{yy} y - m_y
+  \\
+  1
+  \end{pmatrix}
+  \\
+  \frac{1}{\gamma} &=& \sqrt{ 1 + \left( \rho_{xx} x + \rho_{xy} y + m_x \right)^2 + \left( \rho_{xy} x + \rho_{yy} y + m_y \right)^2}
 \end{eqnarray}
-In the limit of rays close to the origin, $\lim (x,y) \rightarrow 0$, 
-we perform a Taylor expansion in first order
+and its derivates are
 \begin{eqnarray}
- \Vector{n} &\approx& 
- \begin{pmatrix}
-   - \rho_{xx} x - \rho_{xy} y \\
-   - \rho_{yy} y - \rho_{xy} x \\
-   1
- \end{pmatrix}
- \label{eq:quadratic_form_near_axis_normal}
+ \frac{\partial \Vector{n}}{\partial x} =&&
+  \left(
+     (\rho_{xx} x + \rho_{xy} y + m_x) \rho_{xx}
+   + (\rho_{xy} x + \rho_{yy} y + m_y) \rho_{xy}
+  \right)
+  \gamma^2 \Vector{n}
+  \nonumber\\
+  &+&
+  \rho_{xx} \gamma \Vector{e}_x
+  +
+  \rho_{xy} \gamma \Vector{e}_y
+\\
+ \frac{\partial \Vector{n}}{\partial y} =&&
+  \left(
+     (\rho_{xx} x + \rho_{xy} y + m_x) \rho_{xy}
+   + (\rho_{xy} x + \rho_{yy} y + m_y) \rho_{yy}
+  \right)
+  \gamma^2 \Vector{n}
+  \nonumber\\
+  &+&
+  \rho_{xy} \gamma \Vector{e}_x
+  +
+  \rho_{yy} \gamma \Vector{e}_y
+\end{eqnarray}
+we rewrite this result in the cartesian coordinate system $(\Vector{e}_X, \Vector{e}_Y, \Vector{n})$,
+representing vectors by their components in the tangential plane and normal to it, respectively.
+The two in-plane unit vectors may be chosen independently 
+from the cartesian coordinate system $(\Vector{e}_x, \Vector{e}_y, \Vector{e}_z)$
+used to describe the surface sag.
+\begin{eqnarray}
+ \frac{\partial n_i}{\partial X} = &\gamma \Bigg(&
+     \frac{\partial^2 z}{\partial x^2} 
+     (e_{xj} e_{Xj})^2
+   +2\frac{\partial^2 z}{\partial x \partial y}
+     (e_{xj} e_{Xj})(e_{y\ell}e_{X\ell})
+   + \frac{\partial^2 z}{\partial y^2}
+     (e_{yj}e_{Xj})^2
+ \Bigg) e_{Xi} +
+\nonumber\\
+ &+ \gamma \Bigg(&
+     \frac{\partial^2 z}{\partial x^2}
+     (e_{xj} e_{Xj})(e_{x\ell}e_{Y\ell})
+   + \frac{\partial^2 z}{\partial x \partial y}
+     \left( (e_{xj} e_{Xj})(e_{y\ell}e_{Y\ell}) + (e_{xj} e_{Yj})(e_{y\ell}e_{X\ell}) \right) + 
+ \nonumber\\
+  &&
+   + \frac{\partial^2 z}{\partial y^2}
+     (e_{yj}e_{Xj})(e_{y\ell}e_{Y\ell})
+ \Bigg) e_{Yi}
+ \label{eq:derivative_of_surface_normal_in_XY_coordinates}
 \end{eqnarray}
 
-
-
-
-\subsubsection{Quadratic Form as a Special Case of Biconic}
-Rotating the coordinate system,
-\begin{eqnarray}
- x &=& \tilde{x} \cos(\phi) - \tilde{y} \sin(\phi) \\
- y &=& \tilde{x} \sin(\phi) + \tilde{y} \cos(\phi)
-\end{eqnarray}
-one can represent the quadratic form in its principal axes system, eliminating the $\rho_{xy} x y$ term. 
-The principal axes of $\tilde{x}$ and $\tilde{y}$ are orthogonal.
-%\begin{eqnarray}
-% \sin^2(\phi) &=& \frac{1}{2} \pm \sqrt{\frac{1}{4} - \frac{(2 \rho_{xy})^2}{4 (2 \rho_{xy})^2 + 4 (\rho_{xx}-\rho_{yy})^2 } } \\
-% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{1 - \frac{(2 \rho_{xy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } } \\ 
-% \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(\rho_{xx}-\rho_{yy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } } \\ 
-%\end{eqnarray}
-\begin{eqnarray}
- z &=& \frac{1}{2} \tilde{\rho}_{xx} \tilde{x}^2 + \frac{1}{2} \tilde{\rho}_{yy} \tilde{y}^2
-\end{eqnarray}
-with
-\begin{eqnarray}
- \tilde{\rho}_{xx} &=& TODO \\
- \tilde{\rho}_{yy} &=& TODO\\
- \sin^2(\phi) &=& \frac{1}{2} \pm \frac{1}{2} \sqrt{ \frac{(\rho_{xx}-\rho_{yy})^2}{(2 \rho_{xy})^2 + (\rho_{xx}-\rho_{yy})^2 } }
-\end{eqnarray}\remark{TODO: needs checking}
-The term under square root is nonnegative for real valued $\rho_{xx},\rho_{xy},\rho_{yy}$. 
-After rotating the coordinate system, the quadratic form is equivalent to a biconic with
-\begin{eqnarray}
- \rho_x &=& \tilde{\rho}_{xx} \\
- \rho_y &=& \tilde{\rho}_{yy} \\
- c_x &=& -1 \\
- c_y &=& -1
-\end{eqnarray}
 
 \subsection{Conics}
 Conics are the rotationally symmetric special case of a biconic $\rho_x = \rho_y$, $c_x = c_y$ .
@@ -2130,6 +2149,63 @@ The solution further simplifies to
 \end{eqnarray}
 
 
+\section{Numerically Solvable}
+\subsection{Free Shape with Explicit Sag Formula}
+The free shape is the most general case of a surface.
+We describe the surface by its explicit sag formula
+\begin{eqnarray}
+ z = f(x,y)
+\end{eqnarray}
+the sag $z$ being a function of $x$ and $y$.
+In many cases, the sag equation is represented by the sum of an analytically solveable term, and a small perturbation.
+Numerical solvers typically first calculate the intersection with the unperturbed surface analytically,
+and then iteratively converge to the full solution.
+
+The normal of a general free shape is
+\begin{eqnarray}
+ \Vector{n} &=& \frac{1}{\sqrt{ 1 + \left( \frac{\partial z}{\partial x} \right)^2 + \left( \frac{\partial z}{\partial y} \right)^2}}
+ \begin{pmatrix}
+  - \frac{\partial z}{\partial x}
+  \\
+  - \frac{\partial z}{\partial y}
+  \\
+  1
+  \end{pmatrix} \label{eq:freeshape_normal}
+\end{eqnarray}
+The derivative of the normal with respect to $x$ and $y$ is
+\begin{eqnarray}
+ \frac{\partial \Vector{n}}{\partial x} &=&
+  \left(
+     \frac{\partial z}{\partial x} \frac{\partial^2 z}{\partial x^2}
+   + \frac{\partial z}{\partial y} \frac{\partial^2 z}{\partial x \partial y}
+  \right)
+  \gamma^2 \Vector{n}
+  +
+  \frac{\partial^2 z}{\partial x^2} \gamma \Vector{e}_x
+  +
+  \frac{\partial^2 z}{\partial x \partial y} \gamma \Vector{e}_y
+\\
+ \frac{\partial \Vector{n}}{\partial y} &=&
+  \left(
+     \frac{\partial z}{\partial x} \frac{\partial^2 z}{\partial x \partial y}
+   + \frac{\partial z}{\partial y} \frac{\partial^2 z}{\partial y^2}
+  \right)
+  \gamma^2 \Vector{n}
+  +
+  \frac{\partial^2 z}{\partial x \partial y} \gamma \Vector{e}_x
+  +
+  \frac{\partial^2 z}{\partial y^2} \gamma \Vector{e}_y
+\\
+  \gamma &=& \frac{1}{\sqrt{ 1 + \left( \frac{\partial z}{\partial x} \right)^2 + \left( \frac{\partial z}{\partial y} \right)^2}}
+\end{eqnarray}
+\remark{todo:check}
+
+
+\subsection{Free Shape with Implicit Sag Formula}
+\begin{eqnarray}
+ f(x,y,z) &=& 0
+\end{eqnarray}
+todo
 
 \subsection{Polynomial Even Asphere}
 
@@ -2154,11 +2230,10 @@ todo
 \subsection{Acylindric}
 todo
 
-\subsection{Free Shapes}
-todo
 
 \subsection{Linear Combinations}
 todo
+
 
 
 \chapter{Wave Aberrations}
@@ -2439,7 +2514,7 @@ From the Rodrigues formula follow some special cases:
 Rodrigues matrices do not commutate.
 
 
-\section{Determining Orthogonal Vectors}
+\section{Determining Orthogonal Vectors} \label{sec:ortho_vectors}
 Assume we have a given unit vector $\Vector{e}_0 \in \mathbb{C}^3$
 and we want and want to determine vectors orthogonal to it $\Vector{e}_{\perp}$.
 
