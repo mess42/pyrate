@@ -623,46 +623,87 @@ The infinitessimal propagation length through the surface does not change the ra
 \end{eqnarray}
 Deviations from the tangential plane (sag differences due to curvature) 
 are an effect quadratic in ray height and are neglected in this linear formalism.
-For the remaining matrices, we consider the in-plane wavevector.
+
+To determine the remaining matrices, we consider the in-plane wavevector.
+We represent the wavevector in the cartesian coordinate system
+$(\Vector{e}_{\tilde{X}}, \Vector{e}_{\tilde{Y}}, \Vector{n})$,
+where $\tilde{X}$ and $\tilde{Y}$ are the in-plane components, 
+and $\Vector{n}$ is the normal at the location of the near-pilot ray intersection.
+At the location of the pilot ray intersection, this coordinate system is identical to
+$(\Vector{e}_{X}, \Vector{e}_{Y}, \Vector{n}_{\pilot})$.
+If the surface is curved and the ray height is nonzero, both may deviate infinitessimaly.
+The in-plane wavevector is
 \begin{eqnarray}
- \Wavevector_{\parallel2} 
- &=& \Wavevector_{\parallel1} 
-\\
- &=& \Wavevector_1 - (\Wavevector_1 \Vector{n}) \Vector{n} 
-\\
- \wavenumber_{\parallel2i}
- &=& (\wavenumber_{\pilot 1i} + \Delta \wavenumber_{1i}) - ( \wavenumber_{\pilot 1j} + \Delta \wavenumber_{1j} )( n_{\pilot j} + \Delta n_j )( n_{\pilot i} + \Delta n_i )
-\end{eqnarray}
-We factor out all terms and yield
-\begin{eqnarray}
- \wavenumber_{\parallel2i} 
- =&& \wavenumber_{\pilot 1i} - \wavenumber_{\pilot 1j}   n_{\pilot j} n_{\pilot i}\nonumber \\
- &+& (\delta_{ij} -  n_{\pilot i} n_{\pilot j}) \Delta \wavenumber_{1j}\nonumber\\
- &+& (- \wavenumber_{\pilot 1j}    n_{\pilot i} - \wavenumber_{\pilot 1\ell}   n_{\pilot\ell} \delta_{ij}) \Delta n_j \nonumber\\
- &+&( - n_{\pilot i} \delta_{j\ell} - n_{\pilot j} \delta_{i\ell}) \Delta \wavenumber_{1j} \Delta n_\ell\nonumber\\
- &-& \wavenumber_{\pilot 1j}   \Delta n_j \Delta n_i - \Delta \wavenumber_{1j} \Delta n_j \Delta n_i
-\end{eqnarray}
-We subtract the in-plane component of the pilot wavevector and neglect the quadratic terms in the normal vector $\propto \Delta n_j \Delta n_i$
-\begin{eqnarray}
- \Delta \wavenumber_{\parallel2i} 
- =
- \wavenumber_{\parallel2i} - \wavenumber_{\parallel2\pilot i} 
- =&& 
-     (\delta_{ij} -  n_{\pilot i} n_{\pilot j}) \Delta \wavenumber_{1j}\nonumber\\
- &+& (- \wavenumber_{\pilot 1j}    n_{\pilot i} - \wavenumber_{\pilot 1\ell}   n_{\pilot\ell} \delta_{ij}) \Delta n_j \nonumber\\
- &+& ( - n_{\pilot i} \delta_{j\ell} - n_{\pilot j} \delta_{i\ell}) \Delta \wavenumber_{1j} \Delta n_\ell
-\end{eqnarray}
-Next we express all $\Delta \Vector{n}$ and $\Delta \Wavevector$ in terms of $(X,Y,U,V,W,Q)$ coordinates.
-\begin{eqnarray}
- \Delta \wavenumber_{1j} &=& U_1 e_{U1j} + V_1 e_{V1j} + W_1 e_{W1j} + Q_1 e_{Q1j}
+ \wavenumber_{\parallel2i} &=& (\wavenumber_{2j} e_{\tilde{X}j}) e_{\tilde{X}i} + (\wavenumber_{2j} e_{\tilde{Y}j}) e_{\tilde{Y}i} + 0 \cdot n_i
  \\
- \Delta \wavenumber_{2i} &=& U_2 e_{U2i} + V_2 e_{V2i} + W_2 e_{W2i} + Q_2 e_{Q2i}
- \\
- \Delta \wavenumber_{\parallel 2i} &=& U_2 (\delta_{ij} - n_i n_j) e_{U2j} + V_2 (\delta_{ij} - n_i n_j) e_{V2j} + ...
- \\
- \Delta n_\ell &=& \frac{\partial n_\ell}{\partial X} \cdot X + \frac{\partial n_\ell}{\partial Y} \cdot Y
+ &=& \tilde{X} e_{\tilde{X}i} + \tilde{Y} e_{\tilde{Y}i}
 \end{eqnarray}
-An explicit form of the normal derivates is found in equation \eqref{eq:derivative_of_surface_normal_in_XY_coordinates}.
+with
+\begin{eqnarray}
+ \tilde{X} &=& \wavenumber_{\pilot 2 j} e_{\tilde{X}j} + U_2 e_{U2j} e_{\tilde{X}j} + V_2 e_{V2j} e_{\tilde{X}j} + W_2 e_{W2j} e_{\tilde{X}j} + Q_2 e_{Q2j} e_{\tilde{X}j}
+ \\
+ \tilde{Y} &=& \wavenumber_{\pilot 2 j} e_{\tilde{Y}j} + U_2 e_{U2j} e_{\tilde{Y}j} + V_2 e_{V2j} e_{\tilde{Y}j} + W_2 e_{W2j} e_{\tilde{Y}j} + Q_2 e_{Q2j} e_{\tilde{Y}j}
+\end{eqnarray}
+We would like to solve these two equations for $U_2,V_2,W_2,Q_2$.
+To track the constraint $U,V,W,Q \in \mathbb{R}$ more easily, we split up the equations 
+in real and imaginary part of $\tilde{X}$ and $\tilde{Y}$, respectively. 
+\begin{eqnarray}
+ \begin{pmatrix}
+     \Re \tilde{X} - \Re(\wavenumber_{\pilot 2 j} e_{\tilde{X}j}) 
+  \\ \Im \tilde{X} - \Im(\wavenumber_{\pilot 2 j} e_{\tilde{X}j}) 
+  \\ \Re \tilde{Y} - \Re(\wavenumber_{\pilot 2 j} e_{\tilde{Y}j})
+  \\ \Im \tilde{Y} - \Im(\wavenumber_{\pilot 2 j} e_{\tilde{Y}j})
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+     \Re ( e_{U2j} e_{\tilde{X}j} ) & \Re ( e_{V2j} e_{\tilde{X}j} ) & \Re ( e_{W2j} e_{\tilde{X}j} ) & \Re ( e_{Q2j} e_{\tilde{X}j} )
+  \\ \Im ( e_{U2j} e_{\tilde{X}j} ) & \Im ( e_{V2j} e_{\tilde{X}j} ) & \Im ( e_{W2j} e_{\tilde{X}j} ) & \Im ( e_{Q2j} e_{\tilde{X}j} )
+  \\ \Re ( e_{U2j} e_{\tilde{Y}j} ) & \Re ( e_{V2j} e_{\tilde{Y}j} ) & \Re ( e_{W2j} e_{\tilde{Y}j} ) & \Re ( e_{Q2j} e_{\tilde{Y}j} )
+  \\ \Im ( e_{U2j} e_{\tilde{Y}j} ) & \Im ( e_{V2j} e_{\tilde{Y}j} ) & \Im ( e_{W2j} e_{\tilde{Y}j} ) & \Im ( e_{Q2j} e_{\tilde{Y}j} )
+ \end{pmatrix}
+ \cdot
+ \begin{pmatrix}
+  U_2 \\ V_2 \\ W_2 \\ Q_2
+ \end{pmatrix}
+ \nonumber\\
+\end{eqnarray}
+We solve the equation and yield
+\begin{eqnarray}
+ \begin{pmatrix}
+  U_2 \\ V_2 \\ W_2 \\ Q_2
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+     \Re ( e_{U2j} e_{\tilde{X}j} ) & \Re ( e_{V2j} e_{\tilde{X}j} ) & \Re ( e_{W2j} e_{\tilde{X}j} ) & \Re ( e_{Q2j} e_{\tilde{X}j} )
+  \\ \Im ( e_{U2j} e_{\tilde{X}j} ) & \Im ( e_{V2j} e_{\tilde{X}j} ) & \Im ( e_{W2j} e_{\tilde{X}j} ) & \Im ( e_{Q2j} e_{\tilde{X}j} )
+  \\ \Re ( e_{U2j} e_{\tilde{Y}j} ) & \Re ( e_{V2j} e_{\tilde{Y}j} ) & \Re ( e_{W2j} e_{\tilde{Y}j} ) & \Re ( e_{Q2j} e_{\tilde{Y}j} )
+  \\ \Im ( e_{U2j} e_{\tilde{Y}j} ) & \Im ( e_{V2j} e_{\tilde{Y}j} ) & \Im ( e_{W2j} e_{\tilde{Y}j} ) & \Im ( e_{Q2j} e_{\tilde{Y}j} )
+ \end{pmatrix}^{-1}
+ \cdot
+ \begin{pmatrix}
+     \Re ( \tilde{X} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j}) 
+  \\ \Im ( \tilde{X} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j}) 
+  \\ \Re ( \tilde{Y} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j})
+  \\ \Im ( \tilde{Y} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j})
+ \end{pmatrix}
+ \nonumber\\
+\end{eqnarray}
+the in-plane wavevector is conserved $\Wavevector_{\parallel1} = \Wavevector_{\parallel2}$, 
+so we can substitute $\tilde{X}$ and $\tilde{Y}$ by
+\begin{eqnarray}
+ \tilde{X} &=& \wavenumber_{\pilot 1 j} e_{\tilde{X}j} + U_1 e_{U1j} e_{\tilde{X}j} + V_1 e_{V1j} e_{\tilde{X}j} + W_1 e_{W1j} e_{\tilde{X}j} + Q_1 e_{Q1j} e_{\tilde{X}j}
+ \\
+ \tilde{Y} &=& \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} + U_1 e_{U1j} e_{\tilde{Y}j} + V_1 e_{V1j} e_{\tilde{Y}j} + W_1 e_{W1j} e_{\tilde{Y}j} + Q_1 e_{Q1j} e_{\tilde{Y}j}
+\end{eqnarray}
+With this result, we have a direct link between $U,V,W,Q$ before and after the refraction.
+In its current form, however, there is still an implicit dependence of $\Vector{e}_{\tilde{X}},\Vector{e}_{\tilde{Y}}$ on the ray height.
+Next we write this dependence explicitly and perform a Taylor expansion in $X,Y$.
+\begin{eqnarray}
+ e_{\tilde{X}j} &=& e_{Xj} + ?? \\
+ e_{\tilde{Y}j} &=& e_{Yj} + ?? \\
+ n_j            &=& n_{\pilot j} + \frac{\partial n_j}{\partial X} \cdot X + \frac{\partial n_j}{\partial Y} \cdot Y
+\end{eqnarray}
+
 
 
 
