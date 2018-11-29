@@ -700,6 +700,8 @@ class LinearCombination(ExplicitShape):
             xlocal = np.vstack((x, y, np.zeros_like(x)))
             gradfinal = np.zeros_like(xlocal)
 
+            sum_coefficients = 0.
+
             for (coefficient, shape) in self.list_of_coefficient_and_shapes:
                 xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
                 xs = xshape[0, :]
@@ -708,9 +710,10 @@ class LinearCombination(ExplicitShape):
                 gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
 
                 gradfinal += coefficient*gradtransform_shape
+                sum_coefficients += coefficient
 
             # TODO: is this correct?
-            gradfinal[2] /= len(self.list_of_coefficient_and_shapes)
+            gradfinal[2] /= sum_coefficients
 
             return gradfinal
 
