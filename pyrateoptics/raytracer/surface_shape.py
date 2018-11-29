@@ -707,7 +707,10 @@ class LinearCombination(ExplicitShape):
                 grads = shape.getGrad(xs, ys)
                 gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
 
-                gradfinal += -coefficient*gradtransform_shape
+                gradfinal += coefficient*gradtransform_shape
+
+            # TODO: is this correct?
+            gradfinal[2] /= len(self.list_of_coefficient_and_shapes)
 
             return gradfinal
 
