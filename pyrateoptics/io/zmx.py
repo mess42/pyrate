@@ -555,7 +555,7 @@ class ZMXParser(BaseLogger):
                 self.debug("Rectangular aperture %f x %f" % tuple(sqap))
                 ap = RectangularAperture(lcapdec, width=sqap[0]*2, height=sqap[1]*2)
             elif clap is not None:
-                self.debug("Circular aperture %f" % (clap[0],))
+                self.debug("Circular aperture min %f max %f" % (clap[0], clap[1]))
                 ap = CircularAperture(lcapdec, minradius=clap[0], maxradius=clap[1])
 
             if surftype == "STANDARD":
