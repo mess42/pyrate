@@ -577,7 +577,9 @@ We model the ray direction change in first order as
 \begin{eqnarray}
  \Delta \Vector{d} &\approx& \frac{\totald \Vector{d}}{\totald \alpha} \cdot \alpha
 \end{eqnarray}
-with $\alpha \in \{ U,V,W,Q \}$. Now we can directly read the XYUV matrices from \eqref{eq:propagation_between_planes_exact_formula}.
+with $\alpha \in \{ U,V,W,Q \}$. 
+Its explicit form is found in equation \eqref{eq:ray_direction_perturbation}.
+Now we can directly read the XYUV matrices from \eqref{eq:propagation_between_planes_exact_formula}.
 Additionally, we copy the matrices $\hat{C},\hat{D},\hat{N}$ from above.
 \begin{subequations}
 \begin{eqnarray}
@@ -696,14 +698,26 @@ so we can substitute $\tilde{X}$ and $\tilde{Y}$ by
  \tilde{Y} &=& \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} + U_1 e_{U1j} e_{\tilde{Y}j} + V_1 e_{V1j} e_{\tilde{Y}j} + W_1 e_{W1j} e_{\tilde{Y}j} + Q_1 e_{Q1j} e_{\tilde{Y}j}
 \end{eqnarray}
 With this result, we have a direct link between $U,V,W,Q$ before and after the refraction.
-In its current form, however, there is still an implicit dependence of $\Vector{e}_{\tilde{X}},\Vector{e}_{\tilde{Y}}$ on the ray height.
-Next we write this dependence explicitly and perform a Taylor expansion in $X,Y$.
+In its current form, however, there is still an implicit dependence of $\Vector{e}_{\tilde{X}},\Vector{e}_{\tilde{Y}}$ on the ray height $(X,Y)$.
+Next we write this dependence explicitly and perform a first order Taylor expansion.
+In first order approximation, the surface normal is, according to \eqref{eq:derivative_of_surface_normal_in_XY_coordinates},
 \begin{eqnarray}
- e_{\tilde{X}j} &=& e_{Xj} + ?? \\
- e_{\tilde{Y}j} &=& e_{Yj} + ?? \\
- n_j            &=& n_{\pilot j} + \frac{\partial n_j}{\partial X} \cdot X + \frac{\partial n_j}{\partial Y} \cdot Y
+ n_j &=& n_{\pilot j} + \frac{\partial n_j}{\partial X} \cdot X + \frac{\partial n_j}{\partial Y} \cdot Y
 \end{eqnarray}
-
+The two in-plane base vectors are approximated by the pilot in-plane vectors, plus terms linear in $(X,Y)$.
+We represent the infinitessimal deviation by coefficients $\eta$.
+\begin{eqnarray}
+ e_{\tilde{X}j} &\approx& e_{Xj} + \eta_{XXj} X + \eta_{XYj} Y \\
+ e_{\tilde{Y}j} &\approx& e_{Yj} + \eta_{YXj} X + \eta_{YYj} Y
+\end{eqnarray}
+We demand the base vectors to be real, of unit length, and orthogonal to the normal $\Vector{n}$.
+The in-plane coordinates are now fixed up to a roll degree of freedom, and we choose arbitrarily $e_{\tilde{X}j} e_{Yj} = 0$.
+In first order approximation, we yield
+\begin{eqnarray}
+ e_{\tilde{X}j} &\approx& e_{Xj} - \left( \frac{\partial n_\ell}{\partial X} e_{X\ell} X + \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y\right) n_{\pilot j}
+\\
+ e_{\tilde{Y}j} &\approx& e_{Yj} - \left( \frac{\partial n_\ell}{\partial X} e_{X\ell} X + \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y\right) n_{\pilot j}
+\end{eqnarray}
 
 
 
