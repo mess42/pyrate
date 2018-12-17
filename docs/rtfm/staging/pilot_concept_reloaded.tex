@@ -611,7 +611,7 @@ with
            \right)
 \end{eqnarray}
 \end{subequations}
-
+\remark{todo: simplification: eZ = npilot}
 
 \subsection{Refraction}
 We assume two parallel planes 1,2 just in front of and behind a refracting surface.
@@ -638,68 +638,58 @@ The in-plane wavevector is
 \begin{eqnarray}
  \wavenumber_{\parallel2i} &=& (\wavenumber_{2j} e_{\tilde{X}j}) e_{\tilde{X}i} + (\wavenumber_{2j} e_{\tilde{Y}j}) e_{\tilde{Y}i} + 0 \cdot n_i
  \\
- &=& \tilde{X} e_{\tilde{X}i} + \tilde{Y} e_{\tilde{Y}i}
+ &=& \wavenumber_{\tilde{X}} e_{\tilde{X}i} + \wavenumber_{\tilde{Y}} e_{\tilde{Y}i}
 \end{eqnarray}
 with
 \begin{eqnarray}
- \tilde{X} &=& \wavenumber_{\pilot 2 j} e_{\tilde{X}j} + U_2 e_{U2j} e_{\tilde{X}j} + V_2 e_{V2j} e_{\tilde{X}j} + W_2 e_{W2j} e_{\tilde{X}j} + Q_2 e_{Q2j} e_{\tilde{X}j}
+ \wavenumber_{\tilde{X}} &=& \wavenumber_{\pilot 2 j} e_{\tilde{X}j} + U_2 e_{U2j} e_{\tilde{X}j} + V_2 e_{V2j} e_{\tilde{X}j}
  \\
- \tilde{Y} &=& \wavenumber_{\pilot 2 j} e_{\tilde{Y}j} + U_2 e_{U2j} e_{\tilde{Y}j} + V_2 e_{V2j} e_{\tilde{Y}j} + W_2 e_{W2j} e_{\tilde{Y}j} + Q_2 e_{Q2j} e_{\tilde{Y}j}
+ \wavenumber_{\tilde{Y}} &=& \wavenumber_{\pilot 2 j} e_{\tilde{Y}j} + U_2 e_{U2j} e_{\tilde{Y}j} + V_2 e_{V2j} e_{\tilde{Y}j}
 \end{eqnarray}
-We would like to solve these two equations for $U_2,V_2,W_2,Q_2$.
-To track the constraint $U,V,W,Q \in \mathbb{R}$ more easily, we split up the equations 
-in real and imaginary part of $\tilde{X}$ and $\tilde{Y}$, respectively. 
+The in-plane wavevector is conserved $\Wavevector_{\parallel1} = \Wavevector_{\parallel2}$, 
+so we find for medium 1
+\begin{eqnarray}
+ \wavenumber_{\tilde{X}} &=& \wavenumber_{\pilot 1 j} e_{\tilde{X}j} + U_1 e_{U1j} e_{\tilde{X}j} + V_1 e_{V1j} e_{\tilde{X}j}
+ \\
+ \wavenumber_{\tilde{Y}} &=& \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} + U_1 e_{U1j} e_{\tilde{Y}j} + V_1 e_{V1j} e_{\tilde{Y}j}
+\end{eqnarray}
+We solve the system for $(U_2,V_2)$ and yield
 \begin{eqnarray}
  \begin{pmatrix}
-     \Re \tilde{X} - \Re(\wavenumber_{\pilot 2 j} e_{\tilde{X}j}) 
-  \\ \Im \tilde{X} - \Im(\wavenumber_{\pilot 2 j} e_{\tilde{X}j}) 
-  \\ \Re \tilde{Y} - \Re(\wavenumber_{\pilot 2 j} e_{\tilde{Y}j})
-  \\ \Im \tilde{Y} - \Im(\wavenumber_{\pilot 2 j} e_{\tilde{Y}j})
+  e_{U2j} e_{\tilde{X}j}  &  e_{V2j} e_{\tilde{X}j}
+ \\
+  e_{U2j} e_{\tilde{Y}j}  &  e_{V2j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \cdot
+ \begin{pmatrix}  
+   U_2 \\ V_2  
  \end{pmatrix}
  &=&
  \begin{pmatrix}
-     \Re ( e_{U2j} e_{\tilde{X}j} ) & \Re ( e_{V2j} e_{\tilde{X}j} ) & \Re ( e_{W2j} e_{\tilde{X}j} ) & \Re ( e_{Q2j} e_{\tilde{X}j} )
-  \\ \Im ( e_{U2j} e_{\tilde{X}j} ) & \Im ( e_{V2j} e_{\tilde{X}j} ) & \Im ( e_{W2j} e_{\tilde{X}j} ) & \Im ( e_{Q2j} e_{\tilde{X}j} )
-  \\ \Re ( e_{U2j} e_{\tilde{Y}j} ) & \Re ( e_{V2j} e_{\tilde{Y}j} ) & \Re ( e_{W2j} e_{\tilde{Y}j} ) & \Re ( e_{Q2j} e_{\tilde{Y}j} )
-  \\ \Im ( e_{U2j} e_{\tilde{Y}j} ) & \Im ( e_{V2j} e_{\tilde{Y}j} ) & \Im ( e_{W2j} e_{\tilde{Y}j} ) & \Im ( e_{Q2j} e_{\tilde{Y}j} )
- \end{pmatrix}
- \cdot
- \begin{pmatrix}
-  U_2 \\ V_2 \\ W_2 \\ Q_2
- \end{pmatrix}
- \nonumber\\
-\end{eqnarray}
-We solve the equation and yield
-\begin{eqnarray}
- \begin{pmatrix}
-  U_2 \\ V_2 \\ W_2 \\ Q_2
- \end{pmatrix}
- &=&
- \begin{pmatrix}
-     \Re ( e_{U2j} e_{\tilde{X}j} ) & \Re ( e_{V2j} e_{\tilde{X}j} ) & \Re ( e_{W2j} e_{\tilde{X}j} ) & \Re ( e_{Q2j} e_{\tilde{X}j} )
-  \\ \Im ( e_{U2j} e_{\tilde{X}j} ) & \Im ( e_{V2j} e_{\tilde{X}j} ) & \Im ( e_{W2j} e_{\tilde{X}j} ) & \Im ( e_{Q2j} e_{\tilde{X}j} )
-  \\ \Re ( e_{U2j} e_{\tilde{Y}j} ) & \Re ( e_{V2j} e_{\tilde{Y}j} ) & \Re ( e_{W2j} e_{\tilde{Y}j} ) & \Re ( e_{Q2j} e_{\tilde{Y}j} )
-  \\ \Im ( e_{U2j} e_{\tilde{Y}j} ) & \Im ( e_{V2j} e_{\tilde{Y}j} ) & \Im ( e_{W2j} e_{\tilde{Y}j} ) & \Im ( e_{Q2j} e_{\tilde{Y}j} )
- \end{pmatrix}^{-1}
- \cdot
- \begin{pmatrix}
-     \Re ( \tilde{X} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j}) 
-  \\ \Im ( \tilde{X} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j}) 
-  \\ \Re ( \tilde{Y} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j})
-  \\ \Im ( \tilde{Y} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j})
- \end{pmatrix}
- \nonumber\\
-\end{eqnarray}
-the in-plane wavevector is conserved $\Wavevector_{\parallel1} = \Wavevector_{\parallel2}$, 
-so we can substitute $\tilde{X}$ and $\tilde{Y}$ by
-\begin{eqnarray}
- \tilde{X} &=& \wavenumber_{\pilot 1 j} e_{\tilde{X}j} + U_1 e_{U1j} e_{\tilde{X}j} + V_1 e_{V1j} e_{\tilde{X}j} + W_1 e_{W1j} e_{\tilde{X}j} + Q_1 e_{Q1j} e_{\tilde{X}j}
+  \wavenumber_{\pilot 1 j} e_{\tilde{X}j} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j} 
  \\
- \tilde{Y} &=& \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} + U_1 e_{U1j} e_{\tilde{Y}j} + V_1 e_{V1j} e_{\tilde{Y}j} + W_1 e_{W1j} e_{\tilde{Y}j} + Q_1 e_{Q1j} e_{\tilde{Y}j}
+  \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ + 
+  \begin{pmatrix}
+  e_{U1j} e_{\tilde{X}j}  &  e_{V1j} e_{\tilde{X}j}
+ \\
+  e_{U1j} e_{\tilde{Y}j}  &  e_{V1j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \cdot
+ \begin{pmatrix}  
+   U_1 \\ V_1  
+ \end{pmatrix}
+\nonumber\\
 \end{eqnarray}
-With this result, we have a direct link between $U,V,W,Q$ before and after the refraction.
-In its current form, however, there is still an implicit dependence of $\Vector{e}_{\tilde{X}},\Vector{e}_{\tilde{Y}}$ on the ray height $(X,Y)$.
-Next we write this dependence explicitly and perform a first order Taylor expansion.
+
+
+
+
+
+
+
+
 In first order approximation, the surface normal is, according to \eqref{eq:derivative_of_surface_normal_in_XY_coordinates},
 \begin{eqnarray}
  n_j &=& n_{\pilot j} + \frac{\partial n_j}{\partial X} \cdot X + \frac{\partial n_j}{\partial Y} \cdot Y
