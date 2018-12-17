@@ -255,23 +255,23 @@ $\Vector{e}_{X,Y}$ shall be real valued unit vectors and orthogonal on each othe
 \subsubsection{Wavevectors}
 Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
 In contrast to the real valued ray directions, wavevectors may be complex valued.
-Using \eqref{eq:perturbed_wavevector}, we determine the 4 complex valued unit vectors,
-along which perturbed wavevectors still obey the dispersion relation.
+Using \eqref{eq:perturbed_wavevector}, we determine the directions 
+along which wavevectors may be changed, still obeying the dispersion relation.
 We represent the change of the wavevector $\Wavevector$ as
 \begin{eqnarray}
- \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V + W \Vector{e}_W + Q \Vector{e}_Q
+ \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
 \end{eqnarray}
-where $U,V,W,Q$ are real valued prefactors.
-The complex valued unit vectors $\Vector{e}_{U,V,W,Q}$ shall be orthogonal on each other.
+where $U,V$ are complex valued prefactors.
+The complex valued unit vectors $\Vector{e}_{U,V}$ shall be orthogonal on each other.
 
 \subsection{XYUV matrices}
 We choose the object sided base vectors 
-$\Vector{e}_{X,Y,U,V,W,Q,\,obj}$ 
+$\Vector{e}_{X,Y,U,V\,obj}$ 
 in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
 as described in the previous section.
 We trace the pilot ray to the final surface 
 and define the near-pilot base vectors in the final plane
-$\Vector{e}_{X,Y,U,V,W,Q,\,fin}$.
+$\Vector{e}_{X,Y,U,V\,fin}$.
 We split up the $\hat{G}$ operators into separate operators for location and direction.
 \begin{eqnarray}
  \Delta r_{\im,\,i}  &=& A_{ij} \Delta r_{\obj,\,j} + B_{ij} \Delta k_{\obj,\,j} + M_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m} \\ 
@@ -281,7 +281,8 @@ We name the linear operators $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ in analogy to 
 We name the bilinear operators $\hat{M}$ and $\hat{N}$.
 
 We abbreviate $(X,Y)$ as a vector of location deviation $\Vector{R}$
-and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
+and $(U,V)$ as a vector of wavevector deviation $\Vector{K}$.
+We split up $U$ and $V$ in its real and imaginary part.
 \begin{eqnarray}
 \Vector{R} &=&
  \begin{pmatrix}
@@ -290,7 +291,7 @@ and $(U,V,W,Q)$ as a vector of wavevector deviation $\Vector{K}$.
  \\
  \Vector{K} &=&
  \begin{pmatrix}
-  U \\ V \\ W \\ Q 
+  \Re U \\ \Re V \\ \Im U \\ \Im V 
  \end{pmatrix}
 \end{eqnarray}
 The propagator equation becomes
@@ -388,9 +389,8 @@ with
 \end{eqnarray}
  \end{subequations}
  
+\remark{todo: double check}
 \remark{todo: explicit, component wise formula}
-
-
 
 \subsection{Inverse Propagation}
 Often, we know the propagation operator from plane 0 to plane 1, and we want to know the inverse operator,
@@ -491,7 +491,7 @@ We assume the coordinate system to describe wavevector changes is the same in bo
 C_{ij} &=& 0 \\
 D_{ij} &=& \delta_{ij} \\
 N_{ij\ell} &=& 0 \\
-\text{for}\qquad \Vector{e}_{U,V,W,Q\,1} &=& \Vector{e}_{U,V,W,Q\,0} \nonumber
+\text{for}\qquad \Vector{e}_{U,V\,1} &=& \Vector{e}_{U,V\,0} \nonumber
 \end{eqnarray}
 The task to determine $\hat{A},\hat{B}, \hat{M}$ remains. 
 We consider the ray position in both planes without any Taylor approximation
@@ -575,9 +575,9 @@ and further
 \end{eqnarray}
 We model the ray direction change in first order as
 \begin{eqnarray}
- \Delta \Vector{d} &\approx& \frac{\totald \Vector{d}}{\totald \alpha} \cdot \alpha
+ \Delta \Vector{d} &\approx& \frac{\totald \Vector{d}}{\totald K_i} \cdot K_i
 \end{eqnarray}
-with $\alpha \in \{ U,V,W,Q \}$. 
+with $\Vector{K} = (\Re U, \Re V, \Im U, \Im V)$. 
 Its explicit form is found in equation \eqref{eq:ray_direction_perturbation}.
 Now we can directly read the XYUV matrices from \eqref{eq:propagation_between_planes_exact_formula}.
 Additionally, we copy the matrices $\hat{C},\hat{D},\hat{N}$ from above.
@@ -597,7 +597,7 @@ Additionally, we copy the matrices $\hat{C},\hat{D},\hat{N}$ from above.
 \\
 \hat{C} &=& 0 \\
 \hat{D} &=& \unittensor \\
-M_{111} &=& m_{i\ell m} \frac{\totald d_{m}}{\totald U} e_{X0\,i} e_{X1\ell}  \\
+M_{111} &=& m_{i\ell m} \frac{\totald d_{m}}{\totald (\Re U)} e_{X0\,i} e_{X1\ell}  \\
 \hat{N} &=& 0
 \end{eqnarray}
 with
