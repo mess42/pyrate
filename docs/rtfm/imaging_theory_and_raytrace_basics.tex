@@ -564,24 +564,27 @@ in direction unit vector and complex amplitude.
 \end{eqnarray}
 We assume the perturbed direction changes infinitessimally form the unperturbed one.
 \begin{eqnarray}
- \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + \totald\Vector{e} \\
- \Vector{e}_\wavenumber \cdot \totald\Vector{e} &=& 0 \label{eq:perturbation_unit_orthogonality}
+ \tilde{\Vector{e}}_\wavenumber &=& \Vector{e}_\wavenumber + \totald\Vector{e} 
 \end{eqnarray}
 For small perturbations, the length of the direction vector shall stay normalized.
+\begin{eqnarray}
+ \tilde{\Vector{e}}_\wavenumber \overline{\tilde{\Vector{e}}}_\wavenumber &=& 1 \\
+ \Re \left( \Vector{e}_\wavenumber \cdot \overline{\totald\Vector{e}} \right) &=& 0 \label{eq:perturbation_unit_orthogonality}
+\end{eqnarray}
 That is, unit direction and direction perturbation are orthogonal.
 The change in direction may also lead to a change in wavevector length.
 \begin{eqnarray}
  \tilde{\Wavevector} &=& 
      \left( 
-         \wavenumber + \left. \frac{\totald\wavenumber}{\totald\Vector{e}}\right|_{\Wavevector} \cdot \totald\Vector{e} 
+         \wavenumber + \totald \wavenumber 
      \right)
      \tilde{\Vector{e}}_\wavenumber 
  \\
- \totald \Wavevector = \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot \totald\Vector{e} + \left( \left. \frac{\totald\wavenumber}{\totald\Vector{e}}\right|_{\Wavevector} \cdot \totald\Vector{e} \right) \Vector{e}_\wavenumber
+ \totald \Wavevector \approx \tilde{\Wavevector} - \Wavevector &=& \wavenumber \cdot \totald\Vector{e} + \totald \wavenumber \cdot \Vector{e}_\wavenumber
 \end{eqnarray}
-From the dispersion \ref{eq:dispersion_for_known_direction}, we find
+We form the derivative of the dispersion \ref{eq:dispersion_for_known_direction} and find
 \begin{eqnarray}
- \frac{\totald\wavenumber}{\totald\Vector{e}} \totald\Vector{e} &=&
+ \totald \wavenumber &=&
      \frac{\tau}{4 \wavenumber a_4}
      \left(
          - \totald a_2 + \frac{a_2}{a_4} \totald a_4 
@@ -594,22 +597,36 @@ From the dispersion \ref{eq:dispersion_for_known_direction}, we find
 \remark{to do: check whether sqrt may become zero}
 with
 \begin{eqnarray}
- \totald a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) \totald e_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,ij} e_{k\,i} e_{k\,j}) e_{k\,\ell} \totald e_\ell\\
+ \totald a_4 &=& - k_0^2 (e_{k\,\ell} e_{k\,\ell}) e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) \totald e_{j} - 2 k_0^2 (\scalarrelativepermittivity_{\,im} e_{k\,i} e_{k\,m}) e_{k\,j} \totald e_j\\
  \totald a_2 &=&    k_0^4 \text{tr} \relativepermittivity e_{k\,i} ( \scalarrelativepermittivity_{ij} + \scalarrelativepermittivity_{ji} ) \totald e_{j} - k_0^4 e_{ki} ( \scalarrelativepermittivity_{i\ell} \scalarrelativepermittivity_{\ell j} + \scalarrelativepermittivity_{j\ell} \scalarrelativepermittivity_{\ell i} ) \totald e_{j}
 \end{eqnarray}
+We can see the global complex phase of the direction change is proportional to the global complex phase of the wavevector change.
+That is, if $\totald \Vector{e}$ leads to $\totald \Wavevector$, 
+then $e^{i\varphi} \totald \Vector{e}$ leads to $e^{i\varphi}\totald \Wavevector$.
 
-The change in unit direction vector is complex valued, so it contains 6 real valued degrees of freedom.
-The orthogonality condition \eqref{eq:perturbation_unit_orthogonality} reduces the degrees of freedom by 2.
-We can find the four orthogonal vectors employing an algorithm discussed in section \ref{sec:ortho_vectors}. 
-Let's call the solutions $\totald \Vector{e}_{U,V,W,Q}$
-with corresponding wavevector perturbations $\totald \Wavevector_{U,V,W,Q}$.
-In our first order Taylor expansion, the wavevector may deviate by any linear combination of these four directions.
-All four solutions belong to the same branch of the dispersion $(\sigma, \tau)$.
+To find all possible direction changes, we start with the cartesian base $( \Vector{e}_x, \Vector{e}_y, \Vector{e}_z )$.
+This base fulfills the orthogonality condition \eqref{eq:perturbation_unit_orthogonality}.
+Next we apply a unitary rotation operator on all base vectors, such that $\Vector{e}_z$ is transformed to $\Vector{e}_\wavenumber$.
+The explicit form of the operator is found in \ref{sec:ortho_vectors}.
 \begin{eqnarray}
- \tilde{\Wavevector} &=& \Wavevector + U \cdot \totald\Wavevector_U + V \cdot \totald\Wavevector_V + W \cdot \totald\Wavevector_W + Q \cdot \totald\Wavevector_Q \label{eq:perturbed_wavevector}
+ \hat{R} \Vector{e}_x &=& \Vector{e}_u \\
+ \hat{R} \Vector{e}_y &=& \Vector{e}_v \\
+ \hat{R} \Vector{e}_z &=& \Vector{e}_\wavenumber 
 \end{eqnarray}
-with $U,V,W,Q \in \mathbb{R}$ and in the limit of small perturbations. 
-
+We name the other two unit vectors after rotation $\Vector{e}_u$ and $\Vector{e}_v$.
+Due to the unitarity of the rotation operator, the orthogonality between the three base vectors after rotation is conserved.
+Next we determine the infinitessimal wavevector changes associated with direction changes in both directions,
+$\totald \Vector{e}_u \rightarrow \totald \Wavevector_u$ and $\totald \Vector{e}_v \rightarrow \totald \Wavevector_v$.
+We split up the wavevector perturbations in direction and perturbation strength
+\begin{eqnarray}
+ \tilde{\Wavevector} &=& \Wavevector + U \cdot \Vector{e}_U + V \cdot \Vector{e}_V \label{eq:perturbed_wavevector}
+\end{eqnarray}
+with $U,V \in \mathbb{C}$ and
+\begin{eqnarray}
+ \Vector{e}_U &=& \frac{\totald \Wavevector(\totald \Vector{e}_u)}{|\totald \Wavevector(\totald \Vector{e}_u)|} \\
+ \Vector{e}_V &=& \frac{\totald \Wavevector(\totald \Vector{e}_v)}{|\totald \Wavevector(\totald \Vector{e}_v)|} 
+\end{eqnarray}
+$U$ and $V$ are unit-bearing coefficients with the unit of a wavevector $1/\meter$.
 
 \subsection{Isotropic media}
 We insert an isotropic permittivity $\scalarpermittivity_{ij} = \scalarpermittivity \delta_{ij}$ 
