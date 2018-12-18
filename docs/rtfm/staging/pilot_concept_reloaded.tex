@@ -699,9 +699,9 @@ We demand the base vectors to be real, of unit length, and orthogonal to the nea
 The in-plane coordinates are now fixed up to a roll degree of freedom, and we choose arbitrarily $e_{\tilde{X}j} e_{Yj} = 0$.
 In first order approximation, we yield
 \begin{eqnarray}
- e_{\tilde{X}j} &\approx& e_{Xj} - \left( \frac{\partial n_\ell}{\partial X} e_{X\ell} X + \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y\right) n_{\pilot j}
+ e_{\tilde{X}j} &\approx& e_{Xj} - \left( \frac{\partial n_\ell}{\partial X} e_{X\ell} X + \frac{\partial n_\ell}{\partial Y} e_{X\ell} Y\right) n_{\pilot j}
 \\
- e_{\tilde{Y}j} &\approx& e_{Yj} - \left( \frac{\partial n_\ell}{\partial X} e_{X\ell} X + \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y\right) n_{\pilot j}
+ e_{\tilde{Y}j} &\approx& e_{Yj} - \left( \frac{\partial n_\ell}{\partial X} e_{Y\ell} X + \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y\right) n_{\pilot j}
 \end{eqnarray}
 With this intermediate result, 
 we approximate the matrices and vectors in \eqref{eq:xyuv_refraction_with_implicit_XY_dependence_in_tilde_base}
@@ -713,40 +713,72 @@ we approximate the matrices and vectors in \eqref{eq:xyuv_refraction_with_implic
  \end{pmatrix}
  \approx&&
  \begin{pmatrix}
-  e_{U2j} e_{Xj}  &  e_{V2j} e_{Xj}
+  e_{U2j} e_{Xj} &  e_{V2j} e_{Xj}
    \\
-  e_{U2j} e_{Yj}  &  e_{V2j} e_{Yj}
+  e_{U2j} e_{Yj} &  e_{V2j} e_{Yj}
  \end{pmatrix} + 
 \nonumber\\&-&
  \begin{pmatrix}
-  e_{U2j} n_{\pilot j} &  e_{V2j} n_{\pilot j}
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
    \\
-  e_{U2j} n_{\pilot j} &  e_{V2j} n_{\pilot j}
- \end{pmatrix} \frac{\partial n_\ell}{\partial X} e_{X\ell} X + 
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+ \end{pmatrix} X + 
 \nonumber\\&-&
  \begin{pmatrix}
-  e_{U2j} n_{\pilot j} &  e_{V2j} n_{\pilot j}
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
    \\
-  e_{U2j} n_{\pilot j} &  e_{V2j} n_{\pilot j}
- \end{pmatrix} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y 
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+ \end{pmatrix} Y 
 \\
+ \begin{pmatrix}
+  e_{U1j} e_{\tilde{X}j}  &  e_{V1j} e_{\tilde{X}j}
+ \\
+  e_{U1j} e_{\tilde{Y}j}  &  e_{V1j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \approx&&
+ \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix} + 
+\nonumber\\&-&
+ \begin{pmatrix}
+  e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+   \\
+  e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+ \end{pmatrix} X + 
+\nonumber\\&-&
+ \begin{pmatrix}
+  e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+   \\
+  e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+ \end{pmatrix} Y \qquad\qquad
+ \\
  \begin{pmatrix}
   \wavenumber_{\pilot 1 j} e_{\tilde{X}j} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j} 
  \\
   \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j}
  \end{pmatrix}
- &\approx&
- \\
+ \approx&&
+  (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
   \begin{pmatrix}
-  e_{U1j} e_{\tilde{X}j}  &  e_{V1j} e_{\tilde{X}j}
- \\
-  e_{U1j} e_{\tilde{Y}j}  &  e_{V1j} e_{\tilde{Y}j}
- \end{pmatrix}
- &\approx&
- \\
- \end{eqnarray}
-
-
+   \frac{\partial n_\ell}{\partial X} e_{X\ell}    \\    \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+  \end{pmatrix} X + 
+\nonumber\\&+&
+  (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+  \begin{pmatrix}
+   \frac{\partial n_\ell}{\partial Y} e_{X\ell}    \\    \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+  \end{pmatrix} Y  
+\end{eqnarray}
+We invert the first matrix
+\begin{eqnarray}
+ \begin{pmatrix}
+  e_{U2j} e_{\tilde{X}j}  &  e_{V2j} e_{\tilde{X}j}
+   \\
+  e_{U2j} e_{\tilde{Y}j}  &  e_{V2j} e_{\tilde{Y}j}
+ \end{pmatrix}^{-1}
+ \approx&&
+\end{eqnarray}
 
 
 
