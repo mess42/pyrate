@@ -653,7 +653,7 @@ so we find for medium 1
  \\
  \wavenumber_{\tilde{Y}} &=& \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} + U_1 e_{U1j} e_{\tilde{Y}j} + V_1 e_{V1j} e_{\tilde{Y}j}
 \end{eqnarray}
-We solve the system for $(U_2,V_2)$ and yield
+We substitute $\Wavevector_{\tilde{X}}$, $\Wavevector_{\tilde{Y}}$ and yield
 \begin{eqnarray}
  \begin{pmatrix}
   e_{U2j} e_{\tilde{X}j}  &  e_{V2j} e_{\tilde{X}j}
@@ -680,27 +680,22 @@ We solve the system for $(U_2,V_2)$ and yield
  \begin{pmatrix}  
    U_1 \\ V_1  
  \end{pmatrix}
-\nonumber\\
+\nonumber\\\label{eq:xyuv_refraction_with_implicit_XY_dependence_in_tilde_base}
 \end{eqnarray}
+This equation allows us to identify terms independent of the wavevector change in medium 1, 
+which we associate with the $\hat{C}$ matrix, and terms linear in the wavevector change,
+which we associate with $\hat{D}$ and $\hat{N}$.
+The dependence on ray height $(X,Y)$ is still implicit in $\Vector{e}_{\tilde{X}}$ and $\Vector{e}_{\tilde{Y}}$
+and not linearised to first order.
 
-
-
-
-
-
-
-
-In first order approximation, the surface normal is, according to \eqref{eq:derivative_of_surface_normal_in_XY_coordinates},
+So let's have a look at the base $\Vector{e}_{\tilde{X}}$ and $\Vector{e}_{\tilde{Y}}, \Vector{n}$.
+From \eqref{eq:derivative_of_surface_normal_in_XY_coordinates},
+we conclude the normal is in first order approximation
 \begin{eqnarray}
  n_j &=& n_{\pilot j} + \frac{\partial n_j}{\partial X} \cdot X + \frac{\partial n_j}{\partial Y} \cdot Y
 \end{eqnarray}
-The two in-plane base vectors are approximated by the pilot in-plane vectors, plus terms linear in $(X,Y)$.
-We represent the infinitessimal deviation by coefficients $\eta$.
-\begin{eqnarray}
- e_{\tilde{X}j} &\approx& e_{Xj} + \eta_{XXj} X + \eta_{XYj} Y \\
- e_{\tilde{Y}j} &\approx& e_{Yj} + \eta_{YXj} X + \eta_{YYj} Y
-\end{eqnarray}
-We demand the base vectors to be real, of unit length, and orthogonal to the normal $\Vector{n}$.
+The two in-plane base vectors are approximated by the in-plane vectors of the pilot tangential plane, plus terms linear in $(X,Y)$.
+We demand the base vectors to be real, of unit length, and orthogonal to the near-pilot normal $\Vector{n}$.
 The in-plane coordinates are now fixed up to a roll degree of freedom, and we choose arbitrarily $e_{\tilde{X}j} e_{Yj} = 0$.
 In first order approximation, we yield
 \begin{eqnarray}
@@ -708,6 +703,51 @@ In first order approximation, we yield
 \\
  e_{\tilde{Y}j} &\approx& e_{Yj} - \left( \frac{\partial n_\ell}{\partial X} e_{X\ell} X + \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y\right) n_{\pilot j}
 \end{eqnarray}
+With this intermediate result, 
+we approximate the matrices and vectors in \eqref{eq:xyuv_refraction_with_implicit_XY_dependence_in_tilde_base}
+\begin{eqnarray}
+ \begin{pmatrix}
+  e_{U2j} e_{\tilde{X}j}  &  e_{V2j} e_{\tilde{X}j}
+   \\
+  e_{U2j} e_{\tilde{Y}j}  &  e_{V2j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \approx&&
+ \begin{pmatrix}
+  e_{U2j} e_{Xj}  &  e_{V2j} e_{Xj}
+   \\
+  e_{U2j} e_{Yj}  &  e_{V2j} e_{Yj}
+ \end{pmatrix} + 
+\nonumber\\&-&
+ \begin{pmatrix}
+  e_{U2j} n_{\pilot j} &  e_{V2j} n_{\pilot j}
+   \\
+  e_{U2j} n_{\pilot j} &  e_{V2j} n_{\pilot j}
+ \end{pmatrix} \frac{\partial n_\ell}{\partial X} e_{X\ell} X + 
+\nonumber\\&-&
+ \begin{pmatrix}
+  e_{U2j} n_{\pilot j} &  e_{V2j} n_{\pilot j}
+   \\
+  e_{U2j} n_{\pilot j} &  e_{V2j} n_{\pilot j}
+ \end{pmatrix} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y 
+\\
+ \begin{pmatrix}
+  \wavenumber_{\pilot 1 j} e_{\tilde{X}j} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j} 
+ \\
+  \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ &\approx&
+ \\
+  \begin{pmatrix}
+  e_{U1j} e_{\tilde{X}j}  &  e_{V1j} e_{\tilde{X}j}
+ \\
+  e_{U1j} e_{\tilde{Y}j}  &  e_{V1j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ &\approx&
+ \\
+ \end{eqnarray}
+
+
+
 
 
 
