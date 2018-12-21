@@ -778,9 +778,68 @@ We invert the first matrix
   e_{U2j} e_{\tilde{Y}j}  &  e_{V2j} e_{\tilde{Y}j}
  \end{pmatrix}^{-1}
  \approx&&
+ \frac{1}{\det}
+ \cdot
+ \begin{pmatrix}
+   e_{V2j} e_{Yj} & -e_{V2j} e_{Xj}
+   \\
+  -e_{U2j} e_{Yj}  & e_{U2j} e_{Xj}
+ \end{pmatrix}
+ +
+ \nonumber\\
+ &+&
+ \frac{1}{\det^2}
+ \cdot
+ \hat{F}_X X
+ +
+ \nonumber\\
+ &+&
+ \frac{1}{\det^2}
+ \cdot
+ \hat{F}_Y Y
+ \\
+ \det =&& e_{U2i} e_{Xi}e_{V2j} e_{Yj}-e_{V2i} e_{Xi}e_{U2j} e_{Yj}
+ \\
+ \hat{F}_X =&&
+ \begin{pmatrix}
+   e_{V2j} e_{Yj} & -e_{V2j} e_{Xj}
+   \\
+  -e_{U2j} e_{Yj}  & e_{U2j} e_{Xj}
+ \end{pmatrix}
+ \begin{pmatrix}
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+   \\
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+ \end{pmatrix}
+ \begin{pmatrix}
+   e_{V2j} e_{Yj} & -e_{V2j} e_{Xj}
+   \\
+  -e_{U2j} e_{Yj}  & e_{U2j} e_{Xj}
+ \end{pmatrix} 
+\\
+\hat{F}_Y =&&
+ \begin{pmatrix}
+   e_{V2j} e_{Yj} & -e_{V2j} e_{Xj}
+   \\
+  -e_{U2j} e_{Yj}  & e_{U2j} e_{Xj}
+ \end{pmatrix} 
+ \begin{pmatrix}
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+   \\
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+ \end{pmatrix}
+ \begin{pmatrix}
+   e_{V2j} e_{Yj} & -e_{V2j} e_{Xj}
+   \\
+  -e_{U2j} e_{Yj}  & e_{U2j} e_{Xj}
+ \end{pmatrix} 
 \end{eqnarray}
 
+TODO: double check
 
+TODO: FullSimplify
+
+TODO: put all pieces together
 
 
 \chapter{The Staging Attic}
