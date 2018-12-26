@@ -949,12 +949,153 @@ We insert all intermediate results in \eqref{eq:xyuv_refraction_with_implicit_XY
   e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
  \end{pmatrix}
 \end{eqnarray}
-
+which we simplify to
+\begin{eqnarray}
+ \begin{pmatrix} U_2 \\ V_2 \end{pmatrix}
+ &=&
+    \hat{\tilde{C}}     \begin{pmatrix} X   \\ Y   \end{pmatrix}  
+  + \hat{\tilde{D}}     \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_X X \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_Y Y \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  \\
+  \hat{\tilde{C}} 
+  &=&
+     (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+     \cdot \hat{F}_0 \cdot
+     \begin{pmatrix}
+       \frac{\partial n_\ell}{\partial X} e_{X\ell} & \frac{\partial n_\ell}{\partial Y} e_{X\ell} 
+       \\    
+       \frac{\partial n_\ell}{\partial X} e_{Y\ell} & \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} 
+  \\
+  \hat{\tilde{D}}
+  &=&
+     \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+       \\
+       e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+     \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_X
+  &=& - \hat{F}_0\cdot
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+\hat{F}_0 \cdot
+   \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+ \end{pmatrix}
+ \cdot \hat{F}_0 \cdot
+ \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_Y
+  &=&
+     - \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+
+  \hat{F}_0 \cdot
+   \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+ \end{pmatrix}
+ \cdot \hat{F}_0 \cdot
+ \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+ \\
+ \hat{F}_0 &=&
+     \frac{1}{a}
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+\end{eqnarray}
+which we fullsimplify to
+\begin{eqnarray}
+ \begin{pmatrix} U_2 \\ V_2 \end{pmatrix}
+ &=&
+    \hat{\tilde{C}}     \begin{pmatrix} X   \\ Y   \end{pmatrix}  
+  + \hat{\tilde{D}}     \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_X X \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_Y Y \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  \\
+  \hat{\tilde{C}} 
+  &=&
+     (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+     \cdot \hat{F}_0 \cdot
+     \begin{pmatrix}
+       \frac{\partial n_\ell}{\partial X} e_{X\ell} & \frac{\partial n_\ell}{\partial Y} e_{X\ell} 
+       \\    
+       \frac{\partial n_\ell}{\partial X} e_{Y\ell} & \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} 
+  \\
+  \hat{\tilde{D}}
+  &=&
+     \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+       \\
+       e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+     \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_X
+  &=& - \hat{F}_0\cdot
+     \begin{pmatrix}
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) \\
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+     \end{pmatrix} +
+  \nonumber\\
+  &&+ \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) \\
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+     \end{pmatrix}
+     \cdot \hat{\tilde{D}}
+  \\
+  \hat{\tilde{N}}_Y
+  &=&
+     - \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) \\
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+     \end{pmatrix} +
+  \nonumber\\
+  &&+ \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) \\
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+     \end{pmatrix}
+     \cdot \hat{\tilde{D}}
+ \\
+ \hat{F}_0 &=&
+     \frac{1}{ (e_{U2i} e_{Xi}) (e_{V2j} e_{Yj}) - (e_{V2i} e_{Xi}) (e_{U2j} e_{Yj}) }
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+\end{eqnarray}
 
 TODO: double check
-
-TODO: FullSimplify
-
 
 
 
