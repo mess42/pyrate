@@ -615,7 +615,7 @@ with
 
 \subsection{Refraction}
 We assume two parallel planes 1,2 just in front of and behind a refracting surface.
-The planes shall be tangential to the surface 
+The planes shall be tangential to the surface at the position of the pilot ray intersection
 and shall have identical bases $\Vector{e}_{X,Y}$.
 The infinitessimal propagation length through the surface does not change the ray height
 \begin{eqnarray}
@@ -777,8 +777,325 @@ We invert the first matrix
    \\
   e_{U2j} e_{\tilde{Y}j}  &  e_{V2j} e_{\tilde{Y}j}
  \end{pmatrix}^{-1}
- \approx&&
+ &\approx&
+ \frac{1}{a}
+ \cdot
+ \begin{pmatrix}
+   e_{V2j} e_{Yj} & -e_{V2j} e_{Xj}
+   \\
+  -e_{U2j} e_{Yj}  & e_{U2j} e_{Xj}
+ \end{pmatrix}
+ +
+ \frac{1}{a^2}
+ \cdot
+ \hat{F}_X X
+ +
+ \frac{1}{a^2}
+ \cdot
+ \hat{F}_Y Y
+ \nonumber\\
 \end{eqnarray}
+with
+\begin{eqnarray}
+ a =&& e_{U2i} e_{Xi}e_{V2j} e_{Yj}-e_{V2i} e_{Xi}e_{U2j} e_{Yj}
+ \\
+ \hat{F}_X =&&
+ \begin{pmatrix}
+   e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+   \\
+  -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+ \end{pmatrix}
+ \cdot
+ \nonumber\\
+ &\cdot&
+ \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+ \end{pmatrix}
+ \cdot
+ \nonumber\\
+ &\cdot&
+ \begin{pmatrix}
+   e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+   \\
+  -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+ \end{pmatrix} 
+\\
+\hat{F}_Y =&&
+ \begin{pmatrix}
+   e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+   \\
+  -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+ \end{pmatrix} 
+ \cdot
+ \nonumber\\
+ &\cdot&
+ \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+ \end{pmatrix}
+ \cdot
+ \nonumber\\
+ &\cdot&
+ \begin{pmatrix}
+   e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+   \\
+  -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+ \end{pmatrix} 
+\end{eqnarray}
+We insert all intermediate results in \eqref{eq:xyuv_refraction_with_implicit_XY_dependence_in_tilde_base} and obtain
+\begin{eqnarray}
+ \begin{pmatrix}  
+   U_2 \\ V_2  
+ \end{pmatrix}
+ &=&
+    \hat{\tilde{C}}
+  \begin{pmatrix}
+     X \\ Y    
+  \end{pmatrix}  
+  +
+  \hat{\tilde{D}}
+  \begin{pmatrix}
+   U_1 \\ V_1
+  \end{pmatrix}
+  +
+  \hat{\tilde{N}}_X X
+  \begin{pmatrix}
+   U_1 \\ V_1
+  \end{pmatrix}
+  +
+  \hat{\tilde{N}}_Y Y
+  \begin{pmatrix}
+   U_1 \\ V_1
+  \end{pmatrix}
+  \\
+  \hat{\tilde{C}} 
+  &=&
+     \frac{  (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}}{ a }
+     \cdot
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+     \begin{pmatrix}
+       \frac{\partial n_\ell}{\partial X} e_{X\ell} & \frac{\partial n_\ell}{\partial Y} e_{X\ell} 
+       \\    
+       \frac{\partial n_\ell}{\partial X} e_{Y\ell} & \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} 
+  \\
+  \hat{\tilde{D}}
+  &=&
+     \frac{ 1 }{ a }
+     \cdot
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+     \begin{pmatrix}
+       e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+       \\
+       e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+     \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_X
+  &=&
+     \frac{ -1 }{ a }
+     \cdot
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+
+  \frac{1}{a^2}
+  \hat{F}_X
+   \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_Y
+  &=&
+     \frac{ -1 }{ a }
+     \cdot
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+
+  \frac{1}{a^2}
+  \hat{F}_Y
+   \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+\end{eqnarray}
+which we simplify to
+\begin{eqnarray}
+ \begin{pmatrix} U_2 \\ V_2 \end{pmatrix}
+ &=&
+    \hat{\tilde{C}}     \begin{pmatrix} X   \\ Y   \end{pmatrix}  
+  + \hat{\tilde{D}}     \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_X X \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_Y Y \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  \\
+  \hat{\tilde{C}} 
+  &=&
+     (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+     \cdot \hat{F}_0 \cdot
+     \begin{pmatrix}
+       \frac{\partial n_\ell}{\partial X} e_{X\ell} & \frac{\partial n_\ell}{\partial Y} e_{X\ell} 
+       \\    
+       \frac{\partial n_\ell}{\partial X} e_{Y\ell} & \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} 
+  \\
+  \hat{\tilde{D}}
+  &=&
+     \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+       \\
+       e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+     \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_X
+  &=& - \hat{F}_0\cdot
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+\hat{F}_0 \cdot
+   \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+ \end{pmatrix}
+ \cdot \hat{F}_0 \cdot
+ \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_Y
+  &=&
+     - \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+
+  \hat{F}_0 \cdot
+   \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+ \end{pmatrix}
+ \cdot \hat{F}_0 \cdot
+ \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+ \\
+ \hat{F}_0 &=&
+     \frac{1}{a}
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+\end{eqnarray}
+which we fullsimplify to
+\begin{eqnarray}
+ \begin{pmatrix} U_2 \\ V_2 \end{pmatrix}
+ &=&
+    \hat{\tilde{C}}     \begin{pmatrix} X   \\ Y   \end{pmatrix}  
+  + \hat{\tilde{D}}     \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_X X \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_Y Y \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  \\
+  \hat{\tilde{C}} 
+  &=&
+     (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+     \cdot \hat{F}_0 \cdot
+     \begin{pmatrix}
+       \frac{\partial n_\ell}{\partial X} e_{X\ell} & \frac{\partial n_\ell}{\partial Y} e_{X\ell} 
+       \\    
+       \frac{\partial n_\ell}{\partial X} e_{Y\ell} & \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} 
+  \\
+  \hat{\tilde{D}}
+  &=&
+     \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+       \\
+       e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+     \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_X
+  &=& - \hat{F}_0\cdot
+     \begin{pmatrix}
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) \\
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+     \end{pmatrix} +
+  \nonumber\\
+  &&+ \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) \\
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+     \end{pmatrix}
+     \cdot \hat{\tilde{D}}
+  \\
+  \hat{\tilde{N}}_Y
+  &=&
+     - \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) \\
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+     \end{pmatrix} +
+  \nonumber\\
+  &&+ \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) \\
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+     \end{pmatrix}
+     \cdot \hat{\tilde{D}}
+ \\
+ \hat{F}_0 &=&
+     \frac{1}{ (e_{U2i} e_{Xi}) (e_{V2j} e_{Yj}) - (e_{V2i} e_{Xi}) (e_{U2j} e_{Yj}) }
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+\end{eqnarray}
+
+TODO: double check
 
 
 
