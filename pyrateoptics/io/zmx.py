@@ -445,11 +445,15 @@ class ZMXParser(BaseLogger):
                 surfres = self.readSurfBlock(blk)
                 glass_dict = surfres.get("GLAS", None)
                 if glass_dict is not None:
-                    material_name = glass_dict.get("NAME", None)
+                    self.debug(str(glass_dict))
+                    material_name = glass_dict.get("name", None)
                     material_code = glass_dict.get("code", None)
+                    self.debug("mat name \"%s\" mat code %s" % (material_name,
+                                                            material_code))
                     if material_name != "MIRROR" and material_code != 1:
                         found_necessary_glasses = True
                     self.info(material_name)
+            self.info("Are there necessary glasses? " + str(found_necessary_glasses))
             if found_necessary_glasses:
                 self.error("found material names: exiting")
                 return (None, [("zmxelem", [])])
@@ -551,7 +555,7 @@ class ZMXParser(BaseLogger):
                 self.debug("Rectangular aperture %f x %f" % tuple(sqap))
                 ap = RectangularAperture(lcapdec, width=sqap[0]*2, height=sqap[1]*2)
             elif clap is not None:
-                self.debug("Circular aperture %f" % (clap[0],))
+                self.debug("Circular aperture min %f max %f" % (clap[0], clap[1]))
                 ap = CircularAperture(lcapdec, minradius=clap[0], maxradius=clap[1])
 
             if surftype == "STANDARD":
