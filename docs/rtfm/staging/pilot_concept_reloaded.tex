@@ -283,6 +283,8 @@ We name the bilinear operators $\hat{M}$ and $\hat{N}$.
 We abbreviate $(X,Y)$ as a vector of location deviation $\Vector{R}$
 and $(U,V)$ as a vector of wavevector deviation $\Vector{K}$.
 We split up $U$ and $V$ in its real and imaginary part.
+\begin{subequations}
+\label{eq:definition_of_parabasal_R_and_K_vectors}
 \begin{eqnarray}
 \Vector{R} &=&
  \begin{pmatrix}
@@ -294,8 +296,10 @@ We split up $U$ and $V$ in its real and imaginary part.
   \Re U \\ \Re V \\ \Im U \\ \Im V 
  \end{pmatrix}
 \end{eqnarray}
+\end{subequations}
 The propagator equation becomes
 \begin{subequations}
+\label{eq:parabasal_imaging_equation}
 \begin{eqnarray}
  \Vector{R}_\im &=& \hat{A} \cdot \Vector{R}_\obj + \hat{B} \cdot \Vector{K}_\obj + \hat{M} \cdot \Vector{R}_\obj \cdot \Vector{K}_\obj\label{eq:xyuv_imaging_equation}\\
  \Vector{K}_\im &=& \hat{C} \cdot \Vector{R}_\obj + \hat{D} \cdot \Vector{K}_\obj + \hat{N} \cdot \Vector{R}_\obj \cdot \Vector{K}_\obj
@@ -1094,6 +1098,48 @@ which we fullsimplify to
       -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
      \end{pmatrix}
 \end{eqnarray}
+We compare to the parabasal equation of propagation
+\eqref{eq:parabasal_imaging_equation}
+with the $XYUV$ vectors \eqref{eq:definition_of_parabasal_R_and_K_vectors}
+and yield the propagator matrices for a refraction operation
+\begin{eqnarray}
+ \hat{A} &=& \unittensor \\
+ \hat{B} &=& 0 \\
+ \hat{C} &=&
+   \begin{pmatrix}
+    \Re \tilde{C}_{11} & \Re \tilde{C}_{12} \\
+    \Re \tilde{C}_{21} & \Re \tilde{C}_{22} \\
+    \Im \tilde{C}_{11} & \Im \tilde{C}_{12} \\
+    \Im \tilde{C}_{21} & \Im \tilde{C}_{22}
+   \end{pmatrix}
+ \\
+ \hat{D} &=&
+   \begin{pmatrix}
+     \Re \tilde{D}_{11} & \Re \tilde{D}_{12} & - \Im \tilde{D}_{11} & - \Im \tilde{D}_{12} \\
+     \Re \tilde{D}_{21} & \Re \tilde{D}_{22} & - \Im \tilde{D}_{21} & - \Im \tilde{D}_{22} \\
+     \Im \tilde{D}_{11} & \Im \tilde{D}_{12} &   \Re \tilde{D}_{11} &   \Re \tilde{D}_{12} \\
+     \Im \tilde{D}_{21} & \Im \tilde{D}_{22} &   \Re \tilde{D}_{21} &   \Re \tilde{D}_{22} \\
+   \end{pmatrix}
+ \\
+ \hat{M} &=& 0 \\
+ \hat{N}_{[:,:,X]} &=&
+   \begin{pmatrix}
+     \Re \tilde{N}_{X\,11} & \Re \tilde{N}_{X\,12} & - \Im \tilde{N}_{X\,11} & - \Im \tilde{N}_{X\,12} \\
+     \Re \tilde{N}_{X\,21} & \Re \tilde{N}_{X\,22} & - \Im \tilde{N}_{X\,21} & - \Im \tilde{N}_{X\,22} \\
+     \Im \tilde{N}_{X\,11} & \Im \tilde{N}_{X\,12} &   \Re \tilde{N}_{X\,11} &   \Re \tilde{N}_{X\,12} \\
+     \Im \tilde{N}_{X\,21} & \Im \tilde{N}_{X\,22} &   \Re \tilde{N}_{X\,21} &   \Re \tilde{N}_{X\,22} \\
+   \end{pmatrix}
+ \\
+  \hat{N}_{[:,:,Y]} &=&
+   \begin{pmatrix}
+     \Re \tilde{N}_{Y\,11} & \Re \tilde{N}_{Y\,12} & - \Im \tilde{N}_{Y\,11} & - \Im \tilde{N}_{Y\,12} \\
+     \Re \tilde{N}_{Y\,21} & \Re \tilde{N}_{Y\,22} & - \Im \tilde{N}_{Y\,21} & - \Im \tilde{N}_{Y\,22} \\
+     \Im \tilde{N}_{Y\,11} & \Im \tilde{N}_{Y\,12} &   \Re \tilde{N}_{Y\,11} &   \Re \tilde{N}_{Y\,12} \\
+     \Im \tilde{N}_{Y\,21} & \Im \tilde{N}_{Y\,22} &   \Re \tilde{N}_{Y\,21} &   \Re \tilde{N}_{Y\,22} \\
+   \end{pmatrix}
+\end{eqnarray}
+
+
 
 TODO: double check
 
