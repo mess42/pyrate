@@ -31,10 +31,13 @@ import re
 
 from .log import BaseLogger
 
+
 class OptimizableVariable(BaseLogger):
     """
-    Class that contains an optimizable variable. Used to get a pointer on a variable.
-    The value is not constrained to float. Also other dependent variables are possible to define.
+    Class that contains an optimizable variable.
+    Used to get a pointer on a variable.
+    The value is not constrained to float.
+    Also other dependent variables are possible to define.
     """
     def __init__(self, variable_type="fixed",
                  name="", kind="optimizablevariable", **kwargs):
@@ -74,27 +77,23 @@ class OptimizableVariable(BaseLogger):
         """
 
         self.evaldict = {
-                    "fixed"    : self.eval_fixed,
-                    "variable" : self.eval_variable,
-                    "pickup"   : self.eval_pickup,
-                    "external" : self.eval_external
+                    "fixed": self.eval_fixed,
+                    "variable": self.eval_variable,
+                    "pickup": self.eval_pickup,
+                    "external": self.eval_external
                     }
 
         self.initdict = {
-                    "fixed"    : self.init_fixed,
-                    "variable" : self.init_variable,
-                    "pickup"   : self.init_pickup,
-                    "external" : self.init_external
+                    "fixed": self.init_fixed,
+                    "variable": self.init_variable,
+                    "pickup": self.init_pickup,
+                    "external": self.init_external
                     }
 
         self.var_type = variable_type
         self.evalfunc = self.evaldict[self.var_type]
         self.initdict[self.var_type](**kwargs)
         self.set_interval(None, None)
-
-
-    #def __str__(self, *args, **kwargs):
-    #    return self.name + "('" + self.var_type + "') = " + str(self.parameters)
 
     def init_fixed(self, **kwargs):
         self.parameters = {}
@@ -106,17 +105,18 @@ class OptimizableVariable(BaseLogger):
 
     def init_pickup(self, **kwargs):
         self.parameters = {}
-        self.parameters["functionobject"] = kwargs.get("functionobject", (None, ()))
-        #self.parameters["function"] = kwargs.get("function", None)
+        self.parameters["functionobject"] = kwargs.get("functionobject",
+                                                       (None, ()))
+        # self.parameters["function"] = kwargs.get("function", None)
         self.parameters["args"] = kwargs.get("args", ())
         # TODO: function also as string, string tuple or as code object
 
     def init_external(self, **kwargs):
         self.parameters = {}
-        self.parameters["functionobject"] = kwargs.get("functionobject", (None, ()))
+        self.parameters["functionobject"] = kwargs.get("functionobject",
+                                                       (None, ()))
         self.parameters["args"] = kwargs.get("args", ())
         # TODO: function also as string, string tuple or as code object
-
 
     def getVariableType(self):
         return self.__var_type.lower()
@@ -144,8 +144,10 @@ class OptimizableVariable(BaseLogger):
             self.transform = lambda x: x
             self.inv_transform = lambda x: x
         else:
-            self.inv_transform = lambda x: left + (right - left)/(1. + math.exp(-x/math.fabs(right - left)))
-            self.transform = lambda x: math.log((-x + left)/(x - right))*math.fabs(left - right)
+            self.inv_transform = lambda x: left +\
+                (right - left)/(1. + math.exp(-x/math.fabs(right - left)))
+            self.transform = lambda x: math.log((-x + left)/(x - right)) *\
+                math.fabs(left - right)
 
     """
     all -> fixed: value is conserved
@@ -165,11 +167,13 @@ class OptimizableVariable(BaseLogger):
         # third: erase parameters (will be done in init functions)
         # reset parameters: also done in init functions
 
-        self.debug("changing type from \'%s\' to \'%s\'" % (from_type, to_type))
+        self.debug("changing type from \'%s\' to \'%s\'" % (from_type,
+                                                            to_type))
         value_backup = self.evaluate()
         parameters_backup = self.parameters
-        self.debug("old value (%s) and old parameters (%s)" % (str(value_backup), str(parameters_backup)))
-        self.debug("kwargs=%s"%repr(kwargs))
+        self.debug("old value (%s) and old parameters (%s)" %
+                   (str(value_backup), str(parameters_backup)))
+        self.debug("kwargs=%s" % repr(kwargs))
         self.initdict[to_type](**kwargs)
 
         if to_type == "fixed" or to_type == "variable":
@@ -180,22 +184,22 @@ class OptimizableVariable(BaseLogger):
             (functionobject, functionname) = self.parameters["functionobject"]
             functionobject.generateFunctionsFromSource([functionname])
 
-
         if (from_type == "pickup" and to_type == "external") or\
-            (from_type == "external" and to_type == "pickup"):
-            #if not kwargs.has_key("function"):
+                (from_type == "external" and to_type == "pickup"):
+            #  if not kwargs.has_key("function"):
             #    self.parameters["function"] = parameters_backup["function"]
             if "functionobject" not in kwargs:
-                self.parameters["functionobject"] = parameters_backup["functionobject"]
+                self.parameters["functionobject"] =\
+                    parameters_backup["functionobject"]
             self.info("PICKUP SET")
 
         self.evalfunc = self.evaldict[to_type]
         self.var_type = to_type
-        self.debug("new value %s and new parameters %s" % (str(self.evaluate()), str(self.parameters)))
+        self.debug("new value %s and new parameters %s" %
+                   (str(self.evaluate()), str(self.parameters)))
 
     def changetype(self, vtype, **kwargs):
         self.changetype_from_to(self.var_type, vtype.lower(), **kwargs)
-
 
     def setvalue(self, value):
         # TODO: overload assign operator
@@ -214,18 +218,22 @@ class OptimizableVariable(BaseLogger):
         # if type = pickup then package up all arguments into one tuple
         # and put it into the userdefined function
         # evaluate the result
-        arguments_for_function_eval = (argfunc.evaluate() for argfunc in self.parameters["args"])
+        arguments_for_function_eval = (argfunc.evaluate()
+                                       for argfunc in self.parameters["args"])
         (functionobject, functionname) = self.parameters["functionobject"]
-        return functionobject.functions[functionname](*arguments_for_function_eval)
+        return functionobject.functions[functionname](
+                *arguments_for_function_eval)
 
     def eval_external(self):
-        # same as for solve except that there are no further OptimizableVariables to be considered
+        # same as for solve except that there are no further
+        # OptimizableVariables to be considered
         (functionobject, functionname) = self.parameters["functionobject"]
         return functionobject.functions[functionname](*self.parameters["args"])
 
     def evaluate(self):
         # notice: evaluation code is not limited to floats
-        # do not use if-else construct because for many cases dict lookup is faster
+        # do not use if-else construct because for many
+        # cases dict lookup is faster
 
         return self.evalfunc()
 
@@ -260,7 +268,8 @@ class ClassWithOptimizableVariables(BaseLogger):
     of a dictionary. This class is also able to collect the variables and
     their values from its subclasses per recursion.
     """
-    def __init__(self, name="", kind="classwithoptimizablevariables", **kwargs):
+    def __init__(self, name="", kind="classwithoptimizablevariables",
+                 **kwargs):
         """
         Initialize with empty dict.
         """
