@@ -26,11 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import logging
 import uuid
-import re
 
 import numpy as np
 from .names.adjectives import adjectives
 from .names.nouns import nouns
+
 
 class BaseLogger(object):
 

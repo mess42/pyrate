@@ -60,6 +60,9 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         self.material_background = matbackground # Background material
         self.elements = {}
 
+    def getDictionary(self):
+        return super(OpticalSystem, self).getDictionary()
+
     def seqtrace(self, initialbundle, elementsequence, splitup=False): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
         rpaths = [rpath]
