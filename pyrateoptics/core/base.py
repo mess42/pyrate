@@ -288,6 +288,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         res["annotations"] = self.annotations
         myvars_dict = self.getAllVariables(recursive=False).get("vars", {})
         myvars_id_dict = {}
+        print(self.getVariablesForDict())
         for (k, v) in myvars_dict.items():
             myvars_id_dict[k] = v.getDictionary()["unique_id"]
 
@@ -301,6 +302,37 @@ class ClassWithOptimizableVariables(BaseLogger):
     def informObservers(self):
         for obs in self.list_observers:
             obs.informAboutUpdate()
+
+    def getVariablesForDict(self):
+
+        def addOptimizableVariablesToList(var, key, idlist=[], dictOfOptVars={}):
+            if id(var) not in idlist:
+                idlist.append(id(var))
+
+                if isinstance(var, ClassWithOptimizableVariables):
+                    if len(idlist) == 1:  # only first level
+                        for (k, v) in var.__dict__.items():
+                            dictOfOptVars, idlist =\
+                                addOptimizableVariablesToList(v, k, idlist,
+                                                              dictOfOptVars)
+                elif isinstance(var, list) or isinstance(var, tuple):
+                    for (ind, v) in enumerate(var):
+                        dictOfOptVars, idlist =\
+                            addOptimizableVariablesToList(v, "[" + str(ind) + "]",
+                                                          idlist,
+                                                          dictOfOptVars)
+                elif isinstance(var, dict):
+                    for (k, v) in var.items():
+                        dictOfOptVars, idlist =\
+                            addOptimizableVariablesToList(v, k, idlist,
+                                                          dictOfOptVars)
+                elif isinstance(var, OptimizableVariable):
+                    dictOfOptVars[var.name] = var.unique_id
+
+            return dictOfOptVars, idlist
+
+        (mydict, idlist) = addOptimizableVariablesToList(self, "")
+        return mydict
 
     def getAllVariables(self, recursive=True):
 
