@@ -286,13 +286,7 @@ class ClassWithOptimizableVariables(BaseLogger):
     def getDictionary(self):
         res = super(ClassWithOptimizableVariables, self).getDictionary()
         res["annotations"] = self.annotations
-        myvars_dict = self.getAllVariables(recursive=False).get("vars", {})
-        myvars_id_dict = {}
-        print(self.getVariablesForDict())
-        for (k, v) in myvars_dict.items():
-            myvars_id_dict[k] = v.getDictionary()["unique_id"]
-
-        res["variables"] = myvars_id_dict
+        res["variables"] = self.getVariablesForDict()
 
         return res
 
@@ -305,33 +299,39 @@ class ClassWithOptimizableVariables(BaseLogger):
 
     def getVariablesForDict(self):
 
-        def addOptimizableVariablesToList(var, key, idlist=[], dictOfOptVars={}):
-            if id(var) not in idlist:
-                idlist.append(id(var))
+        def remove_non_optvars(var):
+            if isinstance(var, OptimizableVariable):
+                return var.unique_id
+            elif isinstance(var, list):
+                l1 = []
+                for item in var:
+                    newitem = remove_non_optvars(item)
+                    if newitem is not None:
+                        l1.append(newitem)
+                if l1 != []:
+                    return l1
+                else:
+                    return None
+            elif isinstance(var, dict):
+                d1 = {}
+                for (key, value) in var.items():
+                    newitem = remove_non_optvars(value)
+                    if newitem is not None:
+                        d1[key] = newitem
+                if d1 != {}:
+                    return d1
+                else:
+                    return None
 
-                if isinstance(var, ClassWithOptimizableVariables):
-                    if len(idlist) == 1:  # only first level
-                        for (k, v) in var.__dict__.items():
-                            dictOfOptVars, idlist =\
-                                addOptimizableVariablesToList(v, k, idlist,
-                                                              dictOfOptVars)
-                elif isinstance(var, list) or isinstance(var, tuple):
-                    for (ind, v) in enumerate(var):
-                        dictOfOptVars, idlist =\
-                            addOptimizableVariablesToList(v, "[" + str(ind) + "]",
-                                                          idlist,
-                                                          dictOfOptVars)
-                elif isinstance(var, dict):
-                    for (k, v) in var.items():
-                        dictOfOptVars, idlist =\
-                            addOptimizableVariablesToList(v, k, idlist,
-                                                          dictOfOptVars)
-                elif isinstance(var, OptimizableVariable):
-                    dictOfOptVars[var.name] = var.unique_id
+            return None
 
-            return dictOfOptVars, idlist
+        mydict = {}
 
-        (mydict, idlist) = addOptimizableVariablesToList(self, "")
+        for (key, value) in self.__dict__.items():
+            myitem = remove_non_optvars(value)
+            if myitem is not None:
+                mydict[key] = myitem
+
         return mydict
 
     def getAllVariables(self, recursive=True):
