@@ -286,7 +286,8 @@ class ClassWithOptimizableVariables(BaseLogger):
     def getDictionary(self):
         res = super(ClassWithOptimizableVariables, self).getDictionary()
         res["annotations"] = self.annotations
-        res["variables"] = self.getVariablesForDict()
+        res["variables"] = self.getTypesForDict(typ=OptimizableVariable)
+        res["classes"] = self.getTypesForDict(typ=ClassWithOptimizableVariables)
 
         return res
 
@@ -297,10 +298,10 @@ class ClassWithOptimizableVariables(BaseLogger):
         for obs in self.list_observers:
             obs.informAboutUpdate()
 
-    def getVariablesForDict(self):
+    def getTypesForDict(self, typ):
 
         def remove_non_optvars(var):
-            if isinstance(var, OptimizableVariable):
+            if isinstance(var, typ):
                 return var.unique_id
             elif isinstance(var, list):
                 l1 = []
