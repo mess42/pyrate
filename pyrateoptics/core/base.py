@@ -288,8 +288,13 @@ class ClassWithOptimizableVariables(BaseLogger):
         res["annotations"] = self.annotations
         res["variables"] = self.getTypesForDict(typ=OptimizableVariable)
         res["classes"] = self.getTypesForDict(typ=ClassWithOptimizableVariables)
-
         return res
+
+    def getDictionaryVariablesById(self):
+        return dict([(v.unique_id, v.getDictionary()) for v in self.getAllVariables()["vars"].values()])
+
+    def getDictionaryClassesById(self):
+        return self.getTypesForDict(ClassWithOptimizableVariables, func=lambda x: x.getDictionary())
 
     def appendObservers(self, obslist):
         self.list_observers += obslist
@@ -298,11 +303,11 @@ class ClassWithOptimizableVariables(BaseLogger):
         for obs in self.list_observers:
             obs.informAboutUpdate()
 
-    def getTypesForDict(self, typ):
+    def getTypesForDict(self, typ, func=lambda x: x.unique_id):
 
         def remove_non_optvars(var):
             if isinstance(var, typ):
-                return var.unique_id
+                return func(var)
             elif isinstance(var, list):
                 l1 = []
                 for item in var:
