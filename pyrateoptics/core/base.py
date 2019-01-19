@@ -283,6 +283,13 @@ class ClassWithOptimizableVariables(BaseLogger):
         # for the optimizable variable class it is useful to have some observer
         # links they get informed if variables change their values
 
+    def appendObservers(self, obslist):
+        self.list_observers += obslist
+
+    def informObservers(self):
+        for obs in self.list_observers:
+            obs.informAboutUpdate()
+
     def getDictionary(self):
         res = super(ClassWithOptimizableVariables, self).getDictionary()
         res["annotations"] = self.annotations
@@ -293,21 +300,26 @@ class ClassWithOptimizableVariables(BaseLogger):
     def getDictionaryVariablesById(self):
         return dict([(v.unique_id, v.getDictionary()) for v in self.getAllVariables()["vars"].values()])
 
-    def getDictionaryClassesById(self):
-        return self.getTypesForDict(ClassWithOptimizableVariables, func=lambda x: x.getDictionary())
+    def getDictionaryClassesById(self, recursive=False):
+        return self.getTypesForDict(ClassWithOptimizableVariables,
+                                    func=lambda x: x.getDictionary(),
+                                    recursive=recursive)
 
-    def appendObservers(self, obslist):
-        self.list_observers += obslist
-
-    def informObservers(self):
-        for obs in self.list_observers:
-            obs.informAboutUpdate()
-
-    def getTypesForDict(self, typ, func=lambda x: x.unique_id):
+    def getTypesForDict(self, typ, func=lambda x: x.unique_id, recursive=False):
 
         def remove_non_optvars(var):
             if isinstance(var, typ):
-                return func(var)
+                if recursive:
+                    myres = var.getTypesForDict(typ, func=func,
+                                               recursive=recursive)
+                    print("myres: ", myres)
+                    print("func: ", func(var))
+                    if myres == {}:
+                        return func(var)
+                    else:
+                        return myres
+                else:
+                    return func(var)
             elif isinstance(var, list):
                 l1 = []
                 for item in var:
