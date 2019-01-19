@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import math
 import logging
+from pprint import pprint
 
 from distutils.version import StrictVersion
 
@@ -343,5 +344,6 @@ r2 = s.seqtrace(b[0], seq)
 for r in r2:
     r.draw2d(ax2, color="blue", plane_normal=pn, up=up)
 
-
 plt.show()
+
+pprint(s.getCompleteListForReconstruction())

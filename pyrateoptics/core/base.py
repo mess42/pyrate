@@ -258,15 +258,21 @@ class OptimizableVariable(BaseLogger):
         res = super(OptimizableVariable, self).getDictionary()
         res["variable_type"] = self.var_type
         for (key, val) in self.parameters.items():
+            if self.var_type == 'pickup':
+                if key == 'args':
+                    val = tuple([v.unique_id for v in val])
+                if key == 'functionobject':
+                    val = (val[0].source, val[1])
             res[key] = val
         return res
 
 # TODO: This class contains far too much stuff! Refactor!
-# Three core functionalities which may be splitted:
+# Four core functionalities which may be splitted:
 #   I   Observer (lightweight) - needed for interface communication
 #   II  Collecting sub classes and variables (heavy) - needed for III and IV
 #   III Provide an API for preparing a numpy array for the optimizer (heavy)
 #   IV  Some serialization techniques
+
 
 class ClassWithOptimizableVariables(BaseLogger):
     """
@@ -437,6 +443,23 @@ class ClassWithOptimizableVariables(BaseLogger):
                     derefstring = re.sub(r"\([a-zA-Z0-9_ ]+\)", "",
                                          newkeystring)
                     dictOfOptVars["deref"][newreducedkeystring] = derefstring
+
+                    """
+                    If there are pickup variables from outside
+                    the system.
+                    """
+
+                    if var.var_type == "pickup":
+                        for (ind, v) in enumerate(var.parameters.get("args", [])):
+                            newkeystring = keystring + "[" + str(ind) + "]"
+                            newreducedkeystring = reducedkeystring + var.name + ".pickup_args[" + str(ind) + "]="
+                            (dictOfOptVars, idlist) =\
+                                addOptimizableVariablesToList(v,
+                                                              dictOfOptVars,
+                                                              idlist,
+                                                              newkeystring,
+                                                              newreducedkeystring,
+                                                              recursive=recursive)
 
             return dictOfOptVars, idlist
 

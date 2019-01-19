@@ -105,7 +105,10 @@ class BaseLogger(object):
         self.logger.critical(msg, *args, **kwargs)
 
     def getDictionary(self):
-        return {"name": self.name, "unique_id": self.unique_id}
+        return {"name": self.name,
+                "unique_id": self.unique_id,
+                "kind": self.kind,
+                "protocol_version": 0}
 
     def __getstate__(self):
         """
