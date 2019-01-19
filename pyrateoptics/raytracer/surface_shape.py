@@ -303,8 +303,6 @@ class Conic(Shape):
     def getDictionary(self):
         res = super(Conic, self).getDictionary()
         res[type_key] = "Conic"
-        res["curv"] = self.curvature()
-        res["cc"] = self.conic()
         return res
 
 
@@ -364,8 +362,6 @@ class Cylinder(Conic):
     def getDictionary(self):
         res = super(Cylinder, self).getDictionary()
         res[type_key] = "Cylinder"
-        res["curv"] = self.curvature()
-        res["cc"] = self.conic()
         return res
 
 
@@ -585,23 +581,21 @@ class Biconic(ExplicitShape):
     Polynomial biconic as base class for sophisticated surface descriptions
     """
 
-
-    def __init__(self, lc, curvx=0, ccx=0, curvy=0, ccy=0, coefficients=None, **kwargs):
+    def __init__(self, lc, curvx=0, ccx=0, curvy=0, ccy=0,
+                 coefficients=None, **kwargs):
 
         if coefficients is None:
             coefficients = []
 
-
         self.numcoefficients = len(coefficients)
-        initacoeffs = [("A"+str(2*i+2), vala) for (i, (vala, valb)) in enumerate(coefficients)]
-        initbcoeffs = [("B"+str(2*i+2), valb) for (i, (vala, valb)) in enumerate(coefficients)]
+        initacoeffs = [("A"+str(2*i+2), vala)
+                       for (i, (vala, valb)) in enumerate(coefficients)]
+        initbcoeffs = [("B"+str(2*i+2), valb)
+                       for (i, (vala, valb)) in enumerate(coefficients)]
 
         def sqrtfun(x, y):
             (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
             return np.sqrt(1 - curvx**2*(1+ccx)*x**2 - curvy**2*(1+ccy)*y**2)
-
-
-
 
         def bf(x, y):
             (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
@@ -623,7 +617,6 @@ class Biconic(ExplicitShape):
             ast2 = x**2 - y**2
 
             sq = sqrtfun(x, y)
-
 
             res[2] = np.ones_like(x) # z-component always 1
             res[0] = -cx*x*(cx*(ccx + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
