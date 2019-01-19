@@ -261,6 +261,12 @@ class OptimizableVariable(BaseLogger):
             res[key] = val
         return res
 
+# TODO: This class contains far too much stuff! Refactor!
+# Three core functionalities which may be splitted:
+#   I   Observer (lightweight) - needed for interface communication
+#   II  Collecting sub classes and variables (heavy) - needed for III and IV
+#   III Provide an API for preparing a numpy array for the optimizer (heavy)
+#   IV  Some serialization techniques
 
 class ClassWithOptimizableVariables(BaseLogger):
     """
@@ -297,28 +303,23 @@ class ClassWithOptimizableVariables(BaseLogger):
         res["classes"] = self.getTypesForDict(typ=ClassWithOptimizableVariables)
         return res
 
-    def getDictionaryVariablesById(self):
+    def getDictionaryAllVariablesById(self):
         return dict([(v.unique_id, v.getDictionary()) for v in self.getAllVariables()["vars"].values()])
 
-    def getDictionaryClassesById(self, recursive=False):
-        return self.getTypesForDict(ClassWithOptimizableVariables,
-                                    func=lambda x: x.getDictionary(),
-                                    recursive=recursive)
+    def getDictionaryAllClassesById(self, removeself=True):
+        res = dict([(v.unique_id, v.getDictionary()) for v in self.getAllVariables()["classes"].values()])
+        if removeself:
+            res.pop(self.unique_id)
+        return res
 
-    def getTypesForDict(self, typ, func=lambda x: x.unique_id, recursive=False):
+    def getDictionaryClassesById(self):
+        return dict([(v.unique_id, v.getDictionary())
+                     for v in self.getTypesForDict(ClassWithOptimizableVariables, lambda x: x).values()])
+
+    def getTypesForDict(self, typ, func=lambda x: x.unique_id):
 
         def remove_non_optvars(var):
             if isinstance(var, typ):
-                if recursive:
-                    myres = var.getTypesForDict(typ, func=func,
-                                               recursive=recursive)
-                    print("myres: ", myres)
-                    print("func: ", func(var))
-                    if myres == {}:
-                        return func(var)
-                    else:
-                        return myres
-                else:
                     return func(var)
             elif isinstance(var, list):
                 l1 = []
@@ -354,10 +355,19 @@ class ClassWithOptimizableVariables(BaseLogger):
 
     def getAllVariables(self, recursive=True):
 
+        """
+        This functions traverses through a ClassWithOptimizableVariables
+        and collects several information of the underlying recursive structure.
+        """
+
+        # TODO: Rename function to a more appropriate name. (form vs. function)
+        # TODO: This function is too intelligent. Divide into more appropriate sub problems
+
         def addOptimizableVariablesToList(var,
                                           dictOfOptVars={"vars": {},
                                                          "longkeystrings": {},
-                                                         "deref": {}},
+                                                         "deref": {},
+                                                         "classes": {}},
                                           idlist=[],
                                           keystring="",
                                           reducedkeystring="", recursive=True):
@@ -384,6 +394,7 @@ class ClassWithOptimizableVariables(BaseLogger):
 
                 if isinstance(var, ClassWithOptimizableVariables):
                     if len(idlist) == 1 or (len(idlist) > 1 and recursive):
+                        dictOfOptVars["classes"][var.unique_id] = var
                         for (k, v) in var.__dict__.items():
                             newkeystring = keystring + "(" + var.name + ")." +\
                                 str(k)
@@ -499,6 +510,11 @@ class ClassWithOptimizableVariables(BaseLogger):
         dict_of_vars = self.getAllVariables()
         variable = dict_of_vars["vars"][key]
         return variable
+
+    def getCompleteListForReconstruction(self):
+        return [self.getDictionary(),
+                self.getDictionaryAllClassesById(),
+                self.getDictionaryAllVariablesById()]
 
 
 def optimizablevariable_representer(dumper, data):
