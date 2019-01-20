@@ -1143,7 +1143,34 @@ and yield the propagator matrices for a refraction operation
 
 TODO: double check
 
+\subsection{Image Plane Tilt Compensation}
 
+\subsubsection{The Problem}
+Assume a sequence of refraction and translation operators through homogeneous media.
+Is it always possible to append a coordinate transform $X,Y$ in the final medium, 
+such that the total propagation operator has zero image plane tilt ?
+\begin{eqnarray}
+  \hat{M}_{\tot} = 0 \\
+  \hat{N}_{\tot} = 0 
+\end{eqnarray}
+Once an $XYUV$ formalism for inhomogeneous (for example gradient index) media is developed, can it be extended to these ?
+
+\subsubsection{How a Compensation would have to look like}
+\begin{eqnarray}
+ \hat{M}_\tot &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
+ \hat{N}_\tot &=& \hat{C}_1 \hat{M}_0 + \hat{D}_1 \hat{N}_0 + \hat{N}_1 \hat{A}_0 \hat{D}_0 + \hat{N}_1 \hat{B}_0 \hat{C}_0
+\end{eqnarray}
+The second operation (index $1$) is a propagation, so
+\begin{eqnarray}
+\hat{C}_1 &=& 0 \\
+\hat{D}_1 &=& \unittensor \\
+\hat{N}_1 &=& 0
+\end{eqnarray}
+which simplifies the above equations to
+\begin{eqnarray}
+ \hat{M}_\tot &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
+ \hat{N}_\tot &=& \hat{D}_1 \hat{N}_0
+\end{eqnarray}
 
 
 \chapter{The Staging Attic}
