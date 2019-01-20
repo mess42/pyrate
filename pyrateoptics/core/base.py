@@ -266,6 +266,13 @@ class OptimizableVariable(BaseLogger):
             res[key] = val
         return res
 
+    @staticmethod
+    def initFromDictionary(override_unique_id=True, **kwargs):
+        res = OptimizableVariable(**kwargs)
+        if not override_unique_id:
+            res.unique_id = kwargs["unique_id"]
+        return res
+
 # TODO: This class contains far too much stuff! Refactor!
 # Four core functionalities which may be splitted:
 #   I   Observer (lightweight) - needed for interface communication
