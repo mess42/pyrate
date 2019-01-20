@@ -29,6 +29,8 @@ import math
 import ruamel.yaml as yaml
 import re
 
+from copy import copy
+
 from .log import BaseLogger
 
 
@@ -268,6 +270,12 @@ class OptimizableVariable(BaseLogger):
 
     @staticmethod
     def initFromDictionary(override_unique_id=True, **kwargs):
+        """
+        Creates OptimizableVariable from dictionary entry from serialization
+        dictionary. Overriding the unique_id is standard behaviour since
+        unique_id is only needed for link purposes and is not intended to be
+        stable.
+        """
         res = OptimizableVariable(**kwargs)
         if not override_unique_id:
             res.unique_id = kwargs["unique_id"]
@@ -451,29 +459,41 @@ class ClassWithOptimizableVariables(BaseLogger):
                                          newkeystring)
                     dictOfOptVars["deref"][newreducedkeystring] = derefstring
 
-                    """
-                    If there are pickup variables from outside
-                    the system.
-                    """
-
-                    if var.var_type == "pickup":
-                        for (ind, v) in enumerate(var.parameters.get("args", [])):
-                            newkeystring = keystring + "[" + str(ind) + "]"
-                            newreducedkeystring = reducedkeystring + var.name + ".pickup_args[" + str(ind) + "]="
-                            (dictOfOptVars, idlist) =\
-                                addOptimizableVariablesToList(v,
-                                                              dictOfOptVars,
-                                                              idlist,
-                                                              newkeystring,
-                                                              newreducedkeystring,
-                                                              recursive=recursive)
-
             return dictOfOptVars, idlist
+
+        """
+        Traverse ClassWithOptimizableVariables and their subclasses
+        and substructures. It does not work for OptimizableVariables which
+        are arguments to a pickup and were defined outside of the actual
+        ClassWithOptimizableVariables.
+        """
 
         (dict_opt_vars, idlist) =\
             addOptimizableVariablesToList(self,
                                           keystring="",
                                           recursive=recursive)
+
+        """
+        Fix the former neglection of pickup variables from outside self.
+        """
+        variables_without_pickup_arguments = [(k, v) for (k, v) in dict_opt_vars["vars"].items()]
+
+        for (key, var) in variables_without_pickup_arguments:
+            if var.var_type == "pickup":
+                for (ind, v) in enumerate(var.parameters.get("args", [])):
+                    newkeystring = key + "[" + str(ind) + "]"
+                    newreducedkeystring = key + var.name + ".pickup_args[" + str(ind) + "]="
+                    (dict_opt_vars, idlist) =\
+                        addOptimizableVariablesToList(v,
+                                                      dict_opt_vars,
+                                                      idlist,
+                                                      newkeystring,
+                                                      newreducedkeystring,
+                                                      recursive=recursive)
+
+
+
+
         return dict_opt_vars
 
         # TODO: due to the dict the order of the variables is sometimes not
