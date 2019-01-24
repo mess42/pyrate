@@ -346,4 +346,9 @@ for r in r2:
 
 plt.show()
 
-pprint(s.getCompleteListForReconstruction())
+import json
+
+fp = open("double_gauss.json", "wt")
+json.dump(s.getCompleteListForReconstruction(), fp, indent=4)
+fp.close()
+
