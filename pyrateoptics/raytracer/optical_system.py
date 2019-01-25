@@ -25,12 +25,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+from copy import deepcopy
 
-from ..material.material_isotropic import ConstantIndexGlass
+from .raytracer_keyword_class_association import kind_of_raytracer_classes
+from ..material.material_keyword_class_association import kind_of_material_classes
 from .localcoordinates import LocalCoordinates
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
+from .optical_element import OpticalElement
+from ..material.material_isotropic import ConstantIndexGlass
+
 from .ray import RayPath
-from copy import deepcopy
 
 class OpticalSystem(LocalCoordinatesTreeBase):
     """
@@ -280,6 +284,32 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         for e in self.elements.values():
             e.draw2d(ax, vertices=vertices, color=color, inyzplane=inyzplane, **kwargs)
 
+    @staticmethod
+    def initFromDictionary(reconstruct_list):
+        """
+        Perform also checks for protocol_version here.
+        """
+
+        [opticalsystem_dict,
+         dependent_classes,
+         reconstruct_variables_dict] = reconstruct_list
+
+        os = OpticalSystem(name=opticalsystem_dict["name"])
+        os.annotations = opticalsystem_dict["annotations"]
+        my_elements = opticalsystem_dict["classes"]["elements"]
+        os.elements = dict([(k, OpticalElement.initFromDictionary([dependent_classes.pop(v), dependent_classes, reconstruct_variables_dict]))
+                            for (k, v) in my_elements.items()])
+        material_background_dict = dependent_classes.pop(
+                opticalsystem_dict["classes"]["material_background"])
+        print("material dict")
+        print(material_background_dict)
+        rootcoordinate_dict = dependent_classes.pop(
+                opticalsystem_dict["classes"]["rootcoordinatesystem"])
+        print("rootcoords")
+        print(rootcoordinate_dict)
+        os.material_background = kind_of_material_classes[material_background_dict["kind"]].initFromDictionary(material_background_dict)
+        os.rootcoordinatesystem = kind_of_raytracer_classes[rootcoordinate_dict["kind"]].initFromDictionary(rootcoordinate_dict)
+        return os
 
 
 if __name__ == "__main__":
