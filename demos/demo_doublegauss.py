@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import math
 import logging
-from pprint import pprint
+import json
+from ruamel.yaml import YAML
 
 from distutils.version import StrictVersion
 
@@ -346,9 +347,24 @@ for r in r2:
 
 plt.show()
 
-import json
+mylist = s.getCompleteListForReconstruction()
+
+from pprint import pprint
+
+pprint(mylist)
+for (k, v) in mylist[-1].items():
+    print(k)
+    print("value: ", v.get("value", None))
+    print("type: ", type(v.get("value", None)))
+
+yaml = YAML()
+fp = open("double_gauss.yaml", "wt")
+yaml.dump(mylist, fp)
+fp.close()
+
 
 fp = open("double_gauss.json", "wt")
-json.dump(s.getCompleteListForReconstruction(), fp, indent=4)
+json.dump(mylist, fp, indent=4)
 fp.close()
+
 

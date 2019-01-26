@@ -265,6 +265,10 @@ class OptimizableVariable(BaseLogger):
                     val = tuple([v.unique_id for v in val])
                 if key == 'functionobject':
                     val = (val[0].source, val[1])
+            elif self.var_type == "fixed" or self.var_type == "variable":
+                if key == "value":
+                    val = float(val)
+                # TODO: what about other types?
             res[key] = val
         return res
 
