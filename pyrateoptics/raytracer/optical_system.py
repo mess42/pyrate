@@ -297,7 +297,10 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         os = OpticalSystem(name=opticalsystem_dict["name"])
         os.annotations = opticalsystem_dict["annotations"]
         my_elements = opticalsystem_dict["classes"]["elements"]
-        os.elements = dict([(k, OpticalElement.initFromDictionary([dependent_classes.pop(v), dependent_classes, reconstruct_variables_dict]))
+        os.elements = dict([(k, OpticalElement.initFromDictionary(
+                [dependent_classes.pop(v),
+                 dependent_classes,
+                 reconstruct_variables_dict]))
                             for (k, v) in my_elements.items()])
         material_background_dict = dependent_classes.pop(
                 opticalsystem_dict["classes"]["material_background"])
@@ -307,8 +310,19 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                 opticalsystem_dict["classes"]["rootcoordinatesystem"])
         print("rootcoords")
         print(rootcoordinate_dict)
-        os.material_background = kind_of_material_classes[material_background_dict["kind"]].initFromDictionary(material_background_dict)
-        os.rootcoordinatesystem = kind_of_raytracer_classes[rootcoordinate_dict["kind"]].initFromDictionary(rootcoordinate_dict)
+        os.material_background = kind_of_material_classes[
+                material_background_dict["kind"]].\
+            initFromDictionary([material_background_dict,
+                                dependent_classes,
+                                reconstruct_variables_dict])
+        os.rootcoordinatesystem = kind_of_raytracer_classes[
+                rootcoordinate_dict["kind"]].\
+            initFromDictionary([rootcoordinate_dict,
+                                dependent_classes,
+                                reconstruct_variables_dict])
+
+        # TODO: complete?
+
         return os
 
 

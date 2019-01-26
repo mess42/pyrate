@@ -453,7 +453,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
         print("----")
         print(opticalelement_dict)
 
-        lc = LocalCoordinates()  # wrong!
+        lc = LocalCoordinates()  # TODO: wrong!
 
         oe = OpticalElement(lc, name=opticalelement_dict["name"])
         oe_surfaces_ids = opticalelement_dict["classes"]["_OpticalElement__surfaces"]
@@ -465,5 +465,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
             print(my_surf)
             oe_surfaces.append((v, ))
 
+        # TODO: definitely not complete!
 
         return oe
