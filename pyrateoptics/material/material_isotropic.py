@@ -180,7 +180,7 @@ class ConstantIndexGlass(IsotropicMaterial):
         [constantindexglass_dict,
          dependent_classes,
          variable_reconstruct] = reconstruct_list
-        print(constantindexglass_dict)
+        print("constindex: ", constantindexglass_dict)
 
         # TODO: incomplete!
 

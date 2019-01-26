@@ -422,7 +422,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
          dependet_classes,
          variables_reconstruct_dict) = reconstruct_list
 
-        print(lc_dict)
+        print("lc: initfrom dict", lc_dict)
 
         lc = LocalCoordinates(name=lc_dict["name"])
 

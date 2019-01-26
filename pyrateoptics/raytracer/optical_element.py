@@ -453,9 +453,12 @@ class OpticalElement(LocalCoordinatesTreeBase):
         print("----")
         print(opticalelement_dict)
 
-        lc = LocalCoordinates()  # TODO: wrong!
+        oe_rootcoordinatesystem_id = opticalelement_dict["classes"]["rootcoordinatesystem"]
+        rootlc = LocalCoordinates.initFromDictionary([
+                dependent_classes[oe_rootcoordinatesystem_id],
+                dependent_classes, reconstruct_variables_dict])
 
-        oe = OpticalElement(lc, name=opticalelement_dict["name"])
+        oe = OpticalElement(rootlc, name=opticalelement_dict["name"])
         oe_surfaces_ids = opticalelement_dict["classes"]["_OpticalElement__surfaces"]
         oe_materials_ids = opticalelement_dict["classes"]["_OpticalElement__materials"]
 
