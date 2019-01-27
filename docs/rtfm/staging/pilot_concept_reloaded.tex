@@ -585,7 +585,7 @@ with $\Vector{K} = (\Re U, \Re V, \Im U, \Im V)$.
 Its explicit form is found in equation \eqref{eq:ray_direction_perturbation}.
 Now we can directly read the XYUV matrices from \eqref{eq:propagation_between_planes_exact_formula}.
 Additionally, we copy the matrices $\hat{C},\hat{D},\hat{N}$ from above.
-\begin{subequations}
+\begin{subequations} \label{eq:xyuv_translation_matrices}
 \begin{eqnarray}
  \hat{A} &=& a_{j\ell}
  \begin{pmatrix}
@@ -601,6 +601,7 @@ Additionally, we copy the matrices $\hat{C},\hat{D},\hat{N}$ from above.
 \\
 \hat{C} &=& 0 \\
 \hat{D} &=& \unittensor \\
+M_{R_{im}, R_{obj}, K} &=& m_{i\ell m} \frac{\totald d_{m}}{\totald K} e_{R_{obj}\,i} e_{R_{im}\,\ell}  \\
 M_{111} &=& m_{i\ell m} \frac{\totald d_{m}}{\totald (\Re U)} e_{X0\,i} e_{X1\ell}  \\
 \hat{N} &=& 0
 \end{eqnarray}
@@ -616,6 +617,29 @@ with
 \end{eqnarray}
 \end{subequations}
 \remark{todo: simplification: eZ = npilot}
+
+\subsection{Propagation Between Parallel Planes}
+We consider the special case of a propagation operator in a homogeneous medium between parallel planes.
+Without loss of generality, we choose the same base in both planes $\Vector{e}_{X1} = \Vector{e}_{X0}$ and $\Vector{e}_{Y1} = \Vector{e}_{Y0}$.
+The $X$ and $Y$ unit vectors shall be orthogonal on each other, $\Vector{e}_i \Vector{e}_j = \delta_{ij}$.
+The propagation matrices \eqref{eq:xyuv_translation_matrices} simplify to
+
+\begin{subequations} \label{eq:xyuv_parallel_translation_matrices}
+\begin{eqnarray}
+ \hat{A} &=& \unittensor \\
+ \hat{B} &=& s_{\pilot} a_{j\ell}
+ \begin{pmatrix}
+ \frac{\totald d_j}{\totald U} e_{X1\ell} & \frac{\totald d_j}{\totald V} e_{X1\ell} & \frac{\totald d_j}{\totald W} e_{X1\ell} & \frac{\totald d_j}{\totald Q} e_{X1\ell} \\
+ \frac{\totald d_j}{\totald U} e_{Y1\ell} & \frac{\totald d_j}{\totald V} e_{Y1\ell} & \frac{\totald d_j}{\totald W} e_{Y1\ell} & \frac{\totald d_j}{\totald Q} e_{Y1\ell}
+ \end{pmatrix}
+\\
+\hat{C} &=& 0 \\
+\hat{D} &=& \unittensor \\
+\hat{M} &=& 0 \\
+\hat{N} &=& 0
+\end{eqnarray}
+\end{subequations}
+
 
 \subsection{Refraction}
 We assume two parallel planes 1,2 just in front of and behind a refracting surface.
@@ -1122,7 +1146,8 @@ and yield the propagator matrices for a refraction operation
    \end{pmatrix}
  \\
  \hat{M} &=& 0 \\
- \hat{N}_{[:,:,X]} &=&
+ \hat{N} &=& N_{[K_{im}, R, K_{obj}]} \\
+ \hat{N}_{[:,X,:]} &=&
    \begin{pmatrix}
      \Re \tilde{N}_{X\,11} & \Re \tilde{N}_{X\,12} & - \Im \tilde{N}_{X\,11} & - \Im \tilde{N}_{X\,12} \\
      \Re \tilde{N}_{X\,21} & \Re \tilde{N}_{X\,22} & - \Im \tilde{N}_{X\,21} & - \Im \tilde{N}_{X\,22} \\
@@ -1130,7 +1155,7 @@ and yield the propagator matrices for a refraction operation
      \Im \tilde{N}_{X\,21} & \Im \tilde{N}_{X\,22} &   \Re \tilde{N}_{X\,21} &   \Re \tilde{N}_{X\,22} \\
    \end{pmatrix}
  \\
-  \hat{N}_{[:,:,Y]} &=&
+  \hat{N}_{[:,Y,:]} &=&
    \begin{pmatrix}
      \Re \tilde{N}_{Y\,11} & \Re \tilde{N}_{Y\,12} & - \Im \tilde{N}_{Y\,11} & - \Im \tilde{N}_{Y\,12} \\
      \Re \tilde{N}_{Y\,21} & \Re \tilde{N}_{Y\,22} & - \Im \tilde{N}_{Y\,21} & - \Im \tilde{N}_{Y\,22} \\
