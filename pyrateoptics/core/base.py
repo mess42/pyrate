@@ -298,6 +298,11 @@ class ClassWithOptimizableVariables(BaseLogger):
     Implementation of some class with optimizable variables with the help
     of a dictionary. This class is also able to collect the variables and
     their values from its subclasses per recursion.
+
+    The goal is to provide an abstract class with pretty much functionality
+    which gives the user the opportunity to implement a certain logic via
+    class inheritance and interface the child class with some type of
+    optimizer.
     """
     def __init__(self, name="", kind="classwithoptimizablevariables",
                  **kwargs):
