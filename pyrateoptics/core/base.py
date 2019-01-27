@@ -569,16 +569,3 @@ class ClassWithOptimizableVariables(BaseLogger):
         return [self.getDictionary(),
                 self.getDictionaryAllClassesById(),
                 self.getDictionaryAllVariablesById()]
-
-
-def optimizablevariable_representer(dumper, data):
-    result_dict = {"name": data.name, "type": data.var_type}
-    params = data.parameters
-    if data.var_type == 'pickup':
-        params["args"] = tuple([o.name for o in params["args"]])
-    result_dict["parameters"] = params
-
-    return dumper.represent_scalar(u'!optvar', str(result_dict))
-
-
-yaml.add_representer(OptimizableVariable, optimizablevariable_representer)
