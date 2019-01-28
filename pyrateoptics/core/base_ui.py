@@ -24,6 +24,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+from copy import copy
+
 from .base import OptimizableVariable
 
 
@@ -43,20 +45,49 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
 
     def queryForDictionary(self):
 
+        myvarlist = []
+
         def get_value_and_modstate(variable):
-            return (float(variable()), variable.var_type == "fixed" or
-                    variable.var_type == "variable")
+            value = float(variable())
+            can_be_modified = variable.var_type == "fixed" or\
+                variable.var_type == "variable"
+            variable_triple = (variable.name, value, can_be_modified)
+            myvarlist.append(variable_triple)
+            return (value, can_be_modified)
 
         dict_to_ui = self.myclass.getDictionary()
         dict_to_ui.pop("variables")
         dict_to_ui.pop("classes")
-        dict_to_ui["variables"] =\
-            self.myclass.getTypesForDict(typ=OptimizableVariable,
-                                         func=get_value_and_modstate)
-        # maybe some flat list is sufficient due to unique name within
-        # the class (structural reconstruction is not necessary)
-        # format: [("name", value, bool), ("name2", value2, bool), ...]
+        # the following statement can be used to obtain
+        # a structural list of variable triples
+        self.myclass.getTypesForDict(typ=OptimizableVariable,
+                                     func=get_value_and_modstate)
+        # although we only want to use a flat variable list
+        # in a first step
+        dict_to_ui["variables_list"] = myvarlist
         return dict_to_ui
 
-    def modifyFromDictionary(self, dict_from_gui):
-        pass
+    def modifyFromDictionary(self, dict_from_gui, override_unique_id=False):
+        # make copy from dict to prevent modification
+        dict_from_gui_copy = copy(dict_from_gui)
+        # check later if protocol version is changed
+        protocol_version = dict_from_gui_copy.pop("protocol_version")
+        variables_list = dict_from_gui_copy.pop("variables_list")
+        if not override_unique_id:
+            dict_from_gui_copy.pop("unique_id")
+        # we removed all variables which are not necessary
+        # this may depend on protocol_number
+        for (key_dict, value_dict) in dict_from_gui_copy.items():
+            self.myclass.__setattr__(key_dict, value_dict)
+
+        def set_value_from_modstate(variable):
+            for variable_triple in variables_list:
+                (variable_name, variable_value, can_be_modified) =\
+                    variable_triple
+                if variable_name == variable.name and can_be_modified:
+                    variable.setvalue(variable_value)
+        # update values of modifyable variables
+        # this algorithm is of O(N^2) but since N is of order 10 this is not
+        # critical
+        self.myclass.getTypesForDict(typ=OptimizableVariable,
+                                     func=set_value_from_modstate)
