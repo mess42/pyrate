@@ -47,7 +47,7 @@ from pyrateoptics.sampling2d.raster import RectGrid
 from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
 from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
 from pyrateoptics.core.functionobject import FunctionObject
-
+from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
 
 logging.basicConfig(level=logging.INFO)
 
@@ -347,24 +347,23 @@ for r in r2:
 
 plt.show()
 
-mylist = s.getCompleteListForReconstruction()
+system_dump = s.getCompleteListForReconstruction()
+system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
+        s.elements["stdelem"].surfaces["elem2rear"].shape).queryForDictionary()
+
 
 from pprint import pprint
 
-pprint(mylist)
-for (k, v) in mylist[-1].items():
-    print(k)
-    print("value: ", v.get("value", None))
-    print("type: ", type(v.get("value", None)))
+pprint(system_gui_toplevel)
 
 yaml = YAML()
 fp = open("double_gauss.yaml", "wt")
-yaml.dump(mylist, fp)
+yaml.dump(system_dump, fp)
 fp.close()
 
 
 fp = open("double_gauss.json", "wt")
-json.dump(mylist, fp, indent=4)
+json.dump(system_dump, fp, indent=4)
 fp.close()
 
 

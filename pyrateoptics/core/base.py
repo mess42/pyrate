@@ -344,7 +344,7 @@ class ClassWithOptimizableVariables(BaseLogger):
 
     def getDictionaryClassesById(self):
         return dict([(v.unique_id, v.getDictionary())
-                     for v in self.getTypesForDict(ClassWithOptimizableVariables, lambda x: x).values()])
+                     for v in self.getTypesForDict(typ=ClassWithOptimizableVariables, func=lambda x: x).values()])
 
     def getTypesForDict(self, typ, func=lambda x: x.unique_id):
 
