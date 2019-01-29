@@ -78,7 +78,7 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
         # we removed all variables which are not necessary
         # this may depend on protocol_number
         for (key_dict, value_dict) in dict_from_gui_copy.items():
-            self.myclass.__setattr__(key_dict, value_dict)
+            setattr(self.myclass, key_dict, value_dict)
 
         def set_value_from_modstate(variable):
             for variable_triple in variables_list:
