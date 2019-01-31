@@ -28,6 +28,12 @@ from copy import copy
 
 from .base import OptimizableVariable
 
+# TODO: provide transformation dict in the form
+# {"kind1": {"var_name": ("shown_varname", transform_func, inverse_transform_func, ...}, ...}
+# where transform_func(x) transforms the value into the written value in the table
+# and inverse_transform_func(x) transforms the value back
+# e.g.: {"shape_conic": {"curv": ("radius", lambda x: 1./x, lambda x: 1./x)}}
+# or: {"localcoordinates": {"tiltx": ("tiltx_deg", lambda x: x/degree, lambda x: x*degree)}}
 
 class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
     """
