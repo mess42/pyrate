@@ -14,16 +14,6 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_annotations">
-     <property name="text">
-      <string>Annotations</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="7" column="0">
     <widget class="QLabel" name="label_variables">
      <property name="text">
@@ -35,7 +25,11 @@
     <widget class="QLineEdit" name="lineEdit_name"/>
    </item>
    <item row="2" column="0">
-    <widget class="QLineEdit" name="lineEdit_unique_id"/>
+    <widget class="QLineEdit" name="lineEdit_unique_id">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_kind">
@@ -44,18 +38,11 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QTableWidget" name="tableWidget_annotations">
-     <column>
-      <property name="text">
-       <string>Key</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Value</string>
-      </property>
-     </column>
+   <item row="4" column="0">
+    <widget class="QLineEdit" name="lineEdit_kind">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="0" column="0">
@@ -82,8 +69,29 @@
      </column>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLineEdit" name="lineEdit_kind"/>
+   <item row="10" column="0">
+    <widget class="QTableWidget" name="tableWidget_annotations">
+     <column>
+      <property name="text">
+       <string>Key</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Value</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_annotations">
+     <property name="text">
+      <string>Annotations</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
