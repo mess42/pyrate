@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from copy import copy
 
+from ..raytracer.globalconstants import degree
 from .base import OptimizableVariable
 
 # TODO: provide transformation dict in the form
@@ -47,23 +48,59 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
                                         and external)
     """
     def __init__(self, some_class_with_optimizable_variables):
-        self.myclass = some_class_with_optimizable_variables
 
-    def queryForDictionary(self):
+        def deg2rad(x):
+            return x*degree
+
+        def rad2deg(x):
+            return x/degree
+
+        def curv2radius(x):
+            return 1./x
+
+        def radius2curv(x):
+            mycurv = 0.
+            if abs(x) > 1e-16:
+                mycurv = 1./x
+            return mycurv
+
+        self.myclass = some_class_with_optimizable_variables
+        self.transformation_dictionary =\
+            {"shape_conic": {"curv": ("radius", curv2radius, radius2curv)},
+             "localcoordinates": {"tiltx": ("tiltx_deg", rad2deg, deg2rad),
+                                  "tilty": ("tilty_deg", rad2deg, deg2rad),
+                                  "tiltz": ("tiltz_deg", rad2deg, deg2rad)}}
+
+    def queryForDictionary(self, transformation_dictionary={}):
+
+        dict_to_ui = self.myclass.getDictionary()
+        dict_to_ui.pop("variables")
+        dict_to_ui.pop("classes")
 
         myvarlist = []
+        transformation = transformation_dictionary.get(dict_to_ui["kind"],
+                                                       {None: (None,
+                                                        lambda x: x,
+                                                        lambda x: x)})
 
         def get_value_and_modstate(variable):
             value = float(variable())
             can_be_modified = variable.var_type == "fixed" or\
                 variable.var_type == "variable"
-            variable_triple = (variable.name, value, can_be_modified)
+
+            #(transformed_name,
+            # transformed_value,
+            # inversetransformed_value) = transformation.get(
+            #         variable.name, (variable.name, lambda x: x, lambda x: x))
+
+            variable_triple = (
+                    variable.name, #transformed_name,
+                    value, #transformed_value(value),
+                    can_be_modified
+                    )
             myvarlist.append(variable_triple)
             return (value, can_be_modified)
 
-        dict_to_ui = self.myclass.getDictionary()
-        dict_to_ui.pop("variables")
-        dict_to_ui.pop("classes")
         # the following statement can be used to obtain
         # a structural list of variable triples
         self.myclass.getTypesForDict(typ=OptimizableVariable,
@@ -73,24 +110,42 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
         dict_to_ui["variables_list"] = myvarlist
         return dict_to_ui
 
-    def modifyFromDictionary(self, dict_from_gui, override_unique_id=False):
+    def modifyFromDictionary(self, dict_from_ui, transformation_dictionary={},
+                             override_unique_id=False):
+        print("modify")
         # make copy from dict to prevent modification
-        dict_from_gui_copy = copy(dict_from_gui)
+        dict_from_ui_copy = copy(dict_from_ui)
         # check later if protocol version is changed
-        protocol_version = dict_from_gui_copy.pop("protocol_version")
-        variables_list = dict_from_gui_copy.pop("variables_list")
+
+        print(dict_from_ui_copy)
+
+        transformation = transformation_dictionary.get(dict_from_ui["kind"],
+                                                       {None: (None,
+                                                        lambda x: x,
+                                                        lambda x: x)})
+
+        protocol_version = dict_from_ui_copy.pop("protocol_version")
+        variables_list = dict_from_ui_copy.pop("variables_list")
         if not override_unique_id:
-            dict_from_gui_copy.pop("unique_id")
+            dict_from_ui_copy.pop("unique_id")
         # we removed all variables which are not necessary
         # this may depend on protocol_number
-        for (key_dict, value_dict) in dict_from_gui_copy.items():
+        for (key_dict, value_dict) in dict_from_ui_copy.items():
             setattr(self.myclass, key_dict, value_dict)
 
         def set_value_from_modstate(variable):
-            for variable_triple in variables_list:
-                (variable_name, variable_value, can_be_modified) =\
-                    variable_triple
+            for (variable_name,
+                 variable_value,
+                 can_be_modified) in variables_list:
+
                 if variable_name == variable.name and can_be_modified:
+
+                    #(transformed_name, transformed_value,
+                    # inversetransformed_value) = transformation.get(
+                    #     variable.name, (variable.name, lambda x: x, lambda x: x))
+
+                    #print(variable_name, transformed_name, transformed_value)
+
                     variable.setvalue(variable_value)
         # update values of modifyable variables
         # this algorithm is of O(N^2) but since N is of order 10 this is not

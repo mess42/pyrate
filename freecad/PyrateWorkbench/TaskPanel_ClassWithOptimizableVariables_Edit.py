@@ -45,7 +45,8 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
 
         self.ui_class = UIInterfaceClassWithOptimizableVariables(
                 myclasswithoptimizablevariables)
-        dict_from_query = self.ui_class.queryForDictionary()
+        dict_from_query = self.ui_class.queryForDictionary(
+                self.ui_class.transformation_dictionary)
 
         pprint(dict_from_query)
 
@@ -62,16 +63,18 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         self.form.lineEdit_unique_id.setText(dict_from_query["unique_id"])
 
     def accept(self):
-        dict_from_query = self.ui_class.queryForDictionary()
+        dict_from_query = self.ui_class.queryForDictionary(
+                self.ui_class.transformation_dictionary)
         var_list = self.writeTableToList(self.form.tableWidget_variables)
         annotations_dict = self.writeTableToList(
                 self.form.tableWidget_annotations)
         dict_from_query["name"] = self.form.lineEdit_name.text()
         dict_from_query["variables_list"] = var_list
         dict_from_query["annotations"] = annotations_dict
-        self.ui_class.modifyFromDictionary(dict_from_query)
+        self.ui_class.modifyFromDictionary(dict_from_query,
+                                           self.ui_class.transformation_dictionary)
 
-        pprint(self.ui_class.queryForDictionary())
+        pprint(self.ui_class.queryForDictionary(self.ui_class.transformation_dictionary))
 
         FreeCADGui.Control.closeDialog()
 
