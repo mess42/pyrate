@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
 
+from FreeCAD import newDocument
+
+
 class ClassWithOptimizableVariablesObject:
     """
     FreeCAD interface object for class with optimizable variables.
@@ -34,11 +37,21 @@ class ClassWithOptimizableVariablesObject:
     (TODO: how to solve the interaction with a FreeCAD document?)
     """
 
-    def __init__(self, myclasswithoptimizablevariables, doc=None, super_group=None):
+    def __init__(self, myclasswithoptimizablevariables,
+                 doc=None, super_group=None):
         if doc is None:
-            pass
-            # create FreeCAD document
+            self.Document = newDocument()
+        else:
+            self.Document = doc
+
         if super_group is None:
-            pass
-            # create subgroup in super_group or if None create group in doc
-            # every class with optimizable variables should get one group
+            self.SuperGroup = None
+        else:
+            self.SuperGroup = super_group
+        # create subgroup in super_group or if None create group in doc
+        # every class with optimizable variables should get one group
+
+        self.Group = self.Document.addObject("App::DocumentObjectGroup",
+                                             myclasswithoptimizablevariables.name)
+        if self.SuperGroup is not None:
+            self.SuperGroup.addObject(self.Group)
