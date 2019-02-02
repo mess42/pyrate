@@ -90,6 +90,7 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         mytable.setRowCount(0)
         for (ind, (name, value, modifyable)) in enumerate(
                 sorted(mylist, key=lambda x: x[0])):
+            # sort list to get a reproducible table
             mytable.insertRow(ind)
             mytable.setItem(ind, 0, QTableWidgetItem(name))
             value_item = QTableWidgetItem(str(value))
