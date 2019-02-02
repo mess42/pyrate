@@ -33,10 +33,12 @@ class ClassWithOptimizableVariablesObject:
     should be treated via the dump and read mechanism of yaml or json.
     (TODO: how to solve the interaction with a FreeCAD document?)
     """
-    def __init__(self, myclasswithoptimizablevariables, doc=None, group=None):
+
+    def __init__(self, myclasswithoptimizablevariables, doc=None, super_group=None):
         if doc is None:
             pass
             # create FreeCAD document
-        if group is None:
+        if super_group is None:
             pass
+            # create subgroup in super_group or if None create group in doc
             # every class with optimizable variables should get one group
