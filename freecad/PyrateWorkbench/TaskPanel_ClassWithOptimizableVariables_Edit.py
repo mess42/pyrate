@@ -31,6 +31,7 @@ from PySide.QtGui import QTableWidgetItem, QHeaderView
 from PySide.QtCore import Qt
 
 from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
+from pyrateoptics.core.base_ui_transform import transformation_dictionary
 
 from .Interface_Helpers import getRelativeFilePath
 
@@ -46,7 +47,7 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         self.ui_class = UIInterfaceClassWithOptimizableVariables(
                 myclasswithoptimizablevariables)
         dict_from_query = self.ui_class.queryForDictionary(
-                self.ui_class.transformation_dictionary)
+                transformation_dictionary)
 
         pprint(dict_from_query)
 
@@ -64,7 +65,7 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
 
     def accept(self):
         dict_from_query = self.ui_class.queryForDictionary(
-                self.ui_class.transformation_dictionary)
+                transformation_dictionary)
         var_list = self.writeTableToList(self.form.tableWidget_variables)
         annotations_dict = self.writeTableToList(
                 self.form.tableWidget_annotations)
@@ -72,9 +73,9 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         dict_from_query["variables_list"] = var_list
         dict_from_query["annotations"] = annotations_dict
         self.ui_class.modifyFromDictionary(dict_from_query,
-                                           self.ui_class.transformation_dictionary)
+                                           transformation_dictionary)
 
-        pprint(self.ui_class.queryForDictionary(self.ui_class.transformation_dictionary))
+        pprint(self.ui_class.queryForDictionary(transformation_dictionary))
 
         FreeCADGui.Control.closeDialog()
 

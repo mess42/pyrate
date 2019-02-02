@@ -26,15 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from copy import copy
 
-from ..raytracer.globalconstants import degree
 from .base import OptimizableVariable
 
-# TODO: provide transformation dict in the form
-# {"kind1": {"var_name": ("shown_varname", transform_func, inverse_transform_func, ...}, ...}
-# where transform_func(x) transforms the value into the written value in the table
-# and inverse_transform_func(x) transforms the value back
-# e.g.: {"shape_conic": {"curv": ("radius", lambda x: 1./x, lambda x: 1./x)}}
-# or: {"localcoordinates": {"tiltx": ("tiltx_deg", lambda x: x/degree, lambda x: x*degree)}}
 
 class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
     """
@@ -49,27 +42,7 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
     """
     def __init__(self, some_class_with_optimizable_variables):
 
-        def deg2rad(x):
-            return x*degree
-
-        def rad2deg(x):
-            return x/degree
-
-        def curv2radius(x):
-            return 1./x
-
-        def radius2curv(x):
-            mycurv = 0.
-            if abs(x) > 1e-16:
-                mycurv = 1./x
-            return mycurv
-
         self.myclass = some_class_with_optimizable_variables
-        self.transformation_dictionary =\
-            {"shape_conic": {"curv": ("radius", curv2radius, radius2curv)},
-             "localcoordinates": {"tiltx": ("tiltx_deg", rad2deg, deg2rad),
-                                  "tilty": ("tilty_deg", rad2deg, deg2rad),
-                                  "tiltz": ("tiltz_deg", rad2deg, deg2rad)}}
 
     def queryForDictionary(self, transformation_dictionary={}):
 
@@ -78,24 +51,24 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
         dict_to_ui.pop("classes")
 
         myvarlist = []
-        transformation = transformation_dictionary.get(dict_to_ui["kind"],
-                                                       {None: (None,
-                                                        lambda x: x,
-                                                        lambda x: x)})
+        # transformation = transformation_dictionary.get(dict_to_ui["kind"],
+        #                                               {None: (None,
+        #                                                lambda x: x,
+        #                                                lambda x: x)})
 
         def get_value_and_modstate(variable):
             value = float(variable())
             can_be_modified = variable.var_type == "fixed" or\
                 variable.var_type == "variable"
 
-            #(transformed_name,
+            # (transformed_name,
             # transformed_value,
             # inversetransformed_value) = transformation.get(
             #         variable.name, (variable.name, lambda x: x, lambda x: x))
 
             variable_triple = (
-                    variable.name, #transformed_name,
-                    value, #transformed_value(value),
+                    variable.name,  # transformed_name,
+                    value,  # transformed_value(value),
                     can_be_modified
                     )
             myvarlist.append(variable_triple)
@@ -112,12 +85,9 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
 
     def modifyFromDictionary(self, dict_from_ui, transformation_dictionary={},
                              override_unique_id=False):
-        print("modify")
         # make copy from dict to prevent modification
         dict_from_ui_copy = copy(dict_from_ui)
         # check later if protocol version is changed
-
-        print(dict_from_ui_copy)
 
         transformation = transformation_dictionary.get(dict_from_ui["kind"],
                                                        {None: (None,
@@ -140,11 +110,11 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
 
                 if variable_name == variable.name and can_be_modified:
 
-                    #(transformed_name, transformed_value,
+                    # (transformed_name, transformed_value,
                     # inversetransformed_value) = transformation.get(
-                    #     variable.name, (variable.name, lambda x: x, lambda x: x))
+                    #      variable.name, (variable.name, lambda x: x, lambda x: x))
 
-                    #print(variable_name, transformed_name, transformed_value)
+                    # print(variable_name, transformed_name, transformed_value)
 
                     variable.setvalue(variable_value)
         # update values of modifyable variables
