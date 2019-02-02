@@ -89,10 +89,10 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
         dict_from_ui_copy = copy(dict_from_ui)
         # check later if protocol version is changed
 
-        transformation = transformation_dictionary.get(dict_from_ui["kind"],
-                                                       {None: (None,
-                                                        lambda x: x,
-                                                        lambda x: x)})
+        # transformation = transformation_dictionary.get(dict_from_ui["kind"],
+        #                                               {None: (None,
+        #                                                lambda x: x,
+        #                                                lambda x: x)})
 
         protocol_version = dict_from_ui_copy.pop("protocol_version")
         variables_list = dict_from_ui_copy.pop("variables_list")
