@@ -593,16 +593,16 @@ Additionally, we copy the matrices $\hat{C},\hat{D},\hat{N}$ from above.
   e_{X0j} e_{Y1\ell} & e_{Y0j} e_{Y1\ell}
  \end{pmatrix}
 \\
- \hat{B} &=& s_{\pilot} a_{j\ell}
+ \hat{B} &=& a_{j\ell} s_{\pilot} 
  \begin{pmatrix}
- \frac{\totald d_j}{\totald U} e_{X1\ell} & \frac{\totald d_j}{\totald V} e_{X1\ell} & \frac{\totald d_j}{\totald W} e_{X1\ell} & \frac{\totald d_j}{\totald Q} e_{X1\ell} \\
- \frac{\totald d_j}{\totald U} e_{Y1\ell} & \frac{\totald d_j}{\totald V} e_{Y1\ell} & \frac{\totald d_j}{\totald W} e_{Y1\ell} & \frac{\totald d_j}{\totald Q} e_{Y1\ell}
+ \frac{\totald d_j}{\totald (\Re U)} e_{X1\ell} & \frac{\totald d_j}{\totald (\Re V)} e_{X1\ell} & \frac{\totald d_j}{\totald (\Im U)} e_{X1\ell} & \frac{\totald d_j}{\totald (\Im V)} e_{X1\ell} \\
+ \frac{\totald d_j}{\totald (\Re U)} e_{Y1\ell} & \frac{\totald d_j}{\totald (\Re V)} e_{Y1\ell} & \frac{\totald d_j}{\totald (\Im U)} e_{Y1\ell} & \frac{\totald d_j}{\totald (\Im V)} e_{Y1\ell}
  \end{pmatrix}
 \\
 \hat{C} &=& 0 \\
 \hat{D} &=& \unittensor \\
-M_{R_{im}, R_{obj}, K} &=& m_{i\ell m} \frac{\totald d_{m}}{\totald K} e_{R_{obj}\,i} e_{R_{im}\,\ell}  \\
-M_{111} &=& m_{i\ell m} \frac{\totald d_{m}}{\totald (\Re U)} e_{X0\,i} e_{X1\ell}  \\
+M_{R_{im}, R_{obj}, K} &=& - a_{j\ell} \frac{ e_{Z1\,i} }{d_{\pilot\,m} e_{Z1\,m}} \frac{\totald d_{j}}{\totald K} e_{R_{obj}\,i} e_{R_{im}\,\ell}  \\
+M_{111} &=& - a_{j\ell} \frac{ e_{Z1\,i} }{d_{\pilot\,m} e_{Z1\,m}} \frac{\totald d_{j}}{\totald (\Re U)} e_{X0\,i} e_{X1\ell}  \\
 \hat{N} &=& 0
 \end{eqnarray}
 with
@@ -610,10 +610,6 @@ with
  \Vector{e}_{U,V,W,Q\,1} &=& \Vector{e}_{U,V,W,Q\,0} 
  \\
  a_{j\ell} &=& \delta_{j\ell} -  \frac{e_{Z1j} d_{\pilot\ell} }{e_{Z1i} d_{\pilot i}}
- \\
- m_{i\ell m} &=& \left(   - \frac{ e_{Z1\,i} }{d_{\pilot\,j} e_{Z1\,j}} \delta_{\ell m} 
-                  +   \frac{ e_{Z1\,i} }{ (d_{\pilot\,j} e_{Z1\,j} )^2 } e_{Z1\,m}  d_{\pilot\ell} 
-           \right)
 \end{eqnarray}
 \end{subequations}
 \remark{todo: simplification: eZ = npilot}
