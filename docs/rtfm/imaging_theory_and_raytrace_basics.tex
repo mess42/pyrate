@@ -139,6 +139,12 @@
 \newcommand\tesla{\textrm{T}}
 
 \newcommand\totald{\textrm{d}}
+\newcommand\pilot{\textrm{pilot}}
+
+\newcommand\im{\textrm{im}}
+\newcommand\obj{\textrm{obj}}
+\newcommand\tot{\textrm{tot}}
+
 
 \begin{document}
 
@@ -148,7 +154,7 @@
 \subject{Pyrate -- Optical raytracing based on Python}
 \title{Read This Fundamental Manual \\ on Imaging Theory and Basics of Optical Raytracing}
 \author{M. Esslinger, J. Hartung, U. Lippmann}
-\date{2014 - 2018}
+\date{2014 - 2019}
 \publishers{}
 \maketitle
 
@@ -1822,6 +1828,7 @@ By choosing the term pilot ray, we want to avoid confusions with mechanical symm
 In many systems, the intial pilot ray direction is perpendicular to the object plane. 
 An exception is found, for example, in Scheimpflug systems.
 
+\subsection{Operator Ansatz}
 Our ansatz is to perform a real ray trace of the pilot ray and describe a small area around it by a Taylor expansion around the real ray intersection point.
 From this Taylor expansion, we derive first order properties, like focal length, magnification, aperture size, pupils, and image position.
 The concept is a parabasal approximation around a non-paraxial pilot ray.
@@ -1830,28 +1837,29 @@ We describe the vectorial deviation from the pilot ray position and direction.
 We consider near-pilot rays, that have an intersection point and a wavevector close to the pilot ray.
 
 \begin{tabular}{ l | l | l }
-		    & pilot ray & near-pilot ray \\
+		    & \text{pilot ray} & \text{near-pilot ray} \\
 & & \\ \hline & & \\
-intersection point  & $\Vector{r}_{pilot}$ & ${\Vector{r}} = \Vector{r}_{pilot} + \Delta\Vector{r}$ \\
-wavevector  & $\Wavevector_{pilot}$ & ${\Wavevector} = \Wavevector_{pilot} + \Delta\Wavevector$ \\
-ray direction  & $\Vector{d}_{pilot}$ & ${\Vector{d}} = \Vector{d}_{pilot} + \Delta\Vector{d}$ \\
-surface normal      & $\Vector{n}_{pilot} = \Vector{n}(\Vector{r}_{pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{pilot} + \Delta\Vector{n}$ \\
+intersection point  & $\Vector{r}_{\pilot}$ & ${\Vector{r}} = \Vector{r}_{\pilot} + \Delta\Vector{r}$ \\
+wavevector  & $\Wavevector_{\pilot}$ & ${\Wavevector} = \Wavevector_{\pilot} + \Delta\Wavevector$ \\
+ray direction  & $\Vector{d}_{\pilot}$ & ${\Vector{d}} = \Vector{d}_{\pilot} + \Delta\Vector{d}$ \\
+surface normal      & $\Vector{n}_{\pilot} = \Vector{n}(\Vector{r}_{\pilot})$ & ${\Vector{n}} = \Vector{n}({\Vector{r}}) = \Vector{n}_{\pilot} + \Delta\Vector{n}$ \\
 \end{tabular}\\[2ex]
 We represent the propagation of these deviations through the optical system by a propagation operator $\hat{G}$
 \begin{eqnarray}
  \begin{pmatrix}
-  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
  \end{pmatrix}
  &=&
  \hat{G}
  \begin{pmatrix}
-  \Delta \Vector{r}_{obj} \\ \Delta \Wavevector_{obj}
+  \Delta \Vector{r}_\obj \\ \Delta \Wavevector_\obj
  \end{pmatrix}
 \end{eqnarray}
-We perform a Taylor expansion around the pilot ray
+We are interested in rays close to the pilot ray, $\Delta \Vector{r}_\obj, \Delta \Wavevector_\obj \rightarrow 0$,
+so we approximate the operators by a Taylor expansion around the pilot ray
 \begin{eqnarray}
  \begin{pmatrix}
-  \Delta \Vector{r}_{im} \\ \Delta \Wavevector_{im}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
  \end{pmatrix}_i
  &=&
    G^{00}_i
@@ -1862,11 +1870,964 @@ We perform a Taylor expansion around the pilot ray
  + G^{02}_{ijm} \Delta k_j \Delta k_m
  + ...\nonumber\\
 \end{eqnarray}
-By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray.
+The two upper indices denote the order in $\Delta \Vector{r}$ and $\Delta \Vector{k}$, respectively.
+By definition, the propagator $\hat{G}$ projects the object sided pilot ray onto the image sided pilot ray,
+that is $\hat{G}(\Vector{0}) = \Vector{0}$ or $\hat{G}^{00} = \hat{0}$. 
+In analogy to the ABCD formalism, we neglect terms quadratic or higher in the change of direction or position, 
+$\orderof{\Delta\Wavevector^2}$ and $\orderof{\Delta\Vector{r}^2}$.
 \begin{eqnarray}
-\hat{G}(\Vector{0}) &=& \Vector{0}\\
-\hat{G}^{00} &=& \Vector{0} 
+ \begin{pmatrix}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
+ \end{pmatrix}_i
+ &\approx&
+   G^{10}_{ij} \Delta r_j
+ + G^{01}_{ij} \Delta k_j
+ + G^{11}_{ijm} \Delta r_j \Delta k_m
 \end{eqnarray}
+In contrast to the ABCD formalism, we do not drop the bilinear $\hat{G}^{11}$ term right away.
+\remark{todo: write a more elegant explanation why all quadratic forms but the bilinear one are dropped.}
+In the following, we discuss the representation of the operators by matrices, 
+the rank of the matrices and the base of $\Delta \Vector{r}$ and $\Delta \Wavevector$.
+
+\subsection{Near-Pilot Base Systems}
+
+The deviations may not be chosen freely, but we need to choose
+$\Delta\Vector{r}$, $\Delta\Wavevector$ and $\Delta\Vector{d}$ 
+in a way so that both pilot and near-pilot rays
+have valid properties.
+Intersection points must lay on the surface,
+wavevectors must obey the dispersion relation 
+and ray direction vectors must be of unit length.
+This limits the degrees of freedom for the deviations.
+
+\subsubsection{Intersection points}
+
+We demand that near-pilot intersection points are on the surface.
+In parabasal approximation, we assume each surface planar in a small area around the pilot ray intersection point.
+That is, we neglect surface curvature increasing quadratically with the deviation. 
+We represent the ray height in this plane by
+\begin{eqnarray}
+ \Delta\Vector{r} = X \Vector{e}_{X} + Y \Vector{e}_{Y}
+ \label{eq:deltaR_equals_XY}
+\end{eqnarray}
+where $\Vector{e}_{X}$ and $\Vector{e}_{Y}$ are in the tangential surface plane.
+$\Vector{e}_{X,Y}$ shall be real valued unit vectors and orthogonal on each other.
+
+\subsubsection{Wavevectors}
+Both pilot and near-pilot wavevector must fulfill the dispersion relation. 
+In contrast to the real valued ray directions, wavevectors may be complex valued.
+Using \eqref{eq:perturbed_wavevector}, we determine the directions 
+along which wavevectors may be changed, still obeying the dispersion relation.
+We represent the change of the wavevector $\Wavevector$ as
+\begin{eqnarray}
+ \Delta \Wavevector &=& U \Vector{e}_U + V \Vector{e}_V
+\end{eqnarray}
+where $U,V$ are complex valued prefactors.
+The complex valued unit vectors $\Vector{e}_{U,V}$ shall be orthogonal on each other.
+
+\subsection{XYUV matrices}
+We choose the object sided base vectors 
+$\Vector{e}_{X,Y,U,V\,obj}$ 
+in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
+as described in the previous section.
+We trace the pilot ray to the final surface 
+and define the near-pilot base vectors in the final plane
+$\Vector{e}_{X,Y,U,V\,fin}$.
+We split up the $\hat{G}$ operators into separate operators for location and direction.
+\begin{eqnarray}
+ \Delta r_{\im,\,i}  &=& A_{ij} \Delta r_{\obj,\,j} + B_{ij} \Delta k_{\obj,\,j} + M_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m} \\ 
+ \Delta \wavenumber_{\im,\,i} &=& C_{ij} \Delta r_{\obj,\,j} + D_{ij} \Delta k_{\obj,\,j} + N_{ijm} \Delta r_{\obj,\,j} \Delta k_{\obj,\,m}
+\end{eqnarray}
+We name the linear operators $\hat{A}, \hat{B}, \hat{C}, \hat{D}$ in analogy to the ABCD formalism.
+We name the bilinear operators $\hat{M}$ and $\hat{N}$.
+
+We abbreviate $(X,Y)$ as a vector of location deviation $\Vector{R}$
+and $(U,V)$ as a vector of wavevector deviation $\Vector{K}$.
+We split up $U$ and $V$ in its real and imaginary part.
+\begin{subequations}
+\label{eq:definition_of_parabasal_R_and_K_vectors}
+\begin{eqnarray}
+\Vector{R} &=&
+ \begin{pmatrix}
+  X \\ Y
+ \end{pmatrix}
+ \\
+ \Vector{K} &=&
+ \begin{pmatrix}
+  \Re U \\ \Re V \\ \Im U \\ \Im V 
+ \end{pmatrix}
+\end{eqnarray}
+\end{subequations}
+The propagator equation becomes
+\begin{subequations}
+\label{eq:parabasal_imaging_equation}
+\begin{eqnarray}
+ \Vector{R}_\im &=& \hat{A} \cdot \Vector{R}_\obj + \hat{B} \cdot \Vector{K}_\obj + \hat{M} \cdot \Vector{R}_\obj \cdot \Vector{K}_\obj\label{eq:xyuv_imaging_equation}\\
+ \Vector{K}_\im &=& \hat{C} \cdot \Vector{R}_\obj + \hat{D} \cdot \Vector{K}_\obj + \hat{N} \cdot \Vector{R}_\obj \cdot \Vector{K}_\obj
+\end{eqnarray}
+\end{subequations}
+the operators $\hat{A},\hat{B},\hat{C},\hat{D},\hat{M},\hat{N}$ are represented by the Jacobi matrices
+\begin{align}
+ A_{ij} &=
+   \left.
+     \frac{\partial R_{i\,im}}{\partial R_{j\,obj}} 
+   \right|_{\Vector{K_\obj}=0}
+   & (2\times2 \,\textrm{matrix})
+ \\
+ B_{ij} &=
+   \left.
+     \frac{\partial R_{i\,im}}{\partial K_{j\,obj}} 
+   \right|_{\Vector{R_\obj}=0}
+   & (2\times4 \,\textrm{matrix})
+ \\
+ C_{ij} &=
+   \left.
+     \frac{\partial K_{i\,im}}{\partial R_{j\,obj}} 
+   \right|_{\Vector{K_\obj}=0}
+   & (4\times2 \,\textrm{matrix})
+ \\
+ D_{ij} &=
+   \left.
+     \frac{\partial K_{i\,im}}{\partial K_{j\,obj}} 
+   \right|_{\Vector{R_\obj}=0}
+   & (4\times4 \,\textrm{matrix})
+ \\
+ M_{ijl} &=
+     \frac{\partial^2 R_{i\,im}}{\partial R_{j\,obj}\partial K_{l\,obj}} 
+   & (2\times2\times4 \,\textrm{matrix})
+ \\
+ N_{ijl} &=
+     \frac{\partial^2 K_{i\,im}}{\partial R_{j\,obj}\partial K_{l\,obj}} 
+   & (4\times2\times4 \,\textrm{matrix})
+\end{align}
+
+
+To analytically obtain matrices of the total propagation from object to image, 
+it is easiest to concatenate the matrices of all atomic propagation, refraction, reflection, and coordinate transformation operations,
+using \eqref{eq:xyuv_total_propagation}.
+To obtain these atomic matrices, we perform Taylor expansions around the pilot ray.
+
+For systems where an explicit calculation is not possible
+-- or the operator suffers from laziness --
+it can be approximated by differential quotients of real ray traces of rays with small but finite differences.
+While this numerical approach is easy to implement, it may introduce additional inaccuracies or instabilities.
+
+\subsection{Sequence of Propagators}
+In case the path from object to image is built up from subsystems that are subsequently passed, 
+and we know the propagator of each subsystem $\hat{G}_i$,
+we can write
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_\im \\ \Delta \Wavevector_\im
+ \end{pmatrix}
+ &=&
+ \hat{G}_N \cdot \hat{G}_{N-1} \cdot ... \cdot \hat{G}_3 \cdot \hat{G}_2 \cdot \hat{G}_1 \cdot \hat{G}_0 \cdot
+ \begin{pmatrix}
+  \Delta \Vector{r}_\obj \\ \Delta \Wavevector_\obj
+ \end{pmatrix}
+\end{eqnarray}
+In general, the operators do not commutate. $\hat{G}_0$ is the propagator representing the subsystem adjacent to the object.
+In the following, we consider the most simple case: the case of two subsystems.
+\begin{eqnarray}
+ \Delta \Vector{r}_2  &=& \hat{A}_1 \Delta \Vector{r}_1 + \hat{B}_1 \Delta \Vector{k}_1 + \hat{M}_1 \Delta \Vector{r}_1 \Delta \Vector{k}_1 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_1 \Delta \Vector{r}_1 + \hat{D}_1 \Delta \Vector{k}_1 + \hat{N}_1 \Delta \Vector{r}_1 \Delta \Vector{k}_1 \\
+ \Delta \Vector{r}_1  &=& \hat{A}_0 \Delta \Vector{r}_0 + \hat{B}_0 \Delta \Vector{k}_0 + \hat{M}_0 \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
+ \Delta \Wavevector_1 &=& \hat{C}_0 \Delta \Vector{r}_0 + \hat{D}_0 \Delta \Vector{k}_0 + \hat{N}_0 \Delta \Vector{r}_0 \Delta \Vector{k}_0
+\end{eqnarray}
+We neglect all quadratic or higher order terms except for the bilinear term and obtain the total operators, 
+propagating from surface $0$ to surface $2$:
+\begin{subequations}
+\begin{eqnarray}
+ \Delta \Vector{r}_2  &=& \hat{A}_\tot \Delta \Vector{r}_0 + \hat{B}_\tot \Delta \Vector{k}_0 + \hat{M}_\tot \Delta \Vector{r}_0 \Delta \Vector{k}_0 \\ 
+ \Delta \Wavevector_2 &=& \hat{C}_\tot \Delta \Vector{r}_0 + \hat{D}_\tot \Delta \Vector{k}_0 + \hat{N}_\tot \Delta \Vector{r}_0 \Delta \Vector{k}_0
+\end{eqnarray}
+\end{subequations}
+with
+\begin{subequations}\label{eq:xyuv_total_propagation}
+\begin{eqnarray}
+ \hat{A}_\tot &=& \hat{A}_1 \hat{A}_0 + \hat{B}_1 \hat{C}_0 \\
+ \hat{B}_\tot &=& \hat{A}_1 \hat{B}_0 + \hat{B}_1 \hat{D}_0 \\
+ \hat{C}_\tot &=& \hat{C}_1 \hat{A}_0 + \hat{D}_1 \hat{C}_0\\
+ \hat{D}_\tot &=& \hat{C}_1 \hat{B}_0 + \hat{D}_1 \hat{D}_0 \\
+ \hat{M}_\tot &=& \hat{A}_1 \hat{M}_0 + \hat{B}_1 \hat{N}_0 + \hat{M}_1 \hat{A}_0 \hat{D}_0 + \hat{M}_1 \hat{B}_0 \hat{C}_0 \\
+ \hat{N}_\tot &=& \hat{C}_1 \hat{M}_0 + \hat{D}_1 \hat{N}_0 + \hat{N}_1 \hat{A}_0 \hat{D}_0 + \hat{N}_1 \hat{B}_0 \hat{C}_0
+\end{eqnarray}
+ \end{subequations}
+ 
+\remark{todo: double check}
+\remark{todo: explicit, component wise formula}
+
+\subsection{Inverse Propagation}
+Often, we know the propagation operator from plane 0 to plane 1, and we want to know the inverse operator,
+propagating from plane 1 back to plane 0.
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
+ \end{pmatrix}
+ &=&
+ \hat{G}_{\text{inv}}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{1} \\ \Delta \Wavevector_{1}
+ \end{pmatrix}
+\end{eqnarray}
+To construct the inverse propagation from the forward propagator,
+we consider a sequence of forward and backward propagation.
+After applying both, we should end up where we started.
+\begin{eqnarray}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
+ \end{pmatrix}
+ &=&
+ \hat{G}_{\text{inv}}
+ \hat{G}
+ \begin{pmatrix}
+  \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
+ \end{pmatrix}
+ =  
+ \hat{G}_{tot}
+  \begin{pmatrix}
+  \Delta \Vector{r}_{0} \\ \Delta \Wavevector_{0}
+ \end{pmatrix}
+\end{eqnarray}
+We represent the operators $\hat{G}, \hat{G}_{\text{inv}}$ and $\hat{G}_{tot}$ by matrices $\hat{A},\hat{B},\hat{C},\hat{D},\hat{M},\hat{N}$.
+The matrices representing the \emph{inverse propagator} are marked with an index $_\text{inv}$.
+In contrast, an upper $^{-1}$ denotes the \emph{inverse matrix}.
+We apply the propagation concatenation equation \eqref{eq:xyuv_total_propagation} on our sequence of forward and inverse propagation and yield:
+\begin{subequations}
+\begin{eqnarray}
+ \hat{A}_\tot &= \unittensor =& \hat{A}_{\text{inv}} \hat{A} + \hat{B}_{\text{inv}} \hat{C} \\
+ \hat{B}_\tot &= 0           =& \hat{A}_{\text{inv}} \hat{B} + \hat{B}_{\text{inv}} \hat{D} \\
+ \hat{C}_\tot &= 0           =& \hat{C}_{\text{inv}} \hat{A} + \hat{D}_{\text{inv}} \hat{C}\\
+ \hat{D}_\tot &= \unittensor =& \hat{C}_{\text{inv}} \hat{B} + \hat{D}_{\text{inv}} \hat{D} \\
+ \hat{M}_\tot &= 0           =& \hat{A}_{\text{inv}} \hat{M} + \hat{B}_{\text{inv}} \hat{N} + \hat{M}_{\text{inv}} \hat{A} \hat{D} + \hat{M}_{\text{inv}} \hat{B} \hat{C} \\
+ \hat{N}_\tot &= 0           =& \hat{C}_{\text{inv}} \hat{M} + \hat{D}_{\text{inv}} \hat{N} + \hat{N}_{\text{inv}} \hat{A} \hat{D} + \hat{N}_{\text{inv}} \hat{B} \hat{C}
+\end{eqnarray}
+\end{subequations}
+We consider the subsystem of the first four equations and solve it for the inverse propagation matrices.
+\begin{eqnarray}
+ \begin{pmatrix}
+  \hat{A}_{\text{inv}} & \hat{B}_{\text{inv}} \\ \hat{C}_{\text{inv}} & \hat{D}_{\text{inv}}
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  \hat{A} & \hat{B} \\ \hat{C} & \hat{D}
+ \end{pmatrix}^{-1}
+\end{eqnarray}
+or, explicitly,
+\begin{eqnarray}
+ \begin{pmatrix}
+  \hat{A}_{\text{inv}} & \hat{B}_{\text{inv}} \\ \hat{C}_{\text{inv}} & \hat{D}_{\text{inv}}
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  A_{11\,\text{inv}} & A_{12\,\text{inv}} & B_{11\,\text{inv}} & B_{12\,\text{inv}} & B_{13\,\text{inv}} & B_{14\,\text{inv}} \\
+  A_{21\,\text{inv}} & A_{22\,\text{inv}} & B_{21\,\text{inv}} & B_{22\,\text{inv}} & B_{23\,\text{inv}} & B_{24\,\text{inv}} \\
+  C_{11\,\text{inv}} & C_{12\,\text{inv}} & D_{11\,\text{inv}} & D_{12\,\text{inv}} & D_{13\,\text{inv}} & D_{14\,\text{inv}} \\
+  C_{21\,\text{inv}} & C_{22\,\text{inv}} & D_{21\,\text{inv}} & D_{22\,\text{inv}} & D_{23\,\text{inv}} & D_{24\,\text{inv}} \\
+  C_{31\,\text{inv}} & C_{32\,\text{inv}} & D_{31\,\text{inv}} & D_{32\,\text{inv}} & D_{33\,\text{inv}} & D_{34\,\text{inv}} \\
+  C_{41\,\text{inv}} & C_{42\,\text{inv}} & D_{41\,\text{inv}} & D_{42\,\text{inv}} & D_{43\,\text{inv}} & D_{44\,\text{inv}}
+ \end{pmatrix}
+ \\
+ &=&
+ \begin{pmatrix}
+  A_{11} & A_{12} & B_{11} & B_{12} & B_{13} & B_{14} \\
+  A_{21} & A_{22} & B_{21} & B_{22} & B_{23} & B_{24} \\
+  C_{11} & C_{12} & D_{11} & D_{12} & D_{13} & D_{14} \\
+  C_{21} & C_{22} & D_{21} & D_{22} & D_{23} & D_{24} \\
+  C_{31} & C_{32} & D_{31} & D_{32} & D_{33} & D_{34} \\
+  C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
+ \end{pmatrix}^{-1}
+\end{eqnarray}
+The inverse bilinear matrices read
+\begin{subequations}
+\begin{eqnarray}
+ \hat{M}_{\text{inv}} &=& - (\hat{A}_{\text{inv}} \hat{M} + \hat{B}_{\text{inv}} \hat{N}) \cdot \left( ( \hat{A} \hat{D} + \hat{B} \hat{C} )^{-1} \right)\\
+ \hat{N}_{\text{inv}} &=& - (\hat{C}_{\text{inv}} \hat{M} + \hat{D}_{\text{inv}} \hat{N}) \cdot \left( ( \hat{A} \hat{D} + \hat{B} \hat{C} )^{-1} \right)
+\end{eqnarray}
+\end{subequations}
+
+\remark{todo: explicit, component wise formula}
+
+\subsection{Propagation in Homogeneous Media}
+We consider the propagation between two planes in a homogeneous medium.
+In the homogeneous medium, rays are straight lines and the wavevector of each ray is the same in both planes.
+We assume the coordinate system to describe wavevector changes is the same in both plane 0 and plane 1.
+\begin{eqnarray}
+C_{ij} &=& 0 \\
+D_{ij} &=& \delta_{ij} \\
+N_{ij\ell} &=& 0 \\
+\text{for}\qquad \Vector{e}_{U,V\,1} &=& \Vector{e}_{U,V\,0} \nonumber
+\end{eqnarray}
+The task to determine $\hat{A},\hat{B}, \hat{M}$ remains. 
+We consider the ray position in both planes without any Taylor approximation
+\begin{align}
+ \text{plane 0:} && \Location_0 &= \Location_{0\,\pilot} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} \\
+ \text{plane 1:} && \Location_1 &= \Location_{1\,\pilot} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} \\
+ \text{ray :} && \Location_1 &= \Location_{0} + s \cdot \Vector{d}
+\end{align}
+where $s$ is the geometric path length, and $\Vector{d}$ is the direction unit vector of the ray.
+\begin{eqnarray}
+\Location_{1\,\pilot} + X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} &=& \Location_{0\,\pilot} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  + s \cdot \Vector{d}
+\end{eqnarray}
+
+\begin{eqnarray}
+  X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} 
+  &=& 
+  \Location_{0\,\pilot} - \Location_{1\,\pilot} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  + (s_{\pilot} + \Delta s) ( \Vector{d}_{\pilot} + \Delta \Vector{d} )
+\\
+  &=& 
+  \Location_{0\,\pilot} - \Location_{1\,\pilot} + X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  
+  + s_{\pilot} \Vector{d}_{\pilot} 
+  + s_{\pilot} \Delta \Vector{d} 
+  + \Delta s \Vector{d}_{\pilot}
+  + \Delta s \Delta \Vector{d}
+\\
+  &=& 
+  X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0}  
+  + s_{\pilot} \Delta \Vector{d} 
+  + \Delta s \Vector{d}_{\pilot}
+  + \Delta s \Delta \Vector{d}
+\end{eqnarray}
+We build a cartesian coordinate system from $\Vector{e}_{X1}, \Vector{e}_{Y1}$ and $\Vector{e}_{Z1} = \Vector{e}_{X1} \times \Vector{e}_{Y1}$.
+The unit vector $\Vector{e}_{Z1}$ points out of plane 1. We represent all vectors in this base
+
+\begin{eqnarray}
+  X_1 \Vector{e}_{X1} + Y_1 \Vector{e}_{Y1} 
+  =&& 
+      X_0 ( (\Vector{e}_{X0} \Vector{e}_{X1}) \Vector{e}_{X1} + (\Vector{e}_{X0} \Vector{e}_{Y1}) \Vector{e}_{Y1} + (\Vector{e}_{X0} \Vector{e}_{Z1} ) \Vector{e}_{Z1}) \nonumber \\
+  &+& Y_0 ( (\Vector{e}_{Y0} \Vector{e}_{X1}) \Vector{e}_{X1} + (\Vector{e}_{Y0} \Vector{e}_{Y1}) \Vector{e}_{Y1} + (\Vector{e}_{Y0} \Vector{e}_{Z1} ) \Vector{e}_{Z1}) \nonumber \\  
+  &+& (s_{\pilot}+ \Delta s )( (\Delta \Vector{d} \Vector{e}_{X1}) \Vector{e}_{X1} + (\Delta \Vector{d} \Vector{e}_{Y1}) \Vector{e}_{Y1} + (\Delta \Vector{d} \Vector{e}_{Z1} ) \Vector{e}_{Z1}) \nonumber \\  
+  &+& \Delta s ( (\Vector{d}_{\pilot} \Vector{e}_{X1}) \Vector{e}_{X1} + (\Vector{d}_{\pilot} \Vector{e}_{Y1}) \Vector{e}_{Y1} + (\Vector{d}_{\pilot} \Vector{e}_{Z1} ) \Vector{e}_{Z1})  
+\end{eqnarray}
+and compare each coordinate
+\begin{eqnarray}
+  X_1 &=& X_0 (\Vector{e}_{X0} \Vector{e}_{X1}) + Y_0 (\Vector{e}_{Y0} \Vector{e}_{X1}) + (s_{\pilot}+ \Delta s )(\Delta \Vector{d} \Vector{e}_{X1}) + \Delta s (\Vector{d}_{\pilot} \Vector{e}_{X1}) \\
+  Y_1 &=& X_0 (\Vector{e}_{X0} \Vector{e}_{Y1}) + Y_0 (\Vector{e}_{Y0} \Vector{e}_{Y1}) + (s_{\pilot}+ \Delta s )(\Delta \Vector{d} \Vector{e}_{Y1}) + \Delta s (\Vector{d}_{\pilot} \Vector{e}_{Y1}) \\
+  0   &=& X_0 (\Vector{e}_{X0} \Vector{e}_{Z1}) + Y_0 (\Vector{e}_{Y0} \Vector{e}_{Z1}) + (s_{\pilot}+ \Delta s )(\Delta \Vector{d} \Vector{e}_{Z1}) + \Delta s (\Vector{d}_{\pilot} \Vector{e}_{Z1} )
+\end{eqnarray}
+The result is
+\begin{subequations}\label{eq:propagation_between_planes_exact_formula}
+\begin{eqnarray}
+  X_1      &=& \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\pilot}\Delta \Vector{d} + \Delta s \Delta \Vector{d} + \Delta s \Vector{d}_{\pilot} \right) \Vector{e}_{X1} 
+  \\
+  Y_1      &=& \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\pilot}\Delta \Vector{d} + \Delta s \Delta \Vector{d} + \Delta s \Vector{d}_{\pilot} \right) \Vector{e}_{Y1} 
+\end{eqnarray}
+\end{subequations}
+with
+\begin{eqnarray}
+  \Delta s &=& -\frac{ \left( X_0 \Vector{e}_{X0} + Y_0 \Vector{e}_{Y0} + s_{\pilot} \Delta \Vector{d} \right) \Vector{e}_{Z1}}
+                     { \left( \Vector{d}_{\pilot} + \Delta \Vector{d} \right)\Vector{e}_{Z1}  }
+\end{eqnarray}
+This is the exact equation for propagation between planes without any approximations.
+To fit this result to the XYUV formalism, we approximate in first order
+\begin{eqnarray}
+  \Delta s &\approx& - \frac{ X_0 e_{X0\,i}e_{Z1\,i} + Y_0 e_{Y0\,i}e_{Z1\,i} + s_{\pilot} \Delta d_i e_{Z1\,i}  }
+                            {d_{\pilot\,j} e_{Z1\,j}}
+                            \cdot
+                            \left(
+                            1 - \frac{ \Delta d_{\ell} e_{Z1\,\ell}}{d_{\pilot\,j} e_{Z1\,j}}
+                            \right)
+\end{eqnarray}
+and further
+\begin{eqnarray}
+  \Delta s \approx &-& \frac{  e_{X0\,i}e_{Z1\,i} }{d_{\pilot\,j} e_{Z1\,j}} X_0 \nonumber\\
+                   &-& \frac{  e_{Y0\,i}e_{Z1\,i} }{d_{\pilot\,j} e_{Z1\,j}} Y_0 \nonumber\\
+                   &-& \frac{ s_{\pilot}   }{d_{\pilot\,j} e_{Z1\,j}}e_{Z1\,i} \Delta d_i \nonumber\\
+                   &+& \frac{ e_{X0\,i}e_{Z1\,i} }{ (d_{\pilot\,j} e_{Z1\,j} )^2 }
+                             e_{Z1\,\ell} \Delta d_{\ell} X_0  \nonumber\\
+                   &+& \frac{ e_{Y0\,i}e_{Z1\,i} }{ (d_{\pilot\,j} e_{Z1\,j} )^2 }
+                             e_{Z1\,\ell} \Delta d_{\ell} Y_0 
+\end{eqnarray}
+We model the ray direction change in first order as
+\begin{eqnarray}
+ \Delta \Vector{d} &\approx& \frac{\totald \Vector{d}}{\totald K_i} \cdot K_i
+\end{eqnarray}
+with $\Vector{K} = (\Re U, \Re V, \Im U, \Im V)$. 
+Its explicit form is found in equation \eqref{eq:ray_direction_perturbation}.
+Now we can directly read the XYUV matrices from \eqref{eq:propagation_between_planes_exact_formula}.
+Additionally, we copy the matrices $\hat{C},\hat{D},\hat{N}$ from above.
+\begin{subequations} \label{eq:xyuv_translation_matrices}
+\begin{eqnarray}
+ \hat{A} &=& a_{j\ell}
+ \begin{pmatrix}
+  e_{X0j} e_{X1\ell} & e_{Y0j} e_{X1\ell} \\
+  e_{X0j} e_{Y1\ell} & e_{Y0j} e_{Y1\ell}
+ \end{pmatrix}
+\\
+ \hat{B} &=& a_{j\ell} s_{\pilot} 
+ \begin{pmatrix}
+ \frac{\totald d_j}{\totald (\Re U)} e_{X1\ell} & \frac{\totald d_j}{\totald (\Re V)} e_{X1\ell} & \frac{\totald d_j}{\totald (\Im U)} e_{X1\ell} & \frac{\totald d_j}{\totald (\Im V)} e_{X1\ell} \\
+ \frac{\totald d_j}{\totald (\Re U)} e_{Y1\ell} & \frac{\totald d_j}{\totald (\Re V)} e_{Y1\ell} & \frac{\totald d_j}{\totald (\Im U)} e_{Y1\ell} & \frac{\totald d_j}{\totald (\Im V)} e_{Y1\ell}
+ \end{pmatrix}
+\\
+\hat{C} &=& 0 \\
+\hat{D} &=& \unittensor \\
+M_{R_{im}, R_{obj}, K} &=& - a_{j\ell} \frac{ e_{Z1\,i} }{d_{\pilot\,m} e_{Z1\,m}} \frac{\totald d_{j}}{\totald K} e_{R_{obj}\,i} e_{R_{im}\,\ell}  \\
+M_{111} &=& - a_{j\ell} \frac{ e_{Z1\,i} }{d_{\pilot\,m} e_{Z1\,m}} \frac{\totald d_{j}}{\totald (\Re U)} e_{X0\,i} e_{X1\ell}  \\
+\hat{N} &=& 0
+\end{eqnarray}
+with
+\begin{eqnarray}
+ \Vector{e}_{U,V,W,Q\,1} &=& \Vector{e}_{U,V,W,Q\,0} 
+ \\
+ a_{j\ell} &=& \delta_{j\ell} -  \frac{e_{Z1j} d_{\pilot\ell} }{e_{Z1i} d_{\pilot i}}
+\end{eqnarray}
+\end{subequations}
+\remark{todo: simplification: eZ = npilot}
+
+\subsection{Propagation Between Parallel Planes}
+We consider the special case of a propagation operator in a homogeneous medium between parallel planes.
+Without loss of generality, we choose the same base in both planes $\Vector{e}_{X1} = \Vector{e}_{X0}$ and $\Vector{e}_{Y1} = \Vector{e}_{Y0}$.
+The $X$ and $Y$ unit vectors shall be orthogonal on each other, $\Vector{e}_i \Vector{e}_j = \delta_{ij}$.
+The propagation matrices \eqref{eq:xyuv_translation_matrices} simplify to
+
+\begin{subequations} \label{eq:xyuv_parallel_translation_matrices}
+\begin{eqnarray}
+ \hat{A} &=& \unittensor \\
+ \hat{B} &=& s_{\pilot} a_{j\ell}
+ \begin{pmatrix}
+ \frac{\totald d_j}{\totald U} e_{X1\ell} & \frac{\totald d_j}{\totald V} e_{X1\ell} & \frac{\totald d_j}{\totald W} e_{X1\ell} & \frac{\totald d_j}{\totald Q} e_{X1\ell} \\
+ \frac{\totald d_j}{\totald U} e_{Y1\ell} & \frac{\totald d_j}{\totald V} e_{Y1\ell} & \frac{\totald d_j}{\totald W} e_{Y1\ell} & \frac{\totald d_j}{\totald Q} e_{Y1\ell}
+ \end{pmatrix}
+\\
+\hat{C} &=& 0 \\
+\hat{D} &=& \unittensor \\
+\hat{M} &=& 0 \\
+\hat{N} &=& 0
+\end{eqnarray}
+\end{subequations}
+
+
+\subsection{Refraction}
+We assume two parallel planes 1,2 just in front of and behind a refracting surface.
+The planes shall be tangential to the surface at the position of the pilot ray intersection
+and shall have identical bases $\Vector{e}_{X,Y}$.
+The infinitessimal propagation length through the surface does not change the ray height
+\begin{eqnarray}
+ \hat{A} &=& \unittensor \\
+ \hat{B} &=& 0 \\
+ \hat{M} &=& 0
+\end{eqnarray}
+Deviations from the tangential plane (sag differences due to curvature) 
+are an effect quadratic in ray height and are neglected in this linear formalism.
+
+To determine the remaining matrices, we consider the in-plane wavevector.
+We represent the wavevector in the cartesian coordinate system
+$(\Vector{e}_{\tilde{X}}, \Vector{e}_{\tilde{Y}}, \Vector{n})$,
+where $\tilde{X}$ and $\tilde{Y}$ are the in-plane components, 
+and $\Vector{n}$ is the normal at the location of the near-pilot ray intersection.
+At the location of the pilot ray intersection, this coordinate system is identical to
+$(\Vector{e}_{X}, \Vector{e}_{Y}, \Vector{n}_{\pilot})$.
+If the surface is curved and the ray height is nonzero, both may deviate infinitessimaly.
+The in-plane wavevector is
+\begin{eqnarray}
+ \wavenumber_{\parallel2i} &=& (\wavenumber_{2j} e_{\tilde{X}j}) e_{\tilde{X}i} + (\wavenumber_{2j} e_{\tilde{Y}j}) e_{\tilde{Y}i} + 0 \cdot n_i
+ \\
+ &=& \wavenumber_{\tilde{X}} e_{\tilde{X}i} + \wavenumber_{\tilde{Y}} e_{\tilde{Y}i}
+\end{eqnarray}
+with
+\begin{eqnarray}
+ \wavenumber_{\tilde{X}} &=& \wavenumber_{\pilot 2 j} e_{\tilde{X}j} + U_2 e_{U2j} e_{\tilde{X}j} + V_2 e_{V2j} e_{\tilde{X}j}
+ \\
+ \wavenumber_{\tilde{Y}} &=& \wavenumber_{\pilot 2 j} e_{\tilde{Y}j} + U_2 e_{U2j} e_{\tilde{Y}j} + V_2 e_{V2j} e_{\tilde{Y}j}
+\end{eqnarray}
+The in-plane wavevector is conserved $\Wavevector_{\parallel1} = \Wavevector_{\parallel2}$, 
+so we find for medium 1
+\begin{eqnarray}
+ \wavenumber_{\tilde{X}} &=& \wavenumber_{\pilot 1 j} e_{\tilde{X}j} + U_1 e_{U1j} e_{\tilde{X}j} + V_1 e_{V1j} e_{\tilde{X}j}
+ \\
+ \wavenumber_{\tilde{Y}} &=& \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} + U_1 e_{U1j} e_{\tilde{Y}j} + V_1 e_{V1j} e_{\tilde{Y}j}
+\end{eqnarray}
+We substitute $\Wavevector_{\tilde{X}}$, $\Wavevector_{\tilde{Y}}$ and yield
+\begin{eqnarray}
+ \begin{pmatrix}
+  e_{U2j} e_{\tilde{X}j}  &  e_{V2j} e_{\tilde{X}j}
+ \\
+  e_{U2j} e_{\tilde{Y}j}  &  e_{V2j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \cdot
+ \begin{pmatrix}  
+   U_2 \\ V_2  
+ \end{pmatrix}
+ &=&
+ \begin{pmatrix}
+  \wavenumber_{\pilot 1 j} e_{\tilde{X}j} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j} 
+ \\
+  \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ + 
+  \begin{pmatrix}
+  e_{U1j} e_{\tilde{X}j}  &  e_{V1j} e_{\tilde{X}j}
+ \\
+  e_{U1j} e_{\tilde{Y}j}  &  e_{V1j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \cdot
+ \begin{pmatrix}  
+   U_1 \\ V_1  
+ \end{pmatrix}
+\nonumber\\\label{eq:xyuv_refraction_with_implicit_XY_dependence_in_tilde_base}
+\end{eqnarray}
+This equation allows us to identify terms independent of the wavevector change in medium 1, 
+which we associate with the $\hat{C}$ matrix, and terms linear in the wavevector change,
+which we associate with $\hat{D}$ and $\hat{N}$.
+The dependence on ray height $(X,Y)$ is still implicit in $\Vector{e}_{\tilde{X}}$ and $\Vector{e}_{\tilde{Y}}$
+and not linearised to first order.
+
+So let's have a look at the base $\Vector{e}_{\tilde{X}}$ and $\Vector{e}_{\tilde{Y}}, \Vector{n}$.
+From \eqref{eq:derivative_of_surface_normal_in_XY_coordinates},
+we conclude the normal is in first order approximation
+\begin{eqnarray}
+ n_j &=& n_{\pilot j} + \frac{\partial n_j}{\partial X} \cdot X + \frac{\partial n_j}{\partial Y} \cdot Y
+\end{eqnarray}
+The two in-plane base vectors are approximated by the in-plane vectors of the pilot tangential plane, plus terms linear in $(X,Y)$.
+We demand the base vectors to be real, of unit length, and orthogonal to the near-pilot normal $\Vector{n}$.
+The in-plane coordinates are now fixed up to a roll degree of freedom, and we choose arbitrarily $e_{\tilde{X}j} e_{Yj} = 0$.
+\remark{Todo: the inline equation looks ugly}
+In first order approximation, we yield
+\begin{eqnarray}
+ e_{\tilde{X}j} &\approx& e_{Xj} - \left( \frac{\partial n_\ell}{\partial X} e_{X\ell} X + \frac{\partial n_\ell}{\partial Y} e_{X\ell} Y\right) n_{\pilot j}
+\\
+ e_{\tilde{Y}j} &\approx& e_{Yj} - \left( \frac{\partial n_\ell}{\partial X} e_{Y\ell} X + \frac{\partial n_\ell}{\partial Y} e_{Y\ell} Y\right) n_{\pilot j}
+\end{eqnarray}
+With this intermediate result, 
+we approximate the matrices and vectors in \eqref{eq:xyuv_refraction_with_implicit_XY_dependence_in_tilde_base}
+\begin{eqnarray}
+ \begin{pmatrix}
+  e_{U2j} e_{\tilde{X}j}  &  e_{V2j} e_{\tilde{X}j}
+   \\
+  e_{U2j} e_{\tilde{Y}j}  &  e_{V2j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \approx&&
+ \begin{pmatrix}
+  e_{U2j} e_{Xj} &  e_{V2j} e_{Xj}
+   \\
+  e_{U2j} e_{Yj} &  e_{V2j} e_{Yj}
+ \end{pmatrix} + 
+\nonumber\\&-&
+ \begin{pmatrix}
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+   \\
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+ \end{pmatrix} X + 
+\nonumber\\&-&
+ \begin{pmatrix}
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+   \\
+  e_{U2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V2j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+ \end{pmatrix} Y 
+\\
+ \begin{pmatrix}
+  e_{U1j} e_{\tilde{X}j}  &  e_{V1j} e_{\tilde{X}j}
+ \\
+  e_{U1j} e_{\tilde{Y}j}  &  e_{V1j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \approx&&
+ \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix} + 
+\nonumber\\&-&
+ \begin{pmatrix}
+  e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+   \\
+  e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+ \end{pmatrix} X + 
+\nonumber\\&-&
+ \begin{pmatrix}
+  e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+   \\
+  e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+ \end{pmatrix} Y \qquad\qquad
+ \\
+ \begin{pmatrix}
+  \wavenumber_{\pilot 1 j} e_{\tilde{X}j} - \wavenumber_{\pilot 2 j} e_{\tilde{X}j} 
+ \\
+  \wavenumber_{\pilot 1 j} e_{\tilde{Y}j} - \wavenumber_{\pilot 2 j} e_{\tilde{Y}j}
+ \end{pmatrix}
+ \approx&&
+  (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+  \begin{pmatrix}
+   \frac{\partial n_\ell}{\partial X} e_{X\ell}    \\    \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+  \end{pmatrix} X + 
+\nonumber\\&+&
+  (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+  \begin{pmatrix}
+   \frac{\partial n_\ell}{\partial Y} e_{X\ell}    \\    \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+  \end{pmatrix} Y  
+\end{eqnarray}
+We invert the first matrix
+\begin{eqnarray}
+ \begin{pmatrix}
+  e_{U2j} e_{\tilde{X}j}  &  e_{V2j} e_{\tilde{X}j}
+   \\
+  e_{U2j} e_{\tilde{Y}j}  &  e_{V2j} e_{\tilde{Y}j}
+ \end{pmatrix}^{-1}
+ &\approx&
+ \frac{1}{a}
+ \cdot
+ \begin{pmatrix}
+   e_{V2j} e_{Yj} & -e_{V2j} e_{Xj}
+   \\
+  -e_{U2j} e_{Yj}  & e_{U2j} e_{Xj}
+ \end{pmatrix}
+ +
+ \frac{1}{a^2}
+ \cdot
+ \hat{F}_X X
+ +
+ \frac{1}{a^2}
+ \cdot
+ \hat{F}_Y Y
+ \nonumber\\
+\end{eqnarray}
+with
+\begin{eqnarray}
+ a =&& e_{U2i} e_{Xi}e_{V2j} e_{Yj}-e_{V2i} e_{Xi}e_{U2j} e_{Yj}
+ \\
+ \hat{F}_X =&&
+ \begin{pmatrix}
+   e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+   \\
+  -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+ \end{pmatrix}
+ \cdot
+ \nonumber\\
+ &\cdot&
+ \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+ \end{pmatrix}
+ \cdot
+ \nonumber\\
+ &\cdot&
+ \begin{pmatrix}
+   e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+   \\
+  -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+ \end{pmatrix} 
+\\
+\hat{F}_Y =&&
+ \begin{pmatrix}
+   e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+   \\
+  -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+ \end{pmatrix} 
+ \cdot
+ \nonumber\\
+ &\cdot&
+ \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+ \end{pmatrix}
+ \cdot
+ \nonumber\\
+ &\cdot&
+ \begin{pmatrix}
+   e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+   \\
+  -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+ \end{pmatrix} 
+\end{eqnarray}
+We insert all intermediate results in \eqref{eq:xyuv_refraction_with_implicit_XY_dependence_in_tilde_base} and obtain
+\begin{eqnarray}
+ \begin{pmatrix}  
+   U_2 \\ V_2  
+ \end{pmatrix}
+ &=&
+    \hat{\tilde{C}}
+  \begin{pmatrix}
+     X \\ Y    
+  \end{pmatrix}  
+  +
+  \hat{\tilde{D}}
+  \begin{pmatrix}
+   U_1 \\ V_1
+  \end{pmatrix}
+  +
+  \hat{\tilde{N}}_X X
+  \begin{pmatrix}
+   U_1 \\ V_1
+  \end{pmatrix}
+  +
+  \hat{\tilde{N}}_Y Y
+  \begin{pmatrix}
+   U_1 \\ V_1
+  \end{pmatrix}
+  \\
+  \hat{\tilde{C}} 
+  &=&
+     \frac{  (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}}{ a }
+     \cdot
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+     \begin{pmatrix}
+       \frac{\partial n_\ell}{\partial X} e_{X\ell} & \frac{\partial n_\ell}{\partial Y} e_{X\ell} 
+       \\    
+       \frac{\partial n_\ell}{\partial X} e_{Y\ell} & \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} 
+  \\
+  \hat{\tilde{D}}
+  &=&
+     \frac{ 1 }{ a }
+     \cdot
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+     \begin{pmatrix}
+       e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+       \\
+       e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+     \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_X
+  &=&
+     \frac{ -1 }{ a }
+     \cdot
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+
+  \frac{1}{a^2}
+  \hat{F}_X
+   \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_Y
+  &=&
+     \frac{ -1 }{ a }
+     \cdot
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+
+  \frac{1}{a^2}
+  \hat{F}_Y
+   \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+\end{eqnarray}
+which we simplify to
+\begin{eqnarray}
+ \begin{pmatrix} U_2 \\ V_2 \end{pmatrix}
+ &=&
+    \hat{\tilde{C}}     \begin{pmatrix} X   \\ Y   \end{pmatrix}  
+  + \hat{\tilde{D}}     \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_X X \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_Y Y \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  \\
+  \hat{\tilde{C}} 
+  &=&
+     (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+     \cdot \hat{F}_0 \cdot
+     \begin{pmatrix}
+       \frac{\partial n_\ell}{\partial X} e_{X\ell} & \frac{\partial n_\ell}{\partial Y} e_{X\ell} 
+       \\    
+       \frac{\partial n_\ell}{\partial X} e_{Y\ell} & \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} 
+  \\
+  \hat{\tilde{D}}
+  &=&
+     \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+       \\
+       e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+     \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_X
+  &=& - \hat{F}_0\cdot
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial X} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+\hat{F}_0 \cdot
+   \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+ \end{pmatrix}
+ \cdot \hat{F}_0 \cdot
+ \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_Y
+  &=&
+     - \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{X\ell}
+       \\
+       e_{U1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell} &  e_{V1j} n_{\pilot j} \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} +
+  \nonumber\\
+  &&+
+  \hat{F}_0 \cdot
+   \begin{pmatrix}
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell})
+   \\
+  (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+ \end{pmatrix}
+ \cdot \hat{F}_0 \cdot
+ \begin{pmatrix}
+  e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+   \\
+  e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+ \end{pmatrix}
+ \\
+ \hat{F}_0 &=&
+     \frac{1}{a}
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+\end{eqnarray}
+which we fullsimplify to
+\begin{eqnarray}
+ \begin{pmatrix} U_2 \\ V_2 \end{pmatrix}
+ &=&
+    \hat{\tilde{C}}     \begin{pmatrix} X   \\ Y   \end{pmatrix}  
+  + \hat{\tilde{D}}     \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_X X \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  + \hat{\tilde{N}}_Y Y \begin{pmatrix} U_1 \\ V_1 \end{pmatrix}
+  \\
+  \hat{\tilde{C}} 
+  &=&
+     (\wavenumber_{\pilot 2 j} - \wavenumber_{\pilot 1 j}) n_{\pilot j}
+     \cdot \hat{F}_0 \cdot
+     \begin{pmatrix}
+       \frac{\partial n_\ell}{\partial X} e_{X\ell} & \frac{\partial n_\ell}{\partial Y} e_{X\ell} 
+       \\    
+       \frac{\partial n_\ell}{\partial X} e_{Y\ell} & \frac{\partial n_\ell}{\partial Y} e_{Y\ell}
+     \end{pmatrix} 
+  \\
+  \hat{\tilde{D}}
+  &=&
+     \hat{F}_0 \cdot
+     \begin{pmatrix}
+       e_{U1j} e_{Xj} &  e_{V1j} e_{Xj}
+       \\
+       e_{U1j} e_{Yj} &  e_{V1j} e_{Yj}
+     \end{pmatrix}
+  \\
+  \hat{\tilde{N}}_X
+  &=& - \hat{F}_0\cdot
+     \begin{pmatrix}
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) \\
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+     \end{pmatrix} +
+  \nonumber\\
+  &&+ \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{X\ell}) \\
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial X} e_{Y\ell})
+     \end{pmatrix}
+     \cdot \hat{\tilde{D}}
+  \\
+  \hat{\tilde{N}}_Y
+  &=&
+     - \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) \\
+       (e_{U1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V1j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+     \end{pmatrix} +
+  \nonumber\\
+  &&+ \hat{F}_0 \cdot
+     \begin{pmatrix}
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{X\ell}) \\
+       (e_{U2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell}) &  (e_{V2j} n_{\pilot j}) (\frac{\partial n_\ell}{\partial Y} e_{Y\ell})
+     \end{pmatrix}
+     \cdot \hat{\tilde{D}}
+ \\
+ \hat{F}_0 &=&
+     \frac{1}{ (e_{U2i} e_{Xi}) (e_{V2j} e_{Yj}) - (e_{V2i} e_{Xi}) (e_{U2j} e_{Yj}) }
+     \begin{pmatrix}
+       e_{V2i} e_{Yi} & -e_{V2i} e_{Xi}
+       \\
+      -e_{U2i} e_{Yi}  & e_{U2i} e_{Xi}
+     \end{pmatrix}
+\end{eqnarray}
+We compare to the parabasal equation of propagation
+\eqref{eq:parabasal_imaging_equation}
+with the $XYUV$ vectors \eqref{eq:definition_of_parabasal_R_and_K_vectors}
+and yield the propagator matrices for a refraction operation
+\begin{eqnarray}
+ \hat{A} &=& \unittensor \\
+ \hat{B} &=& 0 \\
+ \hat{C} &=&
+   \begin{pmatrix}
+    \Re \tilde{C}_{11} & \Re \tilde{C}_{12} \\
+    \Re \tilde{C}_{21} & \Re \tilde{C}_{22} \\
+    \Im \tilde{C}_{11} & \Im \tilde{C}_{12} \\
+    \Im \tilde{C}_{21} & \Im \tilde{C}_{22}
+   \end{pmatrix}
+ \\
+ \hat{D} &=&
+   \begin{pmatrix}
+     \Re \tilde{D}_{11} & \Re \tilde{D}_{12} & - \Im \tilde{D}_{11} & - \Im \tilde{D}_{12} \\
+     \Re \tilde{D}_{21} & \Re \tilde{D}_{22} & - \Im \tilde{D}_{21} & - \Im \tilde{D}_{22} \\
+     \Im \tilde{D}_{11} & \Im \tilde{D}_{12} &   \Re \tilde{D}_{11} &   \Re \tilde{D}_{12} \\
+     \Im \tilde{D}_{21} & \Im \tilde{D}_{22} &   \Re \tilde{D}_{21} &   \Re \tilde{D}_{22} \\
+   \end{pmatrix}
+ \\
+ \hat{M} &=& 0 \\
+ \hat{N} &=& N_{[K_{im}, R, K_{obj}]} \\
+ \hat{N}_{[:,X,:]} &=&
+   \begin{pmatrix}
+     \Re \tilde{N}_{X\,11} & \Re \tilde{N}_{X\,12} & - \Im \tilde{N}_{X\,11} & - \Im \tilde{N}_{X\,12} \\
+     \Re \tilde{N}_{X\,21} & \Re \tilde{N}_{X\,22} & - \Im \tilde{N}_{X\,21} & - \Im \tilde{N}_{X\,22} \\
+     \Im \tilde{N}_{X\,11} & \Im \tilde{N}_{X\,12} &   \Re \tilde{N}_{X\,11} &   \Re \tilde{N}_{X\,12} \\
+     \Im \tilde{N}_{X\,21} & \Im \tilde{N}_{X\,22} &   \Re \tilde{N}_{X\,21} &   \Re \tilde{N}_{X\,22} \\
+   \end{pmatrix}
+ \\
+  \hat{N}_{[:,Y,:]} &=&
+   \begin{pmatrix}
+     \Re \tilde{N}_{Y\,11} & \Re \tilde{N}_{Y\,12} & - \Im \tilde{N}_{Y\,11} & - \Im \tilde{N}_{Y\,12} \\
+     \Re \tilde{N}_{Y\,21} & \Re \tilde{N}_{Y\,22} & - \Im \tilde{N}_{Y\,21} & - \Im \tilde{N}_{Y\,22} \\
+     \Im \tilde{N}_{Y\,11} & \Im \tilde{N}_{Y\,12} &   \Re \tilde{N}_{Y\,11} &   \Re \tilde{N}_{Y\,12} \\
+     \Im \tilde{N}_{Y\,21} & \Im \tilde{N}_{Y\,22} &   \Re \tilde{N}_{Y\,21} &   \Re \tilde{N}_{Y\,22} \\
+   \end{pmatrix}
+\end{eqnarray}
+
+
+
+TODO: double check
+
+
+
 
 \chapter{Surface Intersections}\label{subsec:intersectionformulas}
 This section discusses how to calculate the intersection of a ray with a surface.
