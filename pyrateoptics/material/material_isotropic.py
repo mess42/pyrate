@@ -36,7 +36,7 @@ from .material import MaxwellMaterial
 
 
 class IsotropicMaterial(MaxwellMaterial):
-    
+
     def __init__(self, lc, n=1.0, **kwargs):
         super(IsotropicMaterial, self).__init__(lc, **kwargs)
 
@@ -67,31 +67,31 @@ class IsotropicMaterial(MaxwellMaterial):
 
     def calcXi(self, x, normal, k_inplane, wave=standard_wavelength):
         return self.calcXiIsotropic(x, normal, k_inplane, wave=wave)
-        
-        
+
+
     def calcXiIsotropic(self, x, n, k_inplane, wave=standard_wavelength):
         """
         Calculate normal component of k after refraction in isotropic materials.
-        
-        :param n (3xN numpy array of float) 
+
+        :param n (3xN numpy array of float)
                 normal of surface in local coordinates
-        :param k_inplane (3xN numpy array of float) 
+        :param k_inplane (3xN numpy array of float)
                 incoming wave vector inplane component in local coordinates
-        
-        :return (xi, valid) tuple of (3x1 numpy array of complex, 
+
+        :return (xi, valid) tuple of (3x1 numpy array of complex,
                 3x1 numpy array of bool)
         """
-        
+
         #k2_squared = 4.*math.pi**2 / wave**2 * self.getIsotropicEpsilon(x, wave=wave)
         k2_squared = self.getIsotropicEpsilon(x, wave=wave)
-        
+
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
         # make total internal reflection invalid
         valid = (square > 0)
 
         xi = np.sqrt(square)
-        
+
         return (xi, valid)
 
 
@@ -106,14 +106,14 @@ class IsotropicMaterial(MaxwellMaterial):
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
         (xi, valid_refraction) = self.calcXiIsotropic(xlocal, normal, k_inplane, wave=raybundle.wave)
-        
+
         valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
         k2 = k_inplane + xi * normal
 
         # return ray with new direction and properties of old ray
         # return only valid rays
-        orig = raybundle.x[-1][:, valid]        
+        orig = raybundle.x[-1][:, valid]
         newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
         # E field calculation wrong: xlocal, normal, newk in different
@@ -125,7 +125,7 @@ class IsotropicMaterial(MaxwellMaterial):
 
     def reflect(self, raybundle, actualSurface, splitup=False):
 
-        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])        
+        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
@@ -136,18 +136,18 @@ class IsotropicMaterial(MaxwellMaterial):
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
         (xi, valid_refraction) = self.calcXiIsotropic(xlocal, normal, k_inplane, wave=raybundle.wave)
-        
+
         valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
         k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
 
         # return ray with new direction and properties of old ray
         # return only valid rays
-        orig = raybundle.x[-1][:, valid]        
+        orig = raybundle.x[-1][:, valid]
         newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
         Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
-        
+
         return (RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave),)
 
 
@@ -156,7 +156,7 @@ class IsotropicMaterial(MaxwellMaterial):
         """
         Propagates through material until nextSurface.
         Has to check for aperture (TODO). Changes raybundle!
-        
+
         :param raybundle (RayBundle object), gets changed!
         :param nextSurface (Surface object)
         """
@@ -172,10 +172,17 @@ class ConstantIndexGlass(IsotropicMaterial):
 
         self.n = OptimizableVariable(name="refractive index", value=n)
 
-
     def getIndex(self, x, wave):
         return self.n.evaluate()
 
+    @staticmethod
+    def initFromDictionary(reconstruct_list):
+        [constantindexglass_dict,
+         dependent_classes,
+         variable_reconstruct] = reconstruct_list
+        print("constindex: ", constantindexglass_dict)
+
+        # TODO: incomplete!
 
 
 class ModelGlass(IsotropicMaterial):
@@ -183,8 +190,8 @@ class ModelGlass(IsotropicMaterial):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
-        n0 [1], A [mm], B[mm**3.5]        
-        
+        n0 [1], A [mm], B[mm**3.5]
+
         :param tuple (n0, A, B) of float
         """
         super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0], name=name, comment=comment)
@@ -193,7 +200,7 @@ class ModelGlass(IsotropicMaterial):
         self.n0 = OptimizableVariable(name="Conrady n0", value=n0_A_B[0])
         self.A = OptimizableVariable(name="Conrady A", value=n0_A_B[1])
         self.B = OptimizableVariable(name="Conrady B", value=n0_A_B[2])
-        
+
     def getIndex(self, x, wave):
         """
         Private routine for all isotropic materials obeying the Snell law of refraction.

@@ -25,12 +25,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
+from pprint import pformat
+from copy import deepcopy
 
-from ..material.material_isotropic import ConstantIndexGlass
+from .raytracer_keyword_class_association import kind_of_raytracer_classes
+from ..material.material_keyword_class_association import kind_of_material_classes
 from .localcoordinates import LocalCoordinates
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
+from .optical_element import OpticalElement
+from ..material.material_isotropic import ConstantIndexGlass
+
 from .ray import RayPath
-from copy import deepcopy
 
 class OpticalSystem(LocalCoordinatesTreeBase):
     """
@@ -59,6 +64,9 @@ class OpticalSystem(LocalCoordinatesTreeBase):
 
         self.material_background = matbackground # Background material
         self.elements = {}
+
+    def getDictionary(self):
+        return super(OpticalSystem, self).getDictionary()
 
     def seqtrace(self, initialbundle, elementsequence, splitup=False): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
@@ -277,6 +285,50 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         for e in self.elements.values():
             e.draw2d(ax, vertices=vertices, color=color, inyzplane=inyzplane, **kwargs)
 
+    @staticmethod
+    def initFromDictionary(reconstruct_list):
+        """
+        Perform also checks for protocol_version here.
+        """
+
+        [opticalsystem_dict,
+         dependent_classes,
+         reconstruct_variables_dict] = reconstruct_list
+
+
+        os = OpticalSystem(name=opticalsystem_dict["name"])
+        os.debug("Instance initialized")
+        os.debug("To be initialized dict")
+        os.debug(pformat(opticalsystem_dict, indent=4))
+        os.annotations = opticalsystem_dict["annotations"]
+        os.debug("Annotations copied")
+        os.debug("Elements initializing ...")
+        my_elements = opticalsystem_dict["classes"]["elements"]
+        os.elements = dict([(k, OpticalElement.initFromDictionary(
+                [dependent_classes.pop(v),
+                 dependent_classes,
+                 reconstruct_variables_dict]))
+                            for (k, v) in my_elements.items()])
+        os.debug("Material background initializing ...")
+        material_background_dict = dependent_classes.pop(
+                opticalsystem_dict["classes"]["material_background"])
+        os.debug("Root coordinate system initializing ...")
+        rootcoordinate_dict = dependent_classes.pop(
+                opticalsystem_dict["classes"]["rootcoordinatesystem"])
+        os.debug("Material background generating from dict")
+        os.material_background = kind_of_material_classes[
+                material_background_dict["kind"]].\
+            initFromDictionary([material_background_dict,
+                                dependent_classes,
+                                reconstruct_variables_dict])
+        os.debug("Root coordinate generating from dict ...")
+        os.rootcoordinatesystem = kind_of_raytracer_classes[
+                rootcoordinate_dict["kind"]].\
+            initFromDictionary([rootcoordinate_dict,
+                                dependent_classes,
+                                reconstruct_variables_dict])
+
+        return os
 
 
 if __name__ == "__main__":

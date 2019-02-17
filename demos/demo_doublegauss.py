@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import math
 import logging
+import json
+from ruamel.yaml import YAML
 
 from distutils.version import StrictVersion
 
@@ -45,7 +47,7 @@ from pyrateoptics.sampling2d.raster import RectGrid
 from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
 from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
 from pyrateoptics.core.functionobject import FunctionObject
-
+from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
 
 logging.basicConfig(level=logging.INFO)
 
@@ -343,5 +345,25 @@ r2 = s.seqtrace(b[0], seq)
 for r in r2:
     r.draw2d(ax2, color="blue", plane_normal=pn, up=up)
 
-
 plt.show()
+
+system_dump = s.getCompleteListForReconstruction()
+system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
+        s.elements["stdelem"].surfaces["elem2rear"].shape).queryForDictionary()
+
+
+from pprint import pprint
+
+pprint(system_gui_toplevel)
+
+yaml = YAML()
+fp = open("double_gauss.yaml", "wt")
+yaml.dump(system_dump, fp)
+fp.close()
+
+
+fp = open("double_gauss.json", "wt")
+json.dump(system_dump, fp, indent=4)
+fp.close()
+
+

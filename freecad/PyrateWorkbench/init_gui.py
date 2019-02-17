@@ -87,6 +87,8 @@ from freecad.PyrateWorkbench import Commands_Materials
 
 from freecad.PyrateWorkbench import Commands_Surface
 
+from freecad.PyrateWorkbench import Commands_EditClassWithOptimizableVariables
+
 # access to the resource file
 from freecad.PyrateWorkbench import resources_rc
 
@@ -123,7 +125,9 @@ class PyrateWorkbench(FreeCADGui.Workbench):
                             ])
         #self.appendMenu("Pyrate Files", ["LoadSystemCommand", "SaveSystemCommand"]) # TODO: update
         self.appendMenu("Pyrate System",
-                        ["CreateSystemCommand",
+                        [
+                        "EditClassWithOptimizableVariablesCommand",
+                        "CreateSystemCommand",
                         "CreateLocalCoordinatesCommand",
                         "CreateFunctionsCommand",
                         "CreateSurfacesCommand",
