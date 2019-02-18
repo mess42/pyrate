@@ -437,9 +437,14 @@ class OpticalElement(LocalCoordinatesTreeBase):
         return (pilotraypath, rpath)
 
 
-    def draw2d(self, ax, color="grey", vertices=50, inyzplane=True, **kwargs):
+    def draw2d(self, ax, color="grey", vertices=50, inyzplane=True,
+               do_not_draw_surfaces=[], **kwargs):
+        self.info(str(do_not_draw_surfaces))
         for surfs in self.surfaces.values():
-            surfs.draw2d(ax, color=color, vertices=vertices, inyzplane=inyzplane, **kwargs)
+            self.info(surfs.name)
+            self.info(surfs.name in do_not_draw_surfaces)
+            if surfs.name not in do_not_draw_surfaces:
+                surfs.draw2d(ax, color=color, vertices=vertices, inyzplane=inyzplane, **kwargs)
 
     @staticmethod
     def initFromDictionary(reconstruct_list):

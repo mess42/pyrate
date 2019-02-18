@@ -245,6 +245,7 @@ def build_optical_system(builduplist, material_db_path="", name=""):
 
 
 def draw(os, rays=None,
+         do_not_draw_surfaces=[],
          interactive=False,
          show_box=True,
          linewidth=1.0,
@@ -379,7 +380,8 @@ def draw(os, rays=None,
         up_angle_slider.on_changed(sliders_on_changed)
 
     draw_rays(ax, rays, linewidth=linewidth, **kwargs)
-    os.draw2d(ax, color="grey", linewidth=linewidth, **kwargs)
+    os.draw2d(ax, color="grey", linewidth=linewidth,
+              do_not_draw_surfaces=do_not_draw_surfaces, **kwargs)
 
     if export is not None:
         # ax.autoscale(enable=True, axis='both', tight=True)

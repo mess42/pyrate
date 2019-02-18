@@ -281,9 +281,14 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
 
 
-    def draw2d(self, ax, vertices=50, color="grey", inyzplane=True, **kwargs):
+    def draw2d(self, ax, vertices=50, color="grey", inyzplane=True,
+               do_not_draw_surfaces=[], **kwargs):
         for e in self.elements.values():
-            e.draw2d(ax, vertices=vertices, color=color, inyzplane=inyzplane, **kwargs)
+            e.draw2d(ax, vertices=vertices,
+                     color=color,
+                     inyzplane=inyzplane,
+                     do_not_draw_surfaces=do_not_draw_surfaces,
+                     **kwargs)
 
     @staticmethod
     def initFromDictionary(reconstruct_list):
