@@ -246,6 +246,7 @@ def build_optical_system(builduplist, material_db_path="", name=""):
 
 def draw(os, rays=None,
          do_not_draw_surfaces=[],
+         do_not_draw_raybundles=[],
          interactive=False,
          show_box=True,
          linewidth=1.0,
@@ -310,7 +311,7 @@ def draw(os, rays=None,
     else:
         ax.set_facecolor("white")
 
-    def draw_rays(ax, rays, **kwargs):
+    def draw_rays(ax, rays, do_not_draw_raybundles=[], **kwargs):
         if rays is not None:
             if isinstance(rays, list):
                 for rpl in rays:
@@ -318,7 +319,9 @@ def draw(os, rays=None,
                     if isinstance(rpl, list):
                         for rp in rpl:
                             ray_color = tuple(np.random.random(3))
-                            rp.draw2d(ax, color=ray_color, **kwargs)
+                            rp.draw2d(ax, color=ray_color,
+                                      do_not_draw_raybundles=do_not_draw_raybundles,
+                                      **kwargs)
                     elif isinstance(rpl, tuple):
                         (rl, ray_color) = rpl
                         if isinstance(rl, list):
@@ -329,11 +332,15 @@ def draw(os, rays=None,
                             # draw(s, [(rp1, color1), (....)])
                             rl.draw2d(ax, color=ray_color, **kwargs)
                     else:
-                        rpl.draw2d(ax, color=ray_color, **kwargs)
+                        rpl.draw2d(ax, color=ray_color,
+                                   do_not_draw_raybundles=do_not_draw_raybundles,
+                                   **kwargs)
             elif isinstance(rays, RayPath):
                 # draw(s, raypath)
                 ray_color = tuple(np.random.random(3))
-                rays.draw2d(ax, color=ray_color, **kwargs)
+                rays.draw2d(ax, color=ray_color,
+                            do_not_draw_raybundles=do_not_draw_raybundles,
+                            **kwargs)
             elif isinstance(rays, RayBundle):
                 # draw(s, raybundle)
                 ray_color = tuple(np.random.random(3))
@@ -346,7 +353,9 @@ def draw(os, rays=None,
                         r.draw2d(ax, color=ray_color, **kwargs)
                 else:
                     # draw(s, (raypath, color))
-                    rl.draw2d(ax, color=ray_color, **kwargs)
+                    rl.draw2d(ax, color=ray_color,
+                              do_not_draw_raybundles=do_not_draw_raybundles,
+                              **kwargs)
 
     def sliders_on_changed(val):
         ax.clear()
@@ -379,7 +388,8 @@ def draw(os, rays=None,
         xz_angle_slider.on_changed(sliders_on_changed)
         up_angle_slider.on_changed(sliders_on_changed)
 
-    draw_rays(ax, rays, linewidth=linewidth, **kwargs)
+    draw_rays(ax, rays, linewidth=linewidth,
+              do_not_draw_raybundles=do_not_draw_raybundles, **kwargs)
     os.draw2d(ax, color="grey", linewidth=linewidth,
               do_not_draw_surfaces=do_not_draw_surfaces, **kwargs)
 

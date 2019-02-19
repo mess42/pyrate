@@ -439,10 +439,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
     def draw2d(self, ax, color="grey", vertices=50, inyzplane=True,
                do_not_draw_surfaces=[], **kwargs):
-        self.info(str(do_not_draw_surfaces))
+        self.debug(str(do_not_draw_surfaces))
         for surfs in self.surfaces.values():
-            self.info(surfs.name)
-            self.info(surfs.name in do_not_draw_surfaces)
+            self.debug("Drawing surface " + surfs.name + "?" +
+                       surfs.name not in do_not_draw_surfaces)
             if surfs.name not in do_not_draw_surfaces:
                 surfs.draw2d(ax, color=color, vertices=vertices, inyzplane=inyzplane, **kwargs)
 

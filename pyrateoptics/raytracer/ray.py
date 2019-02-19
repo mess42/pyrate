@@ -211,10 +211,12 @@ class RayPath(object):
         self.raybundles += raypath.raybundles
 
     def draw2d(self, ax, color="blue",
-               plane_normal=canonical_ex, up=canonical_ey, **kwargs):
-        for r in self.raybundles:
-            r.draw2d(ax, color=color,
-                     plane_normal=plane_normal, up=up, **kwargs)
+               plane_normal=canonical_ex, up=canonical_ey,
+               do_not_draw_raybundles=[], **kwargs):
+        for (ind, r) in enumerate(self.raybundles):
+            if ind not in do_not_draw_raybundles:
+                r.draw2d(ax, color=color,
+                         plane_normal=plane_normal, up=up, **kwargs)
 
     def containsSplitted(self):
         return any([r.splitted for r in self.raybundles])
