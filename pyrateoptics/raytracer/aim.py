@@ -48,6 +48,7 @@ class Aimy(BaseLogger):
                  wave=standard_wavelength,
                  num_pupil_points=100,
                  stopsize=10,
+                 pilotbundlesolution=-1,
                  name="", kind="aimy", **kwargs):
 
         super(Aimy, self).__init__(name=name, kind=kind, **kwargs)
@@ -56,6 +57,7 @@ class Aimy(BaseLogger):
         self.stopsize = stopsize
         self.num_pupil_points = num_pupil_points
         self.wave = wave
+        self.pilotbundlesolution = pilotbundlesolution
 
         self.update(s, seq)
 
@@ -101,8 +103,8 @@ class Aimy(BaseLogger):
             num_sampling_points=3)
 
         self.info("choose last raybundle (hard coded)")
-        self.pilotbundle = pilotbundles[-1]
-        # TODO: one solution selected hard coded
+        self.pilotbundle = pilotbundles[self.pilotbundlesolution]
+        # one of the last two
 
         (self.m_obj_stop, self.m_stop_img) = s.extractXYUV(self.pilotbundle, seq)
 
