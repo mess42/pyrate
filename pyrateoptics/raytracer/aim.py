@@ -158,11 +158,11 @@ class Aimy(BaseLogger):
 
 
         (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
+        (num_points,) = xp.shape        
+
         dr_stop = (np.vstack((xp, yp))*self.stopsize)
 
-        dk_obj2 = np.repeat(dk_obj[:, np.newaxis], self.num_pupil_points, axis=1)
-        # TODO: self.num_pupil_points -> len(xp)
-
+        dk_obj2 = np.repeat(dk_obj[:, np.newaxis], num_points, axis=1)
 
         intermediate = np.dot(B_obj_stop, dk_obj2)
         dr_obj = np.dot(A_obj_stop_inv, dr_stop - intermediate)
@@ -181,10 +181,11 @@ class Aimy(BaseLogger):
         B_obj_stop_inv = np.linalg.inv(B_obj_stop)
 
         (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
+        (num_points,) = xp.shape        
+        
         dr_stop = (np.vstack((xp, yp))*self.stopsize)
 
-        dr_obj = np.repeat(delta_xy[:, np.newaxis], self.num_pupil_points, axis=1)
-        # TODO: self.num_pupil_points -> len(xp)        
+        dr_obj = np.repeat(delta_xy[:, np.newaxis], num_points, axis=1)
         
         dk_obj = np.dot(B_obj_stop_inv, dr_stop - np.dot(A_obj_stop, dr_obj))
 
