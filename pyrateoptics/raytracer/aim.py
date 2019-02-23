@@ -164,7 +164,10 @@ class Aimy(BaseLogger):
         """
         knows about xyuv matrices
         """
-        (A_obj_stop, B_obj_stop, C_obj_stop, D_obj_stop) = self.extractABCD(self.m_obj_stop)
+        (A_obj_stop,
+         B_obj_stop,
+         C_obj_stop,
+         D_obj_stop) = self.extractABCD(self.m_obj_stop)
 
         A_obj_stop_inv = np.linalg.inv(A_obj_stop)
 
@@ -200,6 +203,9 @@ class Aimy(BaseLogger):
         dr_obj = np.repeat(delta_xy[:, np.newaxis], num_points, axis=1)
 
         dk_obj = np.dot(B_obj_stop_inv, dr_stop - np.dot(A_obj_stop, dr_obj))
+        print(A_obj_stop)
+        print(B_obj_stop)
+        print(B_obj_stop_inv)
 
         # TODO: in general some direction vector is derived
         # TODO: this must been mapped to a k vector

@@ -419,15 +419,16 @@ class OpticalElement(LocalCoordinatesTreeBase):
             dx0timesdk0_imag = np.reshape(np.einsum("i...,j...->ij...", dx0, dk0_imag), (num_dims*num_dims, num_pts))
 
             if pilotbundle_generation.lower() == "complex":
-                DX0 = np.vstack((dx0, dk0_real, dk0_imag))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
+                DX0 = np.asarray(np.vstack((dx0, dk0_real, dk0_imag)), dtype=float)  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
             elif pilotbundle_generation.lower() == "real":
-                DX0 = np.vstack((dx0, dk0_real))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
+                DX0 = np.asarray(np.vstack((dx0, dk0_real)), dtype=float)  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
 
-            self.info("DX0\n" + np.array_str(DX0, precision=2, suppress_small=True))
+            self.info("DX0\n" + np.array_str(DX0, precision=4, suppress_small=True, max_line_width=120))
 
+            self.info("MAT\n" + np.array_str(matrices[surfhit], precision=5, suppress_small=True))
             DX1 = np.dot(matrices[surfhit], DX0)
 
-            self.info("DX1\n" + np.array_str(DX1, precision=2, suppress_small=True))
+            self.info("DX1\n" + np.array_str(DX1, precision=4, suppress_small=True, max_line_width=120))
 
             # multiplication is somewhat contra-intuitive
             # Xend = M("surf2", "surf3", 1) M("surf1", "surf2", 1) X0
