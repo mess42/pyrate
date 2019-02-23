@@ -94,7 +94,12 @@ class OpticalSystem(LocalCoordinatesTreeBase):
     are necessary for XYUV matrix calculation but afterwards they may be omitted.
     """
 
-    def para_seqtrace(self, pilotbundle, initialbundle, elementsequence, pilotraypathsequence=None, use6x6=True): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
+    def para_seqtrace(self, pilotbundle,
+                      initialbundle,
+                      elementsequence,
+                      pilotraypathsequence=None,
+                      use6x6=True, pilotbundle_generation="complex"):
+        # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)
         pilotpath = RayPath(pilotbundle)
         if pilotraypathsequence is None:
@@ -103,7 +108,13 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         self.info("pilot ray path sequence")
         self.info(pilotraypathsequence)
         for ((elem, subseq), prp_nr) in zip(elementsequence, pilotraypathsequence):
-            (append_pilotpath, append_rpath) = self.elements[elem].para_seqtrace(pilotpath.raybundles[-1], rpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr)
+            (append_pilotpath, append_rpath) =\
+                self.elements[elem].para_seqtrace(pilotpath.raybundles[-1],
+                                                  rpath.raybundles[-1],
+                                                  subseq,
+                                                  self.material_background,
+                                                  pilotraypath_nr=prp_nr,
+                                                  pilotbundle_generation=pilotbundle_generation)
             rpath.appendRayPath(append_rpath)
             pilotpath.appendRayPath(append_pilotpath)
         return (pilotpath, rpath)
@@ -112,7 +123,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         return [(elem, self.elements[elem].sequence_to_hitlist(seq)) for (elem, seq) in elementsequence]
 
 
-    def extractXYUV(self, pilotbundle, elementsequence, pilotraypathsequence=None):
+    def extractXYUV(self, pilotbundle, elementsequence, pilotraypathsequence=None,
+                    pilotbundle_generation="complex"):
         pilotpath = RayPath(pilotbundle)
         if pilotraypathsequence is None:
             pilotraypathsequence = tuple([0 for i in range(len(elementsequence))])
@@ -139,7 +151,12 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             (hitlist, optionshitlist_dict) = self.elements[elem].sequence_to_hitlist(subseq)
             # hitlist may contain exactly one stophit
 
-            (append_pilotpath, elem_matrices) = self.elements[elem].calculateXYUV(pilotpath.raybundles[-1], subseq, self.material_background, pilotraypath_nr=prp_nr)
+            (append_pilotpath, elem_matrices) =\
+                self.elements[elem].calculateXYUV(pilotpath.raybundles[-1],
+                                                  subseq,
+                                                  self.material_background,
+                                                  pilotraypath_nr=prp_nr,
+                                                  pilotbundle_generation=pilotbundle_generation)
             pilotpath.appendRayPath(append_pilotpath)
 
             ls1 = []
@@ -155,8 +172,12 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                 else:
                     ls2.append(elem_matrices[h])
 
-            m1 = np.eye(6)
-            m2 = np.eye(6)
+            if pilotbundle_generation.lower() == "complex":
+                m1 = np.eye(6)
+                m2 = np.eye(6)
+            elif pilotbundle_generation.lower() == "real":
+                m1 = np.eye(4)
+                m2 = np.eye(4)
 
             for m in ls1:
                 m1 = np.dot(m, m1)
@@ -165,8 +186,12 @@ class OpticalSystem(LocalCoordinatesTreeBase):
 
             lst_matrix_pairs.append((m1, m2, found_stop))
 
-        m_obj_stop = np.eye(6)
-        m_stop_img = np.eye(6)
+        if pilotbundle_generation.lower() == "complex":
+            m_obj_stop = np.eye(6)
+            m_stop_img = np.eye(6)
+        elif pilotbundle_generation.lower() == "real":
+            m_obj_stop = np.eye(4)
+            m_stop_img = np.eye(4)
 
         obj_stop_branch = True
         for (m1, m2, found_stop) in lst_matrix_pairs:

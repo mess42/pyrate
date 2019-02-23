@@ -156,7 +156,11 @@ class OpticalElement(LocalCoordinatesTreeBase):
                 seq.append(pair)
         return seq
 
-    def calculateXYUV(self, pilotinitbundle, sequence, background_medium, pilotraypath_nr=0):
+    def calculateXYUV(self,
+                      pilotinitbundle,
+                      sequence,
+                      background_medium,
+                      pilotraypath_nr=0, pilotbundle_generation="complex"):
 
         # TODO: needs heavy testing
 
@@ -204,7 +208,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
             kred_real = reduce_matrix_k_real(k)
             kred_imag = reduce_matrix_k_imag(k)
 
-            return np.vstack((xred, kred_real, kred_imag))
+            if pilotbundle_generation.lower() == "complex":
+                return np.vstack((xred, kred_real, kred_imag))
+            else:
+                return np.vstack((xred, kred_real))
 
         def generate_matrix_14xN(x, k):
             xred = reduce_matrix_x(x)
@@ -298,9 +305,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
             self.debug("condition number:")
             self.debug(np.linalg.cond(transfer))
 
+            invtransfer2 = np.linalg.inv(transfer)
             XYUVmatrices[(s1, s2, numhit)] = transfer
             XYUVmatrices[(s2, s1, numhit)] = invtransfer
-            invtransfer2 = np.linalg.inv(transfer)
+
             self.info("inv diff\n" + np.array_str(invtransfer - invtransfer2, precision=6, suppress_small=True))
 
 
@@ -365,10 +373,19 @@ class OpticalElement(LocalCoordinatesTreeBase):
         return rpaths
 
 
-    def para_seqtrace(self, pilotbundle, raybundle, sequence, background_medium, pilotraypath_nr=0):
+    def para_seqtrace(self, pilotbundle,
+                      raybundle,
+                      sequence,
+                      background_medium,
+                      pilotraypath_nr=0,
+                      pilotbundle_generation="complex"):
 
         rpath = RayPath(raybundle)
-        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle, sequence, background_medium, pilotraypath_nr=pilotraypath_nr)
+        (pilotraypath, matrices) = self.calculateXYUV(pilotbundle,
+                                                      sequence,
+                                                      background_medium,
+                                                      pilotraypath_nr=pilotraypath_nr,
+                                                      pilotbundle_generation=pilotbundle_generation)
 
         (hitlist, optionshitlistdict) = self.sequence_to_hitlist(sequence)
 
@@ -401,8 +418,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
             dx0timesdk0_real = np.reshape(np.einsum("i...,j...->ij...", dx0, dk0_real), (num_dims*num_dims, num_pts))
             dx0timesdk0_imag = np.reshape(np.einsum("i...,j...->ij...", dx0, dk0_imag), (num_dims*num_dims, num_pts))
 
-
-            DX0 = np.vstack((dx0, dk0_real, dk0_imag))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
+            if pilotbundle_generation.lower() == "complex":
+                DX0 = np.vstack((dx0, dk0_real, dk0_imag))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
+            elif pilotbundle_generation.lower() == "real":
+                DX0 = np.vstack((dx0, dk0_real))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
 
             self.info("DX0\n" + np.array_str(DX0, precision=2, suppress_small=True))
 
@@ -414,7 +433,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
             # Xend = M("surf2", "surf3", 1) M("surf1", "surf2", 1) X0
 
             dx1 = DX1[0:2]
-            dk1 = DX1[2:4] + complex(0, 1)*DX1[4:6]
+            if pilotbundle_generation.lower() == "complex":
+                dk1 = DX1[2:4] + complex(0, 1)*DX1[4:6]
+            elif pilotbundle_generation.lower() == "real":
+                dk1 = DX1[2:4]
 
             (num_dims, num_pts) = np.shape(dx1)
 

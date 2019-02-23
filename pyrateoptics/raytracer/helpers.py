@@ -282,7 +282,11 @@ def build_pilotbundle_complex(surfobj, mat, xxx_todo_changeme5, xxx_todo_changem
     for j in range(4):
 
         xglob = lcobj.returnLocalToGlobalPoints(xlocobj)
+        print(str(set(xglob[0].tolist())))
+        print(str(set(xglob[1].tolist())))
         kglob = mat.lc.returnLocalToGlobalDirections(k_4[j])
+        print(str(set(kglob[0].tolist())))
+        print(str(set(kglob[1].tolist())))
         Eglob = mat.lc.returnLocalToGlobalDirections(E_4[j])
 
         pilotbundles.append(RayBundle(
