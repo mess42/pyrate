@@ -203,9 +203,6 @@ class Aimy(BaseLogger):
         dr_obj = np.repeat(delta_xy[:, np.newaxis], num_points, axis=1)
 
         dk_obj = np.dot(B_obj_stop_inv, dr_stop - np.dot(A_obj_stop, dr_obj))
-        print(A_obj_stop)
-        print(B_obj_stop)
-        print(B_obj_stop_inv)
 
         # TODO: in general some direction vector is derived
         # TODO: this must been mapped to a k vector
@@ -245,9 +242,17 @@ class Aimy(BaseLogger):
         # TODO: k coordinate system for which dispersion relation is respected
 
         kparabasal = kp_objsurf + dk3d
+        self.info("E pilotbundle")
+        self.info(str(self.pilotbundle.Efield.shape))
+        self.info(str(self.pilotbundle.Efield))
         E_obj = self.pilotbundle.Efield[0, :, 0]
+        self.info("E_obj")
+        self.info(str(E_obj))
         Eparabasal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
+        self.info(str(np.sum(kparabasal*Eparabasal, axis=0)))
 
+        # TODO: Efield introduces anisotropy in aiming through
+        # rotationally symmetric system
 
         # Aimy: returns only linearized results which are not exact
         return RayBundle(xparabasal, kparabasal, Eparabasal, wave=self.wave)

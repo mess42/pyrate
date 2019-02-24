@@ -132,7 +132,6 @@ class RayBundle(object):
 
         self.append(xglob, kglob, Eglob, valid)
 
-
     def returnKtoD(self):
 
         (num_bundle, num_dim, num_pts) = np.shape(self.Efield)
@@ -143,7 +142,6 @@ class RayBundle(object):
         Ek = np.reshape(
                 np.sum(self.Efield*self.k, axis=1),
                 (num_bundle, 1, num_pts))
-
         S = np.real(absE2*self.k - Ek*np.conj(self.Efield))
 
         normS = np.sqrt(
