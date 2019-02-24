@@ -135,15 +135,22 @@ class RayBundle(object):
 
     def returnKtoD(self):
 
-        (num_bund, num_dim, num_pts) = np.shape(self.Efield)
+        (num_bundle, num_dim, num_pts) = np.shape(self.Efield)
 
-        absE2 = np.reshape(np.sum(np.conj(self.Efield)*self.Efield, axis=1), (num_bund, 1, num_pts))
-        Ek = np.reshape(np.sum(self.Efield*self.k, axis=1), (num_bund, 1, num_pts))
+        absE2 = np.reshape(
+                np.sum(np.conj(self.Efield)*self.Efield, axis=1),
+                (num_bundle, 1, num_pts))
+        Ek = np.reshape(
+                np.sum(self.Efield*self.k, axis=1),
+                (num_bundle, 1, num_pts))
 
         S = np.real(absE2*self.k - Ek*np.conj(self.Efield))
 
+        normS = np.sqrt(
+                np.reshape(np.sum(S**2, axis=1),
+                           (num_bundle, 1, num_pts)))
 
-        return S / np.sqrt(np.reshape(np.sum(S**2, axis=1), (num_bund, 1, num_pts)))
+        return S / normS
 
 
 

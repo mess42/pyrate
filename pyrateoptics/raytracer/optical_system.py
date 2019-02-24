@@ -75,7 +75,11 @@ class OpticalSystem(LocalCoordinatesTreeBase):
             rpaths_new = []
 
             for rp in rpaths:
-                raypaths_to_append = self.elements[elem].seqtrace(rp.raybundles[-1], subseq, self.material_background, splitup=splitup)
+                raypaths_to_append =\
+                    self.elements[elem].seqtrace(rp.raybundles[-1],
+                                                 subseq,
+                                                 self.material_background,
+                                                 splitup=splitup)
                 for rp_append in raypaths_to_append[1:]:
                     rpathprime = deepcopy(rp)
                     rpathprime.appendRayPath(rp_append)
