@@ -296,7 +296,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             self.debug(str([s1, s2]))
             startmatrix = generate_matrix_6xN(startx, startk)
             endmatrix = generate_matrix_6xN(endx, endk)
-            self.info(startmatrix.shape)
+            self.debug(startmatrix.shape)
 
             transfer = bestfit_transfer(startmatrix, endmatrix) #np.dot(coordinatetrafomatrix, np.dot(propagatematrix, refractmatrix))
             invtransfer = bestfit_transfer(endmatrix, startmatrix)
@@ -309,7 +309,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
             XYUVmatrices[(s1, s2, numhit)] = transfer
             XYUVmatrices[(s2, s1, numhit)] = invtransfer
 
-            self.info("inv diff\n" + np.array_str(invtransfer - invtransfer2, precision=6, suppress_small=True))
+            self.debug("inv diff\n" + np.array_str(invtransfer - invtransfer2, precision=6, suppress_small=True))
 
 
         return (pilotraypath, XYUVmatrices)
@@ -423,12 +423,12 @@ class OpticalElement(LocalCoordinatesTreeBase):
             elif pilotbundle_generation.lower() == "real":
                 DX0 = np.asarray(np.vstack((dx0, dk0_real)), dtype=float)  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
 
-            self.info("DX0\n" + np.array_str(DX0, precision=4, suppress_small=True, max_line_width=120))
+            self.debug("DX0\n" + np.array_str(DX0, precision=4, suppress_small=True, max_line_width=120))
 
-            self.info("MAT\n" + np.array_str(matrices[surfhit], precision=5, suppress_small=True))
+            self.debug("MAT\n" + np.array_str(matrices[surfhit], precision=5, suppress_small=True))
             DX1 = np.dot(matrices[surfhit], DX0)
 
-            self.info("DX1\n" + np.array_str(DX1, precision=4, suppress_small=True, max_line_width=120))
+            self.debug("DX1\n" + np.array_str(DX1, precision=4, suppress_small=True, max_line_width=120))
 
             # multiplication is somewhat contra-intuitive
             # Xend = M("surf2", "surf3", 1) M("surf1", "surf2", 1) X0

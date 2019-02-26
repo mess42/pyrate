@@ -191,7 +191,7 @@ class Aimy(BaseLogger):
          C_obj_stop,
          D_obj_stop) = self.extractABCD(self.m_obj_stop)
 
-        self.info(str(B_obj_stop.shape))
+        self.debug(str(B_obj_stop.shape))
 
         B_obj_stop_inv = np.linalg.inv(B_obj_stop)
 
@@ -239,22 +239,28 @@ class Aimy(BaseLogger):
         kp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(self.pilotbundle.k[0, :, 0])
         kp_objsurf = np.repeat(kp_objsurf[:, np.newaxis], num_points, axis=1)
         dk3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dk_obj3d)
-        # TODO: k coordinate system for which dispersion relation is respected
+        # FIXME: k coordinate system for which dispersion relation is respected
+        # modified k in general violates dispersion relation
 
         kparabasal = kp_objsurf + dk3d
-        self.info("E pilotbundle")
-        self.info(str(self.pilotbundle.Efield.shape))
-        self.info(str(self.pilotbundle.Efield))
+        self.debug("E pilotbundle")
+        self.debug(str(self.pilotbundle.Efield.shape))
+        self.debug(str(self.pilotbundle.Efield))
         E_obj = self.pilotbundle.Efield[0, :, 0]
-        self.info("E_obj")
-        self.info(str(E_obj))
+        self.debug("E_obj")
+        self.debug(str(E_obj))
         Eparabasal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
-        self.info(str(np.sum(kparabasal*Eparabasal, axis=0)))
+        self.debug(str(np.sum(kparabasal*Eparabasal, axis=0)))
 
         # FIXME: Efield introduces anisotropy in aiming through
         # rotationally symmetric system
         # since copy of Eparabasal is not in the right direction for the
-        # dispersion relation
+        # dispersion relation (i.e. in isotropic media k perp E which is not
+        # fulfilled); solution: use k, insert into propagator, calculate
+        # E by (u, sigma, v) = np.linalg.svd(propagator) where E is
+        # linearcombination of all u which belong to sigma = 0 values.
+        # This is necessary to get the right ray direction also in isotropic
+        # case
 
         # Aimy: returns only linearized results which are not exact
         return RayBundle(xparabasal, kparabasal, Eparabasal, wave=self.wave)
