@@ -285,9 +285,6 @@ def build_pilotbundle_complex(surfobj, mat, xxx_todo_changeme5, xxx_todo_changem
         kglob = mat.lc.returnLocalToGlobalDirections(k_4[j])
         Eglob = mat.lc.returnLocalToGlobalDirections(E_4[j])
 
-        print("Eglob")
-        print(Eglob)
-
         pilotbundles.append(RayBundle(
                 x0=xglob,
                 k0=kglob,

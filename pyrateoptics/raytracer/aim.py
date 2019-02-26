@@ -251,8 +251,10 @@ class Aimy(BaseLogger):
         Eparabasal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
         self.info(str(np.sum(kparabasal*Eparabasal, axis=0)))
 
-        # TODO: Efield introduces anisotropy in aiming through
+        # FIXME: Efield introduces anisotropy in aiming through
         # rotationally symmetric system
+        # since copy of Eparabasal is not in the right direction for the
+        # dispersion relation
 
         # Aimy: returns only linearized results which are not exact
         return RayBundle(xparabasal, kparabasal, Eparabasal, wave=self.wave)
