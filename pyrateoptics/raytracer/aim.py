@@ -71,7 +71,7 @@ class Aimy(BaseLogger):
 
     def extractABCD(self, xyuv):
 
-        self.info(str(xyuv.shape))
+        self.debug(str(xyuv.shape))
 
         Axyuv = xyuv[0:2, 0:2]
         Bxyuv = xyuv[0:2, 2:4]  # take only real part of the k vectors
