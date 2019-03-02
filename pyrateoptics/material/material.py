@@ -371,12 +371,19 @@ class MaxwellMaterial(Material):
         Kmatrix = np.array(eps, dtype=complex) # if eps is only real we have to cast it to complex
         Cmatrix = np.copy(ZeroMatrix)
 
-
+        # FIXME: subst for loop by einsum
+        #Mmatrix += np.einsum("i...,j...->ij...", n, n)
+        #Cmatrix += np.einsum("i...,j...->ij...", kpa_norm, n) +\
+        #    np.einsum("i...,j...->ij...", n, kpa_norm)
+        #Kmatrix += -np.einsum("k...,k...->...", kpa_norm, kpa_norm)*IdMatrix +\
+        #    np.einsum("i...,j...->ij...", kpa_norm, kpa_norm)
 
         for j in range(num_pts):
             Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
-            Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) + np.outer(n[:, j], kpa_norm[:, j])
-            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*complexidmatrix + np.outer(kpa_norm[:, j], kpa_norm[:, j])
+            Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) +\
+                np.outer(n[:, j], kpa_norm[:, j])
+            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*complexidmatrix +\
+                np.outer(kpa_norm[:, j], kpa_norm[:, j])
 
         Amatrix6x6 = np.vstack(
                     (np.hstack((Cmatrix, Kmatrix)),

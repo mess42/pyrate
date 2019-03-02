@@ -132,18 +132,23 @@ class RayBundle(object):
 
         self.append(xglob, kglob, Eglob, valid)
 
-
     def returnKtoD(self):
 
-        (num_bund, num_dim, num_pts) = np.shape(self.Efield)
+        (num_bundle, num_dim, num_pts) = np.shape(self.Efield)
 
-        absE2 = np.reshape(np.sum(np.conj(self.Efield)*self.Efield, axis=1), (num_bund, 1, num_pts))
-        Ek = np.reshape(np.sum(self.Efield*self.k, axis=1), (num_bund, 1, num_pts))
-
+        absE2 = np.reshape(
+                np.sum(np.conj(self.Efield)*self.Efield, axis=1),
+                (num_bundle, 1, num_pts))
+        Ek = np.reshape(
+                np.sum(self.Efield*self.k, axis=1),
+                (num_bundle, 1, num_pts))
         S = np.real(absE2*self.k - Ek*np.conj(self.Efield))
 
+        normS = np.sqrt(
+                np.reshape(np.sum(S**2, axis=1),
+                           (num_bundle, 1, num_pts)))
 
-        return S / np.sqrt(np.reshape(np.sum(S**2, axis=1), (num_bund, 1, num_pts)))
+        return S / normS
 
 
 
@@ -211,10 +216,12 @@ class RayPath(object):
         self.raybundles += raypath.raybundles
 
     def draw2d(self, ax, color="blue",
-               plane_normal=canonical_ex, up=canonical_ey, **kwargs):
-        for r in self.raybundles:
-            r.draw2d(ax, color=color,
-                     plane_normal=plane_normal, up=up, **kwargs)
+               plane_normal=canonical_ex, up=canonical_ey,
+               do_not_draw_raybundles=[], **kwargs):
+        for (ind, r) in enumerate(self.raybundles):
+            if ind not in do_not_draw_raybundles:
+                r.draw2d(ax, color=color,
+                         plane_normal=plane_normal, up=up, **kwargs)
 
     def containsSplitted(self):
         return any([r.splitted for r in self.raybundles])

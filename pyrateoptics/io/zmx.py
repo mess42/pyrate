@@ -560,14 +560,16 @@ class ZMXParser(BaseLogger):
 
             if surftype == "STANDARD":
                 self.debug("SURFACE: Standard surface found")
-                actsurf = Surface(lc, shape=Conic(lc, curv=curv, cc=cc),
+                actsurf = Surface(lc, name=surfname,
+                                  shape=Conic(lc, curv=curv, cc=cc),
                                   aperture=ap)
             elif surftype == "EVENASPH":
                 self.debug("SURFACE: Polynomial asphere surface found")
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
                 self.debug(acoeffs)
-                actsurf = Surface(lc, shape=Asphere(lc, curv=curv, cc=cc,
-                                                    coefficients=acoeffs),
+                actsurf = Surface(lc, name=surfname,
+                                  shape=Asphere(lc, curv=curv, cc=cc,
+                                                coefficients=acoeffs),
                                   aperture=ap)
             elif surftype == "FZERNSAG":  # Zernike Fringe Sag
                 self.debug("SURFACE: Zernike standard surface found")
@@ -591,6 +593,7 @@ class ZMXParser(BaseLogger):
                                          decx=zdecx, decy=zdecy))
                 actsurf =\
                 Surface(lc,
+                        name=surfname,
                         shape=
                         LinearCombination(lc,
                                           list_of_coefficients_and_shapes=
@@ -617,7 +620,8 @@ class ZMXParser(BaseLogger):
                 yv = np.linspace(-ny*dy*0.5, ny*dy*0.5, ny)
                 Z = np.flipud(sagarray[:, 0].reshape(nx, ny)).T  # first line
 
-                actsurf = Surface(lc, shape=GridSag(lc, (xv, yv, Z)))
+                actsurf = Surface(lc, name=surfname,
+                                  shape=GridSag(lc, (xv, yv, Z)))
 
             elif surftype == "COORDBRK":
                 self.debug("SURFACE: Coordinate break found")
@@ -643,7 +647,7 @@ class ZMXParser(BaseLogger):
                 lc.tiltz.setvalue(parms.get(5, 0.0)*math.pi/180.0)
                 lc.tiltThenDecenter = bool(parms.get(6, 0))
                 lc.update()
-                actsurf = Surface(lc)
+                actsurf = Surface(lc, name=surfname)
 
             if lastsurfname is not None:
                 elem.addSurface(surfname, actsurf, (lastmatname, matname))

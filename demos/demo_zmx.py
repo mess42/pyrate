@@ -62,6 +62,12 @@ parser.add_argument("--showspot", help="Show spot diagram?",
 parser.add_argument("--anglex", help="Angle", type=float, default=0.0)
 parser.add_argument("--reverse", help="Send light in reverse direction?",
                     action="store_true")
+parser.add_argument("--do_not_draw_surfaces",
+                    help="List of surfaces not to be drawn",
+                    type=str, default="")
+parser.add_argument("--do_not_draw_raybundles",
+                    help="List of raybundles not to be drawn",
+                    type=str, default="")
 parsed = parser.parse_args()
 
 # TODO: add materials via command line
@@ -73,6 +79,8 @@ num_rays = parsed.numrays
 bundletype = parsed.bundletype
 anglex = parsed.anglex
 reverse = parsed.reverse
+surfaces_do_not_draw = parsed.do_not_draw_surfaces.split(",")
+raybundles_do_not_draw = [int(s) for s in parsed.do_not_draw_raybundles.split(",") if s != '']
 
 p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
@@ -107,7 +115,8 @@ for d in initialbundles_dict:
         ray_paths.append(osa.trace()[0])
 
 if not show_spot:
-    draw(s, ray_paths)
+    draw(s, ray_paths, do_not_draw_surfaces=surfaces_do_not_draw,
+         do_not_draw_raybundles=raybundles_do_not_draw)
 else:
     plt.show()
 osa.prettyprint()

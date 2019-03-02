@@ -48,6 +48,11 @@ class Aimy(BaseLogger):
                  wave=standard_wavelength,
                  num_pupil_points=100,
                  stopsize=10,
+                 pilotbundle_solution=-1,
+                 pilotbundle_generation="complex",
+                 pilotbundle_delta_angle=1*degree,
+                 pilotbundle_delta_size=0.1,
+                 pilotbundle_sampling_points=3,
                  name="", kind="aimy", **kwargs):
 
         super(Aimy, self).__init__(name=name, kind=kind, **kwargs)
@@ -56,12 +61,17 @@ class Aimy(BaseLogger):
         self.stopsize = stopsize
         self.num_pupil_points = num_pupil_points
         self.wave = wave
+        self.pilotbundle_solution = pilotbundle_solution
+        self.pilotbundle_generation = pilotbundle_generation
+        self.pilotbundle_delta_angle = pilotbundle_delta_angle
+        self.pilotbundle_delta_size = pilotbundle_delta_size
+        self.pilotbundle_sampling_points = pilotbundle_sampling_points
 
         self.update(s, seq)
 
     def extractABCD(self, xyuv):
 
-        self.info(str(xyuv.shape))
+        self.debug(str(xyuv.shape))
 
         Axyuv = xyuv[0:2, 0:2]
         Bxyuv = xyuv[0:2, 2:4]  # take only real part of the k vectors
@@ -72,8 +82,8 @@ class Aimy(BaseLogger):
 
     def update(self, s, seq):
 
-        obj_dx = 0.1            # pilot bundle properties
-        obj_dphi = 1.*degree    # pilot bundle properties
+        obj_dx = self.pilotbundle_delta_size  # pilot bundle properties
+        obj_dphi = self.pilotbundle_delta_angle  # pilot bundle properties
 
         first_element_seq_name = seq[0]
         (first_element_name, first_element_seq) = first_element_seq_name
@@ -84,31 +94,35 @@ class Aimy(BaseLogger):
         # TODO: pilotray starts always in background (how about immersion?)
         # if mat is None: ....
 
-        #build_pilotbundle(
-        #    self.objectsurface,
-        #    self.start_material,
-        #    (obj_dx, obj_dx),
-        #    (obj_dphi, obj_dphi),
-        #    num_sampling_points=3) # TODO: wavelength?
+        if self.pilotbundle_generation.lower() == "real":
+            self.info("call real sampled pilotbundle")
+            pilotbundles = build_pilotbundle(
+                self.objectsurface,
+                self.start_material,
+                (obj_dx, obj_dx),
+                (obj_dphi, obj_dphi),
+                num_sampling_points=self.pilotbundle_sampling_points)
+                # TODO: wavelength?
+        elif self.pilotbundle_generation.lower() == "complex":
+            self.info("call complex sampled pilotbundle")
+            pilotbundles = build_pilotbundle_complex(
+                self.objectsurface,
+                self.start_material,
+                (obj_dx, obj_dx),
+                (obj_dphi, obj_dphi),
+                num_sampling_points=self.pilotbundle_sampling_points)
 
+        self.info("choose " + str(self.pilotbundle_solution) + " raybundle")
+        self.pilotbundle = pilotbundles[self.pilotbundle_solution]
+        # one of the last two
 
-        self.info("call complex sampled pilotbundle")
-        pilotbundles = build_pilotbundle_complex(
-            self.objectsurface,
-            self.start_material,
-            (obj_dx, obj_dx),
-            (obj_dphi, obj_dphi),
-            num_sampling_points=3)
-
-        self.info("choose last raybundle (hard coded)")
-        self.pilotbundle = pilotbundles[-1]
-        # TODO: one solution selected hard coded
-
-        (self.m_obj_stop, self.m_stop_img) = s.extractXYUV(self.pilotbundle, seq)
+        (self.m_obj_stop, self.m_stop_img) = s.extractXYUV(self.pilotbundle,
+                                                           seq,
+                                                           pilotbundle_generation=self.pilotbundle_generation)
 
         self.info("show linear matrices")
-        self.info(np.array_str(self.m_obj_stop, precision=5, suppress_small=True))
-        self.info(np.array_str(self.m_stop_img, precision=5, suppress_small=True))
+        self.info("obj -> stop:\n" + np.array_str(self.m_obj_stop, precision=10, suppress_small=True))
+        self.info("stop -> img:\n" + np.array_str(self.m_stop_img, precision=10, suppress_small=True))
 
 
     def aim_core_angle_known(self, theta2d):
@@ -150,16 +164,20 @@ class Aimy(BaseLogger):
         """
         knows about xyuv matrices
         """
-        (A_obj_stop, B_obj_stop, C_obj_stop, D_obj_stop) = self.extractABCD(self.m_obj_stop)
+        (A_obj_stop,
+         B_obj_stop,
+         C_obj_stop,
+         D_obj_stop) = self.extractABCD(self.m_obj_stop)
 
         A_obj_stop_inv = np.linalg.inv(A_obj_stop)
 
 
         (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
+        (num_points,) = xp.shape
+
         dr_stop = (np.vstack((xp, yp))*self.stopsize)
 
-        dk_obj2 = np.repeat(dk_obj[:, np.newaxis], self.num_pupil_points, axis=1)
-
+        dk_obj2 = np.repeat(dk_obj[:, np.newaxis], num_points, axis=1)
 
         intermediate = np.dot(B_obj_stop, dk_obj2)
         dr_obj = np.dot(A_obj_stop_inv, dr_stop - intermediate)
@@ -173,14 +191,17 @@ class Aimy(BaseLogger):
          C_obj_stop,
          D_obj_stop) = self.extractABCD(self.m_obj_stop)
 
-        self.info(str(B_obj_stop.shape))
+        self.debug(str(B_obj_stop.shape))
 
         B_obj_stop_inv = np.linalg.inv(B_obj_stop)
 
         (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
+        (num_points,) = xp.shape
+
         dr_stop = (np.vstack((xp, yp))*self.stopsize)
 
-        dr_obj = np.repeat(delta_xy[:, np.newaxis], self.num_pupil_points, axis=1)
+        dr_obj = np.repeat(delta_xy[:, np.newaxis], num_points, axis=1)
+
         dk_obj = np.dot(B_obj_stop_inv, dr_stop - np.dot(A_obj_stop, dr_obj))
 
         # TODO: in general some direction vector is derived
@@ -218,12 +239,28 @@ class Aimy(BaseLogger):
         kp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(self.pilotbundle.k[0, :, 0])
         kp_objsurf = np.repeat(kp_objsurf[:, np.newaxis], num_points, axis=1)
         dk3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dk_obj3d)
-        # TODO: k coordinate system for which dispersion relation is respected
+        # FIXME: k coordinate system for which dispersion relation is respected
+        # modified k in general violates dispersion relation
 
         kparabasal = kp_objsurf + dk3d
+        self.debug("E pilotbundle")
+        self.debug(str(self.pilotbundle.Efield.shape))
+        self.debug(str(self.pilotbundle.Efield))
         E_obj = self.pilotbundle.Efield[0, :, 0]
+        self.debug("E_obj")
+        self.debug(str(E_obj))
         Eparabasal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
+        self.debug(str(np.sum(kparabasal*Eparabasal, axis=0)))
 
+        # FIXME: Efield introduces anisotropy in aiming through
+        # rotationally symmetric system
+        # since copy of Eparabasal is not in the right direction for the
+        # dispersion relation (i.e. in isotropic media k perp E which is not
+        # fulfilled); solution: use k, insert into propagator, calculate
+        # E by (u, sigma, v) = np.linalg.svd(propagator) where E is
+        # linearcombination of all u which belong to sigma = 0 values.
+        # This is necessary to get the right ray direction also in isotropic
+        # case
 
         # Aimy: returns only linearized results which are not exact
         return RayBundle(xparabasal, kparabasal, Eparabasal, wave=self.wave)
