@@ -102,7 +102,6 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
 
     """
     logger = logging.getLogger(__name__)
-    logger.info("Element name %s" % (name,))
 
     elem = OpticalElement(lc0, name=name)
 
@@ -141,6 +140,11 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                               shape=accessible_shapes[shapetype]
                               (lc, name=name + "_shape", **surfdict))
         logger.debug("mat=%s" % repr(mat))
+        # TODO: evaluation function which adds a material depending on type
+        # of argument and can handle:
+        # * a string (database),
+        # * an object (direct material definition),
+        # * a floating (later maybe complex number) (constant index glass)
         if mat is not None:
             try:
                 n = float(mat)
@@ -149,6 +153,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                 elem.addMaterial(mat,
                                  gcat.createGlassObjectFromLongName(lc, mat))
             else:
+                mat = "constantindexglass_" + str(mat)
                 elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
 
         elem.addSurface(surf_name, actsurf, (lastmat, mat))
