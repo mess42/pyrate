@@ -31,7 +31,6 @@ from PySide.QtGui import QTableWidgetItem, QHeaderView
 from PySide.QtCore import Qt
 
 from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
-from pyrateoptics.core.base_ui_transform import transformation_dictionary
 
 from .Interface_Helpers import getRelativeFilePath
 
@@ -46,36 +45,38 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
 
         self.ui_class = UIInterfaceClassWithOptimizableVariables(
                 myclasswithoptimizablevariables)
-        dict_from_query = self.ui_class.queryForDictionary(
-                transformation_dictionary)
+        dict_from_query = self.ui_class.queryForDictionary()
+        string_dict_from_query = self.ui_class.transformDictionaryForUI(
+                dict_from_query)
 
-        pprint(dict_from_query)
+        pprint(string_dict_from_query)
 
         filename = getRelativeFilePath(__file__, 'Qt/dlg_cwov_edit.ui')
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(filename)
         self.readTableFromList(self.form.tableWidget_annotations,
                                [(k, v, True) for (k, v) in
-                                dict_from_query["annotations"].items()])
+                                string_dict_from_query["annotations"].items()])
         self.readTableFromList(self.form.tableWidget_variables,
-                               dict_from_query["variables_list"])
-        self.form.lineEdit_kind.setText(dict_from_query["kind"])
-        self.form.lineEdit_name.setText(dict_from_query["name"])
-        self.form.lineEdit_unique_id.setText(dict_from_query["unique_id"])
+                               string_dict_from_query["variables_list"])
+        self.form.lineEdit_kind.setText(string_dict_from_query["kind"])
+        self.form.lineEdit_name.setText(string_dict_from_query["name"])
+        self.form.lineEdit_unique_id.setText(string_dict_from_query["unique_id"])
 
     def accept(self):
-        dict_from_query = self.ui_class.queryForDictionary(
-                transformation_dictionary)
+        dict_from_query = self.ui_class.queryForDictionary()
+        string_dict_from_query = self.ui_class.transformDictionaryForUI(dict_from_query)
+
         var_list = self.writeTableToList(self.form.tableWidget_variables)
         annotations_dict = self.writeTableToList(
                 self.form.tableWidget_annotations)
-        dict_from_query["name"] = self.form.lineEdit_name.text()
-        dict_from_query["variables_list"] = var_list
-        dict_from_query["annotations"] = annotations_dict
-        self.ui_class.modifyFromDictionary(dict_from_query,
-                                           transformation_dictionary)
+        string_dict_from_query["name"] = self.form.lineEdit_name.text()
+        string_dict_from_query["variables_list"] = var_list
+        string_dict_from_query["annotations"] = annotations_dict
+        #self.ui_class.modifyFromDictionary(dict_from_query,
+        #                                   transformation_dictionary)
 
-        pprint(self.ui_class.queryForDictionary(transformation_dictionary))
+        pprint(self.ui_class.queryForDictionary())
 
         FreeCADGui.Control.closeDialog()
 
@@ -88,7 +89,7 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         """
         mytable.clear()
         mytable.setRowCount(0)
-        for (ind, (name, value, modifyable)) in enumerate(
+        for (ind, (name, value, modifyable, var_type)) in enumerate(
                 sorted(mylist, key=lambda x: x[0])):
             # sort list to get a reproducible table
             mytable.insertRow(ind)

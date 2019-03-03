@@ -26,45 +26,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from copy import copy
 
+from .base_ui_transform import (transformation_dictionary_to_ui,
+                                transformation_dictionary_from_ui,
+                                transformation_dictionary_ui_string)
 from .base import OptimizableVariable
+from .log import BaseLogger
 
 
-class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
+class UIInterfaceClassWithOptimizableVariables(BaseLogger):
     """
     This class is intended to provide an easy to use interface to some
     GUI. It should provide a dict on query with the most important class
-    data an it should accept a dict in the same format to be transfered to
+    data and it should accept a dict in the same format to be transfered to
     the class. Optimizable variables should be given as (value, bool) pair
     in a dict with names as keys where bool denotes whether those values
     can be changed. bool is read only. (True for variable status "fixed",
                                         and "variable", False for "pickup",
                                         and external)
     """
-    def __init__(self, some_class_with_optimizable_variables):
+    def __init__(self, some_class_with_optimizable_variables,
+                 name="", kind="uiinterface"):
+        super(UIInterfaceClassWithOptimizableVariables,
+              self).__init__(name=name,
+                             kind=kind)
 
         self.myclass = some_class_with_optimizable_variables
 
-    def queryForDictionary(self, transformation_dictionary={}):
+    def queryForDictionary(self):
 
         dict_to_ui = self.myclass.getDictionary()
         dict_to_ui.pop("variables")
         dict_to_ui.pop("classes")
 
         myvarlist = []
-        # transformation = transformation_dictionary.get(dict_to_ui["kind"],
-        #                                               {None: (None,
-        #                                                lambda x: x,
-        #                                                lambda x: x)})
 
         def get_value_and_modstate(variable):
-            value = float(variable())
+            value = variable()  # should collect value in unmodified form
             can_be_modified = variable.var_type == "fixed" or\
                 variable.var_type == "variable"
-
-            # (transformed_name,
-            # transformed_value,
-            # inversetransformed_value) = transformation.get(
-            #         variable.name, (variable.name, lambda x: x, lambda x: x))
 
             variable_triple = (
                     variable.name,  # transformed_name,
@@ -83,16 +82,10 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
         dict_to_ui["variables_list"] = myvarlist
         return dict_to_ui
 
-    def modifyFromDictionary(self, dict_from_ui, transformation_dictionary={},
-                             override_unique_id=False):
+    def modifyFromDictionary(self, dict_from_ui, override_unique_id=False):
         # make copy from dict to prevent modification
         dict_from_ui_copy = copy(dict_from_ui)
         # check later if protocol version is changed
-
-        # transformation = transformation_dictionary.get(dict_from_ui["kind"],
-        #                                               {None: (None,
-        #                                                lambda x: x,
-        #                                                lambda x: x)})
 
         protocol_version = dict_from_ui_copy.pop("protocol_version")
         variables_list = dict_from_ui_copy.pop("variables_list")
@@ -110,15 +103,62 @@ class UIInterfaceClassWithOptimizableVariables:  # maybe derive from BaseLogger
 
                 if variable_name == variable.name and can_be_modified:
 
-                    # (transformed_name, transformed_value,
-                    # inversetransformed_value) = transformation.get(
-                    #      variable.name, (variable.name, lambda x: x, lambda x: x))
-
-                    # print(variable_name, transformed_name, transformed_value)
-
                     variable.setvalue(variable_value)
         # update values of modifyable variables
         # this algorithm is of O(N^2) but since N is of order 10 this is not
         # critical
         self.myclass.getTypesForDict(typ=OptimizableVariable,
                                      func=set_value_from_modstate)
+
+    def transformDictionaryForUI(self, dict_to_ui,
+                                 transform_dictionary_value=transformation_dictionary_to_ui,
+                                 transform_dictionary_strings=transformation_dictionary_ui_string):
+        # prevent modification
+        string_dict_to_ui = copy(dict_to_ui)
+        string_dict_to_ui["variables_list"] = []
+        transform_kind_to_use = transform_dictionary_value.get(dict_to_ui["kind"], None)
+
+        for (var_name, var_value, var_modifiable) in dict_to_ui["variables_list"]:
+            # if no transform is found just convert to string
+            final_value = var_value
+            final_var_name = var_name
+
+            if transform_kind_to_use is not None:
+                var_transform = transform_kind_to_use.get(var_name, None)
+                if var_transform is not None:
+                    # if transform is found and variable is found
+                    # transform value and convert to string
+                    (transformed_var_name,
+                     transformed_value) = var_transform
+                    final_value = transformed_value(var_value)
+                    final_var_name = transformed_var_name
+
+            string_final_value = str(final_value)
+            string_transform = transform_dictionary_strings.get(
+                    final_var_name, None)
+            if string_transform is not None:
+                string_final_value = string_transform(string_final_value)
+            final_type = float if isinstance(final_value, (int, float)) else\
+                type(final_value)
+
+            string_dict_to_ui["variables_list"].append(
+                    (final_var_name,
+                     string_final_value,
+                     var_modifiable,
+                     final_type))
+
+        return string_dict_to_ui
+
+
+    def transformDictionaryFromUI(self, string_dict_from_ui,
+                                  transform_dictionary_value=transformation_dictionary_from_ui,
+                                  transform_dictionary_strings=transformation_dictionary_ui_string):
+        dict_from_ui = copy(string_dict_to_ui)
+        dict_from_ui["variables_list"] = []
+        transform_kind_to_use = transform_dictionary_value.get(
+                dict_from_ui["kind"], None)
+        for (transformed_var_name,
+             transformed_var_value,
+             var_modifiable, var_type) in string_dict_to_ui:
+            pass
+

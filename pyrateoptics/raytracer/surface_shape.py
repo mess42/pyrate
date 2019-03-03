@@ -156,7 +156,7 @@ class Conic(Shape):
              cc = 1 rotational paraboloid
              cc > 1 rotational hyperboloid
         """
-        super(Conic, self).__init__(lc, **kwargs)
+        super(Conic, self).__init__(lc, kind="shape_conic", **kwargs)
 
         self.curvature = OptimizableVariable(name="curvature", value=curv)
         self.conic = OptimizableVariable(name="conic constant", value=cc)
