@@ -1,0 +1,4 @@
+echo goptical directory: $1
+echo assumed that compile directory within goptical is build/
+echo works only with goptical from https://github.com/galchinsky/goptical/
+g++ -std=c++11 -o demos/demo_optimize_goptical demos/demo_optimize_goptical.cc -L$1goptical/build/src/ -lgoptical_static -lgsl -lblas -lGL -lGLU -I$1goptical/include/
