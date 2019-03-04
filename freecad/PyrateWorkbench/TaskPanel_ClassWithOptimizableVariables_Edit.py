@@ -43,11 +43,18 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         # doc needs to be initialized first
         # self.doc = doc
 
+        self.typeconverter = {
+                "<class 'str'>": str,
+                "<type 'str'>": str,
+                "<class 'float'>": float,
+                "<type 'float'>": float,
+                "<class 'int'>": int,
+                "<type 'int'>": int
+                              }
+
         self.ui_class = UIInterfaceClassWithOptimizableVariables(
                 myclasswithoptimizablevariables)
-        dict_from_query = self.ui_class.queryForDictionary()
-        string_dict_from_query = self.ui_class.transformDictionaryForUI(
-                dict_from_query)
+        string_dict_from_query = self.ui_class.queryUI()
 
         pprint(string_dict_from_query)
 
@@ -55,7 +62,7 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(filename)
         self.readTableFromList(self.form.tableWidget_annotations,
-                               [(k, v, True) for (k, v) in
+                               [(k, v, True, type(v)) for (k, v) in
                                 string_dict_from_query["annotations"].items()])
         self.readTableFromList(self.form.tableWidget_variables,
                                string_dict_from_query["variables_list"])
@@ -64,8 +71,7 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         self.form.lineEdit_unique_id.setText(string_dict_from_query["unique_id"])
 
     def accept(self):
-        dict_from_query = self.ui_class.queryForDictionary()
-        string_dict_from_query = self.ui_class.transformDictionaryForUI(dict_from_query)
+        string_dict_from_query = self.ui_class.queryUI()
 
         var_list = self.writeTableToList(self.form.tableWidget_variables)
         annotations_dict = self.writeTableToList(
@@ -73,8 +79,7 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         string_dict_from_query["name"] = self.form.lineEdit_name.text()
         string_dict_from_query["variables_list"] = var_list
         string_dict_from_query["annotations"] = annotations_dict
-        #self.ui_class.modifyFromDictionary(dict_from_query,
-        #                                   transformation_dictionary)
+        self.ui_class.modifyUI(string_dict_from_query)
 
         pprint(self.ui_class.queryForDictionary())
 
@@ -89,15 +94,19 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         """
         mytable.clear()
         mytable.setRowCount(0)
-        for (ind, (name, value, modifyable, var_type)) in enumerate(
+        for (ind, (name, string_value, modifyable, var_type)) in enumerate(
                 sorted(mylist, key=lambda x: x[0])):
             # sort list to get a reproducible table
             mytable.insertRow(ind)
             mytable.setItem(ind, 0, QTableWidgetItem(name))
-            value_item = QTableWidgetItem(str(value))
+            value_item = QTableWidgetItem(string_value)
             if not modifyable:
                 value_item.setFlags(value_item.flags() & Qt.ItemIsEditable)
             mytable.setItem(ind, 1, value_item)
+            type_item = QTableWidgetItem(str(var_type))
+            type_item.setFlags(type_item.flags() & Qt.ItemIsEditable)
+
+            mytable.setItem(ind, 2, type_item)
 
         header = mytable.horizontalHeader()
 
@@ -114,7 +123,8 @@ class ClassWithOptimizableVariablesTaskPanelEdit:
         myvars = []
         for ind in range(mytable.rowCount()):
             var_name = mytable.item(ind, 0).text()
-            var_value = float(mytable.item(ind, 1).text())
+            var_type = self.typeconverter[mytable.item(ind, 2).text()]
+            var_value = mytable.item(ind, 1).text()
             var_modifyable = mytable.item(ind, 1).flags() != Qt.ItemIsEditable
-            myvars.append((var_name, var_value, var_modifyable))
+            myvars.append((var_name, var_value, var_modifyable, var_type))
         return myvars

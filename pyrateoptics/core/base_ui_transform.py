@@ -56,7 +56,6 @@ def radius_string(radius_string):
        radius_string.lower() == "oo" or\
        radius_string.lower() == "infinity":
         result = "0.0"
-    print(result)
     return result
 
 

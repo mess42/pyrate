@@ -153,12 +153,47 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
     def transformDictionaryFromUI(self, string_dict_from_ui,
                                   transform_dictionary_value=transformation_dictionary_from_ui,
                                   transform_dictionary_strings=transformation_dictionary_ui_string):
-        dict_from_ui = copy(string_dict_to_ui)
+        dict_from_ui = copy(string_dict_from_ui)
         dict_from_ui["variables_list"] = []
         transform_kind_to_use = transform_dictionary_value.get(
                 dict_from_ui["kind"], None)
         for (transformed_var_name,
-             transformed_var_value,
-             var_modifiable, var_type) in string_dict_to_ui:
-            pass
+             string_transformed_var_value,
+             var_modifiable, var_type) in string_dict_from_ui["variables_list"]:
 
+            string_transform = transform_dictionary_strings.get(
+                    transformed_var_name, None)
+            string_var_value = string_transformed_var_value
+
+            # reverse string transform
+            if string_transform is not None:
+                string_var_value = string_transform(string_var_value)
+
+            # restore variable value and variable name
+            final_value = var_type(string_var_value)
+            final_var_name = transformed_var_name
+
+            if transform_kind_to_use is not None:
+                var_transform =\
+                    transform_kind_to_use.get(transformed_var_name, None)
+                if var_transform is not None:
+                    # if transform is found and variable is found
+                    # transform value and convert to string
+                    (final_var_name,
+                     invtransformed_value) = var_transform
+                    final_value = invtransformed_value(final_value)
+
+            dict_from_ui["variables_list"].append(
+                    (final_var_name, final_value, var_modifiable))
+        return dict_from_ui
+
+    def queryUI(self):
+        dict_to_ui = self.queryForDictionary()
+        transformed_string_dict_to_ui =\
+            self.transformDictionaryForUI(dict_to_ui)
+        return transformed_string_dict_to_ui
+
+    def modifyUI(self, string_dict_from_ui):
+        invtransformed_dict_from_ui =\
+            self.transformDictionaryFromUI(string_dict_from_ui)
+        self.modifyFromDictionary(invtransformed_dict_from_ui)
