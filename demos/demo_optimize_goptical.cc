@@ -11,6 +11,7 @@
 #include <goptical/core/sys/System>
 #include <goptical/core/sys/Lens>
 #include <goptical/core/sys/OpticalSurface>
+#include <goptical/core/sys/Stop>
 #include <goptical/core/sys/SourcePoint>
 #include <goptical/core/sys/Image>
 
@@ -30,6 +31,7 @@
 
 #include <goptical/core/io/Rgb>
 #include <goptical/core/io/RendererSvg>
+#include <goptical/core/io/RendererViewport>
 
 #include <goptical/core/ref>
 
@@ -38,58 +40,69 @@ using namespace goptical;
 
 int main(void)
 {
-	sys::system mysys;
 
-	sys::SourcePoint source(sys::SourceAtInfinity, math::Vector3(0., 0., 1.));
+    material::Conrady n17(1.7, 0., 0.);
+    material::Conrady n15(1.5, 0., 0.);
 
-	sys::Lens     mylens(math::Vector3(0, 0, 2.0));
+    shape::Disk lens_shape(2.0); // lens diameter is 2 mm
 
-	//       roc,            ap.radius, thickness,
-	//
-	mylens.add_surface(-5.922,  2.0, 3.0,
-        	ref<material::Conrady>::create(1.7, 0.0, 0.0));
-	//
-	mylens.add_surface(-3.160,  2.0, 5.0, material::none);
-	//
-	mylens.add_surface(15.884, 2.0, 3.0,
-        	ref<material::Conrady>::create(1.7, 0.0, 0.0));
-	//
-	mylens.add_surface(-12.756,  2.0, 3.0, material::none);
-	//
-	mylens.add_stop   (                1.0, 2.0);
-	mylens.add_surface(3.125,              2.0, 3.0,
-        	ref<material::Conrady>::create(1.5, 0.0, 0.0));
-	//
-	mylens.add_surface(1.479,  2.0, 19.0, material::none);
-	//
-	mylens.add_surface(0.0, 10.0, 0.0, material::none);
-	//
-	mysys.add(mylens);
+    sys::system mysys;
 
-	trace::Sequence seq(mysys);
-	mysys.get_tracer_params().set_sequential_mode(seq);
+    sys::SourcePoint source(sys::SourceAtFiniteDistance, math::Vector3(0., 0., 0.));
+
+    sys::OpticalSurface s1(math::Vector3(0, 0, 2.0),
+                           -5.922, 2.0, material::none, n17);
+    sys::OpticalSurface s2(math::Vector3(0, 0, 2.0 + 3.0),
+                           -3.160, 2.0, n17, material::none);
+    sys::OpticalSurface s3(math::Vector3(0, 0, 2.0 + 3.0 + 5.0),
+                           15.884, 2.0, material::none, n17);
+    sys::OpticalSurface s4(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0),
+                           -12.756, 2.0, n17, material::none);
+    sys::Stop stop(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0 + 3.0), 1.0);
+
+    sys::OpticalSurface s6(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0 + 3.0 + 2.0),
+                           3.125, 2.0, material::none, n15);
+    sys::OpticalSurface s7(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0 + 3.0 + 2.0 + 3.0),
+                           1.479, 2.0, n15, material::none);
+
+    sys::Image image(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0 + 3.0 + 2.0 + 3.0 + 19.0), // position
+                      10.0);                           // square size,
+
+    mysys.add(source);
+    mysys.add(s1);
+    mysys.add(s2);
+    mysys.add(s3);
+    mysys.add(s4);
+    mysys.add(stop);
+    mysys.add(s6);
+    mysys.add(s7);
+    mysys.add(image);
 
 
-	io::RendererSvg renderer("layout.svg", 1024, 100);
+    trace::Sequence seq(mysys);
+    mysys.get_tracer_params().set_sequential_mode(seq);
 
-	// draw 2d system layout
-	mysys.draw_2d_fit(renderer);
-	mysys.draw_2d(renderer);
 
-	std::cout << mysys;
-	std::cout << seq;
+    io::RendererSvg renderer("layout.svg", 1024, 100);
+    io::RendererViewport &myrenderer = renderer;
 
-	// trace and draw rays from source
+    // draw 2d system layout
+    mysys.draw_2d_fit(renderer);
+    mysys.draw_2d(renderer);
 
-	std::cout << "tracer init" << std::endl;
-	trace::tracer tracer(mysys);
-	std::cout << "1" << std::endl;
+    std::cout << mysys;
+    std::cout << seq;
 
-	tracer.get_params().set_default_distribution(
-		trace::Distribution(trace::MeridionalDist, 1.0));
-	tracer.get_trace_result().set_generated_save_state(source);
-	tracer.trace();
-	tracer.get_trace_result().draw_2d(renderer);
+    // trace and draw rays from source
+
+    std::cout << "tracer init" << std::endl;
+    trace::tracer tracer(mysys);
+
+    tracer.get_params().set_default_distribution(
+        trace::Distribution(trace::MeridionalDist, 21.0));
+    tracer.get_trace_result().set_generated_save_state(source);
+    tracer.trace();
+    tracer.get_trace_result().draw_2d(myrenderer);
 
 
 }
