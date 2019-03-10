@@ -75,7 +75,11 @@ Translates values into human readable form. (e.g. radius better than curv,
 deg better than rad)
 """
 transformation_dictionary_to_ui =\
-    {"shape_conic": {"curvature": ("radius", curv2radius)},
+    {"shape_Conic": {"curvature": ("radius", curv2radius)},
+     "shape_Cylinder": {"curvature": ("radius", curv2radius)},
+     "shape_Asphere": {"curv": ("radius", curv2radius)},
+     "shape_Biconic": {"curvx": ("radiusx", curv2radius),
+                       "curvy": ("radiusy", curv2radius)},
      "localcoordinates": {"tiltx": ("tiltx_deg", rad2deg),
                           "tilty": ("tilty_deg", rad2deg),
                           "tiltz": ("tiltz_deg", rad2deg)}}
@@ -85,7 +89,11 @@ Translates values back into optimization friendly form. (e.g. curv better
 than radius, rad better than deg.)
 """
 transformation_dictionary_from_ui =\
-    {"shape_conic": {"radius": ("curvature", radius2curv)},
+    {"shape_Conic": {"radius": ("curvature", radius2curv)},
+     "shape_Cylinder": {"radius": ("curvature", radius2curv)},
+     "shape_Asphere": {"radius": ("curv", radius2curv)},
+     "shape_Biconic": {"radiusx": ("curvx", radius2curv),
+                       "radiusy": ("curvy", radius2curv)},
      "localcoordinates": {"tiltx_deg": ("tiltx", deg2rad),
                           "tilty_deg": ("tilty", deg2rad),
                           "tiltz_deg": ("tiltz", deg2rad)}}

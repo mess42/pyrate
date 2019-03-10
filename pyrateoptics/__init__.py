@@ -115,15 +115,15 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
         lc = elem.addLocalCoordinateSystem(
                 LocalCoordinates(name=surf_name + "_lc", **coordbreakdict),
                 refname=refname)
-        shapetype = surfdict.pop("shape", "Conic")
-        if shapetype == "LinearCombination":
+        shapetype = "shape_" + surfdict.pop("shape", "Conic")
+        if shapetype == "shape_LinearCombination":
             # linear combination accepts pairs of coefficients and surfdicts
 
             list_of_coefficients_and_shapes =\
                 surfdict.get("list_of_coefficients_and_shapes", [])
             new_list_coeffs_shapes = []
             for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
-                shapetype_part = surfdict_part.pop("shape", "Conic")
+                shapetype_part = "shape_" + surfdict_part.pop("shape", "Conic")
                 new_list_coeffs_shapes.append((coeff_part,
                                                accessible_shapes[shapetype_part]
                                                (lc,

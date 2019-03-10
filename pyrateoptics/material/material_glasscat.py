@@ -435,9 +435,12 @@ class CatalogMaterial(IsotropicMaterial):
             bk7 = CatalogMaterial(lc, ymldict)
         """
 
-        super(CatalogMaterial, self).__init__(lc, **kwargs)
+        super(CatalogMaterial, self).__init__(lc,
+                                              kind="material_from_catalog",
+                                              **kwargs)
 
         data = ymldict["DATA"]
+        self.annotations["DATA"] = data
 
         if len(data) > 2:
             raise Exception("Max 2 entries for dispersion allowed - n and k.")

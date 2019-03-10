@@ -34,8 +34,6 @@ from scipy.special import jacobi
 from .globalconstants import numerical_tolerance
 import ctypes
 
-type_key = "shape"
-
 class Shape(ClassWithOptimizableVariables):
     def __init__(self, lc, name="", kind="shape", **kwargs):
         """
@@ -156,7 +154,7 @@ class Conic(Shape):
              cc = 1 rotational paraboloid
              cc > 1 rotational hyperboloid
         """
-        super(Conic, self).__init__(lc, kind="shape_conic", **kwargs)
+        super(Conic, self).__init__(lc, kind="shape_Conic", **kwargs)
 
         self.curvature = OptimizableVariable(name="curvature", value=curv)
         self.conic = OptimizableVariable(name="conic constant", value=cc)
@@ -300,11 +298,6 @@ class Conic(Shape):
 
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
 
-    def getDictionary(self):
-        res = super(Conic, self).getDictionary()
-        res[type_key] = "Conic"
-        return res
-
 
 class Cylinder(Conic):
     def __init__(self, lc, curv=0.0, cc=0.0, **kwargs):
@@ -320,7 +313,7 @@ class Cylinder(Conic):
              cc = 1 parabolic
              cc > 1 hyperbolic
         """
-        super(Cylinder, self).__init__(lc, **kwargs)
+        super(Cylinder, self).__init__(lc, kind="shape_Cylinder", **kwargs)
 
         self.curvature = OptimizableVariable(name="curvature", value=curv)
         self.conic = OptimizableVariable(name="conic constant", value=cc)
@@ -358,11 +351,6 @@ class Cylinder(Conic):
         globalinter = self.lc.returnLocalToGlobalPoints(intersection)
 
         raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
-
-    def getDictionary(self):
-        res = super(Cylinder, self).getDictionary()
-        res[type_key] = "Cylinder"
-        return res
 
 
 class FreeShape(Shape):
@@ -564,12 +552,15 @@ class Asphere(ExplicitShape):
 
             return res
 
-        super(Asphere, self).__init__(lc, af, gradaf, hessaf, \
-            paramlist=([("curv", curv), ("cc", cc)]+initacoeffs), **kwargs)
+        super(Asphere, self).__init__(lc, af, gradaf, hessaf,
+                                      paramlist=([("curv", curv),
+                                                  ("cc", cc)] +
+                                                 initacoeffs),
+                                      kind="shape_Asphere", **kwargs)
 
     def getAsphereParameters(self):
-        return (self.params["curv"](), \
-                self.params["cc"](), \
+        return (self.params["curv"](),
+                self.params["cc"](),
                 [self.params["A"+str(2*i+2)]() for i in range(self.numcoefficients)])
 
     def getCentralCurvature(self):
@@ -647,14 +638,19 @@ class Biconic(ExplicitShape):
 
             return res
 
-        super(Biconic, self).__init__(lc, bf, gradbf, hessbf, \
-            paramlist=([("curvx", curvx), ("curvy", curvy), ("ccx", ccx), ("ccy", ccy)]+initacoeffs+initbcoeffs), **kwargs)
+        super(Biconic, self).__init__(lc, bf, gradbf, hessbf,
+                                      paramlist=([("curvx", curvx),
+                                                  ("curvy", curvy),
+                                                  ("ccx", ccx),
+                                                  ("ccy", ccy)]
+                                                 + initacoeffs+initbcoeffs),
+                                      kind="shape_Biconic", **kwargs)
 
     def getBiconicParameters(self):
-        return (self.params["curvx"](), \
-                self.params["curvy"](), \
-                self.params["ccx"](), \
-                self.params["ccy"](), \
+        return (self.params["curvx"](),
+                self.params["curvy"](),
+                self.params["ccx"](),
+                self.params["ccy"](),
                 [(self.params["A"+str(2*i+2)](), self.params["B"+str(2*i+2)]()) for i in range(self.numcoefficients)]
                 )
 
@@ -666,11 +662,11 @@ class LinearCombination(ExplicitShape):
     Class for combining several principal forms with arbitray corrections
     """
 
-    def __init__(self, lc, list_of_coefficients_and_shapes = [], **kwargs):
+    def __init__(self,
+                 lc,
+                 list_of_coefficients_and_shapes=[],
+                 **kwargs):
         self.list_of_coefficient_and_shapes = list_of_coefficients_and_shapes
-
-
-
 
         def licosag(x, y):
 
@@ -714,7 +710,13 @@ class LinearCombination(ExplicitShape):
             # TODO: Hessian
             pass
 
-        super(LinearCombination, self).__init__(lc, licosag, licograd, licohess, **kwargs)
+        super(LinearCombination, self).__init__(lc,
+                                                licosag,
+                                                licograd,
+                                                licohess,
+                                                kind="shape_LinearCombination",
+                                                **kwargs)
+
 
 class XYPolynomials(ExplicitShape):
     """
@@ -772,8 +774,10 @@ class XYPolynomials(ExplicitShape):
 
             return res
 
-        super(XYPolynomials, self).__init__(lc, xyf, gradxyf, hessxyf, \
-            paramlist=initcoeffs, **kwargs)
+        super(XYPolynomials, self).__init__(lc, xyf, gradxyf, hessxyf,
+                                            paramlist=initcoeffs,
+                                            kind="shape_XYPolynomials",
+                                            **kwargs)
 
     def getXYParameters(self):
         return (self.params["normradius"](),
@@ -819,7 +823,9 @@ class GridSag(ExplicitShape):
 
             return res
 
-        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf, eps=1e-4, iterations=10, name=name)
+        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf,
+                                      shape="shape_GridSag",
+                                      eps=1e-4, iterations=10, name=name)
 
 class Zernike(ExplicitShape):
     """
@@ -989,7 +995,9 @@ class ZernikeFringe(Zernike):
 
     def __init__(self, lc, **kwargs):
 
-        super(ZernikeFringe, self).__init__(lc, **kwargs)
+        super(ZernikeFringe, self).__init__(lc,
+                                            kind="shape_ZernikeFringe",
+                                            **kwargs)
 
 
     def jtonm(self, j):
@@ -1009,7 +1017,9 @@ class ZernikeStandard(Zernike):
 
     def __init__(self, lc, **kwargs):
 
-        super(ZernikeStandard, self).__init__(lc, **kwargs)
+        super(ZernikeStandard, self).__init__(lc,
+                                              kind="shape_ZernikeStandard",
+                                              **kwargs)
 
 
     def jtonm(self, j):
@@ -1100,7 +1110,12 @@ class ZMXDLLShape(Conic):
     This surface is able to calculate certain shape quantities from a DLL loaded externally.
     """
 
-    def __init__(self, lc, dllfile, param_dict={}, xdata_dict={}, isWinDLL=False, curv=0.0, cc=0.0, **kwargs):
+    def __init__(self, lc, dllfile,
+                 param_dict={},
+                 xdata_dict={},
+                 isWinDLL=False,
+                 curv=0.0,
+                 cc=0.0, **kwargs):
         """
         param: lc LocalCoordinateSystem of shape
         param: dllfile (string) path to DLL file
@@ -1120,7 +1135,11 @@ class ZMXDLLShape(Conic):
 
 
         """
-        super(ZMXDLLShape, self).__init__(lc, curv=curv, cc=cc, **kwargs)
+        super(ZMXDLLShape, self).__init__(lc,
+                                          curv=curv,
+                                          cc=cc,
+                                          kind="shape_ZMXDLLShape",
+                                          **kwargs)
 
         if isWinDLL:
             self.dll = ctypes.WinDLL(dllfile)
@@ -1259,22 +1278,19 @@ if __name__=="__main__":
 
 
 accessible_shapes = {
-        "Conic": Conic,
-        "Cylinder": Cylinder,
-        "ExplicitShape": ExplicitShape,
-        "ImplicitShape": ImplicitShape,
-        "Asphere": Asphere,
-        "Biconic": Biconic,
-        "LinearCombination": LinearCombination,
-        "XYPolynomials": XYPolynomials,
-        "GridSag": GridSag,
-        "ZernikeFringe": ZernikeFringe,
-        "ZernikeStandard": ZernikeStandard,
-        "ZMXDLLShape": ZMXDLLShape
+        "shape_Conic": Conic,
+        "shape_Cylinder": Cylinder,
+        "shape_Asphere": Asphere,
+        "shape_Biconic": Biconic,
+        "shape_LinearCombination": LinearCombination,
+        "shape_XYPolynomials": XYPolynomials,
+        "shape_GridSag": GridSag,
+        "shape_ZernikeFringe": ZernikeFringe,
+        "shape_ZernikeStandard": ZernikeStandard,
+        "shape_ZMXDLLShape": ZMXDLLShape
         }
 
+
 def createShape(lc, shape_dict):
-
-    shape_type = shape_dict.pop(type_key, "Conic")  # is key "type" better?
+    shape_type = shape_dict.pop("kind", "shape_Conic")
     return accessible_shapes[shape_type](lc, **shape_dict)
-
