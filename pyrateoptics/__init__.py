@@ -422,7 +422,7 @@ def raytrace(s, seq, numrays, rays_dict, bundletype="collimated",
     return osa.trace(**traceoptions)
 
 
-def listOptimizableVariables(os, filter_status=None, maxcol=None):
+def listOptimizableVariables(os, filter_status=None, max_line_width=None):
     """
     Convenience function to list all optimizable variables within
     an object.
@@ -458,7 +458,7 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
             print(" ".join("{:{}}".format(x, col_width[i])
                            for i, x in enumerate(line)))
 
-    table = [(shorten_string(a, maxlen=maxcol), b.var_type, str(b.evaluate()))
+    table = [(shorten_string(a, maxlen=max_line_width), b.var_type, str(b.evaluate()))
              for (a, b) in sorted(lst.items(), key=lambda x: (
                      len(x[0].split('.')) - 1, x[0]))]
     # sort by number of . in dict key and afterwards by lexical order

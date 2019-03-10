@@ -163,7 +163,7 @@ s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
                args=(s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
 
 
-listOptimizableVariables(s, maxcol=80)
+listOptimizableVariables(s, max_line_width=80)
 
 optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(),
                    updatefunction=updatefunction_allsteps, name="step2")
@@ -319,7 +319,7 @@ optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(),
 s = optimi.run()
 
 
-listOptimizableVariables(s, maxcol=80)
+listOptimizableVariables(s, max_line_width=80)
 
 # draw final result in overview plot fig and in fig2
 fig2 = plt.figure()
