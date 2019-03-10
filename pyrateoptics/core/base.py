@@ -551,7 +551,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         large np.array x.
         """
         for i, var in enumerate(self.getActiveVariables()):
-            var.setvalue_transformed(x[i])
+            var.setvalue_transformed(float(x[i]))
 
     def resetVariable(self, key, var):
         """

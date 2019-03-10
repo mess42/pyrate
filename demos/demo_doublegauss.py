@@ -355,6 +355,7 @@ system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
 from pprint import pprint
 
 pprint(system_gui_toplevel)
+pprint(system_dump)
 
 yaml = YAML()
 fp = open("double_gauss.yaml", "wt")
