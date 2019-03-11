@@ -101,6 +101,8 @@ class ZMXParser(BaseLogger):
 
     def readArgsForKeyword(self, linestr, keywordstr, *args):
         stringargs = linestr.split()
+        if stringargs == []:
+            return None
         restargs = stringargs[1:]
         res = []
         if stringargs[0] == keywordstr:
@@ -121,8 +123,11 @@ class ZMXParser(BaseLogger):
         stringargs = linestr.split()
         restargs = stringargs[1:]
         reststring = " ".join(restargs)
-        if stringargs[0] == keywordstr:
-            return reststring
+        if stringargs != []:
+            if stringargs[0] == keywordstr:
+                return reststring
+            else:
+                return None
         else:
             return None
 
