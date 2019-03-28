@@ -435,28 +435,31 @@ class CatalogMaterial(IsotropicMaterial):
             bk7 = CatalogMaterial(lc, ymldict)
         """
 
-        super(CatalogMaterial, self).__init__(lc, **kwargs)
+        super(CatalogMaterial, self).__init__(lc,
+                                              kind="material_from_catalog",
+                                              **kwargs)
 
         data = ymldict["DATA"]
+        self.annotations["DATA"] = data
 
         if len(data) > 2:
             raise Exception("Max 2 entries for dispersion allowed - n and k.")
 
         self.__nk = []
-        for i in np.arange(len(data)): # i=0 is n  ;  i=1 is k
-            dispersionDict = data[i]
-            typ= dispersionDict["type"]
+        for datafield in data:  # i=0 is n  ;  i=1 is k
+            dispersionDict = datafield
+            typ = dispersionDict["type"]
             if dispersionDict["type"].startswith("tabulated"):
                 coeff = dispersionDict["data"].split("\n")[:-1]
-                for j in np.arange(len(coeff)):
-                    coeff[j] = coeff[j].split()
-                coeff = np.array( coeff, dtype=float)
-                rang  = np.array( [ min(coeff[:,0]), max(coeff[:,0]) ] )
+                coeff = [c.split() for c in coeff]
+                coeff = np.array(coeff, dtype=float)
+                rang = np.array([np.min(coeff[:, 0]), np.max(coeff[:, 0])])
             else:
-                coeff = np.array( dispersionDict["coefficients"].split(), dtype=float)
-                rang  = np.array( dispersionDict["range"].split(), dtype=float)
+                coeff = np.array(dispersionDict["coefficients"].split(),
+                                 dtype=float)
+                rang = np.array(dispersionDict["wavelength_range"].split(),
+                                dtype=float)
             self.__nk.append(IndexFormulaContainer(typ, coeff, rang))
-
 
     def getIndex(self, x, wave):
         n = 0

@@ -55,7 +55,7 @@
    <item row="8" column="0">
     <widget class="QTableWidget" name="tableWidget_variables">
      <property name="columnCount">
-      <number>2</number>
+      <number>3</number>
      </property>
      <column>
       <property name="text">
@@ -65,6 +65,11 @@
      <column>
       <property name="text">
        <string>Value</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>type</string>
       </property>
      </column>
     </widget>

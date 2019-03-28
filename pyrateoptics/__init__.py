@@ -102,7 +102,6 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
 
     """
     logger = logging.getLogger(__name__)
-    logger.info("Element name %s" % (name,))
 
     elem = OpticalElement(lc0, name=name)
 
@@ -116,15 +115,15 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
         lc = elem.addLocalCoordinateSystem(
                 LocalCoordinates(name=surf_name + "_lc", **coordbreakdict),
                 refname=refname)
-        shapetype = surfdict.pop("shape", "Conic")
-        if shapetype == "LinearCombination":
+        shapetype = "shape_" + surfdict.pop("shape", "Conic")
+        if shapetype == "shape_LinearCombination":
             # linear combination accepts pairs of coefficients and surfdicts
 
             list_of_coefficients_and_shapes =\
                 surfdict.get("list_of_coefficients_and_shapes", [])
             new_list_coeffs_shapes = []
             for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
-                shapetype_part = surfdict_part.pop("shape", "Conic")
+                shapetype_part = "shape_" + surfdict_part.pop("shape", "Conic")
                 new_list_coeffs_shapes.append((coeff_part,
                                                accessible_shapes[shapetype_part]
                                                (lc,
@@ -141,14 +140,25 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                               shape=accessible_shapes[shapetype]
                               (lc, name=name + "_shape", **surfdict))
         logger.debug("mat=%s" % repr(mat))
+        # TODO: evaluation function which adds a material depending on type
+        # of argument and can handle:
+        # * a string (database),
+        # * an object (direct material definition),
+        # * a floating (later maybe complex number) (constant index glass)
         if mat is not None:
+            use_floating_point_value_for_constant_index_glass = False
             try:
                 n = float(mat)
             except ValueError:
+                use_floating_point_value_for_constant_index_glass = False
+            else:
+                use_floating_point_value_for_constant_index_glass = True
+            if isinstance(mat, str) and not use_floating_point_value_for_constant_index_glass:
                 gcat.getMaterialDictFromLongName(mat)
                 elem.addMaterial(mat,
                                  gcat.createGlassObjectFromLongName(lc, mat))
-            else:
+            elif use_floating_point_value_for_constant_index_glass:
+                mat = "constantindexglass_" + str(mat)
                 elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
 
         elem.addSurface(surf_name, actsurf, (lastmat, mat))
@@ -412,7 +422,7 @@ def raytrace(s, seq, numrays, rays_dict, bundletype="collimated",
     return osa.trace(**traceoptions)
 
 
-def listOptimizableVariables(os, filter_status=None, maxcol=None):
+def listOptimizableVariables(os, filter_status=None, max_line_width=None):
     """
     Convenience function to list all optimizable variables within
     an object.
@@ -448,7 +458,7 @@ def listOptimizableVariables(os, filter_status=None, maxcol=None):
             print(" ".join("{:{}}".format(x, col_width[i])
                            for i, x in enumerate(line)))
 
-    table = [(shorten_string(a, maxlen=maxcol), b.var_type, str(b.evaluate()))
+    table = [(shorten_string(a, maxlen=max_line_width), b.var_type, str(b.evaluate()))
              for (a, b) in sorted(lst.items(), key=lambda x: (
                      len(x[0].split('.')) - 1, x[0]))]
     # sort by number of . in dict key and afterwards by lexical order

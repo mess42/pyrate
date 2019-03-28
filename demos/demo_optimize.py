@@ -246,7 +246,7 @@ tltx_var = s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx
 tltx_var.changetype("variable")
 tltx_var.set_interval(-3.*math.pi/180., 3.*math.pi/180.)
 
-listOptimizableVariables(s, filter_status='variable', maxcol=80)
+listOptimizableVariables(s, filter_status='variable', max_line_width=80)
 
 
 def osnone(my_s):
@@ -301,7 +301,7 @@ r2 = s.seqtrace(initialbundle, sysseq)  # trace again
 for r in r2:
     r.draw2d(ax2, color="blue", plane_normal=pn, up=up)
 
-listOptimizableVariables(s, filter_status='variable', maxcol=80)
+listOptimizableVariables(s, filter_status='variable', max_line_width=80)
 
 s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
 # s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4

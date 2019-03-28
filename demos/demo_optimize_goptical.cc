@@ -1,64 +1,108 @@
 #include <iostream>
 #include <fstream>
 
-#include <Goptical/Math/Vector>
+#include <goptical/core/math/Vector>
 
-#include <Goptical/Material/Base>
-#include <Goptical/Material/Sellmeier>
+#include <goptical/core/material/Base>
+#include <goptical/core/material/Conrady>
+#include <goptical/core/material/Sellmeier>
+#include <goptical/core/material/Abbe>
 
-#include <Goptical/Sys/System>
-#include <Goptical/Sys/OpticalSurface>
-#include <Goptical/Sys/SourcePoint>
-#include <Goptical/Sys/Image>
+#include <goptical/core/sys/System>
+#include <goptical/core/sys/Lens>
+#include <goptical/core/sys/OpticalSurface>
+#include <goptical/core/sys/Stop>
+#include <goptical/core/sys/SourcePoint>
+#include <goptical/core/sys/Image>
 
-#include <Goptical/Curve/Sphere>
-#include <Goptical/Shape/Disk>
+#include <goptical/core/curve/Sphere>
+#include <goptical/core/shape/Disk>
 
-#include <Goptical/Trace/Tracer>
-#include <Goptical/Trace/Result>
-#include <Goptical/Trace/Distribution>
-#include <Goptical/Trace/Sequence>
-#include <Goptical/Trace/Params>
+#include <goptical/core/trace/Tracer>
+#include <goptical/core/trace/Result>
+#include <goptical/core/trace/Distribution>
+#include <goptical/core/trace/Sequence>
+#include <goptical/core/trace/Params>
 
-#include <Goptical/Light/SpectralLine>
+#include <goptical/core/light/SpectralLine>
 
-#include <Goptical/Analysis/RayFan>
-#include <Goptical/Data/Plot>
+#include <goptical/core/analysis/RayFan>
+#include <goptical/core/data/Plot>
 
-#include <Goptical/Io/Rgb>
-#include <Goptical/Io/RendererSvg>
+#include <goptical/core/io/Rgb>
+#include <goptical/core/io/RendererSvg>
+#include <goptical/core/io/RendererViewport>
 
-using namespace Goptical;
+#include <goptical/core/ref>
+
+using namespace goptical;
 
 
 int main(void)
 {
-	Sys::System sys
 
-	// code from examples/tessar_lens/tessar.cc:70
-	Sys::Lens     lens(Math::Vector3(0, 0, 0));
+    material::Conrady n17(1.7, 0., 0.);
+    material::Conrady n15(1.5, 0., 0.);
 
-	//       roc,            ap.radius, thickness,
-	//
-	lens.add_surface(1/0.031186861,  14.934638, 4.627804137,
-        	ref<Material::Conrady>::create(1.7, 0.0, 0.0));
-	//
-	lens.add_surface(0,              14.934638, 5.417429465);
-	//
-	lens.add_surface(1/-0.014065441, 12.766446, 3.728230979,
-        	ref<Material::Conrady>::create(1.7, 0.0, 0.0));
-	//
-	lens.add_surface(1/0.034678487,  11.918098, 4.417903733);
-	//
-	lens.add_stop   (                12.066273, 2.288913925);
-	lens.add_surface(0,              12.372318, 1.499288597,
-        	ref<Material::Conrady>::create(1.7, 0.0, 0.0));
-	//
-	lens.add_surface(1/0.035104369,  14.642815, 7.996205852,
-        	ref<Material::AbbeVd>::create(1.623770, 56.8998));
-	//
-	lens.add_surface(1/-0.021187519, 14.642815, 85.243965130);
-	//
-	sys.add(lens);
+    shape::Disk lens_shape(2.0); // lens diameter is 2 mm
+
+    sys::system mysys;
+
+    sys::SourcePoint source(sys::SourceAtFiniteDistance, math::Vector3(0., 0., 0.));
+
+    sys::OpticalSurface s1(math::Vector3(0, 0, 2.0),
+                           -5.922, 2.0, material::none, n17);
+    sys::OpticalSurface s2(math::Vector3(0, 0, 2.0 + 3.0),
+                           -3.160, 2.0, n17, material::none);
+    sys::OpticalSurface s3(math::Vector3(0, 0, 2.0 + 3.0 + 5.0),
+                           15.884, 2.0, material::none, n17);
+    sys::OpticalSurface s4(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0),
+                           -12.756, 2.0, n17, material::none);
+    sys::Stop stop(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0 + 3.0), 1.0);
+
+    sys::OpticalSurface s6(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0 + 3.0 + 2.0),
+                           3.125, 2.0, material::none, n15);
+    sys::OpticalSurface s7(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0 + 3.0 + 2.0 + 3.0),
+                           1.479, 2.0, n15, material::none);
+
+    sys::Image image(math::Vector3(0, 0, 2.0 + 3.0 + 5.0 + 3.0 + 3.0 + 2.0 + 3.0 + 19.0), // position
+                      10.0);                           // square size,
+
+    mysys.add(source);
+    mysys.add(s1);
+    mysys.add(s2);
+    mysys.add(s3);
+    mysys.add(s4);
+    mysys.add(stop);
+    mysys.add(s6);
+    mysys.add(s7);
+    mysys.add(image);
+
+
+    trace::Sequence seq(mysys);
+    mysys.get_tracer_params().set_sequential_mode(seq);
+
+
+    io::RendererSvg renderer("layout.svg", 1024, 100);
+    io::RendererViewport &myrenderer = renderer;
+
+    // draw 2d system layout
+    mysys.draw_2d_fit(renderer);
+    mysys.draw_2d(renderer);
+
+    std::cout << mysys;
+    std::cout << seq;
+
+    // trace and draw rays from source
+
+    std::cout << "tracer init" << std::endl;
+    trace::tracer tracer(mysys);
+
+    tracer.get_params().set_default_distribution(
+        trace::Distribution(trace::MeridionalDist, 21.0));
+    tracer.get_trace_result().set_generated_save_state(source);
+    tracer.trace();
+    tracer.get_trace_result().draw_2d(myrenderer);
+
 
 }

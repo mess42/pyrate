@@ -35,7 +35,10 @@ def rad2deg(x):
 
 
 def curv2radius(x):
-    return 1./x
+    myradius = 0.
+    if abs(x) > 1e-16:
+        myradius = 1./x
+    return myradius
 
 
 def radius2curv(x):
@@ -43,6 +46,17 @@ def radius2curv(x):
     if abs(x) > 1e-16:
         mycurv = 1./x
     return mycurv
+
+
+def radius_string(radius_string):
+    result = radius_string
+    if radius_string.lower() == "0.0" or radius_string.lower() == "0":
+        result = "infinity"
+    if radius_string.lower() == "inf" or\
+       radius_string.lower() == "oo" or\
+       radius_string.lower() == "infinity":
+        result = "0.0"
+    return result
 
 
 """
@@ -55,8 +69,36 @@ e.g.: {"shape_conic": {"curv": ("radius", lambda x: 1./x, lambda x: 1./x)}}
 or: {"localcoordinates": {"tiltx": ("tiltx_deg", lambda x: x/degree,
                                     lambda x: x*degree)}}
 """
-transformation_dictionary =\
-    {"shape_conic": {"curv": ("radius", curv2radius, radius2curv)},
-     "localcoordinates": {"tiltx": ("tiltx_deg", rad2deg, deg2rad),
-                          "tilty": ("tilty_deg", rad2deg, deg2rad),
-                          "tiltz": ("tiltz_deg", rad2deg, deg2rad)}}
+
+"""
+Translates values into human readable form. (e.g. radius better than curv,
+deg better than rad)
+"""
+transformation_dictionary_to_ui =\
+    {"shape_Conic": {"curvature": ("radius", curv2radius)},
+     "shape_Cylinder": {"curvature": ("radius", curv2radius)},
+     "shape_Asphere": {"curv": ("radius", curv2radius)},
+     "shape_Biconic": {"curvx": ("radiusx", curv2radius),
+                       "curvy": ("radiusy", curv2radius)},
+     "localcoordinates": {"tiltx": ("tiltx_deg", rad2deg),
+                          "tilty": ("tilty_deg", rad2deg),
+                          "tiltz": ("tiltz_deg", rad2deg)}}
+
+"""
+Translates values back into optimization friendly form. (e.g. curv better
+than radius, rad better than deg.)
+"""
+transformation_dictionary_from_ui =\
+    {"shape_Conic": {"radius": ("curvature", radius2curv)},
+     "shape_Cylinder": {"radius": ("curvature", radius2curv)},
+     "shape_Asphere": {"radius": ("curv", radius2curv)},
+     "shape_Biconic": {"radiusx": ("curvx", radius2curv),
+                       "radiusy": ("curvy", radius2curv)},
+     "localcoordinates": {"tiltx_deg": ("tiltx", deg2rad),
+                          "tilty_deg": ("tilty", deg2rad),
+                          "tiltz_deg": ("tiltz", deg2rad)}}
+
+"""
+Translates converted string values into better readable/writable form.
+"""
+transformation_dictionary_ui_string = {"radius": radius_string}

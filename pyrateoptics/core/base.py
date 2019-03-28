@@ -267,7 +267,8 @@ class OptimizableVariable(BaseLogger):
                     val = (val[0].source, val[1])
             elif self.var_type == "fixed" or self.var_type == "variable":
                 if key == "value":
-                    val = float(val)
+                    pass
+                    #val = float(val)
                 # TODO: what about other types?
             res[key] = val
         return res
@@ -513,7 +514,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         """
         For fast evaluation of value vector
         """
-        return np.array([a.evaluate() for a in self.getAllVariables()["vars"].
+        return np.array([a() for a in self.getAllVariables()["vars"].
                          values()])
 
     def getActiveVariables(self):
@@ -528,16 +529,17 @@ class ClassWithOptimizableVariables(BaseLogger):
     def getActiveValues(self):
         """
         Function to get all values into one large np.array.
+        Supports only float at the moment.
         """
-        return np.array([a() for a in self.getActiveVariables()])
+        return np.array([float(a()) for a in self.getActiveVariables()])
 
     def setActiveValues(self, x):
         """
         Function to set all values of active variables to the values in the
-        large np.array x.
+        large np.array x. Supports only float at the moment.
         """
         for i, var in enumerate(self.getActiveVariables()):
-            var.setvalue(x[i])
+            var.setvalue(float(x[i]))
 
     def getActiveTransformedValues(self):
         return np.array([a.evaluate_transformed() for a in
@@ -549,7 +551,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         large np.array x.
         """
         for i, var in enumerate(self.getActiveVariables()):
-            var.setvalue_transformed(x[i])
+            var.setvalue_transformed(float(x[i]))
 
     def resetVariable(self, key, var):
         """

@@ -40,7 +40,6 @@ class IsotropicMaterial(MaxwellMaterial):
     def __init__(self, lc, n=1.0, **kwargs):
         super(IsotropicMaterial, self).__init__(lc, **kwargs)
 
-
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)
         mat = np.zeros((num_dims, num_dims, num_pts))
@@ -49,29 +48,26 @@ class IsotropicMaterial(MaxwellMaterial):
         mat[2, 2, :] = 1.
         return mat*self.getIsotropicEpsilon(x, wave=wave)
 
-
     def getIsotropicEpsilon(self, x, wave=standard_wavelength):
         return self.getIndex(x, wave=wave)**2
 
-
-    def getIndex(self,x,wave):
+    def getIndex(self, x, wave):
         raise NotImplementedError()
 
-
     def calcEfield(self, x, n, k, wave=standard_wavelength):
-        # TODO: Efield calculation wrong! For polarization you have to calc it correctly!
+        # FIXME: Efield calculation wrong! For polarization
+        # you have to calc it correctly!
         ey = np.zeros_like(k)
-        ey[1,:] =  1.
+        ey[1, :] = 1.
         return np.cross(k, ey, axisa=0, axisb=0).T
-
 
     def calcXi(self, x, normal, k_inplane, wave=standard_wavelength):
         return self.calcXiIsotropic(x, normal, k_inplane, wave=wave)
 
-
     def calcXiIsotropic(self, x, n, k_inplane, wave=standard_wavelength):
         """
-        Calculate normal component of k after refraction in isotropic materials.
+        Calculate normal component of k after refraction
+        in isotropic materials.
 
         :param n (3xN numpy array of float)
                 normal of surface in local coordinates
@@ -82,7 +78,7 @@ class IsotropicMaterial(MaxwellMaterial):
                 3x1 numpy array of bool)
         """
 
-        #k2_squared = 4.*math.pi**2 / wave**2 * self.getIsotropicEpsilon(x, wave=wave)
+        # k2_squared = 4.*math.pi**2 / wave**2 * self.getIsotropicEpsilon(x, wave=wave)
         k2_squared = self.getIsotropicEpsilon(x, wave=wave)
 
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
@@ -94,18 +90,21 @@ class IsotropicMaterial(MaxwellMaterial):
 
         return (xi, valid)
 
-
     def refract(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
+        normal = raybundle.getLocalSurfaceNormal(actualSurface,
+                                                 self, raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         valid_normals = checkfinite(normal)
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (xi, valid_refraction) = self.calcXiIsotropic(xlocal, normal, k_inplane, wave=raybundle.wave)
+        (xi, valid_refraction) = self.calcXiIsotropic(xlocal,
+                                                      normal,
+                                                      k_inplane,
+                                                      wave=raybundle.wave)
 
         valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
@@ -116,17 +115,18 @@ class IsotropicMaterial(MaxwellMaterial):
         orig = raybundle.x[-1][:, valid]
         newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
-        # E field calculation wrong: xlocal, normal, newk in different
+        # FIXME: E field calculation wrong: xlocal, normal, newk in different
         # coordinate systems
         Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
 
-        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave),)
-
+        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid],
+                          raybundle.wave),)
 
     def reflect(self, raybundle, actualSurface, splitup=False):
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
+        normal = raybundle.getLocalSurfaceNormal(actualSurface, self,
+                                                 raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
         valid_normals = checkfinite(normal)
@@ -135,12 +135,17 @@ class IsotropicMaterial(MaxwellMaterial):
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (xi, valid_refraction) = self.calcXiIsotropic(xlocal, normal, k_inplane, wave=raybundle.wave)
+        (xi, valid_refraction) = self.calcXiIsotropic(xlocal,
+                                                      normal,
+                                                      k_inplane,
+                                                      wave=raybundle.wave)
 
         valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
-        k2 = -k_inplane + xi * normal # changed for mirror, all other code is doubled
+        k2 = -k_inplane + xi * normal
 
+        # changed for mirror
+        # FIXME: all other code is doubled
         # return ray with new direction and properties of old ray
         # return only valid rays
         orig = raybundle.x[-1][:, valid]
@@ -148,8 +153,8 @@ class IsotropicMaterial(MaxwellMaterial):
 
         Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
 
-        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid], raybundle.wave),)
-
+        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid],
+                          raybundle.wave),)
 
     def propagate(self, raybundle, nextSurface):
 
@@ -186,7 +191,10 @@ class ConstantIndexGlass(IsotropicMaterial):
 
 
 class ModelGlass(IsotropicMaterial):
-    def __init__(self, lc, n0_A_B=(1.49749699179, 0.0100998734374*1e-3, 0.000328623343942*(1e-3)**3.5), name="", comment=""):
+    def __init__(self, lc, n0_A_B=(1.49749699179,
+                                   0.0100998734374*1e-3,
+                                   0.000328623343942*(1e-3)**3.5),
+                 name="", comment=""):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
@@ -194,8 +202,8 @@ class ModelGlass(IsotropicMaterial):
 
         :param tuple (n0, A, B) of float
         """
-        super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0], name=name, comment=comment)
-
+        super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0],
+                                         name=name, comment=comment)
 
         self.n0 = OptimizableVariable(name="Conrady n0", value=n0_A_B[0])
         self.A = OptimizableVariable(name="Conrady A", value=n0_A_B[1])
@@ -203,14 +211,15 @@ class ModelGlass(IsotropicMaterial):
 
     def getIndex(self, x, wave):
         """
-        Private routine for all isotropic materials obeying the Snell law of refraction.
+        Private routine for all isotropic materials obeying the
+        Snell law of refraction.
 
-        :param raybundle: RayBundle object containing the wavelength of the rays.
+        :param raybundle: RayBundle object containing the wavelength
+         of the rays.
 
         :return index: refractive index at respective wavelength (float)
         """
         return self.n0() + self.A() / wave + self.B() / (wave**3.5)
-
 
     def calcCoefficientsFrom_nd_vd_PgF(self, nd=1.51680, vd=64.17, PgF=0.5349):
         """
@@ -230,10 +239,10 @@ class ModelGlass(IsotropicMaterial):
         self.A.setvalue(B)
         self.B.setvalue(A)
 
-
     def calcCoefficientsFrom_nd_vd(self, nd=1.51680, vd=64.17):
         """
-        Calculates the dispersion formula coefficients, assuming the glass on the normal line.
+        Calculates the dispersion formula coefficients,
+        assuming the glass on the normal line.
 
         :param nd: refractive index at the d-line ( 587.5618 nm ) (float)
         :param vd: Abbe number (float)
@@ -242,13 +251,14 @@ class ModelGlass(IsotropicMaterial):
         PgF = 0.6438 - 0.001682 * vd
         self.calcCoefficientsFrom_nd_vd_PgF(nd, vd, PgF)
 
-
     def calcCoefficientsFromSchottCode(self, schottCode=517642):
         """
-        Calculates the dispersion formula coefficients from the Schott Code, assuming the glass to be on the normal line.
+        Calculates the dispersion formula coefficients from the Schott Code,
+        assuming the glass to be on the normal line.
         Less accurate than calcCoefficientsFrom_nd_vd_PgF().
 
-        :param schottCode: 6 digit Schott Code (first 3 digits are 1000*(nd-1), last 3 digits are 10*vd)
+        :param schottCode: 6 digit Schott Code (first 3 digits are 1000*(nd-1),
+        last 3 digits are 10*vd)
         """
         if type(schottCode) is int and schottCode >= 1E5 and schottCode < 1E6:
             first3digits = schottCode / 1000
@@ -256,9 +266,8 @@ class ModelGlass(IsotropicMaterial):
             nd = 1 + 0.001 * first3digits
             vd = 0.1 * last3digits
         else:
-            print("Warning: Schott Code must be a 6 digit positive integer number. Substituting invalid number with N-BK7.")
+            print("Warning: Schott Code must be a 6 digit positive integer" +
+                  "number. Substituting invalid number with N-BK7.")
             nd = 1.51680
             vd = 64.17
         self.calcCoefficientsFrom_nd_vd(nd, vd)
-
-
