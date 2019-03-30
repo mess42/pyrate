@@ -32,6 +32,13 @@ directly in the sources.
 
 Want to [contribute](CONTRIBUTING.md)?
 
+Pyrate in the public
+---
+
+- In a class project https://github.com/teaghan/ML_with_Pyrate
+- In a paper about optimization algorithms in optics [Open-source optimization algorithms for optical design](https://www.sciencedirect.com/science/article/pii/S0030402618315821) (behind a pay-wall)
+
+
 Testing
 ---
 
