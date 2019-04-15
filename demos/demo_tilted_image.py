@@ -52,11 +52,17 @@ osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 (x02, k02, E02) = osa.collimated_bundle(11, {"radius": epd,
                                              "raster": MeridionalFan(),
                                              "anglex": 1.*degree})
+(x03, k03, E03) = osa.collimated_bundle(11, {"radius": epd,
+                                             "raster": MeridionalFan(),
+                                             "anglex": -1.*degree})
+
 mybundle1 = RayBundle(x01, k01, E01)
 mybundle2 = RayBundle(x02, k02, E02)
+mybundle3 = RayBundle(x03, k03, E03)
 
 raypaths1 = s.seqtrace(mybundle1, seq)
 raypaths2 = s.seqtrace(mybundle2, seq)
+raypaths3 = s.seqtrace(mybundle3, seq)
 
 obj_dx = 0.1
 obj_dphi = 0.1*degree
@@ -70,4 +76,4 @@ pilotbundles = build_pilotbundle_complex(objsurf, s.material_background,
 print(np.array_str(m_obj_stop, precision=5, suppress_small=True))
 print(np.array_str(m_stop_img, precision=5, suppress_small=True))
 
-draw(s, [raypaths1, raypaths2])
+draw(s, [raypaths1, raypaths2, raypaths3])
