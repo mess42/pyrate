@@ -2,7 +2,7 @@ numpy # pyrate dependency
 scipy # pyrate dependency
 sympy # pyrate dependency
 matplotlib # pyrate dependency
-ruamel.yaml # pyrate dependency
+yaml # pyrate dependency
 nose # test automation
 hypothesis # quickcheck
 coverage # test coverage
