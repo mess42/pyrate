@@ -2846,7 +2846,44 @@ there are not enough degrees of freedom that a 2D or 3D rotation of the coordina
 
 
 \section{4D XYUV Matrices}
-todo
+In many cases, we do not need four degrees of freedom for the wavevector deviation, but two suffice.
+Together with the two degrees of freedom for the image height, we have a four-dimensional state Vector ($\Vector{R}, \Vector{K}$).
+Coming from the 6-dimensional XYUV formalism, we restrict the wavevectors in the following way:
+\begin{itemize}
+ \item If all materials are lossless, we restrict ourselves to real valued wavevectors.
+       In lossless materials, all permeabilities are real valued, and wavevectors in isotropic materials are either real or purely imaginary.
+       We choose the wavevector deviation base $( \Vector{e}_U, \Vector{e}_V)$ real valued and allow only real $(U,V)$.
+ \item If one or more materials are lossy, we start in the object plane by choosing two directions.
+       We choose the initial directions $( \Vector{e}_{U\,obj}, \Vector{e}_{V\,obj})$ in a way that the
+       wavevector difference between pilot and perturbed wavevector is real.
+       We achieve this by rotating the wavevector deviation unit vectors in the complex plane.
+       Choosing these deviations, we find that any interference between pilot and perturbed wave
+       creates a pattern in the image plane which is translationally invariant.
+       The interference pattern does not change in modulation over space.
+       Next, we perturb one wave purely in direction $\Vector{e}_{U\,obj}$ and one wave purely in $\Vector{e}_{V\,obj}$.
+       We propagate these two waves to the next surface, calculate the difference to the pilot wavevector in the new medium,
+       and create a new plane from the two difference vectors.
+       The new wavevector deviation unit vectors $( \Vector{e}_{U\,surf\,i}, \Vector{e}_{V\,surf\,i})$ shall be normalized and orthogonal on each other.
+\end{itemize}
+In the reduced unit system with only two real wavevector deviations $(\Re U, \Re V)$,
+it may in some cases not be possible to convert old wavevectors in the new unit system.
+This may occur, for example, for the evanescent waves of the transmission path after a total internal reflection.
+These rays must be deleted by time-consuming if-statements in C, or numpy index slicing in python.
+We can easily convert all formulas from the 6-dimensional XYUV formalism by inserting
+$\Vector{R} = (X,Y)$ and $\Vector{K} = (\Re U, \Re V, 0, 0)$.
+The size of the propagator matrices can be reduced.
+\begin{subequations}
+\begin{align}
+ A_{ij}  && (2\times2 \,\textrm{matrix}) \\
+ B_{ij}  && (2\times2 \,\textrm{matrix}) \\
+ C_{ij}  && (2\times2 \,\textrm{matrix}) \\
+ D_{ij}  && (2\times2 \,\textrm{matrix}) \\
+ M_{ijl} && (2\times2\times2 \,\textrm{matrix}) \\
+ N_{ijl} && (2\times2\times2 \,\textrm{matrix})
+\end{align}
+\end{subequations}
+The benefit we gain, apart from small matrices, is a better disambiguous invertability of matrices.
+
 
 \chapter{Surface Intersections}\label{subsec:intersectionformulas}
 This section discusses how to calculate the intersection of a ray with a surface.
