@@ -1925,7 +1925,7 @@ We represent the change of the wavevector $\Wavevector$ as
 where $U,V$ are complex valued prefactors.
 The complex valued unit vectors $\Vector{e}_{U,V}$ shall be orthogonal on each other.
 
-\subsection{XYUV matrices}
+\section{6D XYUV Matrices}
 We choose the object sided base vectors 
 $\Vector{e}_{X,Y,U,V\,obj}$ 
 in a way that both pilot and near-pilot rays start in the object plane and obey the dispersion relation, 
@@ -2148,7 +2148,7 @@ The inverse bilinear matrices read
 
 \remark{todo: explicit, component wise formula}
 
-\subsection{Propagation in Homogeneous Media}
+\subsection{Translation in Homogeneous Media}
 We consider the propagation between two planes in a homogeneous medium.
 In the homogeneous medium, rays are straight lines and the wavevector of each ray is the same in both planes.
 We assume the coordinate system to describe wavevector changes is the same in both plane 0 and plane 1.
@@ -2276,7 +2276,7 @@ with
 \end{subequations}
 \remark{todo: simplification: eZ = npilot}
 
-\subsection{Propagation Between Parallel Planes}
+\subsection{Translation Between Parallel Planes}
 We consider the special case of a propagation operator in a homogeneous medium between parallel planes.
 Without loss of generality, we choose the same base in both planes $\Vector{e}_{X1} = \Vector{e}_{X0}$ and $\Vector{e}_{Y1} = \Vector{e}_{Y0}$.
 The $X$ and $Y$ unit vectors shall be orthogonal on each other, $\Vector{e}_i \Vector{e}_j = \delta_{ij}$.
@@ -2297,6 +2297,18 @@ The propagation matrices \eqref{eq:xyuv_translation_matrices} simplify to
 \hat{N} &=& 0
 \end{eqnarray}
 \end{subequations}
+
+
+\subsection{Translation Sequence}
+Hypothesis:
+Every concatenation of translation operators can be represented by a single translation operator.
+\remark{TODO: proof and explicit formula}
+
+
+\subsection{Translation Split-Up}
+Hypothesis:
+Every translation operator can be split up to a set of translations between parallel planes and tilt-only operators (without pilot translation, B=0).
+\remark{TODO: proof and explicit formula}
 
 
 \subsection{Refraction}
@@ -2823,17 +2835,21 @@ and yield the propagator matrices for a refraction operation
    \end{pmatrix}
 \end{eqnarray}
 
-
-
 TODO: double check
 
 
+\subsection{Image Plane Tilt Compensation}
+Hypothesis:
+In the 6-dimensional XYUV formalism, 
+there are not enough degrees of freedom that a 2D or 3D rotation of the coordinate system could compensate a (2x2x4) image plane tilt matrix.
+\remark{TODO: proof and explicit formula}
 
+
+\section{4D XYUV Matrices}
+todo
 
 \chapter{Surface Intersections}\label{subsec:intersectionformulas}
 This section discusses how to calculate the intersection of a ray with a surface.
-
-
 
 
 \section{Analytically Solvable}
