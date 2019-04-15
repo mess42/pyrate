@@ -20,7 +20,7 @@ setup(
                         "scipy",
                         "matplotlib",
                         "sympy",
-                        "ruamel.yaml"],
+                        "pyyaml"],
       version="0.2.0",
       description="Optical raytracing with Python",
       author="Moritz Esslinger",

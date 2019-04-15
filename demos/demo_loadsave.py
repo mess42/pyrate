@@ -25,7 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import logging
-import jsonpickle
+found_jsonpickle = True
+try:
+    import jsonpickle
+except ImportError:
+    found_jsonpickle = False
 
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 
@@ -36,11 +40,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 s = OpticalSystem()
 
-print("pickle dump")
-frozen = jsonpickle.encode(s)
+if found_jsonpickle:
+    print("pickle dump")
+    frozen = jsonpickle.encode(s)
 
-with open('optical_sys.jpkl', 'w') as output:
-    output.write(frozen)
-
+    with open('optical_sys.jpkl', 'w') as output:
+        output.write(frozen)
 
 # WARNING: code is operational, but not tested

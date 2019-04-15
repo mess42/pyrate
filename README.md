@@ -79,11 +79,11 @@ You need Python 2.7 or 3.x with NumPy, SciPy, Yaml, Sympy, and matplotlib instal
 
 In Ubuntu, Mint and Debian you can use for Python 2.7
 
-    $ sudo apt-get install python python-numpy python-scipy python-matplotlib python-ruamel.yaml python-sympy
+    $ sudo apt-get install python python-numpy python-scipy python-matplotlib python-yaml python-sympy
 
 or
 
-    $ sudo apt-get install python3 python3-numpy python3-scipy python3-matplotlib python3-ruamel.yaml python3-sympy
+    $ sudo apt-get install python3 python3-numpy python3-scipy python3-matplotlib python3-yaml python3-sympy
 
 for Python 3.x.
 If you want to run mypy on the project, you need also Python 3.x with mypy
