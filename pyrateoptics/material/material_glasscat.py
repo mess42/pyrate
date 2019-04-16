@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import ruamel.yaml as yaml
+import yaml
 import numpy as np
 import scipy.interpolate
 from .material_isotropic import IsotropicMaterial
@@ -428,7 +428,7 @@ class CatalogMaterial(IsotropicMaterial):
         :param comment: (str)
 
         example:
-            import ruamel.yaml as yaml
+            import yaml
             f = open("n-bk7.yml")
             ymldict = yaml.safe_load(f)
             f.close()

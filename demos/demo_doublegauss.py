@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import math
 import logging
 import json
-from ruamel.yaml import YAML
+import yaml
 
 from distutils.version import StrictVersion
 
@@ -357,7 +357,6 @@ from pprint import pprint
 pprint(system_gui_toplevel)
 pprint(system_dump)
 
-yaml = YAML()
 fp = open("double_gauss.yaml", "wt")
 yaml.dump(system_dump, fp)
 fp.close()
