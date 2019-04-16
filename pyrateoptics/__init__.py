@@ -116,6 +116,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                 LocalCoordinates(name=surf_name + "_lc", **coordbreakdict),
                 refname=refname)
         shapetype = "shape_" + surfdict.pop("shape", "Conic")
+        aperture = surfdict.pop("aperture", None)
         if shapetype == "shape_LinearCombination":
             # linear combination accepts pairs of coefficients and surfdicts
 
@@ -131,12 +132,14 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                                                 **surfdict_part)))
 
             actsurf = Surface(lc, name=surf_name + "_surf",
+                              aperture=aperture,
                               shape=LinearCombination(lc,
                                                       name=surf_name +
                                                       "_linearcombi",
                                                       list_of_coefficients_and_shapes=new_list_coeffs_shapes))
         else:
             actsurf = Surface(lc, name=surf_name + "_surf",
+                              aperture=aperture,
                               shape=accessible_shapes[shapetype]
                               (lc, name=name + "_shape", **surfdict))
         logger.debug("mat=%s" % repr(mat))
@@ -255,6 +258,7 @@ def build_optical_system(builduplist, material_db_path="", name=""):
 
 
 def draw(os, rays=None,
+         hold_on=False,
          do_not_draw_surfaces=[],
          do_not_draw_raybundles=[],
          interactive=False,
@@ -408,7 +412,8 @@ def draw(os, rays=None,
         fig.savefig(export, format=export_type,
                     bbox_inches='tight', pad_inches=0)
 
-    plt.show()
+    if not hold_on:
+      plt.show()
 
 
 def raytrace(s, seq, numrays, rays_dict, bundletype="collimated",
