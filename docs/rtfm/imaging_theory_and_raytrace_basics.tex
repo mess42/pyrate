@@ -2839,10 +2839,29 @@ TODO: double check
 
 
 \subsection{Image Plane Tilt Compensation}
-Hypothesis:
-In the 6-dimensional XYUV formalism, 
-there are not enough degrees of freedom that a 2D or 3D rotation of the coordinate system could compensate a (2x2x4) image plane tilt matrix.
-\remark{TODO: proof and explicit formula}
+We assume a general propagation operator and a following compensation propagator.
+The compensation shall cancel out the effect of the bilinear operators 
+--
+$\hat{M}$ for finite conjugate images
+and $\hat{N}$ for infinite images.
+The compensation shall be a translation.
+\begin{eqnarray}
+ \hat{M}_\tot &=& \hat{A}_{\text{comp}} \hat{M}_0 + \hat{B}_{\text{comp}} \hat{N}_0 + \hat{M}_{\text{comp}} \hat{A}_0 \hat{D}_0 + \hat{M}_{\text{comp}} \hat{B}_0 \hat{C}_0 \\
+ \hat{N}_\tot &=& \hat{N}_0
+\end{eqnarray}
+We split the compensation operator up into two subsequent translations.
+First, we consider a general translation, followed by a parallel plane translation.
+If the first translation compensated for image plane tilt, then the parallel propagation does not add an additional tilt,
+as can be seen in \eqref{eq:xyuv_parallel_translation_matrices}.
+If we find one compensation operator, then there is an infinite number of parallel compensation operators.
+We only need to find one particular solution.
+We choose the parallel translation such that the pilot ray intersects the original final plane and the plane after compensation in the same point.
+This means $\hat{B}_{comp} = 0$.
+\begin{eqnarray}
+ \hat{M}_\tot &=& \hat{A}_{\text{comp}} \hat{M}_0 + \hat{M}_{\text{comp}} \left( \hat{A}_0 \hat{D}_0 + \hat{B}_0 \hat{C}_0 \right) \\
+ \hat{N}_\tot &=& \hat{N}_0
+\end{eqnarray}
+
 
 
 \section{4D XYUV Matrices}
@@ -2855,12 +2874,12 @@ Coming from the 6-dimensional XYUV formalism, we restrict the wavevectors in the
        We choose the wavevector deviation base $( \Vector{e}_U, \Vector{e}_V)$ real valued and allow only real $(U,V)$.
  \item If one or more materials are lossy, we start in the object plane by choosing two directions.
        We choose the initial directions $( \Vector{e}_{U\,obj}, \Vector{e}_{V\,obj})$ in a way that the
-       wavevector difference between pilot and perturbed wavevector is real.
+       wavevector difference between pilot and perturbed wavevector, projected on the object plane, is real.
        We achieve this by rotating the wavevector deviation unit vectors in the complex plane.
        Choosing these deviations, we find that any interference between pilot and perturbed wave
        creates a pattern in the image plane which is translationally invariant.
        The interference pattern does not change in modulation over space.
-       Next, we perturb one wave purely in direction $\Vector{e}_{U\,obj}$ and one wave purely in $\Vector{e}_{V\,obj}$.
+       Next, we perturb one wave infinitessimally in direction $\Vector{e}_{U\,obj}$ and one wave in $\Vector{e}_{V\,obj}$.
        We propagate these two waves to the next surface, calculate the difference to the pilot wavevector in the new medium,
        and create a new plane from the two difference vectors.
        The new wavevector deviation unit vectors $( \Vector{e}_{U\,surf\,i}, \Vector{e}_{V\,surf\,i})$ shall be normalized and orthogonal on each other.
@@ -2868,8 +2887,9 @@ Coming from the 6-dimensional XYUV formalism, we restrict the wavevectors in the
 In the reduced unit system with only two real wavevector deviations $(\Re U, \Re V)$,
 it may in some cases not be possible to convert old wavevectors in the new unit system.
 This may occur, for example, for the evanescent waves of the transmission path after a total internal reflection.
-These rays must be deleted by time-consuming if-statements in C, or numpy index slicing in python.
-We can easily convert all formulas from the 6-dimensional XYUV formalism by inserting
+These rays must be sorted out from further propagation for example by if-statements or conditional indexing.
+
+We can easily convert all formulas from the 6-dimensional XYUV formalism to the 4-dimensional one by inserting
 $\Vector{R} = (X,Y)$ and $\Vector{K} = (\Re U, \Re V, 0, 0)$.
 The size of the propagator matrices can be reduced.
 \begin{subequations}
