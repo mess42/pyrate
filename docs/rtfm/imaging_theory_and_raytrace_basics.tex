@@ -2858,10 +2858,19 @@ We only need to find one particular solution.
 We choose the parallel translation such that the pilot ray intersects the original final plane and the plane after compensation in the same point.
 This means $\hat{B}_{comp} = 0$.
 \begin{eqnarray}
- \hat{M}_\tot &=& \hat{A}_{\text{comp}} \hat{M}_0 + \hat{M}_{\text{comp}} \left( \hat{A}_0 \hat{D}_0 + \hat{B}_0 \hat{C}_0 \right) \\
- \hat{N}_\tot &=& \hat{N}_0
+ M_{\tot\,R_{im},R_{obj},K_{obj}} =&& A_{\text{comp}\,R_{im},R_1} M_{0\,R_1,R_{obj},K_{obj}} + \nonumber\\
+                                  &+& M_{\text{comp}\,R_{im},R_2,K_3} A_{0\,R_2,R_{obj}} D_{0\,K_3,K_{obj}} + \nonumber\\
+                                  &+& M_{\text{comp}\,R_{im},R_4,K_5} B_{0\,R_4,K_{obj}} C_{0\,K_5,R_{obj}}
+\end{eqnarray}
+where for all intermediate coordinates holds the Einstein sum convention.
+\begin{eqnarray}
+ A_{R_1} M_{R_1} \rightarrow \sum_{R_1 \in \{ X_1,Y_1\} } A_{R_1} M_{R_1} \nonumber
 \end{eqnarray}
 
+\begin{eqnarray}
+ M_{\tot\,R_{im},R_{obj},K_{obj}} =&& A_{\text{comp}\,R_{im},R_1} M_{0\,R_1,R_{obj},K_{obj}} + \nonumber\\
+                                  &+& M_{\text{comp}\,R_{im},R_1,K_2} \left( A_{0\,R_1,R_{obj}} D_{0\,K_2,K_{obj}} + B_{0\,R_1,K_{obj}} C_{0\,K_2,R_{obj}} \right)
+\end{eqnarray}
 
 
 \section{4D XYUV Matrices}
