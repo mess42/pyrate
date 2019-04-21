@@ -2099,10 +2099,11 @@ We apply the propagation concatenation equation \eqref{eq:xyuv_total_propagation
  \hat{B}_\tot &= 0           =& \hat{A}_{\text{inv}} \hat{B} + \hat{B}_{\text{inv}} \hat{D} \\
  \hat{C}_\tot &= 0           =& \hat{C}_{\text{inv}} \hat{A} + \hat{D}_{\text{inv}} \hat{C}\\
  \hat{D}_\tot &= \unittensor =& \hat{C}_{\text{inv}} \hat{B} + \hat{D}_{\text{inv}} \hat{D} \\
- \hat{M}_\tot &= 0           =& \hat{A}_{\text{inv}} \hat{M} + \hat{B}_{\text{inv}} \hat{N} + \hat{M}_{\text{inv}} \hat{A} \hat{D} + \hat{M}_{\text{inv}} \hat{B} \hat{C} \\
- \hat{N}_\tot &= 0           =& \hat{C}_{\text{inv}} \hat{M} + \hat{D}_{\text{inv}} \hat{N} + \hat{N}_{\text{inv}} \hat{A} \hat{D} + \hat{N}_{\text{inv}} \hat{B} \hat{C}
+ \hat{M}_\tot &= 0           =& \hat{A}_{\text{inv}} \hat{M} + \hat{B}_{\text{inv}} \hat{N} + \hat{M}_{\text{inv}} \hat{A} \hat{D} + \hat{M}_{\text{inv}} \hat{B} \hat{C} \label{eq:inverse_prop_fifth_equation}\\
+ \hat{N}_\tot &= 0           =& \hat{C}_{\text{inv}} \hat{M} + \hat{D}_{\text{inv}} \hat{N} + \hat{N}_{\text{inv}} \hat{A} \hat{D} + \hat{N}_{\text{inv}} \hat{B} \hat{C} \label{eq:inverse_prop_sixth_equation}
 \end{eqnarray}
 \end{subequations}
+The first four equations do not contain $M,N$.
 We consider the subsystem of the first four equations and solve it for the inverse propagation matrices.
 \begin{eqnarray}
  \begin{pmatrix}
@@ -2138,15 +2139,19 @@ or, explicitly,
   C_{41} & C_{42} & D_{41} & D_{42} & D_{43} & D_{44}
  \end{pmatrix}^{-1}
 \end{eqnarray}
-% The inverse bilinear matrices read
-% \begin{subequations}
-% \begin{eqnarray}
-%  \hat{M}_{\text{inv}} &=& - (\hat{A}_{\text{inv}} \hat{M} + \hat{B}_{\text{inv}} \hat{N}) \cdot \left( ( \hat{A} \hat{D} + \hat{B} \hat{C} )^{-1} \right)\\
-%  \hat{N}_{\text{inv}} &=& - (\hat{C}_{\text{inv}} \hat{M} + \hat{D}_{\text{inv}} \hat{N}) \cdot \left( ( \hat{A} \hat{D} + \hat{B} \hat{C} )^{-1} \right)
-% \end{eqnarray}
-% \end{subequations}
-\remark{TODO: equation for M and N}
+We now know the inverse matrices $\hat{A}_{\text{inv}}, \hat{B}_{\text{inv}}, \hat{C}_{\text{inv}}, \hat{D}_{\text{inv}}$.
+In the following, we have a closer look at the equations for $\hat{M}_{\text{inv}}$ and $\hat{N}_{\text{inv}}$.
+In the fifth equation, \eqref{eq:inverse_prop_fifth_equation}, there is only one unknown left, $\hat{M_{\text{inv}}}$.
+\begin{eqnarray}
+ \hat{M}_{\text{inv}\,R_{\obj\,1} R_\im K_\im} 
+  \left(
+    \hat{A}_{R_\im R_{\obj\,0}} \hat{D}_{K_\im K_\obj} + \hat{B}_{R_\im K_\obj} \hat{C}_{K_\im R_{\obj\,0}} 
+  \right)
+ &=& -\hat{A}_{\text{inv}} \hat{M} - \hat{B}_{\text{inv}} \hat{N} \nonumber\\
+\end{eqnarray}
+
 \remark{todo: explicit, component wise formula}
+\remark{TODO: equation for N}
 
 \subsection{Translation in Homogeneous Media}
 We consider the propagation between two planes in a homogeneous medium.
@@ -2866,7 +2871,9 @@ where for all intermediate coordinates holds the Einstein sum convention.
 \begin{eqnarray}
  A_{R_1} M_{R_1} \rightarrow \sum_{R_1 \in \{ X_1,Y_1\} } A_{R_1} M_{R_1} \nonumber
 \end{eqnarray}
-
+All sums are to be performed at the boundary between initial propagation $0$ and the compensation operator.
+Surface deviations are expressed on the final surface of the initial propagator, 
+and wavevector deviations are expressed in coordinates of the final medium, in which also the compensation takes place.
 \begin{eqnarray}
  M_{\tot\,R_{im},R_{obj},K_{obj}} =&& A_{\text{comp}\,R_{im},R_1} M_{0\,R_1,R_{obj},K_{obj}} + \nonumber\\
                                   &+& M_{\text{comp}\,R_{im},R_1,K_2} \left( A_{0\,R_1,R_{obj}} D_{0\,K_2,K_{obj}} + B_{0\,R_1,K_{obj}} C_{0\,K_2,R_{obj}} \right)
