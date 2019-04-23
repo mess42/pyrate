@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from .surface_shape import Conic
-from .aperture import BaseAperture
+from .aperture import BaseAperture, createAperture
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
 import numpy as np
 from .globalconstants import canonical_ex, canonical_ey
@@ -54,11 +54,20 @@ class Surface(LocalCoordinatesTreeBase):
         super(Surface, self).__init__(rootlc, name=name, kind=kind, **kwargs)
         if shape is None:
             shape = Conic(rootlc)
-        if aperture is None:
-            aperture = BaseAperture(rootlc)
+
+        aperture_ = BaseAperture(rootlc)
+        if isinstance(aperture, BaseAperture):
+            aperture_ = aperture
+        elif isinstance(aperture, dict):
+            try:
+                aperture_ = createAperture(rootlc, aperture)
+            except Exception as e:
+                self.error("Can't create aperture from dict,"
+                           " used default instead.")
+                self.debug("Exception caught: {}".format(e))
 
         self.setShape(shape)
-        self.setAperture(aperture)
+        self.setAperture(aperture_)
 
     def setAperture(self, apert):
         """
