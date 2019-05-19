@@ -155,11 +155,12 @@ class RayBundle(object):
     def getLocalSurfaceNormal(self, surface, material, xglob):
         xlocshape = surface.shape.lc.returnGlobalToLocalPoints(xglob)
         nlocshape = surface.shape.getNormal(xlocshape[0], xlocshape[1])
-        nlocmat = material.lc.returnOtherToActualDirections(nlocshape, surface.shape.lc)
+        nlocmat = material.lc.returnOtherToActualDirections(nlocshape,
+                                                            surface.shape.lc)
         return nlocmat
 
-
-    def draw2d(self, ax, color="blue", plane_normal=canonical_ex, up=canonical_ey, **kwargs):
+    def draw2d(self, ax, color="blue", plane_normal=canonical_ex,
+               up=canonical_ey, **kwargs):
 
         # normalizing plane_normal, up direction
         plane_normal = plane_normal/np.linalg.norm(plane_normal)
@@ -199,8 +200,6 @@ class RayBundle(object):
             ax.plot(z, y, color=color, **kwargs)
 
 
-
-
 class RayPath(object):
 
     def __init__(self, initialraybundle=None):
@@ -218,10 +217,40 @@ class RayPath(object):
     def draw2d(self, ax, color="blue",
                plane_normal=canonical_ex, up=canonical_ey,
                do_not_draw_raybundles=[], **kwargs):
+        """
+        Draw raybundles.
+        """
+        # TODO: exclude different raybundles from drawing
+
+        """
+        print(self.raybundles)
+        xdraw_list = []
+        kdraw_list = []
+        edraw_list = []
+        valid_list = []
         for (ind, r) in enumerate(self.raybundles):
             if ind not in do_not_draw_raybundles:
-                r.draw2d(ax, color=color,
-                         plane_normal=plane_normal, up=up, **kwargs)
+                (numpts, numdims, numrays) = r.x.shape
+                xdraw_list += [r.x[i] for i in np.arange(numpts)]
+                kdraw_list += [r.k[i] for i in np.arange(numpts)]
+                edraw_list += [r.Efield[i] for i in np.arange(numpts)]
+                valid_list += [r.valid[i] for i in np.arange(numpts)]
+                # r.draw2d(ax, color=color,
+                #          plane_normal=plane_normal, up=up, **kwargs)
+        # ugly construction to perform a nice drawing of the raybundle
+        r_draw = RayBundle(x0=xdraw_list[0],
+                           k0=kdraw_list[0],
+                           Efield0=edraw_list[0])
+        r_draw.x = np.array(xdraw_list)
+        r_draw.k = np.array(kdraw_list)
+        r_draw.Efield = np.array(edraw_list)
+        r_draw.valid = np.array(valid_list)
+        r_draw.draw2d(ax, color=color,
+                      plane_normal=plane_normal, up=up, **kwargs)
+        """
+        for r in self.raybundles:
+            r.draw2d(ax, color=color, plane_normal=plane_normal,
+                     up=up, **kwargs)
 
     def containsSplitted(self):
         return any([r.splitted for r in self.raybundles])
