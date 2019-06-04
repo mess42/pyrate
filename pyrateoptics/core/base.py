@@ -329,8 +329,12 @@ class ClassWithOptimizableVariables(BaseLogger):
     def getDictionary(self):
         res = super(ClassWithOptimizableVariables, self).getDictionary()
         res["annotations"] = self.annotations
-        res["variables"] = self.getTypesForDict(typ=OptimizableVariable)
-        res["classes"] = self.getTypesForDict(typ=ClassWithOptimizableVariables)
+        res["variables"] = self.getTypesForDict(
+                typ=OptimizableVariable,
+                remove_keys=["list_observers", "annotations"])
+        res["classes"] = self.getTypesForDict(
+                typ=ClassWithOptimizableVariables,
+                remove_keys=["list_observers", "annotations"])
         return res
 
     def getDictionaryAllVariablesById(self):
@@ -346,39 +350,40 @@ class ClassWithOptimizableVariables(BaseLogger):
         return dict([(v.unique_id, v.getDictionary())
                      for v in self.getTypesForDict(typ=ClassWithOptimizableVariables, func=lambda x: x).values()])
 
-    def getTypesForDict(self, typ, func=lambda x: x.unique_id):
+    def getTypesForDict(self, typ, func=lambda x: x.unique_id, remove_keys=[]):
 
-        def remove_non_optvars(var):
+        def collect_type_variables(var):
             if isinstance(var, typ):
                     return func(var)
             elif isinstance(var, list):
                 l1 = []
                 for item in var:
-                    newitem = remove_non_optvars(item)
+                    newitem = collect_type_variables(item)
                     if newitem is not None:
                         l1.append(newitem)
-                if l1 != []:
-                    return l1
-                else:
-                    return None
+                # if l1 != []:
+                #     return l1
+                # else:
+                #     return None
+                return l1
             elif isinstance(var, dict):
                 d1 = {}
                 for (key, value) in var.items():
-                    newitem = remove_non_optvars(value)
+                    newitem = collect_type_variables(value)
                     if newitem is not None:
                         d1[key] = newitem
-                if d1 != {}:
-                    return d1
-                else:
-                    return None
-
+                # if d1 != {}:
+                #     return d1
+                # else:
+                #    return None
+                return d1
             return None
 
         mydict = {}
 
         for (key, value) in self.__dict__.items():
-            myitem = remove_non_optvars(value)
-            if myitem is not None:
+            myitem = collect_type_variables(value)
+            if myitem is not None and key not in remove_keys:
                 mydict[key] = myitem
 
         return mydict
