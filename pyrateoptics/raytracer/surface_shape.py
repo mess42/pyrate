@@ -837,6 +837,8 @@ class Zernike(ExplicitShape):
             coefficients = []
 
         self.numcoefficients = len(coefficients)
+        #self.annotations = {}
+        #self.annotations["numcoefficients"] = len(coefficients)
         initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
 
         def zf(x, y):
@@ -865,6 +867,7 @@ class Zernike(ExplicitShape):
         def hesszf(x, y, z):
             return np.zeros((3, 3, len(x)))
 
+        # annotations are overwritten here
         super(Zernike, self).__init__(lc, zf, gradzf, hesszf, \
             paramlist=([("normradius", normradius)]+initcoeffs), **kwargs)
 
@@ -913,7 +916,8 @@ class Zernike(ExplicitShape):
         rho = np.sqrt(xp**2 + yp**2)
         omega = abs(m)
         sumlimit = (n-omega)//2
-        return (-1)**sumlimit*rho**omega*jacobi(sumlimit, omega, 0)(1. - 2.*rho**2)
+        return (-1)**sumlimit*rho**omega*jacobi(sumlimit, omega, 0)(
+                1. - 2.*rho**2)
 
     def radialfunction_norm_rho_derivative(self, n, m, xp, yp):
         # TODO: remove code doubling
@@ -927,7 +931,6 @@ class Zernike(ExplicitShape):
             final += (n - 2.*l)*self.rc(n, omega, l)*rho**(n-2.*l - 1)
         return final
 
-
     def angularfunction_norm(self, n, m, xp, yp):
         omega = abs(m)
         phi = np.arctan2(yp, xp)
@@ -936,15 +939,16 @@ class Zernike(ExplicitShape):
     def angularfunction_norm_phi_derivative(self, n, m, xp, yp):
         omega = abs(m)
         phi = np.arctan2(yp, xp)
-        return np.where(m < 0, omega*np.cos(omega*phi), -omega*np.sin(omega*phi))
-
+        return np.where(m < 0, omega*np.cos(omega*phi),
+                        -omega*np.sin(omega*phi))
 
     def zernike_norm_j(self, j, xp, yp):
         (n, m) = self.jtonm(j)
         return self.zernike_norm(n, m, xp, yp)
 
     def zernike_norm2(self, n, m, xp, yp):
-        return self.radialfunction_norm(n, m, xp, yp)*self.angularfunction_norm(n, m, xp, yp)
+        return (self.radialfunction_norm(n, m, xp, yp) *
+                self.angularfunction_norm(n, m, xp, yp))
 
     def zernike_norm(self, n, m, xp, yp):
 
@@ -972,7 +976,6 @@ class Zernike(ExplicitShape):
             result = rho*np.cos(omega*phi)
 
         return result
-
 
     def gradzernike_norm(self, n, m, xp, yp):
         radder = self.radialfunction_norm_rho_derivative(n, m, xp, yp)

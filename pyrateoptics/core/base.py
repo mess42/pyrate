@@ -327,6 +327,14 @@ class ClassWithOptimizableVariables(BaseLogger):
             obs.informAboutUpdate()
 
     def getDictionary(self):
+        """
+        Get serialization dictionary. Should allow reconstruction of
+        class from dictionary. The problem is the recursive structure:
+            annotations ... should save annotations dict
+            variables ... should save structure variables
+            subclasses ... should save structure subclasses:
+                            (kind, id) pairs
+        """
         res = super(ClassWithOptimizableVariables, self).getDictionary()
         res["annotations"] = self.annotations
         res["variables"] = self.getTypesForDict(
@@ -334,55 +342,68 @@ class ClassWithOptimizableVariables(BaseLogger):
                 remove_keys=["list_observers", "annotations"])
         res["classes"] = self.getTypesForDict(
                 typ=ClassWithOptimizableVariables,
+                func=lambda x: x.unique_id,
                 remove_keys=["list_observers", "annotations"])
         return res
 
     def getDictionaryAllVariablesById(self):
-        return dict([(v.unique_id, v.getDictionary()) for v in self.getAllVariables()["vars"].values()])
+        return dict([(v.unique_id, v.getDictionary())
+                     for v in self.getAllVariables()["vars"].values()])
 
     def getDictionaryAllClassesById(self, removeself=True):
-        res = dict([(v.unique_id, v.getDictionary()) for v in self.getAllVariables()["classes"].values()])
+        res = dict([(v.unique_id, v.getDictionary())
+                    for v in self.getAllVariables()["classes"].values()])
         if removeself:
             res.pop(self.unique_id)
         return res
 
     def getDictionaryClassesById(self):
         return dict([(v.unique_id, v.getDictionary())
-                     for v in self.getTypesForDict(typ=ClassWithOptimizableVariables, func=lambda x: x).values()])
+                     for v in self.getTypesForDict(
+                             typ=ClassWithOptimizableVariables,
+                             func=lambda x: x).values()])
 
-    def getTypesForDict(self, typ, func=lambda x: x.unique_id, remove_keys=[]):
+    def getTypesForDict(self, typ,
+                        func=lambda x: x.unique_id,
+                        remove_keys=[], remove_empty=False):
 
-        def collect_type_variables(var):
+        def collect_type_variables(var, collected_items=[]):
             if isinstance(var, typ):
-                    return func(var)
+                collected_items.append(func(var))
+                return func(var)
             elif isinstance(var, list):
                 l1 = []
                 for item in var:
-                    newitem = collect_type_variables(item)
+                    newitem = collect_type_variables(item, collected_items)
                     if newitem is not None:
                         l1.append(newitem)
-                # if l1 != []:
-                #     return l1
-                # else:
-                #     return None
+                if remove_empty:
+                    if l1 != []:
+                        return l1
+                    else:
+                        return None
                 return l1
             elif isinstance(var, dict):
                 d1 = {}
                 for (key, value) in var.items():
-                    newitem = collect_type_variables(value)
+                    newitem = collect_type_variables(value, collected_items)
                     if newitem is not None:
                         d1[key] = newitem
-                # if d1 != {}:
-                #     return d1
-                # else:
-                #    return None
+                if remove_empty:
+                    if d1 != {}:
+                        return d1
+                    else:
+                        return None
                 return d1
             return None
 
         mydict = {}
+        myobjs = []
 
         for (key, value) in self.__dict__.items():
-            myitem = collect_type_variables(value)
+            object_list_for_value = []
+            myitem = collect_type_variables(value, object_list_for_value)
+            myobjs += object_list_for_value
             if myitem is not None and key not in remove_keys:
                 mydict[key] = myitem
 
@@ -575,6 +596,12 @@ class ClassWithOptimizableVariables(BaseLogger):
         dict_of_vars = self.getAllVariables()
         variable = dict_of_vars["vars"][key]
         return variable
+
+    def reconstructFromCompleteList(self,
+                                    maindict,
+                                    classesdict,
+                                    variablesdict):
+        raise NotImplementedError()
 
     def getCompleteListForReconstruction(self):
         return [self.getDictionary(),
