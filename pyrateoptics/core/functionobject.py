@@ -31,11 +31,15 @@ class FunctionObject(BaseLogger):
 
     def __init__(self, initial_sourcecode="",
                  initial_function_names=[],
+                 initial_globals_dictionary=None,
                  sourcecode_security_checked=True,
+                 globals_security_checked=True,
                  kind="functionobject", name="", **kwargs):
         super(FunctionObject, self).__init__(name=name, kind=kind, **kwargs)
         self.setSource(initial_sourcecode)
+        self.setGlob(initial_globals_dictionary)
         self.sourcecode_security_checked = sourcecode_security_checked
+        self.globals_security_checked = globals_security_checked
         self.functions = {}
         if initial_sourcecode != "":
             self.generateFunctionsFromSource(initial_function_names)
@@ -47,7 +51,15 @@ class FunctionObject(BaseLogger):
     def getSource(self):
         return self.__source
 
+    def setGlob(self, glob=None):
+        self.__global_variables = glob
+        self.globals_security_checked = False
+
+    def getGlob(self):
+        return self.__global_variables
+
     source = property(fget=getSource, fset=setSource)
+    global_variables = property(fget=getGlob, fset=setGlob)
 
     def load(self, filename):
         f = open(filename, "rt")
@@ -63,15 +75,20 @@ class FunctionObject(BaseLogger):
 
     def generateFunctionsFromSource(self, function_names):
         self.info("Generating Functions from source")
-        if not self.sourcecode_security_checked:
+        if not self.sourcecode_security_checked\
+            or not self.globals_security_checked:
             self.warning("Cannot execute unchecked code: " + self.source)
+            self.warning("with unchecked variables: " +
+                         str(self.global_variables))
             self.info("Please check code and set the \
                       sourcecode_security_checked flag to True")
+            self.info("Please check variables and set the \
+                      globals_security_checked flag to True")
         else:
             localsdict = {}
             self.functions = {}
             try:
-                exec(self.source, localsdict)
+                exec(self.source, self.global_variables, localsdict)
             except SyntaxError:
                 self.error("Syntax error caught")
 
@@ -80,8 +97,19 @@ class FunctionObject(BaseLogger):
 
     def getDictionary(self):
         res = super(FunctionObject, self).getDictionary()
-        res["initial_sourcecode"] = self.source
+        res["sourcecode"] = self.source
+        res["global_variables"] = self.global_variables
+        res["functions"] = list(self.functions.keys())
         return res
+
+    @staticmethod
+    def fromDictionary(dictionary, checked_source):
+        fo = FunctionObject()
+        fo.setSource(dictionary.get("source", ""))
+        fo.setGlob(dictionary.get("global_variables"))
+        fo.generateFunctionsFromSource(dictionary.get("functions", []))
+        return fo
+
 
 if __name__ == "__main__":
     s = """
