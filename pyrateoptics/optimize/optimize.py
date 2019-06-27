@@ -72,7 +72,7 @@ class Optimizer(BaseLogger):
         :return value of the merit function
         """
         self.number_of_calls += 1
-        self.collector.fromNumpyArray(x)
+        self.collector.fromNumpyArrayTransformed(x)
         self.updatefunction(self.collector.class_instance,
                             **self.updateparameters)
         res = self.meritfunction(self.collector.class_instance,
@@ -85,7 +85,7 @@ class Optimizer(BaseLogger):
         Funtion to perform a certain number of optimization steps.
         '''
         self.info("optimizer run start")
-        x0 = self.collector.toNumpyArray()
+        x0 = self.collector.toNumpyArrayTransformed()
 
         self.info("initial x: " + str(x0))
         self.info("initial merit: " + str(self.MeritFunctionWrapper(x0)))
@@ -94,7 +94,7 @@ class Optimizer(BaseLogger):
         self.debug("finished backend run")
         self.info("final x: " + str(xfinal))
         self.info("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
-        self.collector.fromNumpyArray(xfinal)
+        self.collector.fromNumpyArrayTransformed(xfinal)
         self.info("called merit function " + str(self.number_of_calls) +
                   " times.")
         self.number_of_calls = 0

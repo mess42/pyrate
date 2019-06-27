@@ -200,10 +200,18 @@ class OptimizableVariableCollector(OptimizableVariableIterator):
         return np.fromiter([v() for v in self.variables_list],
                            dtype=float, count=len(self.variables_list))
 
+    def toNumpyArrayTransformed(self):
+        return np.fromiter([v.evaluate_transformed()
+                            for v in self.variables_list],
+                           dtype=float, count=len(self.variables_list))
+
     def fromNumpyArray(self, x):
         [variable.set_value(value)
          for (variable, value) in zip(self.variables_list, x.tolist())]
 
+    def fromNumpyArrayTransformed(self, x):
+        [variable.set_value_transformed(value)
+         for (variable, value) in zip(self.variables_list, x.tolist())]
 
 class OptimizableVariableKeyIterator(OptimizableVariableCollector):
 
