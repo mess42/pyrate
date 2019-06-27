@@ -30,7 +30,9 @@ import random
 
 from .helpers_math import rodrigues
 
-from ..core.base import ClassWithOptimizableVariables, OptimizableVariable
+from ..core.base import ClassWithOptimizableVariables
+from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
+
 
 class LocalCoordinates(ClassWithOptimizableVariables):
     def __init__(self, name="", kind="localcoordinates", **kwargs):
@@ -64,12 +66,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
 
 
-        self.decx = OptimizableVariable(name="decx", variable_type='fixed', value=decx)
-        self.decy = OptimizableVariable(name="decy", variable_type='fixed', value=decy)
-        self.decz = OptimizableVariable(name="decz", variable_type='fixed', value=decz)
-        self.tiltx = OptimizableVariable(name="tiltx", variable_type='fixed', value=tiltx)
-        self.tilty = OptimizableVariable(name="tilty", variable_type='fixed', value=tilty)
-        self.tiltz = OptimizableVariable(name="tiltz", variable_type='fixed', value=tiltz)
+        self.decx = FloatOptimizableVariable(FixedState(decx), name="decx")
+        self.decy = FloatOptimizableVariable(FixedState(decy), name="decy")
+        self.decz = FloatOptimizableVariable(FixedState(decz), name="decz")
+        self.tiltx = FloatOptimizableVariable(FixedState(tiltx), name="tiltx")
+        self.tilty = FloatOptimizableVariable(FixedState(tilty), name="tilty")
+        self.tiltz = FloatOptimizableVariable(FixedState(tiltz), name="tiltz")
 
         self.tiltThenDecenter = tiltThenDecenter
 

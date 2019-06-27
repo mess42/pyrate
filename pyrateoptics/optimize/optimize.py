@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from ..core.log import BaseLogger
+from ..core.iterators import OptimizableVariableActiveCollector
+
 
 class Optimizer(BaseLogger):
     '''
@@ -40,12 +42,13 @@ class Optimizer(BaseLogger):
             pass
 
         super(Optimizer, self).__init__(name=name, kind=kind)
-        self.classwithoptvariables = classwithoptvariables
-        self.meritfunction = meritfunction # function to minimize
+        self.collector = OptimizableVariableActiveCollector(
+                classwithoptvariables)
+        self.meritfunction = meritfunction  # function to minimize
         if updatefunction is None:
             updatefunction = noupdate
-        self.updatefunction = updatefunction # function to be called to update classwithoptvariables
-        self.setBackend(backend) # eats vector performs optimization, returns vector
+        self.updatefunction = updatefunction  # function to be called to update classwithoptvariables
+        self.setBackend(backend)  # eats vector performs optimization, returns vector
         # scipy Nelder-Mead, scipy ..., evolutionary, genetic, ...
 
         self.meritparameters = {}
@@ -69,9 +72,11 @@ class Optimizer(BaseLogger):
         :return value of the merit function
         """
         self.number_of_calls += 1
-        self.classwithoptvariables.setActiveTransformedValues(x)
-        self.updatefunction(self.classwithoptvariables, **self.updateparameters)
-        res = self.meritfunction(self.classwithoptvariables, **self.meritparameters)
+        self.collector.fromNumpyArray(x)
+        self.updatefunction(self.collector.class_instance,
+                            **self.updateparameters)
+        res = self.meritfunction(self.collector.class_instance,
+                                 **self.meritparameters)
         self.debug("call number " + str(self.number_of_calls) + " meritfunction: " + str(res))
         return res
 
@@ -80,7 +85,7 @@ class Optimizer(BaseLogger):
         Funtion to perform a certain number of optimization steps.
         '''
         self.info("optimizer run start")
-        x0 = self.classwithoptvariables.getActiveTransformedValues()
+        x0 = self.collector.toNumpyArray()
 
         self.info("initial x: " + str(x0))
         self.info("initial merit: " + str(self.MeritFunctionWrapper(x0)))
@@ -89,10 +94,9 @@ class Optimizer(BaseLogger):
         self.debug("finished backend run")
         self.info("final x: " + str(xfinal))
         self.info("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
-        self.classwithoptvariables.setActiveTransformedValues(xfinal)
-        # TODO: do not change original classwithoptvariables
-        self.info("called merit function " + str(self.number_of_calls) + " times.")
+        self.collector.fromNumpyArray(xfinal)
+        self.info("called merit function " + str(self.number_of_calls) +
+                  " times.")
         self.number_of_calls = 0
         self.info("optimizer run finished")
-        return self.classwithoptvariables
-
+        return self.collector.class_instance

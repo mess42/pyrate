@@ -43,7 +43,7 @@ epd = 5.
          (0, 0, 196.228, None, "image", {})], name="os")
 
 imsurf = s.elements["stdelem"].surfaces["image"]
-imsurf.rootcoordinatesystem.tiltx.setvalue(alpha)
+imsurf.rootcoordinatesystem.tiltx.set_value(alpha)
 imsurf.rootcoordinatesystem.update()
 objsurf = s.elements["stdelem"].surfaces["object"]
 osa = OpticalSystemAnalysis(s, seq, name="Analysis")

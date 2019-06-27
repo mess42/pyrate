@@ -36,7 +36,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
 
-
+from .core.iterators import OptimizableVariableKeyIterator
 from .analysis.optical_system_analysis import OpticalSystemAnalysis
 from .raytracer.optical_system import OpticalSystem
 from .raytracer.localcoordinates import LocalCoordinates
@@ -440,9 +440,7 @@ def listOptimizableVariables(os, filter_status=None, max_line_width=None):
     :returns os.getAllVariables()
     """
 
-    dict_variables = os.getAllVariables()
-
-    lst = dict_variables["vars"]
+    lst = OptimizableVariableKeyIterator(os).variables_dictionary
 
     def shorten_string(s, maxlen=None, intermediate_string="..."):
 
@@ -463,7 +461,9 @@ def listOptimizableVariables(os, filter_status=None, max_line_width=None):
             print(" ".join("{:{}}".format(x, col_width[i])
                            for i, x in enumerate(line)))
 
-    table = [(shorten_string(a, maxlen=max_line_width), b.var_type, str(b.evaluate()))
+    table = [(shorten_string(a, maxlen=max_line_width),
+              b.var_type(),
+              str(b.evaluate()))
              for (a, b) in sorted(lst.items(), key=lambda x: (
                      len(x[0].split('.')) - 1, x[0]))]
     # sort by number of . in dict key and afterwards by lexical order
@@ -473,4 +473,4 @@ def listOptimizableVariables(os, filter_status=None, max_line_width=None):
 
     print_table(table)
 
-    return dict_variables
+    return lst

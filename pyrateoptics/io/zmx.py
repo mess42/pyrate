@@ -645,11 +645,11 @@ class ZMXParser(BaseLogger):
                 disz, dec, tilt (or tilt, dec)
                 2nd step: update vertex
                 """
-                lc.decx.setvalue(parms.get(1, 0.0))
-                lc.decy.setvalue(parms.get(2, 0.0))
-                lc.tiltx.setvalue(parms.get(3, 0.0)*math.pi/180.0)
-                lc.tilty.setvalue(parms.get(4, 0.0)*math.pi/180.0)
-                lc.tiltz.setvalue(parms.get(5, 0.0)*math.pi/180.0)
+                lc.decx.set_value(parms.get(1, 0.0))
+                lc.decy.set_value(parms.get(2, 0.0))
+                lc.tiltx.set_value(parms.get(3, 0.0)*math.pi/180.0)
+                lc.tilty.set_value(parms.get(4, 0.0)*math.pi/180.0)
+                lc.tiltz.set_value(parms.get(5, 0.0)*math.pi/180.0)
                 lc.tiltThenDecenter = bool(parms.get(6, 0))
                 lc.update()
                 actsurf = Surface(lc, name=surfname)

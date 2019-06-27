@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 
-from ..core.base import OptimizableVariable
+from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
 
 from ..raytracer.ray import RayBundle
 from ..raytracer.helpers_math import checkfinite
@@ -175,7 +175,8 @@ class ConstantIndexGlass(IsotropicMaterial):
     def __init__(self, lc, n=1.0, **kwargs):
         super(ConstantIndexGlass, self).__init__(lc, **kwargs)
 
-        self.n = OptimizableVariable(name="refractive index", value=n)
+        self.n = FloatOptimizableVariable(FixedState(n),
+                                          name="refractive index")
 
     def getIndex(self, x, wave):
         return self.n.evaluate()
@@ -202,12 +203,15 @@ class ModelGlass(IsotropicMaterial):
 
         :param tuple (n0, A, B) of float
         """
-        super(ModelGlass, self).__init__(lc=lc, n=n0_A_B[0],
-                                         name=name, comment=comment)
+        (n0, A, B) = n0_A_B
 
-        self.n0 = OptimizableVariable(name="Conrady n0", value=n0_A_B[0])
-        self.A = OptimizableVariable(name="Conrady A", value=n0_A_B[1])
-        self.B = OptimizableVariable(name="Conrady B", value=n0_A_B[2])
+        super(ModelGlass, self).__init__(lc=lc, n=n0, name=name, comment=comment)
+
+
+
+        self.n0 = FloatOptimizableVariable(FixedState(n0), name="Conrady n0")
+        self.A = FloatOptimizableVariable(FixedState(A), name="Conrady A")
+        self.B = FloatOptimizableVariable(FixedState(B), name="Conrady B")
 
     def getIndex(self, x, wave):
         """

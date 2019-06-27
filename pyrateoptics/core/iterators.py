@@ -201,7 +201,7 @@ class OptimizableVariableCollector(OptimizableVariableIterator):
                            dtype=float, count=len(self.variables_list))
 
     def fromNumpyArray(self, x):
-        [variable.setvalue(value)
+        [variable.set_value(value)
          for (variable, value) in zip(self.variables_list, x.tolist())]
 
 
@@ -241,7 +241,7 @@ class OptimizableVariableActiveCollector(OptimizableVariableCollector):
                      self).isCollectableElement(variable,
                                                 *args,
                                                 **kwargs) and\
-                variable.var_type.lower() == "variable"
+                variable.var_type() == "variable"
 
 
 class SerializationIterator(OptimizableVariableCollector):

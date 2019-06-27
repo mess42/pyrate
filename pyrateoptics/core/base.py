@@ -32,7 +32,7 @@ from copy import copy
 
 from .log import BaseLogger
 
-
+'''
 class OptimizableVariable(BaseLogger):
     """
     Class that contains an optimizable variable.
@@ -284,6 +284,8 @@ class OptimizableVariable(BaseLogger):
         if not override_unique_id:
             res.unique_id = kwargs["unique_id"]
         return res
+'''
+
 
 # TODO: This class contains far too much stuff! Refactor!
 # Four core functionalities which may be splitted:
@@ -292,7 +294,7 @@ class OptimizableVariable(BaseLogger):
 #   III Provide an API for preparing a numpy array for the optimizer (heavy)
 #   IV  Some serialization techniques
 
-
+'''
 class ClassWithOptimizableVariables(BaseLogger):
     """
     Implementation of some class with optimizable variables with the help
@@ -607,3 +609,37 @@ class ClassWithOptimizableVariables(BaseLogger):
         return [self.getDictionary(),
                 self.getDictionaryAllClassesById(),
                 self.getDictionaryAllVariablesById()]
+'''
+
+class ClassWithOptimizableVariables(BaseLogger):
+    """
+    Implementation of some class with optimizable variables with the help
+    of a dictionary. This class is also able to collect the variables and
+    their values from its subclasses per recursion.
+
+    The goal is to provide an abstract class with pretty much functionality
+    which gives the user the opportunity to implement a certain logic via
+    class inheritance and interface the child class with some type of
+    optimizer.
+    """
+    def __init__(self, name="", kind="classwithoptimizablevariables",
+                 **kwargs):
+        """
+        Initialize with empty dict.
+        """
+        super(ClassWithOptimizableVariables, self).__init__(
+                name=name,
+                kind=kind,
+                **kwargs)
+
+        self.annotations = {}
+        self.list_observers = []
+        # for the optimizable variable class it is useful to have some observer
+        # links they get informed if variables change their values
+
+    def appendObservers(self, obslist):
+        self.list_observers += obslist
+
+    def informObservers(self):
+        for obs in self.list_observers:
+            obs.informAboutUpdate()

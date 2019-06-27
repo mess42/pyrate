@@ -24,15 +24,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-from scipy.misc import factorial
 import math
-from ..core.base import ClassWithOptimizableVariables, OptimizableVariable
+import ctypes
+
+import numpy as np
+
+from scipy.misc import factorial
 from scipy.optimize import fsolve
 from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
 from scipy.special import jacobi
+
 from .globalconstants import numerical_tolerance
-import ctypes
+from ..core.base import ClassWithOptimizableVariables
+from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
+
 
 class Shape(ClassWithOptimizableVariables):
     def __init__(self, lc, name="", kind="shape", **kwargs):
@@ -156,8 +161,9 @@ class Conic(Shape):
         """
         super(Conic, self).__init__(lc, kind="shape_Conic", **kwargs)
 
-        self.curvature = OptimizableVariable(name="curvature", value=curv)
-        self.conic = OptimizableVariable(name="conic constant", value=cc)
+        self.curvature = FloatOptimizableVariable(FixedState(curv),
+                                             name="curvature")
+        self.conic = FloatOptimizableVariable(FixedState(cc), name="conic constant")
 
     def getSag(self, x, y):
         """
@@ -315,8 +321,10 @@ class Cylinder(Conic):
         """
         super(Cylinder, self).__init__(lc, kind="shape_Cylinder", **kwargs)
 
-        self.curvature = OptimizableVariable(name="curvature", value=curv)
-        self.conic = OptimizableVariable(name="conic constant", value=cc)
+        self.curvature = FloatOptimizableVariable(FixedState(curv),
+                                                  name="curvature")
+        self.conic = FloatOptimizableVariable(FixedState(cc),
+                                              name="conic constant")
 
 
     def getSag(self, x, y):
@@ -370,8 +378,8 @@ class FreeShape(Shape):
 
         self.params = {}
         for (name, value) in paramlist:
-            self.params[name] = OptimizableVariable(name=name, value=value)
-
+            self.params[name] = FloatOptimizableVariable(FixedState(value),
+                                                         name=name)
 
         self.tol = tol
         self.iterations = iterations
@@ -1151,10 +1159,14 @@ class ZMXDLLShape(Conic):
 
         self.param = {}
         for (key, (value_int, value_float)) in param_dict.items():
-            self.param[value_int] = OptimizableVariable(name="param"+str(value_int), value=value_float)
+            self.param[value_int] = FloatOptimizableVariable(
+                    FixedState(value_float),
+                    name="param" + str(value_int))
         self.xdata = {}
         for (key, (value_int, value_float)) in xdata_dict.items():
-            self.xdata[value_int] = OptimizableVariable(name="xdata"+str(value_int), value=value_float)
+            self.xdata[value_int] = FloatOptimizableVariable(
+                    FixedState(value_float),
+                    name="xdata" + str(value_int))
         self.us_surf = self.dll.UserDefinedSurface
 
     def writeParam(self, f):

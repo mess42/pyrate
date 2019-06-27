@@ -29,7 +29,7 @@ from copy import copy
 from .base_ui_transform import (transformation_dictionary_to_ui,
                                 transformation_dictionary_from_ui,
                                 transformation_dictionary_ui_string)
-from .base import OptimizableVariable
+from .optimizable_variable import OptimizableVariable
 from .log import BaseLogger
 
 
@@ -75,6 +75,7 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
 
         # the following statement can be used to obtain
         # a structural list of variable triples
+        # FIXME: by iterator
         self.myclass.getTypesForDict(typ=OptimizableVariable,
                                      func=get_value_and_modstate)
         # although we only want to use a flat variable list
@@ -107,6 +108,7 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
         # update values of modifyable variables
         # this algorithm is of O(N^2) but since N is of order 10 this is not
         # critical
+        # FIXME: by iterators
         self.myclass.getTypesForDict(typ=OptimizableVariable,
                                      func=set_value_from_modstate)
 
