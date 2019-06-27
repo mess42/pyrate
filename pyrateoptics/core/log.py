@@ -104,7 +104,7 @@ class BaseLogger(object):
     def critical(self, msg, *args, **kwargs):
         self.logger.critical(msg, *args, **kwargs)
 
-    def getDictionary(self):
+    def getBasicInfo(self):
         return {"name": self.name,
                 "unique_id": self.unique_id,
                 "kind": self.kind,

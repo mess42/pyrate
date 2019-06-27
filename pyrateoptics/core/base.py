@@ -256,7 +256,7 @@ class OptimizableVariable(BaseLogger):
         self.setvalue(value)
 
     def getDictionary(self):
-        res = super(OptimizableVariable, self).getDictionary()
+        res = self.getBasicInfo()
         res["variable_type"] = self.var_type
         for (key, val) in self.parameters.items():
             if self.var_type == 'pickup':
@@ -335,7 +335,7 @@ class ClassWithOptimizableVariables(BaseLogger):
             subclasses ... should save structure subclasses:
                             (kind, id) pairs
         """
-        res = super(ClassWithOptimizableVariables, self).getDictionary()
+        res = self.getBasicInfo()
         res["annotations"] = self.annotations
         res["variables"] = self.getTypesForDict(
                 typ=OptimizableVariable,

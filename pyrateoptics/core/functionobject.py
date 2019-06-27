@@ -63,7 +63,7 @@ class FunctionObject(BaseLogger):
 
     def load(self, filename):
         f = open(filename, "rt")
-        self.source = f.read()  # TODO: does exec need an array of lines?
+        self.source = f.read()
         f.close()
         self.info(self.source)
         self.sourcecode_security_checked = False
@@ -86,32 +86,39 @@ class FunctionObject(BaseLogger):
                       globals_security_checked flag to True")
         else:
             localsdict = {}
+            if self.global_variables is not None:
+                localsdict.update(self.global_variables)
             self.functions = {}
             try:
-                exec(self.source, self.global_variables, localsdict)
+                exec(self.source, localsdict)
             except SyntaxError:
                 self.error("Syntax error caught")
 
             for fn in function_names:
                 self.functions[fn] = localsdict.get(fn, None)
 
-    def getDictionary(self):
-        res = super(FunctionObject, self).getDictionary()
+    def toDictionary(self):
+        res = self.getBasicInfo()
         res["sourcecode"] = self.source
         res["global_variables"] = self.global_variables
         res["functions"] = list(self.functions.keys())
         return res
 
     @staticmethod
-    def fromDictionary(dictionary, checked_source):
+    def fromDictionary(dictionary, checked_source, checked_globals):
         fo = FunctionObject()
-        fo.setSource(dictionary.get("source", ""))
-        fo.setGlob(dictionary.get("global_variables"))
+        fo.setSource(dictionary.get("sourcecode", ""))
+        fo.setGlob(dictionary.get("global_variables", None))
+        fo.globals_security_checked = checked_globals
+        fo.sourcecode_security_checked = checked_source
         fo.generateFunctionsFromSource(dictionary.get("functions", []))
         return fo
 
 
 if __name__ == "__main__":
+
+    import json
+
     s = """
 import math
 from pyrateoptics.raytracer.helpers_math import rodrigues
@@ -139,3 +146,14 @@ def r(x, y, z):
     foo2.sourcecode_security_checked = True
     foo2.generateFunctionsFromSource(["f", "g", "h", "r"])
     print(foo2.functions["r"](3, 4, 5))
+
+    fp = open("./myfo.json", "wt")
+    json.dump(foo2.toDictionary(), fp, indent=4)
+    fp.close()
+
+    fp = open("./myfo.json", "rt")
+    foo3dict = json.load(fp)
+    fp.close()
+
+    foo3 = FunctionObject.fromDictionary(foo3dict, True, True)
+    print(foo3.functions["r"](1, 2, 3))
