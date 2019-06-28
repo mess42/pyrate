@@ -172,6 +172,10 @@ class OptimizableVariableIterator(AbstractIterator):
 
 class OptimizableVariableGraphIterator(OptimizableVariableIterator):
 
+    """
+    Collects all subinstances and variables and creates graph of them.
+    """
+
     def __init__(self, class_instance, run=True):
         super(OptimizableVariableGraphIterator, self).__init__(class_instance,
                                                                run=run)
@@ -246,7 +250,13 @@ class OptimizableVariableCollector(OptimizableVariableIterator):
         [variable.set_value_transformed(value)
          for (variable, value) in zip(self.variables_list, x.tolist())]
 
+
 class OptimizableVariableKeyIterator(OptimizableVariableCollector):
+
+    """
+    Creates a dictionary where the keys are easy to memoize names of
+    the which can be used to refer to the variables.
+    """
 
     def initVariables(self):
         super(OptimizableVariableKeyIterator, self).initVariables()
@@ -268,12 +278,25 @@ class OptimizableVariableKeyIterator(OptimizableVariableCollector):
     def collectElement(self, variable, keystring, *args, **kwargs):
         self.variables_dictionary[keystring] = variable
 
-
     def collectRest(self, variable, keystring, *args, **kwargs):
         pass
 
     def run(self, shortkeys=True):
         super(OptimizableVariableKeyIterator, self).run(shortkeys)
+
+
+class OptimizableVariableSetKeyIterator(OptimizableVariableKeyIterator):
+
+    def __init__(self, class_instance, run=True, key_assignment_dictionary,
+                 *args, **kwargs):
+        super(OptimizableVariableSetKeyIterator, self).__init__(
+                class_instance,
+                run=run, *args, **kwargs)
+        self.key_assignment_dictionary = key_assignment_dictionary
+
+    def collectElement(self, variable, keystring, *args, **kwargs):
+        variable = self.key_assignment_dictionary[keystring]
+        # TODO: does not work since variable is read-only
 
 
 class OptimizableVariableActiveCollector(OptimizableVariableCollector):
