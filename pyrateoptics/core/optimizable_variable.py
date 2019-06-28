@@ -119,6 +119,22 @@ class VariableState(SimpleValueState):
 
 class PickupState(State):
     def __init__(self, functionobject_functionname_tuple, args, isvalid=True):
+        """
+        @param functionobject_functionname_tuple
+            (functionobject,
+             functionname)
+
+        @param args (list, tuple) of other OptimizableVariables
+
+        @param isvalid (boolean) whether initialization was completed
+
+        Notice: function "functionname" must take exactly as many arguments
+        as args long is.
+        The only constraint on f is that it has to convert the variables into
+        some final variable. If this is not the case some
+        low-level optimizer might break down.
+        """
+
         super(PickupState, self).__init__()
         self.var_type = "pickup"
         (functionobject, functionname) = self.parameters["functionobject"] =\
@@ -171,8 +187,9 @@ class PickupState(State):
 class OptimizableVariable(BaseLogger):
     """
     Optimizable variable which provides an interface to the
-    State objects given above. It provides also a possibility to
-    do one inline transform.
+    State objects given above. The value is not constrained to float.
+    It provides also a possibility to do one inline transform.
+    Also other dependent variables are possible to define.
     """
 
     id_trafo = (FunctionObject("identity = lambda x: x", ["identity"],
@@ -181,9 +198,19 @@ class OptimizableVariable(BaseLogger):
 
     def __init__(self, state, name="", unique_id=None):
         """
-        Initialize optimizable variable by giving a state and by
-        using the identity transform.
+        @param state (State): which kind of variable do we have?
+        valid choices are: FixedState, VariableState, PickupState
+
+        kwargs:
+
+        type:        kwargs:
+        'fixed'         value=1.0 or value='hello'
+        'variable'    value=1.0, or value='hello'
+        'pickup'        function=f, args=(other_optvar1, other_optvar2, ...)
+        'external'        function=f, args=(other_externalvar/value, ...)
         """
+
+
         super(OptimizableVariable, self).__init__(name=name,
                                                   kind="optimizablevariable",
                                                   unique_id=unique_id)
@@ -313,6 +340,16 @@ class FloatOptimizableVariable(OptimizableVariable):
     Provides an interface to a definitely float variable which
     can also be mapped from a finite interval to an infinite interval
     which is useful for optimization later.
+
+    The reason for this is that the optimizer backend has
+    only to deal with infinite range variables and the user
+    can transparently change the interval. The idea and
+    verification is (up to a slight change in the
+    transformation) taken from:
+    M. Roeber, "Multikriterielle Optimierungsverfahren fuer
+    rechenzeitintensive technische Aufgabenstellungen",
+    Diploma Thesis, Technische Universitaet Chemnitz,
+    2010-03-31
     """
 
     interval_trafo_source = """

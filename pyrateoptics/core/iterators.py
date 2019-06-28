@@ -36,7 +36,8 @@ from .optimizable_variable import OptimizableVariable
 
 class AbstractIterator(BaseLogger):
     """
-    Traverses __dict__ of object. Searches for search criteria.
+    This class traverses through a class by investigating the __dict__
+    and collects several information of the underlying recursive structure.
     """
     def __init__(self, class_instance, *args, run=True, **kwargs):
         self.class_instance = class_instance
@@ -134,6 +135,16 @@ class AbstractIterator(BaseLogger):
 
 
 class OptimizableVariableIterator(AbstractIterator):
+    """
+    Traverse ClassWithOptimizableVariables and their subclasses
+    and substructures. It does not work for OptimizableVariables which
+    are arguments to a pickup and were defined outside of the actual
+    ClassWithOptimizableVariables. This is done in the
+    OptimizableVariablesPool.
+
+    Accumulates optimizable variables and its linked objects.
+    Ignores ring-links and double links.
+    """
 
     def initVariables(self):
         self.idlist = []
@@ -187,7 +198,13 @@ class OptimizableVariableGraphIterator(OptimizableVariableIterator):
                        with_labels=True)
         plt.show()
 
+
 class OptimizableVariableCollector(OptimizableVariableIterator):
+    """
+    For fast evaluation of value vector. Collects variables in list.
+    Provides interface for transformation into numpy arrays and back,
+    even with transformation.
+    """
 
     def initVariables(self):
         super(OptimizableVariableCollector, self).initVariables()
@@ -197,19 +214,35 @@ class OptimizableVariableCollector(OptimizableVariableIterator):
         self.variables_list.append(variable)
 
     def toNumpyArray(self):
+        """
+        Function to get all values into one large np.array.
+        Supports only float at the moment.
+        """
         return np.fromiter([v() for v in self.variables_list],
                            dtype=float, count=len(self.variables_list))
 
     def toNumpyArrayTransformed(self):
+        """
+        Function to get all transformed values into one large np.array.
+        Supports only float at the moment.
+        """
         return np.fromiter([v.evaluate_transformed()
                             for v in self.variables_list],
                            dtype=float, count=len(self.variables_list))
 
     def fromNumpyArray(self, x):
+        """
+        Function to set all values of active variables to the values in the
+        large np.array x. Supports only float at the moment.
+        """
         [variable.set_value(value)
          for (variable, value) in zip(self.variables_list, x.tolist())]
 
     def fromNumpyArrayTransformed(self, x):
+        """
+        Function to set all values of active variables to the transformed
+        values in the large np.array x. Supports only float at the moment.
+        """
         [variable.set_value_transformed(value)
          for (variable, value) in zip(self.variables_list, x.tolist())]
 
@@ -244,6 +277,12 @@ class OptimizableVariableKeyIterator(OptimizableVariableCollector):
 
 
 class OptimizableVariableActiveCollector(OptimizableVariableCollector):
+    """
+    Returns a list of active variables the names are lost
+    but it does not matter since the variable references are still in the
+    original dictionary in the class.
+    """
+
     def isCollectableElement(self, variable, *args, **kwargs):
         return super(OptimizableVariableCollector,
                      self).isCollectableElement(variable,
