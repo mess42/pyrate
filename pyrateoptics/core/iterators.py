@@ -97,7 +97,7 @@ class AbstractIterator(BaseLogger):
                 return
             elif isinstance(variable, list)\
                 or isinstance(variable, tuple)\
-                or isinstance(variable, set):
+                    or isinstance(variable, set):
                 for (ind, part) in enumerate(variable):
                     newkeystring = keystring +\
                         self.collectAccessSpecifier(variable, str(ind),
@@ -189,7 +189,8 @@ class OptimizableVariableGraphIterator(OptimizableVariableIterator):
                             self.unique_name(variable))
 
     def isSubInstance(self, variable):
-        res = super(OptimizableVariableGraphIterator, self).isSubInstance(variable)
+        res = super(OptimizableVariableGraphIterator, self).\
+            isSubInstance(variable)
         if res:
             self.graph.add_edge(self.unique_name(self.sub_instance),
                                 self.unique_name(variable))
@@ -269,9 +270,11 @@ class OptimizableVariableKeyIterator(OptimizableVariableCollector):
         if isinstance(variable, dict) or isinstance(variable, list):
             return "" if shortkeys else "[\"" + accessspecifier + "\"]"
         elif self.isSubInstance(variable):
-            return accessspecifier + "." if shortkeys else "(" + accessspecifier + ")."
+            return accessspecifier + "."\
+                    if shortkeys else "(" + accessspecifier + ")."
         elif self.isCollectableElement(variable):
-            return accessspecifier if shortkeys else "(" + accessspecifier + ")"
+            return accessspecifier\
+                    if shortkeys else "(" + accessspecifier + ")"
         else:
             return ""
 
@@ -370,7 +373,7 @@ class SerializationIterator(OptimizableVariableCollector):
 
     def postRun(self, remove=[]):
         self.variables_dictionary = dict([(v.unique_id, v)
-                                            for v in self.variables_list])
+                                          for v in self.variables_list])
         self.classes_dictionary.pop(self.class_instance.unique_id)
         # remove class_instance from classes_dictionary
         self.collectStructure(remove=remove)
