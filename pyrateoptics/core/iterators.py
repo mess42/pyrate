@@ -39,7 +39,7 @@ class AbstractIterator(BaseLogger):
     This class traverses through a class by investigating the __dict__
     and collects several information of the underlying recursive structure.
     """
-    def __init__(self, class_instance, *args, run=True, **kwargs):
+    def __init__(self, class_instance, run=True, *args, **kwargs):
         self.class_instance = class_instance
         self.sub_instance = class_instance
         self.initVariables()

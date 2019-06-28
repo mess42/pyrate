@@ -29,7 +29,8 @@ from copy import copy
 from .base_ui_transform import (transformation_dictionary_to_ui,
                                 transformation_dictionary_from_ui,
                                 transformation_dictionary_ui_string)
-from .optimizable_variable import OptimizableVariable
+from .iterators import (OptimizableVariableCollector,
+                        SerializationIterator)
 from .log import BaseLogger
 
 
@@ -54,32 +55,13 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
 
     def queryForDictionary(self):
 
-        dict_to_ui = self.myclass.getDictionary()
-        dict_to_ui.pop("variables")
-        dict_to_ui.pop("classes")
+        dict_to_ui = SerializationIterator(self.myclass).dictionary
 
-        myvarlist = []
+        myvarlist = [(ov.name, ov(),
+                      ov.var_type() == "fixed" or ov.var_type() == "variable")
+                     for ov in OptimizableVariableCollector(self.myclass).
+                     variables_list]
 
-        def get_value_and_modstate(variable):
-            value = variable()  # should collect value in unmodified form
-            can_be_modified = variable.var_type == "fixed" or\
-                variable.var_type == "variable"
-
-            variable_triple = (
-                    variable.name,  # transformed_name,
-                    value,  # transformed_value(value),
-                    can_be_modified
-                    )
-            myvarlist.append(variable_triple)
-            return (value, can_be_modified)
-
-        # the following statement can be used to obtain
-        # a structural list of variable triples
-        # FIXME: by iterator
-        self.myclass.getTypesForDict(typ=OptimizableVariable,
-                                     func=get_value_and_modstate)
-        # although we only want to use a flat variable list
-        # in a first step
         dict_to_ui["variables_list"] = myvarlist
         return dict_to_ui
 
@@ -97,24 +79,22 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
         for (key_dict, value_dict) in dict_from_ui_copy.items():
             setattr(self.myclass, key_dict, value_dict)
 
-        def set_value_from_modstate(variable):
-            for (variable_name,
-                 variable_value,
-                 can_be_modified) in variables_list:
+        myvarlist = OptimizableVariableCollector(self.myclass).variables_list
 
-                if variable_name == variable.name and can_be_modified:
+        for ov in myvarlist:
+            for (variable_name, variable_value, can_be_modified)\
+             in variables_list:
+                    if ov.name == variable_name and can_be_modified:
+                        ov.set_value(variable_value)
 
-                    variable.setvalue(variable_value)
         # update values of modifyable variables
         # this algorithm is of O(N^2) but since N is of order 10 this is not
         # critical
-        # FIXME: by iterators
-        self.myclass.getTypesForDict(typ=OptimizableVariable,
-                                     func=set_value_from_modstate)
 
-    def transformDictionaryForUI(self, dict_to_ui,
-                                 transform_dictionary_value=transformation_dictionary_to_ui,
-                                 transform_dictionary_strings=transformation_dictionary_ui_string):
+    def transformDictionaryForUI(
+            self, dict_to_ui,
+            transform_dictionary_value=transformation_dictionary_to_ui,
+            transform_dictionary_strings=transformation_dictionary_ui_string):
         # prevent modification
         string_dict_to_ui = copy(dict_to_ui)
         string_dict_to_ui["variables_list"] = []
@@ -151,10 +131,10 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
 
         return string_dict_to_ui
 
-
-    def transformDictionaryFromUI(self, string_dict_from_ui,
-                                  transform_dictionary_value=transformation_dictionary_from_ui,
-                                  transform_dictionary_strings=transformation_dictionary_ui_string):
+    def transformDictionaryFromUI(
+            self, string_dict_from_ui,
+            transform_dictionary_value=transformation_dictionary_from_ui,
+            transform_dictionary_strings=transformation_dictionary_ui_string):
         dict_from_ui = copy(string_dict_from_ui)
         dict_from_ui["variables_list"] = []
         transform_kind_to_use = transform_dictionary_value.get(
