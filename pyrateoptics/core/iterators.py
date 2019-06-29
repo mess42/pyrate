@@ -318,6 +318,10 @@ class OptimizableVariableActiveCollector(OptimizableVariableCollector):
 
 
 class SerializationIterator(OptimizableVariableCollector):
+    """
+    Generates a list which gives enough information to reconstruct a
+    given ClassWithOptimizableVariables.
+    """
 
     def initVariables(self):
         super(SerializationIterator, self).initVariables()
