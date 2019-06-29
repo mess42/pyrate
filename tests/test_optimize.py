@@ -25,7 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from pyrateoptics.core.base import ClassWithOptimizableVariables
-from pyrateoptics.core.optimizable_variable import OptimizableVariable, FixedState, VariableState, PickupState
+from pyrateoptics.core.optimizable_variable import (OptimizableVariable,
+                                                    VariableState,
+                                                    PickupState)
 from pyrateoptics.core.functionobject import FunctionObject
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import (ScipyBackend,

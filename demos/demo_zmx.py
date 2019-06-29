@@ -32,14 +32,16 @@ import matplotlib.pyplot as plt
 
 
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
-from pyrateoptics.material.material_isotropic import ConstantIndexGlass
+from pyrateoptics.raytracer.material.material_isotropic import\
+    ConstantIndexGlass
 from pyrateoptics.raytracer.globalconstants import standard_wavelength
-from pyrateoptics.io.zmx import ZMXParser
+from pyrateoptics.raytracer.io.zmx import ZMXParser
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics import draw
 
-from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+from pyrateoptics.raytracer.analysis.optical_system_analysis import\
+    OpticalSystemAnalysis
 
 
 logging.basicConfig(level=logging.DEBUG)

@@ -35,13 +35,9 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 from pyrateoptics import listOptimizableVariables
-from pyrateoptics.material.material_isotropic import ConstantIndexGlass
+from pyrateoptics.raytracer.material.material_isotropic import\
+    ConstantIndexGlass
 from pyrateoptics.raytracer.surface_shape import Conic
-from pyrateoptics.optimize.optimize import Optimizer
-from pyrateoptics.optimize.optimize_backends import (ScipyBackend,
-                                                     Newton1DBackend,
-                                                     ParticleSwarmBackend,
-                                                     SimulatedAnnealingBackend)
 from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
@@ -54,10 +50,18 @@ from pyrateoptics.raytracer.surface import Surface
 
 from pyrateoptics.raytracer.globalconstants import canonical_ey, degree
 
-from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
-from pyrateoptics.analysis.surface_shape_analysis import ShapeAnalysis
+from pyrateoptics.raytracer.analysis.optical_system_analysis import\
+    OpticalSystemAnalysis
+from pyrateoptics.raytracer.analysis.surface_shape_analysis import\
+    ShapeAnalysis
+
 from pyrateoptics.sampling2d.raster import RandomGrid
 
+from pyrateoptics.optimize.optimize import Optimizer
+from pyrateoptics.optimize.optimize_backends import (ScipyBackend,
+                                                     Newton1DBackend,
+                                                     ParticleSwarmBackend,
+                                                     SimulatedAnnealingBackend)
 
 wavelength = standard_wavelength
 

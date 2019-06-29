@@ -29,7 +29,7 @@ import logging
 import numpy as np
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.material.material_grin import IsotropicGrinMaterial
+from pyrateoptics.raytracer.material.material_grin import IsotropicGrinMaterial
 from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface

@@ -27,7 +27,8 @@ import numpy as np
 
 from pyrateoptics import build_rotationally_symmetric_optical_system, draw
 from pyrateoptics.raytracer.globalconstants import degree
-from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+from pyrateoptics.raytracer.analysis.optical_system_analysis import\
+    OpticalSystemAnalysis
 from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.sampling2d.raster import MeridionalFan
 from pyrateoptics.raytracer.helpers import build_pilotbundle_complex

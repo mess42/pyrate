@@ -28,12 +28,13 @@ import numpy as np
 from pprint import pformat
 from copy import deepcopy
 
+from .material.material_keyword_class_association import kind_of_material_classes
+from .material.material_isotropic import ConstantIndexGlass
+
 from .raytracer_keyword_class_association import kind_of_raytracer_classes
-from ..material.material_keyword_class_association import kind_of_material_classes
 from .localcoordinates import LocalCoordinates
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
 from .optical_element import OpticalElement
-from ..material.material_isotropic import ConstantIndexGlass
 
 from .ray import RayPath
 

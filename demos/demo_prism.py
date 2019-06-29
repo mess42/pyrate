@@ -28,7 +28,7 @@ import logging
 
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.material.material_isotropic import ModelGlass
+from pyrateoptics.raytracer.material.material_isotropic import ModelGlass
 from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface

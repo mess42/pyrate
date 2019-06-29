@@ -29,26 +29,28 @@ import logging
 import json
 import yaml
 
+from pprint import pprint
+
 from distutils.version import StrictVersion
-
-
 
 import numpy as np
 from numpy import pi
 import matplotlib.pyplot as plt
 import matplotlib
 
-from pyrateoptics import build_rotationally_symmetric_optical_system, listOptimizableVariables
-from pyrateoptics.raytracer.globalconstants import canonical_ex, canonical_ey
-from pyrateoptics.raytracer.ray import RayBundle
-from pyrateoptics.optimize.optimize import Optimizer
-from pyrateoptics.optimize.optimize_backends import ScipyBackend
-from pyrateoptics.sampling2d.raster import RectGrid
-from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
-from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
 from pyrateoptics.core.functionobject import FunctionObject
 from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
 from pyrateoptics.core.serializer import Serializer
+from pyrateoptics.optimize.optimize import Optimizer
+from pyrateoptics.optimize.optimize_backends import ScipyBackend
+from pyrateoptics.sampling2d.raster import RectGrid
+
+from pyrateoptics import (build_rotationally_symmetric_optical_system,
+                          listOptimizableVariables)
+from pyrateoptics.raytracer.globalconstants import canonical_ex, canonical_ey
+from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
+from pyrateoptics.raytracer.ray import RayBundle
+from pyrateoptics.raytracer.analysis.ray_analysis import RayBundleAnalysis
 
 logging.basicConfig(level=logging.INFO)
 
@@ -336,13 +338,10 @@ for r in r2:
 plt.show()
 
 system_dump = Serializer(s).serialization
-# system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
-#         s.elements["stdelem"].surfaces["elem2rear"].shape).queryForDictionary()
+system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
+        s.elements["stdelem"].surfaces["elem2rear"].shape).queryForDictionary()
 
-
-from pprint import pprint
-
-# pprint(system_gui_toplevel)
+pprint(system_gui_toplevel)
 pprint(system_dump)
 
 fp = open("double_gauss.yaml", "wt")

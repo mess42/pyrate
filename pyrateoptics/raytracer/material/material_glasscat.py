@@ -27,9 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import yaml
 import numpy as np
 import scipy.interpolate
+
+from ...core.log import BaseLogger
+from ..globalconstants import Fline, dline, Cline
 from .material_isotropic import IsotropicMaterial
-from ..raytracer.globalconstants import Fline, dline, Cline
-from ..core.log import BaseLogger
 
 
 # FIXME: this class has too many methods

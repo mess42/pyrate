@@ -26,10 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
-from ..core.base import ClassWithOptimizableVariables
 import scipy.linalg as sla
 
-from ..raytracer.globalconstants import standard_wavelength
+from ...core.base import ClassWithOptimizableVariables
+from ..globalconstants import standard_wavelength
+
 
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
@@ -38,10 +39,10 @@ class Material(ClassWithOptimizableVariables):
         """
         virtual constructor
         """
-        self.comment = kwargs.pop("comment", "") # remove comment from keywords arg
+        self.comment = kwargs.pop("comment", "")
+        # remove comment from keywords arg
         self.lc = lc
         super(Material, self).__init__(name=name, kind=kind, **kwargs)
-
 
     def refract(self, raybundle, actualSurface):
         """
@@ -56,7 +57,8 @@ class Material(ClassWithOptimizableVariables):
 
     def reflect(self, raybundle, actualSurface):
         """
-        Class describing the interaction of the ray at the surface based on the material.
+        Class describing the interaction of the ray at the surface based on
+        the material.
 
         :param raybundle: Incoming raybundle ( RayBundle object )
         :param actualSurface: reflecting surface ( Surface object )

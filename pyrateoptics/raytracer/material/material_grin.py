@@ -27,10 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 
-from ..raytracer.globalconstants import standard_wavelength
-from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
+from ...core.optimizable_variable import FloatOptimizableVariable, FixedState
+from ..globalconstants import standard_wavelength
 
 from .material_isotropic import IsotropicMaterial
+
 
 class IsotropicGrinMaterial(IsotropicMaterial):
     def __init__(self, lc, fun, dfdx, dfdy, dfdz, parameterlist=[], name="", comment=""):

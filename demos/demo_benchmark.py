@@ -31,7 +31,8 @@ from pyrateoptics import build_rotationally_symmetric_optical_system, draw
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.globalconstants import standard_wavelength, degree
-from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+from pyrateoptics.raytracer.analysis.optical_system_analysis import\
+    OpticalSystemAnalysis
 
 
 logging.basicConfig(level=logging.INFO)

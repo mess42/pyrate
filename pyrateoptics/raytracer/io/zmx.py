@@ -31,19 +31,19 @@ import uuid
 
 import numpy as np
 
-from ..raytracer.optical_system import OpticalSystem
-from ..raytracer.optical_element import OpticalElement
-from ..raytracer.localcoordinates import LocalCoordinates
-from ..raytracer.surface import Surface
-from ..raytracer.surface_shape import (Conic,
-                                       Asphere,
-                                       LinearCombination,
-                                       ZernikeFringe,
-                                       GridSag)
-from ..raytracer.aperture import CircularAperture, RectangularAperture
-from ..core.log import BaseLogger
+from ..optical_system import OpticalSystem
+from ..optical_element import OpticalElement
+from ..localcoordinates import LocalCoordinates
+from ..surface import Surface
+from ..surface_shape import (Conic,
+                             Asphere,
+                             LinearCombination,
+                             ZernikeFringe,
+                             GridSag)
+from ..aperture import CircularAperture, RectangularAperture
+from ...core.log import BaseLogger
 from ..material.material_isotropic import ModelGlass, ConstantIndexGlass
-from ..raytracer.globalconstants import numerical_tolerance, degree
+from ..globalconstants import numerical_tolerance, degree
 
 
 class ZMXParser(BaseLogger):

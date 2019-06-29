@@ -290,7 +290,7 @@ class OptimizableVariableKeyIterator(OptimizableVariableCollector):
 
 class OptimizableVariableSetKeyIterator(OptimizableVariableKeyIterator):
 
-    def __init__(self, class_instance, run=True, key_assignment_dictionary,
+    def __init__(self, class_instance, key_assignment_dictionary, run=True,
                  *args, **kwargs):
         super(OptimizableVariableSetKeyIterator, self).__init__(
                 class_instance,

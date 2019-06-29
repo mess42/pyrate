@@ -28,13 +28,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-from ..core.log import BaseLogger
+from ...core.log import BaseLogger
+from ...sampling2d.raster import RectGrid
+from ..globalconstants import (standard_wavelength,
+                               degree, canonical_ey)
+from ..ray import RayBundle
 from .ray_analysis import RayBundleAnalysis
 from .optical_element_analysis import OpticalElementAnalysis
-from ..sampling2d.raster import RectGrid
-from ..raytracer.globalconstants import (standard_wavelength,
-                                         degree, canonical_ey)
-from ..raytracer.ray import RayBundle
 
 
 # TODO: use this class as an interface for the convenience functions

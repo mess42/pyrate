@@ -37,7 +37,7 @@ from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
 
 from .core.iterators import OptimizableVariableKeyIterator
-from .analysis.optical_system_analysis import OpticalSystemAnalysis
+from .raytracer.analysis.optical_system_analysis import OpticalSystemAnalysis
 from .raytracer.optical_system import OpticalSystem
 from .raytracer.localcoordinates import LocalCoordinates
 from .raytracer.optical_element import OpticalElement
@@ -47,8 +47,9 @@ from .raytracer.globalconstants import (numerical_tolerance,
                                         standard_wavelength,
                                         degree)
 from .raytracer.ray import RayBundle, RayPath
-from .material.material_isotropic import ConstantIndexGlass
-from .material.material_glasscat import refractiveindex_dot_info_glasscatalog
+from .raytracer.material.material_isotropic import ConstantIndexGlass
+from .raytracer.material.material_glasscat import\
+     refractiveindex_dot_info_glasscatalog
 
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions
@@ -123,12 +124,15 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
             list_of_coefficients_and_shapes =\
                 surfdict.get("list_of_coefficients_and_shapes", [])
             new_list_coeffs_shapes = []
-            for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
+            for (ind, (coeff_part, surfdict_part)) in\
+                    enumerate(list_of_coefficients_and_shapes, 1):
                 shapetype_part = "shape_" + surfdict_part.pop("shape", "Conic")
                 new_list_coeffs_shapes.append((coeff_part,
-                                               accessible_shapes[shapetype_part]
+                                               accessible_shapes[
+                                                       shapetype_part]
                                                (lc,
-                                                name=name + "_shape" + str(ind),
+                                                name=name + "_shape" +
+                                                str(ind),
                                                 **surfdict_part)))
 
             actsurf = Surface(lc, name=surf_name + "_surf",
@@ -413,7 +417,7 @@ def draw(os, rays=None,
                     bbox_inches='tight', pad_inches=0)
 
     if not hold_on:
-      plt.show()
+        plt.show()
 
 
 def raytrace(s, seq, numrays, rays_dict, bundletype="collimated",
