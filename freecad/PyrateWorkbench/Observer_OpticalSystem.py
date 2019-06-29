@@ -30,13 +30,14 @@ import math
 
 import numpy as np
 
-from pyrateoptics.material import material_isotropic
+from pyrateoptics.core.observers import AbstractObserver
+
+from pyrateoptics.raytracer.material import material_isotropic
 from pyrateoptics.raytracer.surface_shape import Conic
 
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
-from pyrateoptics.core.observers import AbstractObserver
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics.raytracer import ray
