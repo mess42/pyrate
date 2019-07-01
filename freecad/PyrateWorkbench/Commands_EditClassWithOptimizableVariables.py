@@ -7,7 +7,7 @@ Created on Tue Jan 29 23:03:36 2019
 """
 
 import FreeCAD, FreeCADGui
-from TaskPanel_ClassWithOptimizableVariables_Edit import ClassWithOptimizableVariablesTaskPanelEdit
+from .TaskPanel_ClassWithOptimizableVariables_Edit import ClassWithOptimizableVariablesTaskPanelEdit
 
 class EditClassWithOptimizableVariablesTool:
     "Tool for editing class with optimizable variables object"
