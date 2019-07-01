@@ -20,28 +20,29 @@ setup(
                         "scipy",
                         "matplotlib",
                         "sympy",
-                        "pyyaml"
-                        ],
+                        "pyyaml"],
       version="0.2.0",
       description="Optical raytracing with Python",
       author="Moritz Esslinger",
       author_email="moritz.esslinger@web.de",
       url="https://github.com/mess42/pyrate/",
       keywords=["optics", "raytracing"],
-      classifiers=["Programming Language :: Python",
-                   "Programming Language :: Python :: 2.7",
-                   "Development Status :: 2 - Pre-Alpha",
-                   "Environment :: Console",
-                   "Intended Audience :: Developers",
-                   "Intended Audience :: Education",
-                   "Intended Audience :: Science/Research",
-                   "Intended Audience :: Manufacturing",
-                   "License :: OSI Approved :: \
-                   GNU General Public License v2 (GPLv2)",
-                   "Operating System :: OS Independent",
-                   "Topic :: Software Development \
-                   :: Libraries :: Python Modules",
-                   "Topic :: Scientific/Engineering :: Physics",
+      classifiers=[
+          "Development Status :: 2 - Pre-Alpha",
+          "Environment :: Console",
+          "Intended Audience :: Developers",
+          "Intended Audience :: Education",
+          "Intended Audience :: Science/Research",
+          "Intended Audience :: Manufacturing",
+          "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+          "Operating System :: OS Independent",
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
+          "Topic :: Software Development :: Libraries :: Python Modules",
+          "Topic :: Scientific/Engineering :: Physics",
                    ],
       long_description="""\
 Pyrate - Optical Raytracing with Python
@@ -55,8 +56,8 @@ Supports:
   - grin media
   - dispersion relations of different types
   - interface to refractive-index.info material data base
+  - optimization with different optimizers
 
-
-Is intended to work with Python 2.7; Python 3.5 support is ongoing.
+Works both with Python 2.7 and Python 3.5+.
 """
 )
