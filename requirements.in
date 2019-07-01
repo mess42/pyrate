@@ -3,7 +3,6 @@ scipy # pyrate dependency
 sympy # pyrate dependency
 matplotlib # pyrate dependency
 pyyaml # pyrate dependency
-networkx # graph creation from object structure
 nose # test automation
 hypothesis # quickcheck
 coverage # test coverage

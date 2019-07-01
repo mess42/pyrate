@@ -20,8 +20,8 @@ setup(
                         "scipy",
                         "matplotlib",
                         "sympy",
-                        "pyyaml",
-                        "networkx"],
+                        "pyyaml"
+                        ],
       version="0.2.0",
       description="Optical raytracing with Python",
       author="Moritz Esslinger",
