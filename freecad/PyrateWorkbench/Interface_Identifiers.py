@@ -24,15 +24,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 """
 
-Title_MessageBoxes = "pyrate"
+Title_MessageBoxes = "pyrate optics"
 
-Group_OS_Label = "Optical_System" # Label of group containing Optical System Structure
-Group_Functions_Label = "Functions" # Label of subgroup containing Function Objects
-Group_Surface_Label = "Surfaces" # Label of subgroup containing surface objects
-Group_Coordinates_Label = "Coordinates" # Label of subgroup containing local coordinates objects
-Group_StandardMaterials_Label = "StandardMaterials" # Label of global group containing standard materials (material catalogue)
+Group_OS_Label = "Optical_System"
+# Label of group containing Optical System Structure
+Group_Functions_Label = "Functions"
+# Label of subgroup containing Function Objects
+Group_Surface_Label = "Surfaces"
+# Label of subgroup containing surface objects
+Group_Coordinates_Label = "Coordinates"
+# Label of subgroup containing local coordinates objects
+Group_StandardMaterials_Label = "StandardMaterials"
+# Label of global group containing standard materials (material catalogue)
 
-Object_MaterialCatalogue_Properties_Label = "_Properties" # Label of properties object in Material Catalogue
+Object_MaterialCatalogue_Properties_Label = "_Properties"
+# Label of properties object in Material Catalogue
 
 Material_ConstantIndexGlass = "ConstantIndexGlass"
 Material_ModelGlass = "ModelGlass"
@@ -42,9 +48,9 @@ Material_Mirror = "Mirror"
 Material_GUIChangeableProperties = ["index", "n0", "a", "b"]
 
 Material_GUI_TaskPanel_Add_TabWidget = {
-    0:Material_ConstantIndexGlass,
-    1:Material_ModelGlass,
-    2:Material_GrinMedium
+    0: Material_ConstantIndexGlass,
+    1: Material_ModelGlass,
+    2: Material_GrinMedium
     }
 
 Shape_Conic = "Conic"
@@ -53,10 +59,10 @@ Shape_Asphere = "Asphere"
 Shape_Explicit = "ExplicitShape"
 
 Surface_GUI_TaskPanel_Add_Shape_TabWidget = {
-    0:Shape_Conic,
-    1:Shape_Cylinder,
-    2:Shape_Asphere,
-    3:Shape_Explicit
+    0: Shape_Conic,
+    1: Shape_Cylinder,
+    2: Shape_Asphere,
+    3: Shape_Explicit
     }
 
 Aperture_Base = "Base Aperture"
@@ -64,10 +70,10 @@ Aperture_Circular = "Circular"
 Aperture_UserDefined = "User defined"
 
 Surface_GUI_TaskPanel_Add_Aperture_TabWidget = {
-    0:Aperture_Base,
-    1:Aperture_Circular,
-    2:Aperture_UserDefined
+    0: Aperture_Base,
+    1: Aperture_Circular,
+    2: Aperture_UserDefined
     }
 
-Surface_GUIChangeableProperties = ["curv", "cc"] # TODO: aspheric corrections
+Surface_GUIChangeableProperties = ["curv", "cc"]  # TODO: aspheric corrections
 Aperture_GUIChangeableProperties = ["semidiameter", "tx", "ty"]

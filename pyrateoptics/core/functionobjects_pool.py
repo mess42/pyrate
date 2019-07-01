@@ -24,33 +24,31 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import FreeCADGui
-
-from PySide import QtGui
-
-from .Object_Functions import FunctionsObject, FunctionsView
-
-from .Interface_Helpers import *
-from .Interface_Identifiers import Title_MessageBoxes
-
-class FunctionsTaskPanelAdd:
-    def __init__(self, doc, stringlist):
-        fn = getRelativeFilePath(__file__, 'Qt/dlg_functionsobject_add.ui')
-
-        # this will create a Qt widget from our ui file
-        self.form = FreeCADGui.PySideUic.loadUi(fn)
-        self.form.comboBox.addItems(stringlist)
-        self.doc = doc
-
-    def accept(self):
-        oslabel = self.form.comboBox.currentText()
-        name_of_functionsobject = self.form.lineEditName.text()
-        initial_source_code = self.form.plainTextEdit.toPlainText()
-
-        fnobj = FunctionsObject(name_of_functionsobject, initial_source_code, self.doc, "")
-        FunctionsView(fnobj.Object.ViewObject)
-
-        FreeCADGui.Control.closeDialog()
+from .log import BaseLogger
+from .functionobject import FunctionObject
 
 
+class FunctionObjectsPool(BaseLogger):
+    """
+    For serializing a collection of function objects
+    """
 
+    def __init__(self, functionobjectsdictionary, name=""):
+        super(FunctionObjectsPool, self).__init__(
+                name=name,
+                kind="functionobjectspool")
+        self.functionobjects_dictionary = functionobjectsdictionary
+
+    def toDictionary(self):
+        result_dictionary = {}
+        for (key, fo) in self.functionobjects_dictionary.items():
+            result_dictionary[key] = fo.toDictionary()
+        return result_dictionary
+
+    @staticmethod
+    def fromDictionary(dictionary, source_checked, variables_checked, name=""):
+        result_dictionary = {}
+        for (key, fodict) in dictionary.items():
+            result_dictionary[key] = FunctionObject.fromDictionary(
+                fodict, source_checked, variables_checked)
+        return FunctionObjectsPool(result_dictionary, name=name)

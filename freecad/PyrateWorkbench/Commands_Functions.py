@@ -24,30 +24,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from PySide.QtGui import QInputDialog, QLineEdit, QComboBox
+# from PySide.QtGui import QInputDialog, QLineEdit, QComboBox
 
+import FreeCADGui
+import FreeCAD
 
-import FreeCADGui, FreeCAD
-
-
-from .Object_Functions import FunctionsObject
 from .TaskPanel_Functions_Add import FunctionsTaskPanelAdd
 
-from .Interface_Checks import *
+from .Interface_Checks import isOpticalSystemObserver
 
 
 class CreateFunctionTool:
-    "Tool for creating optical system"
+    "Tool for creating function object"
 
     def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_func_icon.svg", # resource qrc file needed, and precompile with python-rcc
+        return {"Pixmap": ":/icons/pyrate_func_icon.svg",
                 "MenuText": "Create function ...",
                 "Accel": "",
                 "ToolTip": "Generates function object in document"
                 }
 
     def IsActive(self):
-        if FreeCAD.ActiveDocument == None:
+        if FreeCAD.ActiveDocument is None:
             return False
         else:
             return True
@@ -64,5 +62,5 @@ class CreateFunctionTool:
         panel = FunctionsTaskPanelAdd(doc, [oso.Label for oso in osobservers])
         FreeCADGui.Control.showDialog(panel)
 
-            
+
 FreeCADGui.addCommand('CreateFunctionsCommand', CreateFunctionTool())

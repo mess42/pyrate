@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from .optimizable_variable import OptimizableVariable
+from .functionobjects_pool import FunctionObjectsPool
 from .log import BaseLogger
 
 
@@ -82,12 +83,24 @@ class OptimizableVariablesPool(BaseLogger):
             (all_args_in_pool, pickup_vars) = are_all_args_in_pool(result_pool)
         return result_pool
 
+    def generateFunctionObjectsPool(self, name=""):
+        functionobjects_dictionary = {}
+        for (key, ov) in self.variables_pool.items():
+            (tfo, ftrafo, finvtrafo) = ov._transform_functionobject_functionname_triple
+            if tfo.unique_id not in functionobjects_dictionary:
+                functionobjects_dictionary[tfo.unique_id] = tfo
+            if ov.var_type() == "pickup":
+                (pfo, functionname) = ov._state.parameters["functionobject"]
+                if pfo.unique_id not in functionobjects_dictionary:
+                    functionobjects_dictionary[pfo.unique_id] = pfo
+        return FunctionObjectsPool(functionobjects_dictionary, name=name)
+
     def toDictionary(self):
         return dict([(uid, variable.toDictionary())
                     for (uid, variable) in self.variables_pool.items()])
 
     @staticmethod
-    def fromDictionary(dictionary,
+    def fromDictionary(dictionary, functionpool_dictionary,
                        source_checked,
                        variables_checked, name=""):
         """
@@ -115,10 +128,13 @@ class OptimizableVariablesPool(BaseLogger):
 
             return (res, all_pickup_vars)
 
+        functionobjects_pool = FunctionObjectsPool.fromDictionary(
+            functionpool_dictionary, source_checked, variables_checked)
+
         variables_pool = {}
         for (uid, var_dict) in dictionary.items():
             variables_pool[uid] = OptimizableVariable.fromDictionary(
-                    var_dict, source_checked, variables_checked)
+                    var_dict, functionobjects_pool)
 
         (all_args_opt_vars, pickupvars) = are_all_args_opt_vars(variables_pool)
         while not all_args_opt_vars:

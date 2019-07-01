@@ -42,6 +42,10 @@ class Serializer(BaseLogger):
                                                       "list_observers"])
         serialization.collectStructure(remove=["annotations",
                                                "list_observers"])
+        optimizable_variables_pool = OptimizableVariablesPool(
+            serialization.variables_dictionary)
+        functionobjects_pool = optimizable_variables_pool.generateFunctionObjectsPool()
+
         self.serialization = [
                 serialization.dictionary,
                 dict([(k,
@@ -51,5 +55,6 @@ class Serializer(BaseLogger):
                                              ).dictionary
                        ) for (k, v) in serialization.classes_dictionary.items()]
                      ),
-                OptimizableVariablesPool(serialization.variables_dictionary).toDictionary()
+                optimizable_variables_pool.toDictionary(),
+                functionobjects_pool.toDictionary()
         ]

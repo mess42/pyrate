@@ -167,16 +167,16 @@ class PickupState(State):
     def toDictionary(self):
         resdict = {}
         (functionobject, functionname) = self.parameters["functionobject"]
-        resdict["functionobject"] = functionobject.toDictionary()
+        resdict["functionobject"] = functionobject.unique_id  # .toDictionary()
         resdict["functionname"] = functionname
         resdict["args"] = list([a.unique_id for a in self.parameters["args"]])
         return resdict
 
     @staticmethod
     def fromDictionary(dictionary, *args):
-        (source_checked, variables_checked) = args
-        fo = FunctionObject.fromDictionary(dictionary["functionobject"],
-                                           source_checked, variables_checked)
+        (functionobjects_pool,) = args
+        fo = functionobjects_pool.functionobjects_dictionary[
+            dictionary["functionobject"]]
         functionname = dictionary["functionname"]
         # isvalid=False is set because args are not initialized yet
         # this is done later in the pool initialization
@@ -304,14 +304,14 @@ class OptimizableVariable(BaseLogger):
         resdict["variable_type"] = self.var_type()
         (fo, ftrafo, finvtrafo) =\
             self._transform_functionobject_functionname_triple
-        resdict["transform"] = fo.toDictionary()
+        resdict["transform"] = fo.unique_id  # .toDictionary()
         resdict["transform_name"] = ftrafo
         resdict["invtransform_name"] = finvtrafo
         resdict["state"] = self._state.toDictionary()
         return resdict
 
     @staticmethod
-    def fromDictionary(dictionary, source_checked, variables_checked):
+    def fromDictionary(dictionary, functionobjects_pool):
         """
         Providing a function to reconstruct an OptimizableVariable
         from some dictionary. The variables_pool is necessary if
@@ -323,12 +323,11 @@ class OptimizableVariable(BaseLogger):
         state_dictionary = dictionary["state"]
         var_type = dictionary["variable_type"]
         state = reconstruct_dictionary[var_type].fromDictionary(
-                state_dictionary,
-                source_checked, variables_checked)
+                state_dictionary, functionobjects_pool)
         ov = OptimizableVariable(state, name=dictionary["name"],
                                  unique_id=dictionary["unique_id"])
-        fo = FunctionObject.fromDictionary(dictionary["transform"],
-                                           source_checked, variables_checked)
+        fo = functionobjects_pool.functionobjects_dictionary[
+            dictionary["transform"]]
         ft = dictionary["transform_name"]
         fi = dictionary["invtransform_name"]
         ov.set_transform((fo, ft, fi))
