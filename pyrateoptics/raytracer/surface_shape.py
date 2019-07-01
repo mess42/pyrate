@@ -26,17 +26,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import math
 import ctypes
+from distutils.version import StrictVersion
 
 import numpy as np
 
-from scipy.misc import factorial
+import scipy
 from scipy.optimize import fsolve
-from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
+from scipy.interpolate import RectBivariateSpline
 from scipy.special import jacobi
-
-from .globalconstants import numerical_tolerance
 from ..core.base import ClassWithOptimizableVariables
 from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
+
+if StrictVersion(scipy.__version__) < StrictVersion("1.0.0"):
+    from scipy.misc import factorial
+else:
+    from scipy.special import factorial
 
 
 class Shape(ClassWithOptimizableVariables):
