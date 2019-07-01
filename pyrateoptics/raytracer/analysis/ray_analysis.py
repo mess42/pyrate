@@ -37,6 +37,9 @@ class RayBundleAnalysis(BaseLogger):
         super(RayBundleAnalysis, self).__init__(name=name)
         self.raybundle = raybundle
 
+    def setKind(self):
+        self.kind = "rayanalysis"
+
     def getCentroidPosition(self):
         """
         Returns the arithmetic average position of all rays at the end of the

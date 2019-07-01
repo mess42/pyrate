@@ -211,11 +211,12 @@ class OptimizableVariable(BaseLogger):
         """
 
 
-        super(OptimizableVariable, self).__init__(name=name,
-                                                  kind="optimizablevariable",
-                                                  unique_id=unique_id)
+        super(OptimizableVariable, self).__init__(name=name, unique_id=unique_id)
         self._state = state
         self.set_transform(self.id_trafo)
+
+    def setKind(self):
+        self.kind = "optimizablevariable"
 
     def toFixed(self):
         """

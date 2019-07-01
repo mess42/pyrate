@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from ..core.base import ClassWithOptimizableVariables
 
 
-
 class LocalCoordinatesTreeBase(ClassWithOptimizableVariables):
     """
     Optical element base class for optical system and optical element, whereas
@@ -39,11 +38,12 @@ class LocalCoordinatesTreeBase(ClassWithOptimizableVariables):
     :param name (string)
     :param **kwargs (key word arguments)
     """
-    def __init__(self, rootcoordinatesystem,
-                 name="", kind="localcoordinatestreebase", **kwargs):
+    def __init__(self, rootcoordinatesystem, name=""):
         self.rootcoordinatesystem = rootcoordinatesystem
-        super(LocalCoordinatesTreeBase, self).__init__(
-                name=name, kind=kind, **kwargs)
+        super(LocalCoordinatesTreeBase, self).__init__(name=name)
+
+    def setKind(self):
+        self.kind = "localcoordinatestreebase"
 
     def checkForRootConnection(self, lc):
         """

@@ -34,8 +34,8 @@ class FunctionObject(BaseLogger):
                  initial_globals_dictionary=None,
                  sourcecode_security_checked=True,
                  globals_security_checked=True,
-                 kind="functionobject", name="", **kwargs):
-        super(FunctionObject, self).__init__(name=name, kind=kind, **kwargs)
+                 name=""):
+        super(FunctionObject, self).__init__(name=name)
         self.setSource(initial_sourcecode)
         self.setGlob(initial_globals_dictionary)
         self.sourcecode_security_checked = sourcecode_security_checked
@@ -43,6 +43,9 @@ class FunctionObject(BaseLogger):
         self.functions = {}
         if initial_sourcecode != "":
             self.generateFunctionsFromSource(initial_function_names)
+
+    def setKind(self):
+        self.kind = "functionobject"
 
     def setSource(self, source):
         self.__source = source

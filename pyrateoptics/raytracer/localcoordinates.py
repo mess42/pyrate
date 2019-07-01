@@ -35,7 +35,7 @@ from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
 
 
 class LocalCoordinates(ClassWithOptimizableVariables):
-    def __init__(self, name="", kind="localcoordinates", **kwargs):
+    def __init__(self, name="", **kwargs):
         # TODO: Reference to global to be rewritten into reference to root
         '''
         Defines a local coordinate system, on which translated or tilted optical surfaces may refer.
@@ -55,9 +55,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                           1 or True means: tiltz first, then tilty, then tiltx, then decenter.
                         observers:        list of observers derived from AbstractObserver
         '''
-        super(LocalCoordinates, self).__init__(
-                name=name, kind=kind,
-                **kwargs)
+        super(LocalCoordinates, self).__init__(name=name)
 
         (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
         (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "tiltThenDecenter"])
@@ -85,6 +83,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
         self.update() # initial update
 
+    def setKind(self):
+        self.kind = "localcoordinates"
 
     def getChildren(self):
         return self.__children

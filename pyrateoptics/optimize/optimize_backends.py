@@ -37,13 +37,16 @@ class Backend(BaseLogger):
     numpy array into the real valued function which is to be optimized.
     """
 
-    def __init__(self, name="", kind="optimizerbackend", **kwargs):
+    def __init__(self, name="", **kwargs):
         """
         kwargs is everything which is known at initialization time and needed
         by the optimization backend
         """
         self.options = kwargs
-        super(Backend, self).__init__(name=name, kind=kind)
+        super(Backend, self).__init__(name=name)
+
+    def setKind(self):
+        self.kind = "optimizerbackend"
 
     def init(self, func):
         """

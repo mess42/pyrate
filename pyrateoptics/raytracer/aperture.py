@@ -45,10 +45,13 @@ class BaseAperture(BaseLogger):
 
     The base class does not limit the beam diameter.
     """
-    def __init__(self, lc, name="", kind="aperture", **kwargs):
-        super(BaseAperture, self).__init__(name=name, kind=kind, **kwargs)
+    def __init__(self, lc, name=""):
+        super(BaseAperture, self).__init__(name=name)
         self.lc = lc
         self.typicaldimension = 1e16
+
+    def setKind(self):
+        self.kind = "aperture"
 
     def getTypicalDimension(self):
         """

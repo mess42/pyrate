@@ -52,10 +52,12 @@ class ConfigContainer(ClassWithOptimizableVariables):
     frontend.
     """
 
-    def __init__(self, instance_list=None,
-                 name="", kind="configcontainer", **kwargs):
-        super(ConfigContainer, self).__init__(name=name, kind=kind, **kwargs)
+    def __init__(self, instance_list=None, name=""):
+        super(ConfigContainer, self).__init__(name=name)
         self.instance_list = instance_list
+
+    def setKind(self):
+        self.kind = "configcontainer"
 
     # TODO: to be tested
 
@@ -67,9 +69,12 @@ class ConfigManager(BaseLogger):
     different instances.
     """
 
-    def __init__(self, base_instance=None, **kwargs):
-        super(ConfigManager, self).__init__(**kwargs)
+    def __init__(self, base_instance=None, name=""):
+        super(ConfigManager, self).__init__(name=name)
         self.base_instance = base_instance
+
+    def setKind(self):
+        self.kind = "configmanager"
 
     def setOptimizableVariables(self, names_tuple,
                                 dict_of_keys_and_value_tuples):

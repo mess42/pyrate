@@ -34,16 +34,12 @@ from .names.nouns import nouns
 
 class BaseLogger(object):
 
-    def __init__(self, name="", kind="baselogger",
-                 unique_id=None,
-                 logger=None, **kwargs):
+    def __init__(self, name="", unique_id=None, logger=None):
         """
         A name should be a mnemonic string which makes it easy to derive
         the type and association of an object throughout the logs. Further
-        it may be used as a dict key. the name may not be unique.
-        (TODO: what about dict keys? Should we use a name data base to
-         force unique names? Is this the same concept like an optimizable
-         variable pool?)
+        it is not useful as a dict key since the name may not be unique.
+        For unique dict keys the unique_id is the right tool to use.
 
         A unique id is used to identify every object uniquely without
         resorting to the id mechanism of Python (unique_id may not be changed).
@@ -55,16 +51,25 @@ class BaseLogger(object):
         a new one is created with the name of the object. If it is not None
         the one provided is used which is useful to spit out log files or logs
         in e.g. a GUI.
+
+        The observer interface is added to the BaseLogger since maybe not only
+        the optimizable classes should be coupled to observers.
         """
-        self.kind = kind
+
+        self.setKind()
         self.setName(name)
         self.__unique_id = str(uuid.uuid4()).lower() if unique_id is None\
             else unique_id
+
+        self.list_observers = []
 
         if logger is None:
             logger = logging.getLogger(name=self.__name)
         self.logger = logger
         # self.debug("logger \"" + name + "\" created")
+
+    def setKind(self):
+        self.kind = "baselogger"
 
     def setName(self, name):
         if name == "":
@@ -126,3 +131,10 @@ class BaseLogger(object):
         """
         self.__dict__.update(state)
         self.logger = logging.getLogger(name=self.name)
+
+    def appendObservers(self, obslist):
+        self.list_observers += obslist
+
+    def informObservers(self):
+        for obs in self.list_observers:
+            obs.informAboutUpdate()

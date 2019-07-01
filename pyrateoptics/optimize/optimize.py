@@ -36,12 +36,12 @@ class Optimizer(BaseLogger):
     '''
     def __init__(self, classwithoptvariables,
                  meritfunction, backend,
-                 name="", kind="optimizer", updatefunction=None):
+                 name="", updatefunction=None):
+        super(Optimizer, self).__init__(name=name)
 
         def noupdate(cl):
             pass
 
-        super(Optimizer, self).__init__(name=name, kind=kind)
         self.collector = OptimizableVariableActiveCollector(
                 classwithoptvariables)
         self.meritfunction = meritfunction  # function to minimize
@@ -54,6 +54,9 @@ class Optimizer(BaseLogger):
         self.meritparameters = {}
         self.updateparameters = {}
         self.number_of_calls = 0 # how often is the merit function called during one run?
+
+    def setKind(self):
+        self.kind = "optimizer"
 
     def setBackend(self, backend):
         self.__backend = backend

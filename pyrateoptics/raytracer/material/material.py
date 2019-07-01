@@ -35,14 +35,17 @@ from ..globalconstants import standard_wavelength
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
 
-    def __init__(self, lc, name="", kind="material", **kwargs):
+    def __init__(self, lc, name="", comment=""):
         """
         virtual constructor
         """
-        self.comment = kwargs.pop("comment", "")
+        super(Material, self).__init__(name=name)
+        self.comment = comment
         # remove comment from keywords arg
         self.lc = lc
-        super(Material, self).__init__(name=name, kind=kind, **kwargs)
+
+    def setKind(self):
+        self.kind = "material"
 
     def refract(self, raybundle, actualSurface):
         """
@@ -92,6 +95,9 @@ class MaxwellMaterial(Material):
         :return epsilon (3x3xN numpy array of complex)
         """
         raise NotImplementedError()
+
+    def setKind(self):
+        self.kind = "maxwellmaterial"
 
     def calcKnormEfield(self, x, n, kpa_norm, wave=standard_wavelength):
         (xi_4, efield_4) = self.calcXiEigenvectorsNorm(x, n, kpa_norm, wave=wave)

@@ -34,10 +34,12 @@ class FunctionObjectsPool(BaseLogger):
     """
 
     def __init__(self, functionobjectsdictionary, name=""):
-        super(FunctionObjectsPool, self).__init__(
-                name=name,
-                kind="functionobjectspool")
+        super(FunctionObjectsPool, self).__init__(name=name)
+
         self.functionobjects_dictionary = functionobjectsdictionary
+
+    def setKind(self):
+        self.kind = "functionobjectspool"
 
     def toDictionary(self):
         result_dictionary = {}

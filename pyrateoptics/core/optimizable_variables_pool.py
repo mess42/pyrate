@@ -33,13 +33,14 @@ from .log import BaseLogger
 class OptimizableVariablesPool(BaseLogger):
 
     def __init__(self, variables_pool_from_serialization_iter, name=""):
-        super(OptimizableVariablesPool, self).__init__(
-                name=name,
-                kind="optimizablevariablespool")
+        super(OptimizableVariablesPool, self).__init__(name=name)
         self.variables_pool = variables_pool_from_serialization_iter
         self.variables_pool = self.extendPool(self.variables_pool)
         # guarantee that pool contains ALL variables which are referenced
         # by pickups
+
+    def setKind(self):
+        self.kind = "optimizablevariablespool"
 
     def extendPool(self, pool):
         """

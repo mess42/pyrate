@@ -34,9 +34,12 @@ class ShapeAnalysis(BaseLogger):
     Class for performing shape analysis.
     """
 
-    def __init__(self, shape, kind="shapeanalysis", name="", **kwargs):
-        super(ShapeAnalysis, self).__init__(name=name, kind=kind, **kwargs)
+    def __init__(self, shape, name=""):
+        super(ShapeAnalysis, self).__init__(name=name)
         self.shape = shape
+
+    def setKind(self):
+        self.kind = "shapeanalysis"
 
     def generateSagTable(self, xlinspace, ylinspace):
         """

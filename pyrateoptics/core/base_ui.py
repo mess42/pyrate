@@ -46,12 +46,14 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
                                         and external)
     """
     def __init__(self, some_class_with_optimizable_variables,
-                 name="", kind="uiinterface"):
+                 name=""):
         super(UIInterfaceClassWithOptimizableVariables,
-              self).__init__(name=name,
-                             kind=kind)
+              self).__init__(name=name)
 
         self.myclass = some_class_with_optimizable_variables
+
+    def setKind(self):
+        self.kind = "uiinterface"
 
     def queryForDictionary(self):
 

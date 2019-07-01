@@ -61,24 +61,13 @@ class ClassWithOptimizableVariables(BaseLogger):
     class inheritance and interface the child class with some type of
     optimizer.
     """
-    def __init__(self, name="", kind="classwithoptimizablevariables",
-                 **kwargs):
+    def __init__(self, name=""):
         """
         Initialize with empty dict.
         """
-        super(ClassWithOptimizableVariables, self).__init__(
-                name=name,
-                kind=kind,
-                **kwargs)
+        super(ClassWithOptimizableVariables, self).__init__(name=name)
 
         self.annotations = {}
-        self.list_observers = []
-        # for the optimizable variable class it is useful to have some observer
-        # links they get informed if variables change their values
 
-    def appendObservers(self, obslist):
-        self.list_observers += obslist
-
-    def informObservers(self):
-        for obs in self.list_observers:
-            obs.informAboutUpdate()
+    def setKind(self):
+        self.kind = "classwithoptimizablevariables"

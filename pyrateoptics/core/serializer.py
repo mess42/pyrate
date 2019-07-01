@@ -32,9 +32,12 @@ from .optimizable_variables_pool import OptimizableVariablesPool
 
 class Serializer(BaseLogger):
     def __init__(self, class_instance, name=""):
-        super(Serializer, self).__init__(name=name, kind="serializer")
+        super(Serializer, self).__init__(name=name)
         self.class_instance = class_instance
         self.serialize()
+
+    def setKind(self):
+        self.kind = "serializer"
 
     def serialize(self):
         serialization = SerializationIterator(self.class_instance,

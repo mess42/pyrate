@@ -53,9 +53,9 @@ class Aimy(BaseLogger):
                  pilotbundle_delta_angle=1*degree,
                  pilotbundle_delta_size=0.1,
                  pilotbundle_sampling_points=3,
-                 name="", kind="aimy", **kwargs):
+                 name=""):
 
-        super(Aimy, self).__init__(name=name, kind=kind, **kwargs)
+        super(Aimy, self).__init__(name=name)
         self.field_raster = RectGrid()
         self.pupil_raster = RectGrid()
         self.stopsize = stopsize
@@ -68,6 +68,9 @@ class Aimy(BaseLogger):
         self.pilotbundle_sampling_points = pilotbundle_sampling_points
 
         self.update(s, seq)
+
+    def setKind(self):
+        self.kind = "aimy"
 
     def extractABCD(self, xyuv):
 
