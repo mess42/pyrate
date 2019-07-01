@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
 
 from .log import BaseLogger
 from .base import ClassWithOptimizableVariables
@@ -168,40 +166,6 @@ class OptimizableVariableIterator(AbstractIterator):
 
     def isSubInstance(self, variable):
         return isinstance(variable, ClassWithOptimizableVariables)
-
-
-class OptimizableVariableGraphIterator(OptimizableVariableIterator):
-
-    """
-    Collects all subinstances and variables and creates graph of them.
-    """
-
-    def __init__(self, class_instance, run=True):
-        super(OptimizableVariableGraphIterator, self).__init__(class_instance,
-                                                               run=run)
-        self.graph = nx.Graph()
-
-    def unique_name(self, variable):
-        return variable.name + " " + variable.unique_id[:4]
-
-    def collectElement(self, variable, keystring, *args, **kwargs):
-        self.graph.add_edge(self.unique_name(self.sub_instance),
-                            self.unique_name(variable))
-
-    def isSubInstance(self, variable):
-        res = super(OptimizableVariableGraphIterator, self).\
-            isSubInstance(variable)
-        if res:
-            self.graph.add_edge(self.unique_name(self.sub_instance),
-                                self.unique_name(variable))
-        return res
-
-    def draw(self):
-        nx.draw_spring(self.graph,
-                       node_size=[16 * self.graph.degree(n)
-                                  for n in self.graph],
-                       with_labels=True)
-        plt.show()
 
 
 class OptimizableVariableCollector(OptimizableVariableIterator):
