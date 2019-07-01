@@ -16,7 +16,14 @@ mainly be controlled by a python script and which provides enough
 interface classes and functions to be integrated into a GUI.
 
 The code is divided into sub-modules which are more or less collections
-of classes for the appropriate tasks. The logic is as follows:
+of classes for the appropriate tasks. The core functionality, the optimization code,
+and the raytracer part are split, such that it is possible to extend the functionality
+under a unified interface and by using the same optimization without interfering
+with the raytracer itself. Further it is possible to easily implement further
+optimization strategies into the code and immediately plugging them into the
+raytracer.
+
+The logic of the code tree is as follows:
 
 In the main directory you will find the following folders with their appropriate function
 
@@ -38,9 +45,9 @@ as well as several sub folders which contain different parts of the core functio
 The `raytracer` folder contains several Python files and also three sub folders which are used to denote
 the parts of the functionality.
 
-- analysis (this folder is used to implement analysis classes which are used as interfaces to query any sub system and provide some sort of data for the user)
-- io (in this folder the in/out of external raytracer formats is collected)
-- material (in this folder the implemented material models including the propagation functions are located)
+- `analysis` (this folder is used to implement analysis classes which are used as interfaces to query any sub system and provide some sort of data for the user)
+- `io` (in this folder the in/out of external raytracer formats is collected)
+- `material` (in this folder the implemented material models including the propagation functions are located)
 
 Install the package via `pip install pyrateoptics` or for development
 via `pip install -e .`. As a starting point, set up your initial system
