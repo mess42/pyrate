@@ -20,27 +20,27 @@ of classes for the appropriate tasks. The logic is as follows:
 
 In the main directory you will find the following folders with their appropriate function
 
-    - demos (this directory contains numerous demos to show the functionality of pyrate)
-    - docs (in this directory the documentation of the physical foundations takes place)
-    - freecad (this directory contains all the stuff needed to provide a FreeCAD workbench as GUI)
-    - pyrateoptics (this folder contains the main code of the package)
-    - tests (here the tests are stored which are performed as part of the continous integration)
+- demos (this directory contains numerous demos to show the functionality of pyrate)
+- docs (in this directory the documentation of the physical foundations takes place)
+- freecad (this directory contains all the stuff needed to provide a FreeCAD workbench as GUI)
+- pyrateoptics (this folder contains the main code of the package)
+- tests (here the tests are stored which are performed as part of the continous integration)
 
 Within the `pyrateoptics` folder there is an `__init__.py` file which provides some convenience functions
 as well as several sub folders which contain different parts of the core functionality.
 
-    - core (this folder contains all core functionality which is independent from the raytracer, i.e. management code and several base classes)
-    - optimize (this folder contains the optimization logic and interface which is also independent from the raytracer)
-    - raytracer (this directory contains the raytracer main code which makes use of `core` and `optimize`)
-    - refractiveindex.info-database (this is a sub module which contains a large database of optical material data)
-    - sampling2d (this directory contains sampling code for a 2d area which is also needed for the raytracer)
+- core (this folder contains all core functionality which is independent from the raytracer, i.e. management code and several base classes)
+- optimize (this folder contains the optimization logic and interface which is also independent from the raytracer)
+- raytracer (this directory contains the raytracer main code which makes use of `core` and `optimize`)
+- refractiveindex.info-database (this is a sub module which contains a large database of optical material data)
+- sampling2d (this directory contains sampling code for a 2d area which is also needed for the raytracer)
 
 The `raytracer` folder contains several Python files and also three sub folders which are used to denote
 the parts of the functionality.
 
-    - analysis (this folder is used to implement analysis classes which are used as interfaces to query any sub system and provide some sort of data for the user)
-    - io (in this folder the in/out of external raytracer formats is collected)
-    - material (in this folder the implemented material models including the propagation functions are located)
+- analysis (this folder is used to implement analysis classes which are used as interfaces to query any sub system and provide some sort of data for the user)
+- io (in this folder the in/out of external raytracer formats is collected)
+- material (in this folder the implemented material models including the propagation functions are located)
 
 Install the package via `pip install pyrateoptics` or for development
 via `pip install -e .`. As a starting point, set up your initial system
