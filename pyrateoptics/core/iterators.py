@@ -247,9 +247,15 @@ class OptimizableVariableIterator(AbstractIterator):
 class AbstractOptimizableVariableModifyingCollector(AbstractModifyingIterator,
                                                     OptimizableVariableIterator):
     """
-    modifyElement still has to be implemented.
+    AbstractOptimizableVariableModifyingCollector takes the description
+    of special objects (isSubInstance, isCollectableElement) from
+    OptimizableVariableIterator, but the run method uses traverse_modify
+    from AbstractModifyingIterator.
+
+    The method modifyElement still has to be implemented by subclass.
     """
-    pass
+    def run(self, *args, **kwargs):
+        AbstractModifyingIterator.run(*args, **kwargs)
 
 
 class OptimizableVariableCollector(OptimizableVariableIterator):
@@ -335,20 +341,25 @@ class OptimizableVariableKeyIterator(OptimizableVariableCollector):
     def run(self, shortkeys=True):
         super(OptimizableVariableKeyIterator, self).run(shortkeys)
 
-# TODO derive from AbstractOptimizableVariableModifyingCollector
-# read key_assignmet dict
-class OptimizableVariableSetKeyIterator(OptimizableVariableKeyIterator):
+
+class OptimizableVariableSetKeyIterator(
+        OptimizableVariableKeyIterator,
+        AbstractOptimizableVariableModifyingCollector):
 
     def __init__(self, class_instance, key_assignment_dictionary, run=True,
                  *args, **kwargs):
-        super(OptimizableVariableSetKeyIterator, self).__init__(
+        super().__init__(
                 class_instance,
                 run=run, *args, **kwargs)
         self.key_assignment_dictionary = key_assignment_dictionary
 
-    def collectElement(self, variable, keystring, *args, **kwargs):
-        variable = self.key_assignment_dictionary[keystring]
-        # TODO: does not work since variable is read-only
+    def run(self, shortkeys=True, *args, **kwargs):
+        AbstractOptimizableVariableModifyingCollector.run(self, shortkeys)
+
+    def modifyElement(self, variable_reference, newkeystring, *args, **kwargs):
+        if self.key_assignment_dictionary.get(newkeystring, None) is not None:
+            variable_reference.value =\
+                self.key_assignment_dictionary[newkeystring]
 
 
 class OptimizableVariableActiveCollector(OptimizableVariableCollector):
