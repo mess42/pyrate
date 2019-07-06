@@ -26,29 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from .log import BaseLogger
 
-'''
-# TODO: functions for multi configs
-
-    def resetVariable(self, key, var):
-        """
-        Resets variable by evaluating deref string from getAllVariables
-        dictionary. Maybe this could be solved by using less black magic.
-        Although this method is necessary for maintaining multi configs.
-        """
-
-        dict_of_vars = self.getAllVariables()
-        deref = dict_of_vars["deref"][key]
-        exec(compile("self" + deref + " = var", "<string>", "exec"))
-
-    def getVariable(self, key):
-        """
-        Gets variable from short key.
-        """
-        dict_of_vars = self.getAllVariables()
-        variable = dict_of_vars["vars"][key]
-        return variable
-'''
-
 
 class ClassWithOptimizableVariables(BaseLogger):
     """

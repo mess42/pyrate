@@ -29,7 +29,7 @@ import numpy as np
 
 from .log import BaseLogger
 from .base import ClassWithOptimizableVariables
-from .optimizable_variable import OptimizableVariable
+from .optimizable_variable import OptimizableVariable, FixedState
 
 
 class AbstractIterator(BaseLogger):
@@ -132,6 +132,82 @@ class AbstractIterator(BaseLogger):
         self.postRun(*args, **kwargs)
 
 
+class VariableReference(object):
+    def __init__(self, value):
+        self.value = value
+
+
+class AbstractModifyingIterator(AbstractIterator):
+
+    def modifyElement(self, variable_reference, newkeystring, *args, **kwargs):
+        raise NotImplementedError()
+
+    def traverse_modify(self, variable_reference, keystring, *args, **kwargs):
+        value = variable_reference.value
+        if self.isTraversableElement(value, *args, **kwargs):
+            if self.isCollectableElement(value, *args, **kwargs):
+                newkeystring = keystring + self.collectAccessSpecifier(
+                        value,
+                        self.getCollectableVariableIdentifier(value),
+                        *args, **kwargs)
+                self.collectParentChild(type(value), value, None)
+                self.modifyElement(variable_reference, newkeystring,
+                                   *args, **kwargs)
+                return
+            elif isinstance(value, list)\
+                or isinstance(value, tuple)\
+                    or isinstance(value, set):
+                new_list = []
+                for (ind, part) in enumerate(value):
+                    newkeystring = keystring +\
+                        self.collectAccessSpecifier(value, str(ind),
+                                                    *args, **kwargs)
+                    self.collectParentChild(type(value), value, part)
+                    part_reference = VariableReference(part)
+                    self.traverse_modify(part_reference, newkeystring,
+                                         *args, **kwargs)
+                    new_list.append(part_reference.value)
+                variable_reference.value = type(value)(new_list)
+            elif isinstance(value, dict):
+                new_dict = {}
+                for (key, dict_val) in value.items():
+                    newkeystring = keystring + self.collectAccessSpecifier(
+                            value, key, *args, **kwargs)
+                    self.collectParentChild(type(value), value, dict_val)
+                    dict_val_reference = VariableReference(dict_val)
+                    self.traverse_modify(dict_val_reference, newkeystring,
+                                         *args, **kwargs)
+                    new_dict[key] = dict_val_reference.value
+                variable_reference.value = new_dict
+            elif self.isSubInstance(value):
+                sub_instance_backup = self.sub_instance
+                self.sub_instance = value
+                newkeystring = keystring +\
+                    self.collectAccessSpecifier(
+                        value,
+                        self.getSubInstanceVariableIdentifier(
+                                value
+                        ),
+                        *args, **kwargs)
+                self.collectParentChild(type(value), value,
+                                        value.__dict__)
+                class_dict_reference = VariableReference(value.__dict__)
+                self.traverse_modify(class_dict_reference,
+                                     newkeystring, *args, **kwargs)
+                value.__dict__ = class_dict_reference.value
+                self.sub_instance = sub_instance_backup
+            else:
+                # all others
+                self.collectRest(value, keystring, *args, **kwargs)
+
+    def run(self, *args, **kwargs):
+        self.preRun(*args, **kwargs)
+        class_instance_reference = VariableReference(self.class_instance)
+        self.traverse_modify(class_instance_reference, "", *args, **kwargs)
+        self.class_instance = class_instance_reference.value
+        self.postRun(*args, **kwargs)
+
+
 class OptimizableVariableIterator(AbstractIterator):
     """
     Traverse ClassWithOptimizableVariables and their subclasses
@@ -166,6 +242,14 @@ class OptimizableVariableIterator(AbstractIterator):
 
     def isSubInstance(self, variable):
         return isinstance(variable, ClassWithOptimizableVariables)
+
+
+class AbstractOptimizableVariableModifyingCollector(AbstractModifyingIterator,
+                                                    OptimizableVariableIterator):
+    """
+    modifyElement still has to be implemented.
+    """
+    pass
 
 
 class OptimizableVariableCollector(OptimizableVariableIterator):
@@ -251,7 +335,8 @@ class OptimizableVariableKeyIterator(OptimizableVariableCollector):
     def run(self, shortkeys=True):
         super(OptimizableVariableKeyIterator, self).run(shortkeys)
 
-
+# TODO derive from AbstractOptimizableVariableModifyingCollector
+# read key_assignmet dict
 class OptimizableVariableSetKeyIterator(OptimizableVariableKeyIterator):
 
     def __init__(self, class_instance, key_assignment_dictionary, run=True,
