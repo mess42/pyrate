@@ -29,7 +29,8 @@ import numpy as np
 
 
 from pyrateoptics.raytracer.ray import RayBundle
-from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+from pyrateoptics.raytracer.analysis.optical_system_analysis import\
+    OpticalSystemAnalysis
 
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend
@@ -81,11 +82,11 @@ def meritfunctionrms(my_s):
 
 
 backsurf = s.elements["stdelem"].surfaces["back"]
-backsurf.shape.params["curv"].changetype("variable")
-backsurf.shape.params["cc"].changetype("variable")
+backsurf.shape.params["curv"].toVariable()
+backsurf.shape.params["cc"].toVariable()
 # A2 not variable
-backsurf.shape.params["A4"].changetype("variable")
-backsurf.shape.params["A6"].changetype("variable")
+backsurf.shape.params["A4"].toVariable()
+backsurf.shape.params["A6"].toVariable()
 
 opt_backend = ScipyBackend(method='Nelder-Mead', tol=1e-9)
 optimi = Optimizer(s, meritfunctionrms, opt_backend,

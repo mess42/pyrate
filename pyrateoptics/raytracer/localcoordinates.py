@@ -30,10 +30,12 @@ import random
 
 from .helpers_math import rodrigues
 
-from ..core.base import ClassWithOptimizableVariables, OptimizableVariable
+from ..core.base import ClassWithOptimizableVariables
+from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
+
 
 class LocalCoordinates(ClassWithOptimizableVariables):
-    def __init__(self, name="", kind="localcoordinates", **kwargs):
+    def __init__(self, name="", **kwargs):
         # TODO: Reference to global to be rewritten into reference to root
         '''
         Defines a local coordinate system, on which translated or tilted optical surfaces may refer.
@@ -53,9 +55,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                           1 or True means: tiltz first, then tilty, then tiltx, then decenter.
                         observers:        list of observers derived from AbstractObserver
         '''
-        super(LocalCoordinates, self).__init__(
-                name=name, kind=kind,
-                **kwargs)
+        super(LocalCoordinates, self).__init__(name=name)
 
         (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
         (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "tiltThenDecenter"])
@@ -64,12 +64,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
 
 
-        self.decx = OptimizableVariable(name="decx", variable_type='fixed', value=decx)
-        self.decy = OptimizableVariable(name="decy", variable_type='fixed', value=decy)
-        self.decz = OptimizableVariable(name="decz", variable_type='fixed', value=decz)
-        self.tiltx = OptimizableVariable(name="tiltx", variable_type='fixed', value=tiltx)
-        self.tilty = OptimizableVariable(name="tilty", variable_type='fixed', value=tilty)
-        self.tiltz = OptimizableVariable(name="tiltz", variable_type='fixed', value=tiltz)
+        self.decx = FloatOptimizableVariable(FixedState(decx), name="decx")
+        self.decy = FloatOptimizableVariable(FixedState(decy), name="decy")
+        self.decz = FloatOptimizableVariable(FixedState(decz), name="decz")
+        self.tiltx = FloatOptimizableVariable(FixedState(tiltx), name="tiltx")
+        self.tilty = FloatOptimizableVariable(FixedState(tilty), name="tilty")
+        self.tiltz = FloatOptimizableVariable(FixedState(tiltz), name="tiltz")
 
         self.tiltThenDecenter = tiltThenDecenter
 
@@ -83,6 +83,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
         self.update() # initial update
 
+    def setKind(self):
+        self.kind = "localcoordinates"
 
     def getChildren(self):
         return self.__children

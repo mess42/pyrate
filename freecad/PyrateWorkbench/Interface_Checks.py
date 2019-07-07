@@ -24,32 +24,40 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from .Interface_Identifiers import *
+from .Interface_Identifiers import Group_StandardMaterials_Label
+
 
 def isLocalCoordinatesObserver(fobj):
     tmp = 'lcclass' in fobj.PropertiesList
     return tmp
 
+
 def isOpticalSystemObserver(fobj):
     tmp = 'wavelengths' in fobj.PropertiesList
     return tmp
-    
+
+
 def isFunctionsObject(fobj):
     tmp = 'functions' in fobj.PropertiesList
     return tmp
 
+
 def isGroup(fobj):
     return 'Group' in fobj.PropertiesList
-    
+
+
 def isMaterialCatalogue(fobj):
     result = False
     if isGroup(fobj):
-        result = any(['NameMaterialsCatalogue' in o.PropertiesList for o in fobj.Group])
+        result = any(['NameMaterialsCatalogue' in o.PropertiesList
+                      for o in fobj.Group])
     return result
-    
+
+
 def isMaterial(fobj):
     return 'matclass' in fobj.PropertiesList
 
+
 def existsStandardMaterials(doc):
-    return all([obj.Label != Group_StandardMaterials_Label for obj in doc.Objects if isMaterialCatalogue(obj)])
-    
+    return all([obj.Label != Group_StandardMaterials_Label
+                for obj in doc.Objects if isMaterialCatalogue(obj)])

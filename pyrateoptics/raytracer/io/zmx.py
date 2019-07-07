@@ -31,19 +31,19 @@ import uuid
 
 import numpy as np
 
-from ..raytracer.optical_system import OpticalSystem
-from ..raytracer.optical_element import OpticalElement
-from ..raytracer.localcoordinates import LocalCoordinates
-from ..raytracer.surface import Surface
-from ..raytracer.surface_shape import (Conic,
-                                       Asphere,
-                                       LinearCombination,
-                                       ZernikeFringe,
-                                       GridSag)
-from ..raytracer.aperture import CircularAperture, RectangularAperture
-from ..core.log import BaseLogger
+from ..optical_system import OpticalSystem
+from ..optical_element import OpticalElement
+from ..localcoordinates import LocalCoordinates
+from ..surface import Surface
+from ..surface_shape import (Conic,
+                             Asphere,
+                             LinearCombination,
+                             ZernikeFringe,
+                             GridSag)
+from ..aperture import CircularAperture, RectangularAperture
+from ...core.log import BaseLogger
 from ..material.material_isotropic import ModelGlass, ConstantIndexGlass
-from ..raytracer.globalconstants import numerical_tolerance, degree
+from ..globalconstants import numerical_tolerance, degree
 
 
 class ZMXParser(BaseLogger):
@@ -51,10 +51,13 @@ class ZMXParser(BaseLogger):
     Class for parsing ZMX files and constructing an optical system from them.
     """
 
-    def __init__(self, filename, name="", kind="zmxparser", **kwargs):
-        super(ZMXParser, self).__init__(name=name, kind=kind, **kwargs)
+    def __init__(self, filename, name=""):
+        super(ZMXParser, self).__init__(name=name)
         self.__textlines = []
         self.loadFile(filename)
+
+    def setKind(self):
+        self.kind = "zmxparser"
 
     def checkForUTF16(self, filename):
         isascii = True
@@ -645,11 +648,11 @@ class ZMXParser(BaseLogger):
                 disz, dec, tilt (or tilt, dec)
                 2nd step: update vertex
                 """
-                lc.decx.setvalue(parms.get(1, 0.0))
-                lc.decy.setvalue(parms.get(2, 0.0))
-                lc.tiltx.setvalue(parms.get(3, 0.0)*math.pi/180.0)
-                lc.tilty.setvalue(parms.get(4, 0.0)*math.pi/180.0)
-                lc.tiltz.setvalue(parms.get(5, 0.0)*math.pi/180.0)
+                lc.decx.set_value(parms.get(1, 0.0))
+                lc.decy.set_value(parms.get(2, 0.0))
+                lc.tiltx.set_value(parms.get(3, 0.0)*math.pi/180.0)
+                lc.tilty.set_value(parms.get(4, 0.0)*math.pi/180.0)
+                lc.tiltz.set_value(parms.get(5, 0.0)*math.pi/180.0)
                 lc.tiltThenDecenter = bool(parms.get(6, 0))
                 lc.update()
                 actsurf = Surface(lc, name=surfname)

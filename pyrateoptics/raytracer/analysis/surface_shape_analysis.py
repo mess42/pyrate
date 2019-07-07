@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from ..core.log import BaseLogger
+from ...core.log import BaseLogger
 
 
 class ShapeAnalysis(BaseLogger):
@@ -34,9 +34,12 @@ class ShapeAnalysis(BaseLogger):
     Class for performing shape analysis.
     """
 
-    def __init__(self, shape, kind="shapeanalysis", name="", **kwargs):
-        super(ShapeAnalysis, self).__init__(name=name, kind=kind, **kwargs)
+    def __init__(self, shape, name=""):
+        super(ShapeAnalysis, self).__init__(name=name)
         self.shape = shape
+
+    def setKind(self):
+        self.kind = "shapeanalysis"
 
     def generateSagTable(self, xlinspace, ylinspace):
         """

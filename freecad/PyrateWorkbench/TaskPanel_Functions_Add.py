@@ -31,12 +31,12 @@ from PySide import QtGui
 from .Object_Functions import FunctionsObject, FunctionsView
 
 from .Interface_Helpers import *
-from .Interface_Identifiers import *
+from .Interface_Identifiers import Title_MessageBoxes
 
 class FunctionsTaskPanelAdd:
     def __init__(self, doc, stringlist):
-        fn = getRelativeFilePath(__file__, 'Qt/dlg_functionsobject_add.ui')        
-        
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_functionsobject_add.ui')
+
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(fn)
         self.form.comboBox.addItems(stringlist)
@@ -46,19 +46,11 @@ class FunctionsTaskPanelAdd:
         oslabel = self.form.comboBox.currentText()
         name_of_functionsobject = self.form.lineEditName.text()
         initial_source_code = self.form.plainTextEdit.toPlainText()
-        
-        try:        
-            os = self.doc.getObjectsByLabel(oslabel)[0]
-        except IndexError:
-            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "No optical system available! Please create one.")            
-        else:
-            fngroupname = os.NameFunctionsGroup
-            fngroup = self.doc.getObject(fngroupname)
-    
-            fnobj = FunctionsObject(name_of_functionsobject, initial_source_code, self.doc, fngroup) 
-            FunctionsView(fnobj.Object.ViewObject)
+
+        fnobj = FunctionsObject(name_of_functionsobject, initial_source_code, self.doc, "")
+        FunctionsView(fnobj.Object.ViewObject)
 
         FreeCADGui.Control.closeDialog()
 
-        
+
 

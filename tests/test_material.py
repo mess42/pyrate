@@ -30,7 +30,8 @@ from hypothesis.extra.numpy import arrays
 import numpy as np
 import sympy
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
-from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
+from pyrateoptics.raytracer.material.material_anisotropic import\
+    AnisotropicMaterial
 
 @given(rnd_data1=arrays(np.float, (3, 3), elements=floats(0, 1)),
        rnd_data2=arrays(np.float, (3, 3), elements=floats(0, 1)),

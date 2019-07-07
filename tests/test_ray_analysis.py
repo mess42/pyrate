@@ -27,7 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import math
 import numpy as np
 from pyrateoptics.raytracer.ray import RayBundle
-from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
+from pyrateoptics.raytracer.analysis.ray_analysis import RayBundleAnalysis
+
 
 def test_centroid():
     """
@@ -41,6 +42,7 @@ def test_centroid():
     centroid = rayanalysis.getCentroidPosition()
     assert np.allclose(centroid, 4./5.)
 
+
 def test_rmsspotsize():
     """
     TODO
@@ -52,6 +54,7 @@ def test_rmsspotsize():
     rayanalysis = RayBundleAnalysis(raybundle)
     rmssize = rayanalysis.getRMSspotSize(np.array([0, 0, 0]))
     assert np.isclose(rmssize, math.sqrt(18.0/4.0))
+
 
 def test_arc_length():
     """
@@ -88,6 +91,7 @@ def test_direction_centroid():
     rayanalysis = RayBundleAnalysis(raybundle)
     centroiddir = rayanalysis.getCentroidDirection()
     assert np.allclose(centroiddir, np.array([0, 0, 1]))
+
 
 def test_rms_angularsize():
     """

@@ -24,39 +24,33 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-from ..core.log import BaseLogger
+from .log import BaseLogger
+from .functionobject import FunctionObject
 
 
-class OpticalElementAnalysis(BaseLogger):
+class FunctionObjectsPool(BaseLogger):
     """
-    Class for optical element analysis.
+    For serializing a collection of function objects
     """
 
-    def __init__(self, oe, elemseq,
-                 name="",
-                 kind="opticalelementanalysis",
-                 **kwargs):
-        super(OpticalElementAnalysis, self).__init__(
-                kind=kind, name=name, **kwargs)
-        self.opticalelement = oe
-        self.elementsequence = elemseq
+    def __init__(self, functionobjectsdictionary, name=""):
+        super(FunctionObjectsPool, self).__init__(name=name)
 
-    def calcXYUV(self, parthitlist, pilotbundle, fullsequence,
-                 background_medium):
-        """
-        Calculate XYUV matrices.
-        """
+        self.functionobjects_dictionary = functionobjectsdictionary
 
-        # FIXME: to many parameters in call
-        # maybe set pilotbundle and background medium in advance
+    def setKind(self):
+        self.kind = "functionobjectspool"
 
-        (_, matrices) = self.opticalelement.\
-            calculateXYUV(pilotbundle, fullsequence, background_medium)
+    def toDictionary(self):
+        result_dictionary = {}
+        for (key, fo) in self.functionobjects_dictionary.items():
+            result_dictionary[key] = fo.toDictionary()
+        return result_dictionary
 
-        tmp = np.eye(4)
-
-        for hit in parthitlist:
-            tmp = np.dot(matrices[hit], tmp)
-
-        return tmp
+    @staticmethod
+    def fromDictionary(dictionary, source_checked, variables_checked, name=""):
+        result_dictionary = {}
+        for (key, fodict) in dictionary.items():
+            result_dictionary[key] = FunctionObject.fromDictionary(
+                fodict, source_checked, variables_checked)
+        return FunctionObjectsPool(result_dictionary, name=name)

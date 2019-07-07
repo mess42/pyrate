@@ -27,10 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 import math
 
-from ..raytracer.globalconstants import standard_wavelength
-from ..core.base import OptimizableVariable
+from ...core.optimizable_variable import FloatOptimizableVariable, FixedState
+from ..globalconstants import standard_wavelength
 
 from .material_isotropic import IsotropicMaterial
+
 
 class IsotropicGrinMaterial(IsotropicMaterial):
     def __init__(self, lc, fun, dfdx, dfdy, dfdz, parameterlist=[], name="", comment=""):
@@ -45,7 +46,8 @@ class IsotropicGrinMaterial(IsotropicMaterial):
 
         self.params = {}
         for (name, value) in parameterlist:
-            self.params[name] = OptimizableVariable(name=name, value=value)
+            self.params[name] = FloatOptimizableVariable(FixedState(value),
+                                                         name=name)
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)
@@ -53,7 +55,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         mat[0, 0, :] = 1.
         mat[1, 1, :] = 1.
         mat[2, 2, :] = 1.
-        
+
         return mat*self.nfunc(x, **self.params)**2
 
     def getIndex(self, x, wave=standard_wavelength):
@@ -92,8 +94,8 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         updatedpos = startpoint
         updatedvel = velocities[-1]
 
-        while not np.all(final): 
-            
+        while not np.all(final):
+
             loopcount += 1
             lastpos = positions[-1]
             lastvel = velocities[-1]
@@ -115,8 +117,8 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             positions.append(newpos)
             velocities.append(newvel)
 
-            
-            
+
+
 
             # validity and finalization check
 
@@ -132,7 +134,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
 
             self.debug("step(" + str(loopcount) + ") -> energy conservation violation: " + str(totalenergy))
 
-            xglobalnewpos = self.lc.returnLocalToGlobalPoints(newpos)                        
+            xglobalnewpos = self.lc.returnLocalToGlobalPoints(newpos)
             xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(xglobalnewpos)
 
             final = (xshape[2] - nextSurface.shape.getSag(xshape[0], xshape[1]) > 0)
@@ -141,7 +143,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             valid[True ^ self.inBoundary(newpos)] = False
             # has ray hit boundary? mark as invalid
 
-            final[True ^ valid] += True            
+            final[True ^ valid] += True
             # all non valid rays are also final
 
             updatedpos[:,True ^ final] = newpos[:,True ^ final]
@@ -150,8 +152,8 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             k0 = 1. #2.*math.pi/raybundle.wave
             newk = k0*updatedvel/self.nfunc(updatedpos, **self.params)
             Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))
-            kapp = self.lc.returnLocalToGlobalDirections(newk)            
-            xapp = self.lc.returnLocalToGlobalPoints(updatedpos)            
+            kapp = self.lc.returnLocalToGlobalDirections(newk)
+            xapp = self.lc.returnLocalToGlobalPoints(updatedpos)
 
             pointstodraw.append(1.*updatedpos)
             momentatodraw.append(1.*updatedvel)
@@ -167,9 +169,9 @@ class IsotropicGrinMaterial(IsotropicMaterial):
 
 
     def propagate(self, raybundle, nextSurface):
-        
+
         self.symplecticintegrator(raybundle, nextSurface, self.ds)
-        
+
         nextSurface.intersect(raybundle)
 
 

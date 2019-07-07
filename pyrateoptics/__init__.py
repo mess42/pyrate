@@ -36,8 +36,8 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
 
-
-from .analysis.optical_system_analysis import OpticalSystemAnalysis
+from .core.iterators import OptimizableVariableKeyIterator
+from .raytracer.analysis.optical_system_analysis import OpticalSystemAnalysis
 from .raytracer.optical_system import OpticalSystem
 from .raytracer.localcoordinates import LocalCoordinates
 from .raytracer.optical_element import OpticalElement
@@ -47,8 +47,9 @@ from .raytracer.globalconstants import (numerical_tolerance,
                                         standard_wavelength,
                                         degree)
 from .raytracer.ray import RayBundle, RayPath
-from .material.material_isotropic import ConstantIndexGlass
-from .material.material_glasscat import refractiveindex_dot_info_glasscatalog
+from .raytracer.material.material_isotropic import ConstantIndexGlass
+from .raytracer.material.material_glasscat import\
+     refractiveindex_dot_info_glasscatalog
 
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions
@@ -113,8 +114,8 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
 
     for (surfdict, coordbreakdict, mat, surf_name, optdict) in builduplist:
         lc = elem.addLocalCoordinateSystem(
-                LocalCoordinates(name=surf_name + "_lc", **coordbreakdict),
-                refname=refname)
+            LocalCoordinates(name=surf_name + "_lc", **coordbreakdict),
+            refname=refname)
         shapetype = "shape_" + surfdict.pop("shape", "Conic")
         aperture = surfdict.pop("aperture", None)
         if shapetype == "shape_LinearCombination":
@@ -123,12 +124,15 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
             list_of_coefficients_and_shapes =\
                 surfdict.get("list_of_coefficients_and_shapes", [])
             new_list_coeffs_shapes = []
-            for (ind, (coeff_part, surfdict_part)) in enumerate(list_of_coefficients_and_shapes, 1):
+            for (ind, (coeff_part, surfdict_part)) in\
+                    enumerate(list_of_coefficients_and_shapes, 1):
                 shapetype_part = "shape_" + surfdict_part.pop("shape", "Conic")
                 new_list_coeffs_shapes.append((coeff_part,
-                                               accessible_shapes[shapetype_part]
+                                               accessible_shapes[
+                                                   shapetype_part]
                                                (lc,
-                                                name=name + "_shape" + str(ind),
+                                                name=name + "_shape" +
+                                                str(ind),
                                                 **surfdict_part)))
 
             actsurf = Surface(lc, name=surf_name + "_surf",
@@ -205,15 +209,15 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     s = OpticalSystem(name=name)
 
     lc0 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="object", decz=0.0),
-            refname=s.rootcoordinatesystem.name)
+        LocalCoordinates(name="object", decz=0.0),
+        refname=s.rootcoordinatesystem.name)
 
     elem_name = "stdelem"
     logger.info("Element name %s" % (elem_name,))
 
     (elem, elem_seq) = build_simple_optical_element(
-            lc0, builduplist,
-            material_db_path=material_db_path, name=elem_name)
+        lc0, builduplist,
+        material_db_path=material_db_path, name=elem_name)
     s.addElement(elem_name, elem)
 
     s.material_background.setName("background")
@@ -233,21 +237,21 @@ def build_optical_system(builduplist, material_db_path="", name=""):
     logger.info("Creating multiple element optical system")
     s = OpticalSystem(name=name)
     lc0 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="object", decz=0.0),
-            refname=s.rootcoordinatesystem.name)
+        LocalCoordinates(name="object", decz=0.0),
+        refname=s.rootcoordinatesystem.name)
 
     full_elements_seq = []
     refname = lc0.name
     for (element_list, coordbreakdict, elem_name) in builduplist:
         logger.info("Element name %s" % (elem_name,))
         lc = s.addLocalCoordinateSystem(
-                LocalCoordinates(name=elem_name + "_lc", **coordbreakdict),
-                refname=refname)
+            LocalCoordinates(name=elem_name + "_lc", **coordbreakdict),
+            refname=refname)
         refname = lc.name
 
         (elem, elem_seq) = build_simple_optical_element(
-                lc, element_list,  # builduplist?
-                material_db_path=material_db_path, name=elem_name)
+            lc, element_list,  # builduplist?
+            material_db_path=material_db_path, name=elem_name)
         full_elements_seq.append(elem_seq)
         s.addElement(elem_name, elem)
 
@@ -413,7 +417,7 @@ def draw(os, rays=None,
                     bbox_inches='tight', pad_inches=0)
 
     if not hold_on:
-      plt.show()
+        plt.show()
 
 
 def raytrace(s, seq, numrays, rays_dict, bundletype="collimated",
@@ -440,9 +444,7 @@ def listOptimizableVariables(os, filter_status=None, max_line_width=None):
     :returns os.getAllVariables()
     """
 
-    dict_variables = os.getAllVariables()
-
-    lst = dict_variables["vars"]
+    lst = OptimizableVariableKeyIterator(os).variables_dictionary
 
     def shorten_string(s, maxlen=None, intermediate_string="..."):
 
@@ -463,9 +465,11 @@ def listOptimizableVariables(os, filter_status=None, max_line_width=None):
             print(" ".join("{:{}}".format(x, col_width[i])
                            for i, x in enumerate(line)))
 
-    table = [(shorten_string(a, maxlen=max_line_width), b.var_type, str(b.evaluate()))
+    table = [(shorten_string(a, maxlen=max_line_width),
+              b.var_type(),
+              str(b.evaluate()))
              for (a, b) in sorted(lst.items(), key=lambda x: (
-                     len(x[0].split('.')) - 1, x[0]))]
+                 len(x[0].split('.')) - 1, x[0]))]
     # sort by number of . in dict key and afterwards by lexical order
 
     if filter_status is not None:
@@ -473,4 +477,4 @@ def listOptimizableVariables(os, filter_status=None, max_line_width=None):
 
     print_table(table)
 
-    return dict_variables
+    return lst

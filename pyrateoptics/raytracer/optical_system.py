@@ -28,12 +28,13 @@ import numpy as np
 from pprint import pformat
 from copy import deepcopy
 
+from .material.material_keyword_class_association import kind_of_material_classes
+from .material.material_isotropic import ConstantIndexGlass
+
 from .raytracer_keyword_class_association import kind_of_raytracer_classes
-from ..material.material_keyword_class_association import kind_of_material_classes
 from .localcoordinates import LocalCoordinates
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
 from .optical_element import OpticalElement
-from ..material.material_isotropic import ConstantIndexGlass
 
 from .ray import RayPath
 
@@ -41,8 +42,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, rootlc=None, matbackground=None,
-                 name="", kind="opticalsystem", **kwargs):
+    def __init__(self, rootlc=None, matbackground=None, name=""):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -57,16 +57,15 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         self.rootcoordinatesystem = rootlc
 
         super(OpticalSystem, self).__init__(
-                self.rootcoordinatesystem, name=name, kind=kind,
-                **kwargs)
+                self.rootcoordinatesystem, name=name)
         if matbackground is None:
             matbackground = ConstantIndexGlass(self.rootcoordinatesystem, 1.0, name="background")
 
         self.material_background = matbackground # Background material
         self.elements = {}
 
-    def getDictionary(self):
-        return super(OpticalSystem, self).getDictionary()
+    def setKind(self):
+        self.kind = "opticalsystem"
 
     def seqtrace(self, initialbundle, elementsequence, splitup=False): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
         rpath = RayPath(initialbundle)

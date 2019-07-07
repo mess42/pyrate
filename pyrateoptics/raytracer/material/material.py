@@ -26,22 +26,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 import math
-from ..core.base import ClassWithOptimizableVariables
 import scipy.linalg as sla
 
-from ..raytracer.globalconstants import standard_wavelength
+from ...core.base import ClassWithOptimizableVariables
+from ..globalconstants import standard_wavelength
+
 
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
 
-    def __init__(self, lc, name="", kind="material", **kwargs):
+    def __init__(self, lc, name="", comment=""):
         """
         virtual constructor
         """
-        self.comment = kwargs.pop("comment", "") # remove comment from keywords arg
+        super(Material, self).__init__(name=name)
+        self.comment = comment
+        # remove comment from keywords arg
         self.lc = lc
-        super(Material, self).__init__(name=name, kind=kind, **kwargs)
 
+    def setKind(self):
+        self.kind = "material"
 
     def refract(self, raybundle, actualSurface):
         """
@@ -56,7 +60,8 @@ class Material(ClassWithOptimizableVariables):
 
     def reflect(self, raybundle, actualSurface):
         """
-        Class describing the interaction of the ray at the surface based on the material.
+        Class describing the interaction of the ray at the surface based on
+        the material.
 
         :param raybundle: Incoming raybundle ( RayBundle object )
         :param actualSurface: reflecting surface ( Surface object )
@@ -90,6 +95,9 @@ class MaxwellMaterial(Material):
         :return epsilon (3x3xN numpy array of complex)
         """
         raise NotImplementedError()
+
+    def setKind(self):
+        self.kind = "maxwellmaterial"
 
     def calcKnormEfield(self, x, n, kpa_norm, wave=standard_wavelength):
         (xi_4, efield_4) = self.calcXiEigenvectorsNorm(x, n, kpa_norm, wave=wave)

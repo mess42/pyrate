@@ -28,22 +28,25 @@ from scipy.optimize import minimize
 import numpy as np
 from ..core.log import BaseLogger
 
+
 class Backend(BaseLogger):
     """
-    Base class for the optimization backend. Performs one full optimization run.
-    Eats 1D numpy array as starting value. Spits out 1D numpy array as final
-    value. Needs to know an optimization function which converts the 1D
+    Base class for the optimization backend. Performs one full optimization
+    run. Eats 1D numpy array as starting value. Spits out 1D numpy array as
+    final value. Needs to know an optimization function which converts the 1D
     numpy array into the real valued function which is to be optimized.
     """
 
-
-    def __init__(self, name="", kind="optimizerbackend", **kwargs):
+    def __init__(self, name="", **kwargs):
         """
         kwargs is everything which is known at initialization time and needed
         by the optimization backend
         """
         self.options = kwargs
-        super(Backend, self).__init__(name=name, kind=kind)
+        super(Backend, self).__init__(name=name)
+
+    def setKind(self):
+        self.kind = "optimizerbackend"
 
     def init(self, func):
         """
@@ -70,16 +73,16 @@ class ScipyBackend(Backend):
         res = minimize(self.func, x0, args=(), **self.options)
         return res.x
 
+
 class Newton1DBackend(Backend):
     """
     Uses 1D Newton approach for optimization. Does not need scipy.
     Is only intended as failsafe solution.
     """
 
-
     def run(self, x0):
 
-        dx = self.options.get("dx", 1e-6) # set default to 1e-6
+        dx = self.options.get("dx", 1e-6)  # set default to 1e-6
         iters = self.options.get("iterations", 100)
 
         xfinal = x0
@@ -89,10 +92,7 @@ class Newton1DBackend(Backend):
             retries = np.ones_like(x0, dtype=bool)
             retrycount = 0
 
-
             x0 = xfinal
-
-            #print("iteration %d merit value: %f" % (i, self.func(x0)))
 
             while np.all(retries):
 
@@ -100,7 +100,8 @@ class Newton1DBackend(Backend):
 
                 merit0 = self.func(x0)
                 varvalue0 = x0
-                varvalue1 = varvalue0 + dx*(1. - 2*np.random.random(np.shape(x0)))
+                varvalue1 = varvalue0 +\
+                    dx*(1. - 2*np.random.random(np.shape(x0)))
                 merit1 = self.func(varvalue1)
 
                 to_be_updated = np.logical_not(np.isclose(merit1 - merit0, 0))
@@ -113,7 +114,9 @@ class Newton1DBackend(Backend):
                 merit2 = self.func(varvalue2)
 
                 guard = 0
-                while merit2 > merit0 and np.all(np.abs(varvalue2 - varvalue0)) > dx and guard < 1000:
+                while merit2 > merit0\
+                        and np.all(np.abs(varvalue2 - varvalue0)) > dx\
+                        and guard < 1000:
                     varvalue2 = 0.5*(varvalue2 + varvalue0)
                     xfinal = varvalue2
                     merit2 = self.func(varvalue2)
@@ -122,6 +125,7 @@ class Newton1DBackend(Backend):
                 retries = False
 
         return xfinal
+
 
 class ParticleSwarmBackend(Backend):
 
@@ -134,16 +138,21 @@ class ParticleSwarmBackend(Backend):
                 self.v = v0
                 self.pb = x0
 
-        initcube = self.options.get("cube", np.vstack((-np.ones(np.shape(x0)), np.ones(np.shape(x0)))))
+        initcube = self.options.get("cube",
+                                    np.vstack((-np.ones(np.shape(x0)),
+                                               np.ones(np.shape(x0)))))
         cubedelta = initcube[1] - initcube[0]
         num_particles = self.options.get("num_particles", 10)
-        max_velocities = self.options.get("max_velocities", 0.1*np.ones(np.shape(x0)))
+        max_velocities = self.options.get("max_velocities",
+                                          0.1*np.ones(np.shape(x0)))
         tol = self.options.get("tol", 1e-3)
         max_iters = self.options.get("iterations", 100)
 
         particle_list = [
-            particle(x0 + initcube[0] + np.random.random(np.shape(x0))*cubedelta,
-                     max_velocities*(1. - 2.*np.random.random(np.shape(x0)))) for i in range(num_particles)]
+            particle(x0 + initcube[0] +
+                     np.random.random(np.shape(x0))*cubedelta,
+                     max_velocities*(1. - 2.*np.random.random(np.shape(x0))))
+            for i in range(num_particles)]
 
         termination = False
 
@@ -154,7 +163,6 @@ class ParticleSwarmBackend(Backend):
                     result = np.copy(p.x)
             return result
 
-
         c1 = self.options.get("c1", 2.0)
         c2 = self.options.get("c2", 2.0)
 
@@ -162,17 +170,14 @@ class ParticleSwarmBackend(Backend):
 
         result = np.zeros(np.shape(x0))
 
-
         while not termination and iters < max_iters:
             iters += 1
             pg = bestglobalpos()
 
             phi = c1 + c2
-            chi =  2./np.abs(2. - phi - np.sqrt(phi**2 - 4.*phi))
-
+            chi = 2./np.abs(2. - phi - np.sqrt(phi**2 - 4. * phi))
 
             particle_com = np.zeros(np.shape(x0))
-
 
             for p in particle_list:
                 if self.func(p.x) < self.func(p.pb):
@@ -180,7 +185,6 @@ class ParticleSwarmBackend(Backend):
 
                 r1 = np.random.random()
                 r2 = np.random.random()
-
 
                 p.v = chi*(p.v + c1*r1*(p.pb - p.x) + c2*r2*(pg - p.x))
                 p.x = p.x + p.v
@@ -207,10 +211,11 @@ class SimulatedAnnealingBackend(Backend):
             Nt = self.options.get("Nt", 10)
             Tt = self.options.get("Tt", np.exp(-np.linspace(0, 10, 10)))
 
-
             def choose_neighbour(x):
-                neighbourhood = self.options.get("neighbourhood", np.ones(np.shape(x0)))
-                return x + neighbourhood*(1. - 2*np.random.random(np.shape(x0)))
+                neighbourhood = self.options.get(
+                        "neighbourhood", np.ones(np.shape(x0)))
+                return x + neighbourhood*(
+                        1. - 2*np.random.random(np.shape(x0)))
 
             xapprox = np.copy(x0)
             x = np.copy(x0)
@@ -227,7 +232,8 @@ class SimulatedAnnealingBackend(Backend):
                     if yfunc <= xfunc:
                         x = y
                     else:
-                        if np.random.random() <= np.exp(-(yfunc - xfunc)/temperature):
+                        if np.random.random() <=\
+                                np.exp(-(yfunc - xfunc)/temperature):
                             x = y
                     if self.func(x) < self.func(xapprox):
                         xapprox = np.copy(x)
@@ -237,16 +243,15 @@ class SimulatedAnnealingBackend(Backend):
             return xapprox
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
 
     def fun(x):
         return ((x[0] - 1)**2 + (x[1] - 2)**2 - 25)**2
 
-    #p = ParticleSwarmBackend(cube=np.array([[-10, -10], [10, 10]]), c1=2.1, c2=2.1)
+    # p = ParticleSwarmBackend(cube=np.array([[-10, -10], [10, 10]]),
+    #                           c1=2.1, c2=2.1)
     p = SimulatedAnnealingBackend(name='sa', neighbourhood=np.array(2, 2))
     p.func = fun
-
 
     xfinal = p.run(np.array([20, 20]))
 

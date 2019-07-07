@@ -24,26 +24,37 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-from scipy.misc import factorial
 import math
-from ..core.base import ClassWithOptimizableVariables, OptimizableVariable
-from scipy.optimize import fsolve
-from scipy.interpolate import RectBivariateSpline, interp2d, bisplrep
-from scipy.special import jacobi
-from .globalconstants import numerical_tolerance
 import ctypes
+from distutils.version import StrictVersion
+
+import numpy as np
+
+import scipy
+from scipy.optimize import fsolve
+from scipy.interpolate import RectBivariateSpline
+from scipy.special import jacobi
+from ..core.base import ClassWithOptimizableVariables
+from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
+
+if StrictVersion(scipy.__version__) < StrictVersion("1.0.0"):
+    from scipy.misc import factorial
+else:
+    from scipy.special import factorial
+
 
 class Shape(ClassWithOptimizableVariables):
-    def __init__(self, lc, name="", kind="shape", **kwargs):
+    def __init__(self, lc, name=""):
         """
         Virtual Class for all surface shapes.
         The shape of a surface provides a function to calculate
         the intersection point with a ray.
         """
+        super(Shape, self).__init__(name=name)
         self.lc = lc
 
-        super(Shape, self).__init__(name=name, kind=kind, **kwargs)
+    def setKind(self):
+        self.kind = "shape"
 
     def intersect(self, raybundle):
         """
@@ -140,7 +151,7 @@ class Shape(ClassWithOptimizableVariables):
 
 
 class Conic(Shape):
-    def __init__(self, lc, curv=0.0, cc=0.0, **kwargs):
+    def __init__(self, lc, curv=0.0, cc=0.0, name=""):
         """
         Create rotationally symmetric surface
         with a conic cross section in the meridional plane.
@@ -154,10 +165,14 @@ class Conic(Shape):
              cc = 1 rotational paraboloid
              cc > 1 rotational hyperboloid
         """
-        super(Conic, self).__init__(lc, kind="shape_Conic", **kwargs)
+        super(Conic, self).__init__(lc)
 
-        self.curvature = OptimizableVariable(name="curvature", value=curv)
-        self.conic = OptimizableVariable(name="conic constant", value=cc)
+        self.curvature = FloatOptimizableVariable(FixedState(curv),
+                                             name="curvature")
+        self.conic = FloatOptimizableVariable(FixedState(cc), name="conic constant")
+
+    def setKind(self):
+        self.kind = "shape_Conic"
 
     def getSag(self, x, y):
         """
@@ -300,7 +315,7 @@ class Conic(Shape):
 
 
 class Cylinder(Conic):
-    def __init__(self, lc, curv=0.0, cc=0.0, **kwargs):
+    def __init__(self, lc, curv=0.0, cc=0.0, name="", **kwargs):
         """
         Create cylindric conic section surface.
 
@@ -313,11 +328,16 @@ class Cylinder(Conic):
              cc = 1 parabolic
              cc > 1 hyperbolic
         """
-        super(Cylinder, self).__init__(lc, kind="shape_Cylinder", **kwargs)
+        super(Cylinder, self).__init__(lc, name=name)
 
-        self.curvature = OptimizableVariable(name="curvature", value=curv)
-        self.conic = OptimizableVariable(name="conic constant", value=cc)
+        self.curvature = FloatOptimizableVariable(FixedState(curv),
+                                                  name="curvature")
+        self.conic = FloatOptimizableVariable(FixedState(cc),
+                                              name="conic constant")
 
+
+    def setKind(self):
+        self.kind = "shape_Cylinder"
 
     def getSag(self, x, y):
         """
@@ -354,7 +374,8 @@ class Cylinder(Conic):
 
 
 class FreeShape(Shape):
-    def __init__(self, lc, F, gradF, hessF, paramlist=[], tol=1e-6, iterations=10, **kwargs):
+    def __init__(self, lc, F, gradF, hessF, paramlist=[], tol=1e-6,
+                 iterations=10, name=""):
         """
         Freeshape surface defined by abstract function F (either implicitly
         or explicitly) and its x, y, z derivatives
@@ -366,12 +387,12 @@ class FreeShape(Shape):
         :param iterations: convergence parameter
         """
 
-        super(FreeShape, self).__init__(lc, **kwargs)
+        super(FreeShape, self).__init__(lc, name=name)
 
         self.params = {}
         for (name, value) in paramlist:
-            self.params[name] = OptimizableVariable(name=name, value=value)
-
+            self.params[name] = FloatOptimizableVariable(FixedState(value),
+                                                         name=name)
 
         self.tol = tol
         self.iterations = iterations
@@ -488,7 +509,7 @@ class Asphere(ExplicitShape):
     """
 
 
-    def __init__(self, lc, curv=0, cc=0, coefficients=None, **kwargs):
+    def __init__(self, lc, curv=0, cc=0, coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
@@ -556,7 +577,10 @@ class Asphere(ExplicitShape):
                                       paramlist=([("curv", curv),
                                                   ("cc", cc)] +
                                                  initacoeffs),
-                                      kind="shape_Asphere", **kwargs)
+                                      name=name)
+
+    def setKind(self):
+        self.kind = "shape_Asphere"
 
     def getAsphereParameters(self):
         return (self.params["curv"](),
@@ -573,7 +597,7 @@ class Biconic(ExplicitShape):
     """
 
     def __init__(self, lc, curvx=0, ccx=0, curvy=0, ccy=0,
-                 coefficients=None, **kwargs):
+                 coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
@@ -644,7 +668,10 @@ class Biconic(ExplicitShape):
                                                   ("ccx", ccx),
                                                   ("ccy", ccy)]
                                                  + initacoeffs+initbcoeffs),
-                                      kind="shape_Biconic", **kwargs)
+                                      name=name)
+
+    def setKind(self):
+        self.kind = "shape_Biconic"
 
     def getBiconicParameters(self):
         return (self.params["curvx"](),
@@ -664,8 +691,7 @@ class LinearCombination(ExplicitShape):
 
     def __init__(self,
                  lc,
-                 list_of_coefficients_and_shapes=[],
-                 **kwargs):
+                 list_of_coefficients_and_shapes=[], name=""):
         self.list_of_coefficient_and_shapes = list_of_coefficients_and_shapes
 
         def licosag(x, y):
@@ -714,8 +740,10 @@ class LinearCombination(ExplicitShape):
                                                 licosag,
                                                 licograd,
                                                 licohess,
-                                                kind="shape_LinearCombination",
-                                                **kwargs)
+                                                name=name)
+
+        def setKind(self):
+            self.kind = "shape_LinearCombination"
 
 
 class XYPolynomials(ExplicitShape):
@@ -723,7 +751,7 @@ class XYPolynomials(ExplicitShape):
     Class for XY polynomials
     """
 
-    def __init__(self, lc, normradius=100.0, coefficients=None, **kwargs):
+    def __init__(self, lc, normradius=100.0, coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
@@ -776,8 +804,10 @@ class XYPolynomials(ExplicitShape):
 
         super(XYPolynomials, self).__init__(lc, xyf, gradxyf, hessxyf,
                                             paramlist=initcoeffs,
-                                            kind="shape_XYPolynomials",
-                                            **kwargs)
+                                            name=name)
+
+    def setKind(self):
+        self.kind = "shape_XYPolynomials"
 
     def getXYParameters(self):
         return (self.params["normradius"](),
@@ -789,7 +819,7 @@ class GridSag(ExplicitShape):
     Class for gridsag
     """
 
-    def __init__(self, lc, xxx_todo_changeme, *args, **kwargs):
+    def __init__(self, lc, xxx_todo_changeme, name="", *args, **kwargs):
 
         (xlinspace, ylinspace, Zgrid) = xxx_todo_changeme
         kwargs_dict = kwargs
@@ -824,19 +854,23 @@ class GridSag(ExplicitShape):
             return res
 
         super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf,
-                                      shape="shape_GridSag",
                                       eps=1e-4, iterations=10, name=name)
+
+    def setKind(self):
+        self.kind = "shape_GridSag"
 
 class Zernike(ExplicitShape):
     """
     Class for Zernike
     """
 
-    def __init__(self, lc, normradius=1., coefficients=None, **kwargs):
+    def __init__(self, lc, normradius=1., coefficients=None, name=""):
         if coefficients is None:
             coefficients = []
 
         self.numcoefficients = len(coefficients)
+        #self.annotations = {}
+        #self.annotations["numcoefficients"] = len(coefficients)
         initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
 
         def zf(x, y):
@@ -865,8 +899,12 @@ class Zernike(ExplicitShape):
         def hesszf(x, y, z):
             return np.zeros((3, 3, len(x)))
 
+        # annotations are overwritten here
         super(Zernike, self).__init__(lc, zf, gradzf, hesszf, \
-            paramlist=([("normradius", normradius)]+initcoeffs), **kwargs)
+            paramlist=([("normradius", normradius)]+initcoeffs), name=name)
+
+    def setKind(self):
+        self.kind = "shape_Zernike"
 
     def getZernikeParameters(self):
         return (self.params["normradius"](), \
@@ -913,7 +951,8 @@ class Zernike(ExplicitShape):
         rho = np.sqrt(xp**2 + yp**2)
         omega = abs(m)
         sumlimit = (n-omega)//2
-        return (-1)**sumlimit*rho**omega*jacobi(sumlimit, omega, 0)(1. - 2.*rho**2)
+        return (-1)**sumlimit*rho**omega*jacobi(sumlimit, omega, 0)(
+                1. - 2.*rho**2)
 
     def radialfunction_norm_rho_derivative(self, n, m, xp, yp):
         # TODO: remove code doubling
@@ -927,7 +966,6 @@ class Zernike(ExplicitShape):
             final += (n - 2.*l)*self.rc(n, omega, l)*rho**(n-2.*l - 1)
         return final
 
-
     def angularfunction_norm(self, n, m, xp, yp):
         omega = abs(m)
         phi = np.arctan2(yp, xp)
@@ -936,15 +974,16 @@ class Zernike(ExplicitShape):
     def angularfunction_norm_phi_derivative(self, n, m, xp, yp):
         omega = abs(m)
         phi = np.arctan2(yp, xp)
-        return np.where(m < 0, omega*np.cos(omega*phi), -omega*np.sin(omega*phi))
-
+        return np.where(m < 0, omega*np.cos(omega*phi),
+                        -omega*np.sin(omega*phi))
 
     def zernike_norm_j(self, j, xp, yp):
         (n, m) = self.jtonm(j)
         return self.zernike_norm(n, m, xp, yp)
 
     def zernike_norm2(self, n, m, xp, yp):
-        return self.radialfunction_norm(n, m, xp, yp)*self.angularfunction_norm(n, m, xp, yp)
+        return (self.radialfunction_norm(n, m, xp, yp) *
+                self.angularfunction_norm(n, m, xp, yp))
 
     def zernike_norm(self, n, m, xp, yp):
 
@@ -973,7 +1012,6 @@ class Zernike(ExplicitShape):
 
         return result
 
-
     def gradzernike_norm(self, n, m, xp, yp):
         radder = self.radialfunction_norm_rho_derivative(n, m, xp, yp)
         angder = self.angularfunction_norm_phi_derivative(n, m, xp, yp)
@@ -993,12 +1031,8 @@ class Zernike(ExplicitShape):
 
 class ZernikeFringe(Zernike):
 
-    def __init__(self, lc, **kwargs):
-
-        super(ZernikeFringe, self).__init__(lc,
-                                            kind="shape_ZernikeFringe",
-                                            **kwargs)
-
+    def setKind(self):
+        self.kind = "shape_ZernikeFringe"
 
     def jtonm(self, j):
         next_sq = (math.ceil(math.sqrt(j)))**2
@@ -1015,11 +1049,8 @@ class ZernikeFringe(Zernike):
 
 class ZernikeStandard(Zernike):
 
-    def __init__(self, lc, **kwargs):
-
-        super(ZernikeStandard, self).__init__(lc,
-                                              kind="shape_ZernikeStandard",
-                                              **kwargs)
+    def setKind(self):
+        self.kind = "shape_ZernikeStandard"
 
 
     def jtonm(self, j):
@@ -1115,7 +1146,7 @@ class ZMXDLLShape(Conic):
                  xdata_dict={},
                  isWinDLL=False,
                  curv=0.0,
-                 cc=0.0, **kwargs):
+                 cc=0.0, name=""):
         """
         param: lc LocalCoordinateSystem of shape
         param: dllfile (string) path to DLL file
@@ -1137,9 +1168,7 @@ class ZMXDLLShape(Conic):
         """
         super(ZMXDLLShape, self).__init__(lc,
                                           curv=curv,
-                                          cc=cc,
-                                          kind="shape_ZMXDLLShape",
-                                          **kwargs)
+                                          cc=cc)
 
         if isWinDLL:
             self.dll = ctypes.WinDLL(dllfile)
@@ -1148,11 +1177,18 @@ class ZMXDLLShape(Conic):
 
         self.param = {}
         for (key, (value_int, value_float)) in param_dict.items():
-            self.param[value_int] = OptimizableVariable(name="param"+str(value_int), value=value_float)
+            self.param[value_int] = FloatOptimizableVariable(
+                    FixedState(value_float),
+                    name="param" + str(value_int))
         self.xdata = {}
         for (key, (value_int, value_float)) in xdata_dict.items():
-            self.xdata[value_int] = OptimizableVariable(name="xdata"+str(value_int), value=value_float)
+            self.xdata[value_int] = FloatOptimizableVariable(
+                    FixedState(value_float),
+                    name="xdata" + str(value_int))
         self.us_surf = self.dll.UserDefinedSurface
+
+    def setKind(self):
+        self.kind = "shape_ZMXDLLShape"
 
     def writeParam(self, f):
         for (key, var) in self.param.items():

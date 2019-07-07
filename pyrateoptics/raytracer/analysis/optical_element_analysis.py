@@ -24,27 +24,38 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from .log import BaseLogger
+import numpy as np
 
+from ...core.log import BaseLogger
 
-class ClassWithOptimizableVariables(BaseLogger):
+class OpticalElementAnalysis(BaseLogger):
     """
-    Implementation of some class with optimizable variables with the help
-    of a dictionary. This class is also able to collect the variables and
-    their values from its subclasses per recursion.
-
-    The goal is to provide an abstract class with pretty much functionality
-    which gives the user the opportunity to implement a certain logic via
-    class inheritance and interface the child class with some type of
-    optimizer.
+    Class for optical element analysis.
     """
-    def __init__(self, name=""):
-        """
-        Initialize with empty dict.
-        """
-        super(ClassWithOptimizableVariables, self).__init__(name=name)
 
-        self.annotations = {}
+    def __init__(self, oe, elemseq, name=""):
+        super(OpticalElementAnalysis, self).__init__(name=name)
+        self.opticalelement = oe
+        self.elementsequence = elemseq
 
     def setKind(self):
-        self.kind = "classwithoptimizablevariables"
+        self.kind = "opticalelementanalysis",
+
+    def calcXYUV(self, parthitlist, pilotbundle, fullsequence,
+                 background_medium):
+        """
+        Calculate XYUV matrices.
+        """
+
+        # FIXME: to many parameters in call
+        # maybe set pilotbundle and background medium in advance
+
+        (_, matrices) = self.opticalelement.\
+            calculateXYUV(pilotbundle, fullsequence, background_medium)
+
+        tmp = np.eye(4)
+
+        for hit in parthitlist:
+            tmp = np.dot(matrices[hit], tmp)
+
+        return tmp

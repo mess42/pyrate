@@ -30,7 +30,8 @@ import logging
 import numpy as np
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.material.material_isotropic import ConstantIndexGlass
+from pyrateoptics.raytracer.material.material_isotropic import\
+    ConstantIndexGlass
 from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.optical_system import OpticalSystem

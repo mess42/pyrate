@@ -42,13 +42,14 @@ class OpticalElement(LocalCoordinatesTreeBase):
     :param lc (Local Coordinates of optical element)
     :param name (string), if empty -> uuid
     """
-    def __init__(self, lc, name="", kind="opticalelement", **kwargs):
-        super(OpticalElement, self).__init__(lc,
-            name=name, kind=kind, **kwargs)
+    def __init__(self, lc, name=""):
+        super(OpticalElement, self).__init__(lc, name=name)
         self.__surfaces = {}  # Append surfaces objects
         self.__materials = {}  # Append materials objects
         self.__surf_mat_connection = {}  # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
 
+    def setKind(self):
+        self.kind = "opticalelement"
 
     def addSurface(self, key, surface_object, materialkeys):
         """

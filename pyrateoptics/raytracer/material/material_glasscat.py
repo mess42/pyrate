@@ -27,9 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import yaml
 import numpy as np
 import scipy.interpolate
+
+from ...core.log import BaseLogger
+from ..globalconstants import Fline, dline, Cline
 from .material_isotropic import IsotropicMaterial
-from ..raytracer.globalconstants import Fline, dline, Cline
-from ..core.log import BaseLogger
 
 
 # FIXME: this class has too many methods
@@ -418,7 +419,7 @@ class IndexFormulaContainer(object):
 
 
 class CatalogMaterial(IsotropicMaterial):
-    def __init__(self, lc, ymldict, **kwargs):
+    def __init__(self, lc, ymldict, name="", comment=""):
         """
         Material from the refractiveindex.info database.
 
@@ -435,9 +436,7 @@ class CatalogMaterial(IsotropicMaterial):
             bk7 = CatalogMaterial(lc, ymldict)
         """
 
-        super(CatalogMaterial, self).__init__(lc,
-                                              kind="material_from_catalog",
-                                              **kwargs)
+        super(CatalogMaterial, self).__init__(lc, name=name, comment=comment)
 
         data = ymldict["DATA"]
         self.annotations["DATA"] = data
@@ -460,6 +459,9 @@ class CatalogMaterial(IsotropicMaterial):
                 rang = np.array(dispersionDict["wavelength_range"].split(),
                                 dtype=float)
             self.__nk.append(IndexFormulaContainer(typ, coeff, rang))
+
+    def setKind(self):
+        self.kind = "material_from_catalog"
 
     def getIndex(self, x, wave):
         n = 0

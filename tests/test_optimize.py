@@ -24,28 +24,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from pyrateoptics.core.base import (ClassWithOptimizableVariables,
-                                    OptimizableVariable)
+from pyrateoptics.core.base import ClassWithOptimizableVariables
+from pyrateoptics.core.optimizable_variable import (OptimizableVariable,
+                                                    VariableState,
+                                                    PickupState)
 from pyrateoptics.core.functionobject import FunctionObject
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import (ScipyBackend,
                                                      Newton1DBackend)
 
 import numpy as np
-
-# class ExampleSubClass(ClassWithOptimizableVariables):
-#     def __init__(self):
-#         self.a = 10.
-#
-# class ExampleSuperClass(ClassWithOptimizableVariables):
-#     def __init__(self):
-#         super(ExampleSuperClass, self).__init__()
-#         self.b = 20.
-#         self.c = ClassWithOptimizableVariables()
-#         self.c.addVariable("blubberbla", OptimizableVariable("Variable",
-#                                                               value=5.0))
-#         self.addVariable("blubberdieblub", OptimizableVariable("Variable",
-#                                                                 value=10.0))
 
 
 def test_variables_pickups_externals():
@@ -55,24 +43,20 @@ def test_variables_pickups_externals():
 
     sum_fo = FunctionObject("f = lambda p, q: p + q", ["f"])
 
-    p = OptimizableVariable("Variable", value="glass1")
-    q = OptimizableVariable("Variable", value="glass2")
-    r = OptimizableVariable("Pickup", functionobject=(sum_fo, "f"),
-                            args=(p, q))
-    s = OptimizableVariable("External", functionobject=(sum_fo, "f"),
-                            args=(1.0, 6.0))
+    p = OptimizableVariable(VariableState("glass1"))
+    q = OptimizableVariable(VariableState("glass2"))
+    r = OptimizableVariable(PickupState((sum_fo, "f"), (p, q)))
 
     assert p() == "glass1"
     assert q() == "glass2"
     assert r() == "glass1glass2"
-    assert s() == 7.0
 
-    p.setvalue("glass5")
-    q.setvalue("glass6")
+    p.set_value("glass5")
+    q.set_value("glass6")
 
     assert r() == "glass5glass6"
 
-    r.parameters["functionobject"] = (
+    r._state.parameters["functionobject"] = (
             FunctionObject("f = lambda x, y: x*3 + y*4", ["f"]), "f")
 
     assert r() == "glass5glass5glass5glass6glass6glass6glass6"
@@ -83,20 +67,13 @@ def test_optimization():
     class ExampleOS(ClassWithOptimizableVariables):
         def __init__(self):
             super(ExampleOS, self).__init__()
-            self.X = OptimizableVariable(name="X",
-                                         variable_type="variable",
-                                         value=3.0)
-            self.Y = OptimizableVariable(name="Y",
-                                         variable_type="variable",
-                                         value=20.0)
-            self.Z = OptimizableVariable(
-                    name="Z",
-                    variable_type="pickup",
-                    functionobject=(
-                            FunctionObject("f = lambda x, y: x**2 + y**2",
-                                           ["f"]),
-                            "f"),
-                    args=(self.X, self.Y))
+            self.X = OptimizableVariable(VariableState(3.0), name="X")
+            self.Y = OptimizableVariable(VariableState(20.0), name="Y")
+            self.Z = OptimizableVariable(PickupState(
+                    (FunctionObject("f = lambda x, y: x**2 + y**2",
+                                    ["f"]),
+                     "f"),
+                    (self.X, self.Y)), name="Z")
 
     def testmerit(s):
         # let x, y being on a circle of radius 5

@@ -29,25 +29,28 @@ import logging
 import json
 import yaml
 
+from pprint import pprint
+
 from distutils.version import StrictVersion
-
-
 
 import numpy as np
 from numpy import pi
 import matplotlib.pyplot as plt
 import matplotlib
 
-from pyrateoptics import build_rotationally_symmetric_optical_system, listOptimizableVariables
-from pyrateoptics.raytracer.globalconstants import canonical_ex, canonical_ey
-from pyrateoptics.raytracer.ray import RayBundle
+from pyrateoptics.core.functionobject import FunctionObject
+from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
+from pyrateoptics.core.serializer import Serializer
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend
 from pyrateoptics.sampling2d.raster import RectGrid
+
+from pyrateoptics import (build_rotationally_symmetric_optical_system,
+                          listOptimizableVariables)
+from pyrateoptics.raytracer.globalconstants import canonical_ex, canonical_ey
 from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
-from pyrateoptics.analysis.ray_analysis import RayBundleAnalysis
-from pyrateoptics.core.functionobject import FunctionObject
-from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
+from pyrateoptics.raytracer.ray import RayBundle
+from pyrateoptics.raytracer.analysis.ray_analysis import RayBundleAnalysis
 
 logging.basicConfig(level=logging.INFO)
 
@@ -153,14 +156,11 @@ def updatefunction_allsteps(my_s):
 
 
 # optimize
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.\
-    changetype("variable")
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toVariable()
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
-    changetype("variable")
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
-    changetype("pickup",
-               functionobject=(FunctionObject("f = lambda x: -x"), "f"),
-               args=(s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
+    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+             (s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
 
 
 listOptimizableVariables(s, max_line_width=80)
@@ -246,33 +246,25 @@ def meritfunction_step3(my_s):
 
 
 # optimize
-s.elements["stdelem"].surfaces["lens1front"].shape.curvature.\
-    changetype("variable")
-s.elements["stdelem"].surfaces["elem3front"].shape.curvature.\
-    changetype("variable")
-s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.\
-    changetype("variable")
+s.elements["stdelem"].surfaces["lens1front"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["elem3front"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.toVariable()
 
 # outer radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2front"].shape.curvature.\
-    changetype("pickup",
-               functionobject=(FunctionObject("f = lambda x: -x"), "f"),
-               args=(s.elements["stdelem"].surfaces["elem3rear"].shape.curvature,))
+    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+             (s.elements["stdelem"].surfaces["elem3rear"].shape.curvature,))
 
 # inner radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.\
-    changetype("pickup",
-               functionobject=(FunctionObject("f = lambda x: -x"), "f"),
-               args=(s.elements["stdelem"].surfaces["elem3front"].shape.curvature,))
+    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+             (s.elements["stdelem"].surfaces["elem3front"].shape.curvature,))
 
-s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.\
-    changetype("variable")
+s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.toVariable()
 
 
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.\
-    changetype("fixed")
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
-    changetype("fixed")
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toFixed()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toFixed()
 
 
 optimi = Optimizer(s, meritfunction_step3, backend=ScipyBackend(),
@@ -306,10 +298,8 @@ def meritfunction_step4b(my_s):
     return final_meritfunction(my_s, rpup=7.5, fno=100/15., maxfield_deg=7.)
 
 
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.\
-    changetype("variable")
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
-    changetype("variable")
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toVariable()
 
 optimi = Optimizer(s, meritfunction_step4a, backend=ScipyBackend(),
                    updatefunction=updatefunction_allsteps, name="step4a")
@@ -347,12 +337,9 @@ for r in r2:
 
 plt.show()
 
-system_dump = s.getCompleteListForReconstruction()
+system_dump = Serializer(s).serialization
 system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
         s.elements["stdelem"].surfaces["elem2rear"].shape).queryForDictionary()
-
-
-from pprint import pprint
 
 pprint(system_gui_toplevel)
 pprint(system_dump)

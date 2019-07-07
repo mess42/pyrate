@@ -24,6 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import sys
 import logging
 import math
 from distutils.version import StrictVersion
@@ -34,13 +35,9 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 from pyrateoptics import listOptimizableVariables
-from pyrateoptics.material.material_isotropic import ConstantIndexGlass
+from pyrateoptics.raytracer.material.material_isotropic import\
+    ConstantIndexGlass
 from pyrateoptics.raytracer.surface_shape import Conic
-from pyrateoptics.optimize.optimize import Optimizer
-from pyrateoptics.optimize.optimize_backends import (ScipyBackend,
-                                                     Newton1DBackend,
-                                                     ParticleSwarmBackend,
-                                                     SimulatedAnnealingBackend)
 from pyrateoptics.raytracer.ray import RayBundle
 
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
@@ -53,10 +50,18 @@ from pyrateoptics.raytracer.surface import Surface
 
 from pyrateoptics.raytracer.globalconstants import canonical_ey, degree
 
-from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
-from pyrateoptics.analysis.surface_shape_analysis import ShapeAnalysis
+from pyrateoptics.raytracer.analysis.optical_system_analysis import\
+    OpticalSystemAnalysis
+from pyrateoptics.raytracer.analysis.surface_shape_analysis import\
+    ShapeAnalysis
+
 from pyrateoptics.sampling2d.raster import RandomGrid
 
+from pyrateoptics.optimize.optimize import Optimizer
+from pyrateoptics.optimize.optimize_backends import (ScipyBackend,
+                                                     Newton1DBackend,
+                                                     ParticleSwarmBackend,
+                                                     SimulatedAnnealingBackend)
 
 wavelength = standard_wavelength
 
@@ -231,20 +236,20 @@ s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
 #          up=up) # try for phi=pi/4
 
 curv2 = s.elements["lenssys"].surfaces["surf2"].shape.curvature
-curv2.changetype("variable")
-curv2.set_interval(-0.35, 0.35)
+curv2.toVariable()
+curv2.setInterval(left=-0.35, right=0.35)
 curv3 = s.elements["lenssys"].surfaces["surf3"].shape.curvature
-curv3.changetype("variable")
-curv3.set_interval(-0.35, 0.35)
+curv3.toVariable()
+curv3.setInterval(left=-0.35, right=0.35)
 curv4 = s.elements["lenssys"].surfaces["surf4"].shape.curvature
-curv4.changetype("variable")
-curv4.set_interval(-0.35, 0.35)
+curv4.toVariable()
+curv4.setInterval(left=-0.35, right=0.35)
 curv6 = s.elements["lenssys"].surfaces["surf6"].shape.curvature
-curv6.changetype("variable")
-curv6.set_interval(-0.35, 0.35)
+curv6.toVariable()
+curv6.setInterval(left=-0.35, right=0.35)
 tltx_var = s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx
-tltx_var.changetype("variable")
-tltx_var.set_interval(-3.*math.pi/180., 3.*math.pi/180.)
+tltx_var.toVariable()
+tltx_var.setInterval(left=-3.*math.pi/180., right=3.*math.pi/180.)
 
 listOptimizableVariables(s, filter_status='variable', max_line_width=80)
 
@@ -275,18 +280,45 @@ def meritfunctionrms(my_s):
     x = rpaths[0].raybundles[-1].x[-1, 0, :]
     y = rpaths[0].raybundles[-1].x[-1, 1, :]
 
-    res = np.sum(x**2 + y**2) + 10.*math.exp(-len(x))
+    xmean = np.mean(x)
+    ymean = np.mean(y)
+
+    res = np.sum((x - xmean)**2 + (y - ymean)**2) + 10.*math.exp(-len(x))
 
     return res
 
-# opt_backend = ScipyBackend(method='Nelder-Mead',
-#                            options={'maxiter': 1000, 'disp': True}, tol=1e-8)
-# opt_backend = Newton1DBackend(dx=1e-6, iterations=100)
-# opt_backend = ParticleSwarmBackend(c1=2.2, c2=2.1)
 
+opt_backend = ScipyBackend(method='Nelder-Mead',
+                           options={'maxiter': 1000, 'disp': True}, tol=1e-8)
+if len(sys.argv) > 1:
+    first_arg = sys.argv[1]
 
-opt_backend = SimulatedAnnealingBackend(Nt=30,
-                                        Tt=20.*np.exp(-np.linspace(0, 10, 20)))
+    if first_arg == "--help":
+        print("p ... Particle Swarm (c1, c2)")
+        print("s ... Simulated Annealing (Nt, Tt)")
+        print("n ... Newtonian 1D (dx, iterations)")
+        print("m ... Nelder-Mead")
+        sys.exit(0)
+    elif first_arg == "p":
+        c1 = 2.2
+        c2 = 2.1
+        if len(sys.argv) == 4:
+            (c1, c2) = (float(sys.argv[2]), float(sys.argv[3]))
+        opt_backend = ParticleSwarmBackend(c1=2.2, c2=2.1)
+    elif first_arg == "s":
+        Nt = 30
+        T0 = 20.
+        if len(sys.argv) == 4:
+            (Nt, T0) = (int(sys.argv[2]), float(sys.argv[3]))
+        opt_backend = SimulatedAnnealingBackend(Nt=Nt,
+                                                Tt=T0*np.exp(-np.linspace(0, 10, 20)))
+    elif first_arg == "n":
+        dx = 1e-6
+        iterations = 100
+        if len(sys.argv) == 4:
+            (dx, iterations) = (float(sys.argv[2]), int(sys.argv[3]))
+        opt_backend = Newton1DBackend(dx=dx, iterations=iterations)
+
 # pylint3 E1130: false positive
 
 optimi = Optimizer(s,
@@ -306,7 +338,7 @@ listOptimizableVariables(s, filter_status='variable', max_line_width=80)
 s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
 # s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
-osa.aim(51, divbundledict, wave=wavelength)
+osa.aim(500, divbundledict, wave=wavelength)
 osa.drawSpotDiagram()
 sa = ShapeAnalysis(surf1.shape)
 sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)

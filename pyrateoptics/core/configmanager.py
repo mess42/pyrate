@@ -36,10 +36,14 @@ import logging
 
 from pyrateoptics import listOptimizableVariables
 from pyrateoptics.raytracer.optical_system import OpticalSystem
-from pyrateoptics.core.base import (OptimizableVariable,
-                                    ClassWithOptimizableVariables)
+from pyrateoptics.core.base import ClassWithOptimizableVariables
+from pyrateoptics.core.iterators import OptimizableVariableKeyIterator
+from pyrateoptics.core.optimizable_variable import (FloatOptimizableVariable,
+                                                    OptimizableVariable,
+                                                    FixedState, VariableState,
+                                                    PickupState)
 
-from .log import BaseLogger
+from pyrateoptics.core.log import BaseLogger
 
 
 class ConfigContainer(ClassWithOptimizableVariables):
@@ -48,10 +52,12 @@ class ConfigContainer(ClassWithOptimizableVariables):
     frontend.
     """
 
-    def __init__(self, instance_list=None,
-                 name="", kind="configcontainer", **kwargs):
-        super(ConfigContainer, self).__init__(name=name, kind=kind, **kwargs)
+    def __init__(self, instance_list=None, name=""):
+        super(ConfigContainer, self).__init__(name=name)
         self.instance_list = instance_list
+
+    def setKind(self):
+        self.kind = "configcontainer"
 
     # TODO: to be tested
 
@@ -63,19 +69,25 @@ class ConfigManager(BaseLogger):
     different instances.
     """
 
-
-    def __init__(self, base_instance=None, **kwargs):
-        super(ConfigManager, self).__init__(**kwargs)
+    def __init__(self, base_instance=None, name=""):
+        super(ConfigManager, self).__init__(name=name)
         self.base_instance = base_instance
 
-    def setOptimizableVariables(self, names_tuple, dict_of_keys_and_value_tuples):
+    def setKind(self):
+        self.kind = "configmanager"
+
+    def setOptimizableVariables(self, names_tuple,
+                                dict_of_keys_and_value_tuples):
         """
         Set values in different instance of base instance.
         (deep copy). What about pickups?
 
-        @param names_tuple (tuple of strings): names of the new systems (changes also keys)
-        @param dict_of_keys_and_tuples (dict of tuples): consists of values for fixed or
-                variable optimizable variables.
+        @param names_tuple (tuple of strings): names of the new systems
+                                                (changes also keys)
+        @param dict_of_keys_and_tuples (dict of tuples): consists of values
+                                                        for fixed or
+                                                        variable optimizable
+                                                        variables.
 
         @return instance_list (list of instances)
 
@@ -86,8 +98,11 @@ class ConfigManager(BaseLogger):
         else:
             instance_list = []
             if names_tuple is None:
-                names_tuple = tuple([self.base_instance.name for r in dict_of_keys_and_value_tuples.values()[0]])
-            self.info("Constructing multiple configs with names: %s" % (str(names_tuple)))
+                names_tuple = tuple([self.base_instance.name
+                                     for r in dict_of_keys_and_value_tuples.
+                                     values()[0]])
+            self.info("Constructing multiple configs with names: %s" %
+                      (str(names_tuple)))
             if len(names_tuple) > 0:
                 length_value_tuples = len(names_tuple)
                 # use names_tuple to obtain no. of copies
@@ -106,14 +121,13 @@ class ConfigManager(BaseLogger):
                     self.debug(str(index))
                     # reset all non-changing variables to instances of base_instance
                     # components.
-                    for (key, variable) in instance.getAllVariables()["vars"].items():
-
+                    for (key, variable) in OptimizableVariableKeyIterator(
+                            instance).variables_dictionary.items():
+                        print(key)
                         if key in dict_of_keys_and_value_tuples:
                             val_tuple = dict_of_keys_and_value_tuples[key]
                             self.debug("%s to %s" % (key, val_tuple[index]))
                             #variable.setvalue(val_tuple[index])
-                            # TODO: how to get pickup functions with multiple arguments?
-                            # TODO: how to improve this code?
                             if type(val_tuple) is not tuple:
                                 self.warning("Incorrect format for multi config values!")
                                 self.debug("Values must be of type (string, contents):")
@@ -122,9 +136,19 @@ class ConfigManager(BaseLogger):
                             else:
                                 (mcv_type, mcv_contents) = val_tuple[index]
                                 if mcv_type.lower() == "fixed":
-                                    instance.resetVariable(key, OptimizableVariable(variable_type="fixed", value=mcv_contents, name=variable.name))
+                                    instance.resetVariable(
+                                            key,
+                                            OptimizableVariable(
+                                                    FixedState(mcv_contents),
+                                                    name=variable.name))
                                 elif mcv_type.lower() == "pickup":
-                                    instance.resetVariable(key, OptimizableVariable(variable_type="pickup", function=mcv_contents, args=(variable,), name=variable.name))
+                                    instance.resetVariable(
+                                            key,
+                                            OptimizableVariable(
+                                                    PickupState(
+                                                            mcv_contents,
+                                                            variable),
+                                                            name=variable.name))
                                 else:
                                     self.warning("Unknown type for multi config values")
                         else:
@@ -136,6 +160,30 @@ class ConfigManager(BaseLogger):
 
         return instance_list
 
+'''
+# TODO: functions for multi configs
+
+    def resetVariable(self, key, var):
+        """
+        Resets variable by evaluating deref string from getAllVariables
+        dictionary. Maybe this could be solved by using less black magic.
+        Although this method is necessary for maintaining multi configs.
+        """
+
+        dict_of_vars = self.getAllVariables()
+        deref = dict_of_vars["deref"][key]
+        exec(compile("self" + deref + " = var", "<string>", "exec"))
+
+    def getVariable(self, key):
+        """
+        Gets variable from short key.
+        """
+        dict_of_vars = self.getAllVariables()
+        variable = dict_of_vars["vars"][key]
+        return variable
+'''
+
+
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
@@ -144,10 +192,11 @@ if __name__ == "__main__":
     s.lst = []
     s.lst.append({})
     s.lst.append({})
-    s.lst[0]["a"] = OptimizableVariable(variable_type="fixed", name="v1", value=3.0)
-    s.lst[1]["b"] = OptimizableVariable(variable_type="variable", name="v2", value=7.0)
+    s.lst[0]["a"] = FloatOptimizableVariable(FixedState(3.0), name="v1")
+    s.lst[1]["b"] = FloatOptimizableVariable(VariableState(7.0), name="v2")
 
-    s.rootcoordinatesystem.decz = OptimizableVariable(name="decz", value=-99.0)
+    s.rootcoordinatesystem.decz = FloatOptimizableVariable(FixedState(-99.0),
+                                                           name="decz")
 
     listOptimizableVariables(s)
 

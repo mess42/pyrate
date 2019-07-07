@@ -47,11 +47,8 @@ class Surface(LocalCoordinatesTreeBase):
 
     Is parent of shape and aperture coordinate system
     """
-    def __init__(self, rootlc,
-                 shape=None,
-                 aperture=None,
-                 name="", kind="surface", **kwargs):
-        super(Surface, self).__init__(rootlc, name=name, kind=kind, **kwargs)
+    def __init__(self, rootlc, shape=None, aperture=None, name=""):
+        super(Surface, self).__init__(rootlc, name=name)
         if shape is None:
             shape = Conic(rootlc)
 
@@ -68,6 +65,9 @@ class Surface(LocalCoordinatesTreeBase):
 
         self.setShape(shape)
         self.setAperture(aperture_)
+
+    def setKind(self):
+        self.kind = "surface"
 
     def setAperture(self, apert):
         """

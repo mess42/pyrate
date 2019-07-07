@@ -30,7 +30,8 @@ import logging
 import numpy as np
 
 from pyrateoptics.sampling2d import raster
-from pyrateoptics.material.material_anisotropic import AnisotropicMaterial
+from pyrateoptics.raytracer.material.material_anisotropic import\
+     AnisotropicMaterial
 from pyrateoptics.raytracer.surface_shape import Conic
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.optical_system import OpticalSystem
@@ -43,7 +44,8 @@ from pyrateoptics.raytracer.helpers import build_pilotbundle
 from pyrateoptics import draw
 from pyrateoptics.raytracer.globalconstants import degree
 
-from pyrateoptics.analysis.optical_system_analysis import OpticalSystemAnalysis
+from pyrateoptics.raytracer.analysis.optical_system_analysis import\
+    OpticalSystemAnalysis
 
 
 logging.basicConfig(level=logging.DEBUG)
