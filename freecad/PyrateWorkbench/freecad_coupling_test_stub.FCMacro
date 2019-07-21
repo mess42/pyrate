@@ -45,15 +45,15 @@ too tightly coupled.
 import math
 import numpy as np
 
-from pyrateoptics.optimize import ClassWithOptimizableVariables, OptimizableVariable
-from pyrateoptics.observers import AbstractObserver
+from pyrateoptics.core.base import ClassWithOptimizableVariables
+from pyrateoptics.core.optimizable_variable import FloatOptimizableVariable, FixedState
+from pyrateoptics.core.observers import AbstractObserver
 
 class CoreObject(ClassWithOptimizableVariables):
     
     def __init__(self, value, name=""):
         super(CoreObject, self).__init__(name=name)
-        self.myvar = OptimizableVariable("fixed", value=value)
-        self.addVariable("myvar", self.myvar)
+        self.myvar = FloatOptimizableVariable(FixedState(value), name="myvar")
         
     def makeSomething(self):
         self.myvar.setvalue(np.random.random())
@@ -106,7 +106,7 @@ class FreeCAD_CoreObject(AbstractObserver):
 
         if prop == 'myvar':
             '''Transmit myvar to coreobj'''
-            self.__coreobj("myvar").setvalue(fp.myvar)
+            self.__coreobj.myvar.set_value(fp.myvar)
         FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
  
     def execute(self, fp):
