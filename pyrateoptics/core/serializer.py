@@ -30,6 +30,7 @@ import uuid
 from .log import BaseLogger
 from .iterators import SerializationIterator
 from .optimizable_variables_pool import OptimizableVariablesPool
+from .base import ClassWithOptimizableVariables
 
 
 class Serializer(BaseLogger):
@@ -66,12 +67,18 @@ class Serializer(BaseLogger):
 
 
 class Deserializer(BaseLogger):
-    def __init__(self, serialization_list, name=""):
+    def __init__(self, serialization_list,
+                 source_checked, variables_checked, name=""):
         super(Deserializer, self).__init__(name=name)
         self.serialization_list = serialization_list
-        self.deserialize()
+        self.deserialize(source_checked, variables_checked)
 
     def isUUID(self, uuidstr):
+        """
+        Check whether a variable is a valid uuid. This could be improved,
+        once in the classes appear regular uuids which have nothing to do
+        with the serialization process.
+        """
         if isinstance(uuidstr, str):
             try:
                 uuid.UUID(uuidstr)
@@ -82,24 +89,159 @@ class Deserializer(BaseLogger):
         else:
             return False
 
-
-    def deserialize(self):
+    def deserialize(self, source_checked, variables_checked):
+        """
+        Convert the list obtained from a file or another source back
+        into a class with optimizable variables, via a recursive
+        reconstruction of subclasses. Source checked and variables checked
+        are to be set to True by the user.
+        """
         (class_to_be_deserialized, subclasses_dict,
          optimizable_variables_pool_dict, functionobjects_pool_dict) =\
              self.serialization_list
 
-        print(class_to_be_deserialized)
-        print(subclasses_dict)
-        print(optimizable_variables_pool_dict)
-        print(functionobjects_pool_dict)
+        def reconstruct_class(class_to_be_reconstructed, subclasses_dict,
+                              reconstructed_variables_dict):
+            """
+            Main reconstruction function. Is to be called recursively in
+            the tree. Reconstructs first in-class variables by accessing
+            the reconstructed_variables_dict. In a second step, it
+            reconstructs the whole class by setting attributes from the
+            structure dictionary, sets the annotations from the annotations
+            dictionary and finally constructs the ClassWithOptimizableVariables
+            object.
+            """
 
-        # reconstruct function objects and optimizable variables
-        # go through structure of subclasses
-        # search for uuids in structure; if they are optimizable variables,
-        # set them; if not let them alone
-        # if structure dict does not contain any uuids anymore construct class
-        # (DUCKTYPING!)
+            def is_structure_free_of_uuids(structure_dict):
+                """
+                Checks whether structure dict is free of uuids
+                If this is the case the reconstruction process is finished.
+                Else there are either unreconstructed variables or classes
+                in this structure dict.
+                """
 
-        self.class_instance = None
+                def free_of_uuid(var):
+                    """
+                    This function is called recursively to verify that a
+                    given nested structure is free of UUIDs as checked by
+                    isUUID.
+                    """
+                    if self.isUUID(var):
+                        return False
+                    elif isinstance(var, list):
+                        return all([free_of_uuid(v) for v in var])
+                    elif isinstance(var, dict):
+                        return all([free_of_uuid(v) for v in var.values()])
+                    else:
+                        return True
+                return free_of_uuid(structure_dict)
+
+            def reconstruct_variables(structure_dict,
+                                      reconstructed_variables_dict):
+                """
+                This function is called to reconstruct variables from a pool
+                with in a necessary sub class of a class which is to be
+                reconstructed. It uses structure_dict of the class to be
+                reconstructed and returns a modified version where the
+                variables UUIDs are substituted by the appropriate objects.
+                """
+
+                def reconstructRecursively(variable,
+                                           reconstructed_variables_dict):
+                    if self.isUUID(variable):
+                        if variable in reconstructed_variables_dict:
+                            return reconstructed_variables_dict[variable]
+                        else:
+                            return variable
+                    elif isinstance(variable, list):
+                        return [reconstructRecursively(part,
+                                                       reconstructed_variables_dict)
+                                for part in variable]
+                    elif isinstance(variable, dict):
+                        return dict([(key, reconstructRecursively(part,
+                                                                  reconstructed_variables_dict))
+                                    for (key, part) in variable.items()])
+                    else:
+                        return variable
+
+                new_structure_dict = reconstructRecursively(
+                        structure_dict,
+                        reconstructed_variables_dict)
+
+                return new_structure_dict
+
+            def reconstruct_subclasses(structure_dict, subclasses_dict,
+                                       reconstructed_variables_dict):
+                """
+                This function reconstructs necessary subclasses of a given
+                class to be reconstructed. This is done by first reconstructing
+                their variables via the function reconstruct_variables and
+                afterwards parsing the structure for other classes which are
+                also reconstructed by using the sub function
+                reconstructRecursively. Modified structure dict, annotations
+                and all other things are to be used to construct a
+                ClassWithOptimizableVariables.
+                """
+
+                def reconstructRecursively(variable, subclasses_dict,
+                                           reconstructed_variables_dict):
+                    if self.isUUID(variable) and variable in subclasses_dict:
+                        return reconstruct_class(
+                                subclasses_dict[variable],
+                                subclasses_dict,
+                                reconstructed_variables_dict)
+                    elif isinstance(variable, list):
+                        return [reconstructRecursively(part,
+                                                  subclasses_dict,
+                                                  reconstructed_variables_dict)
+                                for part in variable]
+                    elif isinstance(variable, dict):
+                        return dict([(key,
+                                      reconstructRecursively(part,
+                                                        subclasses_dict,
+                                                        reconstructed_variables_dict))
+                                    for (key, part) in variable.items()])
+                    else:
+                        return variable
+
+                new_structure_dict = reconstructRecursively(structure_dict,
+                                                            subclasses_dict,
+                                                            reconstructed_variables_dict)
+                return new_structure_dict
+
+            print(type(class_to_be_reconstructed))
+            structure_dict = class_to_be_reconstructed["structure"]
+            structure_dict = reconstruct_variables(structure_dict,
+                                                   reconstructed_variables_dict)
+            structure_dict = reconstruct_subclasses(structure_dict,
+                                                    subclasses_dict,
+                                                    reconstructed_variables_dict)
+            print("No UUIDs in structure dict? ",
+                  is_structure_free_of_uuids(structure_dict))
+
+            mynewobject = ClassWithOptimizableVariables()
+            mynewobject.annotations = class_to_be_deserialized["annotations"]
+
+            for (keyvars, valuevars) in structure_dict.items():
+                # set attributes from structure directly in class structure
+                mynewobject.__setattr__(keyvars, valuevars)
+
+            return mynewobject
+
+        """
+        Reconstruct the variables pool by its own reconstruction functions.
+        Then reconstruct the class to be reconstructed by calling
+        reconstruct_class in a recursive manner. Return the final object.
+        """
+
+        optimizable_variables_pool = OptimizableVariablesPool.fromDictionary(
+                optimizable_variables_pool_dict,
+                functionobjects_pool_dict, source_checked, variables_checked)
+
+        mynewobject = reconstruct_class(class_to_be_deserialized,
+                                        subclasses_dict,
+                                        optimizable_variables_pool.variables_pool)
+
+        self.class_instance = mynewobject
 
 
