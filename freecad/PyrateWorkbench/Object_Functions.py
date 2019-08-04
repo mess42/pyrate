@@ -85,6 +85,15 @@ class FunctionsView:
     def __getstate__(self):
         return None
 
+# TODO: adding objects to document and document_group_path
+# document_group_path: "/group1/subgroup_a/object_label",
+# "/" representing the root in the tree
+# "group1" representing a group as well as "subgroup_a"
+# "object_label" is the label of the object
+# FunctionObjects can only be added to FunctionObjectPools
+# In FreeCAD these should be subgroups in the document with certain
+# properties
+
 
 class FunctionsObject:
 

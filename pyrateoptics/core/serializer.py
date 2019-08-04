@@ -25,6 +25,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import uuid
+
 from .log import BaseLogger
 from .iterators import SerializationIterator
 from .optimizable_variables_pool import OptimizableVariablesPool
@@ -61,3 +63,43 @@ class Serializer(BaseLogger):
                 optimizable_variables_pool.toDictionary(),
                 functionobjects_pool.toDictionary()
         ]
+
+
+class Deserializer(BaseLogger):
+    def __init__(self, serialization_list, name=""):
+        super(Deserializer, self).__init__(name=name)
+        self.serialization_list = serialization_list
+        self.deserialize()
+
+    def isUUID(self, uuidstr):
+        if isinstance(uuidstr, str):
+            try:
+                uuid.UUID(uuidstr)
+            except ValueError:
+                return False
+            else:
+                return True
+        else:
+            return False
+
+
+    def deserialize(self):
+        (class_to_be_deserialized, subclasses_dict,
+         optimizable_variables_pool_dict, functionobjects_pool_dict) =\
+             self.serialization_list
+
+        print(class_to_be_deserialized)
+        print(subclasses_dict)
+        print(optimizable_variables_pool_dict)
+        print(functionobjects_pool_dict)
+
+        # reconstruct function objects and optimizable variables
+        # go through structure of subclasses
+        # search for uuids in structure; if they are optimizable variables,
+        # set them; if not let them alone
+        # if structure dict does not contain any uuids anymore construct class
+        # (DUCKTYPING!)
+
+        self.class_instance = None
+
+
