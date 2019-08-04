@@ -48,3 +48,22 @@ class ClassWithOptimizableVariables(BaseLogger):
 
     def setKind(self):
         self.kind = "classwithoptimizablevariables"
+
+    @classmethod
+    def cast(cls, some_classwithoptvariables):
+        """Cast an ClassWithOptimizableVariables into a child class.
+
+        According to:
+            https://stackoverflow.com/questions/15404256/changing-the-class-of-a-python-object-casting
+
+        This is some kind of workaround and we are not satisfied about it.
+        A better variant would be to remove the initialization in the
+        child classes from the constructor such that a constructor creates
+        an empty, but valid type. And the incode creation is done by some
+        ....create() class function
+        """
+        assert isinstance(some_classwithoptvariables,
+                          ClassWithOptimizableVariables)
+        some_classwithoptvariables.__class__ = cls  # now type cast
+        assert isinstance(some_classwithoptvariables, cls)
+        return some_classwithoptvariables

@@ -32,6 +32,9 @@ from .iterators import SerializationIterator
 from .optimizable_variables_pool import OptimizableVariablesPool
 from .base import ClassWithOptimizableVariables
 
+from ..raytracer.localcoordinates import LocalCoordinates
+from ..raytracer.surface_shape import ZernikeFringe
+
 
 class Serializer(BaseLogger):
     def __init__(self, class_instance, name=""):
@@ -99,6 +102,8 @@ class Deserializer(BaseLogger):
         (class_to_be_deserialized, subclasses_dict,
          optimizable_variables_pool_dict, functionobjects_pool_dict) =\
              self.serialization_list
+
+        self.debug("Deserializing class")
 
         def reconstruct_class(class_to_be_reconstructed, subclasses_dict,
                               reconstructed_variables_dict):
@@ -209,24 +214,38 @@ class Deserializer(BaseLogger):
                                                             reconstructed_variables_dict)
                 return new_structure_dict
 
-            print(type(class_to_be_reconstructed))
+            self.debug("Reconstructing structure dictionary")
             structure_dict = class_to_be_reconstructed["structure"]
+            self.debug("Reconstructing optimizable variables")
             structure_dict = reconstruct_variables(structure_dict,
                                                    reconstructed_variables_dict)
+            self.debug("Reconstructing sub classes")
             structure_dict = reconstruct_subclasses(structure_dict,
                                                     subclasses_dict,
                                                     reconstructed_variables_dict)
-            print("No UUIDs in structure dict? ",
-                  is_structure_free_of_uuids(structure_dict))
+            self.debug("No UUIDs in structure dict left? (Shouldn\'t be after reconstruction!)" +
+                  str(is_structure_free_of_uuids(structure_dict)))
 
-            mynewobject = ClassWithOptimizableVariables()
-            mynewobject.annotations = class_to_be_deserialized["annotations"]
+            self.debug("Generating final object (constructor)")
+            self.debug("Name: " + class_to_be_reconstructed["name"])
+            self.debug("Kind: " + class_to_be_reconstructed["kind"])
+            mynewobject = ClassWithOptimizableVariables(
+                    name=class_to_be_reconstructed["name"])
+            mynewobject.annotations = class_to_be_reconstructed["annotations"]
+            self.debug("Creating attributes")
 
             for (keyvars, valuevars) in structure_dict.items():
                 # set attributes from structure directly in class structure
                 mynewobject.__setattr__(keyvars, valuevars)
 
-            return mynewobject
+            self.debug("Type casting. Type: " + str(type(mynewobject)))
+            # mynewobject is ClassWithOptimizableVariables
+            conversion_dict = {"shape_ZernikeFringe": ZernikeFringe,
+                               "localcoordinates": LocalCoordinates}
+            # workaround to cast, not satisfied
+            self.debug("Returning")
+
+            return conversion_dict[class_to_be_reconstructed["kind"]].cast(mynewobject)
 
         """
         Reconstruct the variables pool by its own reconstruction functions.
