@@ -78,7 +78,7 @@ class FunctionObject(BaseLogger):
 
     def generateFunctionsFromSource(self, function_names):
         if not self.sourcecode_security_checked\
-            or not self.globals_security_checked:
+                or not self.globals_security_checked:
             self.warning("Cannot execute unchecked code: " + self.source)
             self.warning("with unchecked variables: " +
                          str(self.global_variables))

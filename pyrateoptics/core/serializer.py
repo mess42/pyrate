@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import uuid
+from pprint import pformat
 
 from .log import BaseLogger
 from .iterators import SerializationIterator
@@ -229,10 +230,18 @@ class Deserializer(BaseLogger):
             self.debug("Generating final object (constructor)")
             self.debug("Name: " + class_to_be_reconstructed["name"])
             self.debug("Kind: " + class_to_be_reconstructed["kind"])
+
             mynewobject = ClassWithOptimizableVariables(
                     name=class_to_be_reconstructed["name"])
             mynewobject.annotations = class_to_be_reconstructed["annotations"]
+
+            self.debug("Annotations")
+
+            self.debug(pformat(class_to_be_reconstructed["annotations"]))
+
             self.debug("Creating attributes")
+
+            self.debug(pformat(structure_dict))
 
             for (keyvars, valuevars) in structure_dict.items():
                 # set attributes from structure directly in class structure
@@ -245,7 +254,9 @@ class Deserializer(BaseLogger):
             # workaround to cast, not satisfied
             self.debug("Returning")
 
-            return conversion_dict[class_to_be_reconstructed["kind"]].cast(mynewobject)
+            return conversion_dict[
+                class_to_be_reconstructed["kind"]
+            ](mynewobject)
 
         """
         Reconstruct the variables pool by its own reconstruction functions.
