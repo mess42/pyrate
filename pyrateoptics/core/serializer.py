@@ -228,35 +228,41 @@ class Deserializer(BaseLogger):
                   str(is_structure_free_of_uuids(structure_dict)))
 
             self.debug("Generating final object (constructor)")
-            self.debug("Name: " + class_to_be_reconstructed["name"])
-            self.debug("Kind: " + class_to_be_reconstructed["kind"])
+            kind = class_to_be_reconstructed["kind"]
+            name = class_to_be_reconstructed["name"]
+            anno = class_to_be_reconstructed["annotations"]
 
-            mynewobject = ClassWithOptimizableVariables(
-                    name=class_to_be_reconstructed["name"])
-            mynewobject.annotations = class_to_be_reconstructed["annotations"]
+            self.debug("Name: " + name)
+            self.debug("Kind: " + kind)
+
+            #mynewobject = ClassWithOptimizableVariables(
+            #        name=class_to_be_reconstructed["name"])
+            #mynewobject.annotations = class_to_be_reconstructed["annotations"]
 
             self.debug("Annotations")
 
-            self.debug(pformat(class_to_be_reconstructed["annotations"]))
+            self.debug(pformat(anno))
 
             self.debug("Creating attributes")
 
             self.debug(pformat(structure_dict))
 
-            for (keyvars, valuevars) in structure_dict.items():
-                # set attributes from structure directly in class structure
-                mynewobject.__setattr__(keyvars, valuevars)
+            # for (keyvars, valuevars) in structure_dict.items():
+            #    # set attributes from structure directly in class structure
+            #     mynewobject.__setattr__(keyvars, valuevars)
 
-            self.debug("Type casting. Type: " + str(type(mynewobject)))
+            # self.debug("Type casting. Type: " + str(type(mynewobject)))
             # mynewobject is ClassWithOptimizableVariables
             conversion_dict = {"shape_ZernikeFringe": ZernikeFringe,
                                "localcoordinates": LocalCoordinates}
             # workaround to cast, not satisfied
-            self.debug("Returning")
+            # self.debug("Returning")
 
             return conversion_dict[
-                class_to_be_reconstructed["kind"]
-            ](mynewobject)
+                kind
+            ].createFromSerialization(kind, anno, structure_dict, name=name)
+            # TODO: kind to createFromSerialization is not very beautiful
+
 
         """
         Reconstruct the variables pool by its own reconstruction functions.

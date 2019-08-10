@@ -48,3 +48,19 @@ class ClassWithOptimizableVariables(BaseLogger):
 
     def setKind(self):
         self.kind = "classwithoptimizablevariables"
+
+    @classmethod
+    def createFromSerialization(cls, kind, annotations_dict,
+                                structure_dict, name=""):
+        print("KIND: " + kind)
+        if kind == "shape_ZernikeFringe":
+            args = (structure_dict["lc"],)
+        elif kind == "localcoordinates":
+            args = ()
+        else:
+            args = ()
+        myclass = cls(*args, name=name)
+        myclass.annotations = annotations_dict
+        for (k, v) in structure_dict.items():
+            myclass.__setattr__(k, v)
+        return myclass

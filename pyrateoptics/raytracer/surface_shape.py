@@ -869,8 +869,6 @@ class Zernike(ExplicitShape):
             coefficients = []
 
         self.numcoefficients = len(coefficients)
-        #self.annotations = {}
-        #self.annotations["numcoefficients"] = len(coefficients)
         initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
 
         def zf(x, y):
