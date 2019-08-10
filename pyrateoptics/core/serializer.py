@@ -93,6 +93,23 @@ class Deserializer(BaseLogger):
         else:
             return False
 
+    def createFromSerialization(self, kind, annotations_dict,
+                                structure_dict, name=""):
+        self.debug(pformat(structure_dict))
+        args_dictionary = {
+                            "shape_ZernikeFringe": (structure_dict.get("lc", None),),
+                            "localcoordinates": ()
+                           }
+        classes_dictionary = {
+                            "shape_ZernikeFringe": ZernikeFringe,
+                            "localcoordinates": LocalCoordinates
+        }
+        myclass = classes_dictionary[kind](*args_dictionary[kind], name=name)
+        myclass.annotations = annotations_dict
+        for (k, v) in structure_dict.items():
+            myclass.__setattr__(k, v)
+        return myclass
+
     def deserialize(self, source_checked, variables_checked):
         """
         Convert the list obtained from a file or another source back
@@ -253,16 +270,16 @@ class Deserializer(BaseLogger):
 
             # self.debug("Type casting. Type: " + str(type(mynewobject)))
             # mynewobject is ClassWithOptimizableVariables
-            conversion_dict = {"shape_ZernikeFringe": ZernikeFringe,
-                               "localcoordinates": LocalCoordinates}
+            # conversion_dict = {"shape_ZernikeFringe": ZernikeFringe,
+            #                    "localcoordinates": LocalCoordinates}
             # workaround to cast, not satisfied
             # self.debug("Returning")
 
-            return conversion_dict[
-                kind
-            ].createFromSerialization(kind, anno, structure_dict, name=name)
-            # TODO: kind to createFromSerialization is not very beautiful
+            self.debug("KIND: " + kind)
 
+            return self.createFromSerialization(
+                kind, anno, structure_dict, name=name)
+            # TODO: kind to createFromSerialization is not very beautiful
 
         """
         Reconstruct the variables pool by its own reconstruction functions.
