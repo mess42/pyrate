@@ -38,13 +38,20 @@ class ClassWithOptimizableVariables(BaseLogger):
     class inheritance and interface the child class with some type of
     optimizer.
     """
-    def __init__(self, name=""):
+    def __init__(self, annotations_dict={}, structure_dict={}, name=""):
         """
         Initialize with empty dict.
         """
         super(ClassWithOptimizableVariables, self).__init__(name=name)
 
-        self.annotations = {}
+        self.annotations = annotations_dict
+        for (key, value) in structure_dict.items():
+            self.__setattr__(key, value)
+
+    @classmethod
+    def p(cls, *args, **kwargs):
+        name = kwargs.get("name", "")
+        return cls({}, {}, name)
 
     def setKind(self):
         self.kind = "classwithoptimizablevariables"

@@ -34,7 +34,7 @@ from .optimizable_variables_pool import OptimizableVariablesPool
 from .base import ClassWithOptimizableVariables
 
 from ..raytracer.localcoordinates import LocalCoordinates
-from ..raytracer.surface_shape import ZernikeFringe
+from ..raytracer.surface_shape import ZernikeFringe, Asphere
 
 
 class Serializer(BaseLogger):
@@ -96,18 +96,14 @@ class Deserializer(BaseLogger):
     def createFromSerialization(self, kind, annotations_dict,
                                 structure_dict, name=""):
         self.debug(pformat(structure_dict))
-        args_dictionary = {
-                            "shape_ZernikeFringe": (structure_dict.get("lc", None),),
-                            "localcoordinates": ()
-                           }
         classes_dictionary = {
                             "shape_ZernikeFringe": ZernikeFringe,
+                            "shape_Asphere": Asphere,
                             "localcoordinates": LocalCoordinates
         }
-        myclass = classes_dictionary[kind](*args_dictionary[kind], name=name)
-        myclass.annotations = annotations_dict
-        for (k, v) in structure_dict.items():
-            myclass.__setattr__(k, v)
+        myclass = classes_dictionary[kind](
+                annotations_dict,
+                structure_dict, name=name)
         return myclass
 
     def deserialize(self, source_checked, variables_checked):

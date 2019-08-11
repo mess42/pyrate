@@ -50,7 +50,7 @@ class Surface(LocalCoordinatesTreeBase):
     def __init__(self, rootlc, shape=None, aperture=None, name=""):
         super(Surface, self).__init__(rootlc, name=name)
         if shape is None:
-            shape = Conic(rootlc)
+            shape = Conic.p(rootlc)
 
         aperture_ = BaseAperture(rootlc)
         if isinstance(aperture, BaseAperture):

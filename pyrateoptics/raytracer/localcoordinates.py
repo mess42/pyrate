@@ -35,7 +35,8 @@ from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
 
 
 class LocalCoordinates(ClassWithOptimizableVariables):
-    def __init__(self, name="", **kwargs):
+    @classmethod
+    def p(cls, name="", **kwargs):
         # TODO: Reference to global to be rewritten into reference to root
         '''
         Defines a local coordinate system, on which translated or tilted optical surfaces may refer.
@@ -53,35 +54,48 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                           Default value is zero.
                                           0 or False means: the decenter operations are performed first, then tiltx, then tilty, then tiltz.
                                           1 or True means: tiltz first, then tilty, then tiltx, then decenter.
-                        observers:        list of observers derived from AbstractObserver
         '''
-        super(LocalCoordinates, self).__init__(name=name)
 
         (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
-        (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx", "tilty", "tiltz", "tiltThenDecenter"])
-
-        self.list_observers = kwargs.get("observers", [])
-
+        (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx",
+         "tilty", "tiltz", "tiltThenDecenter"])
 
 
-        self.decx = FloatOptimizableVariable(FixedState(decx), name="decx")
-        self.decy = FloatOptimizableVariable(FixedState(decy), name="decy")
-        self.decz = FloatOptimizableVariable(FixedState(decz), name="decz")
-        self.tiltx = FloatOptimizableVariable(FixedState(tiltx), name="tiltx")
-        self.tilty = FloatOptimizableVariable(FixedState(tilty), name="tilty")
-        self.tiltz = FloatOptimizableVariable(FixedState(tiltz), name="tiltz")
+        decx = FloatOptimizableVariable(FixedState(decx), name="decx")
+        decy = FloatOptimizableVariable(FixedState(decy), name="decy")
+        decz = FloatOptimizableVariable(FixedState(decz), name="decz")
+        tiltx = FloatOptimizableVariable(FixedState(tiltx), name="tiltx")
+        tilty = FloatOptimizableVariable(FixedState(tilty), name="tilty")
+        tiltz = FloatOptimizableVariable(FixedState(tiltz), name="tiltz")
+        parent = None # None means reference to root coordinate system
+        children = [] # children
 
-        self.tiltThenDecenter = tiltThenDecenter
 
-        self.parent = None # None means reference to root coordinate system
-        self.__children = [] # children
+        globalcoordinates = np.array([0, 0, 0])
+        localdecenter = np.array([0, 0, 0])
+        localrotation = np.lib.eye(3)
+        localbasis = np.lib.eye(3)
 
-        self.globalcoordinates = np.array([0, 0, 0])
-        self.localdecenter = np.array([0, 0, 0])
-        self.localrotation = np.lib.eye(3)
-        self.localbasis = np.lib.eye(3)
+        annotations_dict = {}
+        structure_dict = {}
 
-        self.update() # initial update
+        annotations_dict["tiltThenDecenter"] = tiltThenDecenter
+        structure_dict["decx"] = decx
+        structure_dict["decy"] = decx
+        structure_dict["decz"] = decx
+        structure_dict["tiltx"] = tiltx
+        structure_dict["tilty"] = tilty
+        structure_dict["tiltz"] = tiltz
+        structure_dict["parent"] = parent
+        structure_dict["_LocalCoordinates__children"] = children
+        structure_dict["globalcoordinates"] = globalcoordinates
+        structure_dict["localdecenter"] = localdecenter
+        structure_dict["localrotation"] = localrotation
+        structure_dict["localbasis"] = localbasis
+
+        lc = cls(annotations_dict, structure_dict, name)
+        lc.update()  # initial update
+        return lc
 
     def setKind(self):
         self.kind = "localcoordinates"
@@ -195,8 +209,6 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             res = self.FactorMatrixXYZ(mat)
         return res
 
-
-
     def calculate(self):
 
         """
@@ -216,7 +228,10 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         decz = self.decz.evaluate()
 
         self.localdecenter = np.array([decx, decy, decz])
-        self.localrotation = self.calculateMatrixFromTilt(tiltx, tilty, tiltz, self.tiltThenDecenter)
+        self.localrotation = self.calculateMatrixFromTilt(tiltx,
+                                                          tilty,
+                                                          tiltz,
+                                                          self.annotations["tiltThenDecenter"])
 
     def update(self):
         '''
@@ -229,23 +244,25 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         parentcoordinates = np.array([0, 0, 0])
         parentbasis = np.lib.eye(3)
 
-        if self.parent != None:
+        if self.parent is not None:
             parentcoordinates = self.parent.globalcoordinates
             parentbasis = self.parent.localbasis
 
         self.localbasis = np.dot(parentbasis, self.localrotation)
-        if self.tiltThenDecenter == 0:
+        if self.annotations["tiltThenDecenter"] == 0:
             # first decenter then rotation
             self.globalcoordinates = \
-            parentcoordinates + \
-            np.dot(parentbasis, self.localdecenter)
-            # TODO: removed .T on parentbasis to obtain correct behavior; examine!
+                parentcoordinates + \
+                np.dot(parentbasis, self.localdecenter)
+            # TODO: removed .T on parentbasis to obtain correct behavior;
+            # examine!
         else:
             # first rotation then decenter
             self.globalcoordinates = \
-            parentcoordinates + \
-            np.dot(self.localbasis, self.localdecenter)
-            # TODO: removed .T on localbasis to obtain correct behavior; examine!
+                parentcoordinates + \
+                np.dot(self.localbasis, self.localdecenter)
+            # TODO: removed .T on localbasis to obtain correct behavior;
+            # examine!
 
         for ch in self.__children:
             ch.update()

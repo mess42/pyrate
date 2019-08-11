@@ -44,14 +44,16 @@ else:
 
 
 class Shape(ClassWithOptimizableVariables):
-    def __init__(self, lc, name=""):
-        """
-        Virtual Class for all surface shapes.
-        The shape of a surface provides a function to calculate
-        the intersection point with a ray.
-        """
-        super(Shape, self).__init__(name=name)
-        self.lc = lc
+    """
+    Virtual Class for all surface shapes.
+    The shape of a surface provides a function to calculate
+    the intersection point with a ray.
+    """
+
+    #def __init__(self, lc, name=""):
+    #
+    #    super(Shape, self).__init__(name=name)
+    #    self.lc = lc
 
     def setKind(self):
         self.kind = "shape"
@@ -151,25 +153,34 @@ class Shape(ClassWithOptimizableVariables):
 
 
 class Conic(Shape):
-    def __init__(self, lc, curv=0.0, cc=0.0, name=""):
-        """
-        Create rotationally symmetric surface
-        with a conic cross section in the meridional plane.
+    #def __init__(self, lc, curv=0.0, cc=0.0, name=""):
+    #    """
+    #    Create rotationally symmetric surface
+    #    with a conic cross section in the meridional plane.
+#
+    #    :param curv: Curvature of the surface (float).
+    #    :param cc: Conic constant (float).
 
-        :param curv: Curvature of the surface (float).
-        :param cc: Conic constant (float).
+    #    -1 < cc < 0 oblate rotational ellipsoid
+    #         cc = 0 sphere
+    #     0 < cc < 1 prolate rotational ellipsoid
+    #         cc = 1 rotational paraboloid
+    #         cc > 1 rotational hyperboloid
+    #    """
 
-        -1 < cc < 0 oblate rotational ellipsoid
-             cc = 0 sphere
-         0 < cc < 1 prolate rotational ellipsoid
-             cc = 1 rotational paraboloid
-             cc > 1 rotational hyperboloid
-        """
-        super(Conic, self).__init__(lc)
 
-        self.curvature = FloatOptimizableVariable(FixedState(curv),
+    @classmethod
+    def p(cls, lc, curv=0.0, cc=0.0, name=""):
+        curvature = FloatOptimizableVariable(FixedState(curv),
                                              name="curvature")
-        self.conic = FloatOptimizableVariable(FixedState(cc), name="conic constant")
+        conic = FloatOptimizableVariable(FixedState(cc), name="conic constant")
+        return cls({},
+                     {"curvature": curvature,
+                      "conic": conic,
+                      "lc": lc
+                     }, name)
+
+
 
     def setKind(self):
         self.kind = "shape_Conic"
@@ -315,7 +326,8 @@ class Conic(Shape):
 
 
 class Cylinder(Conic):
-    def __init__(self, lc, curv=0.0, cc=0.0, name="", **kwargs):
+    @classmethod
+    def p(cls, lc, curv=0.0, cc=0.0, name=""):
         """
         Create cylindric conic section surface.
 
@@ -328,12 +340,16 @@ class Cylinder(Conic):
              cc = 1 parabolic
              cc > 1 hyperbolic
         """
-        super(Cylinder, self).__init__(lc, name=name)
 
-        self.curvature = FloatOptimizableVariable(FixedState(curv),
+        curvature = FloatOptimizableVariable(FixedState(curv),
                                                   name="curvature")
-        self.conic = FloatOptimizableVariable(FixedState(cc),
+        conic = FloatOptimizableVariable(FixedState(cc),
                                               name="conic constant")
+        return cls({},
+                   {"curvature": curvature,
+                    "conic": conic,
+                    "lc": lc
+                   }, name)
 
 
     def setKind(self):
@@ -374,8 +390,11 @@ class Cylinder(Conic):
 
 
 class FreeShape(Shape):
-    def __init__(self, lc, F, gradF, hessF, paramlist=[], tol=1e-6,
-                 iterations=10, name=""):
+
+    @staticmethod
+    def createAnnotationsAndStructure(
+                                     lc, paramlist=[],
+                                     tol=1e-6, iterations=10):
         """
         Freeshape surface defined by abstract function F (either implicitly
         or explicitly) and its x, y, z derivatives
@@ -387,18 +406,17 @@ class FreeShape(Shape):
         :param iterations: convergence parameter
         """
 
-        super(FreeShape, self).__init__(lc, name=name)
-
-        self.params = {}
+        params = {}
         for (name, value) in paramlist:
-            self.params[name] = FloatOptimizableVariable(FixedState(value),
-                                                         name=name)
+            params[name] = FloatOptimizableVariable(FixedState(value),
+                                                    name=name)
 
-        self.tol = tol
-        self.iterations = iterations
-        self.F = F  # implicit function in x, y, z, paramslst
-        self.gradF = gradF  # closed form gradient in x, y, z, paramslst
-        self.hessF = hessF  # closed form Hessian in x, y, z, paramslst
+        # implicit function in x, y, z, paramslst
+        # closed form gradient in x, y, z, paramslst
+        # closed form Hessian in x, y, z, paramslst
+
+        return ({"tol": tol, "iterations": iterations},
+                {"lc": lc, "params": params})
 
     def getGrad(self, x, y):
         z = self.getSag(x, y)
@@ -508,76 +526,76 @@ class Asphere(ExplicitShape):
     Polynomial asphere as base class for sophisticated surface descriptions
     """
 
+    def sqrtfun(self, r2):
+        (curv, cc, acoeffs) = self.getAsphereParameters()
+        return np.sqrt(1 - curv**2*(1+cc)*r2)
 
-    def __init__(self, lc, curv=0, cc=0, coefficients=None, name=""):
+    def F(self, x, y):
+        (curv, cc, acoeffs) = self.getAsphereParameters()
+
+        r2 = x**2 + y**2
+
+        res = curv*r2/(1 + self.sqrtfun(r2))
+        for (n, an) in enumerate(acoeffs):
+            res += an*r2**(n+1)
+        return res
+
+    def gradF(self, x, y, z): # gradient for implicit function z - af(x, y) = 0
+        res = np.zeros((3, len(x)))
+        (curv, cc, acoeffs) = self.getAsphereParameters()
+
+        r2 = x**2 + y**2
+        sq = self.sqrtfun(r2)
+
+
+        res[2] = np.ones_like(x) # z-component always 1
+        res[0] = -curv*x/sq
+        res[1] = -curv*y/sq
+
+        for (n, an) in enumerate(acoeffs):
+            res[0] += -2.*x*(n+1)*an*r2**n
+            res[1] += -2.*y*(n+1)*an*r2**n
+
+        return res
+
+    def hessF(self, x, y, z):
+        res = np.zeros((3, 3, len(x)))
+
+        (curv, cc, acoeffs) = self.getAsphereParameters()
+
+        r2 = x**2 + y**2
+        sq = self.sqrtfun(r2)
+
+        maindev = -curv/(2.*sq)
+        maindev2 = -curv**3*(1+cc)/(4.*sq)
+
+        for (n, an) in enumerate(acoeffs):
+            maindev += -an*(n+1)*r2**n
+            maindev2 += -an*(n+1)*n*r2**(n-1)
+
+        res[0, 0] = 2*(2*maindev2*x*x + maindev)
+        res[1, 1] = 2*(2*maindev2*y*y + maindev)
+        res[0, 1] = res[1, 0] = 4*maindev2*x*y
+
+        return res
+
+
+    @classmethod
+    def p(cls, lc, curv=0, cc=0, coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
 
-        self.numcoefficients = len(coefficients)
         initacoeffs = [("A"+str(2*i+2), val) for (i, val) in enumerate(coefficients)]
 
-        def sqrtfun(r2):
-            (curv, cc, acoeffs) = self.getAsphereParameters()
-            return np.sqrt(1 - curv**2*(1+cc)*r2)
-
-
-
-
-        def af(x, y):
-            (curv, cc, acoeffs) = self.getAsphereParameters()
-
-            r2 = x**2 + y**2
-
-            res = curv*r2/(1 + sqrtfun(r2))
-            for (n, an) in enumerate(acoeffs):
-                res += an*r2**(n+1)
-            return res
-
-        def gradaf(x, y, z): # gradient for implicit function z - af(x, y) = 0
-            res = np.zeros((3, len(x)))
-            (curv, cc, acoeffs) = self.getAsphereParameters()
-
-            r2 = x**2 + y**2
-            sq = sqrtfun(r2)
-
-
-            res[2] = np.ones_like(x) # z-component always 1
-            res[0] = -curv*x/sq
-            res[1] = -curv*y/sq
-
-            for (n, an) in enumerate(acoeffs):
-                res[0] += -2.*x*(n+1)*an*r2**n
-                res[1] += -2.*y*(n+1)*an*r2**n
-
-            return res
-
-        def hessaf(x, y, z):
-            res = np.zeros((3, 3, len(x)))
-
-            (curv, cc, acoeffs) = self.getAsphereParameters()
-
-            r2 = x**2 + y**2
-            sq = sqrtfun(r2)
-
-            maindev = -curv/(2.*sq)
-            maindev2 = -curv**3*(1+cc)/(4.*sq)
-
-            for (n, an) in enumerate(acoeffs):
-                maindev += -an*(n+1)*r2**n
-                maindev2 += -an*(n+1)*n*r2**(n-1)
-
-            res[0, 0] = 2*(2*maindev2*x*x + maindev)
-            res[1, 1] = 2*(2*maindev2*y*y + maindev)
-            res[0, 1] = res[1, 0] = 4*maindev2*x*y
-
-            return res
-
-        super(Asphere, self).__init__(lc, af, gradaf, hessaf,
-                                      paramlist=([("curv", curv),
-                                                  ("cc", cc)] +
-                                                 initacoeffs),
-                                      name=name)
+        (a_annotations, a_structure) =\
+            FreeShape.createStructureAndAnnotations(lc,
+                                                    paramlist=([("curv", curv),
+                                                                ("cc", cc)] +
+                                                                initacoeffs))
+        a_annotations["numcoefficients"] = len(coefficients)
+        my_asphere = cls(a_annotations, a_structure, name)
+        return my_asphere
 
     def setKind(self):
         self.kind = "shape_Asphere"
@@ -585,7 +603,7 @@ class Asphere(ExplicitShape):
     def getAsphereParameters(self):
         return (self.params["curv"](),
                 self.params["cc"](),
-                [self.params["A"+str(2*i+2)]() for i in range(self.numcoefficients)])
+                [self.params["A"+str(2*i+2)]() for i in range(self.annotations["numcoefficients"])])
 
     def getCentralCurvature(self):
         return self.params["curv"].evaluate()
