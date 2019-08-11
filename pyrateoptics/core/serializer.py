@@ -72,9 +72,19 @@ class Serializer(BaseLogger):
 
 class Deserializer(BaseLogger):
     def __init__(self, serialization_list,
-                 source_checked, variables_checked, name=""):
+                 source_checked, variables_checked, name="",
+                 register_classes=None):
         super(Deserializer, self).__init__(name=name)
         self.serialization_list = serialization_list
+        self.classes_dictionary = {
+            "shape_ZernikeFringe": ZernikeFringe,
+            "shape_Asphere": Asphere,
+            "localcoordinates": LocalCoordinates
+            }
+        if register_classes is not None:
+            for (kind_name, class_name) in register_classes:
+                self.classes_dictionary[kind_name] = class_name
+
         self.deserialize(source_checked, variables_checked)
 
     def isUUID(self, uuidstr):
@@ -93,19 +103,6 @@ class Deserializer(BaseLogger):
         else:
             return False
 
-    def createFromSerialization(self, kind, annotations_dict,
-                                structure_dict, name=""):
-        self.debug(pformat(structure_dict))
-        classes_dictionary = {
-                            "shape_ZernikeFringe": ZernikeFringe,
-                            "shape_Asphere": Asphere,
-                            "localcoordinates": LocalCoordinates
-        }
-        myclass = classes_dictionary[kind](
-                annotations_dict,
-                structure_dict, name=name)
-        return myclass
-
     def deserialize(self, source_checked, variables_checked):
         """
         Convert the list obtained from a file or another source back
@@ -115,7 +112,7 @@ class Deserializer(BaseLogger):
         """
         (class_to_be_deserialized, subclasses_dict,
          optimizable_variables_pool_dict, functionobjects_pool_dict) =\
-             self.serialization_list
+            self.serialization_list
 
         self.debug("Deserializing class")
 
@@ -248,10 +245,6 @@ class Deserializer(BaseLogger):
             self.debug("Name: " + name)
             self.debug("Kind: " + kind)
 
-            #mynewobject = ClassWithOptimizableVariables(
-            #        name=class_to_be_reconstructed["name"])
-            #mynewobject.annotations = class_to_be_reconstructed["annotations"]
-
             self.debug("Annotations")
 
             self.debug(pformat(anno))
@@ -260,22 +253,10 @@ class Deserializer(BaseLogger):
 
             self.debug(pformat(structure_dict))
 
-            # for (keyvars, valuevars) in structure_dict.items():
-            #    # set attributes from structure directly in class structure
-            #     mynewobject.__setattr__(keyvars, valuevars)
-
-            # self.debug("Type casting. Type: " + str(type(mynewobject)))
-            # mynewobject is ClassWithOptimizableVariables
-            # conversion_dict = {"shape_ZernikeFringe": ZernikeFringe,
-            #                    "localcoordinates": LocalCoordinates}
-            # workaround to cast, not satisfied
-            # self.debug("Returning")
-
-            self.debug("KIND: " + kind)
-
-            return self.createFromSerialization(
-                kind, anno, structure_dict, name=name)
-            # TODO: kind to createFromSerialization is not very beautiful
+            myclass = self.classes_dictionary[kind](
+                    anno,
+                    structure_dict, name=name)
+            return myclass
 
         """
         Reconstruct the variables pool by its own reconstruction functions.
