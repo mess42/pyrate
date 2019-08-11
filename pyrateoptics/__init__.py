@@ -114,7 +114,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
 
     for (surfdict, coordbreakdict, mat, surf_name, optdict) in builduplist:
         lc = elem.addLocalCoordinateSystem(
-            LocalCoordinates(name=surf_name + "_lc", **coordbreakdict),
+            LocalCoordinates.p(name=surf_name + "_lc", **coordbreakdict),
             refname=refname)
         shapetype = "shape_" + surfdict.pop("shape", "Conic")
         aperture = surfdict.pop("aperture", None)
@@ -144,7 +144,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
         else:
             actsurf = Surface(lc, name=surf_name + "_surf",
                               aperture=aperture,
-                              shape=accessible_shapes[shapetype]
+                              shape=accessible_shapes[shapetype].p
                               (lc, name=name + "_shape", **surfdict))
         logger.debug("mat=%s" % repr(mat))
         # TODO: evaluation function which adds a material depending on type
@@ -209,7 +209,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     s = OpticalSystem(name=name)
 
     lc0 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="object", decz=0.0),
+        LocalCoordinates.p(name="object", decz=0.0),
         refname=s.rootcoordinatesystem.name)
 
     elem_name = "stdelem"

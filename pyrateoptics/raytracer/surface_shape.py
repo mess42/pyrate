@@ -449,7 +449,7 @@ class ExplicitShape(FreeShape):
         def Fwrapper(t, r0, rayDir):
             return r0[2] + t*rayDir[2] - self.F(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1])
 
-        t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.tol)
+        t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.annotations["tol"])
 
         globalinter = self.lc.returnLocalToGlobalPoints(r0 + rayDir * t)
 

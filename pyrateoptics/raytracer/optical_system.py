@@ -53,7 +53,7 @@ class OpticalSystem(LocalCoordinatesTreeBase):
 
         """
         if rootlc is None:
-            rootlc = LocalCoordinates(name="global")
+            rootlc = LocalCoordinates.p(name="global")
         self.rootcoordinatesystem = rootlc
 
         super(OpticalSystem, self).__init__(
