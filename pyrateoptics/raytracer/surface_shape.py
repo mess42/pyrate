@@ -50,11 +50,6 @@ class Shape(ClassWithOptimizableVariables):
     the intersection point with a ray.
     """
 
-    #def __init__(self, lc, name=""):
-    #
-    #    super(Shape, self).__init__(name=name)
-    #    self.lc = lc
-
     def setKind(self):
         self.kind = "shape"
 
@@ -62,10 +57,13 @@ class Shape(ClassWithOptimizableVariables):
         """
         Intersection routine returning intersection point
         with ray and normal vector of the surface.
-        :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
-        :return t: geometrical path length to the next surface (1d numpy array of float)
+        :param raybundle: RayBundle that shall intersect the surface.
+                            (RayBundle Object)
+        :return t: geometrical path length to the next surface
+                            (1d numpy array of float)
         :return normal: surface normal vectors (2d numpy 3xN array of float)
-        :return validIndices: whether indices hit the surface (1d numpy array of bool)
+        :return validIndices: whether indices hit the surface
+                            (1d numpy array of bool)
         """
         raise NotImplementedError()
 
@@ -73,8 +71,10 @@ class Shape(ClassWithOptimizableVariables):
         """
         Returns the sag of the surface for given coordinates - mostly used
         for plotting purposes.
-        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param x: x coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
         :return z: sag (list or numpy 1d array of float)
         """
         raise NotImplementedError()
@@ -89,18 +89,21 @@ class Shape(ClassWithOptimizableVariables):
     def getGrad(self, x, y):
         """
         Returns the gradient of the surface.
-        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param x: x coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
         :return grad: gradient (2d numpy 3xN array of float)
         """
         raise NotImplementedError()
 
-
     def getNormal(self, x, y):
         """
         Returns the normal of the surface.
-        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param x: x coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
         :return n: normal (2d numpy 3xN array of float)
         """
         gradient = self.getGrad(x, y)
@@ -153,34 +156,31 @@ class Shape(ClassWithOptimizableVariables):
 
 
 class Conic(Shape):
-    #def __init__(self, lc, curv=0.0, cc=0.0, name=""):
-    #    """
-    #    Create rotationally symmetric surface
-    #    with a conic cross section in the meridional plane.
-#
-    #    :param curv: Curvature of the surface (float).
-    #    :param cc: Conic constant (float).
-
-    #    -1 < cc < 0 oblate rotational ellipsoid
-    #         cc = 0 sphere
-    #     0 < cc < 1 prolate rotational ellipsoid
-    #         cc = 1 rotational paraboloid
-    #         cc > 1 rotational hyperboloid
-    #    """
-
 
     @classmethod
     def p(cls, lc, curv=0.0, cc=0.0, name=""):
+        """
+        Create rotationally symmetric surface
+        with a conic cross section in the meridional plane.
+
+        :param curv: Curvature of the surface (float).
+        :param cc: Conic constant (float).
+
+        -1 < cc < 0 oblate rotational ellipsoid
+             cc = 0 sphere
+         0 < cc < 1 prolate rotational ellipsoid
+             cc = 1 rotational paraboloid
+             cc > 1 rotational hyperboloid
+        """
+
         curvature = FloatOptimizableVariable(FixedState(curv),
                                              name="curvature")
         conic = FloatOptimizableVariable(FixedState(cc), name="conic constant")
         return cls({},
-                     {"curvature": curvature,
-                      "conic": conic,
-                      "lc": lc
-                     }, name)
-
-
+                   {"curvature": curvature,
+                    "conic": conic,
+                    "lc": lc
+                    }, name)
 
     def setKind(self):
         self.kind = "shape_Conic"
@@ -243,10 +243,7 @@ class Conic(Shape):
         hessian = np.array([[curv, 0, 0], [0, curv, 0], [0, 0, curv*(1+cc)]])
         hessian = np.repeat(hessian[:, :, np.newaxis], num_pts, axis=2)
 
-
         return hessian
-
-
 
     def getNormalDerivative(self, xveclocal):
         """
@@ -276,7 +273,6 @@ class Conic(Shape):
             ])
 
         return np.einsum('ij...,jk...', prematrix, innermatrix).T
-
 
     def getCentralCurvature(self):
         return self.curvature.evaluate()
@@ -342,15 +338,14 @@ class Cylinder(Conic):
         """
 
         curvature = FloatOptimizableVariable(FixedState(curv),
-                                                  name="curvature")
+                                             name="curvature")
         conic = FloatOptimizableVariable(FixedState(cc),
-                                              name="conic constant")
+                                         name="conic constant")
         return cls({},
                    {"curvature": curvature,
                     "conic": conic,
                     "lc": lc
-                   }, name)
-
+                    }, name)
 
     def setKind(self):
         self.kind = "shape_Cylinder"
@@ -443,7 +438,6 @@ class ExplicitShape(FreeShape):
         :param iterations: convergence parameter
     """
 
-
     def getSag(self, x, y):
         return self.F(x, y)
 
@@ -471,7 +465,6 @@ class ImplicitShape(FreeShape):
     def Fwrapper(self, zp, xp, yp):
         return self.F(xp, yp, zp)
 
-
     def implicitsolver(self, x, y, *finalargs):
         z1 = np.random.rand(len(x))
         z2 = np.random.rand(len(x))
@@ -492,10 +485,8 @@ class ImplicitShape(FreeShape):
         res = fsolve(self.Fwrapper, x0=zstart, args=(x, y), xtol=self.tol, *finalargs)
         return res
 
-
     def getSag(self, x, y):
         return self.implicitsolver(x, y)
-
 
     def intersect(self, raybundle):
 
@@ -540,15 +531,15 @@ class Asphere(ExplicitShape):
             res += an*r2**(n+1)
         return res
 
-    def gradF(self, x, y, z): # gradient for implicit function z - af(x, y) = 0
+    def gradF(self, x, y, z):
+        """gradient for implicit function z - af(x, y) = 0"""
         res = np.zeros((3, len(x)))
         (curv, cc, acoeffs) = self.getAsphereParameters()
 
         r2 = x**2 + y**2
         sq = self.sqrtfun(r2)
 
-
-        res[2] = np.ones_like(x) # z-component always 1
+        res[2] = np.ones_like(x)  # z-component always 1
         res[0] = -curv*x/sq
         res[1] = -curv*y/sq
 
@@ -579,7 +570,6 @@ class Asphere(ExplicitShape):
 
         return res
 
-
     @classmethod
     def p(cls, lc, curv=0, cc=0, coefficients=None, name=""):
 
@@ -589,7 +579,7 @@ class Asphere(ExplicitShape):
         initacoeffs = [("A"+str(2*i+2), val) for (i, val) in enumerate(coefficients)]
 
         (a_annotations, a_structure) =\
-            FreeShape.createStructureAndAnnotations(lc,
+            FreeShape.createAnnotationsAndStructure(lc,
                                                     paramlist=([("curv", curv),
                                                                 ("cc", cc)] +
                                                                 initacoeffs))
@@ -1003,7 +993,6 @@ class Zernike(ExplicitShape):
 
     def zernike_norm(self, n, m, xp, yp):
 
-
         R = np.zeros(n+1)
         omega = abs(m)
 
@@ -1068,11 +1057,9 @@ class ZernikeStandard(Zernike):
     def setKind(self):
         self.kind = "shape_ZernikeStandard"
 
-
     def jtonm(self, j):
-        n = math.floor((-1.+math.sqrt(1.+8.*j))*0.5);
-        m = n-2*j+n*(n+1);
-
+        n = math.floor((-1. + math.sqrt(1. + 8. * j)) * 0.5)
+        m = n-2*j+n*(n+1)
 
         return (n, m)
 
