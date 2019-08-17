@@ -104,7 +104,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
     """
     logger = logging.getLogger(__name__)
 
-    elem = OpticalElement(lc0, name=name)
+    elem = OpticalElement.p(lc0, name=name)
 
     refname = lc0.name
     lastmat = None
@@ -116,6 +116,8 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
         lc = elem.addLocalCoordinateSystem(
             LocalCoordinates.p(name=surf_name + "_lc", **coordbreakdict),
             refname=refname)
+        print(lc.pprint())
+        print(lc.children)
         shapetype = "shape_" + surfdict.pop("shape", "Conic")
         aperture = surfdict.pop("aperture", None)
         if shapetype == "shape_LinearCombination":
@@ -142,10 +144,10 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                                                       "_linearcombi",
                                                       list_of_coefficients_and_shapes=new_list_coeffs_shapes))
         else:
-            actsurf = Surface(lc, name=surf_name + "_surf",
-                              aperture=aperture,
-                              shape=accessible_shapes[shapetype].p
-                              (lc, name=name + "_shape", **surfdict))
+            actsurf = Surface.p(lc, name=surf_name + "_surf",
+                                aperture=aperture,
+                                shape=accessible_shapes[shapetype].p
+                                (lc, name=name + "_shape", **surfdict))
         logger.debug("mat=%s" % repr(mat))
         # TODO: evaluation function which adds a material depending on type
         # of argument and can handle:
@@ -166,7 +168,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                                  gcat.createGlassObjectFromLongName(lc, mat))
             elif use_floating_point_value_for_constant_index_glass:
                 mat = "constantindexglass_" + str(mat)
-                elem.addMaterial(mat, ConstantIndexGlass(lc, n=n))
+                elem.addMaterial(mat, ConstantIndexGlass.p(lc, n=n))
 
         elem.addSurface(surf_name, actsurf, (lastmat, mat))
         logger.info("Added surface: %s at material boundary %s" % (surf_name,

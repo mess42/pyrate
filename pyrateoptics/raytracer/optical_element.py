@@ -42,11 +42,16 @@ class OpticalElement(LocalCoordinatesTreeBase):
     :param lc (Local Coordinates of optical element)
     :param name (string), if empty -> uuid
     """
-    def __init__(self, lc, name=""):
-        super(OpticalElement, self).__init__(lc, name=name)
-        self.__surfaces = {}  # Append surfaces objects
-        self.__materials = {}  # Append materials objects
-        self.__surf_mat_connection = {}  # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
+
+    @classmethod
+    def p(cls, lc, name=""):
+        #super(OpticalElement, self).__init__(lc, name=name)
+        #self.__surfaces = {}  # Append surfaces objects
+        #self.__materials = {}  # Append materials objects
+        #self.__surf_mat_connection = {}  # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
+
+        return cls({"surfaces": {}, "materials": {}, "surf_mat_connection": {}},
+                   {"rootcoordinatesystem": lc}, name=name)
 
     def setKind(self):
         self.kind = "opticalelement"
@@ -64,25 +69,25 @@ class OpticalElement(LocalCoordinatesTreeBase):
         """
         (minusNmat_key, plusNmat_key) = materialkeys
         if self.checkForRootConnection(surface_object.rootcoordinatesystem):
-            self.__surfaces[key] = surface_object
+            self.annotations["surfaces"][key] = surface_object
         else:
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
-        self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
+        self.annotations["surf_mat_connection"][key] = (minusNmat_key,
+                                                        plusNmat_key)
 
     def changeMaterialsForSurface(self, key, materialkeys):
         (minusNmat_key, plusNmat_key) = materialkeys
-        if key in self.__surf_mat_connection:
-            self.__surf_mat_connection[key] = (minusNmat_key, plusNmat_key)
-
+        if key in self.annotations["surf_mat_connection"]:
+            self.annotations["surf_mat_connection"][key] = (minusNmat_key,
+                                                            plusNmat_key)
 
     def getSurfaces(self):
-        return self.__surfaces
+        return self.annotations["surfaces"]
 
     def getConnection(self, key):
-        return self.__surf_mat_connection[key]
+        return self.annotations["surf_mat_connection"][key]
 
     surfaces = property(fget=getSurfaces)
-
 
     def addMaterial(self, key, material_object, comment=""):
         """
@@ -93,9 +98,9 @@ class OpticalElement(LocalCoordinatesTreeBase):
         :param comment (string, optional), comment for the material
         """
         if self.checkForRootConnection(material_object.lc):
-            if key not in self.__materials:
-                self.__materials[key] = material_object
-                self.__materials[key].comment = comment
+            if key not in self.annotations["materials"]:
+                self.annotations["materials"][key] = material_object
+                self.annotations["materials"][key].comment = comment
             else:
                 self.warning("Material key " + str(key) + " already taken. Material will not be added.")
         else:
@@ -310,11 +315,11 @@ class OpticalElement(LocalCoordinatesTreeBase):
             XYUVmatrices[(s1, s2, numhit)] = transfer
             XYUVmatrices[(s2, s1, numhit)] = invtransfer
 
-            self.debug("inv diff\n" + np.array_str(invtransfer - invtransfer2, precision=6, suppress_small=True))
-
+            self.debug("inv diff\n" + np.array_str(invtransfer - invtransfer2,
+                                                   precision=6,
+                                                   suppress_small=True))
 
         return (pilotraypath, XYUVmatrices)
-
 
     def seqtrace(self, raybundle, sequence, background_medium, splitup=False):
 
@@ -334,11 +339,11 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
             rpaths_new = []
 
-            current_surface = self.__surfaces[surfkey]
+            current_surface = self.annotations["surfaces"][surfkey]
 
-            (mnmat, pnmat) = self.__surf_mat_connection[surfkey]
-            mnmat = self.__materials.get(mnmat, background_medium)
-            pnmat = self.__materials.get(pnmat, background_medium)
+            (mnmat, pnmat) = self.annotations["surf_mat_connection"][surfkey]
+            mnmat = self.annotations["materials"].get(mnmat, background_medium)
+            pnmat = self.annotations["materials"].get(pnmat, background_medium)
 
             # finalize current_bundles
             for rp in rpaths:
@@ -373,7 +378,6 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
         return rpaths
 
-
     def para_seqtrace(self, pilotbundle,
                       raybundle,
                       sequence,
@@ -393,8 +397,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
         for (ps, pe, surfhit) in zip(pilotraypath.raybundles[:-1], pilotraypath.raybundles[1:], hitlist):
             (surf_start_key, surf_end_key, hit) = surfhit
 
-            surf_start = self.__surfaces[surf_start_key]
-            surf_end = self.__surfaces[surf_end_key]
+            surf_start = self.annotations["surfaces"][surf_start_key]
+            surf_end = self.annotations["surfaces"][surf_end_key]
 
             x0_glob = rpath.raybundles[-1].x[-1]
             k0_glob = rpath.raybundles[-1].k[-1]

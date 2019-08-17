@@ -37,8 +37,8 @@ from .material import MaxwellMaterial
 
 class IsotropicMaterial(MaxwellMaterial):
 
-    def __init__(self, lc, n=1.0, **kwargs):
-        super(IsotropicMaterial, self).__init__(lc, **kwargs)
+    def setKind(self):
+        self.kind = "isotropicmaterial"
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)
@@ -172,13 +172,18 @@ class ConstantIndexGlass(IsotropicMaterial):
     """
     A simple glass defined by a single refractive index.
     """
-    def __init__(self, lc, n=1.0, **kwargs):
-        super(ConstantIndexGlass, self).__init__(lc, **kwargs)
+    def setKind(self):
+        self.kind = "constantindexglass"
 
-        self.n = FloatOptimizableVariable(FixedState(n),
-                                          name="refractive index")
+    @classmethod
+    def p(cls, lc, n=1.0, name="", comment=""):
+
+        n = FloatOptimizableVariable(FixedState(n),
+                                     name="refractive index")
+        return cls({"comment": comment}, {"lc": lc, "n": n}, name=name)
 
     def getIndex(self, x, wave):
+        self.debug(self.n.evaluate())
         return self.n.evaluate()
 
     @staticmethod
@@ -192,10 +197,15 @@ class ConstantIndexGlass(IsotropicMaterial):
 
 
 class ModelGlass(IsotropicMaterial):
-    def __init__(self, lc, n0_A_B=(1.49749699179,
-                                   0.0100998734374*1e-3,
-                                   0.000328623343942*(1e-3)**3.5),
-                 name="", comment=""):
+
+    def setKind(self):
+        self.kind = "modelglass"
+
+    @classmethod
+    def p(cls, lc, n0_A_B=(1.49749699179,
+                           0.0100998734374*1e-3,
+                           0.000328623343942*(1e-3)**3.5),
+          name="", comment=""):
         """
         Set glass properties from the Conrady dispersion model.
         The Conrady model is n = n0 + A / wave + B / (wave**3.5)
@@ -205,13 +215,12 @@ class ModelGlass(IsotropicMaterial):
         """
         (n0, A, B) = n0_A_B
 
-        super(ModelGlass, self).__init__(lc=lc, n=n0, name=name, comment=comment)
+        n0 = FloatOptimizableVariable(FixedState(n0), name="Conrady n0")
+        A = FloatOptimizableVariable(FixedState(A), name="Conrady A")
+        B = FloatOptimizableVariable(FixedState(B), name="Conrady B")
 
-
-
-        self.n0 = FloatOptimizableVariable(FixedState(n0), name="Conrady n0")
-        self.A = FloatOptimizableVariable(FixedState(A), name="Conrady A")
-        self.B = FloatOptimizableVariable(FixedState(B), name="Conrady B")
+        return cls({"comment": comment}, {"lc": lc, "n0": n0, "A": A, "B": B},
+                   name=name)
 
     def getIndex(self, x, wave):
         """

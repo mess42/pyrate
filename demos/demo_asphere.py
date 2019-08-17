@@ -91,7 +91,7 @@ backsurf.shape.params["A6"].toVariable()
 opt_backend = ScipyBackend(method='Nelder-Mead', tol=1e-9)
 optimi = Optimizer(s, meritfunctionrms, opt_backend,
                    name="Nelder-Mead Optimizer")
-s = optimi.run()
+#s = optimi.run()
 
 r2 = s.seqtrace(initialbundle, sysseq)
 

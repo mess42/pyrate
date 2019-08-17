@@ -56,10 +56,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                           1 or True means: tiltz first, then tilty, then tiltx, then decenter.
         '''
 
-        (decz, decx, decy, tiltx, tilty, tiltz, tiltThenDecenter) = \
+        (decz, decx, decy, tiltx, tilty, tiltz) = \
         (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx",
-         "tilty", "tiltz", "tiltThenDecenter"])
+         "tilty", "tiltz"])
 
+        tiltThenDecenter = kwargs.get("tiltThenDecenter", 0)
 
         decx = FloatOptimizableVariable(FixedState(decx), name="decx")
         decy = FloatOptimizableVariable(FixedState(decy), name="decy")
@@ -105,7 +106,6 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
     children = property(getChildren)
 
-
     def addChild(self, childlc):
         """
         Add a child coordinate system.
@@ -134,19 +134,25 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         TODO: refnames occuring twice may lead to undefined behavior.
         """
         if self.name == refname:
+            self.debug("reference name found: adding child")
             self.addChild(childlc)
+            self.debug("child added")
+            self.debug("list of children: " + str([c.name for c in self.children]))
         else:
+            self.debug("reference name not found, checking children")
             for x in self.__children:
                 x.addChildToReference(refname, childlc)
         return childlc
 
-
-
     def calculateMatrixFromTilt(self, tiltx, tilty, tiltz, tiltThenDecenter=0):
         if tiltThenDecenter == 0:
-            res = np.dot(rodrigues(tiltz, [0, 0, 1]), np.dot(rodrigues(tilty, [0, 1, 0]), rodrigues(tiltx, [1, 0, 0])))
+            res = np.dot(rodrigues(tiltz, [0, 0, 1]),
+                         np.dot(rodrigues(tilty, [0, 1, 0]),
+                                rodrigues(tiltx, [1, 0, 0])))
         else:
-            res = np.dot(rodrigues(tiltx, [1, 0, 0]), np.dot(rodrigues(tilty, [0, 1, 0]), rodrigues(tiltz, [0, 0, 1])))
+            res = np.dot(rodrigues(tiltx, [1, 0, 0]),
+                         np.dot(rodrigues(tilty, [0, 1, 0]),
+                                rodrigues(tiltz, [0, 0, 1])))
         return res
 
     def FactorMatrixXYZ(self, mat):
@@ -232,6 +238,8 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                                                           tilty,
                                                           tiltz,
                                                           self.annotations["tiltThenDecenter"])
+        self.debug("local decenter: " + str(self.localdecenter))
+        self.debug("local rotation: " + str(self.localrotation))
 
     def update(self):
         '''
@@ -239,7 +247,9 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         coordinates and local rotations to get appropriate
         global coordinate
         '''
+        self.debug("calculating localrotation and local decenter")
         self.calculate()
+        self.debug("calculating parent coordinates")
 
         parentcoordinates = np.array([0, 0, 0])
         parentbasis = np.lib.eye(3)
@@ -264,8 +274,13 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             # TODO: removed .T on localbasis to obtain correct behavior;
             # examine!
 
+        self.debug("updating children")
+
         for ch in self.__children:
+            self.debug("updating " + str(ch.name))
             ch.update()
+
+        self.debug("informing observers")
 
         # inform observers about update
         self.informObservers()
@@ -427,7 +442,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
     def __str__(self):
         s = 'name \'%s\'\ntiltThenDecenter %d\nglobal coordinates: %s\nld: %s\nlr:\n%s\nlb:\n%s\nchildren %s'\
-        % (self.name, self.tiltThenDecenter, \
+        % (self.name, self.annotations["tiltThenDecenter"], \
         self.globalcoordinates, \
         self.localdecenter, \
         self.localrotation, \

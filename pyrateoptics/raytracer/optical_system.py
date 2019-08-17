@@ -59,7 +59,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         super(OpticalSystem, self).__init__(
                 self.rootcoordinatesystem, name=name)
         if matbackground is None:
-            matbackground = ConstantIndexGlass(self.rootcoordinatesystem, 1.0, name="background")
+            matbackground = ConstantIndexGlass.p(self.rootcoordinatesystem,
+                                                 1.0, name="background")
 
         self.material_background = matbackground # Background material
         self.elements = {}
