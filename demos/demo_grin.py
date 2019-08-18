@@ -45,29 +45,29 @@ logging.basicConfig(level=logging.DEBUG)
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem()
+s = OpticalSystem.p()
 
 lc0 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="obj", decz=0.0),
+            LocalCoordinates.p(name="obj", decz=0.0),
             refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="surf1", decz=10.0, tiltx=5.*math.pi/180.0),
+            LocalCoordinates.p(name="surf1", decz=10.0, tiltx=5.*math.pi/180.0),
             refname=lc0.name)  # objectDist
 lc2 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="surf2", decz=20.0, tiltx=10.*math.pi/180.0),
+            LocalCoordinates.p(name="surf2", decz=20.0, tiltx=10.*math.pi/180.0),
             refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="image", decz=10.0), refname=lc2.name)
+            LocalCoordinates.p(name="image", decz=10.0), refname=lc2.name)
 
 
-stopsurf = Surface(lc0)
-surf1 = Surface(lc1, shape=Conic(lc1, curv=1./24.0),
+stopsurf = Surface.p(lc0)
+surf1 = Surface.p(lc1, shape=Conic.p(lc1, curv=1./24.0),
                 aperture=CircularAperture(lc1, maxradius=5.0))
-surf2 = Surface(lc2, shape=Conic(lc2, curv=-1./24.0),
+surf2 = Surface.p(lc2, shape=Conic.p(lc2, curv=-1./24.0),
                 aperture=CircularAperture(lc2, maxradius=5.0))
-image = Surface(lc3)
+image = Surface.p(lc3)
 
-elem = OpticalElement(lc0, name="grinelement")
+elem = OpticalElement.p(lc0, name="grinelement")
 
 grin_strength = 0.5
 
@@ -111,8 +111,8 @@ def bnd(x):
 
 
 # grinmaterial = ConstantIndexGlass(lc1, 1.0 + grin_strength)
-grinmaterial = IsotropicGrinMaterial(lc1, nfunc, dndx, dndy, dndz,
-                                     parameterlist=[("n0", 0.5)])
+grinmaterial = IsotropicGrinMaterial.p(lc1, nfunc, dndx, dndy, dndz,
+                                       parameterlist=[("n0", 0.5)])
 grinmaterial.ds = 0.05
 grinmaterial.energyviolation = 0.01
 grinmaterial.boundaryfunction = bnd

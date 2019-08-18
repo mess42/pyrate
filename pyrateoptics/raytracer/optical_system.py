@@ -42,7 +42,8 @@ class OpticalSystem(LocalCoordinatesTreeBase):
     """
     Represents an optical system, consisting of several surfaces and materials inbetween.
     """
-    def __init__(self, rootlc=None, matbackground=None, name=""):
+    @classmethod
+    def p(cls, rootlc=None, matbackground=None, name=""):
         """
         Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
 
@@ -54,16 +55,17 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         """
         if rootlc is None:
             rootlc = LocalCoordinates.p(name="global")
-        self.rootcoordinatesystem = rootlc
+        rootcoordinatesystem = rootlc
 
-        super(OpticalSystem, self).__init__(
-                self.rootcoordinatesystem, name=name)
         if matbackground is None:
-            matbackground = ConstantIndexGlass.p(self.rootcoordinatesystem,
+            matbackground = ConstantIndexGlass.p(rootcoordinatesystem,
                                                  1.0, name="background")
 
-        self.material_background = matbackground # Background material
-        self.elements = {}
+        return cls({},
+                   {"rootcoordinatesystem": rootcoordinatesystem,
+                    "material_background": matbackground,
+                    "elements": {}}, name=name)
+
 
     def setKind(self):
         self.kind = "opticalsystem"

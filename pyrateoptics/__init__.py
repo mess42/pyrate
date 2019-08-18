@@ -206,7 +206,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
     """
     logger = logging.getLogger(__name__)
     logger.info("Creating simple optical system")
-    s = OpticalSystem(name=name)
+    s = OpticalSystem.p(name=name)
 
     lc0 = s.addLocalCoordinateSystem(
         LocalCoordinates.p(name="object", decz=0.0),

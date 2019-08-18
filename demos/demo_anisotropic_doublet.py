@@ -50,32 +50,32 @@ logging.basicConfig(level=logging.DEBUG)
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem(name='os')
+s = OpticalSystem.p(name='os')
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="stop", decz=0.0),
+lc0 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="stop", decz=0.0),
                                  refname=s.rootcoordinatesystem.name)
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=-1.048),
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf1", decz=-1.048),
                                  refname=lc0.name)  # objectDist
-lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=4.0),
+lc2 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf2", decz=4.0),
                                  refname=lc1.name)
-lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=2.5),
+lc3 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf3", decz=2.5),
                                  refname=lc2.name)
-lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=97.2),
+lc4 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="image", decz=97.2),
                                  refname=lc3.name)
 
-stopsurf = Surface(lc0, name="stopsurf")
-frontsurf = Surface(lc1, name="frontsurf",
-                    shape=Conic(lc1, curv=1./62.8, name='conic1'),
-                    aperture=CircularAperture(lc1, maxradius=12.7))
-cementsurf = Surface(lc2, name="cementsurf",
-                     shape=Conic(lc2, curv=-1./45.7, name='conic2'),
-                     aperture=CircularAperture(lc2, maxradius=12.7))
-rearsurf = Surface(lc3, name="rearsurf",
-                   shape=Conic(lc3, curv=-1./128.2, name='conic3'),
-                   aperture=CircularAperture(lc3, maxradius=12.7))
-image = Surface(lc4, name="imagesurf")
+stopsurf = Surface.p(lc0, name="stopsurf")
+frontsurf = Surface.p(lc1, name="frontsurf",
+                      shape=Conic.p(lc1, curv=1./62.8, name='conic1'),
+                      aperture=CircularAperture(lc1, maxradius=12.7))
+cementsurf = Surface.p(lc2, name="cementsurf",
+                       shape=Conic.p(lc2, curv=-1./45.7, name='conic2'),
+                       aperture=CircularAperture(lc2, maxradius=12.7))
+rearsurf = Surface.p(lc3, name="rearsurf",
+                     shape=Conic.p(lc3, curv=-1./128.2, name='conic3'),
+                     aperture=CircularAperture(lc3, maxradius=12.7))
+image = Surface.p(lc4, name="imagesurf")
 
-elem = OpticalElement(lc0, name="thorlabs_AC_254-100-A")
+elem = OpticalElement.p(lc0, name="thorlabs_AC_254-100-A")
 
 rnd_data1 = np.random.random((3, 3))  # np.eye(3)
 rnd_data2 = np.random.random((3, 3))  # np.zeros((3, 3))#
@@ -95,8 +95,8 @@ myeps2 = 1.6727**2*np.eye(3)
 # myeps1 = rnd_data1 + complex(0, 1)*rnd_data2
 # myeps2 = rnd_data3 + complex(0, 1)*rnd_data4
 
-crystal1 = AnisotropicMaterial(lc1, myeps1, name="crystal1")
-crystal2 = AnisotropicMaterial(lc2, myeps2, name="crystal2")
+crystal1 = AnisotropicMaterial.p(lc1, myeps1, name="crystal1")
+crystal2 = AnisotropicMaterial.p(lc2, myeps2, name="crystal2")
 
 
 elem.addMaterial("crystal1", crystal1)
