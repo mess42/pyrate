@@ -87,9 +87,9 @@ raybundles_do_not_draw = [int(s) for s in parsed.do_not_draw_raybundles.split(",
 p = ZMXParser(file_to_read, name='ZMXParser')
 lctmp = LocalCoordinates("tmp")
 
-matdict = {"BK7": ConstantIndexGlass(lctmp, 1.5168),
-           "LAFN21": ConstantIndexGlass(lctmp, 1.788),
-           "SF53": ConstantIndexGlass(lctmp, 1.72)}
+matdict = {"BK7": ConstantIndexGlass.p(lctmp, 1.5168),
+           "LAFN21": ConstantIndexGlass.p(lctmp, 1.788),
+           "SF53": ConstantIndexGlass.p(lctmp, 1.72)}
 
 (s, seq) = p.createOpticalSystem(matdict)
 

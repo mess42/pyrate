@@ -50,45 +50,45 @@ wave_red = 0.700e-3
 wave_blue = 0.470e-3
 
 # definition of optical system
-s = OpticalSystem()
+s = OpticalSystem.p()
 
 dropletradius = 0.1
 
 lc0 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="stop", decz=0.0),
+            LocalCoordinates.p(name="stop", decz=0.0),
             refname=s.rootcoordinatesystem.name)
 lccomprism = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="dropletcenter", decz=2.*dropletradius),
+            LocalCoordinates.p(name="dropletcenter", decz=2.*dropletradius),
             refname=lc0.name)
 
-lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1",
-                                                  decz=-dropletradius),
+lc1 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf1",
+                                                    decz=-dropletradius),
                                  refname=lccomprism.name)  # objectDist
 lc2 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="surf2", decz=dropletradius),
+            LocalCoordinates.p(name="surf2", decz=dropletradius),
             refname=lccomprism.name)
 lc3 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="surf3", decz=0),
+            LocalCoordinates.p(name="surf3", decz=0),
             refname=lccomprism.name)
 lc4 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="image", decz=-2.*dropletradius),
+            LocalCoordinates.p(name="image", decz=-2.*dropletradius),
             refname=lccomprism.name)
 
 
-stopsurf = Surface(lc0,
-                   aperture=CircularAperture(lc0, maxradius=7*dropletradius))
-frontsurf = Surface(lc1, shape=Asphere(lc1, curv=1./dropletradius),
-                    aperture=CircularAperture(lc1, maxradius=dropletradius))
-rearsurf = Surface(lc2, shape=Asphere(lc2, curv=-1./dropletradius),
-                   aperture=CircularAperture(lc2, maxradius=dropletradius))
-midsurf = Surface(lc3, shape=Asphere(lc3, curv=0),
-                  aperture=CircularAperture(lc3, maxradius=dropletradius))
+stopsurf = Surface.p(lc0,
+                     aperture=CircularAperture(lc0, maxradius=7*dropletradius))
+frontsurf = Surface.p(lc1, shape=Asphere.p(lc1, curv=1./dropletradius),
+                      aperture=CircularAperture(lc1, maxradius=dropletradius))
+rearsurf = Surface.p(lc2, shape=Asphere.p(lc2, curv=-1./dropletradius),
+                     aperture=CircularAperture(lc2, maxradius=dropletradius))
+midsurf = Surface.p(lc3, shape=Asphere.p(lc3, curv=0),
+                    aperture=CircularAperture(lc3, maxradius=dropletradius))
 
-image = Surface(lc4,
+image = Surface.p(lc4,
                 aperture=CircularAperture(lc4, maxradius=7.*dropletradius))
 
 
-elem = OpticalElement(lc0, name="droplet")
+elem = OpticalElement.p(lc0, name="droplet")
 
 
 database_basepath = "refractiveindex.info-database/database"
@@ -99,11 +99,11 @@ page = "water"
 try:
     gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
     waterdict = gcat.getMaterialDict(shelf, book, page)
-    water = CatalogMaterial(lc0, waterdict, name="water (catalogue)")
+    water = CatalogMaterial.p(lc0, waterdict, name="water (catalogue)")
 except KeyError:
     logging.warning("refractive index database not found. please download it\
                      and symlink\nto it in your local pyrate directory")
-    water = ConstantIndexGlass(lc0, n=1.336, name="water (failsafe)")
+    water = ConstantIndexGlass.p(lc0, n=1.336, name="water (failsafe)")
 
 logging.info("wavelength %f, index %f" %
              (wave_red, water.getIndex(None, wave_red).real))
