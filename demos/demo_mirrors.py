@@ -57,53 +57,53 @@ wavelength = 0.5876e-3
 # myeps = np.diag(v)
 
 
-s = OpticalSystem()
+s = OpticalSystem.p()
 
-lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0),
+lc0 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="object", decz=0.0),
                                  refname=s.rootcoordinatesystem.name)
 
 # air = AnisotropicMaterial(lc0, myeps)  # tests for anisotropic mirror
-air = ConstantIndexGlass(lc0, 1.0)
+air = ConstantIndexGlass.p(lc0, 1.0)
 s.material_background = air
 
 lc1 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8),
+            LocalCoordinates.p(name="m1", decz=50.0, tiltx=-math.pi/8),
             refname=lc0.name)  # objectDist
 lc2 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="m2_stop",
-                             decz=-50.0,
-                             decy=-20,
-                             tiltx=math.pi/16),
+            LocalCoordinates.p(name="m2_stop",
+                               decz=-50.0,
+                               decy=-20,
+                               tiltx=math.pi/16),
             refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="m3", decz=50.0, decy=-30,
-                             tiltx=3*math.pi/32), refname=lc2.name)
+            LocalCoordinates.p(name="m3", decz=50.0, decy=-30,
+                               tiltx=3*math.pi/32), refname=lc2.name)
 lc4 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="image1", decz=-50, decy=-15,
-                             tiltx=-math.pi/16), refname=lc3.name)
+            LocalCoordinates.p(name="image1", decz=-50, decy=-15,
+                               tiltx=-math.pi/16), refname=lc3.name)
 lc5 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="oapara", decz=-100, decy=-35),
+            LocalCoordinates.p(name="oapara", decz=-100, decy=-35),
             refname=lc4.name)
 lc5ap = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="oaparaap", decz=0, decy=35),
+            LocalCoordinates.p(name="oaparaap", decz=0, decy=35),
             refname=lc5.name)
 lc6 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="image2", decz=52.8, tiltx=1*math.pi/32),
+            LocalCoordinates.p(name="image2", decz=52.8, tiltx=1*math.pi/32),
             refname=lc5.name)
 lc7 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="image3", decz=5), refname=lc6.name)
+            LocalCoordinates.p(name="image3", decz=5), refname=lc6.name)
 
-objectsurf = Surface(lc0)
-m1surf = Surface(lc1, shape=Conic(lc1, curv=-0.01))
-m2surf = Surface(lc2, shape=Conic(lc2, curv=0.01))
-m3surf = Surface(lc3, shape=Conic(lc3, curv=-0.006))
-image1 = Surface(lc4)
-oapara = Surface(lc3, shape=Conic(lc5, curv=0.01, cc=-1.))
-image2 = Surface(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
-image3 = Surface(lc7, aperture=CircularAperture(lc7, maxradius=20.0))
+objectsurf = Surface.p(lc0)
+m1surf = Surface.p(lc1, shape=Conic.p(lc1, curv=-0.01))
+m2surf = Surface.p(lc2, shape=Conic.p(lc2, curv=0.01))
+m3surf = Surface.p(lc3, shape=Conic.p(lc3, curv=-0.006))
+image1 = Surface.p(lc4)
+oapara = Surface.p(lc3, shape=Conic.p(lc5, curv=0.01, cc=-1.))
+image2 = Surface.p(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
+image3 = Surface.p(lc7, aperture=CircularAperture(lc7, maxradius=20.0))
 
 
-elem = OpticalElement(lc0, name="TMA")
+elem = OpticalElement.p(lc0, name="TMA")
 
 elem.addMaterial("air", air)
 

@@ -576,13 +576,14 @@ class Asphere(ExplicitShape):
         if coefficients is None:
             coefficients = []
 
-        initacoeffs = [("A"+str(2*i+2), val) for (i, val) in enumerate(coefficients)]
+        initacoeffs = [("A"+str(2*i+2), val)
+                       for (i, val) in enumerate(coefficients)]
 
         (a_annotations, a_structure) =\
             FreeShape.createAnnotationsAndStructure(lc,
                                                     paramlist=([("curv", curv),
                                                                 ("cc", cc)] +
-                                                                initacoeffs))
+                                                               initacoeffs))
         a_annotations["numcoefficients"] = len(coefficients)
         my_asphere = cls(a_annotations, a_structure, name)
         return my_asphere
@@ -604,79 +605,84 @@ class Biconic(ExplicitShape):
     Polynomial biconic as base class for sophisticated surface descriptions
     """
 
-    def __init__(self, lc, curvx=0, ccx=0, curvy=0, ccy=0,
-                 coefficients=None, name=""):
+    def sqrtfun(self, x, y):
+        (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
+        return np.sqrt(1 - curvx**2*(1+ccx)*x**2 - curvy**2*(1+ccy)*y**2)
+
+    def F(self, x, y):
+        (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
+
+        r2 = x**2 + y**2
+        ast2 = x**2 - y**2
+
+        res = (curvx*x**2 + curvy*y**2)/(1 + self.sqrtfun(x, y))
+
+        for (n, (an, bn)) in enumerate(coeffs):
+            res += an*(r2 - bn*ast2)**(n+1)
+        return res
+
+    def gradF(self, x, y, z): # gradient for implicit function z - af(x, y) = 0
+        res = np.zeros((3, len(x)))
+        (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
+
+        r2 = x**2 + y**2
+        ast2 = x**2 - y**2
+
+        sq = self.sqrtfun(x, y)
+
+        res[2] = np.ones_like(x) # z-component always 1
+        res[0] = -cx*x*(cx*(ccx + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
+        res[1] = -cy*y*(cy*(ccy + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
+
+        for (n, (an, bn)) in enumerate(coeffs):
+            res[0] += 2*an*(n+1)*x*(bn - 1)*(-bn*ast2 + r2)**n
+            res[1] += -2*an*(n+1)*y*(bn + 1)*(-bn*ast2 + r2)**n
+
+        return res
+
+    def hessF(self, x, y, z):
+        res = np.zeros((3, 3, len(x)))
+
+        (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
+
+        z = self.getSag(x, y)
+
+        res[0, 0] = -2*cx*(6*cx*x**2 + cx*z**2*(ccx + 1) + 2*cy*y**2 - 2*z)
+        res[0, 1] = res[1, 0] = -8*cx*cy*x*y
+        res[0, 2] = res[2, 0] = -4*cx*x*(cx*z*(ccx + 1) - 1)
+        res[1, 1] = -2*cy*(2*cx*x**2 + 6*cy*y**2 + cy*z**2*(ccy + 1) - 2*z)
+        res[1, 2] = res[2, 1] = -4*cy*y*(cy*z*(ccy + 1) - 1)
+        res[2, 2] = -2*cx**2*x**2*(ccx + 1) + 2*cy**2*y**2*(ccy + 1)
+
+        # TODO: corrections missing
+
+        return res
+
+    @classmethod
+    def p(cls, lc, curvx=0, ccx=0, curvy=0, ccy=0,
+          coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
 
-        self.numcoefficients = len(coefficients)
+        numcoefficients = len(coefficients)
         initacoeffs = [("A"+str(2*i+2), vala)
                        for (i, (vala, valb)) in enumerate(coefficients)]
         initbcoeffs = [("B"+str(2*i+2), valb)
                        for (i, (vala, valb)) in enumerate(coefficients)]
 
-        def sqrtfun(x, y):
-            (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
-            return np.sqrt(1 - curvx**2*(1+ccx)*x**2 - curvy**2*(1+ccy)*y**2)
-
-        def bf(x, y):
-            (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
-
-            r2 = x**2 + y**2
-            ast2 = x**2 - y**2
-
-            res = (curvx*x**2 + curvy*y**2)/(1 + sqrtfun(x, y))
-
-            for (n, (an, bn)) in enumerate(coeffs):
-                res += an*(r2 - bn*ast2)**(n+1)
-            return res
-
-        def gradbf(x, y, z): # gradient for implicit function z - af(x, y) = 0
-            res = np.zeros((3, len(x)))
-            (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
-
-            r2 = x**2 + y**2
-            ast2 = x**2 - y**2
-
-            sq = sqrtfun(x, y)
-
-            res[2] = np.ones_like(x) # z-component always 1
-            res[0] = -cx*x*(cx*(ccx + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
-            res[1] = -cy*y*(cy*(ccy + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
-
-            for (n, (an, bn)) in enumerate(coeffs):
-                res[0] += 2*an*(n+1)*x*(bn - 1)*(-bn*ast2 + r2)**n
-                res[1] += -2*an*(n+1)*y*(bn + 1)*(-bn*ast2 + r2)**n
-
-            return res
-
-        def hessbf(x, y, z):
-            res = np.zeros((3, 3, len(x)))
-
-            (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
-
-            z = self.getSag(x, y)
-
-
-            res[0, 0] = -2*cx*(6*cx*x**2 + cx*z**2*(ccx + 1) + 2*cy*y**2 - 2*z)
-            res[0, 1] = res[1, 0] = -8*cx*cy*x*y
-            res[0, 2] = res[2, 0] = -4*cx*x*(cx*z*(ccx + 1) - 1)
-            res[1, 1] = -2*cy*(2*cx*x**2 + 6*cy*y**2 + cy*z**2*(ccy + 1) - 2*z)
-            res[1, 2] = res[2, 1] = -4*cy*y*(cy*z*(ccy + 1) - 1)
-            res[2, 2] = -2*cx**2*x**2*(ccx + 1) + 2*cy**2*y**2*(ccy + 1)
-
-            # TODO: corrections missing
-
-            return res
-
-        super(Biconic, self).__init__(lc, bf, gradbf, hessbf,
-                                      paramlist=([("curvx", curvx),
-                                                  ("curvy", curvy),
-                                                  ("ccx", ccx),
-                                                  ("ccy", ccy)]
-                                                 + initacoeffs+initbcoeffs),
-                                      name=name)
+        (b_annotations, b_structure) =\
+            FreeShape.createAnnotationsAndStructure(
+                lc,
+                paramlist=([("curvx", curvx),
+                            ("curvy", curvy),
+                            ("ccx", ccx),
+                            ("ccy", ccy)] +
+                           initacoeffs +
+                           initbcoeffs))
+        b_annotations["numcoefficients"] = numcoefficients
+        my_biconic = cls(b_annotations, b_structure, name)
+        return my_biconic
 
     def setKind(self):
         self.kind = "shape_Biconic"
@@ -686,11 +692,13 @@ class Biconic(ExplicitShape):
                 self.params["curvy"](),
                 self.params["ccx"](),
                 self.params["ccy"](),
-                [(self.params["A"+str(2*i+2)](), self.params["B"+str(2*i+2)]()) for i in range(self.numcoefficients)]
+                [(self.params["A"+str(2*i+2)](), self.params["B"+str(2*i+2)]())
+                 for i in range(self.annotations["numcoefficients"])]
                 )
 
     def getCentralCurvature(self):
         return 0.5*(self.params["curvx"]() + self.params["curvy"]())
+
 
 class LinearCombination(ExplicitShape):
     """
