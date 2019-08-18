@@ -183,7 +183,6 @@ class ConstantIndexGlass(IsotropicMaterial):
         return cls({"comment": comment}, {"lc": lc, "n": n}, name=name)
 
     def getIndex(self, x, wave):
-        self.debug(self.n.evaluate())
         return self.n.evaluate()
 
     @staticmethod

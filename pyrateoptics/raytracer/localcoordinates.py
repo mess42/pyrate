@@ -60,14 +60,16 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx",
          "tilty", "tiltz"])
 
+        print("p: ", tiltx, tilty, tiltz, decx, decy, decz)
+
         tiltThenDecenter = kwargs.get("tiltThenDecenter", 0)
 
-        decx = FloatOptimizableVariable(FixedState(decx), name="decx")
-        decy = FloatOptimizableVariable(FixedState(decy), name="decy")
-        decz = FloatOptimizableVariable(FixedState(decz), name="decz")
-        tiltx = FloatOptimizableVariable(FixedState(tiltx), name="tiltx")
-        tilty = FloatOptimizableVariable(FixedState(tilty), name="tilty")
-        tiltz = FloatOptimizableVariable(FixedState(tiltz), name="tiltz")
+        decxv = FloatOptimizableVariable(FixedState(decx), name="decx")
+        decyv = FloatOptimizableVariable(FixedState(decy), name="decy")
+        deczv = FloatOptimizableVariable(FixedState(decz), name="decz")
+        tiltxv = FloatOptimizableVariable(FixedState(tiltx), name="tiltx")
+        tiltyv = FloatOptimizableVariable(FixedState(tilty), name="tilty")
+        tiltzv = FloatOptimizableVariable(FixedState(tiltz), name="tiltz")
         parent = None # None means reference to root coordinate system
         children = [] # children
 
@@ -81,12 +83,12 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         structure_dict = {}
 
         annotations_dict["tiltThenDecenter"] = tiltThenDecenter
-        structure_dict["decx"] = decx
-        structure_dict["decy"] = decx
-        structure_dict["decz"] = decx
-        structure_dict["tiltx"] = tiltx
-        structure_dict["tilty"] = tilty
-        structure_dict["tiltz"] = tiltz
+        structure_dict["decx"] = decxv
+        structure_dict["decy"] = decyv
+        structure_dict["decz"] = deczv
+        structure_dict["tiltx"] = tiltxv
+        structure_dict["tilty"] = tiltyv
+        structure_dict["tiltz"] = tiltzv
         structure_dict["parent"] = parent
         structure_dict["_LocalCoordinates__children"] = children
         structure_dict["globalcoordinates"] = globalcoordinates
@@ -233,6 +235,14 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         decy = self.decy.evaluate()
         decz = self.decz.evaluate()
 
+        self.debug("rx {}\
+ ry {}\
+ rz {}\
+ tx {}\
+ ty {}\
+ tz {}\
+ tiltthendecenter {}".format(tiltx, tilty, tiltz, decx, decy, decz,
+                             self.annotations["tiltThenDecenter"]))
         self.localdecenter = np.array([decx, decy, decz])
         self.localrotation = self.calculateMatrixFromTilt(tiltx,
                                                           tilty,

@@ -116,8 +116,6 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
         lc = elem.addLocalCoordinateSystem(
             LocalCoordinates.p(name=surf_name + "_lc", **coordbreakdict),
             refname=refname)
-        print(lc.pprint())
-        print(lc.children)
         shapetype = "shape_" + surfdict.pop("shape", "Conic")
         aperture = surfdict.pop("aperture", None)
         if shapetype == "shape_LinearCombination":
