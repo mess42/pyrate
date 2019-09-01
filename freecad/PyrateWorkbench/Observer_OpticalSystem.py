@@ -246,7 +246,7 @@ class OpticalSystemObserver(AbstractObserver):
         image = Surface(lc8)
 
 
-        elem = OpticalElement(lc0, label="lenssystem")
+        elem = OpticalElement(lc0, name="lenssystem")
 
         glass = material_isotropic.ConstantIndexGlass(lc0, n=1.7)
         glass2 = material_isotropic.ConstantIndexGlass(lc0, n=1.5)
