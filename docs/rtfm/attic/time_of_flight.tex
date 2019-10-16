@@ -138,16 +138,140 @@
 \newcommand\watt{\textrm{W}}
 \newcommand\tesla{\textrm{T}}
 
+\newcommand\totald{\textrm{d}}
 
 \begin{document}
 
 \section{Time of Flight}
-\subsection{General Linear Media}
-We consider a monochromatic laser. 
-In front of the laser, there is an amplitude or phase modulator, impressing a signal on the monochromatic laser carrier frequency.
-The modulated light then enters a bulk block of the medium we want to test.
-After passing the medium, the light intensity or interferometric phase is detected.
+\subsection{Introduction}
+We are interested in the speed a signal (information) can travel through a medium.
+Equivalently, we can determine the time a signal needs to propagate through a medium.
+To do so, we model an experimental setup and then simulate it.
 
+We consider a strictly monochromatic laser. 
+We use a modulator, for example amplitude or phase modulator, 
+to imprint a signal on laser carrier frequency.
+The modulated light then propagates through the medium we want to test.
+After passing the medium, the light is detected.
+The time of flight is the time the signal takes to pass the medium.
+
+\subsection{Details}
+\begin{itemize}
+ \item We restrict ourselves to digital data transmission, one bit at a time.
+       0 and 1 are represented by two distinguishable modulation patterns.
+       We do not want to consider modulation techniques where several bits are transmitted at once,
+       with a multitude of modulation patterns.
+       In radio technology, these patterns are called \emph{symbols}.
+ \item We assume the modulator is unable to instantly switch between the two states.
+ \item We model the modulator with digital input by a function generator $f$, 
+       and a signal input $g$.
+ \item For an input signal of $g=0$, the function generator shall produce the modulation pattern 0.
+       For an input signal of $g=1$, the function generator shall produce the modulation pattern 1.
+       The function generator output signal $f(g)$ shall be continuous 
+       for all continuous inputs $g(t)$.
+ \item We model finite switching times by a smooth transition from $g=0$ to 1.
+ \item We are interested in a single mode at a time. 
+       The polarisation of the laser has to be chosen in a way 
+       that the light is in an eigenstate of the medium's dispersion equation.
+       This way, the incident light does not split up in several beams, as it could in anisotropic media. 
+ \item Also the modulator must be built 
+       such that at any time all the light stays on the same solution branch of the dispersion.
+       Through the modulator, the light entering the medium is no more strictly monochromatic. 
+       Also frequencies off the monochromatic laser frequency need to be considered.
+ \item The time of successful signal detection is when the detector can distinguish 
+       a scenario with a constant value of $g$ from a scenario with $g$ changing from 0 to 1 or vice versa. 
+ \item We can build a detector to detect quantities like, for example, intensity or interferometric phase.
+\end{itemize}
+
+The electric field after passing the modulator is:
+\begin{eqnarray}
+ \Efield(\Location, t) = \Efield_0 \exp (i (\Wavevector \Location - \omega_0 t)) f(t)
+\end{eqnarray}
+Where we can choose the modulation, for example, like:
+\begin{eqnarray}
+ \textrm{On/off amplitude modulation scheme}&& f = g\\
+ \textrm{Lock-in detection amplitude modulation scheme}&& f = 1 - \frac{g}{2} (1 + \sin{\Omega t}) \\
+ \textrm{$\lambda/4$ phase shift for interferometric detection}&& f = \exp\left( \frac{i \pi}{2} g \right) \\
+ \textrm{with}&& 0 \leq g \leq 1
+\end{eqnarray}
+
+
+\subsection{The Impossibility of Pre-Detection Proof Signals with Finite Frequency Support}
+We want an input signal with the following properties:
+\begin{itemize}
+ \item The signal $g$ shall be defined at all times.
+       We do not limit the signal to the interval $[0,1]$, but allow temporary overshooting.\\
+       $g:\mathbb{R}\rightarrow \mathbb{R}$
+ \item The data transmission (change of $g$) shall start earliest at $t=0$.
+       Before $t=0$, the signal shall be exactly zero.\\
+       $g(t)=0 \,\forall t\leq0$
+ \item There shall be a finite time interval where the signal is nonzero.\\
+       $\exists t_1\geq0, \tau>0: g(t) \geq 1 \forall t \in [t_1, t_1+\tau]$
+ \item $g$ shall be continuous.
+ \item The Fourier transform of $g$ shall exist.
+ \item The Fourier transform $\tilde{g}$ shall be zero 
+       for all frequencies greater than a finite maximum frequency $\omega_{max}$.
+       The electric field after the modulator is 
+       the product of the the monochromatic laser oscillation and the switching function.
+       There will be sum- and difference frequencies in the modulated signal.
+       We would like to stay in the near-monochromatic case, 
+       where only frequencies close to the laser frequency contribute to the electric field.\\
+       $\exists \omega_{max}>0 : \tilde{g}(\omega) = 0 \,\forall |\omega| > \omega_{max}$
+\end{itemize}
+
+\paragraph{Hypothesis:} There is no function $g$ which fulfills all of the above requirements.
+
+\paragraph{Proof by contradiction:}
+Let $g$ be a function that fulfills all of the above requirements.
+First we show that $g$ cannot be infinitely continuously differentiable.
+If $g$ was infinitely differentiable, then it could be represented by a Taylor series.
+In the point $t=0$, all derivatives of $g$ must be zero, as the function is zero at all times $t<0$.
+Therefore, all Taylor series terms for a series around $t=0$ are zero 
+and thus $g$ would be zero at all times.
+However, we want $g$ to be nonzero at at least one instance in time.
+So we conclude that either $g$ itself or a derivative of $g$ is discontinuous in at least one point.
+We require $g$ to be continuous, so a derivative of $g$ must be discontinuous.
+
+We assume the $n$-th derivative is the lowest order derivative which is discontinuous.
+We call this derivative $\partial^n g = g_n$.
+
+TODO: show that $g_n$ cannot have removable discontinuities with finite values.
+
+TODO: show that $g_n$ does not have a finite frequency support.
+
+\begin{eqnarray}
+ \nexists \omega_{max}>0 :  \tilde{g}_n(\omega) = 0 \forall |\omega| > \omega_{max}
+\end{eqnarray}
+We consider the derivative of an arbitrary Fourier transformable function $h$:
+\begin{eqnarray}
+ h(t) &=& \frac{1}{2\pi} \int \totald\omega\, \tilde{h}(\omega) \exp(i \omega t) \\
+ \partial^1 h(t) &=& \frac{1}{2\pi} \int \totald\omega\, i\omega \tilde{h}(\omega) \exp(i \omega t)
+\end{eqnarray}
+If, at a fixed, nonzero frequency, a Fourier component of $h$ is nonzero, also the Fourier component of its derivative is nonzero $\partial^1 H$.
+This also works the other way round: If a derivative has a nonzero Fourier component, its primitive has also a nonzero component at this frequency.
+We associate $\partial^n g = \partial^1 h$ and find that also $\partial^{n-1} g$ has no finite frequency support.
+From this follows that also $g$ has no finite frequency support.
+\begin{eqnarray}
+ \nexists \omega_{max}>0 :  \tilde{g}(\omega) = 0 \forall |\omega| > \omega_{max}
+\end{eqnarray}
+which violates one of the above requirements.
+
+\paragraph{Conclusion:}
+\begin{itemize}
+ \item Either the signal starts to change at $t\rightarrow-\infty$.
+       In this case, it is possible to have a function with finite frequency support.
+       The point in time when the transmission starts, however, is hard to define.
+       A noiseless detector could sense the faint change of $g$ at an arbitrary time.
+ \item Or the signal is zero before the transmission starts, $g(t<0)=0$.
+       In this case, the function cannot have a finite frequency support.
+       The dispersion must be known at all frequencies up to infinity.
+       A noiseless detector could be equipped with a filter that only transmits light at very high frequencies,
+       where typical materials become transparent and dispersionless like vacuum.
+       Such a detector could always detect signals at the vacuum speed of light.
+\end{itemize}
+
+
+\subsection{Propagation Through the Medium}
 We consider the light right after the incoupling into the medium.
 We assume the medium permittivity $\permittivity$ is known,
 as well as the wavevector $\Wavevector$ and polarisation $\Efield_0$ of the light at the monochromatic carrier frequency $\omega_0$.
@@ -177,8 +301,30 @@ We propagate to the position of the detector
 \begin{eqnarray}
 \Efield(0, 0, z_{det}, \omega) &=& \Efield_0  \exp (i \wavenumber_z(\omega) z_{det}) F(\omega-\omega_0) 
 \end{eqnarray}
-Next we Fourier transform back into time domain and determine the point in time when the signal arrives.
+We Fourier transform back into time domain and determine the point in time when the signal arrives.
+\begin{eqnarray}
+\Efield(z_{det}, t) &=& 
+  \Efield_0 
+  \frac{1}{\sqrt{2\pi}} \int \totald\omega\, 
+  F(\omega-\omega_0)
+  \exp (i \wavenumber_z(\omega) z_{det})
+  \exp ( i \omega t)
+\end{eqnarray}
+We substitute $\omega = \omega_0 + \Delta \omega$ and yield
+\begin{eqnarray}
+\Efield(z_{det}, t) &=& 
+  \Efield_0 \exp ( i \omega_0 t)
+  \cdot
+  \underbrace{
+      \frac{1}{\sqrt{2\pi}} \int \totald\Delta\omega\, 
+      F(\Delta \omega)
+      \exp (i \wavenumber_z z_{det})
+      \exp ( i \Delta \omega t)
+      }_{\textrm{modulation, retarded by medium}}
+\nonumber\\
+\end{eqnarray}
 
+\section{Old stuff}
 \subsection{Attempt 1: Gau\ss\, pulse}
 We assume an amplitude modulator which impresses a series of Gau\ss\, pulses on the laser intensity.
 \begin{eqnarray}
