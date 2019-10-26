@@ -9,6 +9,7 @@
 *.log
 *.out
 *.bbl
+*.synctex.gz
 *.blg
 result_images/
 .hypothesis/
