@@ -322,74 +322,106 @@ We substitute $\omega = \omega_0 + \Delta \omega$ and yield
       \exp ( i \Delta \omega t)
       }_{\textrm{modulation, retarded by medium}}
 \nonumber\\
+\label{eq:time_of_flight_retarded_modulation}
 \end{eqnarray}
 
-\section{Old stuff}
-\subsection{Attempt 1: Gau\ss\, pulse}
-We assume an amplitude modulator which impresses a series of Gau\ss\, pulses on the laser intensity.
+\subsection{Slowly Varying Modulation in Medium}
+We assume that $f(t)$ varies only slowly with time, 
+and the Fourier transform $F(\Delta \omega)$ only has significant contributions 
+in a small region around the carrier frequency, $\Delta \omega \approx 0$.
+Further we assume that the medium is not opaque at the carrier frequency, 
+and we have a transmission that allows for a meaningful measurement ($\Im \wavenumber_z \ll \frac{1}{z_{det}}$).
+In this limit, the integral \eqref{eq:time_of_flight_retarded_modulation} also has significant contributions 
+only in a small region around the carrier frequency.
+We can approximate $\wavenumber_z$ as a Taylor series in $\Delta \omega$
 \begin{eqnarray}
-  f(t) &=& \sum_j \exp\left(- \frac{i(t-t_j)^2}{\tau^2}\right) 
+ \wavenumber_z(\omega_0+\Delta\omega) 
+ \approx \wavenumber_z(\omega_0) 
+ + \frac{\partial \wavenumber_z}{\partial \omega} \Delta \omega 
+ + \frac{1}{2} \frac{\partial^2 \wavenumber_z}{\partial \omega^2} (\Delta \omega)^2
+ + ...
 \end{eqnarray}
-where $t_j$ are the peak positions and $\tau$ is the pulse duration.
-We assume the pulse duration is sufficiently slow compared to the laser carrier frequency 
-so that we can treat the problem in a near-monochromatic way.
-The peak positions shall be well separated.
-Now let's assume we have a noise-free detector and we know the signal consists only of Gau\ss\, pulses.
-We measure the signal for some time long before the first peak.
-
-We deconvolute the signal with the known Gau\ss\, shape and anticipate the temporal location of all peaks.
-We can do this for measurements at any time before, during, or after the series of pulses.
-The problem is that Gau\ss pulses have an infinite extent in time.
-Strictly speaking, the signal transmission starts at minus infinity.
-
-From this attempt, we conclude that we may not combine infinitely extended signals and noise-free transmission channels.
-
-\subsection{Attempt 2: Noisy detector}
-We assume the same series of Gau\ss\, pulses as above, but this time with some noise on the detected signal.
-We determine the detector noise level and define a minimum intensity above the noise level, on which the detector triggers.
-
-The choice of start pulse strength and detector trigger level are arbitrary and influence the measurement result.
-There is no fundamental limit for signal-to-noise ratio, as long as there is enough light to suppress shot noise.
-
-\subsection{Attempt 3:}
-
-\begin{itemize}
- \item If we define the peak position as signal position, we also may run into trouble.
-       We consider a Sellmeier-oscillator and put our laser close to the resonance.
-       The Gau\ss\, pulse will disperse and will be damped.
-       If the damping of the slow moving components is stronger than the damping of the fast moving components,
-       the center of mass is shifted in positive z direction.
-       In some materials, the pulse center of mass can even move faster than the vacuum speed of light.
-\end{itemize}
-
-\subsection{Example 2: Heaviside Step}
-\begin{itemize}
- \item The Heaviside function has the advantage that the time of switching is unambiguous -- at least at the position of the modulator.
- \item The second advantage is that the function is exactly zero for $t<0$.
-       For an observer at the detector position, it is impossible to forsee the time of switching.
- \item The Heaviside function has an infinite spectrum.
-       It creates (weak) components at frequencies far from the carrier frequency.
-       An observer with a noise-free detector could therefore listen to a frequency far from the carrier frequency,
-       where the Sellmeier oscillators have all faded out.
-       At this frequency, the material has no dispersion, $n=1$, 
-       and the observer would always measure the vacuum speed of light.
-\end{itemize}
-
-\subsection{Example 3}
-We need a bandwidth-limited step modulation.
+We split up the derivative in real and imaginary part
 \begin{eqnarray}
- f( t < 0 ) &=& \left|0\right> \\
- f( t > \tau) &\approx& f(\infty) \neq \left|0\right> \\
- F(|\omega - \omega_0| > \Omega_{max}) &=& 0
+ \wavenumber_z 
+ \approx \wavenumber_z(\omega_0) 
+ +   \left. \frac{\Re \partial \wavenumber_z}{\partial \omega}\right|_{\omega_0} \Delta \omega 
+ + i \left. \frac{\Im \partial \wavenumber_z}{\partial \omega}\right|_{\omega_0} \Delta \omega 
+ + \orderof{\Delta\omega^2}
 \end{eqnarray}
-with finite $\tau$ and $\Omega_{max}$.
-Both should be as small as possible, which is a contradiction.
-
-\subsection{lossless media}
+We apply this approximation on the modulation retardation, which is the integral term from \eqref{eq:time_of_flight_retarded_modulation}.
 \begin{eqnarray}
- \wavenumber_z(\omega) &\in& \mathbb{R} \\
- t_{flight} &=& \left. \frac{\partial \wavenumber_z}{\partial \omega}\right|_{\omega_0} z_{det}
+ &&\int \totald\Delta\omega\, 
+      F(\Delta \omega)
+      \exp (i \wavenumber_z z_{det})
+      \exp ( i \Delta \omega t)
+ \\&=&
+ \int \totald\Delta\omega\, 
+      F(\Delta \omega)
+      \exp (i \wavenumber_z(\omega_0) z_{det})
+      \exp (i \frac{\Re \partial \wavenumber_z}{\partial \omega} \Delta \omega z_{det})
+      \exp (- \frac{\Im \partial \wavenumber_z}{\partial \omega} \Delta \omega z_{det})
+      \exp ( i \Delta \omega t)
+ \nonumber\\
 \end{eqnarray}
+We refactor this term as
+\begin{eqnarray}
+ &=&
+ \exp (i \wavenumber_z(\omega_0) z_{det})
+ \int \totald\Delta\omega\, 
+      F(\Delta \omega)
+      \exp \left(- \frac{\Im \partial \wavenumber_z}{\partial \omega} \Delta \omega z_{det}\right)
+      \exp \left( i \Delta \omega \left(t + \frac{\Re \partial \wavenumber_z}{\partial \omega} z_{det}\right)\right)
+ \nonumber\\
+\end{eqnarray}
+We insert this result in the equation for the electric field behind the medium, \eqref{eq:time_of_flight_retarded_modulation}, and yield:
+\begin{eqnarray}
+\Efield(z_{det}, t) &=& 
+  \Efield_0 \exp ( i \omega_0 t)
+  \cdot
+     \frac{1}{\sqrt{2\pi}} \exp (i \wavenumber_z(\omega_0) z_{det})
+     \int \totald\Delta\omega\,
+     \Bigg( \nonumber\\&&
+        F(\Delta \omega)
+        \exp \left(- \frac{\Im \partial \wavenumber_z}{\partial \omega} \Delta \omega z_{det}\right)
+        \exp \left( i \Delta \omega \left(t + \frac{\Re \partial \wavenumber_z}{\partial \omega} z_{det}\right)\right)
+    \Bigg)
+      \nonumber\\
+\end{eqnarray}
+\subsection{Lossless Media}
+We assume a lossless medium, $\Im \wavenumber_z = 0$.
+In such a medium, the equation simplifies significantly.
+\begin{eqnarray}
+\Efield(z_{det}, t) &=& 
+  \Efield_0 \exp ( i \omega_0 t)
+  \cdot
+     \frac{1}{\sqrt{2\pi}} \exp (i \wavenumber_z(\omega_0) z_{det})
+     \int \totald\Delta\omega\,
+     \Bigg( \nonumber\\&&
+        F(\Delta \omega)
+        \exp \left( i \Delta \omega \left(t + \frac{ \partial \wavenumber_z}{\partial \omega} z_{det}\right)\right)
+    \Bigg)
+ \\
+ &=&
+ \Efield_0 \exp ( i \omega_0 t) \exp (i \wavenumber_z(\omega_0) z_{det}) 
+ \cdot f\left(t + \frac{ \partial \wavenumber_z}{\partial \omega} z_{det}\right)
+\end{eqnarray}
+The factor $\exp (i \wavenumber_z(\omega_0) z_{det})$ introduces 
+a global phase retardation. It does not affect the time of flight.
+Further we see that the shape of $f$ does not change when passing the medium.
+The argument of $f$ is shifted with respect to the case before the medium, and
+we can directly read the time of flight
+\begin{eqnarray}
+ t_{flight} &=& \frac{ \partial \wavenumber_z}{\partial \omega} z_{det}
+\end{eqnarray}
+and the information transmission velocity
+\begin{eqnarray}
+ v_{information} = v_{group} = \frac{\partial \omega}{\partial \wavenumber_z}
+\end{eqnarray}
+
+\subsection{Lossy Media}
+TO DO
+
 
 
 \end{document}
