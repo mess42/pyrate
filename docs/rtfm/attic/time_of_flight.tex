@@ -336,7 +336,7 @@ only in a small region around the carrier frequency.
 We can approximate $\wavenumber_z$ as a Taylor series in $\Delta \omega$
 \begin{eqnarray}
  \wavenumber_z(\omega_0+\Delta\omega) 
- \approx \wavenumber_z(\omega_0) 
+ = \wavenumber_z(\omega_0) 
  + \frac{\partial \wavenumber_z}{\partial \omega} \Delta \omega 
  + \frac{1}{2} \frac{\partial^2 \wavenumber_z}{\partial \omega^2} (\Delta \omega)^2
  + ...
@@ -344,7 +344,7 @@ We can approximate $\wavenumber_z$ as a Taylor series in $\Delta \omega$
 We split up the derivative in real and imaginary part
 \begin{eqnarray}
  \wavenumber_z 
- \approx \wavenumber_z(\omega_0) 
+ = \wavenumber_z(\omega_0) 
  +   \left. \frac{\Re \partial \wavenumber_z}{\partial \omega}\right|_{\omega_0} \Delta \omega 
  + i \left. \frac{\Im \partial \wavenumber_z}{\partial \omega}\right|_{\omega_0} \Delta \omega 
  + \orderof{\Delta\omega^2}
@@ -388,9 +388,17 @@ We insert this result in the equation for the electric field behind the medium, 
     \Bigg)
       \nonumber\\
 \end{eqnarray}
-\subsection{Lossless Media}
-We assume a lossless medium, $\Im \wavenumber_z = 0$.
-In such a medium, the equation simplifies significantly.
+As we restrict ourselves to real valued frequencies and times, 
+we cannot factor the imaginary part of the derivative the same way.
+In the limit of slowly varying modulation, we express the imaginary derivative as a Taylor series
+\begin{eqnarray}
+ \exp \left(- \frac{\Im \partial \wavenumber_z}{\partial \omega} \Delta \omega z_{det}\right)
+ &=&
+ \sum_{n=0}^{\infty}
+ \frac{1}{n!}
+ \left(- \frac{\Im \partial \wavenumber_z}{\partial \omega} \Delta \omega z_{det}\right)^n
+\end{eqnarray}
+and obtain
 \begin{eqnarray}
 \Efield(z_{det}, t) &=& 
   \Efield_0 \exp ( i \omega_0 t)
@@ -399,9 +407,54 @@ In such a medium, the equation simplifies significantly.
      \int \totald\Delta\omega\,
      \Bigg( \nonumber\\&&
         F(\Delta \omega)
-        \exp \left( i \Delta \omega \left(t + \frac{ \partial \wavenumber_z}{\partial \omega} z_{det}\right)\right)
+          \sum_{n=0}^{\infty}
+          \frac{1}{n!}
+          \left(- \frac{\Im \partial \wavenumber_z}{\partial \omega} z_{det}\right)^n 
+          (\Delta \omega)^n
+        \exp \left( i \Delta \omega \left(t + \frac{\Re \partial \wavenumber_z}{\partial \omega} z_{det}\right)\right)
     \Bigg)
- \\
+      \nonumber\\
+\end{eqnarray}
+We further use the identity
+\begin{eqnarray}
+ \Delta \omega \exp(i \Delta \omega t) = -i \frac{\partial}{\partial t} \exp(i \Delta \omega t)
+\end{eqnarray}
+to substitute $\Delta \omega$ by time derivatives.
+\begin{eqnarray}
+\Efield(z_{det}, t) &=& 
+  \Efield_0 \exp ( i \omega_0 t)
+  \cdot
+     \frac{1}{\sqrt{2\pi}} \exp (i \wavenumber_z(\omega_0) z_{det})
+     \sum_{n=0}^{\infty}
+          \frac{1}{n!}
+          \left(i \frac{\Im \partial \wavenumber_z}{\partial \omega} z_{det}\right)^n 
+     \cdot \nonumber\\&& \cdot
+     \frac{\partial^n}{\partial t^n}
+     \int \totald\Delta\omega\,
+        F(\Delta \omega)          
+        \exp \left( i \Delta \omega \left(t + \frac{\Re \partial \wavenumber_z}{\partial \omega} z_{det}\right)\right)
+\end{eqnarray}
+We perform the Fourier transform integral back into time domain
+\begin{eqnarray}
+\Efield(z_{det}, t) &=& 
+  \Efield_0 \exp ( i \omega_0 t)
+  \cdot
+     \exp (i \wavenumber_z(\omega_0) z_{det})
+     \sum_{n=0}^{\infty}
+          \frac{1}{n!}
+          \left(i \frac{\Im \partial \wavenumber_z}{\partial \omega} z_{det}\right)^n 
+     \left. 
+       \frac{\partial^n f}{\partial t^n}
+     \right|_{t + \frac{\Re \partial \wavenumber_z}{\partial \omega} z_{det}}
+  \nonumber\\
+\end{eqnarray}
+
+
+\subsection{Lossless Media}
+We assume a lossless medium, $\Im \wavenumber_z = 0$.
+In such a medium, the equation simplifies significantly.
+\begin{eqnarray}
+\Efield(z_{det}, t)
  &=&
  \Efield_0 \exp ( i \omega_0 t) \exp (i \wavenumber_z(\omega_0) z_{det}) 
  \cdot f\left(t + \frac{ \partial \wavenumber_z}{\partial \omega} z_{det}\right)
@@ -418,9 +471,6 @@ and the information transmission velocity
 \begin{eqnarray}
  v_{information} = v_{group} = \frac{\partial \omega}{\partial \wavenumber_z}
 \end{eqnarray}
-
-\subsection{Lossy Media}
-TO DO
 
 
 
