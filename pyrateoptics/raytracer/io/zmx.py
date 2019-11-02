@@ -424,7 +424,7 @@ class ZMXParser(BaseLogger):
 
         (name, notes) = self.readNameAndNotes()
 
-        optical_system = OpticalSystem(name=name)
+        optical_system = OpticalSystem.p(name=name)
 
         # extract surface blockstrings
 
@@ -434,9 +434,9 @@ class ZMXParser(BaseLogger):
         # construct basis coordinate system
         self.info("Construct basis coordinate system")
         lc0 = optical_system.addLocalCoordinateSystem(
-                LocalCoordinates(name="object", decz=0.0),
+                LocalCoordinates.p(name="object", decz=0.0),
                 refname=optical_system.rootcoordinatesystem.name)
-        elem = OpticalElement(lc0, name=elementname)
+        elem = OpticalElement.p(lc0, name=elementname)
 
         # construct materials
         self.info("Construct materials")
@@ -515,8 +515,8 @@ class ZMXParser(BaseLogger):
                 surf_options_dict["is_stop"] = True
 
             lc = optical_system.addLocalCoordinateSystem(
-                LocalCoordinates(name=surfname,
-                                 decz=lastthickness), refname=refname)
+                LocalCoordinates.p(name=surfname,
+                                   decz=lastthickness), refname=refname)
 
             read_glass = surfres.get("GLAS", None)
             self.debug("MATERIAL: %s" % (str(read_glass),))
@@ -537,9 +537,9 @@ class ZMXParser(BaseLogger):
                     nd = read_glass["nd"]
                     vd = read_glass["vd"]
                     if abs(vd) < numerical_tolerance:
-                        mat = ConstantIndexGlass(lc, nd)
+                        mat = ConstantIndexGlass.p(lc, nd)
                     else:
-                        mat = ModelGlass(lc)
+                        mat = ModelGlass.p(lc)
                         mat.calcCoefficientsFrom_nd_vd(nd=nd, vd=vd)
                     elem.addMaterial(matname, mat)
             else:
@@ -548,13 +548,13 @@ class ZMXParser(BaseLogger):
 
             if obdc is None:
                 lcapdec = optical_system.addLocalCoordinateSystem(
-                        LocalCoordinates(name=surfname + "_ap"),
+                        LocalCoordinates.p(name=surfname + "_ap"),
                         refname=surfname)
             else:
                 self.info("Aperture decenter %f %f" % tuple(obdc))
                 lcapdec = optical_system.addLocalCoordinateSystem(
-                        LocalCoordinates(name=surfname + "_ap",
-                                         decx=obdc[0], decy=obdc[1]),
+                        LocalCoordinates.p(name=surfname + "_ap",
+                                           decx=obdc[0], decy=obdc[1]),
                         refname=surfname)
 
             if sqap is None and clap is None:
@@ -568,17 +568,17 @@ class ZMXParser(BaseLogger):
 
             if surftype == "STANDARD":
                 self.debug("SURFACE: Standard surface found")
-                actsurf = Surface(lc, name=surfname,
-                                  shape=Conic(lc, curv=curv, cc=cc),
-                                  aperture=ap)
+                actsurf = Surface.p(lc, name=surfname,
+                                    shape=Conic.p(lc, curv=curv, cc=cc),
+                                    aperture=ap)
             elif surftype == "EVENASPH":
                 self.debug("SURFACE: Polynomial asphere surface found")
                 acoeffs = [parms.get(1+i, 0.0) for i in range(8)]
                 self.debug(acoeffs)
-                actsurf = Surface(lc, name=surfname,
-                                  shape=Asphere(lc, curv=curv, cc=cc,
-                                                coefficients=acoeffs),
-                                  aperture=ap)
+                actsurf = Surface.p(lc, name=surfname,
+                                    shape=Asphere.p(lc, curv=curv, cc=cc,
+                                                    coefficients=acoeffs),
+                                    aperture=ap)
             elif surftype == "FZERNSAG":  # Zernike Fringe Sag
                 self.debug("SURFACE: Zernike standard surface found")
                 # ignore extrapolate flag
@@ -597,24 +597,24 @@ class ZMXParser(BaseLogger):
                 zcoeffs = [xdat[i+3].get("value", 0.) for i in range(numterms)]
 
                 lcz = lc.addChild(
-                        LocalCoordinates(name=surfname + "_zerndec",
-                                         decx=zdecx, decy=zdecy))
+                        LocalCoordinates.p(name=surfname + "_zerndec",
+                                           decx=zdecx, decy=zdecy))
                 actsurf =\
-                Surface(lc,
-                        name=surfname,
-                        shape=
-                        LinearCombination(lc,
-                                          list_of_coefficients_and_shapes=
-                                          [
-                                           (1.0, Asphere(lc,
-                                                         curv=curv,
-                                                         cc=cc,
-                                                         name=surfname +
-                                                         "_zernasph")),
-                                           (1.0, ZernikeFringe(lcz,
-                                                               normradius=normradius,
-                                                               coefficients=zcoeffs,
-                                                               name=surfname+"_zernike"))]))
+                Surface.p(lc,
+                         name=surfname,
+                         shape=
+                         LinearCombination.p(lc,
+                                             list_of_coefficients_and_shapes=
+                                             [
+                                              (1.0, Asphere.p(lc,
+                                                              curv=curv,
+                                                              cc=cc,
+                                                              name=surfname +
+                                                               "_zernasph")),
+                                              (1.0, ZernikeFringe.p(lcz,
+                                                                    normradius=normradius,
+                                                                    coefficients=zcoeffs,
+                                                                    name=surfname+"_zernike"))]))
 
             elif surftype == "GRID_SAG":
                 # TODO: conic + aspheric polynomials + zernike standard sag
@@ -628,8 +628,8 @@ class ZMXParser(BaseLogger):
                 yv = np.linspace(-ny*dy*0.5, ny*dy*0.5, ny)
                 Z = np.flipud(sagarray[:, 0].reshape(nx, ny)).T  # first line
 
-                actsurf = Surface(lc, name=surfname,
-                                  shape=GridSag(lc, (xv, yv, Z)))
+                actsurf = Surface.p(lc, name=surfname,
+                                    shape=GridSag.p(lc, (xv, yv, Z)))
 
             elif surftype == "COORDBRK":
                 self.debug("SURFACE: Coordinate break found")
@@ -655,7 +655,7 @@ class ZMXParser(BaseLogger):
                 lc.tiltz.set_value(parms.get(5, 0.0)*math.pi/180.0)
                 lc.tiltThenDecenter = bool(parms.get(6, 0))
                 lc.update()
-                actsurf = Surface(lc, name=surfname)
+                actsurf = Surface.p(lc, name=surfname)
 
             if lastsurfname is not None:
                 elem.addSurface(surfname, actsurf, (lastmatname, matname))

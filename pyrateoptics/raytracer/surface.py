@@ -47,10 +47,14 @@ class Surface(LocalCoordinatesTreeBase):
 
     Is parent of shape and aperture coordinate system
     """
-    def __init__(self, rootlc, shape=None, aperture=None, name=""):
-        super(Surface, self).__init__(rootlc, name=name)
+
+    @classmethod
+    def p(cls, rootlc, shape=None, aperture=None, name=""):
+
         if shape is None:
-            shape = Conic(rootlc)
+            shape = Conic.p(rootlc)
+
+        surface_instance = cls({}, {"rootcoordinatesystem": rootlc}, name=name)
 
         aperture_ = BaseAperture(rootlc)
         if isinstance(aperture, BaseAperture):
@@ -59,12 +63,13 @@ class Surface(LocalCoordinatesTreeBase):
             try:
                 aperture_ = createAperture(rootlc, aperture)
             except Exception as e:
-                self.error("Can't create aperture from dict,"
+                surface_instance.error("Can't create aperture from dict,"
                            " used default instead.")
-                self.debug("Exception caught: {}".format(e))
+                surface_instance.debug("Exception caught: {}".format(e))
 
-        self.setShape(shape)
-        self.setAperture(aperture_)
+        surface_instance.setShape(shape)
+        surface_instance.setAperture(aperture_)
+        return surface_instance
 
     def setKind(self):
         self.kind = "surface"

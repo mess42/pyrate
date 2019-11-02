@@ -48,37 +48,37 @@ wave_red = 0.700e-3
 wave_blue = 0.470e-3
 
 # definition of optical system
-s = OpticalSystem()
+s = OpticalSystem.p()
 
 lc0 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="stop", decz=0.0),
+            LocalCoordinates.p(name="stop", decz=0.0),
             refname=s.rootcoordinatesystem.name)
 lccomprism = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="prismcenter", decz=50.0),
+            LocalCoordinates.p(name="prismcenter", decz=50.0),
             refname=lc0.name)
 
 lc1 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="surf1", decz=-10.0, tiltx=30.*degree),
+            LocalCoordinates.p(name="surf1", decz=-10.0, tiltx=30.*degree),
             refname=lccomprism.name)  # objectDist
 lc2 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="surf2", decz=10.0, tiltx=-30.*degree),
+            LocalCoordinates.p(name="surf2", decz=10.0, tiltx=-30.*degree),
             refname=lccomprism.name)
 lc3 = s.addLocalCoordinateSystem(
-            LocalCoordinates(name="image", decz=50.0),
+            LocalCoordinates.p(name="image", decz=50.0),
             refname=lccomprism.name)
 
 
-stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=Conic(lc1, curv=0),
+stopsurf = Surface.p(lc0)
+frontsurf = Surface.p(lc1, shape=Conic.p(lc1, curv=0),
                     aperture=CircularAperture(lc1, maxradius=20.0))
-rearsurf = Surface(lc2, shape=Conic(lc2, curv=0),
+rearsurf = Surface.p(lc2, shape=Conic.p(lc2, curv=0),
                    aperture=CircularAperture(lc2, maxradius=20.0))
-image = Surface(lc3)
+image = Surface.p(lc3)
 
 
-elem = OpticalElement(lc0, name="prism")
+elem = OpticalElement.p(lc0, name="prism")
 
-glass = ModelGlass(lc1)
+glass = ModelGlass.p(lc1)
 
 
 elem.addMaterial("glass", glass)

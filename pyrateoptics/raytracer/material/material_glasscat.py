@@ -254,7 +254,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         :return matobj: (object)
         """
         matdict = self.getMaterialDictFromLongName(glassName)
-        matobj = CatalogMaterial(lc, matdict)
+        matobj = CatalogMaterial.p(lc, matdict)
         return matobj
 
     def getMaterialDictCloseTo_nd_vd_PgF(self, nd=1.51680,
@@ -419,7 +419,8 @@ class IndexFormulaContainer(object):
 
 
 class CatalogMaterial(IsotropicMaterial):
-    def __init__(self, lc, ymldict, name="", comment=""):
+    @classmethod
+    def p(cls, lc, ymldict, name="", comment=""):
         """
         Material from the refractiveindex.info database.
 
@@ -436,15 +437,16 @@ class CatalogMaterial(IsotropicMaterial):
             bk7 = CatalogMaterial(lc, ymldict)
         """
 
-        super(CatalogMaterial, self).__init__(lc, name=name, comment=comment)
+        # super(CatalogMaterial, self).__init__(lc, name=name, comment=comment)
 
         data = ymldict["DATA"]
-        self.annotations["DATA"] = data
+        annotations = {}
+        annotations["DATA"] = data
 
         if len(data) > 2:
             raise Exception("Max 2 entries for dispersion allowed - n and k.")
 
-        self.__nk = []
+        nk = []
         for datafield in data:  # i=0 is n  ;  i=1 is k
             dispersionDict = datafield
             typ = dispersionDict["type"]
@@ -458,7 +460,11 @@ class CatalogMaterial(IsotropicMaterial):
                                  dtype=float)
                 rang = np.array(dispersionDict["wavelength_range"].split(),
                                 dtype=float)
-            self.__nk.append(IndexFormulaContainer(typ, coeff, rang))
+            nk.append(IndexFormulaContainer(typ, coeff, rang))
+
+        return cls(annotations, {"lc": lc, "commen": comment,
+                                 "_CatalogMaterial__nk": nk}, name=name)
+        # TODO: make this serializable!
 
     def setKind(self):
         self.kind = "material_from_catalog"

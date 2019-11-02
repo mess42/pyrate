@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # definition of optical system
 
-s = OpticalSystem()
+s = OpticalSystem.p()
 
 if found_jsonpickle:
     print("pickle dump")

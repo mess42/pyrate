@@ -34,20 +34,22 @@ from .material_isotropic import IsotropicMaterial
 
 
 class IsotropicGrinMaterial(IsotropicMaterial):
-    def __init__(self, lc, fun, dfdx, dfdy, dfdz, parameterlist=[], name="", comment=""):
-        super(IsotropicGrinMaterial, self).__init__(lc, name=name, comment=comment)
-        self.nfunc = fun
-        self.dndx = dfdx
-        self.dndy = dfdy
-        self.dndz = dfdz
-        self.ds = 0.1
-        self.energyviolation = 1e-3
-        self.boundaryfunction = lambda x: x[0]**2 + x[1]**2 <= 10.0**2
 
-        self.params = {}
+    @classmethod
+    def p(cls, lc, fun, dfdx, dfdy, dfdz, parameterlist=[], name="", comment=""):
+        params = {}
         for (name, value) in parameterlist:
-            self.params[name] = FloatOptimizableVariable(FixedState(value),
+            params[name] = FloatOptimizableVariable(FixedState(value),
                                                          name=name)
+        return cls({"comment": comment},
+                   {"lc": lc, "nfunc": fun,  # FunctionObject
+                    "dndx": dfdx, "dndy": dfdy, "dndz": dfdz,  # FunctionObject
+                    "boundaryfunction": lambda x: x[0]**2 + x[1]**2 <= 10.0**2,
+                    # FunctionObject
+                    "ds": 0.1,  # Annotations
+                    "energyviolation": 1e-3,  # Annotations
+                    "params": params
+                    }, name=name)
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)

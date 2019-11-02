@@ -35,14 +35,9 @@ from ..globalconstants import standard_wavelength
 class Material(ClassWithOptimizableVariables):
     """Abstract base class for materials."""
 
-    def __init__(self, lc, name="", comment=""):
-        """
-        virtual constructor
-        """
-        super(Material, self).__init__(name=name)
-        self.comment = comment
-        # remove comment from keywords arg
-        self.lc = lc
+    @classmethod
+    def p(cls, lc, name="", comment=""):
+        return cls({"comment": comment}, {"lc": lc}, name=name)
 
     def setKind(self):
         self.kind = "material"

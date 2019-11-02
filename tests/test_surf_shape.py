@@ -56,7 +56,7 @@ def conic_sag(test_vector):
     """
     Computation of conic sag equals explicit calculation.
     """
-    coordinate_system = LocalCoordinates(name="root")
+    coordinate_system = LocalCoordinates.p(name="root")
     radius = 10.0
     conic_constant = -1.5
     curvature = 1./radius
@@ -65,7 +65,7 @@ def conic_sag(test_vector):
     values = (2*test_vector-1.)*maxradius
     x_coordinate = values[0]
     y_coordinate = values[1]
-    shape = Conic(coordinate_system, curv=curvature, cc=conic_constant)
+    shape = Conic.p(coordinate_system, curv=curvature, cc=conic_constant)
     sag = shape.getSag(x_coordinate, y_coordinate)
     # comparison with explicitly entered formula
     assert np.allclose(sag,
@@ -79,7 +79,7 @@ def conic_grad(test_vector):
     """
     Computation of conic grad equals explicit calculation.
     """
-    coordinate_system = LocalCoordinates(name="root")
+    coordinate_system = LocalCoordinates.p(name="root")
     radius = 10.0
     conic_constant = -1.5
     curvature = 1./radius
@@ -88,7 +88,7 @@ def conic_grad(test_vector):
     values = (2*test_vector-1.)*maxradius
     x = values[0]
     y = values[1]
-    shape = Conic(coordinate_system, curv=curvature, cc=conic_constant)
+    shape = Conic.p(coordinate_system, curv=curvature, cc=conic_constant)
 
     gradient = shape.getGrad(x, y)
 
@@ -110,7 +110,7 @@ def asphere_sag(test_vector):
     """
     Computation of asphere sag equals explicit calculation.
     """
-    coordinate_system = LocalCoordinates(name="root")
+    coordinate_system = LocalCoordinates.p(name="root")
     radius = 10.0
     conic_constant = -1.5
     curvature = 1./radius
@@ -122,7 +122,7 @@ def asphere_sag(test_vector):
     values = (2*test_vector-1.)*maxradius
     x_coordinate = values[0]
     y_coordinate = values[1]
-    shape = Asphere(coordinate_system, curv=curvature, cc=conic_constant,
+    shape = Asphere.p(coordinate_system, curv=curvature, cc=conic_constant,
                     coefficients=[alpha2, alpha4, alpha6])
     sag = shape.getSag(x_coordinate, y_coordinate)
     # comparison with explicitly entered formula
@@ -140,7 +140,7 @@ def asphere_grad(test_vector):
     Computation of asphere gradient equals explicit calculation.
     Notice grad is calculated in 3 dimensions by grad F = grad(z - f(x, y))
     """
-    coordinate_system = LocalCoordinates(name="root")
+    coordinate_system = LocalCoordinates.p(name="root")
     radius = 10.0
     conic_constant = -1.5
     curvature = 1./radius
@@ -152,7 +152,7 @@ def asphere_grad(test_vector):
     values = (2*test_vector-1.)*maxradius
     x = values[0]
     y = values[1]
-    shape = Asphere(coordinate_system, curv=curvature, cc=conic_constant,
+    shape = Asphere.p(coordinate_system, curv=curvature, cc=conic_constant,
                     coefficients=[alpha2, alpha4, alpha6])
 
     gradient = shape.getGrad(x, y)

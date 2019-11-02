@@ -54,53 +54,53 @@ wavelength = 0.5876e-3
 
 rnd_data1 = np.random.random((3, 3))  # np.eye(3)
 rnd_data2 = np.random.random((3, 3))  # np.zeros((3, 3))#
-lc = LocalCoordinates("1")
+lc = LocalCoordinates.p("1")
 myeps = np.eye(3) + 0.1*rnd_data1 + 0.01*complex(0, 1)*rnd_data2
 # aggressive complex choice of myeps
 # myeps = np.eye(3) + 0.01*np.random.random((3, 3))
-crystal = AnisotropicMaterial(lc, myeps)
+crystal = AnisotropicMaterial.p(lc, myeps)
 
 
 # definition of optical system
-s = OpticalSystem(matbackground=crystal)
+s = OpticalSystem.p(matbackground=crystal)
 
 lc0 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="object", decz=0.0),
+        LocalCoordinates.p(name="object", decz=0.0),
         refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="m1", decz=50.0, tiltx=-math.pi/8),
+        LocalCoordinates.p(name="m1", decz=50.0, tiltx=-math.pi/8),
         refname=lc0.name)  # objectDist
 lc2 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="m2_stop", decz=-50.0, decy=-20,
+        LocalCoordinates.p(name="m2_stop", decz=-50.0, decy=-20,
                          tiltx=math.pi/16), refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="m3", decz=50.0, decy=-30, tiltx=3*math.pi/32),
+        LocalCoordinates.p(name="m3", decz=50.0, decy=-30, tiltx=3*math.pi/32),
         refname=lc2.name)
 lc4 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="image1", decz=-50, decy=-15, tiltx=-math.pi/16),
+        LocalCoordinates.p(name="image1", decz=-50, decy=-15, tiltx=-math.pi/16),
         refname=lc3.name)
 lc5 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="oapara", decz=-100, decy=-35), refname=lc4.name)
+        LocalCoordinates.p(name="oapara", decz=-100, decy=-35), refname=lc4.name)
 lc5ap = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="oaparaap", decz=0, decy=35), refname=lc5.name)
+        LocalCoordinates.p(name="oaparaap", decz=0, decy=35), refname=lc5.name)
 lc6 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="image2", decz=55, tiltx=1*math.pi/32),
+        LocalCoordinates.p(name="image2", decz=55, tiltx=1*math.pi/32),
         refname=lc5.name)
 
-objectsurf = Surface(lc0)
-m1surf = Surface(lc1, shape=Conic(lc1, curv=-0.01),
+objectsurf = Surface.p(lc0)
+m1surf = Surface.p(lc1, shape=Conic.p(lc1, curv=-0.01),
                  aperture=CircularAperture(lc1, maxradius=20.))
-m2surf = Surface(lc2, shape=Conic(lc2, curv=0.01),
+m2surf = Surface.p(lc2, shape=Conic.p(lc2, curv=0.01),
                  aperture=CircularAperture(lc2, maxradius=12.7))
-m3surf = Surface(lc3, shape=Conic(lc3, curv=-0.006),
+m3surf = Surface.p(lc3, shape=Conic.p(lc3, curv=-0.006),
                  aperture=CircularAperture(lc3, maxradius=20.7))
-image1 = Surface(lc4)
-oapara = Surface(lc3, shape=Conic(lc5, curv=0.01, cc=-1.),
+image1 = Surface.p(lc4)
+oapara = Surface.p(lc3, shape=Conic.p(lc5, curv=0.01, cc=-1.),
                  aperture=CircularAperture(lc5ap, maxradius=30.0))
-image2 = Surface(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
+image2 = Surface.p(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
 
 
-elem = OpticalElement(lc0, name="TMA")
+elem = OpticalElement.p(lc0, name="TMA")
 
 # elem.addMaterial("crystal", crystal)
 

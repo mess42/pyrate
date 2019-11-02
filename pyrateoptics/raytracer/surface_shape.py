@@ -44,14 +44,11 @@ else:
 
 
 class Shape(ClassWithOptimizableVariables):
-    def __init__(self, lc, name=""):
-        """
-        Virtual Class for all surface shapes.
-        The shape of a surface provides a function to calculate
-        the intersection point with a ray.
-        """
-        super(Shape, self).__init__(name=name)
-        self.lc = lc
+    """
+    Virtual Class for all surface shapes.
+    The shape of a surface provides a function to calculate
+    the intersection point with a ray.
+    """
 
     def setKind(self):
         self.kind = "shape"
@@ -60,10 +57,13 @@ class Shape(ClassWithOptimizableVariables):
         """
         Intersection routine returning intersection point
         with ray and normal vector of the surface.
-        :param raybundle: RayBundle that shall intersect the surface. (RayBundle Object)
-        :return t: geometrical path length to the next surface (1d numpy array of float)
+        :param raybundle: RayBundle that shall intersect the surface.
+                            (RayBundle Object)
+        :return t: geometrical path length to the next surface
+                            (1d numpy array of float)
         :return normal: surface normal vectors (2d numpy 3xN array of float)
-        :return validIndices: whether indices hit the surface (1d numpy array of bool)
+        :return validIndices: whether indices hit the surface
+                            (1d numpy array of bool)
         """
         raise NotImplementedError()
 
@@ -71,8 +71,10 @@ class Shape(ClassWithOptimizableVariables):
         """
         Returns the sag of the surface for given coordinates - mostly used
         for plotting purposes.
-        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param x: x coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
         :return z: sag (list or numpy 1d array of float)
         """
         raise NotImplementedError()
@@ -87,18 +89,21 @@ class Shape(ClassWithOptimizableVariables):
     def getGrad(self, x, y):
         """
         Returns the gradient of the surface.
-        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param x: x coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
         :return grad: gradient (2d numpy 3xN array of float)
         """
         raise NotImplementedError()
 
-
     def getNormal(self, x, y):
         """
         Returns the normal of the surface.
-        :param x: x coordinate perpendicular to the optical axis (list or numpy 1d array of float)
-        :param y: y coordinate perpendicular to the optical axis (list or numpy 1d array of float)
+        :param x: x coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
+        :param y: y coordinate perpendicular to the optical axis
+                (list or numpy 1d array of float)
         :return n: normal (2d numpy 3xN array of float)
         """
         gradient = self.getGrad(x, y)
@@ -151,7 +156,9 @@ class Shape(ClassWithOptimizableVariables):
 
 
 class Conic(Shape):
-    def __init__(self, lc, curv=0.0, cc=0.0, name=""):
+
+    @classmethod
+    def p(cls, lc, curv=0.0, cc=0.0, name=""):
         """
         Create rotationally symmetric surface
         with a conic cross section in the meridional plane.
@@ -165,11 +172,15 @@ class Conic(Shape):
              cc = 1 rotational paraboloid
              cc > 1 rotational hyperboloid
         """
-        super(Conic, self).__init__(lc)
 
-        self.curvature = FloatOptimizableVariable(FixedState(curv),
+        curvature = FloatOptimizableVariable(FixedState(curv),
                                              name="curvature")
-        self.conic = FloatOptimizableVariable(FixedState(cc), name="conic constant")
+        conic = FloatOptimizableVariable(FixedState(cc), name="conic constant")
+        return cls({},
+                   {"curvature": curvature,
+                    "conic": conic,
+                    "lc": lc
+                    }, name)
 
     def setKind(self):
         self.kind = "shape_Conic"
@@ -232,10 +243,7 @@ class Conic(Shape):
         hessian = np.array([[curv, 0, 0], [0, curv, 0], [0, 0, curv*(1+cc)]])
         hessian = np.repeat(hessian[:, :, np.newaxis], num_pts, axis=2)
 
-
         return hessian
-
-
 
     def getNormalDerivative(self, xveclocal):
         """
@@ -265,7 +273,6 @@ class Conic(Shape):
             ])
 
         return np.einsum('ij...,jk...', prematrix, innermatrix).T
-
 
     def getCentralCurvature(self):
         return self.curvature.evaluate()
@@ -315,7 +322,8 @@ class Conic(Shape):
 
 
 class Cylinder(Conic):
-    def __init__(self, lc, curv=0.0, cc=0.0, name="", **kwargs):
+    @classmethod
+    def p(cls, lc, curv=0.0, cc=0.0, name=""):
         """
         Create cylindric conic section surface.
 
@@ -328,13 +336,16 @@ class Cylinder(Conic):
              cc = 1 parabolic
              cc > 1 hyperbolic
         """
-        super(Cylinder, self).__init__(lc, name=name)
 
-        self.curvature = FloatOptimizableVariable(FixedState(curv),
-                                                  name="curvature")
-        self.conic = FloatOptimizableVariable(FixedState(cc),
-                                              name="conic constant")
-
+        curvature = FloatOptimizableVariable(FixedState(curv),
+                                             name="curvature")
+        conic = FloatOptimizableVariable(FixedState(cc),
+                                         name="conic constant")
+        return cls({},
+                   {"curvature": curvature,
+                    "conic": conic,
+                    "lc": lc
+                    }, name)
 
     def setKind(self):
         self.kind = "shape_Cylinder"
@@ -374,8 +385,11 @@ class Cylinder(Conic):
 
 
 class FreeShape(Shape):
-    def __init__(self, lc, F, gradF, hessF, paramlist=[], tol=1e-6,
-                 iterations=10, name=""):
+
+    @staticmethod
+    def createAnnotationsAndStructure(
+                                     lc, paramlist=[],
+                                     tol=1e-6, iterations=10):
         """
         Freeshape surface defined by abstract function F (either implicitly
         or explicitly) and its x, y, z derivatives
@@ -387,18 +401,17 @@ class FreeShape(Shape):
         :param iterations: convergence parameter
         """
 
-        super(FreeShape, self).__init__(lc, name=name)
-
-        self.params = {}
+        params = {}
         for (name, value) in paramlist:
-            self.params[name] = FloatOptimizableVariable(FixedState(value),
-                                                         name=name)
+            params[name] = FloatOptimizableVariable(FixedState(value),
+                                                    name=name)
 
-        self.tol = tol
-        self.iterations = iterations
-        self.F = F  # implicit function in x, y, z, paramslst
-        self.gradF = gradF  # closed form gradient in x, y, z, paramslst
-        self.hessF = hessF  # closed form Hessian in x, y, z, paramslst
+        # implicit function in x, y, z, paramslst
+        # closed form gradient in x, y, z, paramslst
+        # closed form Hessian in x, y, z, paramslst
+
+        return ({"tol": tol, "iterations": iterations},
+                {"lc": lc, "params": params})
 
     def getGrad(self, x, y):
         z = self.getSag(x, y)
@@ -425,7 +438,6 @@ class ExplicitShape(FreeShape):
         :param iterations: convergence parameter
     """
 
-
     def getSag(self, x, y):
         return self.F(x, y)
 
@@ -437,7 +449,7 @@ class ExplicitShape(FreeShape):
         def Fwrapper(t, r0, rayDir):
             return r0[2] + t*rayDir[2] - self.F(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1])
 
-        t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.tol)
+        t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.annotations["tol"])
 
         globalinter = self.lc.returnLocalToGlobalPoints(r0 + rayDir * t)
 
@@ -452,7 +464,6 @@ class ImplicitShape(FreeShape):
 
     def Fwrapper(self, zp, xp, yp):
         return self.F(xp, yp, zp)
-
 
     def implicitsolver(self, x, y, *finalargs):
         z1 = np.random.rand(len(x))
@@ -474,10 +485,8 @@ class ImplicitShape(FreeShape):
         res = fsolve(self.Fwrapper, x0=zstart, args=(x, y), xtol=self.tol, *finalargs)
         return res
 
-
     def getSag(self, x, y):
         return self.implicitsolver(x, y)
-
 
     def intersect(self, raybundle):
 
@@ -508,76 +517,76 @@ class Asphere(ExplicitShape):
     Polynomial asphere as base class for sophisticated surface descriptions
     """
 
+    def sqrtfun(self, r2):
+        (curv, cc, acoeffs) = self.getAsphereParameters()
+        return np.sqrt(1 - curv**2*(1+cc)*r2)
 
-    def __init__(self, lc, curv=0, cc=0, coefficients=None, name=""):
+    def F(self, x, y):
+        (curv, cc, acoeffs) = self.getAsphereParameters()
+
+        r2 = x**2 + y**2
+
+        res = curv*r2/(1 + self.sqrtfun(r2))
+        for (n, an) in enumerate(acoeffs):
+            res += an*r2**(n+1)
+        return res
+
+    def gradF(self, x, y, z):
+        """gradient for implicit function z - af(x, y) = 0"""
+        res = np.zeros((3, len(x)))
+        (curv, cc, acoeffs) = self.getAsphereParameters()
+
+        r2 = x**2 + y**2
+        sq = self.sqrtfun(r2)
+
+        res[2] = np.ones_like(x)  # z-component always 1
+        res[0] = -curv*x/sq
+        res[1] = -curv*y/sq
+
+        for (n, an) in enumerate(acoeffs):
+            res[0] += -2.*x*(n+1)*an*r2**n
+            res[1] += -2.*y*(n+1)*an*r2**n
+
+        return res
+
+    def hessF(self, x, y, z):
+        res = np.zeros((3, 3, len(x)))
+
+        (curv, cc, acoeffs) = self.getAsphereParameters()
+
+        r2 = x**2 + y**2
+        sq = self.sqrtfun(r2)
+
+        maindev = -curv/(2.*sq)
+        maindev2 = -curv**3*(1+cc)/(4.*sq)
+
+        for (n, an) in enumerate(acoeffs):
+            maindev += -an*(n+1)*r2**n
+            maindev2 += -an*(n+1)*n*r2**(n-1)
+
+        res[0, 0] = 2*(2*maindev2*x*x + maindev)
+        res[1, 1] = 2*(2*maindev2*y*y + maindev)
+        res[0, 1] = res[1, 0] = 4*maindev2*x*y
+
+        return res
+
+    @classmethod
+    def p(cls, lc, curv=0, cc=0, coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
 
-        self.numcoefficients = len(coefficients)
-        initacoeffs = [("A"+str(2*i+2), val) for (i, val) in enumerate(coefficients)]
+        initacoeffs = [("A"+str(2*i+2), val)
+                       for (i, val) in enumerate(coefficients)]
 
-        def sqrtfun(r2):
-            (curv, cc, acoeffs) = self.getAsphereParameters()
-            return np.sqrt(1 - curv**2*(1+cc)*r2)
-
-
-
-
-        def af(x, y):
-            (curv, cc, acoeffs) = self.getAsphereParameters()
-
-            r2 = x**2 + y**2
-
-            res = curv*r2/(1 + sqrtfun(r2))
-            for (n, an) in enumerate(acoeffs):
-                res += an*r2**(n+1)
-            return res
-
-        def gradaf(x, y, z): # gradient for implicit function z - af(x, y) = 0
-            res = np.zeros((3, len(x)))
-            (curv, cc, acoeffs) = self.getAsphereParameters()
-
-            r2 = x**2 + y**2
-            sq = sqrtfun(r2)
-
-
-            res[2] = np.ones_like(x) # z-component always 1
-            res[0] = -curv*x/sq
-            res[1] = -curv*y/sq
-
-            for (n, an) in enumerate(acoeffs):
-                res[0] += -2.*x*(n+1)*an*r2**n
-                res[1] += -2.*y*(n+1)*an*r2**n
-
-            return res
-
-        def hessaf(x, y, z):
-            res = np.zeros((3, 3, len(x)))
-
-            (curv, cc, acoeffs) = self.getAsphereParameters()
-
-            r2 = x**2 + y**2
-            sq = sqrtfun(r2)
-
-            maindev = -curv/(2.*sq)
-            maindev2 = -curv**3*(1+cc)/(4.*sq)
-
-            for (n, an) in enumerate(acoeffs):
-                maindev += -an*(n+1)*r2**n
-                maindev2 += -an*(n+1)*n*r2**(n-1)
-
-            res[0, 0] = 2*(2*maindev2*x*x + maindev)
-            res[1, 1] = 2*(2*maindev2*y*y + maindev)
-            res[0, 1] = res[1, 0] = 4*maindev2*x*y
-
-            return res
-
-        super(Asphere, self).__init__(lc, af, gradaf, hessaf,
-                                      paramlist=([("curv", curv),
-                                                  ("cc", cc)] +
-                                                 initacoeffs),
-                                      name=name)
+        (a_annotations, a_structure) =\
+            FreeShape.createAnnotationsAndStructure(lc,
+                                                    paramlist=([("curv", curv),
+                                                                ("cc", cc)] +
+                                                               initacoeffs))
+        a_annotations["numcoefficients"] = len(coefficients)
+        my_asphere = cls(a_annotations, a_structure, name)
+        return my_asphere
 
     def setKind(self):
         self.kind = "shape_Asphere"
@@ -585,7 +594,7 @@ class Asphere(ExplicitShape):
     def getAsphereParameters(self):
         return (self.params["curv"](),
                 self.params["cc"](),
-                [self.params["A"+str(2*i+2)]() for i in range(self.numcoefficients)])
+                [self.params["A"+str(2*i+2)]() for i in range(self.annotations["numcoefficients"])])
 
     def getCentralCurvature(self):
         return self.params["curv"].evaluate()
@@ -596,79 +605,84 @@ class Biconic(ExplicitShape):
     Polynomial biconic as base class for sophisticated surface descriptions
     """
 
-    def __init__(self, lc, curvx=0, ccx=0, curvy=0, ccy=0,
-                 coefficients=None, name=""):
+    def sqrtfun(self, x, y):
+        (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
+        return np.sqrt(1 - curvx**2*(1+ccx)*x**2 - curvy**2*(1+ccy)*y**2)
+
+    def F(self, x, y):
+        (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
+
+        r2 = x**2 + y**2
+        ast2 = x**2 - y**2
+
+        res = (curvx*x**2 + curvy*y**2)/(1 + self.sqrtfun(x, y))
+
+        for (n, (an, bn)) in enumerate(coeffs):
+            res += an*(r2 - bn*ast2)**(n+1)
+        return res
+
+    def gradF(self, x, y, z): # gradient for implicit function z - af(x, y) = 0
+        res = np.zeros((3, len(x)))
+        (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
+
+        r2 = x**2 + y**2
+        ast2 = x**2 - y**2
+
+        sq = self.sqrtfun(x, y)
+
+        res[2] = np.ones_like(x) # z-component always 1
+        res[0] = -cx*x*(cx*(ccx + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
+        res[1] = -cy*y*(cy*(ccy + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
+
+        for (n, (an, bn)) in enumerate(coeffs):
+            res[0] += 2*an*(n+1)*x*(bn - 1)*(-bn*ast2 + r2)**n
+            res[1] += -2*an*(n+1)*y*(bn + 1)*(-bn*ast2 + r2)**n
+
+        return res
+
+    def hessF(self, x, y, z):
+        res = np.zeros((3, 3, len(x)))
+
+        (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
+
+        z = self.getSag(x, y)
+
+        res[0, 0] = -2*cx*(6*cx*x**2 + cx*z**2*(ccx + 1) + 2*cy*y**2 - 2*z)
+        res[0, 1] = res[1, 0] = -8*cx*cy*x*y
+        res[0, 2] = res[2, 0] = -4*cx*x*(cx*z*(ccx + 1) - 1)
+        res[1, 1] = -2*cy*(2*cx*x**2 + 6*cy*y**2 + cy*z**2*(ccy + 1) - 2*z)
+        res[1, 2] = res[2, 1] = -4*cy*y*(cy*z*(ccy + 1) - 1)
+        res[2, 2] = -2*cx**2*x**2*(ccx + 1) + 2*cy**2*y**2*(ccy + 1)
+
+        # TODO: corrections missing
+
+        return res
+
+    @classmethod
+    def p(cls, lc, curvx=0, ccx=0, curvy=0, ccy=0,
+          coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
 
-        self.numcoefficients = len(coefficients)
+        numcoefficients = len(coefficients)
         initacoeffs = [("A"+str(2*i+2), vala)
                        for (i, (vala, valb)) in enumerate(coefficients)]
         initbcoeffs = [("B"+str(2*i+2), valb)
                        for (i, (vala, valb)) in enumerate(coefficients)]
 
-        def sqrtfun(x, y):
-            (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
-            return np.sqrt(1 - curvx**2*(1+ccx)*x**2 - curvy**2*(1+ccy)*y**2)
-
-        def bf(x, y):
-            (curvx, curvy, ccx, ccy, coeffs) = self.getBiconicParameters()
-
-            r2 = x**2 + y**2
-            ast2 = x**2 - y**2
-
-            res = (curvx*x**2 + curvy*y**2)/(1 + sqrtfun(x, y))
-
-            for (n, (an, bn)) in enumerate(coeffs):
-                res += an*(r2 - bn*ast2)**(n+1)
-            return res
-
-        def gradbf(x, y, z): # gradient for implicit function z - af(x, y) = 0
-            res = np.zeros((3, len(x)))
-            (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
-
-            r2 = x**2 + y**2
-            ast2 = x**2 - y**2
-
-            sq = sqrtfun(x, y)
-
-            res[2] = np.ones_like(x) # z-component always 1
-            res[0] = -cx*x*(cx*(ccx + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
-            res[1] = -cy*y*(cy*(ccy + 1)*(cx*x**2 + cy*y**2) + 2*(sq + 1)*sq)/((sq + 1)**2*sq)
-
-            for (n, (an, bn)) in enumerate(coeffs):
-                res[0] += 2*an*(n+1)*x*(bn - 1)*(-bn*ast2 + r2)**n
-                res[1] += -2*an*(n+1)*y*(bn + 1)*(-bn*ast2 + r2)**n
-
-            return res
-
-        def hessbf(x, y, z):
-            res = np.zeros((3, 3, len(x)))
-
-            (cx, cy, ccx, ccy, coeffs) = self.getBiconicParameters()
-
-            z = self.getSag(x, y)
-
-
-            res[0, 0] = -2*cx*(6*cx*x**2 + cx*z**2*(ccx + 1) + 2*cy*y**2 - 2*z)
-            res[0, 1] = res[1, 0] = -8*cx*cy*x*y
-            res[0, 2] = res[2, 0] = -4*cx*x*(cx*z*(ccx + 1) - 1)
-            res[1, 1] = -2*cy*(2*cx*x**2 + 6*cy*y**2 + cy*z**2*(ccy + 1) - 2*z)
-            res[1, 2] = res[2, 1] = -4*cy*y*(cy*z*(ccy + 1) - 1)
-            res[2, 2] = -2*cx**2*x**2*(ccx + 1) + 2*cy**2*y**2*(ccy + 1)
-
-            # TODO: corrections missing
-
-            return res
-
-        super(Biconic, self).__init__(lc, bf, gradbf, hessbf,
-                                      paramlist=([("curvx", curvx),
-                                                  ("curvy", curvy),
-                                                  ("ccx", ccx),
-                                                  ("ccy", ccy)]
-                                                 + initacoeffs+initbcoeffs),
-                                      name=name)
+        (b_annotations, b_structure) =\
+            FreeShape.createAnnotationsAndStructure(
+                lc,
+                paramlist=([("curvx", curvx),
+                            ("curvy", curvy),
+                            ("ccx", ccx),
+                            ("ccy", ccy)] +
+                           initacoeffs +
+                           initbcoeffs))
+        b_annotations["numcoefficients"] = numcoefficients
+        my_biconic = cls(b_annotations, b_structure, name)
+        return my_biconic
 
     def setKind(self):
         self.kind = "shape_Biconic"
@@ -678,11 +692,13 @@ class Biconic(ExplicitShape):
                 self.params["curvy"](),
                 self.params["ccx"](),
                 self.params["ccy"](),
-                [(self.params["A"+str(2*i+2)](), self.params["B"+str(2*i+2)]()) for i in range(self.numcoefficients)]
+                [(self.params["A"+str(2*i+2)](), self.params["B"+str(2*i+2)]())
+                 for i in range(self.annotations["numcoefficients"])]
                 )
 
     def getCentralCurvature(self):
         return 0.5*(self.params["curvx"]() + self.params["curvy"]())
+
 
 class LinearCombination(ExplicitShape):
     """
@@ -869,8 +885,6 @@ class Zernike(ExplicitShape):
             coefficients = []
 
         self.numcoefficients = len(coefficients)
-        #self.annotations = {}
-        #self.annotations["numcoefficients"] = len(coefficients)
         initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
 
         def zf(x, y):
@@ -987,7 +1001,6 @@ class Zernike(ExplicitShape):
 
     def zernike_norm(self, n, m, xp, yp):
 
-
         R = np.zeros(n+1)
         omega = abs(m)
 
@@ -1052,11 +1065,9 @@ class ZernikeStandard(Zernike):
     def setKind(self):
         self.kind = "shape_ZernikeStandard"
 
-
     def jtonm(self, j):
-        n = math.floor((-1.+math.sqrt(1.+8.*j))*0.5);
-        m = n-2*j+n*(n+1);
-
+        n = math.floor((-1. + math.sqrt(1. + 8. * j)) * 0.5)
+        m = n-2*j+n*(n+1)
 
         return (n, m)
 

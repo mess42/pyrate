@@ -34,12 +34,13 @@ from .material import MaxwellMaterial
 
 class AnisotropicMaterial(MaxwellMaterial):
 
-    def __init__(self, lc, epstensor, name="", comment=""):
-        super(AnisotropicMaterial, self).__init__(lc, name=name, comment=comment)
+    @classmethod
+    def p(cls, lc, epstensor, name="", comment=""):
 
-        self.epstensor = epstensor
         # up to now the material is not dispersive since the epsilon tensor
         # is not intended to be wave-dependent
+        return cls({"comment": comment}, {"lc": lc, "epstensor": epstensor},
+                   name=name)
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
 

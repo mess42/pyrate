@@ -38,9 +38,10 @@ class LocalCoordinatesTreeBase(ClassWithOptimizableVariables):
     :param name (string)
     :param **kwargs (key word arguments)
     """
-    def __init__(self, rootcoordinatesystem, name=""):
-        self.rootcoordinatesystem = rootcoordinatesystem
-        super(LocalCoordinatesTreeBase, self).__init__(name=name)
+    @classmethod
+    def p(cls, rootcoordinatesystem, name=""):
+        return cls({}, {"rootcoordinatesystem": rootcoordinatesystem},
+                   name=name)
 
     def setKind(self):
         self.kind = "localcoordinatestreebase"
@@ -65,15 +66,22 @@ class LocalCoordinatesTreeBase(ClassWithOptimizableVariables):
 
         :return lc
         """
+        self.debug(lc.pprint())
         allnames = self.rootcoordinatesystem.returnConnectedNames()
+        self.debug("root coordinate system connected names: " + str(allnames))
 
         if lc.name in allnames:
+            # choose new name if name already in allnames
             lc.name = ''
 
         if refname not in allnames:
+            # if refname is not in allnames, set it to this root
             refname = self.rootcoordinatesystem.name
 
+        self.debug("adding child '" + lc.name + "' to reference '" +
+                   refname + "'")
         self.rootcoordinatesystem.addChildToReference(refname, lc)
+        self.rootcoordinatesystem.update()
 
         return lc
 

@@ -48,37 +48,37 @@ logging.basicConfig(level=logging.DEBUG)
 wavelength = 0.5876e-3
 
 # definition of optical system
-s = OpticalSystem(name='os')
+s = OpticalSystem.p(name='os')
 
 lc0 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="stop", decz=1.0),
+        LocalCoordinates.p(name="stop", decz=1.0),
         refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="surf1", decz=10.0), refname=lc0.name)
+        LocalCoordinates.p(name="surf1", decz=10.0), refname=lc0.name)
 lc2 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="surf2", decz=5.0, tiltx=10*math.pi/180.0),
+        LocalCoordinates.p(name="surf2", decz=5.0, tiltx=10*math.pi/180.0),
         refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(
-        LocalCoordinates(name="image", decz=-5.0, tiltx=-10*math.pi/180.0),
+        LocalCoordinates.p(name="image", decz=-5.0, tiltx=-10*math.pi/180.0),
         refname=lc2.name)
 
 
-stopsurf = Surface(lc0)
-frontsurf = Surface(lc1, shape=Conic(lc1, curv=0),
-                    aperture=CircularAperture(lc1, maxradius=10.0))
-rearsurf = Surface(lc2, shape=Conic(lc2, curv=0),
-                   aperture=CircularAperture(lc3, maxradius=10.0))
-image = Surface(lc3)
+stopsurf = Surface.p(lc0)
+frontsurf = Surface.p(lc1, shape=Conic.p(lc1, curv=0),
+                      aperture=CircularAperture(lc1, maxradius=10.0))
+rearsurf = Surface.p(lc2, shape=Conic.p(lc2, curv=0),
+                     aperture=CircularAperture(lc3, maxradius=10.0))
+image = Surface.p(lc3)
 
 
-elem = OpticalElement(lc0, name="crystalelem")
+elem = OpticalElement.p(lc0, name="crystalelem")
 
 no = 1.5
 neo = 1.8
 
 myeps = np.array([[no, 0, 0], [0, no, 0], [0, 0, neo]])
 
-crystal = AnisotropicMaterial(lc1, myeps)
+crystal = AnisotropicMaterial.p(lc1, myeps)
 
 
 elem.addMaterial("crystal", crystal)
