@@ -246,24 +246,44 @@ class Aimy(BaseLogger):
         # modified k in general violates dispersion relation
 
         kparabasal = kp_objsurf + dk3d
-        self.debug("E pilotbundle")
-        self.debug(str(self.pilotbundle.Efield.shape))
-        self.debug(str(self.pilotbundle.Efield))
         E_obj = self.pilotbundle.Efield[0, :, 0]
-        self.debug("E_obj")
-        self.debug(str(E_obj))
         Eparabasal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
-        self.debug(str(np.sum(kparabasal*Eparabasal, axis=0)))
 
-        # FIXME: Efield introduces anisotropy in aiming through
-        # rotationally symmetric system
-        # since copy of Eparabasal is not in the right direction for the
+        # Eparabasal introduces anisotropy in aiming through
+        # rotationally symmetric system since copy of Eparabasal (above)
+        # is not in the right direction for the
         # dispersion relation (i.e. in isotropic media k perp E which is not
-        # fulfilled); solution: use k, insert into propagator, calculate
-        # E by (u, sigma, v) = np.linalg.svd(propagator) where E is
-        # linearcombination of all u which belong to sigma = 0 values.
+        # fulfilled); solution: use k, insert into propagator (svdmatrix),
+        # calculate E by (u, sigma, v) = np.linalg.svd(propagator) where E is
+        # some linearcombination of all u which belong to sigma = 0 values.
         # This is necessary to get the right ray direction also in isotropic
         # case
+        # Outstanding problems:
+        # * Only vacuum considered (attach to material!)
+        #   [i.e. svdmatrix should come from material]
+        # * Selection of E depends only on smallest eigenvalue
+        #   (this is the "I don't care about polarization variant")
+        #   => Later the user should choose the polarization in an stable
+        #   reproducible way (i.e. sorting by scalar products)
+
+        (_, nlength) = kparabasal.shape
+
+        kronecker = np.repeat(np.identity(3)[np.newaxis, :, :],
+                              nlength, axis=0)
+
+        svdmatrix = -kronecker * np.sum(kparabasal * kparabasal,
+                                        axis=0)[:, np.newaxis, np.newaxis] +\
+                    np.einsum("i...,j...", kparabasal, kparabasal) +\
+                    kronecker  # epstensor
+
+        # svdmatrix = -delta_ij (k*k) + k_i k_j + delta
+
+        (U, S, V) = np.linalg.svd(svdmatrix)
+
+        smallest_absolute_values = np.argsort(np.abs(S), axis=1).T[0]
+
+        for i in range(nlength):
+            Eparabasal[:, i] = U[i, :, smallest_absolute_values[i]]
 
         # Aimy: returns only linearized results which are not exact
         return RayBundle(xparabasal, kparabasal, Eparabasal, wave=self.wave)
