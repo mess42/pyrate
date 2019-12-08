@@ -40,13 +40,13 @@ import matplotlib
 
 from pyrateoptics.core.functionobject import FunctionObject
 from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
-from pyrateoptics.core.serializer import Serializer
+from pyrateoptics.core.serializer import Serializer, Deserializer
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend
 from pyrateoptics.sampling2d.raster import RectGrid
 
 from pyrateoptics import (build_rotationally_symmetric_optical_system,
-                          listOptimizableVariables)
+                          listOptimizableVariables, draw)
 from pyrateoptics.raytracer.globalconstants import canonical_ex, canonical_ey
 from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
 from pyrateoptics.raytracer.ray import RayBundle
@@ -353,4 +353,6 @@ fp = open("double_gauss.json", "wt")
 json.dump(system_dump, fp, indent=4)
 fp.close()
 
-
+# TODO: later
+# s2 = Deserializer(system_dump, True, True).class_instance
+# draw(s2)
