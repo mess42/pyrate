@@ -396,8 +396,8 @@ class OpticalElement(LocalCoordinatesTreeBase):
         for (ps, pe, surfhit) in zip(pilotraypath.raybundles[:-1], pilotraypath.raybundles[1:], hitlist):
             (surf_start_key, surf_end_key, hit) = surfhit
 
-            surf_start = self.annotations["surfaces"][surf_start_key]
-            surf_end = self.annotations["surfaces"][surf_end_key]
+            surf_start = self.surfaces[surf_start_key]
+            surf_end = self.surfaces[surf_end_key]
 
             x0_glob = rpath.raybundles[-1].x[-1]
             k0_glob = rpath.raybundles[-1].k[-1]
