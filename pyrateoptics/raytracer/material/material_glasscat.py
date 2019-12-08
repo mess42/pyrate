@@ -439,14 +439,30 @@ class CatalogMaterial(IsotropicMaterial):
 
         # super(CatalogMaterial, self).__init__(lc, name=name, comment=comment)
 
-        data = ymldict["DATA"]
         annotations = {}
-        annotations["DATA"] = data
+        annotations["yml_dictionary"] = ymldict
+
+        catmat = cls(annotations, {"lc": lc, "comment": comment}, name=name,
+                     serializationfilter=["nk"])
+        return catmat
+        # TODO: make this serializable!
+
+    def setKind(self):
+        self.kind = "material_from_catalog"
+
+    def getIndex(self, x, wave):
+        n = 0
+        for dispFun in self.nk:
+            n += dispFun.getIndex(wave)
+        return n
+
+    def initializeFromAnnotations(self):
+        data = self.annotations["yml_dictionary"]["DATA"]
 
         if len(data) > 2:
             raise Exception("Max 2 entries for dispersion allowed - n and k.")
 
-        nk = []
+        self.nk = []
         for datafield in data:  # i=0 is n  ;  i=1 is k
             dispersionDict = datafield
             typ = dispersionDict["type"]
@@ -460,20 +476,8 @@ class CatalogMaterial(IsotropicMaterial):
                                  dtype=float)
                 rang = np.array(dispersionDict["wavelength_range"].split(),
                                 dtype=float)
-            nk.append(IndexFormulaContainer(typ, coeff, rang))
+            self.nk.append(IndexFormulaContainer(typ, coeff, rang))
 
-        return cls(annotations, {"lc": lc, "commen": comment,
-                                 "_CatalogMaterial__nk": nk}, name=name)
-        # TODO: make this serializable!
-
-    def setKind(self):
-        self.kind = "material_from_catalog"
-
-    def getIndex(self, x, wave):
-        n = 0
-        for dispFun in self.__nk:
-            n += dispFun.getIndex(wave)
-        return n
 
 
 if __name__ == "__main__":
