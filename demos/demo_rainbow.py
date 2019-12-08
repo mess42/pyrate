@@ -24,6 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import logging
+import json
+import yaml
+
+from pprint import pprint
 
 
 from pyrateoptics.sampling2d import raster
@@ -38,6 +42,10 @@ from pyrateoptics.raytracer.optical_system import OpticalSystem
 
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
+
+from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
+from pyrateoptics.core.serializer import Serializer
+
 
 from pyrateoptics.raytracer.globalconstants import degree
 from pyrateoptics import raytrace, draw
@@ -139,3 +147,21 @@ r_red = raytrace(s, sysseq, 11, raysdict, wave=wave_red)[0]
 r_blue = raytrace(s, sysseq, 11, raysdict, wave=wave_blue)[0]
 
 draw(s, [(r_red, "red"), (r_blue, "blue")])
+
+system_dump = Serializer(s).serialization
+system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
+        s.elements["droplet"].surfaces["surf4"].shape).queryForDictionary()
+
+#pprint(system_gui_toplevel)
+#pprint(system_dump)
+
+fp = open("rainbow.yaml", "wt")
+yaml.dump(system_dump, fp)
+fp.close()
+
+
+fp = open("rainbow.json", "wt")
+json.dump(system_dump, fp, indent=4)
+fp.close()
+
+

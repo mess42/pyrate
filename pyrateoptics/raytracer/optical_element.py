@@ -50,8 +50,9 @@ class OpticalElement(LocalCoordinatesTreeBase):
         #self.__materials = {}  # Append materials objects
         #self.__surf_mat_connection = {}  # dict["surfname"] = ("mat_minus_normal", "mat_plus_normal")
 
-        return cls({"surfaces": {}, "materials": {}, "surf_mat_connection": {}},
-                   {"rootcoordinatesystem": lc}, name=name)
+        return cls({"surf_mat_connection": {}},
+                   {"surfaces": {}, "materials": {}, "rootcoordinatesystem": lc},
+                   name=name)
 
     def setKind(self):
         self.kind = "opticalelement"
@@ -69,7 +70,7 @@ class OpticalElement(LocalCoordinatesTreeBase):
         """
         (minusNmat_key, plusNmat_key) = materialkeys
         if self.checkForRootConnection(surface_object.rootcoordinatesystem):
-            self.annotations["surfaces"][key] = surface_object
+            self.surfaces[key] = surface_object
         else:
             raise Exception("surface coordinate system should be connected to OpticalElement root coordinate system")
         self.annotations["surf_mat_connection"][key] = (minusNmat_key,
@@ -82,12 +83,10 @@ class OpticalElement(LocalCoordinatesTreeBase):
                                                             plusNmat_key)
 
     def getSurfaces(self):
-        return self.annotations["surfaces"]
+        return self.surfaces
 
     def getConnection(self, key):
         return self.annotations["surf_mat_connection"][key]
-
-    surfaces = property(fget=getSurfaces)
 
     def addMaterial(self, key, material_object, comment=""):
         """
@@ -98,9 +97,9 @@ class OpticalElement(LocalCoordinatesTreeBase):
         :param comment (string, optional), comment for the material
         """
         if self.checkForRootConnection(material_object.lc):
-            if key not in self.annotations["materials"]:
-                self.annotations["materials"][key] = material_object
-                self.annotations["materials"][key].comment = comment
+            if key not in self.materials:
+                self.materials[key] = material_object
+                self.materials[key].comment = comment
             else:
                 self.warning("Material key " + str(key) + " already taken. Material will not be added.")
         else:
@@ -339,11 +338,11 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
             rpaths_new = []
 
-            current_surface = self.annotations["surfaces"][surfkey]
+            current_surface = self.surfaces[surfkey]
 
             (mnmat, pnmat) = self.annotations["surf_mat_connection"][surfkey]
-            mnmat = self.annotations["materials"].get(mnmat, background_medium)
-            pnmat = self.annotations["materials"].get(pnmat, background_medium)
+            mnmat = self.materials.get(mnmat, background_medium)
+            pnmat = self.materials.get(pnmat, background_medium)
 
             # finalize current_bundles
             for rp in rpaths:

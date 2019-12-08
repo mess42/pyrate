@@ -399,14 +399,14 @@ class SerializationIterator(OptimizableVariableCollector):
             if isinstance(var, dict):
                 newdict = {}
                 for (k, v) in var.items():
-                    newitem = traverse_structure(v)
+                    newitem = traverse_structure(v, remove=remove)
                     if k not in remove and newitem is not None:
                         newdict[k] = newitem
                 return newdict
             elif isinstance(var, list):
                 newlist = []
                 for (ind, v) in enumerate(var):
-                    newitem = traverse_structure(v)
+                    newitem = traverse_structure(v, remove=remove)
                     if newitem is not None:
                         newlist.append(newitem)
                 return newlist
@@ -418,6 +418,10 @@ class SerializationIterator(OptimizableVariableCollector):
                 # ignore all other variables
                 return None
 
+        #mymodifieddict = {}
+        #for (k, v) in self.class_instance.__dict__.items():
+        #    if k not in self.class_instance.serializationfilter:
+        #        mymodifieddict[k] = v
         self.structure = traverse_structure(self.class_instance.__dict__,
                                             remove=remove)
 

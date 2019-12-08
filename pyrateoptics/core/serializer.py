@@ -47,11 +47,12 @@ class Serializer(BaseLogger):
         self.kind = "serializer"
 
     def serialize(self):
+        default_to_be_removed = ["annotations",
+                                 "list_observers",
+                                 "serializationfilter"]
         serialization = SerializationIterator(self.class_instance,
-                                              remove=["annotations",
-                                                      "list_observers"])
-        serialization.collectStructure(remove=["annotations",
-                                               "list_observers"])
+                                              remove=default_to_be_removed)
+        serialization.collectStructure(remove=default_to_be_removed)
         optimizable_variables_pool = OptimizableVariablesPool(
             serialization.variables_dictionary)
         functionobjects_pool = optimizable_variables_pool.generateFunctionObjectsPool()
@@ -60,8 +61,7 @@ class Serializer(BaseLogger):
                 serialization.dictionary,
                 dict([(k,
                        SerializationIterator(v,
-                                             remove=["annotations",
-                                                     "list_observers"]
+                                             remove=default_to_be_removed
                                              ).dictionary
                        ) for (k, v) in serialization.classes_dictionary.items()]
                      ),
