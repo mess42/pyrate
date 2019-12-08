@@ -2842,23 +2842,57 @@ and yield the propagator matrices for a refraction operation
 
 TODO: double check
 
+\subsection{The Image Plane}
+The imaging condition between two points in object and image plane is fulfilled,
+if all rays originating from the point in the object are focused to the point in the image,
+independent of the wavevector they started with.
+The imaging condition between object and image plane is fulfilled,
+if a image plane point can be found for all points in the object plane.
+\begin{eqnarray}
+ \Vector{R}_\im &=& \hat{A} \Vector{R}_\obj + 0 \qquad \forall \Vector{K}
+\end{eqnarray}
+In general, it is not always possible to fulfill the imaging condition 
+by refocusing and moving the image plane.
+In systems with on-axis astigmatism, for example, 
+there are two separate planes, in which sagittal or meridional ray fans are imaged, but not all $\Vector{K}$ at the same time.
+\begin{eqnarray}
+ \Vector{R}_{\im\,\textrm{astig}} &=& \hat{A} \Vector{R}_\obj + 0 
+ \qquad \forall \Vector{K} \propto \Vector{e}_{K\,\textrm{astig}}
+\end{eqnarray}
+The wavevectors have to be chosen such that they do not contribute to the imaging equation.
+\begin{eqnarray}
+ \hat{B} \Vector{e}_{K\,\textrm{astig}} &=& 0
+\end{eqnarray}
+Additionally, the $\hat{M}$ term must not contribute.
+In our initial optcial system, 
+it might occur that neither of these conditions can be fulfilled.
+Our strategy in finding the image plane is to construct a compensation operator.
+The compensation shall be a translation operator 
+that is appended to the last surface of the initial optical system.
+We split the construction in the following sections:
+\begin{itemize}
+ \item Find a particular solution for a compensation operator that cancels the $\hat{M}$ term.
+ \item After that, modify the compensation operator so that we can find ray fans for the $\hat{B}$ term.
+ \item If the compensation operator is the same for all $\Vector{K}$, then we can fulfill the imaging equation. If not, we can only fulfill the astigmatic equation.
+\end{itemize}
+
 
 \subsection{Image Plane Tilt Compensation}
 We assume a general propagation operator and a following compensation propagator.
 The compensation shall cancel out the effect of the bilinear operators 
---
-$\hat{M}$ for finite conjugate images
-and $\hat{N}$ for infinite images.
+$\hat{M}=0$ for finite conjugate images
+or $\hat{N}=0$ for infinite images.
 The compensation shall be a translation.
 \begin{eqnarray}
  \hat{M}_\tot &=& \hat{A}_{\text{comp}} \hat{M}_0 + \hat{B}_{\text{comp}} \hat{N}_0 + \hat{M}_{\text{comp}} \hat{A}_0 \hat{D}_0 + \hat{M}_{\text{comp}} \hat{B}_0 \hat{C}_0 \\
  \hat{N}_\tot &=& \hat{N}_0
 \end{eqnarray}
-We split the compensation operator up into two subsequent translations.
-First, we consider a general translation, followed by a parallel plane translation.
-If the first translation compensated for image plane tilt, then the parallel propagation does not add an additional tilt,
-as can be seen in \eqref{eq:xyuv_parallel_translation_matrices}.
-If we find one compensation operator, then there is an infinite number of parallel compensation operators.
+As we can directly see, the compensation operation does not influence $\hat{N}$.
+It is not possible to compensate image plane tilt of infinite conjugate images by a translation operator.
+
+In the following, we focus on finite conjugate image planes.
+If we find one compensation operator, we can construct an infinite number of compensation operators by adding a parallel translation.
+If the first translation compensated for image plane tilt, then the parallel propagation does not add an additional tilt, as can be seen in \eqref{eq:xyuv_parallel_translation_matrices}.
 We only need to find one particular solution.
 We choose the parallel translation such that the pilot ray intersects the original final plane and the plane after compensation in the same point.
 This means $\hat{B}_{comp} = 0$.
@@ -2876,9 +2910,10 @@ Surface deviations are expressed on the final surface of the initial propagator,
 and wavevector deviations are expressed in coordinates of the final medium, in which also the compensation takes place.
 \begin{eqnarray}
  M_{\tot\,R_{im},R_{obj},K_{obj}} =&& A_{\text{comp}\,R_{im},R_1} M_{0\,R_1,R_{obj},K_{obj}} + \nonumber\\
-                                  &+& M_{\text{comp}\,R_{im},R_1,K_2} \left( A_{0\,R_1,R_{obj}} D_{0\,K_2,K_{obj}} + B_{0\,R_1,K_{obj}} C_{0\,K_2,R_{obj}} \right)
+                                  &+& M_{\text{comp}\,R_{im},R_1,K_2} \left( A_{0\,R_1,R_{obj}} D_{0\,K_2,K_{obj}} + B_{0\,R_1,K_{obj}} C_{0\,K_2,R_{obj}} \right)\nonumber\\
 \end{eqnarray}
-
+For a compensation of image plane tilt, we desire $\hat{M}_{tot}=0$.
+\remark{Conjecture: The degrees of freedom of an image plane tilt do not suffice to compensate M in a 6-dimensional formalism. TODO: make a proof.}
 
 \section{4D XYUV Matrices}
 In many cases, we do not need four degrees of freedom for the wavevector deviation, but two suffice.
@@ -2903,7 +2938,7 @@ Coming from the 6-dimensional XYUV formalism, we restrict the wavevectors in the
 In the reduced unit system with only two real wavevector deviations $(\Re U, \Re V)$,
 it may in some cases not be possible to convert old wavevectors in the new unit system.
 This may occur, for example, for the evanescent waves of the transmission path after a total internal reflection.
-These rays must be sorted out from further propagation for example by if-statements or conditional indexing.
+These rays must be sorted out from further propagation for example by if-statements or boolean array indices.
 
 We can easily convert all formulas from the 6-dimensional XYUV formalism to the 4-dimensional one by inserting
 $\Vector{R} = (X,Y)$ and $\Vector{K} = (\Re U, \Re V, 0, 0)$.
