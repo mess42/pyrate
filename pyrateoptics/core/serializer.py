@@ -34,7 +34,12 @@ from .optimizable_variables_pool import OptimizableVariablesPool
 from .base import ClassWithOptimizableVariables
 
 from ..raytracer.localcoordinates import LocalCoordinates
-from ..raytracer.surface_shape import ZernikeFringe, Asphere
+from ..raytracer.surface import Surface
+from ..raytracer.surface_shape import ZernikeFringe, Asphere, Conic
+from ..raytracer.optical_element import OpticalElement
+from ..raytracer.optical_system import OpticalSystem
+from ..raytracer.material.material_glasscat import CatalogMaterial
+from ..raytracer.material.material_isotropic import ConstantIndexGlass
 
 
 class Serializer(BaseLogger):
@@ -78,8 +83,14 @@ class Deserializer(BaseLogger):
         self.serialization_list = serialization_list
         self.classes_dictionary = {
             "shape_ZernikeFringe": ZernikeFringe,
+            "shape_Conic": Conic,
             "shape_Asphere": Asphere,
-            "localcoordinates": LocalCoordinates
+            "localcoordinates": LocalCoordinates,
+            "constantindexglass": ConstantIndexGlass,
+            "opticalelement": OpticalElement,
+            "opticalsystem": OpticalSystem,
+            "surface": Surface,
+            "material_from_catalog": CatalogMaterial,
             }
         if register_classes is not None:
             for (kind_name, class_name) in register_classes:
@@ -227,10 +238,15 @@ class Deserializer(BaseLogger):
 
             self.debug("Reconstructing structure dictionary")
             structure_dict = class_to_be_reconstructed["structure"]
+            self.debug(class_to_be_reconstructed["name"])
+            self.debug(pformat(structure_dict))
             self.debug("Reconstructing optimizable variables")
             structure_dict = reconstruct_variables(structure_dict,
                                                    reconstructed_variables_dict)
             self.debug("Reconstructing sub classes")
+            # self.debug(pformat(structure_dict))
+            # self.debug(pformat(subclasses_dict))
+            # self.debug(pformat(reconstructed_variables_dict))
             structure_dict = reconstruct_subclasses(structure_dict,
                                                     subclasses_dict,
                                                     reconstructed_variables_dict)
@@ -241,6 +257,7 @@ class Deserializer(BaseLogger):
             kind = class_to_be_reconstructed["kind"]
             name = class_to_be_reconstructed["name"]
             anno = class_to_be_reconstructed["annotations"]
+            print("Reconstructing " + kind + " " + name)
 
             self.debug("Name: " + name)
             self.debug("Kind: " + kind)
