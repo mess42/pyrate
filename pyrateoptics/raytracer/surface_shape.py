@@ -846,15 +846,15 @@ class GridSag(ExplicitShape):
     """
 
     def F(self, x, y):
-        res = self.annotations["interpolant"].ev(x, y)
+        res = self.interpolant.ev(x, y)
 
         return res
 
     def gradF(self, x, y, z):  # gradient for implicit function z - f(x, y) = 0
         res = np.zeros((3, len(x)))
 
-        res[0, :] = -self.annotations["interpolant"].ev(x, y, dx=1)
-        res[1, :] = -self.annotations["interpolant"].ev(x, y, dy=1)
+        res[0, :] = -self.interpolant.ev(x, y, dx=1)
+        res[1, :] = -self.interpolant.ev(x, y, dy=1)
         res[2, :] = 1.
 
         return res
@@ -862,10 +862,8 @@ class GridSag(ExplicitShape):
     def hessF(self, x, y, z):
         res = np.zeros((3, 3, len(x)))
 
-        res[0, 0, :] = -self.annotations["interpolant"].ev(x, y, dx=2)
-        res[0, 1, :] = res[1, 0, :] = -self.annotations["interpolant"].ev(x, y,
-                                                                          dx=1,
-                                                                          dy=1)
+        res[0, 0, :] = -self.interpolant.ev(x, y, dx=2)
+        res[0, 1, :] = res[1, 0, :] = -self.interpolant.ev(x, y, dx=1, dy=1)
         res[1, 1, :] = -self.annotations["interpolant"].ev(x, y, dy=2)
 
         return res
@@ -880,17 +878,32 @@ class GridSag(ExplicitShape):
                 lc,
                 paramlist=())
 
-        interpolant = RectBivariateSpline(xlinspace, ylinspace, Zgrid)
-        # interpolant = interp2d(xlinspace, ylinspace, Zgrid)
-
-        gs_annotations["interpolant"] = interpolant
+        gs_annotations["xlinspace"] = xlinspace.tolist()
+        gs_annotations["ylinspace"] = ylinspace.tolist()
+        gs_annotations["zgrid"] = Zgrid.tolist()
         gs_annotations["tol"] = tol
         gs_annotations["iterations"] = iterations
+
         my_gridsag = cls(gs_annotations, gs_structure, name)
+
         return my_gridsag
 
     def setKind(self):
         self.kind = "shape_GridSag"
+
+    def initializeFromAnnotations(self):
+        """
+        Further initialization stages from annotations which need to be
+        done to get a valid object.
+        """
+        xlinspace = np.array(self.annotations["xlinspace"])
+        ylinspace = np.array(self.annotations["ylinspace"])
+        Zgrid = np.array(self.annotations["zgrid"])
+
+        self.interpolant = RectBivariateSpline(xlinspace,
+                                               ylinspace,
+                                               Zgrid)
+        # interpolant = interp2d(xlinspace, ylinspace, Zgrid)
 
 
 class Zernike(ExplicitShape):

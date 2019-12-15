@@ -29,6 +29,8 @@ import json
 import yaml
 import pprint
 
+import numpy as np
+
 import logging
 
 # found_jsonpickle = True
@@ -48,7 +50,10 @@ import logging
 
 # WARNING: code is operational, but not tested
 
-from pyrateoptics.raytracer.surface_shape import Asphere, Conic, ZernikeFringe
+from pyrateoptics.raytracer.surface_shape import (Asphere,
+                                                  Conic,
+                                                  ZernikeFringe,
+                                                  GridSag)
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.core.serializer import Serializer, Deserializer
@@ -92,30 +97,60 @@ def save_yaml(filename, mydump):
 #   * save/load object json/yaml
 #   * compare reconstructed object with original
 
-def loadsave_conic():
-    lc = LocalCoordinates.p(name="global")
-    c = Conic.p(lc, curv=0.01, cc=-0.1)
-    c_dump = Serializer(c).serialization
-    save_yaml(mypath + "conic.yaml", c_dump)
-    save_json(mypath + "conic.json", c_dump)
+def create_save_load_compare(name, mycreate, mycompare):
+    o = mycreate()
+    o_dump = Serializer(o).serialization
+    save_yaml(mypath + name + ".yaml", o_dump)
+    save_json(mypath + name + ".json", o_dump)
+    del o_dump
+    o_dump2 = load_json(mypath + name + ".json")
+    o2 = Deserializer(o_dump2, True, True).class_instance
+    assert mycompare(o, o2)
 
-    del c_dump
-    c_dump = load_json(mypath + "conic.json")
-    c2 = Deserializer(c_dump, True, True).class_instance
-    print(c2.getSag(1.0, 0.0) - c.getSag(1., 0.))
+
+def compare_surface_shapes(ssh1, ssh2):
+    x = np.random.random(100)
+    y = np.random.random(100)
+
+    z1 = ssh1.getSag(x, y)
+    z2 = ssh2.getSag(x, y)
+
+    # TODO: compare also derivatives
+
+    return np.allclose(z1, z2)
+
+
+def loadsave_conic():
+    def create():
+        lc = LocalCoordinates.p(name="global")
+        c = Conic.p(lc, curv=0.01, cc=-0.1)
+        return c
+
+    create_save_load_compare("conic", create,
+                             compare_surface_shapes)
 
 
 def loadsave_asphere():
-    lc = LocalCoordinates.p(name="global")
-    a = Asphere.p(lc, curv=0.01, cc=-1.0, coefficients=[1., 2., 3.])
-    a_dump = Serializer(a).serialization
-    save_yaml(mypath + "asphere.yaml", a_dump)
-    save_json(mypath + "asphere.json", a_dump)
+    def create():
+        lc = LocalCoordinates.p(name="global")
+        a = Asphere.p(lc, curv=0.01, cc=-1.0, coefficients=[1., 2., 3.])
+        return a
 
-    del a_dump
-    a_dump = load_json(mypath + "asphere.json")
-    a2 = Deserializer(a_dump, True, True).class_instance
-    print(a2.getSag(1.0, 0.0) - a.getSag(1., 0.))
+    create_save_load_compare("asphere", create,
+                             compare_surface_shapes)
+
+
+def loadsave_gridsag():
+    def create():
+        lc = LocalCoordinates.p(name="global")
+        x = np.linspace(-1, 1, 100)
+        (X, Y) = np.meshgrid(x, x)
+        Z = X**2 + Y**2
+        g = GridSag.p(lc, (x, x, Z))
+        return g
+
+    create_save_load_compare("gridsag", create,
+                             compare_surface_shapes)
 
 
 def loadsave_zernike_fringe():
@@ -132,18 +167,15 @@ def loadsave_surface():
 
 def loadsave_opticalsystem_empty():
 
-    s = OpticalSystem.p()
+    def create():
+        s = OpticalSystem.p()
+        return s
 
-    s_dump = Serializer(s).serialization
-    save_yaml(mypath + "system_empty.yaml", s_dump)
-    save_json(mypath + "system_empty.json", s_dump)
+    def compare(s1, s2):
+        # TODO: compare drawing?
+        return True
 
-    del s_dump
-    s_dump = load_json(mypath + "system_empty.json")
-    s2 = Deserializer(s_dump, True, True).class_instance
-
-    print(s)
-    print(s2)
+    create_save_load_compare("system_empty", create, compare)
 
 
 if __name__ == "__main__":
@@ -151,11 +183,15 @@ if __name__ == "__main__":
         os.mkdir(mypath)
     except FileExistsError:
         pass
+    # surface shapes
     loadsave_conic()
     loadsave_asphere()
+    loadsave_gridsag()
     loadsave_zernike_fringe()
     loadsave_zernike_standard()
+    # surface
     loadsave_surface()
+    # optical system
     loadsave_opticalsystem_empty()
     # materials
     # isotropic, catalog, anisotropic, grin

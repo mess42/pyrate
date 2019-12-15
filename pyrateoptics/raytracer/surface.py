@@ -64,7 +64,7 @@ class Surface(LocalCoordinatesTreeBase):
                 aperture_ = createAperture(rootlc, aperture)
             except Exception as e:
                 surface_instance.error("Can't create aperture from dict,"
-                           " used default instead.")
+                                       " used default instead.")
                 surface_instance.debug("Exception caught: {}".format(e))
 
         surface_instance.setShape(shape)
