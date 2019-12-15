@@ -50,10 +50,6 @@ import logging
 
 # WARNING: code is operational, but not tested
 
-from pyrateoptics.raytracer.surface_shape import (Asphere,
-                                                  Conic,
-                                                  ZernikeFringe,
-                                                  GridSag)
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.core.serializer import Serializer, Deserializer
@@ -103,9 +99,11 @@ def create_save_load_compare(name, mycreate, mycompare):
     save_yaml(mypath + name + ".yaml", o_dump)
     save_json(mypath + name + ".json", o_dump)
     del o_dump
-    o_dump2 = load_json(mypath + name + ".json")
-    o2 = Deserializer(o_dump2, True, True).class_instance
-    assert mycompare(o, o2)
+    o_dump2_json = load_json(mypath + name + ".json")
+    o_dump2_yaml = load_yaml(mypath + name + ".yaml")
+    o2_json = Deserializer(o_dump2_json, True, True).class_instance
+    o2_yaml = Deserializer(o_dump2_yaml, True, True).class_instance
+    return mycompare(o, o2_json) and mycompare(o, o2_yaml)
 
 
 def compare_surface_shapes(ssh1, ssh2):
@@ -122,26 +120,29 @@ def compare_surface_shapes(ssh1, ssh2):
 
 def loadsave_conic():
     def create():
+        from pyrateoptics.raytracer.surface_shape import Conic
         lc = LocalCoordinates.p(name="global")
         c = Conic.p(lc, curv=0.01, cc=-0.1)
         return c
 
-    create_save_load_compare("conic", create,
-                             compare_surface_shapes)
+    return create_save_load_compare("conic", create,
+                                    compare_surface_shapes)
 
 
 def loadsave_asphere():
     def create():
+        from pyrateoptics.raytracer.surface_shape import Asphere
         lc = LocalCoordinates.p(name="global")
         a = Asphere.p(lc, curv=0.01, cc=-1.0, coefficients=[1., 2., 3.])
         return a
 
-    create_save_load_compare("asphere", create,
-                             compare_surface_shapes)
+    return create_save_load_compare("asphere", create,
+                                    compare_surface_shapes)
 
 
 def loadsave_gridsag():
     def create():
+        from pyrateoptics.raytracer.surface_shape import GridSag
         lc = LocalCoordinates.p(name="global")
         x = np.linspace(-1, 1, 100)
         (X, Y) = np.meshgrid(x, x)
@@ -149,8 +150,8 @@ def loadsave_gridsag():
         g = GridSag.p(lc, (x, x, Z))
         return g
 
-    create_save_load_compare("gridsag", create,
-                             compare_surface_shapes)
+    return create_save_load_compare("gridsag", create,
+                                    compare_surface_shapes)
 
 
 def loadsave_zernike_fringe():
@@ -175,7 +176,7 @@ def loadsave_opticalsystem_empty():
         # TODO: compare drawing?
         return True
 
-    create_save_load_compare("system_empty", create, compare)
+    return create_save_load_compare("system_empty", create, compare)
 
 
 if __name__ == "__main__":
@@ -183,15 +184,22 @@ if __name__ == "__main__":
         os.mkdir(mypath)
     except FileExistsError:
         pass
-    # surface shapes
-    loadsave_conic()
-    loadsave_asphere()
-    loadsave_gridsag()
-    loadsave_zernike_fringe()
-    loadsave_zernike_standard()
-    # surface
-    loadsave_surface()
-    # optical system
-    loadsave_opticalsystem_empty()
-    # materials
-    # isotropic, catalog, anisotropic, grin
+    my_func_list = [
+        # surface shapes
+        "loadsave_conic()",
+        "loadsave_asphere()",
+        "loadsave_gridsag()",
+        "loadsave_zernike_fringe()",
+        "loadsave_zernike_standard()",
+        # surface
+        "loadsave_surface()",
+        # optical system
+        "loadsave_opticalsystem_empty()"
+        # materials
+        # isotropic, catalog, anisotropic, grin
+    ]
+
+    true_false_list = [eval(fun) for fun in my_func_list]
+
+    for funname, funval in zip(my_func_list, true_false_list):
+        print(funname + ": " + str(funval))
