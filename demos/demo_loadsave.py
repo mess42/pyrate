@@ -163,7 +163,35 @@ def loadsave_zernike_standard():
 
 
 def loadsave_surface():
-    pass
+    def create():
+        from pyrateoptics.raytracer.surface_shape import Conic
+        from pyrateoptics.raytracer.surface import Surface
+        from pyrateoptics.raytracer.aperture import CircularAperture
+
+        lc = LocalCoordinates.p(name="----LCglobal----")
+        lc2 = LocalCoordinates.p(name="----LCap----", tiltx=0.1, decx=0.2)
+        lc3 = LocalCoordinates.p(name="----LCsh----", tiltx=-0.1, decx=-0.2)
+
+        lc.addChild(lc2)
+        lc.addChild(lc3)
+
+        # TODO: child coordinate systems lead to core dumps
+
+        ap = CircularAperture(lc2)
+        sh = Conic.p(lc3, curv=0.01, cc=-1)
+
+        su = Surface.p(lc, sh, ap, name="mysurface")
+
+        return su
+
+    def compare(su1, su2):
+        sh1 = su1.shape
+        sh2 = su2.shape
+
+        cmp_ssh = compare_surface_shapes(sh1, sh2)
+        return cmp_ssh
+
+    return create_save_load_compare("surface", create, compare)
 
 
 def loadsave_opticalsystem_empty():
@@ -198,6 +226,8 @@ if __name__ == "__main__":
         # materials
         # isotropic, catalog, anisotropic, grin
     ]
+
+    my_func_list = [my_func_list[5]]  # TODO: remove after debugging
 
     true_false_list = [eval(fun) for fun in my_func_list]
 

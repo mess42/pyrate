@@ -185,12 +185,17 @@ class Deserializer(BaseLogger):
                         else:
                             return variable
                     elif isinstance(variable, list):
-                        return [reconstructRecursively(part,
-                                                       reconstructed_variables_dict)
-                                for part in variable]
+                        return [
+                            reconstructRecursively(
+                                    part,
+                                    reconstructed_variables_dict)
+                            for part in variable]
                     elif isinstance(variable, dict):
-                        return dict([(key, reconstructRecursively(part,
-                                                                  reconstructed_variables_dict))
+                        return dict(
+                                [
+                                    (key, reconstructRecursively(
+                                            part,
+                                            reconstructed_variables_dict))
                                     for (key, part) in variable.items()])
                     else:
                         return variable
@@ -235,22 +240,45 @@ class Deserializer(BaseLogger):
                     else:
                         return variable
 
-                new_structure_dict = reconstructRecursively(structure_dict,
-                                                            subclasses_dict,
-                                                            reconstructed_variables_dict)
+                new_structure_dict = reconstructRecursively(
+                        structure_dict,
+                        subclasses_dict,
+                        reconstructed_variables_dict)
                 return new_structure_dict
 
+            def show_dict(mydict):
+                strlimit = 10
+                return "\n".join([str(key) + ": " +
+                                  (str(val)[:strlimit] if len(str(val)) > strlimit else str(val))
+                                  for key, val in mydict.items()])
+
+
+            self.debug("RECONSTRUCT SUB CLASSES ENTER:")
             self.debug("Reconstructing structure dictionary")
             structure_dict = class_to_be_reconstructed["structure"]
-            self.debug(class_to_be_reconstructed["name"])
-            self.debug(pformat(structure_dict))
+            # TODO: check whether class_to_be_reconstructed["unique_id"]
+            # is in structure_dict. Remove this and append
+            # it after reconstruction
+            self.debug(str(class_to_be_reconstructed))
+            self.debug("Class reconstructed name: " + class_to_be_reconstructed["name"])
+            self.debug("Class reconstructed structure dict:\n" + pformat(structure_dict))
             self.debug("Reconstructing optimizable variables")
-            structure_dict = reconstruct_variables(structure_dict,
-                                                   reconstructed_variables_dict)
+            structure_dict = reconstruct_variables(
+                    structure_dict,
+                    reconstructed_variables_dict)
+            self.debug("keys reconstructed_variables_dict: " +
+                       show_dict(reconstructed_variables_dict))
             self.debug("Reconstructing sub classes")
-            # self.debug(pformat(structure_dict))
-            # self.debug(pformat(subclasses_dict))
-            # self.debug(pformat(reconstructed_variables_dict))
+
+            self.debug("keys structure_dict: " + show_dict(structure_dict))
+            self.debug("keys subclasses_dict: " + show_dict(subclasses_dict))
+            # TODO: this does not work as intended
+            # TODO: the main problem are parent variables in subclasses
+            # their reconstruction has to be postponed
+            if class_to_be_reconstructed["unique_id"] in subclasses_dict:
+                self.debug("Found class to be reconstructed id in subclasses!")
+                self.debug("Removed the following item from subclass dictionary:")
+                self.debug(str(subclasses_dict.pop(class_to_be_reconstructed["unique_id"])))
             structure_dict = reconstruct_subclasses(structure_dict,
                                                     subclasses_dict,
                                                     reconstructed_variables_dict)
@@ -277,6 +305,7 @@ class Deserializer(BaseLogger):
             myclass = self.classes_dictionary[kind](
                     anno,
                     structure_dict, name=name)
+            self.debug("RECONSTRUCT SUB CLASSES LEAVE:")
             return myclass
 
         """
