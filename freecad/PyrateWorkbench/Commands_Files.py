@@ -24,8 +24,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import pickle
-import sys
 from PySide import QtGui
 
 import FreeCAD
@@ -59,17 +57,15 @@ class LoadSystemCommand:
         if fname == "":
             return 1
         else:
-            with open(fname, 'rb') as input:
-                PyrateInterface.OSinterface.os = pickle.load(input)
-            PyrateInterface.OSinterface.createSurfaceViews()
-            #PyrateInterface.OSinterface.createRayViews()
+            pass
+            # Loading functionality not supported, yet
 
 
         for i in FreeCAD.ActiveDocument.Objects:
             i.touch()
 
         FreeCAD.ActiveDocument.recompute()
-        
+
 class SaveSystemCommand:
     "Save optical system file"
 
@@ -91,13 +87,12 @@ class SaveSystemCommand:
         savedlg.setFileMode(QtGui.QFileDialog.AnyFile)
         fname, _ = savedlg.getSaveFileName()
 
-
         if fname == "":
             return 1
         else:
-            with open(fname, 'wb') as output:
-                pickle.dump(PyrateInterface.OSinterface.os, output, pickle.HIGHEST_PROTOCOL)
-            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "Dumped!\n" + "Warning, pickle format may change over time!")
+            pass
+            # Saving functionality not supported, yet
+            # QtGui.QMessageBox.warning(None, Title_MessageBoxes, "Dumped!\n" + "Warning, pickle format may change over time!")
 
 
 FreeCADGui.addCommand('LoadSystemCommand',LoadSystemCommand())

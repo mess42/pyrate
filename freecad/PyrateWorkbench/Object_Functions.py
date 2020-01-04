@@ -122,17 +122,18 @@ class FunctionsObject:
 
             # TODO: substitute this code by execfile interface
 
-        except:
+        except (SyntaxError, NameError):
             QtGui.QMessageBox.information(
                 None, Title_MessageBoxes,
                 "Exception caught. Problem in " + self.Object.Label)
             return functionsobjects
 
         for fn in funcnamelist:
-            try:
-                functionsobjects.append(localsdict[fn])
-            except:
-                pass
+            myfunction = localsdict.get(fn, None)
+            # if key not found for some reason, return None
+            if myfunction is not None:
+                # Do not append None to list
+                functionsobjects.append(myfunction)
         return functionsobjects
 
     def createSourceCode(self):
@@ -141,14 +142,15 @@ class FunctionsObject:
         # of loading and saving code from/to FreeCAD documents
 
     def returnFunctionObjects(self):
-        return self.getFunctionsFromSource(self.createSourceCode(), self.Object.functions)
+        return self.getFunctionsFromSource(self.createSourceCode(),
+                                           self.Object.functions)
 
     def returnSingleFunctionObject(self, name):
         result = None
-        try:
-            result = self.getFunctionsFromSource(self.createSourceCode(), [name])[0]
-        except:
-            pass
+        result = self.getFunctionsFromSource(self.createSourceCode(),
+                                             [name])
+        if len(result) >= 1:
+            result = result[0]
 
         return result
 
