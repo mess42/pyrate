@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import uuid
 import math
-
+from ast import literal_eval
 
 import numpy as np
 
@@ -361,10 +361,10 @@ class OpticalSystemObserver(AbstractObserver):
     def calculateAimys(self):
 
 
-        pupiltype = eval("pupil." + self.__obj.pupiltype) # eval is evil but who cares :p
+        pupiltype = literal_eval("pupil." + self.__obj.pupiltype) # eval is evil but who cares :p
         pupilsize = self.__obj.pupilsize.Value
-        fieldType = eval("field."+ self.__obj.fieldtype)
-        rasterType = eval("raster."+ self.__obj.rastertype)
+        fieldType = literal_eval("field."+ self.__obj.fieldtype)
+        rasterType = literal_eval("raster."+ self.__obj.rastertype)
         stopPosition = self.__obj.stopposition
         numrays = self.__obj.numrays
 
