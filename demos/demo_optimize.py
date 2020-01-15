@@ -268,13 +268,15 @@ def osupdate(my_s):
     my_s.rootcoordinatesystem.update()
 
 
+my_initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
+
 def meritfunctionrms(my_s):
     """
     Merit function for tracing a raybundle through system and calculate
     rms spot radius without centroid subtraction. Punish low number of
     rays, too.
     """
-    my_initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
+    #my_initialbundle = RayBundle(x0=o, k0=k, Efield0=E0, wave=wavelength)
     rpaths = my_s.seqtrace(my_initialbundle, sysseq)
 
     x = rpaths[0].raybundles[-1].x[-1, 0, :]

@@ -113,6 +113,8 @@ def bundle_step1(nrays=100, rpup=7.5):
 
     return RayBundle(o, k, E0, wave=dline)
 
+initialbundle_step1 = bundle_step1()
+
 
 # draw glass plates
 s.draw2d(axarr[0], color="grey", vertices=50, plane_normal=pn, up=up)
@@ -133,8 +135,8 @@ def meritfunction_step2(my_s):
     """
     Merit function (=function to be minimized) for step 2.
     """
-    initialbundle = bundle_step1()
-    rpaths = my_s.seqtrace(initialbundle, seq)
+    # initialbundle = bundle_step1()
+    rpaths = my_s.seqtrace(initialbundle_step1, seq)
     x = rpaths[0].raybundles[-1].x[-1, 0, :]
     # y = rpaths[0].raybundles[-1].x[-1, 1, :]
     rba.raybundle = rpaths[0].raybundles[-1]
