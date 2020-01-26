@@ -71,7 +71,9 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         self.kind = "opticalsystem"
 
     def seqtrace(self, initialbundle, elementsequence, splitup=False): # [("elem1", [1, 3, 4]), ("elem2", [1,4,4]), ("elem1", [4, 3, 1])]
-        rpath = RayPath(initialbundle)
+        rpath = RayPath(deepcopy(initialbundle))
+        # use copy of initialbundle to initialize rpath,
+        # do not modify initialbundle
         rpaths = [rpath]
         for (elem, subseq) in elementsequence:
             rpaths_new = []
