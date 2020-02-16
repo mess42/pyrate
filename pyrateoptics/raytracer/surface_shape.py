@@ -864,7 +864,7 @@ class GridSag(ExplicitShape):
 
         res[0, 0, :] = -self.interpolant.ev(x, y, dx=2)
         res[0, 1, :] = res[1, 0, :] = -self.interpolant.ev(x, y, dx=1, dy=1)
-        res[1, 1, :] = -self.annotations["interpolant"].ev(x, y, dy=2)
+        res[1, 1, :] = -self.interpolant.ev(x, y, dy=2)
 
         return res
 
