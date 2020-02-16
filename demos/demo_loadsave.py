@@ -227,8 +227,6 @@ if __name__ == "__main__":
         # isotropic, catalog, anisotropic, grin
     ]
 
-    my_func_list = [my_func_list[5]]  # TODO: remove after debugging
-
     true_false_list = [eval(fun) for fun in my_func_list]
 
     for funname, funval in zip(my_func_list, true_false_list):
