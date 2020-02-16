@@ -1,4 +1,7 @@
-# pyrateoptics setup.py
+"""
+Setup pyrate optics.
+"""
+
 from distutils.core import setup
 setup(
       name="pyrateoptics",

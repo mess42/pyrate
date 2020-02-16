@@ -32,7 +32,7 @@ import os
 ################################################
 
 Opens every python file in pyrate.
-Cuts everything before the first import 
+Cuts everything before the first import
 and replaces it with the copyright statement below.
 """
 
@@ -68,12 +68,12 @@ for subdir, dirs, filenames in os.walk('./'):
     for filename in filenames:
         if filename.endswith(".py"):
             relative_filename = subdir + "/" + filename
-            
-            f = open(relative_filename,"r")
-        
+
+            f = open(relative_filename, "r")
+
             txt = f.read()
             f.close
-  
+
             a1 = txt.find("\nimport")
             a2 = txt.find("\nfrom ")
 
@@ -85,13 +85,10 @@ for subdir, dirs, filenames in os.walk('./'):
                 elif a2 == -1:
                     start = a1
                 else:
-                    start = min(a1,a2)
+                    start = min(a1, a2)
 
                 txt = "#!/usr/bin/env/python\n" + gpl_text + "\n" + txt[start:]
 
                 f = open(relative_filename, "w")
                 f.write(txt)
                 f.close()
-
-
-
