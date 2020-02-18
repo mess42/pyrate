@@ -43,6 +43,9 @@ from ..raytracer.surface_shape import (Asphere,
                                        XYPolynomials,
                                        ZernikeFringe,
                                        ZernikeANSI)
+from ..raytracer.aperture import (BaseAperture,
+                                  CircularAperture,
+                                  RectangularAperture)
 from ..raytracer.optical_element import OpticalElement
 from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.material.material_glasscat import CatalogMaterial
@@ -103,6 +106,9 @@ class Deserializer(BaseLogger):
             "opticalsystem": OpticalSystem,
             "surface": Surface,
             "material_from_catalog": CatalogMaterial,
+            "aperture": BaseAperture,
+            "aperture_Circular": CircularAperture,
+            "aperture_Rectangular": RectangularAperture
             }
         if register_classes is not None:
             for (kind_name, class_name) in register_classes:

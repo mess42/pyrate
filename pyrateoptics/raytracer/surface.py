@@ -56,7 +56,7 @@ class Surface(LocalCoordinatesTreeBase):
 
         surface_instance = cls({}, {"rootcoordinatesystem": rootlc}, name=name)
 
-        aperture_ = BaseAperture(rootlc)
+        aperture_ = BaseAperture.p(rootlc)
         if isinstance(aperture, BaseAperture):
             aperture_ = aperture
         elif isinstance(aperture, dict):

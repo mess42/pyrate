@@ -197,7 +197,7 @@ def loadsave_surface():
 
         # TODO: child coordinate systems lead to core dumps
 
-        ap = CircularAperture(lc2)
+        ap = CircularAperture.p(lc2)
         sh = Conic.p(lc3, curv=0.01, cc=-1)
 
         su = Surface.p(lc, sh, ap, name="mysurface")
