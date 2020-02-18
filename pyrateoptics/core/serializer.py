@@ -35,10 +35,14 @@ from .base import ClassWithOptimizableVariables
 
 from ..raytracer.localcoordinates import LocalCoordinates
 from ..raytracer.surface import Surface
-from ..raytracer.surface_shape import (ZernikeFringe,
-                                       Asphere,
+from ..raytracer.surface_shape import (Asphere,
+                                       Biconic,
                                        Conic,
-                                       GridSag)
+                                       Cylinder,
+                                       GridSag,
+                                       XYPolynomials,
+                                       ZernikeFringe,
+                                       ZernikeANSI)
 from ..raytracer.optical_element import OpticalElement
 from ..raytracer.optical_system import OpticalSystem
 from ..raytracer.material.material_glasscat import CatalogMaterial
@@ -85,10 +89,14 @@ class Deserializer(BaseLogger):
         super(Deserializer, self).__init__(name=name)
         self.serialization_list = serialization_list
         self.classes_dictionary = {
-            "shape_ZernikeFringe": ZernikeFringe,
             "shape_Conic": Conic,
+            "shape_Cylinder": Cylinder,
             "shape_Asphere": Asphere,
+            "shape_Biconic": Biconic,
+            "shape_XYPolynomials": XYPolynomials,
             "shape_GridSag": GridSag,
+            "shape_ZernikeFringe": ZernikeFringe,
+            "shape_ZernikeANSI": ZernikeANSI,
             "localcoordinates": LocalCoordinates,
             "constantindexglass": ConstantIndexGlass,
             "opticalelement": OpticalElement,

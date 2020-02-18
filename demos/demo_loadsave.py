@@ -155,11 +155,31 @@ def loadsave_gridsag():
 
 
 def loadsave_zernike_fringe():
-    pass
+    def create():
+        from pyrateoptics.raytracer.surface_shape import ZernikeFringe
+        lc = LocalCoordinates.p(name="global")
+        x = np.linspace(-1, 1, 100)
+        (X, Y) = np.meshgrid(x, x)
+        Z = ZernikeFringe.p(lc, normradius=1.0,
+                            coefficients=[1., 2., 3., 4., 5., 6., 7., 8.])
+        return Z
+
+    return create_save_load_compare("zernikefringe", create,
+                                    compare_surface_shapes)
 
 
-def loadsave_zernike_standard():
-    pass
+def loadsave_zernike_ansi():
+    def create():
+        from pyrateoptics.raytracer.surface_shape import ZernikeANSI
+        lc = LocalCoordinates.p(name="global")
+        x = np.linspace(-1, 1, 100)
+        (X, Y) = np.meshgrid(x, x)
+        Z = ZernikeANSI.p(lc, normradius=1.0,
+                          coefficients=[1., 2., 3., 4., 5., 6., 7., 8.])
+        return Z
+
+    return create_save_load_compare("zernikeansi", create,
+                                    compare_surface_shapes)
 
 
 def loadsave_surface():
@@ -208,6 +228,7 @@ def loadsave_opticalsystem_empty():
 
 
 if __name__ == "__main__":
+
     try:
         os.mkdir(mypath)
     except FileExistsError:
@@ -218,7 +239,7 @@ if __name__ == "__main__":
         "loadsave_asphere()",
         "loadsave_gridsag()",
         "loadsave_zernike_fringe()",
-        "loadsave_zernike_standard()",
+        "loadsave_zernike_ansi()",
         # surface
         "loadsave_surface()",
         # optical system

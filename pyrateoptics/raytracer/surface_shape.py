@@ -815,7 +815,7 @@ class XYPolynomials(ExplicitShape):
         return res
 
     @classmethod
-    def p(cls, lc, normradius=100.0, coefficients=None, name=""):
+    def p(cls, lc, normradius=1.0, coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
@@ -911,62 +911,72 @@ class Zernike(ExplicitShape):
     Class for Zernike
     """
 
-    def __init__(self, lc, normradius=1., coefficients=None, name=""):
+    def F(self, x, y):
+        (normradius, zcoefficients) = self.getZernikeParameters()
+        res = np.zeros_like(x)
+        for (num, val) in enumerate(zcoefficients):
+            res += val*self.zernike_norm_j(num + 1, x/normradius, y/normradius)
+
+        return res
+
+    def gradF(self, x, y, z):
+        (normradius, zcoefficients) = self.getZernikeParameters()
+        res = np.zeros((3, len(x)))
+        xp = x/normradius
+        yp = y/normradius
+
+        for (num, val) in enumerate(zcoefficients):
+            (dZdxp, dZdyp) = self.gradzernike_norm_j(num + 1, xp, yp)
+            res[0] += -val*dZdxp/normradius
+            res[1] += -val*dZdyp/normradius
+
+        res[2] = 1.
+
+        return res
+
+    def hessF(self, x, y, z):
+        return np.zeros((3, 3, len(x)))
+
+    @classmethod
+    def p(cls, lc, normradius=1., coefficients=None, name=""):
         if coefficients is None:
             coefficients = []
 
-        self.numcoefficients = len(coefficients)
-        initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
+        initzerncoeffs = [("normradius", normradius)] +\
+                         [("Z"+str(i+1), val)
+                          for (i, val) in enumerate(coefficients)]
 
-        def zf(x, y):
-            (normradius, zcoefficients) = self.getZernikeParameters()
-            res = np.zeros_like(x)
-            for (num, val) in enumerate(zcoefficients):
-                res += val*self.zernike_norm_j(num + 1, x/normradius, y/normradius)
+        (zernike_annotations, zernike_structure) =\
+            FreeShape.createAnnotationsAndStructure(
+                    lc,
+                    paramlist=initzerncoeffs)
 
-            return res
+        zernike_annotations["numcoefficients"] = len(coefficients)
 
-        def gradzf(x, y, z):
-            (normradius, zcoefficients) = self.getZernikeParameters()
-            res = np.zeros((3, len(x)))
-            xp = x/normradius
-            yp = y/normradius
-
-            for (num, val) in enumerate(zcoefficients):
-                (dZdxp, dZdyp) = self.gradzernike_norm_j(num + 1, xp, yp)
-                res[0] += -val*dZdxp/normradius
-                res[1] += -val*dZdyp/normradius
-
-            res[2] = 1.
-
-            return res
-
-        def hesszf(x, y, z):
-            return np.zeros((3, 3, len(x)))
-
-        # annotations are overwritten here
-        super(Zernike, self).__init__(lc, zf, gradzf, hesszf, \
-            paramlist=([("normradius", normradius)]+initcoeffs), name=name)
+        myzernike = cls(zernike_annotations,
+                        zernike_structure, name)
+        return myzernike
 
     def setKind(self):
         self.kind = "shape_Zernike"
 
     def getZernikeParameters(self):
-        return (self.params["normradius"](), \
-                [self.params["Z"+str(i+1)]() for i in range(self.numcoefficients)])
+        return (self.params["normradius"](),
+                [self.params["Z"+str(i+1)]()
+                for i in range(self.annotations["numcoefficients"])])
 
-
-    def jtonm(self, j):
+    @staticmethod
+    def jtonm(j):
         """
         Get double indices from single index
         """
         raise NotImplementedError()
 
-    def nmtoj(self, xxx_todo_changeme1):
+    @staticmethod
+    def nmtoj(n_m_pair):
         """
         Get single index from double indices
         """
-        (n, m) = xxx_todo_changeme1
         raise NotImplementedError()
 
     """
@@ -1078,7 +1088,8 @@ class ZernikeFringe(Zernike):
     def setKind(self):
         self.kind = "shape_ZernikeFringe"
 
-    def jtonm(self, j):
+    @staticmethod
+    def jtonm(j):
         next_sq = (math.ceil(math.sqrt(j)))**2
         m_plus_n = int(2*math.sqrt(next_sq) - 2)
         m = int(math.ceil((next_sq - j)/2))
@@ -1086,25 +1097,46 @@ class ZernikeFringe(Zernike):
         m = int((-1)**((next_sq - j) % 2))*m
         return (n, m)
 
-    def nmtoj(self, xxx_todo_changeme2):
-        (n, m) = xxx_todo_changeme2
-        return int(((n + abs(m))/2 + 1)**2 - 2*abs(m) + (1 - np.sign(m))/2)
+    @staticmethod
+    def nmtoj(n_m_pair):
+        (n, m) = n_m_pair
+        return int(((n + abs(m))/2 + 1)**2 -
+                   2*abs(m) + (1 - np.sign(m))/2)
+
+
+class ZernikeANSI(Zernike):
+
+    def setKind(self):
+        self.kind = "shape_ZernikeANSI"
+
+    @staticmethod
+    def jtonm(j):
+        n = math.floor((-1. + math.sqrt(1. + 8. * j)) * 0.5)
+        m = n-2*j+n*(n+1)
+        return (n, -m)
+
+    @staticmethod
+    def nmtoj(n_m_pair):
+        (n, m) = n_m_pair
+
+        j = int(((n + 2)*n + m)/2)
+        return j
 
 
 class ZernikeStandard(Zernike):
 
+    # TODO: Implement Noll index structure
+
     def setKind(self):
         self.kind = "shape_ZernikeStandard"
 
-    def jtonm(self, j):
-        n = math.floor((-1. + math.sqrt(1. + 8. * j)) * 0.5)
-        m = n-2*j+n*(n+1)
+    @staticmethod
+    def jtonm(j):
+        raise NotImplementedError()
 
-        return (n, m)
-
-    def nmtoj(self, xxx_todo_changeme3):
-        (n, m) = xxx_todo_changeme3
-        return 0
+    @staticmethod
+    def nmtoj(n_m_pair):
+        raise NotImplementedError()
 
 ################################################
 # ZMXDLLShape
@@ -1354,6 +1386,7 @@ if __name__=="__main__":
 
     plt.show()
 
+# Needed by convenience functions in pyrateoptics
 
 accessible_shapes = {
         "shape_Conic": Conic,
@@ -1365,6 +1398,7 @@ accessible_shapes = {
         "shape_GridSag": GridSag,
         "shape_ZernikeFringe": ZernikeFringe,
         "shape_ZernikeStandard": ZernikeStandard,
+        "shape_ZernikeANSI": ZernikeANSI,
         "shape_ZMXDLLShape": ZMXDLLShape
         }
 
