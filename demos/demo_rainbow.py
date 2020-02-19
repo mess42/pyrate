@@ -84,16 +84,16 @@ lc4 = s.addLocalCoordinateSystem(
 
 
 stopsurf = Surface.p(lc0,
-                     aperture=CircularAperture(lc0, maxradius=7*dropletradius))
+                     aperture=CircularAperture.p(lc0, maxradius=7*dropletradius))
 frontsurf = Surface.p(lc1, shape=Asphere.p(lc1, curv=1./dropletradius),
-                      aperture=CircularAperture(lc1, maxradius=dropletradius))
+                      aperture=CircularAperture.p(lc1, maxradius=dropletradius))
 rearsurf = Surface.p(lc2, shape=Asphere.p(lc2, curv=-1./dropletradius),
-                     aperture=CircularAperture(lc2, maxradius=dropletradius))
+                     aperture=CircularAperture.p(lc2, maxradius=dropletradius))
 midsurf = Surface.p(lc3, shape=Asphere.p(lc3, curv=0),
-                    aperture=CircularAperture(lc3, maxradius=dropletradius))
+                    aperture=CircularAperture.p(lc3, maxradius=dropletradius))
 
 image = Surface.p(lc4,
-                aperture=CircularAperture(lc4, maxradius=7.*dropletradius))
+                aperture=CircularAperture.p(lc4, maxradius=7.*dropletradius))
 
 
 elem = OpticalElement.p(lc0, name="droplet")

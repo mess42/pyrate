@@ -87,7 +87,7 @@ S1surf = Surface.p(lcS1, shape=Biconic.p(lcS1, curvy=si*1./108.187,
                                          coefficients=[(0., 0.),
                                                        (-si*5.542e-7, -0.08),
                                                        (-si*8.176e-11, -1.379)]),
-                   aperture=CircularAperture(lcS1, maxradius=40.0))
+                   aperture=CircularAperture.p(lcS1, maxradius=40.0))
 D1Psurf = Surface.p(lcD1prime)
 D2surf = Surface.p(lcD2)
 S2surf = Surface.p(lcS2, shape=Biconic.p(lcS2, curvy=si*1./69.871,
@@ -96,7 +96,7 @@ S2surf = Surface.p(lcS2, shape=Biconic.p(lcS2, curvy=si*1./69.871,
                                          coefficients=[(0., 0.),
                                                        (si*7.233e-11, 29.075),
                                                        (si*4.529e-12, -2.085)]),
-                   aperture=CircularAperture(lcS2, maxradius=40.0))
+                   aperture=CircularAperture.p(lcS2, maxradius=40.0))
 D2Psurf = Surface.p(lcD2prime)
 D3surf = Surface.p(lcD3)
 S3surf = Surface.p(lcS3, shape=Biconic.p(lcS3, curvy=si*1./108.187,
@@ -104,11 +104,11 @@ S3surf = Surface.p(lcS3, shape=Biconic.p(lcS3, curvy=si*1./108.187,
                                          coefficients=[(0., 0.),
                                                        (-si*5.542e-7, -0.08),
                                                        (-si*8.176e-11, -1.379)]),
-                   aperture=CircularAperture(lcS3, maxradius=40.0))
+                   aperture=CircularAperture.p(lcS3, maxradius=40.0))
 D3Psurf = Surface.p(lcD3prime)
 D4surf = Surface.p(lcD4)
 S4surf = Surface.p(lcS4, shape=Conic.p(lcS4, curv=1./77.772),
-                   aperture=CircularAperture(lcS4, maxradius=40.0))
+                   aperture=CircularAperture.p(lcS4, maxradius=40.0))
 D4Psurf = Surface.p(lcD4prime)
 imgsurf = Surface.p(lcimage)
 

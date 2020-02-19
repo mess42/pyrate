@@ -99,8 +99,8 @@ m2surf = Surface.p(lc2, shape=Conic.p(lc2, curv=0.01))
 m3surf = Surface.p(lc3, shape=Conic.p(lc3, curv=-0.006))
 image1 = Surface.p(lc4)
 oapara = Surface.p(lc3, shape=Conic.p(lc5, curv=0.01, cc=-1.))
-image2 = Surface.p(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
-image3 = Surface.p(lc7, aperture=CircularAperture(lc7, maxradius=20.0))
+image2 = Surface.p(lc6, aperture=CircularAperture.p(lc6, maxradius=20.0))
+image3 = Surface.p(lc7, aperture=CircularAperture.p(lc7, maxradius=20.0))
 
 
 elem = OpticalElement.p(lc0, name="TMA")
