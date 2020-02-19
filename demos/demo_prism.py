@@ -70,9 +70,11 @@ lc3 = s.addLocalCoordinateSystem(
 
 stopsurf = Surface.p(lc0)
 frontsurf = Surface.p(lc1, shape=Conic.p(lc1, curv=0),
-                    aperture=CircularAperture.p(lc1, maxradius=20.0))
+                      aperture=CircularAperture.p(lc1,
+                                                  maxradius=20.0))
 rearsurf = Surface.p(lc2, shape=Conic.p(lc2, curv=0),
-                   aperture=CircularAperture(.plc2, maxradius=20.0))
+                     aperture=CircularAperture.p(lc2,
+                                                 maxradius=20.0))
 image = Surface.p(lc3)
 
 
