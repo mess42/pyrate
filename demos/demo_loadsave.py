@@ -59,7 +59,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # definition of optical system
 
-mypath = "serialization_stuff/"
+serialization_path = "serialization_stuff/"
 
 
 def load_json(filename):
@@ -96,12 +96,12 @@ def save_yaml(filename, mydump):
 def create_save_load_compare(name, mycreate, mycompare):
     o = mycreate()
     o_ser = Serializer(o)
-    o_ser.save_yaml(mypath + name + ".yaml")
-    o_ser.save_json(mypath + name + ".json")
+    o_ser.save_yaml(serialization_path + name + ".yaml")
+    o_ser.save_json(serialization_path + name + ".json")
     del o_ser
-    o2_json = Deserializer.load_json(mypath + name + ".json",
+    o2_json = Deserializer.load_json(serialization_path + name + ".json",
                                      True, True)
-    o2_yaml = Deserializer.load_yaml(mypath + name + ".yaml",
+    o2_yaml = Deserializer.load_yaml(serialization_path + name + ".yaml",
                                      True, True)
     return mycompare(o, o2_json) and mycompare(o, o2_yaml)
 
@@ -230,7 +230,7 @@ def loadsave_opticalsystem_empty():
 if __name__ == "__main__":
 
     try:
-        os.mkdir(mypath)
+        os.mkdir(serialization_path)
     except FileExistsError:
         pass
     my_func_list = [

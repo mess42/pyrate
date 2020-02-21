@@ -24,10 +24,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import os
 import math
 import logging
-import json
-import yaml
 
 from pprint import pprint
 
@@ -55,6 +54,7 @@ from pyrateoptics.raytracer.analysis.ray_analysis import RayBundleAnalysis
 logging.basicConfig(level=logging.INFO)
 
 db_path = "refractiveindex.info-database/database"
+serialization_path = "serialization_stuff/"
 
 # drawing parameters
 phi = 0.  # math.pi/4
@@ -339,21 +339,21 @@ for r in r2:
 
 plt.show()
 
-system_dump = Serializer(s).serialization
 system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
         s.elements["stdelem"].surfaces["elem2rear"].shape).queryForDictionary()
 
 pprint(system_gui_toplevel)
-pprint(system_dump)
-
-fp = open("double_gauss.yaml", "wt")
-yaml.dump(system_dump, fp)
-fp.close()
 
 
-fp = open("double_gauss.json", "wt")
-json.dump(system_dump, fp, indent=4)
-fp.close()
+system_dump = Serializer(s)
+
+try:
+    os.mkdir(serialization_path)
+except FileExistsError:
+    pass
+
+system_dump.save_json(serialization_path + "double_gauss.json")
+system_dump.save_yaml(serialization_path + "double_gauss.yaml")
 
 # TODO: later
 # s2 = Deserializer(system_dump, True, True).class_instance
