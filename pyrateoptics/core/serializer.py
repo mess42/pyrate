@@ -92,7 +92,7 @@ class Serializer(BaseLogger):
         with open(filename, "wt") as fp:
             json.dump(mydump, fp, indent=4)
 
-    def save_yaml(self, filename, mydump):
+    def save_yaml(self, filename):
         mydump = self.serialization
         with open(filename, "wt") as fp:
             yaml.dump(mydump, fp)

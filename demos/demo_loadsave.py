@@ -95,14 +95,14 @@ def save_yaml(filename, mydump):
 
 def create_save_load_compare(name, mycreate, mycompare):
     o = mycreate()
-    o_dump = Serializer(o).serialization
-    save_yaml(mypath + name + ".yaml", o_dump)
-    save_json(mypath + name + ".json", o_dump)
-    del o_dump
-    o_dump2_json = load_json(mypath + name + ".json")
-    o_dump2_yaml = load_yaml(mypath + name + ".yaml")
-    o2_json = Deserializer(o_dump2_json, True, True).class_instance
-    o2_yaml = Deserializer(o_dump2_yaml, True, True).class_instance
+    o_ser = Serializer(o)
+    o_ser.save_yaml(mypath + name + ".yaml")
+    o_ser.save_json(mypath + name + ".json")
+    del o_ser
+    o2_json = Deserializer.load_json(mypath + name + ".json",
+                                     True, True)
+    o2_yaml = Deserializer.load_yaml(mypath + name + ".yaml",
+                                     True, True)
     return mycompare(o, o2_json) and mycompare(o, o2_yaml)
 
 
