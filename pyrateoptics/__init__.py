@@ -129,18 +129,18 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                 shapetype_part = "shape_" + surfdict_part.pop("shape", "Conic")
                 new_list_coeffs_shapes.append((coeff_part,
                                                accessible_shapes[
-                                                   shapetype_part]
+                                                   shapetype_part].p
                                                (lc,
                                                 name=name + "_shape" +
                                                 str(ind),
                                                 **surfdict_part)))
 
-            actsurf = Surface(lc, name=surf_name + "_surf",
-                              aperture=aperture,
-                              shape=LinearCombination(lc,
-                                                      name=surf_name +
-                                                      "_linearcombi",
-                                                      list_of_coefficients_and_shapes=new_list_coeffs_shapes))
+            actsurf = Surface.p(lc, name=surf_name + "_surf",
+                                aperture=aperture,
+                                shape=LinearCombination.p(lc,
+                                                          name=surf_name +
+                                                          "_linearcombi",
+                                                          list_of_coefficients_and_shapes=new_list_coeffs_shapes))
         else:
             actsurf = Surface.p(lc, name=surf_name + "_surf",
                                 aperture=aperture,

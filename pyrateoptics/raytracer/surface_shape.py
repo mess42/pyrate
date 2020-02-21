@@ -707,62 +707,70 @@ class LinearCombination(ExplicitShape):
     Class for combining several principal forms with arbitray corrections
     """
 
-    def __init__(self,
-                 lc,
-                 list_of_coefficients_and_shapes=[], name=""):
-        self.list_of_coefficient_and_shapes = list_of_coefficients_and_shapes
+    def F(self, x, y):
+        xlocal = np.vstack((x, y, np.zeros_like(x)))
+        zfinal = np.zeros_like(x)
 
-        def licosag(x, y):
-
-            xlocal = np.vstack((x, y, np.zeros_like(x)))
-            zfinal = np.zeros_like(x)
-
-            for (coefficient, shape) in self.list_of_coefficient_and_shapes:
-                xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
-                xs = xshape[0, :]
-                ys = xshape[1, :]
-                zs = shape.getSag(xs, ys)
-                xshape[2, :] = zs
-                xtransform_shape = shape.lc.returnActualToOtherPoints(xshape,
-                                                                      self.lc)
-
-                zfinal += coefficient*xtransform_shape[2]
+        for (coefficient, shape) in zip(
+                self.annotations["list_shape_coefficients"],
+                self.list_shapes
+                ):
+            xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
+            xs = xshape[0, :]
+            ys = xshape[1, :]
+            zs = shape.getSag(xs, ys)
+            xshape[2, :] = zs
+            xtransform_shape = shape.lc.returnActualToOtherPoints(xshape,
+                                                                  self.lc)
+            zfinal += coefficient*xtransform_shape[2]
 
             return zfinal
 
-        def licograd(x, y, z):
-            xlocal = np.vstack((x, y, np.zeros_like(x)))
-            gradfinal = np.zeros_like(xlocal)
+    def gradF(self, x, y, z):  # gradient for implicit function z - af(x, y) = 0
+        xlocal = np.vstack((x, y, np.zeros_like(x)))
+        gradfinal = np.zeros_like(xlocal)
 
-            sum_coefficients = 0.
+        sum_coefficients = 0.
 
-            for (coefficient, shape) in self.list_of_coefficient_and_shapes:
-                xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
-                xs = xshape[0, :]
-                ys = xshape[1, :]
-                grads = shape.getGrad(xs, ys)
-                gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
+        for (coefficient, shape) in zip(
+                self.annotations["list_shape_coefficients"],
+                self.list_shapes
+                ):
+            xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
+            xs = xshape[0, :]
+            ys = xshape[1, :]
+            grads = shape.getGrad(xs, ys)
+            gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
 
-                gradfinal += coefficient*gradtransform_shape
-                sum_coefficients += coefficient
+            gradfinal += coefficient*gradtransform_shape
+            sum_coefficients += coefficient
 
-            # TODO: is this correct?
-            gradfinal[2] /= sum_coefficients
+        # TODO: is this correct?
+        gradfinal[2] /= sum_coefficients
 
-            return gradfinal
+        return gradfinal
 
-        def licohess(x, y, z):
-            # TODO: Hessian
-            pass
+    def hessF(self, x, y, z):
+        # TODO: Hessian
+        pass
 
-        super(LinearCombination, self).__init__(lc,
-                                                licosag,
-                                                licograd,
-                                                licohess,
-                                                name=name)
+    @classmethod
+    def p(cls, lc,
+          list_of_coefficients_and_shapes=None, name=""):
+        if list_of_coefficients_and_shapes is None:
+            list_of_coefficients_and_shapes = []
 
-        def setKind(self):
-            self.kind = "shape_LinearCombination"
+        (lico_annotations, lico_structure) =\
+            FreeShape.createAnnotationsAndStructure(lc)
+        lico_annotations["list_shape_coefficients"] =\
+            list([c for (c, _) in list_of_coefficients_and_shapes])
+        lico_structure["list_shapes"] =\
+            list([s for (_, s) in list_of_coefficients_and_shapes])
+
+        return cls(lico_annotations, lico_structure, name=name)
+
+    def setKind(self):
+        self.kind = "shape_LinearCombination"
 
 
 class XYPolynomials(ExplicitShape):
