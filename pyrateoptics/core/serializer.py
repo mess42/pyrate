@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import uuid
+import json
+import yaml
+
 from pprint import pformat
 
 from .log import BaseLogger
@@ -83,6 +86,16 @@ class Serializer(BaseLogger):
                 optimizable_variables_pool.toDictionary(),
                 functionobjects_pool.toDictionary()
         ]
+
+    def save_json(self, filename):
+        mydump = self.serialization
+        with open(filename, "wt") as fp:
+            json.dump(mydump, fp, indent=4)
+
+    def save_yaml(self, filename, mydump):
+        mydump = self.serialization
+        with open(filename, "wt") as fp:
+            yaml.dump(mydump, fp)
 
 
 class Deserializer(BaseLogger):
@@ -338,4 +351,24 @@ class Deserializer(BaseLogger):
 
         self.class_instance = mynewobject
 
+    @staticmethod
+    def load_json(filename, source_checked, variables_checked,
+                  name="", register_classes=None):
+        mylist = None
+        with open(filename, "rt") as fp:
+            mylist = json.load(fp)
+        return Deserializer(mylist,
+                            source_checked,
+                            variables_checked, name=name,
+                            register_classes=register_classes)
 
+    @staticmethod
+    def load_yaml(filename, source_checked, variables_checked,
+                  name="", register_classes=None):
+        mylist = None
+        with open(filename, "rt") as fp:
+            mylist = yaml.load(fp)
+        return Deserializer(mylist,
+                            source_checked,
+                            variables_checked, name=name,
+                            register_classes=register_classes)
