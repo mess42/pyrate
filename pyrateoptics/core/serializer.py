@@ -360,7 +360,7 @@ class Deserializer(BaseLogger):
         return Deserializer(mylist,
                             source_checked,
                             variables_checked, name=name,
-                            register_classes=register_classes)
+                            register_classes=register_classes).class_instance
 
     @staticmethod
     def load_yaml(filename, source_checked, variables_checked,
@@ -371,4 +371,4 @@ class Deserializer(BaseLogger):
         return Deserializer(mylist,
                             source_checked,
                             variables_checked, name=name,
-                            register_classes=register_classes)
+                            register_classes=register_classes).class_instance
