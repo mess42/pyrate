@@ -85,7 +85,7 @@ surfaces_do_not_draw = parsed.do_not_draw_surfaces.split(",")
 raybundles_do_not_draw = [int(s) for s in parsed.do_not_draw_raybundles.split(",") if s != '']
 
 p = ZMXParser(file_to_read, name='ZMXParser')
-lctmp = LocalCoordinates("tmp")
+lctmp = LocalCoordinates.p("tmp")
 
 matdict = {"BK7": ConstantIndexGlass.p(lctmp, 1.5168),
            "LAFN21": ConstantIndexGlass.p(lctmp, 1.788),
