@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import time
+import sys
 import logging
 
 from pyrateoptics import build_rotationally_symmetric_optical_system, draw
@@ -54,6 +55,14 @@ db_path = "refractiveindex.info-database/database"
          (0, 0, 19.0, None, "surf7", {})
          ], material_db_path=db_path)
 
+
+def mytiming():
+    if sys.version_info.major >= 3:
+        return time.perf_counter()
+    else:
+        return time.clock()
+
+
 nrays = 100000
 nrays_draw = 21
 
@@ -62,16 +71,18 @@ osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 (x0, k0, E0) = osa.divergent_bundle(nrays,
                                     {"radius": 10.*degree,
                                      "raster": raster.RectGrid()})
-t0 = time.clock()
+t0 = mytiming()
 initialraybundle = RayBundle(x0=x0, k0=k0, Efield0=E0)
+t1 = mytiming()
 raypath = s.seqtrace(initialraybundle, seq)
-logging.info("benchmark : " + str(time.clock() - t0) +
-             "s for tracing " + str(nrays) + " rays through " +
+t2 = mytiming()
+logging.info("benchmark : " + str(t2 - t1) +
+             " s for tracing " + str(nrays) + " rays through " +
              str(len(s.elements["stdelem"].surfaces) - 1) + " surfaces.")
 logging.info("That is " +
              str(int(round(nrays * (len(s.elements["stdelem"].surfaces) - 1)
-                           / (time.clock() - t0)))) +
-             "ray-surface-operations per second")
+                           / (t2 - t1)))) +
+             " ray-surface-operations per second")
 
 # plot
 
