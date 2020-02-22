@@ -61,37 +61,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 serialization_path = "serialization_stuff/"
 
-
-def load_json(filename):
-    fp = open(filename, "rt")
-    mylist = json.load(fp)
-    fp.close()
-    return mylist
-
-
-def save_json(filename, mydump):
-    fp = open(filename, "wt")
-    json.dump(mydump, fp, indent=4)
-    fp.close()
-
-
-def load_yaml(filename):
-    fp = open(filename, "rt")
-    mylist = yaml.load(fp)
-    fp.close()
-    return mylist
-
-
-def save_yaml(filename, mydump):
-    fp = open(filename, "wt")
-    yaml.dump(mydump, fp)
-    fp.close()
-
-
 # generalize check to:
 #   * create object
 #   * save/load object json/yaml
 #   * compare reconstructed object with original
+
 
 def create_save_load_compare(name, mycreate, mycompare):
     o = mycreate()
@@ -103,7 +77,11 @@ def create_save_load_compare(name, mycreate, mycompare):
                                      True, True)
     o2_yaml = Deserializer.load_yaml(serialization_path + name + ".yaml",
                                      True, True)
-    return mycompare(o, o2_json) and mycompare(o, o2_yaml)
+    print("compare json")
+    mycomp_json = mycompare(o, o2_json)
+    print("compare yaml")
+    mycomp_yaml = mycompare(o, o2_yaml)
+    return mycomp_json and mycomp_yaml
 
 
 def compare_surface_shapes(ssh1, ssh2):
@@ -212,6 +190,30 @@ def loadsave_surface():
     return create_save_load_compare("surface", create, compare)
 
 
+def loadsave_localcoordinates():
+    def create():
+        lc = LocalCoordinates.p(name="----LCglobal----")
+        lc2 = LocalCoordinates.p(name="----LCap----", tiltx=0.1,
+                                 decx=0.2)
+        lc3 = LocalCoordinates.p(name="----LCsh----", tiltx=-0.1,
+                                 decx=-0.2)
+        lc4 = LocalCoordinates.p(name="----LCnext----", tiltx=-0.05,
+                                 decz=5.0)
+
+        lc.addChild(lc2)
+        lc.addChild(lc3)
+        lc2.addChild(lc4)
+
+        return lc
+
+    def compare(lc1, lc2):
+        print(lc1.pprint())
+        print(lc2.pprint())
+        return True
+
+    return create_save_load_compare("localcoordinates", create, compare)
+
+
 def loadsave_opticalsystem_empty():
 
     def create():
@@ -245,6 +247,7 @@ if __name__ == "__main__":
         os.mkdir(serialization_path)
     except FileExistsError:
         pass
+
     my_func_list = [
         # surface shapes
         "loadsave_conic()",
@@ -254,13 +257,15 @@ if __name__ == "__main__":
         "loadsave_zernike_ansi()",
         # surface
         "loadsave_surface()",
+        # local coordinates
+        "loadsave_localcoordinates()",
         # optical system
         "loadsave_opticalsystem_empty()"
         # materials
         # isotropic, catalog, anisotropic, grin
     ]
 
-    true_false_list = [eval(fun) for fun in my_func_list]
+    true_false_list = [eval(funstring) for funstring in my_func_list]
 
     for funname, funval in zip(my_func_list, true_false_list):
         print(funname + ": " + str(funval))
