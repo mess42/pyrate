@@ -195,8 +195,6 @@ def loadsave_surface():
         lc.addChild(lc2)
         lc.addChild(lc3)
 
-        # TODO: child coordinate systems lead to core dumps
-
         ap = CircularAperture.p(lc2)
         sh = Conic.p(lc3, curv=0.01, cc=-1)
 
@@ -224,6 +222,20 @@ def loadsave_opticalsystem_empty():
         # TODO: compare drawing?
         return True
 
+    print("************************************************")
+    print("************************************************")
+    print("************************************************")
+
+    print("************************************************")
+    print("*************OPTICAL SYSTEM RECONST*************")
+    print("************************************************")
+    print("************************************************")
+
+
+    print("************************************************")
+    print("************************************************")
+    print("************************************************")
+    print("************************************************")
     return create_save_load_compare("system_empty", create, compare)
 
 

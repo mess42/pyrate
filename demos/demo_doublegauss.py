@@ -356,5 +356,6 @@ system_dump.save_json(serialization_path + "double_gauss.json")
 system_dump.save_yaml(serialization_path + "double_gauss.yaml")
 
 # TODO: later
-# s2 = Deserializer(system_dump, True, True).class_instance
-# draw(s2)
+#s2 = Deserializer.load_json(serialization_path + "double_gauss.json",
+#                            True, True)
+#draw(s2)

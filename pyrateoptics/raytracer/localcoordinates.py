@@ -80,6 +80,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         structure_dict = {}
 
         annotations_dict["tiltThenDecenter"] = tiltThenDecenter
+        annotations_dict["globalcoordinates"] = globalcoordinates.tolist()
+        annotations_dict["localdecenter"] = localdecenter.tolist()
+        annotations_dict["localrotation"] = localrotation.tolist()
+        annotations_dict["localbasis"] = localbasis.tolist()
+
         structure_dict["decx"] = decxv
         structure_dict["decy"] = decyv
         structure_dict["decz"] = deczv
@@ -88,14 +93,28 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         structure_dict["tiltz"] = tiltzv
         structure_dict["parent"] = parent
         structure_dict["_LocalCoordinates__children"] = children
-        structure_dict["globalcoordinates"] = globalcoordinates
-        structure_dict["localdecenter"] = localdecenter
-        structure_dict["localrotation"] = localrotation
-        structure_dict["localbasis"] = localbasis
 
         lc = cls(annotations_dict, structure_dict, name)
         lc.update()  # initial update
         return lc
+
+    def updateAnnotations(self):
+        self.annotations["globalcoordinates"] = self.globalcoordinates.tolist()
+        self.annotations["localdecenter"] = self.localdecenter.tolist()
+        self.annotations["localrotation"] = self.localrotation.tolist()
+        self.annotations["localbasis"] = self.localbasis.tolist()
+
+    def initializeFromAnnotations(self):
+        """
+        Further initialization stages from annotations which need to be
+        done to get a valid object.
+        """
+
+        self.globalcoordinates = np.array(self.annotations["globalcoordinates"])
+        self.localdecenter = np.array(self.annotations["localdecenter"])
+        self.localrotation = np.array(self.annotations["localrotation"])
+        self.localbasis = np.array(self.annotations["localbasis"])
+
 
     def setKind(self):
         self.kind = "localcoordinates"
@@ -269,6 +288,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             # TODO: removed .T on localbasis to obtain correct behavior;
             # examine!
 
+        self.updateAnnotations()
         self.debug("updating children")
 
         for ch in self.__children:

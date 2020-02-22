@@ -152,11 +152,69 @@ class Deserializer(BaseLogger):
         reconstruction of subclasses. Source checked and variables checked
         are to be set to True by the user.
         """
-        (class_to_be_deserialized, subclasses_dict,
-         optimizable_variables_pool_dict, functionobjects_pool_dict) =\
-            self.serialization_list
 
-        self.debug("Deserializing class")
+        def is_structure_free_of_uuids(structure_dict):
+            """
+            Checks whether structure dict is free of uuids
+            If this is the case the reconstruction process is finished.
+            Else there are either unreconstructed variables or classes
+            in this structure dict.
+            """
+
+            def free_of_uuid(var):
+                """
+                This function is called recursively to verify that a
+                given nested structure is free of UUIDs as checked by
+                isUUID.
+                """
+                if self.isUUID(var):
+                    return False
+                elif isinstance(var, list):
+                    return all([free_of_uuid(v) for v in var])
+                elif isinstance(var, dict):
+                    return all([free_of_uuid(v) for v in var.values()])
+                else:
+                    return True
+            return free_of_uuid(structure_dict)
+
+        def reconstruct_variables(structure_dict,
+                                  reconstructed_variables_dict):
+            """
+            This function is called to reconstruct variables from a pool
+            with in a necessary sub class of a class which is to be
+            reconstructed. It uses structure_dict of the class to be
+            reconstructed and returns a modified version where the
+            variables UUIDs are substituted by the appropriate objects.
+            """
+
+            def reconstructRecursively(variable,
+                                       reconstructed_variables_dict):
+                if self.isUUID(variable):
+                    if variable in reconstructed_variables_dict:
+                        return reconstructed_variables_dict[variable]
+                    else:
+                        return variable
+                elif isinstance(variable, list):
+                    return [
+                        reconstructRecursively(
+                                part,
+                                reconstructed_variables_dict)
+                        for part in variable]
+                elif isinstance(variable, dict):
+                    return dict(
+                            [
+                                (key, reconstructRecursively(
+                                        part,
+                                        reconstructed_variables_dict))
+                                for (key, part) in variable.items()])
+                else:
+                    return variable
+
+            new_structure_dict = reconstructRecursively(
+                    structure_dict,
+                    reconstructed_variables_dict)
+
+            return new_structure_dict
 
         def reconstruct_class(class_to_be_reconstructed, subclasses_dict,
                               reconstructed_variables_dict):
@@ -169,69 +227,6 @@ class Deserializer(BaseLogger):
             dictionary and finally constructs the ClassWithOptimizableVariables
             object.
             """
-
-            def is_structure_free_of_uuids(structure_dict):
-                """
-                Checks whether structure dict is free of uuids
-                If this is the case the reconstruction process is finished.
-                Else there are either unreconstructed variables or classes
-                in this structure dict.
-                """
-
-                def free_of_uuid(var):
-                    """
-                    This function is called recursively to verify that a
-                    given nested structure is free of UUIDs as checked by
-                    isUUID.
-                    """
-                    if self.isUUID(var):
-                        return False
-                    elif isinstance(var, list):
-                        return all([free_of_uuid(v) for v in var])
-                    elif isinstance(var, dict):
-                        return all([free_of_uuid(v) for v in var.values()])
-                    else:
-                        return True
-                return free_of_uuid(structure_dict)
-
-            def reconstruct_variables(structure_dict,
-                                      reconstructed_variables_dict):
-                """
-                This function is called to reconstruct variables from a pool
-                with in a necessary sub class of a class which is to be
-                reconstructed. It uses structure_dict of the class to be
-                reconstructed and returns a modified version where the
-                variables UUIDs are substituted by the appropriate objects.
-                """
-
-                def reconstructRecursively(variable,
-                                           reconstructed_variables_dict):
-                    if self.isUUID(variable):
-                        if variable in reconstructed_variables_dict:
-                            return reconstructed_variables_dict[variable]
-                        else:
-                            return variable
-                    elif isinstance(variable, list):
-                        return [
-                            reconstructRecursively(
-                                    part,
-                                    reconstructed_variables_dict)
-                            for part in variable]
-                    elif isinstance(variable, dict):
-                        return dict(
-                                [
-                                    (key, reconstructRecursively(
-                                            part,
-                                            reconstructed_variables_dict))
-                                    for (key, part) in variable.items()])
-                    else:
-                        return variable
-
-                new_structure_dict = reconstructRecursively(
-                        structure_dict,
-                        reconstructed_variables_dict)
-
-                return new_structure_dict
 
             def reconstruct_subclasses(structure_dict, subclasses_dict,
                                        reconstructed_variables_dict):
@@ -279,7 +274,10 @@ class Deserializer(BaseLogger):
                                   (str(val)[:strlimit] if len(str(val)) > strlimit else str(val))
                                   for key, val in mydict.items()])
 
-
+            if not isinstance(class_to_be_reconstructed, dict):
+                self.debug("Class was already modified or reconstructed:")
+                self.debug("Is not of type dict, leaving unchanged.")
+                return class_to_be_reconstructed
             self.debug("RECONSTRUCT SUB CLASSES ENTER:")
             self.debug("Reconstructing structure dictionary")
             structure_dict = class_to_be_reconstructed["structure"]
@@ -305,18 +303,41 @@ class Deserializer(BaseLogger):
             if class_to_be_reconstructed["unique_id"] in subclasses_dict:
                 self.debug("Found class to be reconstructed id in subclasses!")
                 self.debug("Removed the following item from subclass dictionary:")
-                self.debug(str(subclasses_dict.pop(class_to_be_reconstructed["unique_id"])))
+                self.debug(str(subclasses_dict.pop(
+                        class_to_be_reconstructed["unique_id"]
+                        )
+                ))
+                # TODO: what if the class is still needed?
             structure_dict = reconstruct_subclasses(structure_dict,
                                                     subclasses_dict,
                                                     reconstructed_variables_dict)
-            self.debug("No UUIDs in structure dict left? (Shouldn\'t be after reconstruction!)" +
-                  str(is_structure_free_of_uuids(structure_dict)))
+            found_no_uuids = is_structure_free_of_uuids(structure_dict)
+            self.debug("No UUIDs in structure dict left? " +
+                       "(Shouldn\'t be after reconstruction!) " +
+                       str(found_no_uuids))
+            if not found_no_uuids:
+                self.info("Found some uuids anyway.")
+                self.debug("Second attempt to reconstruct them.")
+                structure_dict = reconstruct_subclasses(
+                        structure_dict,
+                        subclasses_dict,
+                        reconstructed_variables_dict)
+                self.debug(pformat(subclasses_dict))
+                found_no_uuids_now = is_structure_free_of_uuids(
+                        structure_dict)
+                if not found_no_uuids_now:
+                    self.debug("Found uuids still after second attempt " +
+                               "of reconstruction.")
+                    self.debug("GIVING UP!")
+                else:
+                    self.debug("No UUIDs left after second attempt. Pheew!")
+            else:
+                self.info("Structure properly reconstructed.")
 
             self.debug("Generating final object (constructor)")
             kind = class_to_be_reconstructed["kind"]
             name = class_to_be_reconstructed["name"]
             anno = class_to_be_reconstructed["annotations"]
-            print("Reconstructing " + kind + " " + name)
 
             self.debug("Name: " + name)
             self.debug("Kind: " + kind)
@@ -332,8 +353,22 @@ class Deserializer(BaseLogger):
             myclass = self.classes_dictionary[kind](
                     anno,
                     structure_dict, name=name)
+            self.info("Reconstructed " + kind + " " + name)
+            #subclasses_dict[class_to_be_reconstructed["unique_id"]] = myclass
             self.debug("RECONSTRUCT SUB CLASSES LEAVE:")
             return myclass
+
+        """
+        STARTING ACTUAL DESERIALIALIZATION CODE
+        """
+
+        (class_to_be_deserialized, subclasses_dict,
+         optimizable_variables_pool_dict, functionobjects_pool_dict) =\
+            self.serialization_list
+
+        self.debug("Deserializing class")
+        self.debug(pformat(class_to_be_deserialized))
+        self.debug(pformat(subclasses_dict))
 
         """
         Reconstruct the variables pool by its own reconstruction functions.
@@ -341,14 +376,34 @@ class Deserializer(BaseLogger):
         reconstruct_class in a recursive manner. Return the final object.
         """
 
+        self.info("Deserializing variables")
         optimizable_variables_pool = OptimizableVariablesPool.fromDictionary(
                 optimizable_variables_pool_dict,
                 functionobjects_pool_dict, source_checked, variables_checked)
 
-        mynewobject = reconstruct_class(class_to_be_deserialized,
-                                        subclasses_dict,
-                                        optimizable_variables_pool.variables_pool)
+        self.info("Inserting variables into subclasses_dict")
+        new_subclasses_dict = {}
+        for (key, value) in subclasses_dict.items():
+            newvalue = value.copy()
+            newvalue["structure"] = reconstruct_variables(
+                    newvalue["structure"],
+                    optimizable_variables_pool.variables_pool
+                    )
+            new_subclasses_dict[key] = newvalue
+        self.debug(pformat(new_subclasses_dict))
+        self.info("Reconstructing classes with no recursive structure")
+        for (key, value) in new_subclasses_dict.items():
+            if is_structure_free_of_uuids(value["structure"]):
+                new_subclasses_dict[key] = reconstruct_class(
+                        new_subclasses_dict[key], {},
+                        optimizable_variables_pool.variables_pool)
+        self.debug(pformat(new_subclasses_dict))
 
+        self.debug("Reconstructing class")
+        mynewobject = reconstruct_class(class_to_be_deserialized,
+                                        new_subclasses_dict,
+                                        optimizable_variables_pool.variables_pool)
+        self.info("Returning Class")
         self.class_instance = mynewobject
 
     @staticmethod

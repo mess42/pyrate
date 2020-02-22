@@ -1119,6 +1119,7 @@ class ZernikeANSI(Zernike):
 
     @staticmethod
     def jtonm(j):
+        j -= 1  # ZernikeANSI start at 0, but coefficients start at 1
         n = math.floor((-1. + math.sqrt(1. + 8. * j)) * 0.5)
         m = n-2*j+n*(n+1)
         return (n, -m)
@@ -1128,6 +1129,7 @@ class ZernikeANSI(Zernike):
         (n, m) = n_m_pair
 
         j = int(((n + 2)*n + m)/2)
+        j += 1  # Zernike ANSI start at 0, but coefficients start at 1
         return j
 
 
