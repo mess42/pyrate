@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from copy import copy
 
-from .base_ui_transform import (transformation_dictionary_to_ui,
+from .base_ui_transform import (TRANSFORMATION_DICTIONARY_TO_UI,
                                 TRANSFORMATION_DICTIONARY_FROM_UI,
                                 TRANSFORMATION_DICTIONARY_UI_STRING)
 from .iterators import (OptimizableVariableCollector,
