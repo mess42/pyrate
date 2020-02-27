@@ -899,7 +899,7 @@ class GridSag(ExplicitShape):
     def setKind(self):
         self.kind = "shape_GridSag"
 
-    def initializeFromAnnotations(self):
+    def initialize_from_annotations(self):
         """
         Further initialization stages from annotations which need to be
         done to get a valid object.

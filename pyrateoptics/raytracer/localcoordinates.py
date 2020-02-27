@@ -104,7 +104,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         self.annotations["localrotation"] = self.localrotation.tolist()
         self.annotations["localbasis"] = self.localbasis.tolist()
 
-    def initializeFromAnnotations(self):
+    def initialize_from_annotations(self):
         """
         Further initialization stages from annotations which need to be
         done to get a valid object.

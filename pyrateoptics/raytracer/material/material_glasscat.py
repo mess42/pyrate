@@ -456,7 +456,7 @@ class CatalogMaterial(IsotropicMaterial):
             n += dispFun.getIndex(wave)
         return n
 
-    def initializeFromAnnotations(self):
+    def initialize_from_annotations(self):
         data = self.annotations["yml_dictionary"]["DATA"]
 
         if len(data) > 2:

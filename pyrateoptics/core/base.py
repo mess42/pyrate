@@ -38,7 +38,8 @@ class ClassWithOptimizableVariables(BaseLogger):
     class inheritance and interface the child class with some type of
     optimizer.
     """
-    def __init__(self, annotations_dict={}, structure_dict={}, name="",
+    def __init__(self, annotations_dict=None,
+                 structure_dict=None, name="",
                  serializationfilter=None):
         """
         Initialize with empty dict.
@@ -49,6 +50,10 @@ class ClassWithOptimizableVariables(BaseLogger):
 
         """
         super(ClassWithOptimizableVariables, self).__init__(name=name)
+        if annotations_dict is None:
+            annotations_dict = {}
+        if structure_dict is None:
+            structure_dict = {}
 
         self.annotations = annotations_dict
         self.serializationfilter =\
@@ -57,14 +62,19 @@ class ClassWithOptimizableVariables(BaseLogger):
         for (key, value) in structure_dict.items():
             if not hasattr(self, key):
                 self.__setattr__(key, value)
-        self.initializeFromAnnotations()
+        self.initialize_from_annotations()
 
     @classmethod
-    def p(cls, *args, **kwargs):
+    def p(cls, **kwargs):
+        """
+        Class initialization via parameters and filling up
+        annotations and structure dictionary. To be implemented
+        by every child class.
+        """
         name = kwargs.get("name", "")
         return cls({}, {}, name)
 
-    def initializeFromAnnotations(self):
+    def initialize_from_annotations(self):
         """
         Further initialization stages from annotations which need to be
         done to get a valid object.
@@ -72,5 +82,7 @@ class ClassWithOptimizableVariables(BaseLogger):
         pass
 
     def setKind(self):
+        """
+        Set kind of object. Should be overridden in child classes.
+        """
         self.kind = "classwithoptimizablevariables"
-
