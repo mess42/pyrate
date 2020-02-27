@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from copy import copy
 
 from .base_ui_transform import (transformation_dictionary_to_ui,
-                                transformation_dictionary_from_ui,
-                                transformation_dictionary_ui_string)
+                                TRANSFORMATION_DICTIONARY_FROM_UI,
+                                TRANSFORMATION_DICTIONARY_UI_STRING)
 from .iterators import (OptimizableVariableCollector,
                         SerializationIterator)
 from .log import BaseLogger
@@ -116,7 +116,7 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
         if transform_dictionary_value is None:
             transform_dictionary_value = transformation_dictionary_to_ui
         if transform_dictionary_strings is None:
-            transform_dictionary_strings = transformation_dictionary_ui_string
+            transform_dictionary_strings = TRANSFORMATION_DICTIONARY_UI_STRING
         # prevent modification
         string_dict_to_ui = copy(dict_to_ui)
         string_dict_to_ui["variables_list"] = []
@@ -163,9 +163,9 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
         readable for ClassWithOptimizableVariables.
         """
         if transform_dictionary_value is None:
-            transform_dictionary_value = transformation_dictionary_from_ui
+            transform_dictionary_value = TRANSFORMATION_DICTIONARY_FROM_UI
         if transform_dictionary_strings is None:
-            transform_dictionary_strings = transformation_dictionary_ui_string
+            transform_dictionary_strings = TRANSFORMATION_DICTIONARY_UI_STRING
 
         dict_from_ui = copy(string_dict_from_ui)
         dict_from_ui["variables_list"] = []
