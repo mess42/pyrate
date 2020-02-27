@@ -340,7 +340,7 @@ for r in r2:
 plt.show()
 
 system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
-        s.elements["stdelem"].surfaces["elem2rear"].shape).queryForDictionary()
+        s.elements["stdelem"].surfaces["elem2rear"].shape).query_for_dictionary()
 
 pprint(system_gui_toplevel)
 

@@ -55,7 +55,12 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
     def setKind(self):
         self.kind = "uiinterface"
 
-    def queryForDictionary(self):
+    def query_for_dictionary(self):
+        """
+        Query ClassWithOptimizableVariables for dictionary
+        of OptimizableVariables. This is a function for either
+        UI interaction or easy file writeout.
+        """
 
         dict_to_ui = SerializationIterator(self.myclass).dictionary
 
@@ -67,12 +72,17 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
         dict_to_ui["variables_list"] = myvarlist
         return dict_to_ui
 
-    def modifyFromDictionary(self, dict_from_ui, override_unique_id=False):
+    def modify_from_dictionary(self, dict_from_ui, override_unique_id=False):
+        """
+        Modify ClassWithOptimizableVariables from dictionary
+        from UI. This is a function for either UI interaction
+        or easy file readin.
+        """
         # make copy from dict to prevent modification
         dict_from_ui_copy = copy(dict_from_ui)
         # check later if protocol version is changed
 
-        protocol_version = dict_from_ui_copy.pop("protocol_version")
+        # protocol_version = dict_from_ui_copy.pop("protocol_version")
         variables_list = dict_from_ui_copy.pop("variables_list")
         if not override_unique_id:
             dict_from_ui_copy.pop("unique_id")
@@ -85,18 +95,28 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
 
         for ov in myvarlist:
             for (variable_name, variable_value, can_be_modified)\
-             in variables_list:
-                    if ov.name == variable_name and can_be_modified:
-                        ov.set_value(variable_value)
+                    in variables_list:
+                if ov.name == variable_name and can_be_modified:
+                    ov.set_value(variable_value)
 
         # update values of modifyable variables
         # this algorithm is of O(N^2) but since N is of order 10 this is not
         # critical
 
-    def transformDictionaryForUI(
-            self, dict_to_ui,
-            transform_dictionary_value=transformation_dictionary_to_ui,
-            transform_dictionary_strings=transformation_dictionary_ui_string):
+    @staticmethod
+    def transform_dictionary_for_ui(
+            dict_to_ui,
+            transform_dictionary_value=None,
+            transform_dictionary_strings=None):
+        """
+        Transform dictionary of OptimizableVariables for
+        UI. This is a necessary step to improve the user
+        experience.
+        """
+        if transform_dictionary_value is None:
+            transform_dictionary_value = transformation_dictionary_to_ui
+        if transform_dictionary_strings is None:
+            transform_dictionary_strings = transformation_dictionary_ui_string
         # prevent modification
         string_dict_to_ui = copy(dict_to_ui)
         string_dict_to_ui["variables_list"] = []
@@ -119,34 +139,44 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
 
             string_final_value = str(final_value)
             string_transform = transform_dictionary_strings.get(
-                    final_var_name, None)
+                final_var_name, None)
             if string_transform is not None:
                 string_final_value = string_transform(string_final_value)
             final_type = float if isinstance(final_value, (int, float)) else\
                 type(final_value)
 
-            string_dict_to_ui["variables_list"].append(
-                    (final_var_name,
-                     string_final_value,
-                     var_modifiable,
-                     final_type))
+            string_dict_to_ui["variables_list"].append((
+                final_var_name,
+                string_final_value,
+                var_modifiable,
+                final_type))
 
         return string_dict_to_ui
 
-    def transformDictionaryFromUI(
-            self, string_dict_from_ui,
-            transform_dictionary_value=transformation_dictionary_from_ui,
-            transform_dictionary_strings=transformation_dictionary_ui_string):
+    @staticmethod
+    def transform_dictionary_from_ui(
+            string_dict_from_ui,
+            transform_dictionary_value=None,
+            transform_dictionary_strings=None):
+        """
+        Transforms dictionary from UI into dictionary
+        readable for ClassWithOptimizableVariables.
+        """
+        if transform_dictionary_value is None:
+            transform_dictionary_value = transformation_dictionary_from_ui
+        if transform_dictionary_strings is None:
+            transform_dictionary_strings = transformation_dictionary_ui_string
+
         dict_from_ui = copy(string_dict_from_ui)
         dict_from_ui["variables_list"] = []
         transform_kind_to_use = transform_dictionary_value.get(
-                dict_from_ui["kind"], None)
+            dict_from_ui["kind"], None)
         for (transformed_var_name,
              string_transformed_var_value,
              var_modifiable, var_type) in string_dict_from_ui["variables_list"]:
 
             string_transform = transform_dictionary_strings.get(
-                    transformed_var_name, None)
+                transformed_var_name, None)
             string_var_value = string_transformed_var_value
 
             # reverse string transform
@@ -168,16 +198,26 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
                     final_value = invtransformed_value(final_value)
 
             dict_from_ui["variables_list"].append(
-                    (final_var_name, final_value, var_modifiable))
+                (final_var_name, final_value, var_modifiable))
         return dict_from_ui
 
-    def queryUI(self):
-        dict_to_ui = self.queryForDictionary()
+    def query_ui(self):
+        """
+        Query ClassWithOptimizableVariables for dictionary,
+        transform it into UI compatible form and put it into
+        string dictionary to be used by UI.
+        """
+        dict_to_ui = self.query_for_dictionary()
         transformed_string_dict_to_ui =\
-            self.transformDictionaryForUI(dict_to_ui)
+            self.transform_dictionary_for_ui(dict_to_ui)
         return transformed_string_dict_to_ui
 
-    def modifyUI(self, string_dict_from_ui):
+    def modify_ui(self, string_dict_from_ui):
+        """
+        Gets string dictionary from UI, transform it back into
+        readable form for UI interface. Get back a form which
+        can be used by ClassWithOptimzableVariables.
+        """
         invtransformed_dict_from_ui =\
-            self.transformDictionaryFromUI(string_dict_from_ui)
-        self.modifyFromDictionary(invtransformed_dict_from_ui)
+            self.transform_dictionary_from_ui(string_dict_from_ui)
+        self.modify_from_dictionary(invtransformed_dict_from_ui)

@@ -150,7 +150,7 @@ draw(s, [(r_red, "red"), (r_blue, "blue")])
 
 system_dump = Serializer(s).serialization
 system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
-        s.elements["droplet"].surfaces["surf4"].shape).queryForDictionary()
+        s.elements["droplet"].surfaces["surf4"].shape).query_for_dictionary()
 
 #pprint(system_gui_toplevel)
 #pprint(system_dump)
