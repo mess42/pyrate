@@ -197,4 +197,4 @@ if __name__ == "__main__":
         foo3 = FunctionObject.from_dictionary(foo3dict, True, True)
         print(foo3.functions["r"](1, 2, 3))
 
-main()
+    main()
