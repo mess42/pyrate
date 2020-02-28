@@ -29,7 +29,7 @@ import numpy as np
 
 from .log import BaseLogger
 from .base import ClassWithOptimizableVariables
-from .optimizable_variable import OptimizableVariable, FixedState
+from .optimizable_variable import OptimizableVariable
 
 
 class AbstractIterator(BaseLogger):
@@ -87,9 +87,9 @@ class AbstractIterator(BaseLogger):
         if self.isTraversableElement(variable, *args, **kwargs):
             if self.isCollectableElement(variable, *args, **kwargs):
                 newkeystring = keystring + self.collectAccessSpecifier(
-                        variable,
-                        self.getCollectableVariableIdentifier(variable),
-                        *args, **kwargs)
+                    variable,
+                    self.getCollectableVariableIdentifier(variable),
+                    *args, **kwargs)
                 self.collectParentChild(type(variable), variable, None)
                 self.collectElement(variable, newkeystring, *args, **kwargs)
                 return
@@ -105,7 +105,7 @@ class AbstractIterator(BaseLogger):
             elif isinstance(variable, dict):
                 for (key, value) in variable.items():
                     newkeystring = keystring + self.collectAccessSpecifier(
-                            variable, key, *args, **kwargs)
+                        variable, key, *args, **kwargs)
                     self.collectParentChild(type(variable), variable, value)
                     self.traverse(value, newkeystring, *args, **kwargs)
             elif self.isSubInstance(variable):
@@ -115,7 +115,7 @@ class AbstractIterator(BaseLogger):
                     self.collectAccessSpecifier(
                         variable,
                         self.getSubInstanceVariableIdentifier(
-                                variable
+                            variable
                         ),
                         *args, **kwargs)
                 self.collectParentChild(type(variable), variable,
@@ -147,9 +147,9 @@ class AbstractModifyingIterator(AbstractIterator):
         if self.isTraversableElement(value, *args, **kwargs):
             if self.isCollectableElement(value, *args, **kwargs):
                 newkeystring = keystring + self.collectAccessSpecifier(
-                        value,
-                        self.getCollectableVariableIdentifier(value),
-                        *args, **kwargs)
+                    value,
+                    self.getCollectableVariableIdentifier(value),
+                    *args, **kwargs)
                 self.collectParentChild(type(value), value, None)
                 self.modifyElement(variable_reference, newkeystring,
                                    *args, **kwargs)
@@ -172,7 +172,7 @@ class AbstractModifyingIterator(AbstractIterator):
                 new_dict = {}
                 for (key, dict_val) in value.items():
                     newkeystring = keystring + self.collectAccessSpecifier(
-                            value, key, *args, **kwargs)
+                        value, key, *args, **kwargs)
                     self.collectParentChild(type(value), value, dict_val)
                     dict_val_reference = VariableReference(dict_val)
                     self.traverse_modify(dict_val_reference, newkeystring,
@@ -186,7 +186,7 @@ class AbstractModifyingIterator(AbstractIterator):
                     self.collectAccessSpecifier(
                         value,
                         self.getSubInstanceVariableIdentifier(
-                                value
+                            value
                         ),
                         *args, **kwargs)
                 self.collectParentChild(type(value), value,
@@ -349,8 +349,8 @@ class OptimizableVariableSetKeyIterator(
     def __init__(self, class_instance, key_assignment_dictionary, run=True,
                  *args, **kwargs):
         super().__init__(
-                class_instance,
-                run=run, *args, **kwargs)
+            class_instance,
+            run=run, *args, **kwargs)
         self.key_assignment_dictionary = key_assignment_dictionary
 
     def run(self, shortkeys=True, *args, **kwargs):
