@@ -129,7 +129,7 @@ class OptimizableVariablesPool(BaseLogger):
 
             return (res, all_pickup_vars)
 
-        functionobjects_pool = FunctionObjectsPool.fromDictionary(
+        functionobjects_pool = FunctionObjectsPool.from_dictionary(
             functionpool_dictionary, source_checked, variables_checked)
 
         variables_pool = {}

@@ -84,7 +84,7 @@ class Serializer(BaseLogger):
                        ) for (k, v) in serialization.classes_dictionary.items()]
                      ),
                 optimizable_variables_pool.toDictionary(),
-                functionobjects_pool.toDictionary()
+                functionobjects_pool.to_dictionary()
         ]
 
     def save_json(self, filename):

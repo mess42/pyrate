@@ -41,14 +41,21 @@ class FunctionObjectsPool(BaseLogger):
     def setKind(self):
         self.kind = "functionobjectspool"
 
-    def toDictionary(self):
+    def to_dictionary(self):
+        """
+        Save functionobjects pool in dictionary.
+        """
         result_dictionary = {}
-        for (key, fo) in self.functionobjects_dictionary.items():
-            result_dictionary[key] = fo.to_dictionary()
+        for (key, funcobj) in self.functionobjects_dictionary.items():
+            result_dictionary[key] = funcobj.to_dictionary()
         return result_dictionary
 
     @staticmethod
-    def fromDictionary(dictionary, source_checked, variables_checked, name=""):
+    def from_dictionary(dictionary, source_checked, variables_checked,
+                        name=""):
+        """
+        Loads functionsobjects pool from dictionary.
+        """
         result_dictionary = {}
         for (key, fodict) in dictionary.items():
             result_dictionary[key] = FunctionObject.from_dictionary(
