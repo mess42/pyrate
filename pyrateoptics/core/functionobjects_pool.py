@@ -44,13 +44,13 @@ class FunctionObjectsPool(BaseLogger):
     def toDictionary(self):
         result_dictionary = {}
         for (key, fo) in self.functionobjects_dictionary.items():
-            result_dictionary[key] = fo.toDictionary()
+            result_dictionary[key] = fo.to_dictionary()
         return result_dictionary
 
     @staticmethod
     def fromDictionary(dictionary, source_checked, variables_checked, name=""):
         result_dictionary = {}
         for (key, fodict) in dictionary.items():
-            result_dictionary[key] = FunctionObject.fromDictionary(
+            result_dictionary[key] = FunctionObject.from_dictionary(
                 fodict, source_checked, variables_checked)
         return FunctionObjectsPool(result_dictionary, name=name)

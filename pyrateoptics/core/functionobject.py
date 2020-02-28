@@ -28,55 +28,78 @@ from .log import BaseLogger
 
 
 class FunctionObject(BaseLogger):
+    """
+    This class encapsulates the loading and saving of functions
+    within a text object as Python code. This also means that
+    the invokation of a Function object may lead to the
+    execution of unsafe code. Therefore if binding these
+    functions to a GUI or loading from an external source
+    using the flags sourcecode_security_checked and
+    globals_security_checked is mandatory.
+    """
 
     def __init__(self, initial_sourcecode="",
-                 initial_function_names=[],
+                 initial_function_names=None,
                  initial_globals_dictionary=None,
                  sourcecode_security_checked=True,
                  globals_security_checked=True,
                  name=""):
         super(FunctionObject, self).__init__(name=name)
-        self.setSource(initial_sourcecode)
-        self.setGlob(initial_globals_dictionary)
+        if initial_function_names is None:
+            initial_function_names = []
+        self.set_source(initial_sourcecode)
+        self.set_glob(initial_globals_dictionary)
         self.sourcecode_security_checked = sourcecode_security_checked
         self.globals_security_checked = globals_security_checked
         self.functions = {}
         if initial_sourcecode != "":
-            self.generateFunctionsFromSource(initial_function_names)
+            self.generate_functions_from_source(initial_function_names)
 
     def setKind(self):
-        self.kind = "functionobject"
+        self.kind = "functionobject."
 
-    def setSource(self, source):
+    def set_source(self, source):
+        "Setter for source code."
         self.__source = source
         self.sourcecode_security_checked = False
 
-    def getSource(self):
+    def get_source(self):
+        "Getter for source code."
         return self.__source
 
-    def setGlob(self, glob=None):
+    def set_glob(self, glob=None):
+        "Setter for global variables."
         self.__global_variables = glob
         self.globals_security_checked = False
 
-    def getGlob(self):
+    def get_glob(self):
+        "Getter for global variables."
         return self.__global_variables
 
-    source = property(fget=getSource, fset=setSource)
-    global_variables = property(fget=getGlob, fset=setGlob)
+    source = property(fget=get_source, fset=set_source)
+    global_variables = property(fget=get_glob, fset=set_glob)
 
     def load(self, filename):
-        f = open(filename, "rt")
-        self.source = f.read()
-        f.close()
+        """
+        Loads source code from file, but not executes it.
+        """
+        with open(filename, "rt") as filepointer:
+            self.source = filepointer.read()
         self.info(self.source)
         self.sourcecode_security_checked = False
 
     def save(self, filename):
-        f = open(filename, "wt")
-        f.write(self.source)
-        f.close()
+        """
+        Saves source code to file.
+        """
+        with open(filename, "wt") as filepointer:
+            filepointer.write(self.source)
 
-    def generateFunctionsFromSource(self, function_names):
+    def generate_functions_from_source(self, function_names):
+        """
+        Performs exec call if all flags are set to True.
+        Functions are accessible by dictionary at the end.
+        """
         if not self.sourcecode_security_checked\
                 or not self.globals_security_checked:
             self.warning("Cannot execute unchecked code: " + self.source)
@@ -96,10 +119,15 @@ class FunctionObject(BaseLogger):
             except SyntaxError:
                 self.error("Syntax error caught")
 
-            for fn in function_names:
-                self.functions[fn] = localsdict.get(fn, None)
+            for function_name in function_names:
+                self.functions[function_name] =\
+                    localsdict.get(function_name, None)
 
-    def toDictionary(self):
+    def to_dictionary(self):
+        """
+        Convert function object to dictionary for easy
+        serialization or UI interaction.
+        """
         res = self.getBasicInfo()
         res["sourcecode"] = self.source
         res["global_variables"] = self.global_variables
@@ -107,55 +135,66 @@ class FunctionObject(BaseLogger):
         return res
 
     @staticmethod
-    def fromDictionary(dictionary, checked_source, checked_globals):
-        fo = FunctionObject()
-        fo.setSource(dictionary.get("sourcecode", ""))
-        fo.setGlob(dictionary.get("global_variables", None))
-        fo.globals_security_checked = checked_globals
-        fo.sourcecode_security_checked = checked_source
-        fo.generateFunctionsFromSource(dictionary.get("functions", []))
-        return fo
+    def from_dictionary(dictionary, checked_source, checked_globals):
+        """
+        Create function object from dictionary for easy
+        serialization or UI interaction.
+        """
+        fobj = FunctionObject()
+        fobj.set_source(dictionary.get("sourcecode", ""))
+        fobj.set_glob(dictionary.get("global_variables", None))
+        fobj.globals_security_checked = checked_globals
+        fobj.sourcecode_security_checked = checked_source
+        fobj.generate_functions_from_source(dictionary.get("functions", []))
+        return fobj
 
 
 if __name__ == "__main__":
 
-    import json
+    def main():
+        """
+        Some test and demonstration code.
+        """
+        import json
 
-    s = """
-import math
-from pyrateoptics.raytracer.helpers_math import rodrigues
-import numpy as np
-import os
+        string_var = """
+        import math
+        from pyrateoptics.raytracer.helpers_math import rodrigues
+        import numpy as np
+        import os
 
-f = lambda x: -x**2
-def g(x):
-    return x**2
+        f = lambda x: -x**2
+        def g(x):
+        return x**2
 
-def h(x):
-    return math.sqrt(x**2 + 1)
+        def h(x):
+        return math.sqrt(x**2 + 1)
 
-def r(x, y, z):
-    os.system("kcalc")
-    print("Usage of FunctionObject is a security risk, be careful!")
-    return np.dot(rodrigues(0.01, np.array([0, 1, 0])), np.array([x, y, z]))
-"""
+        def r(x, y, z):
+        os.system("kcalc")
+        print("Usage of FunctionObject is a security risk, be careful!")
+        return np.dot(rodrigues(0.01,
+                                np.array([0, 1, 0])), np.array([x, y, z]))
+        """
 
-    foo1 = FunctionObject(s, name="myfoo1")
-    foo1.save("./myfunc.py")
+        foo1 = FunctionObject(string_var, name="myfoo1")
+        foo1.save("./myfunc.py")
 
-    foo2 = FunctionObject(name="myfoo2")
-    foo2.load("./myfunc.py")
-    foo2.sourcecode_security_checked = True
-    foo2.generateFunctionsFromSource(["f", "g", "h", "r"])
-    print(foo2.functions["r"](3, 4, 5))
+        foo2 = FunctionObject(name="myfoo2")
+        foo2.load("./myfunc.py")
+        foo2.sourcecode_security_checked = True
+        foo2.generate_functions_from_source(["f", "g", "h", "r"])
+        print(foo2.functions["r"](3, 4, 5))
 
-    fp = open("./myfo.json", "wt")
-    json.dump(foo2.toDictionary(), fp, indent=4)
-    fp.close()
+        filep = open("./myfo.json", "wt")
+        json.dump(foo2.to_dictionary(), filep, indent=4)
+        filep.close()
 
-    fp = open("./myfo.json", "rt")
-    foo3dict = json.load(fp)
-    fp.close()
+        filep = open("./myfo.json", "rt")
+        foo3dict = json.load(filep)
+        filep.close()
 
-    foo3 = FunctionObject.fromDictionary(foo3dict, True, True)
-    print(foo3.functions["r"](1, 2, 3))
+        foo3 = FunctionObject.from_dictionary(foo3dict, True, True)
+        print(foo3.functions["r"](1, 2, 3))
+
+main()

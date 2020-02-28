@@ -141,7 +141,7 @@ class PickupState(State):
             functionobject_functionname_tuple
         self.parameters["args"] = args
         self.isvalid = isvalid
-        functionobject.generateFunctionsFromSource([functionname])
+        functionobject.generate_functions_from_source([functionname])
 
     def set_value(self, value):
         pass
@@ -278,7 +278,7 @@ class OptimizableVariable(BaseLogger):
             functionobject_functionname_triple
         (fo, ftrafo, finvtrafo) =\
             self._transform_functionobject_functionname_triple
-        fo.generateFunctionsFromSource([ftrafo, finvtrafo])
+        fo.generate_functions_from_source([ftrafo, finvtrafo])
 
     def evaluate_transformed(self):
         """
