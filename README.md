@@ -54,7 +54,7 @@ via `pip install -e .`. As a starting point, set up your initial system
 by using the convenience functions in the main namespace, see the wiki
 for an example.
 
-Use the demo_*.py files as a starting point for your investigations,
+Use the `demo_*.py` files as a starting point for your investigations,
 these are mainly files which show what is pyrate able to do.
 It is also possible to use FreeCAD as a 3D interface (broken). Mainly the implementation uses
 wrapper codes to wrap the core functionality in a dialog and click & play manner.
@@ -66,9 +66,9 @@ Want to [contribute](CONTRIBUTING.md)?
 Pyrate in the public
 ---
 
-- In a class project https://github.com/teaghan/ML_with_Pyrate
+- In a class project where pyrate is used to train a neural network for imaging of an optical system: https://github.com/teaghan/ML_with_Pyrate
 - In a paper about optimization algorithms in optics [Open-source optimization algorithms for optical design](https://www.sciencedirect.com/science/article/pii/S0030402618315821) (behind a pay-wall, only mentioned)
-
+- In another class project where pyrate is used to provide an optimizer frontend to test several optimization strategies for optical systems https://github.com/LeErnst/ProjectCSE
 
 Testing
 ---
