@@ -81,7 +81,8 @@ class Serializer(BaseLogger):
         serialization.collectStructure(remove=default_to_be_removed)
         optimizable_variables_pool = OptimizableVariablesPool(
             serialization.variables_dictionary)
-        functionobjects_pool = optimizable_variables_pool.generateFunctionObjectsPool()
+        functionobjects_pool = optimizable_variables_pool.\
+            generate_functionobjects_pool()
 
         self.serialization = [
             serialization.dictionary,
