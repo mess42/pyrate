@@ -27,14 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import uuid
 import json
-import yaml
 
 from pprint import pformat
+
+import yaml
+
 
 from .log import BaseLogger
 from .iterators import SerializationIterator
 from .optimizable_variables_pool import OptimizableVariablesPool
-from .base import ClassWithOptimizableVariables
 
 from ..raytracer.localcoordinates import LocalCoordinates
 from ..raytracer.surface import Surface
@@ -56,6 +57,10 @@ from ..raytracer.material.material_isotropic import ConstantIndexGlass
 
 
 class Serializer(BaseLogger):
+    """
+    Class which is able to serialize a ClassWithOptimizableVariables
+    in a recursive manner.
+    """
     def __init__(self, class_instance, name=""):
         super(Serializer, self).__init__(name=name)
         self.class_instance = class_instance
@@ -65,6 +70,9 @@ class Serializer(BaseLogger):
         self.kind = "serializer"
 
     def serialize(self):
+        """
+        Serialize class which was provided to constructor.
+        """
         default_to_be_removed = ["annotations",
                                  "list_observers",
                                  "serializationfilter"]
@@ -76,29 +84,39 @@ class Serializer(BaseLogger):
         functionobjects_pool = optimizable_variables_pool.generateFunctionObjectsPool()
 
         self.serialization = [
-                serialization.dictionary,
-                dict([(k,
-                       SerializationIterator(v,
-                                             remove=default_to_be_removed
-                                             ).dictionary
-                       ) for (k, v) in serialization.classes_dictionary.items()]
-                     ),
-                optimizable_variables_pool.toDictionary(),
-                functionobjects_pool.to_dictionary()
+            serialization.dictionary,
+            dict([(k,
+                   SerializationIterator(v,
+                                         remove=default_to_be_removed
+                                        ).dictionary
+                  ) for (k, v) in serialization.classes_dictionary.items()]
+                ),
+            optimizable_variables_pool.toDictionary(),
+            functionobjects_pool.to_dictionary()
         ]
 
     def save_json(self, filename):
+        """
+        Save class in json.
+        """
         mydump = self.serialization
-        with open(filename, "wt") as fp:
-            json.dump(mydump, fp, indent=4)
+        with open(filename, "wt") as filep:
+            json.dump(mydump, filep, indent=4)
 
     def save_yaml(self, filename):
+        """
+        Save class in yaml
+        """
         mydump = self.serialization
-        with open(filename, "wt") as fp:
-            yaml.dump(mydump, fp)
+        with open(filename, "wt") as filep:
+            yaml.dump(mydump, filep)
 
 
 class Deserializer(BaseLogger):
+    """
+    Class which is able to reconstruct a ClassWithOptimizableVariables
+    from a yaml or json file.
+    """
     def __init__(self, serialization_list,
                  source_checked, variables_checked, name="",
                  register_classes=None):
@@ -129,7 +147,7 @@ class Deserializer(BaseLogger):
 
         self.deserialize(source_checked, variables_checked)
 
-    def isUUID(self, uuidstr):
+    def is_uuid(self, uuidstr):
         """
         Check whether a variable is a valid uuid. This could be improved,
         once in the classes appear regular uuids which have nothing to do
@@ -165,9 +183,9 @@ class Deserializer(BaseLogger):
                 """
                 This function is called recursively to verify that a
                 given nested structure is free of UUIDs as checked by
-                isUUID.
+                is_uuid.
                 """
-                if self.isUUID(var):
+                if self.is_uuid(var):
                     return False
                 elif isinstance(var, list):
                     return all([free_of_uuid(v) for v in var])
@@ -187,32 +205,35 @@ class Deserializer(BaseLogger):
             variables UUIDs are substituted by the appropriate objects.
             """
 
-            def reconstructRecursively(variable,
-                                       reconstructed_variables_dict):
-                if self.isUUID(variable):
+            def reconstruct_recursively(variable,
+                                        reconstructed_variables_dict):
+                """
+                Traverse variables and reconstruct them if necessary.
+                """
+                if self.is_uuid(variable):
                     if variable in reconstructed_variables_dict:
                         return reconstructed_variables_dict[variable]
                     else:
                         return variable
                 elif isinstance(variable, list):
                     return [
-                        reconstructRecursively(
-                                part,
-                                reconstructed_variables_dict)
+                        reconstruct_recursively(
+                            part,
+                            reconstructed_variables_dict)
                         for part in variable]
                 elif isinstance(variable, dict):
                     return dict(
-                            [
-                                (key, reconstructRecursively(
-                                        part,
-                                        reconstructed_variables_dict))
-                                for (key, part) in variable.items()])
+                        [
+                            (key, reconstruct_recursively(
+                                part,
+                                reconstructed_variables_dict))
+                            for (key, part) in variable.items()])
                 else:
                     return variable
 
-            new_structure_dict = reconstructRecursively(
-                    structure_dict,
-                    reconstructed_variables_dict)
+            new_structure_dict = reconstruct_recursively(
+                structure_dict,
+                reconstructed_variables_dict)
 
             return new_structure_dict
 
@@ -236,39 +257,46 @@ class Deserializer(BaseLogger):
                 their variables via the function reconstruct_variables and
                 afterwards parsing the structure for other classes which are
                 also reconstructed by using the sub function
-                reconstructRecursively. Modified structure dict, annotations
+                reconstruct_recursively. Modified structure dict, annotations
                 and all other things are to be used to construct a
                 ClassWithOptimizableVariables.
                 """
 
-                def reconstructRecursively(variable, subclasses_dict,
-                                           reconstructed_variables_dict):
-                    if self.isUUID(variable) and variable in subclasses_dict:
+                def reconstruct_recursively(variable, subclasses_dict,
+                                            reconstructed_variables_dict):
+                    """
+                    Reconstruct class recursively from subclasses_dict and
+                    reconstructed_variables.
+                    """
+                    if self.is_uuid(variable) and variable in subclasses_dict:
                         return reconstruct_class(
-                                subclasses_dict[variable],
-                                subclasses_dict,
-                                reconstructed_variables_dict)
+                            subclasses_dict[variable],
+                            subclasses_dict,
+                            reconstructed_variables_dict)
                     elif isinstance(variable, list):
-                        return [reconstructRecursively(part,
-                                                  subclasses_dict,
-                                                  reconstructed_variables_dict)
+                        return [reconstruct_recursively(part,
+                                                        subclasses_dict,
+                                                        reconstructed_variables_dict)
                                 for part in variable]
                     elif isinstance(variable, dict):
                         return dict([(key,
-                                      reconstructRecursively(part,
-                                                        subclasses_dict,
-                                                        reconstructed_variables_dict))
-                                    for (key, part) in variable.items()])
+                                      reconstruct_recursively(part,
+                                                              subclasses_dict,
+                                                              reconstructed_variables_dict))
+                                     for (key, part) in variable.items()])
                     else:
                         return variable
 
-                new_structure_dict = reconstructRecursively(
-                        structure_dict,
-                        subclasses_dict,
-                        reconstructed_variables_dict)
+                new_structure_dict = reconstruct_recursively(
+                    structure_dict,
+                    subclasses_dict,
+                    reconstructed_variables_dict)
                 return new_structure_dict
 
             def show_dict(mydict):
+                """
+                Show dictionary in a beautiful fashion.
+                """
                 strlimit = 10
                 return "\n".join([str(key) + ": " +
                                   (str(val)[:strlimit] if len(str(val)) > strlimit else str(val))
@@ -289,8 +317,8 @@ class Deserializer(BaseLogger):
             self.debug("Class reconstructed structure dict:\n" + pformat(structure_dict))
             self.debug("Reconstructing optimizable variables")
             structure_dict = reconstruct_variables(
-                    structure_dict,
-                    reconstructed_variables_dict)
+                structure_dict,
+                reconstructed_variables_dict)
             self.debug("keys reconstructed_variables_dict: " +
                        show_dict(reconstructed_variables_dict))
             self.debug("Reconstructing sub classes")
@@ -304,9 +332,9 @@ class Deserializer(BaseLogger):
                 self.debug("Found class to be reconstructed id in subclasses!")
                 self.debug("Removed the following item from subclass dictionary:")
                 self.debug(str(subclasses_dict.pop(
-                        class_to_be_reconstructed["unique_id"]
-                        )
-                ))
+                    class_to_be_reconstructed["unique_id"])
+                              )
+                          )
                 # TODO: what if the class is still needed?
             structure_dict = reconstruct_subclasses(structure_dict,
                                                     subclasses_dict,
@@ -319,12 +347,12 @@ class Deserializer(BaseLogger):
                 self.info("Found some uuids anyway.")
                 self.debug("Second attempt to reconstruct them.")
                 structure_dict = reconstruct_subclasses(
-                        structure_dict,
-                        subclasses_dict,
-                        reconstructed_variables_dict)
+                    structure_dict,
+                    subclasses_dict,
+                    reconstructed_variables_dict)
                 self.debug(pformat(subclasses_dict))
                 found_no_uuids_now = is_structure_free_of_uuids(
-                        structure_dict)
+                    structure_dict)
                 if not found_no_uuids_now:
                     self.debug("Found uuids still after second attempt " +
                                "of reconstruction.")
@@ -351,16 +379,16 @@ class Deserializer(BaseLogger):
             self.debug(pformat(structure_dict))
 
             myclass = self.classes_dictionary[kind](
-                    anno,
-                    structure_dict, name=name)
+                anno,
+                structure_dict, name=name)
             self.info("Reconstructed " + kind + " " + name)
-            #subclasses_dict[class_to_be_reconstructed["unique_id"]] = myclass
+            # subclasses_dict[class_to_be_reconstructed["unique_id"]] = myclass
             self.debug("RECONSTRUCT SUB CLASSES LEAVE:")
             return myclass
 
-        """
-        STARTING ACTUAL DESERIALIALIZATION CODE
-        """
+        # ===================================
+        # STARTING ACTUAL DESERIALIALIZATION CODE
+        # ===================================
 
         (class_to_be_deserialized, subclasses_dict,
          optimizable_variables_pool_dict, functionobjects_pool_dict) =\
@@ -370,33 +398,30 @@ class Deserializer(BaseLogger):
         self.debug(pformat(class_to_be_deserialized))
         self.debug(pformat(subclasses_dict))
 
-        """
-        Reconstruct the variables pool by its own reconstruction functions.
-        Then reconstruct the class to be reconstructed by calling
-        reconstruct_class in a recursive manner. Return the final object.
-        """
+        # Reconstruct the variables pool by its own reconstruction functions.
+        # Then reconstruct the class to be reconstructed by calling
+        # reconstruct_class in a recursive manner. Return the final object.
 
         self.info("Deserializing variables")
         optimizable_variables_pool = OptimizableVariablesPool.fromDictionary(
-                optimizable_variables_pool_dict,
-                functionobjects_pool_dict, source_checked, variables_checked)
+            optimizable_variables_pool_dict,
+            functionobjects_pool_dict, source_checked, variables_checked)
 
         self.info("Inserting variables into subclasses_dict")
         new_subclasses_dict = {}
         for (key, value) in subclasses_dict.items():
             newvalue = value.copy()
             newvalue["structure"] = reconstruct_variables(
-                    newvalue["structure"],
-                    optimizable_variables_pool.variables_pool
-                    )
+                newvalue["structure"],
+                optimizable_variables_pool.variables_pool)
             new_subclasses_dict[key] = newvalue
         self.debug(pformat(new_subclasses_dict))
         self.info("Reconstructing classes with no recursive structure")
         for (key, value) in new_subclasses_dict.items():
             if is_structure_free_of_uuids(value["structure"]):
                 new_subclasses_dict[key] = reconstruct_class(
-                        new_subclasses_dict[key], {},
-                        optimizable_variables_pool.variables_pool)
+                    new_subclasses_dict[key], {},
+                    optimizable_variables_pool.variables_pool)
         self.debug(pformat(new_subclasses_dict))
 
         self.debug("Reconstructing class")
@@ -409,9 +434,12 @@ class Deserializer(BaseLogger):
     @staticmethod
     def load_json(filename, source_checked, variables_checked,
                   name="", register_classes=None):
+        """
+        Load class from json file.
+        """
         mylist = None
-        with open(filename, "rt") as fp:
-            mylist = json.load(fp)
+        with open(filename, "rt") as filep:
+            mylist = json.load(filep)
         return Deserializer(mylist,
                             source_checked,
                             variables_checked, name=name,
@@ -420,9 +448,12 @@ class Deserializer(BaseLogger):
     @staticmethod
     def load_yaml(filename, source_checked, variables_checked,
                   name="", register_classes=None):
+        """
+        Load class from yaml file.
+        """
         mylist = None
-        with open(filename, "rt") as fp:
-            mylist = yaml.load(fp)
+        with open(filename, "rt") as filep:
+            mylist = yaml.load(filep)
         return Deserializer(mylist,
                             source_checked,
                             variables_checked, name=name,
