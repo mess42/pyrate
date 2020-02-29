@@ -105,7 +105,7 @@ class LC(AbstractObserver):
 
     group = property(getGroup)
 
-    def informAboutUpdate(self):
+    def inform_about_update(self):
         # override AbstractObserver method
         # let this observer class be informed when update in underlying localcoordinate class takes place
         FreeCAD.Console.PrintMessage("update info from " + self.__lc.name + "\n")

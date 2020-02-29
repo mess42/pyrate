@@ -167,7 +167,7 @@ class BaseLogger(object):
     def inform_observers(self):
         """
         Inform all observers in list by using their
-        informAboutUpdate() procedure.
+        inform_about_update() procedure.
         """
         for obs in self.list_observers:
-            obs.informAboutUpdate()
+            obs.inform_about_update()

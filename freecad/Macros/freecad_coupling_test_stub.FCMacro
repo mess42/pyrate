@@ -93,7 +93,7 @@ class FreeCAD_CoreObject(AbstractObserver):
     def getvalue(self):
         return self.__coreobj.myvar()
 
-    def informAboutUpdate(self):
+    def inform_about_update(self):
         '''Transmit change in core object into FreeCAD object'''
         self.__obj.myvar = self.__coreobj.myvar()
 

@@ -142,7 +142,7 @@ class MaterialObject(AbstractObserver):
             # write back changed properties to underlying material
             self.writebackfunc[self.__obj.mattype](fp)
 
-    def informAboutUpdate(self):
+    def inform_about_update(self):
         # override AbstractObserver method
         FreeCAD.Console.PrintMessage("Changed Material in Core " + self.__obj.Name + "\n")
 
