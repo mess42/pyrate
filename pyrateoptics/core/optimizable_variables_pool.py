@@ -87,7 +87,7 @@ class OptimizableVariablesPool(BaseLogger):
     def generateFunctionObjectsPool(self, name=""):
         functionobjects_dictionary = {}
         for (key, ov) in self.variables_pool.items():
-            (tfo, ftrafo, finvtrafo) = ov._transform_functionobject_functionname_triple
+            (tfo, ftrafo, finvtrafo) = ov._transform_functionobject
             if tfo.unique_id not in functionobjects_dictionary:
                 functionobjects_dictionary[tfo.unique_id] = tfo
             if ov.var_type() == "pickup":
