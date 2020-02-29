@@ -27,14 +27,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 
 from pyrateoptics.core.log import BaseLogger
-from pyrateoptics.raytracer.helpers import build_pilotbundle, build_pilotbundle_complex, choose_nearest
+from pyrateoptics.raytracer.helpers import (build_pilotbundle,
+                                            build_pilotbundle_complex)
 from pyrateoptics.raytracer.globalconstants import degree, standard_wavelength
 from pyrateoptics.sampling2d.raster import RectGrid
 from pyrateoptics.raytracer.ray import RayBundle, returnDtoK
 from pyrateoptics.raytracer.helpers_math import rodrigues
 
+
 class FieldManager(BaseLogger):
+    """
+    This class should manage the field generation.
+    """
     pass
+
 
 class Aimy(BaseLogger):
 
@@ -54,6 +60,8 @@ class Aimy(BaseLogger):
                  pilotbundle_delta_size=0.1,
                  pilotbundle_sampling_points=3,
                  name=""):
+        # TODO: reduce arguments by summarizing pilotbundle
+        # parameters into class
 
         super(Aimy, self).__init__(name=name)
         self.field_raster = RectGrid()
@@ -119,13 +127,19 @@ class Aimy(BaseLogger):
         self.pilotbundle = pilotbundles[self.pilotbundle_solution]
         # one of the last two
 
-        (self.m_obj_stop, self.m_stop_img) = s.extractXYUV(self.pilotbundle,
-                                                           seq,
-                                                           pilotbundle_generation=self.pilotbundle_generation)
+        (self.m_obj_stop,
+         self.m_stop_img) =\
+            s.extractXYUV(self.pilotbundle,
+                          seq,
+                          pilotbundle_generation=self.pilotbundle_generation)
 
         self.info("show linear matrices")
-        self.info("obj -> stop:\n" + np.array_str(self.m_obj_stop, precision=10, suppress_small=True))
-        self.info("stop -> img:\n" + np.array_str(self.m_stop_img, precision=10, suppress_small=True))
+        self.info("obj -> stop:\n" + np.array_str(self.m_obj_stop,
+                                                  precision=10,
+                                                  suppress_small=True))
+        self.info("stop -> img:\n" + np.array_str(self.m_stop_img,
+                                                  precision=10,
+                                                  suppress_small=True))
 
 
     def aim_core_angle_known(self, theta2d):
@@ -141,8 +155,10 @@ class Aimy(BaseLogger):
 
         dpilot_global = self.pilotbundle.returnKtoD()[0, :, 0]
         kpilot_global = self.pilotbundle.k[0, :, 0]
-        dpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(dpilot_global)[:, np.newaxis]
-        kpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(kpilot_global)[:, np.newaxis]
+        dpilot_object = self.objectsurface.rootcoordinatesystem.\
+            returnGlobalToLocalDirections(dpilot_global)[:, np.newaxis]
+        kpilot_object = self.objectsurface.rootcoordinatesystem.\
+            returnGlobalToLocalDirections(kpilot_global)[:, np.newaxis]
         kpilot_object = np.repeat(kpilot_object, self.num_pupil_points, axis=1)
         d = np.dot(rmfinal, dpilot_object)
 
@@ -229,19 +245,23 @@ class Aimy(BaseLogger):
         else:
             raise NotImplementedError()
 
-        (dim, num_points) = np.shape(dr_obj)
+        (_, num_points) = np.shape(dr_obj)
 
         dr_obj3d = np.vstack((dr_obj, np.zeros(num_points)))
         dk_obj3d = np.vstack((dk_obj, np.zeros(num_points)))
 
-        xp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalPoints(self.pilotbundle.x[0, :, 0])
+        xp_objsurf = self.objectsurface.rootcoordinatesystem.\
+            returnGlobalToLocalPoints(self.pilotbundle.x[0, :, 0])
         xp_objsurf = np.repeat(xp_objsurf[:, np.newaxis], num_points, axis=1)
-        dx3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dr_obj3d)
+        dx3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T,
+                      dr_obj3d)
         xparabasal = xp_objsurf + dx3d
 
-        kp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(self.pilotbundle.k[0, :, 0])
+        kp_objsurf = self.objectsurface.rootcoordinatesystem.\
+            returnGlobalToLocalDirections(self.pilotbundle.k[0, :, 0])
         kp_objsurf = np.repeat(kp_objsurf[:, np.newaxis], num_points, axis=1)
-        dk3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dk_obj3d)
+        dk3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T,
+                      dk_obj3d)
         # FIXME: k coordinate system for which dispersion relation is respected
         # modified k in general violates dispersion relation
 
@@ -278,7 +298,7 @@ class Aimy(BaseLogger):
 
         # svdmatrix = -delta_ij (k*k) + k_i k_j + delta
 
-        (U, S, V) = np.linalg.svd(svdmatrix)
+        (U, S, _) = np.linalg.svd(svdmatrix)
 
         smallest_absolute_values = np.argsort(np.abs(S), axis=1).T[0]
 
