@@ -82,11 +82,11 @@ def meritfunctionrms(my_s):
 
 
 backsurf = s.elements["stdelem"].surfaces["back"]
-backsurf.shape.params["curv"].toVariable()
-backsurf.shape.params["cc"].toVariable()
+backsurf.shape.params["curv"].to_variable()
+backsurf.shape.params["cc"].to_variable()
 # A2 not variable
-backsurf.shape.params["A4"].toVariable()
-backsurf.shape.params["A6"].toVariable()
+backsurf.shape.params["A4"].to_variable()
+backsurf.shape.params["A6"].to_variable()
 
 opt_backend = ScipyBackend(method='Nelder-Mead', tol=1e-9)
 optimi = Optimizer(s, meritfunctionrms, opt_backend,

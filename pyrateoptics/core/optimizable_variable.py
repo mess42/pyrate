@@ -43,28 +43,52 @@ class State(object):
         self.parameters = {}
 
     def evaluate(self):
+        """
+        Evaluate variable in current state.
+        """
         raise NotImplementedError()
 
     def __call__(self):
+        """
+        Short for .evaluate()
+        """
         return self.evaluate()
 
     def set_value(self, value):
+        """
+        Set value to provided value.
+        """
         raise NotImplementedError()
 
-    def toFixed(self, context):
+    def to_fixed(self, context):
+        """
+        Transform into fixed variable.
+        """
         raise NotImplementedError()
 
-    def toVariable(self, context):
+    def to_variable(self, context):
+        """
+        Transform into variable object.
+        """
         raise NotImplementedError()
 
-    def toPickup(self, context, functionobject_functionname_tuple, args):
+    def to_pickup(self, context, functionobject_functionname, args):
+        """
+        Transform into pickup object depending on others.
+        """
         raise NotImplementedError()
 
-    def toDictionary(self):
+    def to_dictionary(self):
+        """
+        Return dictionary of state.
+        """
         raise NotImplementedError()
 
     @staticmethod
-    def fromDictionary(dictionary, *args):
+    def from_dictionary(dictionary, *args):
+        """
+        Reconstruct variable from dictionary.
+        """
         raise NotImplementedError()
 
 
@@ -84,40 +108,62 @@ class SimpleValueState(State):
     def evaluate(self):
         return self.parameters["value"]
 
-    def toFixed(self, context):
+    def to_fixed(self, context):
+        """
+        Transfer into fixed by saving value.
+        """
         context._state = FixedState(self.parameters["value"])
 
-    def toVariable(self, context):
+    def to_variable(self, context):
+        """
+        Transfer into variable by maintaining value.
+        """
         context._state = VariableState(self.parameters["value"])
 
-    def toPickup(self, context, functionobject_functionname_tuple, args):
+    def to_pickup(self, context, functionobject_functionname_tuple, args):
+        """
+        Transfer into pickup.
+        """
         context._state = PickupState(functionobject_functionname_tuple, args)
 
-    def toDictionary(self):
+    def to_dictionary(self):
         resdict = {}
         resdict["value"] = self.parameters["value"]
         return resdict
 
+    @staticmethod
+    def from_dictionary(dictionary, *args):
+        raise NotImplementedError()
+
 
 class FixedState(SimpleValueState):
+    """
+    Fixed state object.
+    """
     def __init__(self, value):
         super(FixedState, self).__init__("fixed", value)
 
     @staticmethod
-    def fromDictionary(dictionary, *args):
+    def from_dictionary(dictionary, *args):
         return FixedState(dictionary.pop("value"))
 
 
 class VariableState(SimpleValueState):
+    """
+    Variable state object.
+    """
     def __init__(self, value):
         super(VariableState, self).__init__("variable", value)
 
     @staticmethod
-    def fromDictionary(dictionary, *args):
+    def from_dictionary(dictionary, *args):
         return VariableState(dictionary.pop("value"))
 
 
 class PickupState(State):
+    """
+    Pickup state object.
+    """
     def __init__(self, functionobject_functionname_tuple, args, isvalid=True):
         """
         @param functionobject_functionname_tuple
@@ -146,13 +192,13 @@ class PickupState(State):
     def set_value(self, value):
         pass
 
-    def toFixed(self, context):
+    def to_fixed(self, context):
         context._state = FixedState(self.evaluate())
 
-    def toVariable(self, context):
+    def to_variable(self, context):
         context._state = VariableState(self.evaluate())
 
-    def toPickup(self, context, functionobject_functionname_tuple, args):
+    def to_pickup(self, context, functionobject_functionname_tuple, args):
         context._state = PickupState(functionobject_functionname_tuple, args)
 
     def evaluate(self):
@@ -162,9 +208,9 @@ class PickupState(State):
                                        for argfunc in self.parameters["args"])
         (functionobject, functionname) = self.parameters["functionobject"]
         return functionobject.functions[functionname](
-                *arguments_for_function_eval)
+            *arguments_for_function_eval)
 
-    def toDictionary(self):
+    def to_dictionary(self):
         resdict = {}
         (functionobject, functionname) = self.parameters["functionobject"]
         resdict["functionobject"] = functionobject.unique_id  # .toDictionary()
@@ -173,14 +219,14 @@ class PickupState(State):
         return resdict
 
     @staticmethod
-    def fromDictionary(dictionary, *args):
+    def from_dictionary(dictionary, *args):
         (functionobjects_pool,) = args
-        fo = functionobjects_pool.functionobjects_dictionary[
+        fobj = functionobjects_pool.functionobjects_dictionary[
             dictionary["functionobject"]]
         functionname = dictionary["functionname"]
         # isvalid=False is set because args are not initialized yet
         # this is done later in the pool initialization
-        return PickupState((fo, functionname), dictionary["args"],
+        return PickupState((fobj, functionname), dictionary["args"],
                            isvalid=False)
 
 
@@ -218,19 +264,19 @@ class OptimizableVariable(BaseLogger):
     def setKind(self):
         self.kind = "optimizablevariable"
 
-    def toFixed(self):
+    def to_fixed(self):
         """
         State transition to fixed.
         """
-        self._state.toFixed(self)
+        self._state.to_fixed(self)
 
-    def toVariable(self):
+    def to_variable(self):
         """
         State transition to variable.
         """
-        self._state.toVariable(self)
+        self._state.to_variable(self)
 
-    def toPickup(self, functionobject_functionname_tuple, args):
+    def to_pickup(self, functionobject_tuple, args):
         """
         State transition to pickup.
 
@@ -239,7 +285,7 @@ class OptimizableVariable(BaseLogger):
         @args list or tuple of other optimizable variables
                 which fit as arguments list into functionname.
         """
-        self._state.toPickup(self, functionobject_functionname_tuple, args)
+        self._state.to_pickup(self, functionobject_tuple, args)
 
     def evaluate(self):
         """
@@ -266,53 +312,53 @@ class OptimizableVariable(BaseLogger):
         """
         return self._state.var_type
 
-    def set_transform(self, functionobject_functionname_triple):
+    def set_transform(self, functionobject_triple):
         """
         Set transform together with inverse transform from one
         function object:
 
-        @param functionobject_functionname_triple
+        @param functionobject_triple
                 (functionobject, transformname, invtransformname)
         """
-        self._transform_functionobject_functionname_triple =\
-            functionobject_functionname_triple
-        (fo, ftrafo, finvtrafo) =\
-            self._transform_functionobject_functionname_triple
-        fo.generate_functions_from_source([ftrafo, finvtrafo])
+        self._transform_functionobject =\
+            functionobject_triple
+        (fobj, ftrafo, finvtrafo) =\
+            self._transform_functionobject
+        fobj.generate_functions_from_source([ftrafo, finvtrafo])
 
     def evaluate_transformed(self):
         """
         Evaluates to transformed value.
         """
-        (fo, ft, fit) = self._transform_functionobject_functionname_triple
-        return fo.functions[ft](self.evaluate())
+        (fobj, ftrans, _) = self._transform_functionobject
+        return fobj.functions[ftrans](self.evaluate())
 
     def set_value_transformed(self, value_transformed):
         """
         Sets transformed value by performing the inverse transform
         on value_transformed and setting the value from this.
         """
-        (fo, ft, fit) = self._transform_functionobject_functionname_triple
-        value = fo.functions[fit](value_transformed)
+        (fobj, _, finvtrans) = self._transform_functionobject
+        value = fobj.functions[finvtrans](value_transformed)
         self.set_value(value)
 
-    def toDictionary(self):
+    def to_dictionary(self):
         """
         Providing a dictionary from the OptimizableVariable
         which can be used for reconstruction.
         """
         resdict = self.get_basic_info()
         resdict["variable_type"] = self.var_type()
-        (fo, ftrafo, finvtrafo) =\
-            self._transform_functionobject_functionname_triple
-        resdict["transform"] = fo.unique_id  # .toDictionary()
+        (fobj, ftrafo, finvtrafo) =\
+            self._transform_functionobject
+        resdict["transform"] = fobj.unique_id  # .to_dictionary()
         resdict["transform_name"] = ftrafo
         resdict["invtransform_name"] = finvtrafo
-        resdict["state"] = self._state.toDictionary()
+        resdict["state"] = self._state.to_dictionary()
         return resdict
 
     @staticmethod
-    def fromDictionary(dictionary, functionobjects_pool):
+    def from_dictionary(dictionary, functionobjects_pool):
         """
         Providing a function to reconstruct an OptimizableVariable
         from some dictionary. The variables_pool is necessary if
@@ -323,16 +369,16 @@ class OptimizableVariable(BaseLogger):
                                   "pickup": PickupState}
         state_dictionary = dictionary["state"]
         var_type = dictionary["variable_type"]
-        state = reconstruct_dictionary[var_type].fromDictionary(
-                state_dictionary, functionobjects_pool)
-        ov = OptimizableVariable(state, name=dictionary["name"],
-                                 unique_id=dictionary["unique_id"])
-        fo = functionobjects_pool.functionobjects_dictionary[
+        state = reconstruct_dictionary[var_type].from_dictionary(
+            state_dictionary, functionobjects_pool)
+        optvar = OptimizableVariable(state, name=dictionary["name"],
+                                     unique_id=dictionary["unique_id"])
+        fobj = functionobjects_pool.functionobjects_dictionary[
             dictionary["transform"]]
-        ft = dictionary["transform_name"]
-        fi = dictionary["invtransform_name"]
-        ov.set_transform((fo, ft, fi))
-        return ov
+        ftrans = dictionary["transform_name"]
+        finvtrans = dictionary["invtransform_name"]
+        optvar.set_transform((fobj, ftrans, finvtrans))
+        return optvar
 
 
 class FloatOptimizableVariable(OptimizableVariable):
@@ -377,16 +423,20 @@ def both_bounded_inv(x):
 
     """
 
-    def setInterval(self, left=None, right=None):
+    def set_interval(self, left=None, right=None):
+        """
+        Define intervall for finite variables and provide
+        transform.
+        """
         self.interval_trafo_fo = FunctionObject(
-                initial_sourcecode=self.interval_trafo_source,
-                initial_globals_dictionary={
-                                            "left": left,
-                                            "right": right},
-                initial_function_names=["left_bounded", "left_bounded_inv",
-                                        "right_bounded", "right_bounded_inv",
-                                        "both_bounded", "both_bounded_inv"],
-                name="interval_trafo")
+            initial_sourcecode=self.interval_trafo_source,
+            initial_globals_dictionary={
+                "left": left,
+                "right": right},
+            initial_function_names=["left_bounded", "left_bounded_inv",
+                                    "right_bounded", "right_bounded_inv",
+                                    "both_bounded", "both_bounded_inv"],
+            name="interval_trafo")
 
         if left is not None and right is None:
             self.set_transform((self.interval_trafo_fo,

@@ -236,20 +236,20 @@ s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
 #          up=up) # try for phi=pi/4
 
 curv2 = s.elements["lenssys"].surfaces["surf2"].shape.curvature
-curv2.toVariable()
-curv2.setInterval(left=-0.35, right=0.35)
+curv2.to_variable()
+curv2.set_interval(left=-0.35, right=0.35)
 curv3 = s.elements["lenssys"].surfaces["surf3"].shape.curvature
-curv3.toVariable()
-curv3.setInterval(left=-0.35, right=0.35)
+curv3.to_variable()
+curv3.set_interval(left=-0.35, right=0.35)
 curv4 = s.elements["lenssys"].surfaces["surf4"].shape.curvature
-curv4.toVariable()
-curv4.setInterval(left=-0.35, right=0.35)
+curv4.to_variable()
+curv4.set_interval(left=-0.35, right=0.35)
 curv6 = s.elements["lenssys"].surfaces["surf6"].shape.curvature
-curv6.toVariable()
-curv6.setInterval(left=-0.35, right=0.35)
+curv6.to_variable()
+curv6.set_interval(left=-0.35, right=0.35)
 tltx_var = s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx
-tltx_var.toVariable()
-tltx_var.setInterval(left=-3.*math.pi/180., right=3.*math.pi/180.)
+tltx_var.to_variable()
+tltx_var.set_interval(left=-3.*math.pi/180., right=3.*math.pi/180.)
 
 listOptimizableVariables(s, filter_status='variable', max_line_width=80)
 

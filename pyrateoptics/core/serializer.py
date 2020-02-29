@@ -91,7 +91,7 @@ class Serializer(BaseLogger):
                                         ).dictionary
                   ) for (k, v) in serialization.classes_dictionary.items()]
                 ),
-            optimizable_variables_pool.toDictionary(),
+            optimizable_variables_pool.to_dictionary(),
             functionobjects_pool.to_dictionary()
         ]
 
@@ -403,7 +403,7 @@ class Deserializer(BaseLogger):
         # reconstruct_class in a recursive manner. Return the final object.
 
         self.info("Deserializing variables")
-        optimizable_variables_pool = OptimizableVariablesPool.fromDictionary(
+        optimizable_variables_pool = OptimizableVariablesPool.from_dictionary(
             optimizable_variables_pool_dict,
             functionobjects_pool_dict, source_checked, variables_checked)
 

@@ -158,10 +158,10 @@ def updatefunction_allsteps(my_s):
 
 
 # optimize
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toVariable()
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_variable()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_variable()
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
-    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+    to_pickup((FunctionObject("f = lambda x: -x"), "f"),
              (s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
 
 
@@ -248,25 +248,25 @@ def meritfunction_step3(my_s):
 
 
 # optimize
-s.elements["stdelem"].surfaces["lens1front"].shape.curvature.toVariable()
-s.elements["stdelem"].surfaces["elem3front"].shape.curvature.toVariable()
-s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["lens1front"].shape.curvature.to_variable()
+s.elements["stdelem"].surfaces["elem3front"].shape.curvature.to_variable()
+s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.to_variable()
 
 # outer radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2front"].shape.curvature.\
-    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+    to_pickup((FunctionObject("f = lambda x: -x"), "f"),
              (s.elements["stdelem"].surfaces["elem3rear"].shape.curvature,))
 
 # inner radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.\
-    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+    to_pickup((FunctionObject("f = lambda x: -x"), "f"),
              (s.elements["stdelem"].surfaces["elem3front"].shape.curvature,))
 
-s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.toVariable()
+s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.to_variable()
 
 
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toFixed()
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toFixed()
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_fixed()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_fixed()
 
 
 optimi = Optimizer(s, meritfunction_step3, backend=ScipyBackend(),
@@ -300,8 +300,8 @@ def meritfunction_step4b(my_s):
     return final_meritfunction(my_s, rpup=7.5, fno=100/15., maxfield_deg=7.)
 
 
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toVariable()
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_variable()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_variable()
 
 optimi = Optimizer(s, meritfunction_step4a, backend=ScipyBackend(),
                    updatefunction=updatefunction_allsteps, name="step4a")

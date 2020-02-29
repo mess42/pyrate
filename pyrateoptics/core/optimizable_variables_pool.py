@@ -96,14 +96,14 @@ class OptimizableVariablesPool(BaseLogger):
                     functionobjects_dictionary[pfo.unique_id] = pfo
         return FunctionObjectsPool(functionobjects_dictionary, name=name)
 
-    def toDictionary(self):
-        return dict([(uid, variable.toDictionary())
+    def to_dictionary(self):
+        return dict([(uid, variable.to_dictionary())
                     for (uid, variable) in self.variables_pool.items()])
 
     @staticmethod
-    def fromDictionary(dictionary, functionpool_dictionary,
-                       source_checked,
-                       variables_checked, name=""):
+    def from_dictionary(dictionary, functionpool_dictionary,
+                        source_checked,
+                        variables_checked, name=""):
         """
         Reconstruct variable pool from dictionary. Pre initialize pickups
         and successively construct them such that at the end of the day
@@ -134,7 +134,7 @@ class OptimizableVariablesPool(BaseLogger):
 
         variables_pool = {}
         for (uid, var_dict) in dictionary.items():
-            variables_pool[uid] = OptimizableVariable.fromDictionary(
+            variables_pool[uid] = OptimizableVariable.from_dictionary(
                     var_dict, functionobjects_pool)
 
         (all_args_opt_vars, pickupvars) = are_all_args_opt_vars(variables_pool)
