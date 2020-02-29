@@ -298,7 +298,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         self.debug("informing observers")
 
         # inform observers about update
-        self.informObservers()
+        self.inform_observers()
 
     def aimAt(self, anotherlc, update=False):
         (tiltx, tilty, tiltz) = self.calculateAim(anotherlc)

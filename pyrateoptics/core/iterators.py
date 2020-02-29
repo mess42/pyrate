@@ -537,7 +537,7 @@ class SerializationIterator(OptimizableVariableCollector):
         # remove class_instance from classes_dictionary
         self.collectStructure(remove=remove)
         self.dictionary = {}
-        self.dictionary.update(self.class_instance.getBasicInfo())
+        self.dictionary.update(self.class_instance.get_basic_info())
         self.dictionary["annotations"] = self.class_instance.annotations
         self.dictionary["structure"] = self.structure
         # standard things kind, name, version, id can be given by

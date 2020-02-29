@@ -220,7 +220,7 @@ def build_simple_optical_system(builduplist, material_db_path="", name=""):
         material_db_path=material_db_path, name=elem_name)
     s.addElement(elem_name, elem)
 
-    s.material_background.setName("background")
+    s.material_background.set_name("background")
     stdseq = [(elem_seq)]
     logger.info("Created simple optical system")
 
@@ -255,7 +255,7 @@ def build_optical_system(builduplist, material_db_path="", name=""):
         full_elements_seq.append(elem_seq)
         s.addElement(elem_name, elem)
 
-    s.material_background.setName("background")
+    s.material_background.set_name("background")
     logger.info("Created multiple element optical system")
 
     return (s, full_elements_seq)

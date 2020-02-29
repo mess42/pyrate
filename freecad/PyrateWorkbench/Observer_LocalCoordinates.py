@@ -47,7 +47,7 @@ class LC(AbstractObserver):
             group = doc.addObject("App::DocumentObjectGroup", self.returnGroupLabel(coupling.name))
 
         self.__lc = coupling # link to appropriate data structure
-        self.__lc.appendObservers([self])
+        self.__lc.append_observers([self])
         self.__obj = obj
         self.__group = group
         self.__doc = doc

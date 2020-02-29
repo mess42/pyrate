@@ -139,7 +139,7 @@ class SurfaceObject(AbstractObserver):
         self.initshapedict[shapetype](**kwargs)
         self.initaperturedict[aptype](**kwargs)
 
-        self.__obj.shapeclass.appendObservers([self])
+        self.__obj.shapeclass.append_observers([self])
         self.__obj.Proxy = self
 
     def getObject(self):

@@ -156,7 +156,7 @@ class ConfigManager(BaseLogger):
                             instance.resetVariable(key, self.base_instance.getVariable(key))
                     # set names of the new instances accordingly
                     self.debug("Setting name of instance %s" % (names_tuple[index]))
-                    instance.setName(names_tuple[index])
+                    instance.set_name(names_tuple[index])
 
         return instance_list
 

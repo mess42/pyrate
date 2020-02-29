@@ -50,23 +50,23 @@ from pyrateoptics.core.optimizable_variable import FloatOptimizableVariable, Fix
 from pyrateoptics.core.observers import AbstractObserver
 
 class CoreObject(ClassWithOptimizableVariables):
-    
+
     def __init__(self, value, name=""):
         super(CoreObject, self).__init__(name=name)
         self.myvar = FloatOptimizableVariable(FixedState(value), name="myvar")
-        
+
     def makeSomething(self):
         self.myvar.setvalue(np.random.random())
         # after setting myvar to a new value, inform observers
-        self.informObservers()
+        self.inform_observers()
 
 class FreeCAD_CoreObject(AbstractObserver):
     # Derivation from AbstractObserver to maintain connection
-    # from pyrateopticsObject to this FreeCAD frontend object    
-    
+    # from pyrateopticsObject to this FreeCAD frontend object
+
     # The code is mainly taken from
     # https://freecadweb.org/wiki/Scripted_objects
-    
+
     def __init__(self, doc):
         # doc is freecad document; may be ActiveDocument
         # first create object in FreeCAD tree
@@ -76,23 +76,23 @@ class FreeCAD_CoreObject(AbstractObserver):
         self.__obj = doc.addObject("App::FeaturePython","CoreObject")
         self.__obj.addProperty("App::PropertyFloat","myvar","CoreObject","myvar of CoreObject").myvar=1.0
         self.__obj.Proxy = self
-        
+
         self.__coreobj = CoreObject(self.__obj.myvar)
         # init core object which is attached to FC object
-        self.__coreobj.appendObservers([self])
+        self.__coreobj.append_observers([self])
         # add observer
-    
+
     #########################
     # functions which are not necessary for FC object feature
     #########################
-    
+
     def makeSomething(self):
         '''Call makeSomething of attached core object'''
         self.__coreobj.makeSomething()
-        
+
     def getvalue(self):
         return self.__coreobj.myvar()
-   
+
     def informAboutUpdate(self):
         '''Transmit change in core object into FreeCAD object'''
         self.__obj.myvar = self.__coreobj.myvar()
@@ -108,7 +108,7 @@ class FreeCAD_CoreObject(AbstractObserver):
             '''Transmit myvar to coreobj'''
             self.__coreobj.myvar.set_value(fp.myvar)
         FreeCAD.Console.PrintMessage("Change property: " + str(prop) + "\n")
- 
+
     def execute(self, fp):
         '''Do something when doing a recomputation, this method is mandatory'''
         FreeCAD.Console.PrintMessage("Recompute Python Core Object feature\n")
@@ -116,7 +116,7 @@ class FreeCAD_CoreObject(AbstractObserver):
     def __getstate__(self):
         '''For JSON frontend of FreeCAD'''
         return None
- 
+
     def __setstate__(self,state):
         '''For JSON frontend of FreeCAD'''
         return None
@@ -127,7 +127,7 @@ def makeCoreObject():
     doc = FreeCAD.newDocument() # create new document
     FreeCAD_CoreObject(doc) # create object in document via constructor
 
-makeCoreObject() 
+makeCoreObject()
 
 # choose current directory as macro directory in FreeCAD
 # run .py file as macro

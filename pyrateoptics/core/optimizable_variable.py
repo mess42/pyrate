@@ -301,7 +301,7 @@ class OptimizableVariable(BaseLogger):
         Providing a dictionary from the OptimizableVariable
         which can be used for reconstruction.
         """
-        resdict = self.getBasicInfo()
+        resdict = self.get_basic_info()
         resdict["variable_type"] = self.var_type()
         (fo, ftrafo, finvtrafo) =\
             self._transform_functionobject_functionname_triple

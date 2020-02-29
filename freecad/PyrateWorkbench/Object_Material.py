@@ -71,7 +71,7 @@ class MaterialObject(AbstractObserver):
         self.__obj.addProperty("App::PropertyString", "mattype", "Material", "specifies type").mattype = mattype
 
         self.initfundict[mattype](**kwargs)
-        self.__obj.matclass.appendObservers([self])
+        self.__obj.matclass.append_observers([self])
 
         self.__obj.Proxy = self
         # TODO: load/save

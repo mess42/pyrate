@@ -128,7 +128,7 @@ class FunctionObject(BaseLogger):
         Convert function object to dictionary for easy
         serialization or UI interaction.
         """
-        res = self.getBasicInfo()
+        res = self.get_basic_info()
         res["sourcecode"] = self.source
         res["global_variables"] = self.global_variables
         res["functions"] = list(self.functions.keys())
