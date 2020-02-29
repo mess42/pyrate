@@ -76,8 +76,8 @@ class ConfigManager(BaseLogger):
     def setKind(self):
         self.kind = "configmanager"
 
-    def setOptimizableVariables(self, names_tuple,
-                                dict_of_keys_and_value_tuples):
+    def set_optimizable_variables(self, names_tuple,
+                                  dict_of_keys_and_value_tuples):
         """
         Set values in different instance of base instance.
         (deep copy). What about pickups?
@@ -128,7 +128,7 @@ class ConfigManager(BaseLogger):
                             val_tuple = dict_of_keys_and_value_tuples[key]
                             self.debug("%s to %s" % (key, val_tuple[index]))
                             #variable.setvalue(val_tuple[index])
-                            if type(val_tuple) is not tuple:
+                            if not isinstance(val_tuple, tuple):
                                 self.warning("Incorrect format for multi config values!")
                                 self.debug("Values must be of type (string, contents):")
                                 self.debug("For fixed values: (\"fixed\", fixed_val)")
@@ -137,18 +137,18 @@ class ConfigManager(BaseLogger):
                                 (mcv_type, mcv_contents) = val_tuple[index]
                                 if mcv_type.lower() == "fixed":
                                     instance.resetVariable(
-                                            key,
-                                            OptimizableVariable(
-                                                    FixedState(mcv_contents),
-                                                    name=variable.name))
+                                        key,
+                                        OptimizableVariable(
+                                            FixedState(mcv_contents),
+                                            name=variable.name))
                                 elif mcv_type.lower() == "pickup":
                                     instance.resetVariable(
-                                            key,
-                                            OptimizableVariable(
-                                                    PickupState(
-                                                            mcv_contents,
-                                                            variable),
-                                                            name=variable.name))
+                                        key,
+                                        OptimizableVariable(
+                                            PickupState(
+                                                mcv_contents,
+                                                variable),
+                                            name=variable.name))
                                 else:
                                     self.warning("Unknown type for multi config values")
                         else:
@@ -160,52 +160,60 @@ class ConfigManager(BaseLogger):
 
         return instance_list
 
-'''
 # TODO: functions for multi configs
-
-    def resetVariable(self, key, var):
-        """
-        Resets variable by evaluating deref string from getAllVariables
-        dictionary. Maybe this could be solved by using less black magic.
-        Although this method is necessary for maintaining multi configs.
-        """
-
-        dict_of_vars = self.getAllVariables()
-        deref = dict_of_vars["deref"][key]
-        exec(compile("self" + deref + " = var", "<string>", "exec"))
-
-    def getVariable(self, key):
-        """
-        Gets variable from short key.
-        """
-        dict_of_vars = self.getAllVariables()
-        variable = dict_of_vars["vars"][key]
-        return variable
-'''
+#
+#    def resetVariable(self, key, var):
+#        """
+#        Resets variable by evaluating deref string from getAllVariables
+#        dictionary. Maybe this could be solved by using less black magic.
+#        Although this method is necessary for maintaining multi configs.
+#        """
+#
+#        dict_of_vars = self.getAllVariables()
+#        deref = dict_of_vars["deref"][key]
+#        exec(compile("self" + deref + " = var", "<string>", "exec"))
+#
+#    def getVariable(self, key):
+#        """
+#        Gets variable from short key.
+#        """
+#        dict_of_vars = self.getAllVariables()
+#        variable = dict_of_vars["vars"][key]
+#        return variable
+#
 
 
 if __name__ == "__main__":
 
-    logging.basicConfig(level=logging.DEBUG)
+    def main():
+        "Main code for demo purposes"
+        logging.basicConfig(level=logging.DEBUG)
 
-    s = OpticalSystem(name="s")
-    s.lst = []
-    s.lst.append({})
-    s.lst.append({})
-    s.lst[0]["a"] = FloatOptimizableVariable(FixedState(3.0), name="v1")
-    s.lst[1]["b"] = FloatOptimizableVariable(VariableState(7.0), name="v2")
+        mysys = OpticalSystem(name="s")
+        mysys.lst = []
+        mysys.lst.append({})
+        mysys.lst.append({})
+        mysys.lst[0]["a"] = FloatOptimizableVariable(
+            FixedState(3.0), name="v1")
+        mysys.lst[1]["b"] = FloatOptimizableVariable(
+            VariableState(7.0), name="v2")
 
-    s.rootcoordinatesystem.decz = FloatOptimizableVariable(FixedState(-99.0),
-                                                           name="decz")
+        mysys.rootcoordinatesystem.decz = FloatOptimizableVariable(
+            FixedState(-99.0),
+            name="decz")
 
-    listOptimizableVariables(s)
+        listOptimizableVariables(mysys)
 
-    m = ConfigManager(s, name="mc")
+        confmanager = ConfigManager(mysys, name="mc")
 
-    [s2, s3] = m.setOptimizableVariables(("s2", "s3"),
-                {"s.global.decz": (("pickup", lambda x: x + 2.0),
-                                   ("pickup", lambda x: x + 3.0)),
-                "s.global.decy": (("fixed", -2.), ("fixed", -3.))})
-    s.rootcoordinatesystem.decx.setvalue(-98.0)
-    for ss in (s2, s3):
-        mydict = listOptimizableVariables(ss)
+        [mysys2, mysys3] = confmanager.set_optimizable_variables(
+            ("s2", "s3"),
+            {"s.global.decz": (("pickup", lambda x: x + 2.0),
+                               ("pickup", lambda x: x + 3.0)),
+             "s.global.decy": (("fixed", -2.), ("fixed", -3.))})
+        mysys.rootcoordinatesystem.decx.setvalue(-98.0)
+        for syscopy in (mysys2, mysys3):
+            mydict = listOptimizableVariables(syscopy)
+            print(mydict)
+
+main()
