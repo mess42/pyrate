@@ -74,8 +74,8 @@ def choose_nearest(kvec, kvecs_new, returnindex=False):
         return res
 
 
-
-def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Elock=None,
+def build_pilotbundle(surfobj, mat, dxdy_pair,
+                      dphi_pair, efield_local_k=None,
                       kunitvector=None, lck=None, wave=standard_wavelength,
                       num_sampling_points=5, random_xy=False):
 
@@ -90,7 +90,7 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
                 object surface
     param (dphix, dphiy): (float) infinitesimal angles for angular cones at
                 pilotbundle start points at object surface
-    param Elock: (3xN numpy array of complex) E field vector in local k coordinate system
+    param efield_local_k: (3xN numpy array of complex) E field vector in local k coordinate system
     param kunitvector: (3xN numpy array of float) unit vector of k vector which is
                 used to generate the cones around
     param lck: (LocalCoordinates object) local k coordinate system if it differs from
@@ -104,15 +104,18 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
     # TODO: check K and E from unit vector (fulfill ev equation?)
     # TODO: check why there are singular matrices generated in calculateXYUV
 
-    (dx, dy) = xxx_todo_changeme3
-    (phix, phiy) = xxx_todo_changeme4
+    (dx_val, dy_val) = dxdy_pair
+    (phix, phiy) = dphi_pair
 
     def generate_cone_xy_bilinear(
-            direction_vec, lim_angle, xxx_todo_changeme, xxx_todo_changeme1,
+            direction_vec, lim_angle, center_pair, dxdy_pair,
             num_pts_dir, random_xy=False):
+        """
+        Generate cone of rays.
+        """
 
-        (centerx, centery) = xxx_todo_changeme
-        (dx, dy) = xxx_todo_changeme1
+        (centerx, centery) = center_pair
+        (dx_val, dy_val) = dxdy_pair
         if not random_xy:
             num_pts_lspace = num_pts_dir
             if num_pts_dir % 2 == 1:
@@ -126,11 +129,13 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
 
             lspace = np.hstack((0, lspace))
 
-            x = centerx + dx*lspace
-            y = centery + dy*lspace
+            x_start = centerx + dx_val*lspace
+            y_start = centery + dy_val*lspace
         else:
-            x = centerx + dx*np.hstack((0, 1.-2.*np.random.random(num_pts_dir-1)))
-            y = centery + dy*np.hstack((0, 1.-2.*np.random.random(num_pts_dir-1)))
+            x_start = centerx +\
+                dx_val*np.hstack((0, 1.-2.*np.random.random(num_pts_dir-1)))
+            y_start = centery +\
+                dy_val*np.hstack((0, 1.-2.*np.random.random(num_pts_dir-1)))
 
         phi = np.arctan2(direction_vec[1], direction_vec[0])
         theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
@@ -138,14 +143,18 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
         alpha = np.linspace(-lim_angle, 0, num_pts_dir, endpoint=False)
         angle = np.linspace(0, 2.*np.pi, num_pts_dir, endpoint=False)
 
-        (Alpha, Angle, X, Y) = np.meshgrid(alpha, angle, x, y)
-        Xc = np.cos(Angle)*np.sin(Alpha)
-        Yc = np.sin(Angle)*np.sin(Alpha)
-        Zc = np.cos(Alpha)
+        (alpha_grid, angle_grid, x_grid, y_grid) =\
+            np.meshgrid(alpha, angle, x_start, y_start)
+        xcone_grid = np.cos(angle_grid)*np.sin(alpha_grid)
+        ycone_grid = np.sin(angle_grid)*np.sin(alpha_grid)
+        zcone_grid = np.cos(alpha_grid)
 
-        start_pts = np.vstack((X.flatten(), Y.flatten(), np.zeros_like(X.flatten())))
+        start_pts = np.vstack((x_grid.flatten(), y_grid.flatten(),
+                               np.zeros_like(x_grid.flatten())))
 
-        cone = np.vstack((Xc.flatten(), Yc.flatten(), Zc.flatten()))
+        cone = np.vstack((xcone_grid.flatten(),
+                          ycone_grid.flatten(),
+                          zcone_grid.flatten()))
 
         rotz = rodrigues(-phi, [0, 0, 1])
         rottheta = rodrigues(-theta, [1, 0, 0])
@@ -156,8 +165,6 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
 
         return (start_pts, final_cone)
 
-
-
     lcobj = surfobj.rootcoordinatesystem
     if lck is None:
         lck = lcobj
@@ -167,7 +174,7 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
 
     cone_angle = 0.5*(phix + phiy)
     (xlocobj, kconek) = generate_cone_xy_bilinear(
-        kunitvector, cone_angle, (0.0, 0.0), (dx, dy),
+        kunitvector, cone_angle, (0.0, 0.0), (dx_val, dy_val),
         num_sampling_points, random_xy=random_xy)
 
     xlocmat = mat.lc.returnOtherToActualPoints(xlocobj, lcobj)
@@ -177,29 +184,33 @@ def build_pilotbundle(surfobj, mat, xxx_todo_changeme3, xxx_todo_changeme4, Eloc
         surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]),
         surfobj.shape.lc)
 
-    (k_4, E_4) = mat.sortKnormUnitEField(
+    (kvector_4, efield_4) = mat.sortKnormUnitEField(
         xlocmat, kconemat, surfnormalmat, wave=wave)
 
     pilotbundles = []
     for j in range(4):
 
         xglob = lcobj.returnLocalToGlobalPoints(xlocobj)
-        kglob = mat.lc.returnLocalToGlobalDirections(k_4[j])
-        Eglob = mat.lc.returnLocalToGlobalDirections(E_4[j])
+        kglob = mat.lc.returnLocalToGlobalDirections(kvector_4[j])
+        efield_glob = mat.lc.returnLocalToGlobalDirections(efield_4[j])
 
         pilotbundles.append(RayBundle(
             x0=xglob,
             k0=kglob,
-            Efield0=Eglob, wave=wave
+            Efield0=efield_glob, wave=wave
             ))
     return pilotbundles
 
 
-def build_pilotbundle_complex(surfobj, mat, dxdy_pair, dphi_pair, Elock=None,
+def build_pilotbundle_complex(surfobj, mat, dxdy_pair, dphi_pair,
+                              efield_local_k=None,
                               kunitvector=None, lck=None,
                               wave=standard_wavelength,
                               num_sampling_points=3):
-    (dx, dy) = dxdy_pair
+    """
+    Generate pilotbundle for complex media.
+    """
+    (dx_val, dy_val) = dxdy_pair
     (phix, phiy) = dphi_pair
 
     def generate_cone(direction_vec, lim_angle,
@@ -210,7 +221,7 @@ def build_pilotbundle_complex(surfobj, mat, dxdy_pair, dphi_pair, Elock=None,
         and generates cartesian raster for x and y
         """
 
-        (dx, dy) = dxdy_pair
+        (dx_val, dy_val) = dxdy_pair
         num_pts_lspace = num_pts_dir
         if num_pts_dir % 2 == 1:
             num_pts_lspace -= 1
@@ -225,43 +236,48 @@ def build_pilotbundle_complex(surfobj, mat, dxdy_pair, dphi_pair, Elock=None,
 
         # generate vectors in z direction
 
-        x = dx*lspace
-        y = dy*lspace
+        x_start = dx_val*lspace
+        y_start = dy_val*lspace
 
-        kxr = lim_angle*lspace
-        kxi = lim_angle*lspace
+        kxr_start = lim_angle*lspace
+        kxi_start = lim_angle*lspace
 
-        kyr = lim_angle*lspace
-        kyi = lim_angle*lspace
+        kyr_start = lim_angle*lspace
+        kyi_start = lim_angle*lspace
 
-        kzi = lim_angle*lspace
+        kzi_start = lim_angle*lspace
 
-        (X, Y, KXR, KXI, KYR, KYI, KZI) = np.meshgrid(x, y, kxr, kxi, kyr, kyi, kzi)
+        (x_grid, y_grid, kxr_grid, kxi_grid, kyr_grid, kyi_grid, kzi_grid) =\
+            np.meshgrid(
+                x_start, y_start,
+                kxr_start, kxi_start,
+                kyr_start, kyi_start, kzi_start)
 
-        KZR = np.sqrt(1. - KXR**2 - KXI**2 - KYR**2 - KYI**2 - KZI**2)
+        kzr_grid = np.sqrt(1. - kxr_grid**2 - kxi_grid**2
+                           - kyr_grid**2 - kyi_grid**2 - kzi_grid**2)
 
+        complex_ek = np.vstack((kxr_grid.flatten() + 1j*kxi_grid.flatten(),
+                                kyr_grid.flatten() + 1j*kyi_grid.flatten(),
+                                kzr_grid.flatten() + 1j*kzi_grid.flatten()))
 
-        complex_ek = np.vstack((KXR.flatten() + 1j*KXI.flatten(),
-                                KYR.flatten() + 1j*KYI.flatten(),
-                                KZR.flatten() + 1j*KZI.flatten()))
-
-        start_pts = np.vstack((X.flatten(), Y.flatten(), np.zeros_like(X.flatten())))
+        start_pts = np.vstack((x_grid.flatten(), y_grid.flatten(),
+                               np.zeros_like(x_grid.flatten())))
 
 
         # TODO: complex rotate complex_ek into right direction
         # this means: generalize rodrigues to unitary matrices
         # and get 5 angles from dir_vector
 
-        #print(np.linalg.norm(complex_ek, axis=0))
-        #print(complex_ek)
+        # print(np.linalg.norm(complex_ek, axis=0))
+        # print(complex_ek)
 
-        #kz = np.cos(lim_angle)
-        #kinpl = np.sin(lim_angle)
+        # kz = np.cos(lim_angle)
+        # kinpl = np.sin(lim_angle)
 
         # rotate back into direction_vec direction
 
-        #phi = np.arctan2(direction_vec[1], direction_vec[0])
-        #theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
+        # phi = np.arctan2(direction_vec[1], direction_vec[0])
+        # theta = np.arcsin(np.sqrt(direction_vec[1]**2 + direction_vec[0]**2))
 
         return (start_pts, complex_ek)
 
@@ -273,7 +289,8 @@ def build_pilotbundle_complex(surfobj, mat, dxdy_pair, dphi_pair, Elock=None,
         kunitvector = np.array([0, 0, 1])
 
     (xlocobj, kconek) = generate_cone(
-        kunitvector, 0.5*(phix + phiy), (dx, dy), num_sampling_points)
+        kunitvector, 0.5*(phix + phiy), (dx_val, dy_val),
+        num_sampling_points)
 
     xlocmat = mat.lc.returnOtherToActualPoints(xlocobj, lcobj)
     kconemat = mat.lc.returnOtherToActualDirections(kconek, lck)
@@ -281,19 +298,18 @@ def build_pilotbundle_complex(surfobj, mat, dxdy_pair, dphi_pair, Elock=None,
     surfnormalmat = mat.lc.returnOtherToActualDirections(
         surfobj.shape.getNormal(xlocsurf[0], xlocsurf[1]), surfobj.shape.lc)
 
-    (k_4, E_4) = mat.sortKnormUnitEField(
+    (kvector_4, efield_4) = mat.sortKnormUnitEField(
         xlocmat, kconemat, surfnormalmat, wave=wave)
 
     pilotbundles = []
     for j in range(4):
-
         xglob = lcobj.returnLocalToGlobalPoints(xlocobj)
-        kglob = mat.lc.returnLocalToGlobalDirections(k_4[j])
-        Eglob = mat.lc.returnLocalToGlobalDirections(E_4[j])
+        kglob = mat.lc.returnLocalToGlobalDirections(kvector_4[j])
+        efield_glob = mat.lc.returnLocalToGlobalDirections(efield_4[j])
 
         pilotbundles.append(RayBundle(
             x0=xglob,
             k0=kglob,
-            Efield0=Eglob, wave=wave
+            Efield0=efield_glob, wave=wave
             ))
     return pilotbundles
