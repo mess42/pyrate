@@ -24,29 +24,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-from pprint import pformat
 from copy import deepcopy
 
-from .material.material_keyword_class_association import kind_of_material_classes
+import numpy as np
+
 from .material.material_isotropic import ConstantIndexGlass
 
-from .raytracer_keyword_class_association import kind_of_raytracer_classes
 from .localcoordinates import LocalCoordinates
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
-from .optical_element import OpticalElement
 
 from .ray import RayPath
 
+
 class OpticalSystem(LocalCoordinatesTreeBase):
     """
-    Represents an optical system, consisting of several surfaces and materials inbetween.
+    Represents an optical system, consisting of several surfaces and
+    materials inbetween.
     """
     @classmethod
     def p(cls, rootlc=None, matbackground=None, name=""):
         """
-        Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
-
+        Creates an optical system object. Initially, it contains 2 plane
+        surfaces (object and image).
 
         :param rootlc: local coordinate system of object (class LocalCoordinates).
         :param matbackground: background material (class Material)
