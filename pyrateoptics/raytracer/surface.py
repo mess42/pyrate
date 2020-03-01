@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 from .surface_shape import Conic
-from .aperture import BaseAperture, createAperture
+from .aperture import BaseAperture, create_aperture
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
 import numpy as np
 from .globalconstants import canonical_ex, canonical_ey
@@ -61,7 +61,7 @@ class Surface(LocalCoordinatesTreeBase):
             aperture_ = aperture
         elif isinstance(aperture, dict):
             try:
-                aperture_ = createAperture(rootlc, aperture)
+                aperture_ = create_aperture(rootlc, aperture)
             except Exception as e:
                 surface_instance.error("Can't create aperture from dict,"
                                        " used default instead.")
@@ -127,8 +127,9 @@ class Surface(LocalCoordinatesTreeBase):
             local_ap_intersection =\
                 self.aperture.lc.returnGlobalToLocalPoints(globalintersection)
 
-            valid = self.aperture.arePointsInAperture(local_ap_intersection[0],
-                                                      local_ap_intersection[1])
+            valid = self.aperture.are_points_in_aperture(
+                local_ap_intersection[0],
+                local_ap_intersection[1])
 
             raybundle.valid[-1] = raybundle.valid[-1]*valid
 
@@ -157,10 +158,10 @@ class Surface(LocalCoordinatesTreeBase):
             # TODO: choose max ray height of all bundles instead
             # (cosmetic but absolutely necessary for beauty)
         else:
-            if self.aperture.getTypicalDimension() <= sizelimit:
+            if self.aperture.get_typical_dimension() <= sizelimit:
                 # TODO: aperture types Object and Image to distuingish
                 # from very large normal apertures
-                effsemidia = self.aperture.getTypicalDimension()
+                effsemidia = self.aperture.get_typical_dimension()
             else:
                 effsemidia = failsafevalue
 
@@ -173,7 +174,7 @@ class Surface(LocalCoordinatesTreeBase):
         x = X.flatten()
         y = Y.flatten()
 
-        isinap = self.aperture.arePointsInAperture(x, y)
+        isinap = self.aperture.are_points_in_aperture(x, y)
         xinap = x[isinap]
         yinap = y[isinap]
         zinap = np.zeros_like(xinap)
