@@ -469,34 +469,3 @@ class OpticalElement(LocalCoordinatesTreeBase):
             if surfs.name not in do_not_draw_surfaces:
                 surfs.draw2d(ax, color=color, vertices=vertices,
                              inyzplane=inyzplane, **kwargs)
-
-    @staticmethod
-    def initFromDictionary(reconstruct_list):
-        """
-        Compare to protocol_version
-        """
-        [opticalelement_dict,
-         dependent_classes,
-         reconstruct_variables_dict] = reconstruct_list
-
-        print("----")
-        print(opticalelement_dict)
-
-        oe_rootcoordinatesystem_id = opticalelement_dict["classes"]["rootcoordinatesystem"]
-        rootlc = LocalCoordinates.initFromDictionary([
-                dependent_classes[oe_rootcoordinatesystem_id],
-                dependent_classes, reconstruct_variables_dict])
-
-        oe = OpticalElement(rootlc, name=opticalelement_dict["name"])
-        oe_surfaces_ids = opticalelement_dict["classes"]["_OpticalElement__surfaces"]
-        oe_materials_ids = opticalelement_dict["classes"]["_OpticalElement__materials"]
-
-        oe_surfaces = []
-        for (k, v) in oe_surfaces_ids.items():
-            my_surf = dependent_classes.get(v)
-            print(my_surf)
-            oe_surfaces.append((v, ))
-
-        # TODO: definitely not complete!
-
-        return oe

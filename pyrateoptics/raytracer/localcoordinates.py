@@ -471,20 +471,6 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                [i.name for i in self.__children])
         return s
 
-    @staticmethod
-    def initFromDictionary(reconstruct_list):
-        (lc_dict,
-         dependet_classes,
-         variables_reconstruct_dict) = reconstruct_list
-
-        print("lc: initfrom dict", lc_dict)
-
-        lc = LocalCoordinates(name=lc_dict["name"])
-
-        # TODO: incomplete
-
-        return lc
-
 
 if __name__ == "__main__":
 

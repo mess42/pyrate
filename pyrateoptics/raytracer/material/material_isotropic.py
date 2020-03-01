@@ -185,15 +185,6 @@ class ConstantIndexGlass(IsotropicMaterial):
     def getIndex(self, x, wave):
         return self.n.evaluate()
 
-    @staticmethod
-    def initFromDictionary(reconstruct_list):
-        [constantindexglass_dict,
-         dependent_classes,
-         variable_reconstruct] = reconstruct_list
-        print("constindex: ", constantindexglass_dict)
-
-        # TODO: incomplete!
-
 
 class ModelGlass(IsotropicMaterial):
 

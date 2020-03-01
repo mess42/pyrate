@@ -245,66 +245,32 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                      do_not_draw_surfaces=do_not_draw_surfaces,
                      **kwargs)
 
-    @staticmethod
-    def initFromDictionary(reconstruct_list):
-        """
-        Perform also checks for protocol_version here.
-        """
-
-        [opticalsystem_dict,
-         dependent_classes,
-         reconstruct_variables_dict] = reconstruct_list
-
-
-        os = OpticalSystem(name=opticalsystem_dict["name"])
-        os.debug("Instance initialized")
-        os.debug("To be initialized dict")
-        os.debug(pformat(opticalsystem_dict, indent=4))
-        os.annotations = opticalsystem_dict["annotations"]
-        os.debug("Annotations copied")
-        os.debug("Elements initializing ...")
-        my_elements = opticalsystem_dict["classes"]["elements"]
-        os.elements = dict([(k, OpticalElement.initFromDictionary(
-                [dependent_classes.pop(v),
-                 dependent_classes,
-                 reconstruct_variables_dict]))
-                            for (k, v) in my_elements.items()])
-        os.debug("Material background initializing ...")
-        material_background_dict = dependent_classes.pop(
-                opticalsystem_dict["classes"]["material_background"])
-        os.debug("Root coordinate system initializing ...")
-        rootcoordinate_dict = dependent_classes.pop(
-                opticalsystem_dict["classes"]["rootcoordinatesystem"])
-        os.debug("Material background generating from dict")
-        os.material_background = kind_of_material_classes[
-                material_background_dict["kind"]].\
-            initFromDictionary([material_background_dict,
-                                dependent_classes,
-                                reconstruct_variables_dict])
-        os.debug("Root coordinate generating from dict ...")
-        os.rootcoordinatesystem = kind_of_raytracer_classes[
-                rootcoordinate_dict["kind"]].\
-            initFromDictionary([rootcoordinate_dict,
-                                dependent_classes,
-                                reconstruct_variables_dict])
-
-        return os
-
 
 if __name__ == "__main__":
 
+    def main():
+        "Main function for code checks"
+        os = OpticalSystem()
 
-    os = OpticalSystem()
+        lc1 = os.addLocalCoordinateSystem(
+            LocalCoordinates(decz=10.0),
+            refname=os.rootcoordinatesystem.name)
+        lc2 = os.addLocalCoordinateSystem(
+            LocalCoordinates(decz=20.0),
+            refname=lc1.name)
+        lc3 = os.addLocalCoordinateSystem(
+            LocalCoordinates(decz=30.0), refname=lc2.name)
+        lc4 = os.addLocalCoordinateSystem(
+            LocalCoordinates(decz=40.0),
+            refname=lc3.name)
 
-    lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0), refname=os.rootcoordinatesystem.name)
-    lc2 = os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0), refname=lc1.name)
-    lc3 = os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0), refname=lc2.name)
-    lc4 = os.addLocalCoordinateSystem(LocalCoordinates(decz=40.0), refname=lc3.name)
+        lc5 = os.addLocalCoordinateSystem(
+            LocalCoordinates(
+                name="COM", decx=10.0, decy=5.0, decz=10.),
+            refname=lc1.name)
 
-    lc5 = os.addLocalCoordinateSystem(LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
+        print(os.rootcoordinatesystem.pprint())
 
-    print(os.rootcoordinatesystem.pprint())
-
-
+    main()
 
 
