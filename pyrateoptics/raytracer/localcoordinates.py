@@ -24,9 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
 import math
 import random
+
+import numpy as np
 
 from .helpers_math import rodrigues
 
@@ -35,6 +36,9 @@ from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
 
 
 class LocalCoordinates(ClassWithOptimizableVariables):
+    """
+    Class for defining local coordinate systems.
+    """
     @classmethod
     def p(cls, name="", **kwargs):
         # TODO: Reference to global to be rewritten into reference to root
@@ -57,8 +61,9 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         '''
 
         (decz, decx, decy, tiltx, tilty, tiltz) = \
-            (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx",
-             "tilty", "tiltz"])
+            (kwargs.get(key, 0.0)
+             for key in ["decz", "decx", "decy", "tiltx",
+                         "tilty", "tiltz"])
 
         tiltThenDecenter = kwargs.get("tiltThenDecenter", 0)
 
@@ -483,28 +488,28 @@ class LocalCoordinates(ClassWithOptimizableVariables):
 
 if __name__ == "__main__":
 
-    printouttestcase1 = False
-    printouttestcase2 = False
-    printouttestcase3 = False
-    printouttestcase4 = True
+    def main():
+        printouttestcase1 = False
+        printouttestcase2 = False
+        printouttestcase3 = False
+        printouttestcase4 = True
 
-    '''testcase2: convert rotation matrix to tilt'''
-    surfrt0 = LocalCoordinates.p("rt0")
-    for loop in range(1000):
-        (tiltx, tiltz) = (random.random()*math.pi for i in range(2))
-        tilty = random.random()*math.pi - math.pi/2
-        tiltThenDecenter = random.randint(0, 1)
-        surfrt1 = surfrt0.addChild(LocalCoordinates.p("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, tiltThenDecenter=tiltThenDecenter))
-        (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, tiltThenDecenter)
-        if printouttestcase2:
-            print("diffs %d %f %f %f: %f %f %f" % (tiltThenDecenter, tiltx, tilty, tiltz, tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
-    '''testcase3: aimAt function'''
-    surfaa0 = LocalCoordinates("aa0")
-    surfaa05 = surfaa0.addChild(LocalCoordinates.p("aa05", decz=20, tiltx=20*math.pi/180.0))
-    surfaa1 = surfaa05.addChild(LocalCoordinates.p("aa1", decz=20, tiltx=20*math.pi/180.0))
-    surfaa2 = surfaa1.addChild(LocalCoordinates.p("aa2", decz=20))
-    surfaa3 = surfaa2.addChild(LocalCoordinates.p("aa3", decz=0))
-    surfaa4 = surfaa3.addChild(LocalCoordinates.p("aa4", decz=57.587705))
+        '''testcase2: convert rotation matrix to tilt'''
+        surfrt0 = LocalCoordinates.p("rt0")
+        for loop in range(1000):
+            (tiltx, tiltz) = (random.random()*math.pi for i in range(2))
+            tilty = random.random()*math.pi - math.pi/2
+            tiltThenDecenter = random.randint(0, 1)
+            surfrt1 = surfrt0.addChild(LocalCoordinates.p("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, tiltThenDecenter=tiltThenDecenter))
+            (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, tiltThenDecenter)
+            if printouttestcase2:
+                print("diffs %d %f %f %f: %f %f %f" % (tiltThenDecenter, tiltx, tilty, tiltz, tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
+        '''testcase3: aimAt function'''
+        surfaa0 = LocalCoordinates("aa0")
+        surfaa05 = surfaa0.addChild(LocalCoordinates.p("aa05", decz=20, tiltx=20*math.pi/180.0))
+        surfaa1 = surfaa05.addChild(LocalCoordinates.p("aa1", decz=20, tiltx=20*math.pi/180.0))
+        surfaa2 = surfaa1.addChild(LocalCoordinates.p("aa2", decz=20))
+        surfaa3 = surfaa2.addChild(LocalCoordinates.p("aa3", decz=0))
+        surfaa4 = surfaa3.addChild(LocalCoordinates.p("aa4", decz=57.587705))
 
-
-
+    main()
