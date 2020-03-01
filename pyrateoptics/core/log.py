@@ -27,10 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import logging
 import uuid
 import random
-
-from .names.adjectives import adjectives
-from .names.nouns import nouns
-
+import json
+import os
 
 class BaseLogger(object):
     """
@@ -85,6 +83,14 @@ class BaseLogger(object):
         Setter for name.
         """
         if name == "":
+            mycorespath = os.path.dirname(__file__)
+            with open(mycorespath +
+                      "/names/adjectives.json", "rt") as file_adjectives:
+                adjectives = json.load(file_adjectives)
+            with open(mycorespath +
+                      "/names/nouns.json", "rt") as file_nouns:
+                nouns = json.load(file_nouns)
+
             my_index_ad = random.randint(0, len(adjectives) - 1)
             my_index_no = random.randint(0, len(nouns) - 1)
 
