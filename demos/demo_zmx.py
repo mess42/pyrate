@@ -109,7 +109,7 @@ for d in initialbundles_dict:
     if show_spot:
         d["raster"] = raster.RectGrid()
         osa.aim(num_rays*num_rays, d, wave=standard_wavelength)
-        osa.drawSpotDiagram()
+        osa.draw_spotdiagram()
     else:
         d["raster"] = raster.MeridionalFan()
         d["anglex"] = anglex

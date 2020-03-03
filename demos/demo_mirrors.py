@@ -170,8 +170,8 @@ draw(s, [(r1p, "blue"), (r2p, "green"), (r3p, "orange")])
 #
 # oea = OpticalElementAnalysis(s.elements["TMA"])
 #
-# xyuvobjectstop = oea.calcXYUV([("object", "m1", 1), ("m1", "m2", 1)],
-#                               pilotbundle2, sysseq[0][1], air)
+# xyuvobjectstop = oea.calc_xyuv([("object", "m1", 1), ("m1", "m2", 1)],
+#                                pilotbundle2, sysseq[0][1], air)
 #
 # Axyuv = xyuvobjectstop[0:2, 0:2]
 # Bxyuv = xyuvobjectstop[0:2, 2:4]

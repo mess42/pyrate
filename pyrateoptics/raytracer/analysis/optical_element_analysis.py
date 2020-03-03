@@ -28,6 +28,7 @@ import numpy as np
 
 from ...core.log import BaseLogger
 
+
 class OpticalElementAnalysis(BaseLogger):
     """
     Class for optical element analysis.
@@ -39,10 +40,10 @@ class OpticalElementAnalysis(BaseLogger):
         self.elementsequence = elemseq
 
     def setKind(self):
-        self.kind = "opticalelementanalysis",
+        self.kind = "opticalelementanalysis"
 
-    def calcXYUV(self, parthitlist, pilotbundle, fullsequence,
-                 background_medium):
+    def calc_xyuv(self, parthitlist, pilotbundle, fullsequence,
+                  background_medium):
         """
         Calculate XYUV matrices.
         """

@@ -141,7 +141,7 @@ def meritfunction_step2(my_s):
     # y = rpaths[0].raybundles[-1].x[-1, 1, :]
     rba.raybundle = rpaths[0].raybundles[-1]
 
-    merit = rba.getRMSspotSizeCentroid()  # np.sum(x**2 + y**2)
+    merit = rba.get_rms_spot_size_centroid()  # np.sum(x**2 + y**2)
     merit += 1000000.*math.exp(-len(x))
     # TODO: adding the exp-x is a dirty trick.
     # The prefactor also has to be adapted for each system.
@@ -220,7 +220,7 @@ def final_meritfunction(my_s, rpup, fno, maxfield_deg):
         rpaths = my_s.seqtrace(bundle, seq)
         x = rpaths[0].raybundles[-1].x[-1, 0, :]
         rba.raybundle = rpaths[0].raybundles[-1]
-        merit += rba.getRMSspotSizeCentroid()
+        merit += rba.get_rms_spot_size_centroid()
         merit += 1./(len(x) + 1e-18)  # 10000.*math.exp(-len(x))
 
     # f number

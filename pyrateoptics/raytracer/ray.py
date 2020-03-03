@@ -294,6 +294,6 @@ if __name__ == "__main__":
 
     print(x0)
     print(x1)
-    print(r.getArcLength())
+    print(r.get_arc_length())
 
 

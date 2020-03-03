@@ -41,71 +41,73 @@ class ShapeAnalysis(BaseLogger):
     def setKind(self):
         self.kind = "shapeanalysis"
 
-    def generateSagTable(self, xlinspace, ylinspace):
+    def generate_sag_table(self, xlinspace, ylinspace):
         """
         Generates sag table (vectorial) from two linspaces.
         """
-        (X, Y, Z) = self.generateSagMatrices(xlinspace, ylinspace)
-        xf = X.flatten()
-        yf = Y.flatten()
-        zf = Z.flatten()
+        (xgrid, ygrid, zgrid) = self.generate_sag_matrices(
+            xlinspace, ylinspace)
+        xflat = xgrid.flatten()
+        yflat = ygrid.flatten()
+        zflat = zgrid.flatten()
 
-        return np.vstack((xf, yf, zf))
+        return np.vstack((xflat, yflat, zflat))
 
-    def generateSagMatrices(self, xlinspace, ylinspace):
+    def generate_sag_matrices(self, xlinspace, ylinspace):
         """
         Generates sag table (matrixvalued) from two linspaces.
         """
-        (X, Y) = np.meshgrid(xlinspace, ylinspace)
-        xf = X.flatten()
-        yf = Y.flatten()
-        zf = self.shape.getSag(xf, yf)
-        Z = np.reshape(zf, np.shape(X))
+        (xgrid, ygrid) = np.meshgrid(xlinspace, ylinspace)
+        xflat = xgrid.flatten()
+        yflat = ygrid.flatten()
+        zflat = self.shape.getSag(xflat, yflat)
+        zgrid = np.reshape(zflat, np.shape(xgrid))
 
-        return (X, Y, Z)
+        return (xgrid, ygrid, zgrid)
 
-    def loadSagTable(self, filename):
+    def load_sag_table(self, filename):
         """
         Loads vectorial sag table.
         """
         return np.loadtxt(filename, dtype=float).T
 
-    def saveSagTable(self, filename, xlinspace, ylinspace):
+    def save_sag_table(self, filename, xlinspace, ylinspace):
         """
         Savess vectorial sag table.
         """
-        table = self.generateSagTable(xlinspace, ylinspace)
+        table = self.generate_sag_table(xlinspace, ylinspace)
         np.savetxt(filename, table.T)
 
-    def comparewithSagTable(self, table):
+    def compare_with_sag_table(self, table):
         """
         Compare sag table with function call.
         """
-        x = table[0]
-        y = table[1]
-        z = table[2]
+        xtable = table[0]
+        ytable = table[1]
+        ztable = table[2]
 
-        return self.shape.getSag(x, y) - z
+        return self.shape.getSag(xtable, ytable) - ztable
 
-    def plot(self, xlinspace, ylinspace, contours=10, ax=None,
+    def plot(self, xlinspace, ylinspace, contours=10, axes=None,
              *args, **kwargs):
         """
         Plots sag table to axis.
         """
 
-        (X, Y, Z) = self.generateSagMatrices(xlinspace, ylinspace)
+        (xgrid, ygrid, zgrid) = self.generate_sag_matrices(xlinspace,
+                                                           ylinspace)
 
-        MASK = kwargs.get('mask', np.ones_like(Z, dtype=bool))
-        Z[~MASK] = np.nan
+        mask = kwargs.get('mask', np.ones_like(zgrid, dtype=bool))
+        zgrid[~mask] = np.nan
 
-        if ax is None:
+        if axes is None:
             plt.figure()
-            plt.contourf(X, Y, Z, contours, *args, **kwargs)
+            plt.contourf(xgrid, ygrid, zgrid, contours, *args, **kwargs)
             plt.colorbar()
             plt.title(kwargs.get("title", ""))
             plt.show()
         else:
-            ax.contourf(X, Y, Z, contours, *args, **kwargs)
+            axes.contourf(xgrid, ygrid, zgrid, contours, *args, **kwargs)
             # plt.colorbar()
-            ax.set_title(kwargs.get("title", ""))
-            ax.set_aspect('equal')
+            axes.set_title(kwargs.get("title", ""))
+            axes.set_aspect('equal')

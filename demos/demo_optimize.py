@@ -190,7 +190,7 @@ s.addElement("lenssys", elem)
 # plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 # plots.drawLayout2d(ax2, s, [r2, r3, r4])
 # plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
-# plots.drawSpotDiagram(ax3, s, r3, -1)
+# plots.draw_spotdiagram(ax3, s, r3, -1)
 # plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 
 
@@ -341,7 +341,7 @@ s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
 # s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 osa.aim(500, divbundledict, wave=wavelength)
-osa.drawSpotDiagram()
+osa.draw_spotdiagram()
 sa = ShapeAnalysis(surf1.shape)
 sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
 
@@ -352,5 +352,5 @@ plt.show()
 plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 # plots.drawLayout2d(ax2, s, [r2, r3, r4])
 plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
-# plots.drawSpotDiagram(ax3, s, r3, -1)
+# plots.draw_spotdiagram(ax3, s, r3, -1)
 # plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
