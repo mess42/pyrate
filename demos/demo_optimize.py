@@ -343,7 +343,7 @@ s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
 osa.aim(500, divbundledict, wave=wavelength)
 osa.draw_spotdiagram()
 sa = ShapeAnalysis(surf1.shape)
-sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
+sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, axes=ax3)
 
 
 plt.show()
