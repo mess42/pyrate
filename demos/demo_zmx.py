@@ -91,12 +91,12 @@ matdict = {"BK7": ConstantIndexGlass.p(lctmp, 1.5168),
            "LAFN21": ConstantIndexGlass.p(lctmp, 1.788),
            "SF53": ConstantIndexGlass.p(lctmp, 1.72)}
 
-(s, seq) = p.createOpticalSystem(matdict)
+(s, seq) = p.create_optical_system(matdict)
 
 if s is None:
     sys.exit()
 
-initialbundles_dict = p.createInitialBundle()
+initialbundles_dict = p.create_initial_bundle()
 
 osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 
