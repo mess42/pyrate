@@ -75,8 +75,8 @@ for ax in axarr:
 # or
 # LAK8 / BK7 / N-F2
 
-# gcat = material_glasscat.refractiveindex_dot_info_glasscatalog(db_path)
-# print gcat.findPagesWithLongNameContaining("BK7")
+# gcat = material_glasscat.GlassCatalog(db_path)
+# print gcat.find_pages_with_long_name("BK7")
 
 
 # Step 1: set up system of glass plates

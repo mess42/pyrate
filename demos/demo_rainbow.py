@@ -34,7 +34,7 @@ from pyrateoptics.sampling2d import raster
 from pyrateoptics.raytracer.material.material_isotropic import\
     ConstantIndexGlass
 from pyrateoptics.raytracer.material.material_glasscat import\
-    refractiveindex_dot_info_glasscatalog, CatalogMaterial
+    GlassCatalog, CatalogMaterial
 from pyrateoptics.raytracer.surface_shape import Asphere
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
@@ -105,8 +105,8 @@ book = "liquids"
 page = "water"
 
 try:
-    gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
-    waterdict = gcat.getMaterialDict(shelf, book, page)
+    gcat = GlassCatalog(database_basepath)
+    waterdict = gcat.get_material_dict(shelf, book, page)
     water = CatalogMaterial.p(lc0, waterdict, name="water (catalogue)")
 except KeyError:
     logging.warning("refractive index database not found. please download it\

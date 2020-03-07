@@ -48,8 +48,7 @@ from .raytracer.globalconstants import (numerical_tolerance,
                                         degree)
 from .raytracer.ray import RayBundle, RayPath
 from .raytracer.material.material_isotropic import ConstantIndexGlass
-from .raytracer.material.material_glasscat import\
-     refractiveindex_dot_info_glasscatalog
+from .raytracer.material.material_glasscat import GlassCatalog
 
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions
@@ -110,7 +109,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
     lastmat = None
     surflist_for_sequence = []
 
-    gcat = refractiveindex_dot_info_glasscatalog(material_db_path)
+    gcat = GlassCatalog(material_db_path)
 
     for (surfdict, coordbreakdict, mat, surf_name, optdict) in builduplist:
         lc = elem.addLocalCoordinateSystem(
@@ -161,7 +160,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
             else:
                 use_floating_point_value_for_constant_index_glass = True
             if isinstance(mat, str) and not use_floating_point_value_for_constant_index_glass:
-                gcat.getMaterialDictFromLongName(mat)
+                gcat.get_material_dictFromLongName(mat)
                 elem.addMaterial(mat,
                                  gcat.createGlassObjectFromLongName(lc, mat))
             elif use_floating_point_value_for_constant_index_glass:
