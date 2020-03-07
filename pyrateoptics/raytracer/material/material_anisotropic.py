@@ -26,25 +26,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import numpy as np
 
-from ..helpers_math import checkfinite
 from ..ray import RayBundle
 from ..globalconstants import standard_wavelength
 from .material import MaxwellMaterial
 
 
 class AnisotropicMaterial(MaxwellMaterial):
+    """
+    Defining a general anisotropic material also with a possible
+    location dependency.
+    """
 
     @classmethod
     def p(cls, lc, epstensor, name="", comment=""):
 
         # up to now the material is not dispersive since the epsilon tensor
         # is not intended to be wave-dependent
-        return cls({"comment": comment}, {"lc": lc, "epstensor": epstensor},
-                   name=name)
+        return cls({"comment": comment, "epstensor": epstensor.tolist()},
+                   {"lc": lc}, name=name)
+
+    def initialize_from_annotations(self):
+        self.epstensor = np.array(self.annotations["epstensor"])
 
     def getEpsilonTensor(self, x, wave=standard_wavelength):
 
-        (num_dims, num_pts) = np.shape(x)
+        (_, num_pts) = np.shape(x)
 
         return np.repeat(self.epstensor[:, :, np.newaxis], num_pts, axis=2)
 
@@ -62,23 +68,23 @@ class AnisotropicMaterial(MaxwellMaterial):
 
     def refract(self, raybundle, actualSurface, splitup=False):
 
-        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
+        k1_vec = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
+        normal = raybundle.getLocalSurfaceNormal(actualSurface, self,
+                                                 raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_x = checkfinite(xlocal)
-        valid_normals = checkfinite(normal)
+        # xlocal[:, valid_x ^ True] = 0.0
+        # normal[:, valid_normals ^ True] = 0.0
+        # normal[2, valid_normals ^ True] = 1.0
 
-        #xlocal[:, valid_x ^ True] = 0.0
-        #normal[:, valid_normals ^ True] = 0.0
-        #normal[2, valid_normals ^ True] = 1.0
+        k_inplane = k1_vec - np.sum(k1_vec * normal, axis=0) * normal
 
-        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
-
-        (k2_sorted, e2_sorted) = self.sortKnormEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
+        (k2_sorted, e2_sorted) = self.sortKnormEField(
+            xlocal, normal,
+            k_inplane, normal, wave=raybundle.wave)
 
         if not splitup:
-        # 2 vectors with largest scalarproduct of S with n
+            # 2 vectors with largest scalarproduct of S with n
             k2 = np.hstack((k2_sorted[2], k2_sorted[3]))
 
             e2 = np.hstack((e2_sorted[2], e2_sorted[3]))
@@ -89,7 +95,8 @@ class AnisotropicMaterial(MaxwellMaterial):
             newk = self.lc.returnLocalToGlobalDirections(k2)
             newe = self.lc.returnLocalToGlobalDirections(e2)
 
-            return (RayBundle(orig, newk, newe, newids, raybundle.wave, splitted=True),)
+            return (RayBundle(orig, newk, newe, newids,
+                              raybundle.wave, splitted=True),)
         else:
             k2_1 = self.lc.returnLocalToGlobalDirections(k2_sorted[2])
             k2_2 = self.lc.returnLocalToGlobalDirections(k2_sorted[3])
@@ -106,20 +113,15 @@ class AnisotropicMaterial(MaxwellMaterial):
 
     def reflect(self, raybundle, actualSurface, splitup=False):
 
-        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        normal = raybundle.getLocalSurfaceNormal(actualSurface, self, raybundle.x[-1])
+        k1_vec = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
+        normal = raybundle.getLocalSurfaceNormal(actualSurface, self,
+                                                 raybundle.x[-1])
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_x = checkfinite(xlocal)
-        valid_normals = checkfinite(normal)
+        k_inplane = k1_vec - np.sum(k1_vec * normal, axis=0) * normal
 
-        #xlocal[:, valid_x ^ True] = 0.0
-        #normal[:, valid_normals ^ True] = 0.0
-        #normal[2, valid_normals ^ True] = 1.0
-
-        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
-
-        (k2_sorted, e2_sorted) = self.sortKnormEField(xlocal, normal, k_inplane, normal, wave=raybundle.wave)
+        (k2_sorted, e2_sorted) = self.sortKnormEField(
+            xlocal, normal, k_inplane, normal, wave=raybundle.wave)
 
         # 2 vectors with smallest scalarproduct of S with n
 
@@ -127,16 +129,16 @@ class AnisotropicMaterial(MaxwellMaterial):
         # coordinate decenter
 
         if not splitup:
-            k2 = -np.hstack((k2_sorted[0], k2_sorted[1]))
-            e2 = -np.hstack((e2_sorted[0], e2_sorted[1]))
+            k2_vec = -np.hstack((k2_sorted[0], k2_sorted[1]))
+            e2_vec = -np.hstack((e2_sorted[0], e2_sorted[1]))
             newids = np.hstack((raybundle.rayID, raybundle.rayID))
 
             orig = np.hstack((raybundle.x[-1], raybundle.x[-1]))
-            newk = self.lc.returnLocalToGlobalDirections(k2)
-            newe = self.lc.returnLocalToGlobalDirections(e2)
+            newk = self.lc.returnLocalToGlobalDirections(k2_vec)
+            newe = self.lc.returnLocalToGlobalDirections(e2_vec)
 
-
-            return (RayBundle(orig, newk, newe, newids, raybundle.wave, splitted=True),)
+            return (RayBundle(orig, newk, newe, newids, raybundle.wave,
+                              splitted=True),)
         else:
             k2_1 = self.lc.returnLocalToGlobalDirections(-k2_sorted[0])
             k2_2 = self.lc.returnLocalToGlobalDirections(-k2_sorted[1])
@@ -150,4 +152,3 @@ class AnisotropicMaterial(MaxwellMaterial):
                 RayBundle(orig, k2_1, e2_1, raybundle.rayID, raybundle.wave),
                 RayBundle(orig, k2_2, e2_2, raybundle.rayID, raybundle.wave)
                 )
-

@@ -42,9 +42,10 @@ class Material(ClassWithOptimizableVariables):
     def setKind(self):
         self.kind = "material"
 
-    def refract(self, raybundle, actualSurface):
+    def refract(self, raybundle, actualSurface, splitup=False):
         """
-        Class describing the interaction of the ray at the surface based on the material.
+        Class describing the interaction of the ray at the
+        surface based on the material.
 
         :param raybundle: Incoming raybundle ( RayBundle object )
         :param actualSurface: refracting surface ( Surface object )
@@ -53,7 +54,7 @@ class Material(ClassWithOptimizableVariables):
         """
         raise NotImplementedError()
 
-    def reflect(self, raybundle, actualSurface):
+    def reflect(self, raybundle, actualSurface, splitup=False):
         """
         Class describing the interaction of the ray at the surface based on
         the material.
@@ -71,7 +72,6 @@ class Material(ClassWithOptimizableVariables):
         just adds the end point at nextSurface intersection to the raybundle
         """
         raise NotImplementedError()
-
 
 
 class MaxwellMaterial(Material):
@@ -184,10 +184,9 @@ class MaxwellMaterial(Material):
 
         return (k_norm_4_sorted, Efield_4_sorted)
 
-
     def sortKEField(self, x, n, kpa, e, wave=standard_wavelength):
 
-        k0 =  2.*math.pi/wave
+        k0 = 2.*math.pi/wave
 
         (k, E) = self.sortKnormEField(x, n, kpa/k0, e, wave=wave)
 
@@ -195,7 +194,7 @@ class MaxwellMaterial(Material):
 
     def sortKUnitEField(self, x, kd, e, wave=standard_wavelength):
 
-        k0 =  2.*math.pi/wave
+        k0 = 2.*math.pi/wave
 
         (k, E) = self.sortKnormUnitEField(x, kd, e, wave=wave)
 
@@ -204,7 +203,7 @@ class MaxwellMaterial(Material):
 
     def calcPoytingVector(self, k, Efield, wave=standard_wavelength):
 
-        k0 =  2.*math.pi/wave
+        k0 = 2.*math.pi/wave
 
         # maybe include also pre factor
 
@@ -326,7 +325,8 @@ class MaxwellMaterial(Material):
         a1 = np.einsum('i...,i...', kd, kd)
         a2 = np.einsum('i...,j...,ij...', kd, kd, eps)
         a3 = np.einsum('i...,i...', kd, k)
-        a4plusa5 = np.einsum('i...,j...,ij...', kd, k, eps) + np.einsum('i...,j...,ij...', k, kd, eps)
+        a4plusa5 = np.einsum('i...,j...,ij...', kd, k, eps) +\
+            np.einsum('i...,j...,ij...', k, kd, eps)
         a6 = np.einsum('i...,j...,ik...,kj...', kd, kd, eps, eps)
         a8minusa7 = np.einsum('i...,i...', k, k) - np.einsum('ii...', eps)
         a9 = np.einsum('i...,j...,ij...', k, k, eps)
@@ -385,17 +385,19 @@ class MaxwellMaterial(Material):
             Mmatrix[:, :, j] += np.outer(n[:, j], n[:, j])
             Cmatrix[:, :, j] += np.outer(kpa_norm[:, j], n[:, j]) +\
                 np.outer(n[:, j], kpa_norm[:, j])
-            Kmatrix[:, :, j] += -np.dot(kpa_norm[:,j], kpa_norm[:,j])*complexidmatrix +\
+            Kmatrix[:, :, j] += -np.dot(
+                kpa_norm[:, j],
+                kpa_norm[:, j]) * complexidmatrix +\
                 np.outer(kpa_norm[:, j], kpa_norm[:, j])
 
         Amatrix6x6 = np.vstack(
-                    (np.hstack((Cmatrix, Kmatrix)),
-                     np.hstack((-IdMatrix, ZeroMatrix)))
-                )
+            (np.hstack((Cmatrix, Kmatrix)),
+             np.hstack((-IdMatrix, ZeroMatrix)))
+            )
         Bmatrix6x6 = -np.vstack(
-                    (np.hstack((Mmatrix, ZeroMatrix)),
-                     np.hstack((ZeroMatrix, IdMatrix)))
-                )
+            (np.hstack((Mmatrix, ZeroMatrix)),
+             np.hstack((ZeroMatrix, IdMatrix)))
+            )
 
         return ((Amatrix6x6, Bmatrix6x6), (Mmatrix, Cmatrix, Kmatrix))
 
@@ -524,7 +526,6 @@ class MaxwellMaterial(Material):
 
         eps = self.getEpsilonTensor(x, wave=wave)
 
-
         a1 = np.einsum('ii...', eps)
         a2 = np.einsum('ij...,ji...', eps, eps)
         a3 = np.einsum('ij...,jk...,ki...', eps, eps, eps)
@@ -538,11 +539,14 @@ class MaxwellMaterial(Material):
         a12 = np.einsum('ij...,jk...,i...,k...', eps, eps, kpa_norm, n)
         a13 = np.einsum('ij...,jk...,i...,k...', eps, eps, n, n)
 
-        #p4 = a7*omegabar**2
-        #p3 = (2*a10*a7 + a8 + a9)*omegabar**2
-        #p2 = (a5 + a4*a7 + 2*a10*(a8 + a9))*omegabar**2 + (a13 - a1*a7)*omegabar**4
-        #p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 + (a11 + a12 - a1*(a8 + a9))*omegabar**4
-        #p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 + 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
+        # p4 = a7*omegabar**2
+        # p3 = (2*a10*a7 + a8 + a9)*omegabar**2
+        # p2 = (a5 + a4*a7 + 2*a10*(a8 + a9))*omegabar**2 +\
+        # (a13 - a1*a7)*omegabar**4
+        # p1 = (2*a10*a5 + a4*(a8 + a9))*omegabar**2 +\
+        # (a11 + a12 - a1*(a8 + a9))*omegabar**4
+        # p0 = a4*a5*omegabar**2 + (-a1*a5 + a6)*omegabar**4 +\
+        # 1./6.*(a1**3 - 3*a1*a2 + 2*a3)*omegabar**6
 
         # no normalizing of kpa
         #p4 = a7*k0**2
@@ -616,8 +620,10 @@ class MaxwellMaterial(Material):
         dets = np.zeros(num_pts, dtype=complex)
 
         for j in range(num_pts):
-            Propagator[:, :, j] = -np.dot(k_norm[:, j], k_norm[:, j])*np.eye(num_dim) +\
-                    np.outer(k_norm[:, j], k_norm[:, j]) + self.getEpsilonTensor(x, wave=wave)[:, :, j]
+            Propagator[:, :, j] =\
+                -np.dot(k_norm[:, j], k_norm[:, j])*np.eye(num_dim) +\
+                np.outer(k_norm[:, j], k_norm[:, j]) +\
+                self.getEpsilonTensor(x, wave=wave)[:, :, j]
             dets[j] = np.linalg.det(Propagator[:, :, j])
         return dets
 
@@ -685,9 +691,3 @@ class MaxwellMaterial(Material):
 
     def calcDet2ndDerivativePropagatorNorm(self, k_norm, wave=standard_wavelength):
         return self.calcDet2ndDerivativePropagatorNormX(np.zeros_like(k_norm), k_norm, wave=wave)
-
-
-
-
-
-
