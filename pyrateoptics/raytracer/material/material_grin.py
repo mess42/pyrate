@@ -54,7 +54,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
                     "params": params
                    }, name=name)
 
-    def getEpsilonTensor(self, x, wave=standard_wavelength):
+    def get_epsilon_tensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)
         mat = np.zeros((num_dims, num_dims, num_pts))
         mat[0, 0, :] = 1.

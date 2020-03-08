@@ -48,7 +48,7 @@ class AnisotropicMaterial(MaxwellMaterial):
     def initialize_from_annotations(self):
         self.epstensor = np.array(self.annotations["epstensor"])
 
-    def getEpsilonTensor(self, x, wave=standard_wavelength):
+    def get_epsilon_tensor(self, x, wave=standard_wavelength):
 
         (_, num_pts) = np.shape(x)
 
