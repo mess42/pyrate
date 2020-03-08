@@ -49,9 +49,9 @@ class IsotropicMaterial(MaxwellMaterial):
         return mat*self.getIsotropicEpsilon(x, wave=wave)
 
     def getIsotropicEpsilon(self, x, wave=standard_wavelength):
-        return self.getIndex(x, wave=wave)**2
+        return self.get_optical_index(x, wave=wave)**2
 
-    def getIndex(self, x, wave):
+    def get_optical_index(self, x, wave):
         raise NotImplementedError()
 
     def calcEfield(self, x, n, k, wave=standard_wavelength):
@@ -182,7 +182,7 @@ class ConstantIndexGlass(IsotropicMaterial):
                                      name="refractive index")
         return cls({"comment": comment}, {"lc": lc, "n": n}, name=name)
 
-    def getIndex(self, x, wave):
+    def get_optical_index(self, x, wave):
         return self.n.evaluate()
 
 
@@ -212,7 +212,7 @@ class ModelGlass(IsotropicMaterial):
         return cls({"comment": comment}, {"lc": lc, "n0": n0, "A": A, "B": B},
                    name=name)
 
-    def getIndex(self, x, wave):
+    def get_optical_index(self, x, wave):
         """
         Private routine for all isotropic materials obeying the
         Snell law of refraction.

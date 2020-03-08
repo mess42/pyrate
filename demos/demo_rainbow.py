@@ -114,9 +114,9 @@ except KeyError:
     water = ConstantIndexGlass.p(lc0, n=1.336, name="water (failsafe)")
 
 logging.info("wavelength %f, index %f" %
-             (wave_red, water.getIndex(None, wave_red).real))
+             (wave_red, water.get_optical_index(None, wave_red).real))
 logging.info("wavelength %f, index %f" %
-             (wave_blue, water.getIndex(None, wave_blue).real))
+             (wave_blue, water.get_optical_index(None, wave_blue).real))
 
 elem.addMaterial("water", water)
 

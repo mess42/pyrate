@@ -162,7 +162,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
             if isinstance(mat, str) and not use_floating_point_value_for_constant_index_glass:
                 gcat.get_material_dictFromLongName(mat)
                 elem.addMaterial(mat,
-                                 gcat.createGlassObjectFromLongName(lc, mat))
+                                 gcat.create_material_from_long_name(lc, mat))
             elif use_floating_point_value_for_constant_index_glass:
                 mat = "constantindexglass_" + str(mat)
                 elem.addMaterial(mat, ConstantIndexGlass.p(lc, n=n))

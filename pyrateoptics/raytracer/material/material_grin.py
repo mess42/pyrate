@@ -60,7 +60,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
 
         return mat*self.nfunc(x, **self.params)**2
 
-    def getIndex(self, x, wave=standard_wavelength):
+    def get_optical_index(self, x, wave=standard_wavelength):
         return self.nfunc(x, **self.params)**2
 
     def returnLocalDtoK(self, d, wave=standard_wavelength):
