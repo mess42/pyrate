@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import numpy as np
-import math
 
 from ...core.optimizable_variable import FloatOptimizableVariable, FixedState
 from ..globalconstants import standard_wavelength
@@ -34,6 +33,10 @@ from .material_isotropic import IsotropicMaterial
 
 
 class IsotropicGrinMaterial(IsotropicMaterial):
+    """
+    Implements a material with GRIN properties. They are
+    provided as Python functions
+    """
 
     @classmethod
     def p(cls, lc, fun, dfdx, dfdy, dfdz,
@@ -66,13 +69,17 @@ class IsotropicGrinMaterial(IsotropicMaterial):
     def get_optical_index(self, x, wave=standard_wavelength):
         return self.nfunc(x, **self.params)**2
 
-    def returnLocalDtoK(self, d, wave=standard_wavelength):
-        return 2.*math.pi/wave*d
+    def in_boundary(self, pos):
+        """
+        Returns True if boundary is hit
+        """
+        return self.boundaryfunction(pos)
 
-    def inBoundary(self, x):
-        return self.boundaryfunction(x)
-
-    def symplecticintegrator(self, raybundle, nextSurface, tau):
+    def symplecticintegrator(self, raybundle, next_surface, tau):
+        """
+        Takes starting raybundle and integrates to next_surface
+        with step tau.
+        """
 
         startpoint = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
         startdirection = self.lc.returnGlobalToLocalDirections(
@@ -110,13 +117,13 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             lastpos = positions[-1]
             lastvel = velocities[-1]
 
-            for (ci, di) in zip(clist, dlist):
-                newpos = lastpos + tau*ci*2.0*lastvel
+            for (cvalue, dvalue) in zip(clist, dlist):
+                newpos = lastpos + tau*cvalue*2.0*lastvel
                 newvel = lastvel
 
                 optin = self.nfunc(newpos, **self.params)
 
-                newvel = newvel + tau*di*2.0*optin*np.array( \
+                newvel = newvel + tau*dvalue*2.0*optin*np.array( \
                  [self.dndx(newpos, **self.params),
                   self.dndy(newpos, **self.params),
                   self.dndz(newpos, **self.params)])
@@ -147,12 +154,14 @@ class IsotropicGrinMaterial(IsotropicMaterial):
                        "energy conservation violation: " + str(totalenergy))
 
             xglobalnewpos = self.lc.returnLocalToGlobalPoints(newpos)
-            xshape = nextSurface.shape.lc.returnGlobalToLocalPoints(xglobalnewpos)
+            xshape = next_surface.shape.lc.returnGlobalToLocalPoints(
+                xglobalnewpos)
 
-            final = (xshape[2] - nextSurface.shape.getSag(xshape[0], xshape[1]) > 0)
+            final = (xshape[2] - next_surface.shape.getSag(
+                xshape[0], xshape[1]) > 0)
             # has ray reached next surface? if yes: mark as final
 
-            valid[True ^ self.inBoundary(newpos)] = False
+            valid[True ^ self.in_boundary(newpos)] = False
             # has ray hit boundary? mark as invalid
 
             final[True ^ valid] += True
@@ -161,9 +170,9 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             updatedpos[:, True ^ final] = newpos[:, True ^ final]
             updatedvel[:, True ^ final] = newvel[:, True ^ final]
 
-            k0 = 1.  # 2.*math.pi/raybundle.wave
-            newk = k0*updatedvel/self.nfunc(updatedpos, **self.params)
-            Eapp = self.lc.returnLocalToGlobalDirections(
+            k0_value = 1.  # 2.*math.pi/raybundle.wave
+            newk = k0_value*updatedvel/self.nfunc(updatedpos, **self.params)
+            efield_app = self.lc.returnLocalToGlobalDirections(
                 self.calcEfield(newpos, None, newk, wave=raybundle.wave))
             kapp = self.lc.returnLocalToGlobalDirections(newk)
             xapp = self.lc.returnLocalToGlobalPoints(updatedpos)
@@ -171,7 +180,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             pointstodraw.append(1.*updatedpos)
             momentatodraw.append(1.*updatedvel)
 
-            raybundle.append(xapp, kapp, Eapp, valid)
+            raybundle.append(xapp, kapp, efield_app, valid)
             # TODO: if pathlength of a certain ray is too long,
             # mark as invalid and final
 
