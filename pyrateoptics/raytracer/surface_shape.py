@@ -447,17 +447,18 @@ class ExplicitShape(FreeShape):
         t = np.zeros_like(r0[0])
 
         def Fwrapper(t, r0, rayDir):
-            return r0[2] + t*rayDir[2] - self.F(r0[0] + t*rayDir[0], r0[1] + t*rayDir[1])
+            return r0[2] + t*rayDir[2] - self.F(r0[0] + t*rayDir[0],
+                                                r0[1] + t*rayDir[1])
 
-        t = fsolve(Fwrapper, t, args=(r0, rayDir), xtol=self.annotations["tol"])
+        t = fsolve(Fwrapper, t, args=(r0, rayDir),
+                   xtol=self.annotations["tol"])
 
         globalinter = self.lc.returnLocalToGlobalPoints(r0 + rayDir * t)
 
-
         validIndices = np.ones_like(r0[0], dtype=bool)
 
-
-        raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], validIndices)
+        raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1],
+                         validIndices)
 
 
 class ImplicitShape(FreeShape):
@@ -594,7 +595,8 @@ class Asphere(ExplicitShape):
     def getAsphereParameters(self):
         return (self.params["curv"](),
                 self.params["cc"](),
-                [self.params["A"+str(2*i+2)]() for i in range(self.annotations["numcoefficients"])])
+                [self.params["A"+str(2*i+2)]()
+                    for i in range(self.annotations["numcoefficients"])])
 
     def getCentralCurvature(self):
         return self.params["curv"].evaluate()
@@ -705,61 +707,70 @@ class LinearCombination(ExplicitShape):
     Class for combining several principal forms with arbitray corrections
     """
 
-    def __init__(self,
-                 lc,
-                 list_of_coefficients_and_shapes=[], name=""):
-        self.list_of_coefficient_and_shapes = list_of_coefficients_and_shapes
+    def F(self, x, y):
+        xlocal = np.vstack((x, y, np.zeros_like(x)))
+        zfinal = np.zeros_like(x)
 
-        def licosag(x, y):
-
-            xlocal = np.vstack((x, y, np.zeros_like(x)))
-            zfinal = np.zeros_like(x)
-
-            for (coefficient, shape) in self.list_of_coefficient_and_shapes:
-                xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
-                xs = xshape[0, :]
-                ys = xshape[1, :]
-                zs = shape.getSag(xs, ys)
-                xshape[2, :] = zs
-                xtransform_shape = shape.lc.returnActualToOtherPoints(xshape, self.lc)
-
-                zfinal += coefficient*xtransform_shape[2]
+        for (coefficient, shape) in zip(
+                self.annotations["list_shape_coefficients"],
+                self.list_shapes
+                ):
+            xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
+            xs = xshape[0, :]
+            ys = xshape[1, :]
+            zs = shape.getSag(xs, ys)
+            xshape[2, :] = zs
+            xtransform_shape = shape.lc.returnActualToOtherPoints(xshape,
+                                                                  self.lc)
+            zfinal += coefficient*xtransform_shape[2]
 
             return zfinal
 
-        def licograd(x, y, z):
-            xlocal = np.vstack((x, y, np.zeros_like(x)))
-            gradfinal = np.zeros_like(xlocal)
+    def gradF(self, x, y, z):  # gradient for implicit function z - af(x, y) = 0
+        xlocal = np.vstack((x, y, np.zeros_like(x)))
+        gradfinal = np.zeros_like(xlocal)
 
-            sum_coefficients = 0.
+        sum_coefficients = 0.
 
-            for (coefficient, shape) in self.list_of_coefficient_and_shapes:
-                xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
-                xs = xshape[0, :]
-                ys = xshape[1, :]
-                grads = shape.getGrad(xs, ys)
-                gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
+        for (coefficient, shape) in zip(
+                self.annotations["list_shape_coefficients"],
+                self.list_shapes
+                ):
+            xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
+            xs = xshape[0, :]
+            ys = xshape[1, :]
+            grads = shape.getGrad(xs, ys)
+            gradtransform_shape = shape.lc.returnActualToOtherDirections(grads, self.lc)
 
-                gradfinal += coefficient*gradtransform_shape
-                sum_coefficients += coefficient
+            gradfinal += coefficient*gradtransform_shape
+            sum_coefficients += coefficient
 
-            # TODO: is this correct?
-            gradfinal[2] /= sum_coefficients
+        # TODO: is this correct?
+        gradfinal[2] /= sum_coefficients
 
-            return gradfinal
+        return gradfinal
 
-        def licohess(x, y, z):
-            # TODO: Hessian
-            pass
+    def hessF(self, x, y, z):
+        # TODO: Hessian
+        pass
 
-        super(LinearCombination, self).__init__(lc,
-                                                licosag,
-                                                licograd,
-                                                licohess,
-                                                name=name)
+    @classmethod
+    def p(cls, lc,
+          list_of_coefficients_and_shapes=None, name=""):
+        if list_of_coefficients_and_shapes is None:
+            list_of_coefficients_and_shapes = []
 
-        def setKind(self):
-            self.kind = "shape_LinearCombination"
+        (lico_annotations, lico_structure) =\
+            FreeShape.createAnnotationsAndStructure(lc)
+        lico_annotations["list_shape_coefficients"] =\
+            list([c for (c, _) in list_of_coefficients_and_shapes])
+        lico_structure["list_shapes"] =\
+            list([s for (_, s) in list_of_coefficients_and_shapes])
+
+        return cls(lico_annotations, lico_structure, name=name)
+
+    def setKind(self):
+        self.kind = "shape_LinearCombination"
 
 
 class XYPolynomials(ExplicitShape):
@@ -767,67 +778,74 @@ class XYPolynomials(ExplicitShape):
     Class for XY polynomials
     """
 
-    def __init__(self, lc, normradius=100.0, coefficients=None, name=""):
+    def F(self, x, y):
+        (normradius, coeffs) = self.getXYParameters()
+
+        res = np.zeros_like(x)
+
+        for (xpow, ypow, coefficient) in coeffs:
+            normalization = 1./normradius**(xpow+ypow)
+            res += x**xpow*y**ypow*coefficient*normalization
+        return res
+
+    def gradF(self, x, y, z):  # gradient for implicit function z - f(x, y) = 0
+        res = np.zeros((3, len(x)))
+        (normradius, coeffs) = self.getXYParameters()
+
+        for (xpow, ypow, coefficient) in coeffs:
+            normalization = 1./normradius**(xpow+ypow)
+            xpm1 = np.where(xpow >= 1, x**(xpow-1), np.zeros_like(x))
+            ypm1 = np.where(ypow >= 1, y**(ypow-1), np.zeros_like(x))
+            res[0, :] += -xpow*xpm1*y**ypow*coefficient*normalization
+            res[1, :] += -ypow*x**xpow*ypm1*coefficient*normalization
+        res[2, :] = 1.
+
+        return res
+
+    def hessF(self, x, y, z):
+        res = np.zeros((3, 3, len(x)))
+
+        (normradius, coeffs) = self.getXYParameters()
+
+        for (xpow, ypow, coefficient) in coeffs:
+            normalization = 1./normradius**(xpow+ypow)
+            xpm1 = np.where(xpow >= 1, x**(xpow-1), np.zeros_like(x))
+            ypm1 = np.where(ypow >= 1, y**(ypow-1), np.zeros_like(x))
+            xpm2 = np.where(xpow >= 2, x**(xpow-2), np.zeros_like(x))
+            ypm2 = np.where(ypow >= 2, y**(ypow-2), np.zeros_like(x))
+
+            res[0, 0] += -xpow*(xpow-1)*xpm2*y**ypow*coefficient*normalization
+            res[0, 1] += -xpow*ypow*xpm1*ypm1*coefficient*normalization
+            res[1, 1] += -ypow*(ypow-1)*x**xpow*ypm2*coefficient*normalization
+
+        res[1, 0] = res[0, 1]
+
+        return res
+
+    @classmethod
+    def p(cls, lc, normradius=1.0, coefficients=None, name=""):
 
         if coefficients is None:
             coefficients = []
-        self.list_coefficients = [(xpow, ypow) for (xpow, ypow, coefficient) in coefficients]
-        initcoeffs = [("normradius", normradius)] + [("CX"+str(xpower)+"Y"+str(ypower), coefficient) for (xpower, ypower, coefficient) in coefficients]
 
-        def xyf(x, y):
-            (normradius, coeffs) = self.getXYParameters()
+        initxycoeffs = [("normradius", normradius)] +\
+                       [("CX"+str(xpower)+"Y"+str(ypower), coefficient)
+                           for (xpower, ypower, coefficient) in coefficients]
 
-            res = np.zeros_like(x)
-
-            for (xpow, ypow, coefficient) in coeffs:
-                normalization = 1./normradius**(xpow+ypow)
-                res += x**xpow*y**ypow*coefficient*normalization
-            return res
-
-        def gradxyf(x, y, z): # gradient for implicit function z - af(x, y) = 0
-            res = np.zeros((3, len(x)))
-            (normradius, coeffs) = self.getXYParameters()
-
-            for (xpow, ypow, coefficient) in coeffs:
-                normalization = 1./normradius**(xpow+ypow)
-                xpm1 = np.where(xpow >= 1, x**(xpow-1), np.zeros_like(x))
-                ypm1 = np.where(ypow >= 1, y**(ypow-1), np.zeros_like(x))
-                res[0, :] += -xpow*xpm1*y**ypow*coefficient*normalization
-                res[1, :] += -ypow*x**xpow*ypm1*coefficient*normalization
-            res[2, :] = 1.
-
-            return res
-
-        def hessxyf(x, y, z):
-            res = np.zeros((3, 3, len(x)))
-
-            (normradius, coeffs) = self.getXYParameters()
-
-            for (xpow, ypow, coefficient) in coeffs:
-                normalization = 1./normradius**(xpow+ypow)
-                xpm1 = np.where(xpow >= 1, x**(xpow-1), np.zeros_like(x))
-                ypm1 = np.where(ypow >= 1, y**(ypow-1), np.zeros_like(x))
-                xpm2 = np.where(xpow >= 2, x**(xpow-2), np.zeros_like(x))
-                ypm2 = np.where(ypow >= 2, y**(ypow-2), np.zeros_like(x))
-
-                res[0, 0] += -xpow*(xpow-1)*xpm2*y**ypow*coefficient*normalization
-                res[0, 1] += -xpow*ypow*xpm1*ypm1*coefficient*normalization
-                res[1, 1] += -ypow*(ypow-1)*x**xpow*ypm2*coefficient*normalization
-
-            res[1, 0] = res[0, 1]
-
-            return res
-
-        super(XYPolynomials, self).__init__(lc, xyf, gradxyf, hessxyf,
-                                            paramlist=initcoeffs,
-                                            name=name)
+        (xy_annotations, xy_structure) =\
+            FreeShape.createAnnotationsAndStructure(
+                lc,
+                paramlist=initxycoeffs)
+        my_xypolynomial = cls(xy_annotations, xy_structure, name)
+        return my_xypolynomial
 
     def setKind(self):
         self.kind = "shape_XYPolynomials"
 
     def getXYParameters(self):
         return (self.params["normradius"](),
-                [(xpow, ypow, self.params["CX"+str(xpow)+"Y"+str(ypow)]()) for (xpow, ypow) in self.list_coefficients])
+                [(xpow, ypow, self.params["CX"+str(xpow)+"Y"+str(ypow)]())
+                    for (xpow, ypow) in self.list_coefficients])
 
 
 class GridSag(ExplicitShape):
@@ -835,107 +853,138 @@ class GridSag(ExplicitShape):
     Class for gridsag
     """
 
-    def __init__(self, lc, xxx_todo_changeme, name="", *args, **kwargs):
+    def F(self, x, y):
+        res = self.interpolant.ev(x, y)
 
-        (xlinspace, ylinspace, Zgrid) = xxx_todo_changeme
-        kwargs_dict = kwargs
-        name = kwargs_dict.pop('name', '')
+        return res
 
+    def gradF(self, x, y, z):  # gradient for implicit function z - f(x, y) = 0
+        res = np.zeros((3, len(x)))
 
-        self.interpolant = RectBivariateSpline(xlinspace, ylinspace, Zgrid)
-        #self.interpolant = interp2d(xlinspace, ylinspace, Zgrid, kind=kind, *args, **kwargs_dict)
+        res[0, :] = -self.interpolant.ev(x, y, dx=1)
+        res[1, :] = -self.interpolant.ev(x, y, dy=1)
+        res[2, :] = 1.
 
-        def gsf(x, y):
-            res = self.interpolant.ev(x, y)
+        return res
 
-            return res
+    def hessF(self, x, y, z):
+        res = np.zeros((3, 3, len(x)))
 
-        def gradgsf(x, y, z): # gradient for implicit function z - af(x, y) = 0
-            res = np.zeros((3, len(x)))
+        res[0, 0, :] = -self.interpolant.ev(x, y, dx=2)
+        res[0, 1, :] = res[1, 0, :] = -self.interpolant.ev(x, y, dx=1, dy=1)
+        res[1, 1, :] = -self.interpolant.ev(x, y, dy=2)
 
-            res[0, :] = -self.interpolant.ev(x, y, dx=1)
-            res[1, :] = -self.interpolant.ev(x, y, dy=1)
-            res[2, :] = 1.
+        return res
 
-            return res
+    @classmethod
+    def p(cls, lc, xlin_ylin_zgrid, tol=1e-4, iterations=10, name=""):
 
-        def hessgsf(x, y, z):
-            res = np.zeros((3, 3, len(x)))
+        (xlinspace, ylinspace, Zgrid) = xlin_ylin_zgrid
 
-            res[0, 0, :] = -self.interpolant.ev(x, y, dx=2)
-            res[0, 1, :] = res[1, 0, :] = -self.interpolant.ev(x, y, dx=1, dy=1)
-            res[1, 1, :] = -self.interpolant.ev(x, y, dy=2)
+        (gs_annotations, gs_structure) =\
+            FreeShape.createAnnotationsAndStructure(
+                lc,
+                paramlist=())
 
+        gs_annotations["xlinspace"] = xlinspace.tolist()
+        gs_annotations["ylinspace"] = ylinspace.tolist()
+        gs_annotations["zgrid"] = Zgrid.tolist()
+        gs_annotations["tol"] = tol
+        gs_annotations["iterations"] = iterations
 
-            return res
+        my_gridsag = cls(gs_annotations, gs_structure, name)
 
-        super(GridSag, self).__init__(lc, gsf, gradgsf, hessgsf,
-                                      eps=1e-4, iterations=10, name=name)
+        return my_gridsag
 
     def setKind(self):
         self.kind = "shape_GridSag"
+
+    def initialize_from_annotations(self):
+        """
+        Further initialization stages from annotations which need to be
+        done to get a valid object.
+        """
+        xlinspace = np.array(self.annotations["xlinspace"])
+        ylinspace = np.array(self.annotations["ylinspace"])
+        Zgrid = np.array(self.annotations["zgrid"])
+
+        self.interpolant = RectBivariateSpline(xlinspace,
+                                               ylinspace,
+                                               Zgrid)
+        # interpolant = interp2d(xlinspace, ylinspace, Zgrid)
+
 
 class Zernike(ExplicitShape):
     """
     Class for Zernike
     """
 
-    def __init__(self, lc, normradius=1., coefficients=None, name=""):
+    def F(self, x, y):
+        (normradius, zcoefficients) = self.getZernikeParameters()
+        res = np.zeros_like(x)
+        for (num, val) in enumerate(zcoefficients):
+            res += val*self.zernike_norm_j(num + 1, x/normradius, y/normradius)
+
+        return res
+
+    def gradF(self, x, y, z):
+        (normradius, zcoefficients) = self.getZernikeParameters()
+        res = np.zeros((3, len(x)))
+        xp = x/normradius
+        yp = y/normradius
+
+        for (num, val) in enumerate(zcoefficients):
+            (dZdxp, dZdyp) = self.gradzernike_norm_j(num + 1, xp, yp)
+            res[0] += -val*dZdxp/normradius
+            res[1] += -val*dZdyp/normradius
+
+        res[2] = 1.
+
+        return res
+
+    def hessF(self, x, y, z):
+        return np.zeros((3, 3, len(x)))
+
+    @classmethod
+    def p(cls, lc, normradius=1., coefficients=None, name=""):
         if coefficients is None:
             coefficients = []
 
-        self.numcoefficients = len(coefficients)
-        initcoeffs = [("Z"+str(i+1), val) for (i, val) in enumerate(coefficients)]
+        initzerncoeffs = [("normradius", normradius)] +\
+                         [("Z"+str(i+1), val)
+                          for (i, val) in enumerate(coefficients)]
 
-        def zf(x, y):
-            (normradius, zcoefficients) = self.getZernikeParameters()
-            res = np.zeros_like(x)
-            for (num, val) in enumerate(zcoefficients):
-                res += val*self.zernike_norm_j(num + 1, x/normradius, y/normradius)
+        (zernike_annotations, zernike_structure) =\
+            FreeShape.createAnnotationsAndStructure(
+                    lc,
+                    paramlist=initzerncoeffs)
 
-            return res
+        zernike_annotations["numcoefficients"] = len(coefficients)
 
-        def gradzf(x, y, z):
-            (normradius, zcoefficients) = self.getZernikeParameters()
-            res = np.zeros((3, len(x)))
-            xp = x/normradius
-            yp = y/normradius
-
-            for (num, val) in enumerate(zcoefficients):
-                (dZdxp, dZdyp) = self.gradzernike_norm_j(num + 1, xp, yp)
-                res[0] += -val*dZdxp/normradius
-                res[1] += -val*dZdyp/normradius
-
-            res[2] = 1.
-
-            return res
-
-        def hesszf(x, y, z):
-            return np.zeros((3, 3, len(x)))
-
-        # annotations are overwritten here
-        super(Zernike, self).__init__(lc, zf, gradzf, hesszf, \
-            paramlist=([("normradius", normradius)]+initcoeffs), name=name)
+        myzernike = cls(zernike_annotations,
+                        zernike_structure, name)
+        return myzernike
 
     def setKind(self):
         self.kind = "shape_Zernike"
 
     def getZernikeParameters(self):
-        return (self.params["normradius"](), \
-                [self.params["Z"+str(i+1)]() for i in range(self.numcoefficients)])
+        return (self.params["normradius"](),
+                [self.params["Z"+str(i+1)]()
+                for i in range(self.annotations["numcoefficients"])])
 
-
-    def jtonm(self, j):
+    @staticmethod
+    def jtonm(j):
         """
         Get double indices from single index
         """
         raise NotImplementedError()
 
-    def nmtoj(self, xxx_todo_changeme1):
+    @staticmethod
+    def nmtoj(n_m_pair):
         """
         Get single index from double indices
         """
-        (n, m) = xxx_todo_changeme1
         raise NotImplementedError()
 
     """
@@ -1047,7 +1096,8 @@ class ZernikeFringe(Zernike):
     def setKind(self):
         self.kind = "shape_ZernikeFringe"
 
-    def jtonm(self, j):
+    @staticmethod
+    def jtonm(j):
         next_sq = (math.ceil(math.sqrt(j)))**2
         m_plus_n = int(2*math.sqrt(next_sq) - 2)
         m = int(math.ceil((next_sq - j)/2))
@@ -1055,25 +1105,48 @@ class ZernikeFringe(Zernike):
         m = int((-1)**((next_sq - j) % 2))*m
         return (n, m)
 
-    def nmtoj(self, xxx_todo_changeme2):
-        (n, m) = xxx_todo_changeme2
-        return int(((n + abs(m))/2 + 1)**2 - 2*abs(m) + (1 - np.sign(m))/2)
+    @staticmethod
+    def nmtoj(n_m_pair):
+        (n, m) = n_m_pair
+        return int(((n + abs(m))/2 + 1)**2 -
+                   2*abs(m) + (1 - np.sign(m))/2)
+
+
+class ZernikeANSI(Zernike):
+
+    def setKind(self):
+        self.kind = "shape_ZernikeANSI"
+
+    @staticmethod
+    def jtonm(j):
+        j -= 1  # ZernikeANSI start at 0, but coefficients start at 1
+        n = math.floor((-1. + math.sqrt(1. + 8. * j)) * 0.5)
+        m = n-2*j+n*(n+1)
+        return (n, -m)
+
+    @staticmethod
+    def nmtoj(n_m_pair):
+        (n, m) = n_m_pair
+
+        j = int(((n + 2)*n + m)/2)
+        j += 1  # Zernike ANSI start at 0, but coefficients start at 1
+        return j
 
 
 class ZernikeStandard(Zernike):
 
+    # TODO: Implement Noll index structure
+
     def setKind(self):
         self.kind = "shape_ZernikeStandard"
 
-    def jtonm(self, j):
-        n = math.floor((-1. + math.sqrt(1. + 8. * j)) * 0.5)
-        m = n-2*j+n*(n+1)
+    @staticmethod
+    def jtonm(j):
+        raise NotImplementedError()
 
-        return (n, m)
-
-    def nmtoj(self, xxx_todo_changeme3):
-        (n, m) = xxx_todo_changeme3
-        return 0
+    @staticmethod
+    def nmtoj(n_m_pair):
+        raise NotImplementedError()
 
 ################################################
 # ZMXDLLShape
@@ -1323,6 +1396,7 @@ if __name__=="__main__":
 
     plt.show()
 
+# Needed by convenience functions in pyrateoptics
 
 accessible_shapes = {
         "shape_Conic": Conic,
@@ -1334,6 +1408,7 @@ accessible_shapes = {
         "shape_GridSag": GridSag,
         "shape_ZernikeFringe": ZernikeFringe,
         "shape_ZernikeStandard": ZernikeStandard,
+        "shape_ZernikeANSI": ZernikeANSI,
         "shape_ZMXDLLShape": ZMXDLLShape
         }
 

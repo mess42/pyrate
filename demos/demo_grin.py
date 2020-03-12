@@ -62,9 +62,9 @@ lc3 = s.addLocalCoordinateSystem(
 
 stopsurf = Surface.p(lc0)
 surf1 = Surface.p(lc1, shape=Conic.p(lc1, curv=1./24.0),
-                aperture=CircularAperture(lc1, maxradius=5.0))
+                aperture=CircularAperture.p(lc1, maxradius=5.0))
 surf2 = Surface.p(lc2, shape=Conic.p(lc2, curv=-1./24.0),
-                aperture=CircularAperture(lc2, maxradius=5.0))
+                aperture=CircularAperture.p(lc2, maxradius=5.0))
 image = Surface.p(lc3)
 
 elem = OpticalElement.p(lc0, name="grinelement")

@@ -24,29 +24,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
-from pprint import pformat
 from copy import deepcopy
 
-from .material.material_keyword_class_association import kind_of_material_classes
+import numpy as np
+
 from .material.material_isotropic import ConstantIndexGlass
 
-from .raytracer_keyword_class_association import kind_of_raytracer_classes
 from .localcoordinates import LocalCoordinates
 from .localcoordinatestreebase import LocalCoordinatesTreeBase
-from .optical_element import OpticalElement
 
 from .ray import RayPath
 
+
 class OpticalSystem(LocalCoordinatesTreeBase):
     """
-    Represents an optical system, consisting of several surfaces and materials inbetween.
+    Represents an optical system, consisting of several surfaces and
+    materials inbetween.
     """
     @classmethod
     def p(cls, rootlc=None, matbackground=None, name=""):
         """
-        Creates an optical system object. Initially, it contains 2 plane surfaces (object and image).
-
+        Creates an optical system object. Initially, it contains 2 plane
+        surfaces (object and image).
 
         :param rootlc: local coordinate system of object (class LocalCoordinates).
         :param matbackground: background material (class Material)
@@ -236,84 +235,6 @@ class OpticalSystem(LocalCoordinatesTreeBase):
         if key in self.elements:
             self.elements.pop(key)
 
-
-    def getABCDMatrix(self, ray, firstSurfacePosition=0, lastSurfacePosition=-1):
-        """
-        Returns an ABCD matrix of the optical system.
-        The matrix is set up in geometric convention for (y, dy/dz) vectors.
-
-        The matrix contains:
-        - paraxial refraction from vacuum through the first surface
-        - paraxial propagation through the system
-        - paraxial refraction after the last surface into vacuum
-
-        :param firstSurfacePosition: Position of the first surface to consider (int).
-          Preset is 0 (object position).
-        :param lastSurfacePosition: Position of the last surface to consider (int).
-          Preset is -1 (image position)
-        :param ray: Ray bundle object.
-        :return abcd: ABCD matrix (2d numpy 2x2 matrix of float)
-        """
-
-        if lastSurfacePosition < 0:
-            lastSurfacePosition = self.getNumberOfSurfaces() - lastSurfacePosition - 3
-
-        abcd = [[1, 0], [0, 1]]
-
-        for i in np.arange(lastSurfacePosition - firstSurfacePosition + 1) + firstSurfacePosition:
-            abcd = np.dot(self.surfaces[i].getABCDMatrix(self.surfaces[i+1], ray), abcd)
-
-        return abcd
-
-
-
-    def getParaxialPupil(self, stopPosition, ray):
-        """
-        Returns the paraxially calculated pupil positions.
-
-        :param stopPosition: surface number of the surface that is defined as stop (int)
-        :param ray: Raybundle object
-
-        :return zen: entrance pupil position from object (float)
-        :return magen: entrance pupil magnificaction; entrance pupil diameter per stop diameter (float)
-        :return zex: exit pupil position from image (float)
-        :return magex: exit pupil magnificaction; exit pupil diameter per stop diameter (float)
-        """
-        abcdObjStop = self.getABCDMatrix(ray, 0, stopPosition - 1)  # object to stop
-
-        zen = abcdObjStop[0, 1] / abcdObjStop[0, 0]  # entrance pupil position from object
-        magen = 1.0 / abcdObjStop[0, 0]
-
-        abcdStopIm = self.getABCDMatrix(ray, stopPosition, -1)  # stop to image
-
-        zex = - abcdStopIm[0, 1] / abcdStopIm[1, 1]  # exit pupil position from image
-        magex = abcdStopIm[0, 0] - abcdStopIm[0, 1] * abcdStopIm[1, 0] / abcdStopIm[1, 1]
-
-        return zen, magen, zex, magex, abcdObjStop, abcdStopIm
-
-    def getEffectiveFocalLength(self, ray):
-        """
-        Returns the effective (paraxial) focal length of the system.
-
-        :param ray: Raybundle object
-        :return f: focal length (float)
-        """
-        abcd = self.getABCDMatrix(ray)
-        return -1.0 / abcd[1, 0]
-
-    def getParaxialMagnification(self, ray):
-        """
-        Returns the paraxial real space magnification of the system.
-        Before calculation, the image is shifted into paraxial   finite conjugate plane.
-
-        :param ray: Raybundle object
-        :return pmag: real space paraxial magnification (float)
-        """
-        abcd = self.getABCDMatrix(ray)
-        self.debug(str(abcd))
-        return abcd[0, 0] - abcd[0, 1] * abcd[1, 0] / abcd[1, 1]
-
-
     def draw2d(self, ax, vertices=50, color="grey", inyzplane=True,
                do_not_draw_surfaces=[], **kwargs):
         for e in self.elements.values():
@@ -323,66 +244,32 @@ class OpticalSystem(LocalCoordinatesTreeBase):
                      do_not_draw_surfaces=do_not_draw_surfaces,
                      **kwargs)
 
-    @staticmethod
-    def initFromDictionary(reconstruct_list):
-        """
-        Perform also checks for protocol_version here.
-        """
-
-        [opticalsystem_dict,
-         dependent_classes,
-         reconstruct_variables_dict] = reconstruct_list
-
-
-        os = OpticalSystem(name=opticalsystem_dict["name"])
-        os.debug("Instance initialized")
-        os.debug("To be initialized dict")
-        os.debug(pformat(opticalsystem_dict, indent=4))
-        os.annotations = opticalsystem_dict["annotations"]
-        os.debug("Annotations copied")
-        os.debug("Elements initializing ...")
-        my_elements = opticalsystem_dict["classes"]["elements"]
-        os.elements = dict([(k, OpticalElement.initFromDictionary(
-                [dependent_classes.pop(v),
-                 dependent_classes,
-                 reconstruct_variables_dict]))
-                            for (k, v) in my_elements.items()])
-        os.debug("Material background initializing ...")
-        material_background_dict = dependent_classes.pop(
-                opticalsystem_dict["classes"]["material_background"])
-        os.debug("Root coordinate system initializing ...")
-        rootcoordinate_dict = dependent_classes.pop(
-                opticalsystem_dict["classes"]["rootcoordinatesystem"])
-        os.debug("Material background generating from dict")
-        os.material_background = kind_of_material_classes[
-                material_background_dict["kind"]].\
-            initFromDictionary([material_background_dict,
-                                dependent_classes,
-                                reconstruct_variables_dict])
-        os.debug("Root coordinate generating from dict ...")
-        os.rootcoordinatesystem = kind_of_raytracer_classes[
-                rootcoordinate_dict["kind"]].\
-            initFromDictionary([rootcoordinate_dict,
-                                dependent_classes,
-                                reconstruct_variables_dict])
-
-        return os
-
 
 if __name__ == "__main__":
 
+    def main():
+        "Main function for code checks"
+        os = OpticalSystem()
 
-    os = OpticalSystem()
+        lc1 = os.addLocalCoordinateSystem(
+            LocalCoordinates(decz=10.0),
+            refname=os.rootcoordinatesystem.name)
+        lc2 = os.addLocalCoordinateSystem(
+            LocalCoordinates(decz=20.0),
+            refname=lc1.name)
+        lc3 = os.addLocalCoordinateSystem(
+            LocalCoordinates(decz=30.0), refname=lc2.name)
+        lc4 = os.addLocalCoordinateSystem(
+            LocalCoordinates(decz=40.0),
+            refname=lc3.name)
 
-    lc1 = os.addLocalCoordinateSystem(LocalCoordinates(decz=10.0), refname=os.rootcoordinatesystem.name)
-    lc2 = os.addLocalCoordinateSystem(LocalCoordinates(decz=20.0), refname=lc1.name)
-    lc3 = os.addLocalCoordinateSystem(LocalCoordinates(decz=30.0), refname=lc2.name)
-    lc4 = os.addLocalCoordinateSystem(LocalCoordinates(decz=40.0), refname=lc3.name)
+        lc5 = os.addLocalCoordinateSystem(
+            LocalCoordinates(
+                name="COM", decx=10.0, decy=5.0, decz=10.),
+            refname=lc1.name)
 
-    lc5 = os.addLocalCoordinateSystem(LocalCoordinates(name="COM", decx=10.0, decy=5.0, decz=10.), refname=lc1.name)
+        print(os.rootcoordinatesystem.pprint())
 
-    print(os.rootcoordinatesystem.pprint())
-
-
+    main()
 
 

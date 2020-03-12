@@ -24,9 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
 import math
 import random
+
+import numpy as np
 
 from .helpers_math import rodrigues
 
@@ -35,6 +36,9 @@ from ..core.optimizable_variable import FloatOptimizableVariable, FixedState
 
 
 class LocalCoordinates(ClassWithOptimizableVariables):
+    """
+    Class for defining local coordinate systems.
+    """
     @classmethod
     def p(cls, name="", **kwargs):
         # TODO: Reference to global to be rewritten into reference to root
@@ -57,8 +61,9 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         '''
 
         (decz, decx, decy, tiltx, tilty, tiltz) = \
-            (kwargs.get(key, 0.0) for key in ["decz", "decx", "decy", "tiltx",
-             "tilty", "tiltz"])
+            (kwargs.get(key, 0.0)
+             for key in ["decz", "decx", "decy", "tiltx",
+                         "tilty", "tiltz"])
 
         tiltThenDecenter = kwargs.get("tiltThenDecenter", 0)
 
@@ -80,6 +85,11 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         structure_dict = {}
 
         annotations_dict["tiltThenDecenter"] = tiltThenDecenter
+        annotations_dict["globalcoordinates"] = globalcoordinates.tolist()
+        annotations_dict["localdecenter"] = localdecenter.tolist()
+        annotations_dict["localrotation"] = localrotation.tolist()
+        annotations_dict["localbasis"] = localbasis.tolist()
+
         structure_dict["decx"] = decxv
         structure_dict["decy"] = decyv
         structure_dict["decz"] = deczv
@@ -88,14 +98,28 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         structure_dict["tiltz"] = tiltzv
         structure_dict["parent"] = parent
         structure_dict["_LocalCoordinates__children"] = children
-        structure_dict["globalcoordinates"] = globalcoordinates
-        structure_dict["localdecenter"] = localdecenter
-        structure_dict["localrotation"] = localrotation
-        structure_dict["localbasis"] = localbasis
 
         lc = cls(annotations_dict, structure_dict, name)
         lc.update()  # initial update
         return lc
+
+    def updateAnnotations(self):
+        self.annotations["globalcoordinates"] = self.globalcoordinates.tolist()
+        self.annotations["localdecenter"] = self.localdecenter.tolist()
+        self.annotations["localrotation"] = self.localrotation.tolist()
+        self.annotations["localbasis"] = self.localbasis.tolist()
+
+    def initialize_from_annotations(self):
+        """
+        Further initialization stages from annotations which need to be
+        done to get a valid object.
+        """
+
+        self.globalcoordinates = np.array(self.annotations["globalcoordinates"])
+        self.localdecenter = np.array(self.annotations["localdecenter"])
+        self.localrotation = np.array(self.annotations["localrotation"])
+        self.localbasis = np.array(self.annotations["localbasis"])
+
 
     def setKind(self):
         self.kind = "localcoordinates"
@@ -269,6 +293,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
             # TODO: removed .T on localbasis to obtain correct behavior;
             # examine!
 
+        self.updateAnnotations()
         self.debug("updating children")
 
         for ch in self.__children:
@@ -278,7 +303,7 @@ class LocalCoordinates(ClassWithOptimizableVariables):
         self.debug("informing observers")
 
         # inform observers about update
-        self.informObservers()
+        self.inform_observers()
 
     def aimAt(self, anotherlc, update=False):
         (tiltx, tilty, tiltz) = self.calculateAim(anotherlc)
@@ -446,45 +471,31 @@ class LocalCoordinates(ClassWithOptimizableVariables):
                [i.name for i in self.__children])
         return s
 
-    @staticmethod
-    def initFromDictionary(reconstruct_list):
-        (lc_dict,
-         dependet_classes,
-         variables_reconstruct_dict) = reconstruct_list
-
-        print("lc: initfrom dict", lc_dict)
-
-        lc = LocalCoordinates(name=lc_dict["name"])
-
-        # TODO: incomplete
-
-        return lc
-
 
 if __name__ == "__main__":
 
-    printouttestcase1 = False
-    printouttestcase2 = False
-    printouttestcase3 = False
-    printouttestcase4 = True
+    def main():
+        printouttestcase1 = False
+        printouttestcase2 = False
+        printouttestcase3 = False
+        printouttestcase4 = True
 
-    '''testcase2: convert rotation matrix to tilt'''
-    surfrt0 = LocalCoordinates.p("rt0")
-    for loop in range(1000):
-        (tiltx, tiltz) = (random.random()*math.pi for i in range(2))
-        tilty = random.random()*math.pi - math.pi/2
-        tiltThenDecenter = random.randint(0, 1)
-        surfrt1 = surfrt0.addChild(LocalCoordinates.p("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, tiltThenDecenter=tiltThenDecenter))
-        (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, tiltThenDecenter)
-        if printouttestcase2:
-            print("diffs %d %f %f %f: %f %f %f" % (tiltThenDecenter, tiltx, tilty, tiltz, tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
-    '''testcase3: aimAt function'''
-    surfaa0 = LocalCoordinates("aa0")
-    surfaa05 = surfaa0.addChild(LocalCoordinates.p("aa05", decz=20, tiltx=20*math.pi/180.0))
-    surfaa1 = surfaa05.addChild(LocalCoordinates.p("aa1", decz=20, tiltx=20*math.pi/180.0))
-    surfaa2 = surfaa1.addChild(LocalCoordinates.p("aa2", decz=20))
-    surfaa3 = surfaa2.addChild(LocalCoordinates.p("aa3", decz=0))
-    surfaa4 = surfaa3.addChild(LocalCoordinates.p("aa4", decz=57.587705))
+        '''testcase2: convert rotation matrix to tilt'''
+        surfrt0 = LocalCoordinates.p("rt0")
+        for loop in range(1000):
+            (tiltx, tiltz) = (random.random()*math.pi for i in range(2))
+            tilty = random.random()*math.pi - math.pi/2
+            tiltThenDecenter = random.randint(0, 1)
+            surfrt1 = surfrt0.addChild(LocalCoordinates.p("rt1", decz=20, tiltx=tiltx, tilty=tilty, tiltz=tiltz, tiltThenDecenter=tiltThenDecenter))
+            (tiltxc, tiltyc, tiltzc) = surfrt1.calculateTiltFromMatrix(surfrt1.localrotation, tiltThenDecenter)
+            if printouttestcase2:
+                print("diffs %d %f %f %f: %f %f %f" % (tiltThenDecenter, tiltx, tilty, tiltz, tiltxc - tiltx, tiltyc - tilty, tiltzc - tiltz))
+        '''testcase3: aimAt function'''
+        surfaa0 = LocalCoordinates("aa0")
+        surfaa05 = surfaa0.addChild(LocalCoordinates.p("aa05", decz=20, tiltx=20*math.pi/180.0))
+        surfaa1 = surfaa05.addChild(LocalCoordinates.p("aa1", decz=20, tiltx=20*math.pi/180.0))
+        surfaa2 = surfaa1.addChild(LocalCoordinates.p("aa2", decz=20))
+        surfaa3 = surfaa2.addChild(LocalCoordinates.p("aa3", decz=0))
+        surfaa4 = surfaa3.addChild(LocalCoordinates.p("aa4", decz=57.587705))
 
-
-
+    main()

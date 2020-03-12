@@ -190,7 +190,7 @@ s.addElement("lenssys", elem)
 # plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 # plots.drawLayout2d(ax2, s, [r2, r3, r4])
 # plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
-# plots.drawSpotDiagram(ax3, s, r3, -1)
+# plots.draw_spotdiagram(ax3, s, r3, -1)
 # plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 
 
@@ -236,20 +236,20 @@ s.draw2d(ax, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
 #          up=up) # try for phi=pi/4
 
 curv2 = s.elements["lenssys"].surfaces["surf2"].shape.curvature
-curv2.toVariable()
-curv2.setInterval(left=-0.35, right=0.35)
+curv2.to_variable()
+curv2.set_interval(left=-0.35, right=0.35)
 curv3 = s.elements["lenssys"].surfaces["surf3"].shape.curvature
-curv3.toVariable()
-curv3.setInterval(left=-0.35, right=0.35)
+curv3.to_variable()
+curv3.set_interval(left=-0.35, right=0.35)
 curv4 = s.elements["lenssys"].surfaces["surf4"].shape.curvature
-curv4.toVariable()
-curv4.setInterval(left=-0.35, right=0.35)
+curv4.to_variable()
+curv4.set_interval(left=-0.35, right=0.35)
 curv6 = s.elements["lenssys"].surfaces["surf6"].shape.curvature
-curv6.toVariable()
-curv6.setInterval(left=-0.35, right=0.35)
+curv6.to_variable()
+curv6.set_interval(left=-0.35, right=0.35)
 tltx_var = s.elements["lenssys"].surfaces["surf3"].rootcoordinatesystem.tiltx
-tltx_var.toVariable()
-tltx_var.setInterval(left=-3.*math.pi/180., right=3.*math.pi/180.)
+tltx_var.to_variable()
+tltx_var.set_interval(left=-3.*math.pi/180., right=3.*math.pi/180.)
 
 listOptimizableVariables(s, filter_status='variable', max_line_width=80)
 
@@ -341,9 +341,9 @@ s.draw2d(ax2, color="grey", vertices=50, plane_normal=pn, up=up)  # try phi=0.
 # s.draw2d(ax, color="grey", inyzplane=False, vertices=50, plane_normal=pn, up=up) # try for phi=pi/4
 
 osa.aim(500, divbundledict, wave=wavelength)
-osa.drawSpotDiagram()
+osa.draw_spotdiagram()
 sa = ShapeAnalysis(surf1.shape)
-sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, ax=ax3)
+sa.plot(np.linspace(-1, 1, 10), np.linspace(-1, 1, 10), contours=100, axes=ax3)
 
 
 plt.show()
@@ -352,5 +352,5 @@ plt.show()
 plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
 # plots.drawLayout2d(ax2, s, [r2, r3, r4])
 plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
-# plots.drawSpotDiagram(ax3, s, r3, -1)
+# plots.draw_spotdiagram(ax3, s, r3, -1)
 # plt.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)

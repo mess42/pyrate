@@ -27,14 +27,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 
 from pyrateoptics.core.log import BaseLogger
-from pyrateoptics.raytracer.helpers import build_pilotbundle, build_pilotbundle_complex, choose_nearest
+from pyrateoptics.raytracer.helpers import (build_pilotbundle,
+                                            build_pilotbundle_complex)
 from pyrateoptics.raytracer.globalconstants import degree, standard_wavelength
 from pyrateoptics.sampling2d.raster import RectGrid
 from pyrateoptics.raytracer.ray import RayBundle, returnDtoK
 from pyrateoptics.raytracer.helpers_math import rodrigues
 
+
 class FieldManager(BaseLogger):
+    """
+    This class should manage the field generation.
+    """
     pass
+
 
 class Aimy(BaseLogger):
 
@@ -54,6 +60,8 @@ class Aimy(BaseLogger):
                  pilotbundle_delta_size=0.1,
                  pilotbundle_sampling_points=3,
                  name=""):
+        # TODO: reduce arguments by summarizing pilotbundle
+        # parameters into class
 
         super(Aimy, self).__init__(name=name)
         self.field_raster = RectGrid()
@@ -72,28 +80,37 @@ class Aimy(BaseLogger):
     def setKind(self):
         self.kind = "aimy"
 
-    def extractABCD(self, xyuv):
+    def extract_abcd(self, xyuv):
+        """
+        Extracts sub matrices from a general linear transfer matrix.
+        """
 
         self.debug(str(xyuv.shape))
 
-        Axyuv = xyuv[0:2, 0:2]
-        Bxyuv = xyuv[0:2, 2:4]  # take only real part of the k vectors
-        Cxyuv = xyuv[2:4, 0:2]
-        Dxyuv = xyuv[2:4, 2:4]
+        a_xyuv = xyuv[0:2, 0:2]
+        b_xyuv = xyuv[0:2, 2:4]  # take only real part of the k vectors
+        c_xyuv = xyuv[2:4, 0:2]
+        d_xyuv = xyuv[2:4, 2:4]
 
-        return (Axyuv, Bxyuv, Cxyuv, Dxyuv)
+        return (a_xyuv, b_xyuv, c_xyuv, d_xyuv)
 
-    def update(self, s, seq):
+    def update(self, system, seq):
+        """
+        Update the matrices from object to stop and
+        from stop to image for a specific system and a
+        specific sequence.
+        """
 
         obj_dx = self.pilotbundle_delta_size  # pilot bundle properties
         obj_dphi = self.pilotbundle_delta_angle  # pilot bundle properties
 
         first_element_seq_name = seq[0]
         (first_element_name, first_element_seq) = first_element_seq_name
-        (objsurfname, objsurfoptions) = first_element_seq[0]
+        (objsurfname, _) = first_element_seq[0]
 
-        self.objectsurface = s.elements[first_element_name].surfaces[objsurfname]
-        self.start_material = s.material_background
+        self.objectsurface = system.elements[first_element_name].\
+            surfaces[objsurfname]
+        self.start_material = system.material_background
         # TODO: pilotray starts always in background (how about immersion?)
         # if mat is None: ....
 
@@ -105,7 +122,7 @@ class Aimy(BaseLogger):
                 (obj_dx, obj_dx),
                 (obj_dphi, obj_dphi),
                 num_sampling_points=self.pilotbundle_sampling_points)
-                # TODO: wavelength?
+            # TODO: wavelength?
         elif self.pilotbundle_generation.lower() == "complex":
             self.info("call complex sampled pilotbundle")
             pilotbundles = build_pilotbundle_complex(
@@ -119,18 +136,25 @@ class Aimy(BaseLogger):
         self.pilotbundle = pilotbundles[self.pilotbundle_solution]
         # one of the last two
 
-        (self.m_obj_stop, self.m_stop_img) = s.extractXYUV(self.pilotbundle,
-                                                           seq,
-                                                           pilotbundle_generation=self.pilotbundle_generation)
+        (self.m_obj_stop,
+         self.m_stop_img) =\
+            system.extractXYUV(
+                self.pilotbundle,
+                seq,
+                pilotbundle_generation=self.pilotbundle_generation)
 
         self.info("show linear matrices")
-        self.info("obj -> stop:\n" + np.array_str(self.m_obj_stop, precision=10, suppress_small=True))
-        self.info("stop -> img:\n" + np.array_str(self.m_stop_img, precision=10, suppress_small=True))
-
+        self.info("obj -> stop:\n" + np.array_str(self.m_obj_stop,
+                                                  precision=10,
+                                                  suppress_small=True))
+        self.info("stop -> img:\n" + np.array_str(self.m_stop_img,
+                                                  precision=10,
+                                                  suppress_small=True))
 
     def aim_core_angle_known(self, theta2d):
         """
-        knows about xyuv matrices
+        Calculates different start positions for the rays
+        when direction vector is known.
         """
 
         (thetax, thetay) = theta2d
@@ -141,71 +165,70 @@ class Aimy(BaseLogger):
 
         dpilot_global = self.pilotbundle.returnKtoD()[0, :, 0]
         kpilot_global = self.pilotbundle.k[0, :, 0]
-        dpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(dpilot_global)[:, np.newaxis]
-        kpilot_object = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(kpilot_global)[:, np.newaxis]
+        dpilot_object = self.objectsurface.rootcoordinatesystem.\
+            returnGlobalToLocalDirections(dpilot_global)[:, np.newaxis]
+        kpilot_object = self.objectsurface.rootcoordinatesystem.\
+            returnGlobalToLocalDirections(kpilot_global)[:, np.newaxis]
         kpilot_object = np.repeat(kpilot_object, self.num_pupil_points, axis=1)
-        d = np.dot(rmfinal, dpilot_object)
+        dvec = np.dot(rmfinal, dpilot_object)
 
-        k = returnDtoK(d) # TODO: implement fake implementation
-        dk = k - kpilot_object
-        dk_obj = dk[0:2, :]
+        kvec = returnDtoK(dvec)  # TODO: implement fake implementation
+        dk_vec = kvec - kpilot_object
+        dk_obj = dk_vec[0:2, :]
 
-        (A_obj_stop, B_obj_stop, C_obj_stop, D_obj_stop) = self.extractABCD(self.m_obj_stop)
+        (a_obj_stop, b_obj_stop, _, _) = self.extract_abcd(self.m_obj_stop)
 
-        A_obj_stop_inv = np.linalg.inv(A_obj_stop)
+        a_obj_stop_inv = np.linalg.inv(a_obj_stop)
 
-        (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
-        dr_stop = (np.vstack((xp, yp))*self.stopsize)
+        (xraster, yraster) = self.pupil_raster.getGrid(self.num_pupil_points)
+        dr_stop = (np.vstack((xraster, yraster))*self.stopsize)
 
-        intermediate = np.dot(B_obj_stop, dk_obj)
-        dr_obj = np.dot(A_obj_stop_inv, dr_stop - intermediate)
+        intermediate = np.dot(b_obj_stop, dk_obj)
+        dr_obj = np.dot(a_obj_stop_inv, dr_stop - intermediate)
 
         return (dr_obj, dk_obj)
 
-
     def aim_core_k_known(self, dk_obj):
         """
-        knows about xyuv matrices
+        Calculates different start position and angles when
+        k-vector is known.
         """
-        (A_obj_stop,
-         B_obj_stop,
-         C_obj_stop,
-         D_obj_stop) = self.extractABCD(self.m_obj_stop)
+        (a_obj_stop, b_obj_stop, _, _) = self.extract_abcd(self.m_obj_stop)
 
-        A_obj_stop_inv = np.linalg.inv(A_obj_stop)
+        a_obj_stop_inv = np.linalg.inv(a_obj_stop)
 
+        (xraster, yraster) = self.pupil_raster.getGrid(self.num_pupil_points)
+        (num_points,) = xraster.shape
 
-        (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
-        (num_points,) = xp.shape
-
-        dr_stop = (np.vstack((xp, yp))*self.stopsize)
+        dr_stop = (np.vstack((xraster, yraster))*self.stopsize)
 
         dk_obj2 = np.repeat(dk_obj[:, np.newaxis], num_points, axis=1)
 
-        intermediate = np.dot(B_obj_stop, dk_obj2)
-        dr_obj = np.dot(A_obj_stop_inv, dr_stop - intermediate)
+        intermediate = np.dot(b_obj_stop, dk_obj2)
+        dr_obj = np.dot(a_obj_stop_inv, dr_stop - intermediate)
 
         return (dr_obj, dk_obj2)
 
     def aim_core_r_known(self, delta_xy):
+        """
+        Calculates different start position and angles when
+        position at stop is known.
+        """
 
-        (A_obj_stop,
-         B_obj_stop,
-         C_obj_stop,
-         D_obj_stop) = self.extractABCD(self.m_obj_stop)
+        (a_obj_stop, b_obj_stop, _, _) = self.extract_abcd(self.m_obj_stop)
 
-        self.debug(str(B_obj_stop.shape))
+        self.debug(str(b_obj_stop.shape))
 
-        B_obj_stop_inv = np.linalg.inv(B_obj_stop)
+        b_obj_stop_inv = np.linalg.inv(b_obj_stop)
 
-        (xp, yp) = self.pupil_raster.getGrid(self.num_pupil_points)
-        (num_points,) = xp.shape
+        (xraster, yraster) = self.pupil_raster.getGrid(self.num_pupil_points)
+        (num_points,) = xraster.shape
 
-        dr_stop = (np.vstack((xp, yp))*self.stopsize)
+        dr_stop = (np.vstack((xraster, yraster))*self.stopsize)
 
         dr_obj = np.repeat(delta_xy[:, np.newaxis], num_points, axis=1)
 
-        dk_obj = np.dot(B_obj_stop_inv, dr_stop - np.dot(A_obj_stop, dr_obj))
+        dk_obj = np.dot(b_obj_stop_inv, dr_stop - np.dot(a_obj_stop, dr_obj))
 
         # TODO: in general some direction vector is derived
         # TODO: this must been mapped to a k vector
@@ -229,25 +252,29 @@ class Aimy(BaseLogger):
         else:
             raise NotImplementedError()
 
-        (dim, num_points) = np.shape(dr_obj)
+        (_, num_points) = np.shape(dr_obj)
 
         dr_obj3d = np.vstack((dr_obj, np.zeros(num_points)))
         dk_obj3d = np.vstack((dk_obj, np.zeros(num_points)))
 
-        xp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalPoints(self.pilotbundle.x[0, :, 0])
+        xp_objsurf = self.objectsurface.rootcoordinatesystem.\
+            returnGlobalToLocalPoints(self.pilotbundle.x[0, :, 0])
         xp_objsurf = np.repeat(xp_objsurf[:, np.newaxis], num_points, axis=1)
-        dx3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dr_obj3d)
+        dx3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T,
+                      dr_obj3d)
         xparabasal = xp_objsurf + dx3d
 
-        kp_objsurf = self.objectsurface.rootcoordinatesystem.returnGlobalToLocalDirections(self.pilotbundle.k[0, :, 0])
+        kp_objsurf = self.objectsurface.rootcoordinatesystem.\
+            returnGlobalToLocalDirections(self.pilotbundle.k[0, :, 0])
         kp_objsurf = np.repeat(kp_objsurf[:, np.newaxis], num_points, axis=1)
-        dk3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T, dk_obj3d)
+        dk3d = np.dot(self.objectsurface.rootcoordinatesystem.localbasis.T,
+                      dk_obj3d)
         # FIXME: k coordinate system for which dispersion relation is respected
         # modified k in general violates dispersion relation
 
         kparabasal = kp_objsurf + dk3d
-        E_obj = self.pilotbundle.Efield[0, :, 0]
-        Eparabasal = np.repeat(E_obj[:, np.newaxis], num_points, axis=1)
+        efield_obj = self.pilotbundle.Efield[0, :, 0]
+        efield_parabasal = np.repeat(efield_obj[:, np.newaxis], num_points, axis=1)
 
         # Eparabasal introduces anisotropy in aiming through
         # rotationally symmetric system since copy of Eparabasal (above)
@@ -273,17 +300,20 @@ class Aimy(BaseLogger):
 
         svdmatrix = -kronecker * np.sum(kparabasal * kparabasal,
                                         axis=0)[:, np.newaxis, np.newaxis] +\
-                    np.einsum("i...,j...", kparabasal, kparabasal) +\
-                    kronecker  # epstensor
+            np.einsum("i...,j...", kparabasal, kparabasal) +\
+            kronecker  # epstensor
 
         # svdmatrix = -delta_ij (k*k) + k_i k_j + delta
 
-        (U, S, V) = np.linalg.svd(svdmatrix)
+        (unitary_arrays, singular_values, _) = np.linalg.svd(svdmatrix)
 
-        smallest_absolute_values = np.argsort(np.abs(S), axis=1).T[0]
+        smallest_absolute_values = np.argsort(np.abs(singular_values),
+                                              axis=1).T[0]
 
         for i in range(nlength):
-            Eparabasal[:, i] = U[i, :, smallest_absolute_values[i]]
+            efield_parabasal[:, i] =\
+                unitary_arrays[i, :, smallest_absolute_values[i]]
 
         # Aimy: returns only linearized results which are not exact
-        return RayBundle(xparabasal, kparabasal, Eparabasal, wave=self.wave)
+        return RayBundle(xparabasal, kparabasal, efield_parabasal,
+                         wave=self.wave)

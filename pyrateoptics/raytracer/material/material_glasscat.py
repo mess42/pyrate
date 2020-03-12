@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import yaml
 import numpy as np
-import scipy.interpolate
+from scipy.interpolate import interp1d
+
 
 from ...core.log import BaseLogger
 from ..globalconstants import Fline, dline, Cline
@@ -34,29 +35,32 @@ from .material_isotropic import IsotropicMaterial
 
 
 # FIXME: this class has too many methods
-class refractiveindex_dot_info_glasscatalog(BaseLogger):
+class GlassCatalog(BaseLogger):
+    """
+    Reads the refractiveindex.info database and provides glass data.
+
+    :param database_basepath: (str)
+           path of the database folder
+
+    References:
+    [1] https://github.com/polyanskiy/refractiveindex.info-database.git
+        The refractiveindex.info database including optical glasses,
+        metals, crystals, organic materials, ...
+        License: Creative Commons Zero (public domain)
+    [2] https://github.com/polyanskiy/refractiveindex.info-scripts.git
+        Scripts to make your own database, including a Zemax AGF
+        import tool
+        License: GNU General Public License 3
+
+    Example:
+    gcat =\
+        GlassCatalog(
+            "/home/user/refractiveindex.info-database/database")
+    """
+
     def __init__(self, database_basepath, **kwargs):
-        """
-        Reads the refractiveindex.info database and provides glass data.
 
-        :param database_basepath: (str)
-               path of the database folder
-
-        References:
-        [1] https://github.com/polyanskiy/refractiveindex.info-database.git
-            The refractiveindex.info database including optical glasses,
-            metals, crystals, organic materials, ...
-            License: Creative Commons Zero (public domain)
-        [2] https://github.com/polyanskiy/refractiveindex.info-scripts.git
-            Scripts to make your own database, including a Zemax AGF
-            import tool
-            License: GNU General Public License 3
-
-        Example:
-        gcat = refractiveindex_dot_info_glasscatalog("/home/user/refractiveindex.info-database/database")
-        """
-
-        super(refractiveindex_dot_info_glasscatalog, self).__init__(**kwargs)
+        super(GlassCatalog, self).__init__(**kwargs)
 
         self.database_basepath = database_basepath
         self.librarydict = self.read_library(database_basepath +
@@ -70,16 +74,17 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         :return data: (list or dict)
         """
         try:
-            f = open(ymlfilename, "r")
+            filehandler = open(ymlfilename, "r")
         except IOError:
             self.info("Glass catalogue file IO error: %s" % (ymlfilename,))
             data = []
         else:
-            data = yaml.safe_load(f)
-            f.close()
+            data = yaml.safe_load(filehandler)
+            filehandler.close()
         return data
 
-    def list2dict(self, yaml_list, namekey):
+    @staticmethod
+    def convert_list_to_dict(yaml_list, namekey):
         """
         Converts a list of dicts into a dict of dicts.
 
@@ -92,10 +97,10 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
               and used as key of this dictionary.
         """
         newdict = {}
-        for x in yaml_list:
-            if (namekey in x):
-                xname = x.pop(namekey)
-                newdict[xname] = x
+        for listitem in yaml_list:
+            if namekey in listitem:
+                listitemname = listitem.pop(namekey)
+                newdict[listitemname] = listitem
         return newdict
 
     def read_library(self, library_yml_filename):
@@ -109,18 +114,19 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
 
         yaml_library = self.read_yml_file(library_yml_filename)
 
-        lib = self.list2dict(yaml_library, "SHELF")
+        lib = GlassCatalog.convert_list_to_dict(yaml_library, "SHELF")
         for shelfname in lib:
             lib[shelfname]["content"] =\
-                self.list2dict(lib[shelfname]["content"], "BOOK")
+                GlassCatalog.convert_list_to_dict(lib[shelfname]["content"],
+                                                  "BOOK")
             for bookname in lib[shelfname]["content"]:
                 lib[shelfname]["content"][bookname]["content"] =\
-                    self.list2dict(
-                            lib[shelfname]["content"][bookname]["content"],
-                            "PAGE")
+                    GlassCatalog.convert_list_to_dict(
+                        lib[shelfname]["content"][bookname]["content"],
+                        "PAGE")
         return lib
 
-    def getMaterialDict(self, shelf, book, page):
+    def get_material_dict(self, shelf, book, page):
         """
         Reads and returns a page of the refractiveindex.info database.
 
@@ -133,10 +139,10 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         ymlfilename = self.database_basepath + "/data/"
 
         self.logger.info("Material dict: %s" % (str(
-                self.librarydict[shelf]["content"][book]["content"][page]),))
+            self.librarydict[shelf]["content"][book]["content"][page]),))
         ymlfilename += self.librarydict[shelf]["content"]\
-                                       [book]["content"]\
-                                       [page]["data"]
+            [book]["content"]\
+            [page]["data"]
         self.logger.info("Material file: %s" % (ymlfilename,))
 
         data = self.read_yml_file(ymlfilename)
@@ -144,7 +150,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
 
     # start of higher functionality section
 
-    def getShelves(self):
+    def get_shelves(self):
         """
         lists all shelves of the database.
 
@@ -153,7 +159,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         self.debug("self.librarydict=%s" % (repr(self.librarydict)))
         return list(self.librarydict.keys())
 
-    def getBooks(self, shelf):
+    def get_books(self, shelf):
         """
         Lists all books of a given shelf in the database.
 
@@ -163,7 +169,7 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         """
         return list(self.librarydict[shelf]["content"].keys())
 
-    def getPages(self, shelf, book):
+    def get_pages(self, shelf, book):
         """
         Lists all pages of a given book in the database.
 
@@ -174,12 +180,14 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         """
         return list(self.librarydict[shelf]["content"][book]["content"].keys())
 
-    def getPageLongName(self, shelf, book, page):
+    def get_page_long_name(self, shelf, book, page):
+        """
+        Return long name of appropriate content.
+        """
         return self.librarydict[shelf]["content"]\
-                               [book]["content"]\
-                               [page]["name"]
+            [book]["content"][page]["name"]
 
-    def getDictOfLongNames(self):
+    def get_dict_of_long_names(self):
         """
         Returns a lookup table in which shelf, book and page
         a glass name can be found.
@@ -189,17 +197,17 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
                    values are tuples (shelf, book, page)
         """
         dic = {}
-        for shelf in self.getShelves():
+        for shelf in self.get_shelves():
             self.debug("shelf=%s" % repr(shelf))
-            for book in self.getBooks(shelf):
-                for page in self.getPages(shelf, book):
-                    longname = self.getPageLongName(shelf, book, page)
+            for book in self.get_books(shelf):
+                for page in self.get_pages(shelf, book):
+                    longname = self.get_page_long_name(shelf, book, page)
                     # todo: if 2 pages have the same longName,
                     # now only one will be put in dic
                     dic[longname] = (shelf, book, page)
         return dic
 
-    def findPagesWithLongNameContaining(self, searchterm):
+    def find_pages_with_long_name(self, searchterm):
         """
         Returns a dict of pages containing a search pattern.
 
@@ -209,14 +217,14 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
                    keys are glass long names
                    values are tuples (shelf, book, page)
         """
-        allpages = self.getDictOfLongNames()
+        allpages = self.get_dict_of_long_names()
         result = {}
         for longname in allpages:
             if longname.find(searchterm) != -1:
                 result[longname] = allpages[longname]
         return result
 
-    def getMaterialDictFromLongName(self, glassName):
+    def material_dict_from_long_name(self, glass_name):
         """
         Identify and return a material from a given name.
 
@@ -225,25 +233,25 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
         refractiveindex.info database.
         """
 
-        allpages = self.getDictOfLongNames()
+        allpages = self.get_dict_of_long_names()
         self.debug("allpages=%s" % repr(allpages))
         result = []
         for longname in allpages:
-            if longname == glassName:
+            if longname == glass_name:
                 result = allpages[longname]
 
         if len(result) == 0:  # no glass found, throwing exception
-            errormsg = "glass name " + str(glassName) + " not found."
-            similarnames = self.findPagesWithLongNameContaining(glassName)
+            errormsg = "glass name " + str(glass_name) + " not found."
+            similarnames = self.find_pages_with_long_name(glass_name)
             if len(similarnames) != 0:
                 errormsg += " Did you mean: " + str(list(similarnames.keys()))
             else:
                 errormsg += " No glass names containing this string found."
             raise Exception(errormsg)
         shelf, book, page = result
-        return self.getMaterialDict(shelf, book, page)
+        return self.get_material_dict(shelf, book, page)
 
-    def createGlassObjectFromLongName(self, lc, glassName):
+    def create_material_from_long_name(self, localcoordinates, glass_name):
         """
         Creates a pyrate material object from a given glass name.
 
@@ -253,35 +261,38 @@ class refractiveindex_dot_info_glasscatalog(BaseLogger):
 
         :return matobj: (object)
         """
-        matdict = self.getMaterialDictFromLongName(glassName)
-        matobj = CatalogMaterial.p(lc, matdict)
+        matdict = self.material_dict_from_long_name(glass_name)
+        matobj = CatalogMaterial.p(localcoordinates, matdict)
         return matobj
 
-    def getMaterialDictCloseTo_nd_vd_PgF(self, nd=1.51680,
-                                         vd=64.17, PgF=0.5349):
+    def get_material_dict_nd_vd_pgf(self, nd_value=1.51680,
+                                    vd_value=64.17, pgf_value=0.5349):
         """
         Search a material close to given parameters.
         """
         raise NotImplementedError()
 
-    def getMaterialDictCloseTo_nd_vd(self, nd=1.51680, vd=64.17):
+    def get_material_dict_nd_vd(self, nd_value=1.51680,
+                                vd_value=64.17):
         """
         Search a material close to given parameters.
         """
         raise NotImplementedError()
 
-    def getMaterialDictFromSchottCode(self, schottCode=517642):
+    def get_material_dict_schott_code(self, schott_code=517642):
         """
         Identify and return a material from a given material code.
         """
         raise NotImplementedError()
 
 
-class IndexFormulaContainer(object):
+class IndexFormulaContainer:
+    """
+    Stores refractive index formula and coefficients.
+    """
+
     def __init__(self, typ, coeff, waverange):
         """
-        Stores refractive index formula and coefficients.
-
         :param typ: (str)
                index dispersion formula name
                Must be according to refractiveindex.info naming scheme.
@@ -293,132 +304,175 @@ class IndexFormulaContainer(object):
                minimum and maximum wavelength in refractiveindex.info
                units (um)
         """
-        self.setDispFunction(typ, coeff)
+        self.set_dispersion_function(typ, coeff)
         self.waverange = waverange
 
-    def setDispFunction(self, typ, coeff):
+    def set_dispersion_function(self, typ, coeff):
+        """
+        Stores dispersion formula according to the data from
+        the glass catalogue.
+        """
         self.coeff = coeff
 
-        def Sellmeier(w_um):
-            B = self.coeff[1::2]
-            C = self.coeff[2::2]
-            nsquared = 1 + self.coeff[0] + sum(B * w_um**2 / (w_um**2 - C**2))
+        def dispersion_sellmeier(w_um):
+            """
+            Sellmaier
+            """
+            b_coeff = self.coeff[1::2]
+            c_coeff = self.coeff[2::2]
+            nsquared = 1 + self.coeff[0] +\
+                sum(b_coeff * w_um**2 / (w_um**2 - c_coeff**2))
             return np.sqrt(nsquared)
 
-        def Sellmeier2(w_um):
-            B = self.coeff[1::2]
-            C = self.coeff[2::2]
-            nsquared = 1 + self.coeff[0] + sum(B * w_um**2 / (w_um**2 - C))
+        def dispersion_sellmeier2(w_um):
+            """
+            Sellmaier with C redefined
+            """
+            b_coeff = self.coeff[1::2]
+            c_coeff = self.coeff[2::2]
+            nsquared = 1 + self.coeff[0] +\
+                sum(b_coeff * w_um**2 / (w_um**2 - c_coeff))
             return np.sqrt(nsquared)
 
-        def Polynomial(w_um):
-            A = self.coeff[1::2]
-            P = self.coeff[2::2]
-            nsquared = self.coeff[0] + sum(A * (w_um**P))
+        def dispersion_polynomial(w_um):
+            """
+            Polynomial
+            """
+            a_coeff = self.coeff[1::2]
+            p_coeff = self.coeff[2::2]
+            nsquared = self.coeff[0] + sum(a_coeff * (w_um**p_coeff))
             return np.sqrt(nsquared)
 
-        def refractiveindex_dot_info_formula_with_9_or_less_coefficients(w_um):
-            A = self.coeff[1::4]
-            B = self.coeff[2::4]
-            C = self.coeff[3::4]
-            D = self.coeff[4::4]
-            nsquared = self.coeff[0] + sum(A * (w_um**B) / (w_um**2 - C**D))
+        def dispersion_with_9_or_less_coefficients(w_um):
+            """
+            Refractiveindex.info formula with 9 or less coefficients.
+            """
+            a_coeff = self.coeff[1::4]
+            b_coeff = self.coeff[2::4]
+            c_coeff = self.coeff[3::4]
+            d_coeff = self.coeff[4::4]
+            nsquared = self.coeff[0] +\
+                sum(a_coeff * (w_um**b_coeff) / (w_um**2 - c_coeff**d_coeff))
             return np.sqrt(nsquared)
 
-        def refractiveindex_dot_info_formula_with_11_or_more_coefficients(w_um):
-            A = self.coeff[[1, 5]]
-            B = self.coeff[[2, 6]]
-            C = self.coeff[[3, 7]]
-            D = self.coeff[[4, 8]]
-            E = self.coeff[9::2]
-            F = self.coeff[10::2]
-            nsquared = self.coeff[0] + sum(A * (w_um**B) / (w_um**2 - C**D))\
-                + sum(E * (w_um**F))
+        def dispersion_with_11_or_more_coefficients(w_um):
+            """
+            Refractiveindex.info formula with 11 or more coefficients.
+            """
+            a_coeff = self.coeff[[1, 5]]
+            b_coeff = self.coeff[[2, 6]]
+            c_coeff = self.coeff[[3, 7]]
+            d_coeff = self.coeff[[4, 8]]
+            e_coeff = self.coeff[9::2]
+            f_coeff = self.coeff[10::2]
+            nsquared = self.coeff[0] +\
+                sum(a_coeff * (w_um**b_coeff) / (w_um**2 - c_coeff**d_coeff)) +\
+                sum(e_coeff * (w_um**f_coeff))
             return np.sqrt(nsquared)
 
-        def Cauchy(w_um):
-            A = self.coeff[1::2]
-            P = self.coeff[2::2]
-            n = self.coeff[0] + sum(A * (w_um**P))
-            return n
+        def dispersion_cauchy(w_um):
+            """
+            Cauchy
+            """
+            a_coeff = self.coeff[1::2]
+            p_coeff = self.coeff[2::2]
+            n_index = self.coeff[0] + sum(a_coeff * (w_um**p_coeff))
+            return n_index
 
-        def Gases(w_um):
-            B = self.coeff[1::2]
-            C = self.coeff[2::2]
-            n = 1 + self.coeff[0] + sum(B / (C - w_um**(-2)))
-            return n
+        def dispersion_gases(w_um):
+            """
+            For gases
+            """
+            b_coeff = self.coeff[1::2]
+            c_coeff = self.coeff[2::2]
+            n_index = 1 + self.coeff[0] + sum(b_coeff / (c_coeff - w_um**(-2)))
+            return n_index
 
-        def Herzberger(w_um):
+        def dispersion_herzberger(w_um):
+            """
+            Herzberger
+            """
             denom = w_um**2 - 0.028
-            A = self.coeff[3:]
-            P = 2 * np.arange(len(A)) + 2
-            n = self.coeff[0] + self.coeff[1] / denom +\
-                self.coeff[2] / denom**2 + sum(A * w_um**P)
-            return n
+            a_coeff = self.coeff[3:]
+            p_coeff = 2 * np.arange(len(a_coeff)) + 2
+            n_index = self.coeff[0] + self.coeff[1] / denom +\
+                self.coeff[2] / denom**2 + sum(a_coeff * w_um**p_coeff)
+            return n_index
 
-        def Retro(w_um):
+        def dispersion_retro(_):
+            """
+            Retro dispersion formula
+            """
             raise NotImplementedError()
 
-        def Exotic(w_um):
+        def dispersion_exotic(_):
+            """
+            Exotic dispersion formula
+            """
             raise NotImplementedError()
 
-        if   typ == "formula 1":
-            self.__dispFunction = Sellmeier
+        if typ == "formula 1":
+            self.__dispersion_function = dispersion_sellmeier
         elif typ == "formula 2":
-            self.__dispFunction = Sellmeier2
+            self.__dispersion_function = dispersion_sellmeier2
         elif typ == "formula 3":
-            self.__dispFunction = Polynomial
+            self.__dispersion_function = dispersion_polynomial
         elif typ == "formula 4":
             if len(self.coeff) > 10:
-                self.__dispFunction = refractiveindex_dot_info_formula_with_11_or_more_coefficients
+                self.__dispersion_function =\
+                    dispersion_with_11_or_more_coefficients
             else:
-                self.__dispFunction = refractiveindex_dot_info_formula_with_9_or_less_coefficients
+                self.__dispersion_function =\
+                    dispersion_with_9_or_less_coefficients
         elif typ == "formula 5":
-            self.__dispFunction = Cauchy
+            self.__dispersion_function = dispersion_cauchy
         elif typ == "formula 6":
-            self.__dispFunction = Gases
+            self.__dispersion_function = dispersion_gases
         elif typ == "formula 7":
-            self.__dispFunction = Herzberger
+            self.__dispersion_function = dispersion_herzberger
         elif typ == "formula 8":
-            self.n_fucntion = Retro
+            self.__dispersion_function = dispersion_retro
         elif typ == "formula 9":
-            self.__dispFunction = Exotic
+            self.__dispersion_function = dispersion_exotic
         elif typ == "tabulated n":
-            self.__dispFunction = scipy.interpolate.interp1d(self.coeff[: ,0],
-                                                             self.coeff[:, 1])
+            self.__dispersion_function = interp1d(self.coeff[:, 0],
+                                                  self.coeff[:, 1])
         elif typ == "tabulated k":
-            self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:, 0],
-                                                             1j * self.coeff[:, 1])
+            self.__dispersion_function = interp1d(
+                self.coeff[:, 0], 1j * self.coeff[:, 1])
         elif typ == "tabulated nk":
-            self.__dispFunction = scipy.interpolate.interp1d(self.coeff[:, 0],
-                                                             self.coeff[:, 1] +\
-                                                             1j * self.coeff[:, 2])
+            self.__dispersion_function = interp1d(
+                self.coeff[:, 0], self.coeff[:, 1] + 1j * self.coeff[:, 2])
         else:
-            raise Exception("Bad dispersion function type: "+str(typ))
+            raise Exception("Bad dispersion function type: " + str(typ))
 
-    def getIndex(self, wavelength):
+    def get_optical_index(self, wavelength):
         """
         :param wavelength: (float)
                wavelength in mm
         :return n: (float)
                refractive index real part
+
+        The refractiveindex.info database uses units of um
+        for its dispersion formulas.
+        It would be a huge effort to rewrite the whole database,
+        so we leave the database as it is and adapt
+        the pyrate wavelength in mm to fit the dispersion formulas.
         """
         wave_um = 1000 * wavelength  # wavelength in um
-        # The refractiveindex.info database uses units of um
-        # for its dispersion formulas.
-        # It would be a huge effort to rewrite the whole database,
-        # so we leave the database as it is and adapt
-        # the pyrate wavelength in mm to fit the dispersion formulas.
-
         # TODO: this is an if statement in a time-critical place
         if wave_um < self.waverange[0] or wave_um > self.waverange[1]:
             raise Exception("wavelength out of range")
 
-        n = self.__dispFunction(wave_um)
-        return n
+        n_index = self.__dispersion_function(wave_um)
+        return n_index
 
 
 class CatalogMaterial(IsotropicMaterial):
+    """
+    Provide isotropic material from database
+    (refractiveindex.info)
+    """
     @classmethod
     def p(cls, lc, ymldict, name="", comment=""):
         """
@@ -439,72 +493,78 @@ class CatalogMaterial(IsotropicMaterial):
 
         # super(CatalogMaterial, self).__init__(lc, name=name, comment=comment)
 
-        data = ymldict["DATA"]
         annotations = {}
-        annotations["DATA"] = data
+        annotations["yml_dictionary"] = ymldict
 
-        if len(data) > 2:
-            raise Exception("Max 2 entries for dispersion allowed - n and k.")
-
-        nk = []
-        for datafield in data:  # i=0 is n  ;  i=1 is k
-            dispersionDict = datafield
-            typ = dispersionDict["type"]
-            if dispersionDict["type"].startswith("tabulated"):
-                coeff = dispersionDict["data"].split("\n")[:-1]
-                coeff = [c.split() for c in coeff]
-                coeff = np.array(coeff, dtype=float)
-                rang = np.array([np.min(coeff[:, 0]), np.max(coeff[:, 0])])
-            else:
-                coeff = np.array(dispersionDict["coefficients"].split(),
-                                 dtype=float)
-                rang = np.array(dispersionDict["wavelength_range"].split(),
-                                dtype=float)
-            nk.append(IndexFormulaContainer(typ, coeff, rang))
-
-        return cls(annotations, {"lc": lc, "commen": comment,
-                                 "_CatalogMaterial__nk": nk}, name=name)
+        catmat = cls(annotations, {"lc": lc, "comment": comment}, name=name,
+                     serializationfilter=["nk_table"])
+        return catmat
         # TODO: make this serializable!
 
     def setKind(self):
         self.kind = "material_from_catalog"
 
-    def getIndex(self, x, wave):
-        n = 0
-        for dispFun in self.__nk:
-            n += dispFun.getIndex(wave)
-        return n
+    def get_optical_index(self, x, wave):
+        n_index = 0
+        for dispersion_function in self.nk_table:
+            n_index += dispersion_function.get_optical_index(wave)
+        return n_index
+
+    def initialize_from_annotations(self):
+        data = self.annotations["yml_dictionary"]["DATA"]
+
+        if len(data) > 2:
+            raise Exception("Max 2 entries for dispersion allowed - n and k.")
+
+        self.nk_table = []
+        for datafield in data:  # i=0 is n  ;  i=1 is k
+            dispersion_dict = datafield
+            typ = dispersion_dict["type"]
+            if dispersion_dict["type"].startswith("tabulated"):
+                coeff = dispersion_dict["data"].split("\n")[:-1]
+                coeff = [c.split() for c in coeff]
+                coeff = np.array(coeff, dtype=float)
+                rang = np.array([np.min(coeff[:, 0]), np.max(coeff[:, 0])])
+            else:
+                coeff = np.array(dispersion_dict["coefficients"].split(),
+                                 dtype=float)
+                rang = np.array(dispersion_dict["wavelength_range"].split(),
+                                dtype=float)
+            self.nk_table.append(IndexFormulaContainer(typ, coeff, rang))
 
 
 if __name__ == "__main__":
 
-    database_basepath = "refractiveindex.info-database/database"
-    shelf = "glass"
-    book = "BK7"
-    page = "SCHOTT"
+    def main():
+        "main function for demo purposes"
+        database_basepath = "refractiveindex.info-database/database"
+        shelf = "glass"
+        book = "BK7"
+        page = "SCHOTT"
 
-    gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
+        gcat = GlassCatalog(database_basepath)
 
-    print("Shelves:", gcat.getShelves())
-    print("")
-    print("Books in Shelf glass:", gcat.getBooks(shelf=shelf))
-    print("")
-    print("Pages in BK7 book:", gcat.getPages(shelf=shelf, book=book))
-    print("")
-    print("Long name of SCHOTT page is:", gcat.getPageLongName(shelf=shelf,
-                                                               book=book,
-                                                               page=page))
-    print("")
+        print("Shelves:", gcat.get_shelves())
+        print("")
+        print("Books in Shelf glass:", gcat.get_books(shelf=shelf))
+        print("")
+        print("Pages in BK7 book:", gcat.get_pages(shelf=shelf, book=book))
+        print("")
+        print("Long name of SCHOTT page is:", gcat.get_page_long_name(
+            shelf=shelf, book=book, page=page))
+        print("")
 
-    schottNBK7dict = gcat.getMaterialDict(shelf, book, page)
-    schottNBK7 = CatalogMaterial(None, schottNBK7dict)
+        schott_nbk7_dict = gcat.get_material_dict(shelf, book, page)
+        schott_nbk7 = CatalogMaterial(None, schott_nbk7_dict)
 
-    nF = schottNBK7.getIndex(0, Fline)
-    nd = schottNBK7.getIndex(0, dline)
-    nC = schottNBK7.getIndex(0, Cline)
+        nF_index = schott_nbk7.get_optical_index(0, Fline)
+        nd_index = schott_nbk7.get_optical_index(0, dline)
+        nC_index = schott_nbk7.get_optical_index(0, Cline)
 
-    print("nd = ", nd)
-    print("vd = ", (nd-1) / (nF-nC))
+        print("nd = ", nd_index)
+        print("vd = ", (nd_index-1.) / (nF_index-nC_index))
+
+    main()
 
 # TODO: glasscatalog readin and from that a material factory which throws out
 # several materials compliant with your search results

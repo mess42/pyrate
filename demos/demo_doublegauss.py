@@ -24,10 +24,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import os
 import math
 import logging
-import json
-import yaml
 
 from pprint import pprint
 
@@ -40,13 +39,13 @@ import matplotlib
 
 from pyrateoptics.core.functionobject import FunctionObject
 from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
-from pyrateoptics.core.serializer import Serializer
+from pyrateoptics.core.serializer import Serializer, Deserializer
 from pyrateoptics.optimize.optimize import Optimizer
 from pyrateoptics.optimize.optimize_backends import ScipyBackend
 from pyrateoptics.sampling2d.raster import RectGrid
 
 from pyrateoptics import (build_rotationally_symmetric_optical_system,
-                          listOptimizableVariables)
+                          listOptimizableVariables, draw)
 from pyrateoptics.raytracer.globalconstants import canonical_ex, canonical_ey
 from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
 from pyrateoptics.raytracer.ray import RayBundle
@@ -55,6 +54,7 @@ from pyrateoptics.raytracer.analysis.ray_analysis import RayBundleAnalysis
 logging.basicConfig(level=logging.INFO)
 
 db_path = "refractiveindex.info-database/database"
+serialization_path = "serialization_stuff/"
 
 # drawing parameters
 phi = 0.  # math.pi/4
@@ -75,8 +75,8 @@ for ax in axarr:
 # or
 # LAK8 / BK7 / N-F2
 
-# gcat = material_glasscat.refractiveindex_dot_info_glasscatalog(db_path)
-# print gcat.findPagesWithLongNameContaining("BK7")
+# gcat = material_glasscat.GlassCatalog(db_path)
+# print gcat.find_pages_with_long_name("BK7")
 
 
 # Step 1: set up system of glass plates
@@ -141,7 +141,7 @@ def meritfunction_step2(my_s):
     # y = rpaths[0].raybundles[-1].x[-1, 1, :]
     rba.raybundle = rpaths[0].raybundles[-1]
 
-    merit = rba.getRMSspotSizeCentroid()  # np.sum(x**2 + y**2)
+    merit = rba.get_rms_spot_size_centroid()  # np.sum(x**2 + y**2)
     merit += 1000000.*math.exp(-len(x))
     # TODO: adding the exp-x is a dirty trick.
     # The prefactor also has to be adapted for each system.
@@ -158,10 +158,10 @@ def updatefunction_allsteps(my_s):
 
 
 # optimize
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toVariable()
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_variable()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_variable()
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
-    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+    to_pickup((FunctionObject("f = lambda x: -x"), "f"),
              (s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
 
 
@@ -220,7 +220,7 @@ def final_meritfunction(my_s, rpup, fno, maxfield_deg):
         rpaths = my_s.seqtrace(bundle, seq)
         x = rpaths[0].raybundles[-1].x[-1, 0, :]
         rba.raybundle = rpaths[0].raybundles[-1]
-        merit += rba.getRMSspotSizeCentroid()
+        merit += rba.get_rms_spot_size_centroid()
         merit += 1./(len(x) + 1e-18)  # 10000.*math.exp(-len(x))
 
     # f number
@@ -248,25 +248,25 @@ def meritfunction_step3(my_s):
 
 
 # optimize
-s.elements["stdelem"].surfaces["lens1front"].shape.curvature.toVariable()
-s.elements["stdelem"].surfaces["elem3front"].shape.curvature.toVariable()
-s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["lens1front"].shape.curvature.to_variable()
+s.elements["stdelem"].surfaces["elem3front"].shape.curvature.to_variable()
+s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.to_variable()
 
 # outer radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2front"].shape.curvature.\
-    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+    to_pickup((FunctionObject("f = lambda x: -x"), "f"),
              (s.elements["stdelem"].surfaces["elem3rear"].shape.curvature,))
 
 # inner radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.\
-    toPickup((FunctionObject("f = lambda x: -x"), "f"),
+    to_pickup((FunctionObject("f = lambda x: -x"), "f"),
              (s.elements["stdelem"].surfaces["elem3front"].shape.curvature,))
 
-s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.toVariable()
+s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.to_variable()
 
 
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toFixed()
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toFixed()
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_fixed()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_fixed()
 
 
 optimi = Optimizer(s, meritfunction_step3, backend=ScipyBackend(),
@@ -300,8 +300,8 @@ def meritfunction_step4b(my_s):
     return final_meritfunction(my_s, rpup=7.5, fno=100/15., maxfield_deg=7.)
 
 
-s.elements["stdelem"].surfaces["lens4front"].shape.curvature.toVariable()
-s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.toVariable()
+s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_variable()
+s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_variable()
 
 optimi = Optimizer(s, meritfunction_step4a, backend=ScipyBackend(),
                    updatefunction=updatefunction_allsteps, name="step4a")
@@ -339,20 +339,23 @@ for r in r2:
 
 plt.show()
 
-system_dump = Serializer(s).serialization
 system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
-        s.elements["stdelem"].surfaces["elem2rear"].shape).queryForDictionary()
+        s.elements["stdelem"].surfaces["elem2rear"].shape).query_for_dictionary()
 
 pprint(system_gui_toplevel)
-pprint(system_dump)
-
-fp = open("double_gauss.yaml", "wt")
-yaml.dump(system_dump, fp)
-fp.close()
 
 
-fp = open("double_gauss.json", "wt")
-json.dump(system_dump, fp, indent=4)
-fp.close()
+system_dump = Serializer(s)
 
+try:
+    os.mkdir(serialization_path)
+except FileExistsError:
+    pass
 
+system_dump.save_json(serialization_path + "double_gauss.json")
+system_dump.save_yaml(serialization_path + "double_gauss.yaml")
+
+# TODO: later
+#s2 = Deserializer.load_json(serialization_path + "double_gauss.json",
+#                            True, True)
+#draw(s2)

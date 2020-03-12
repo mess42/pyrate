@@ -40,7 +40,7 @@ class IsotropicMaterial(MaxwellMaterial):
     def setKind(self):
         self.kind = "isotropicmaterial"
 
-    def getEpsilonTensor(self, x, wave=standard_wavelength):
+    def get_epsilon_tensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)
         mat = np.zeros((num_dims, num_dims, num_pts))
         mat[0, 0, :] = 1.
@@ -49,9 +49,9 @@ class IsotropicMaterial(MaxwellMaterial):
         return mat*self.getIsotropicEpsilon(x, wave=wave)
 
     def getIsotropicEpsilon(self, x, wave=standard_wavelength):
-        return self.getIndex(x, wave=wave)**2
+        return self.get_optical_index(x, wave=wave)**2
 
-    def getIndex(self, x, wave):
+    def get_optical_index(self, x, wave):
         raise NotImplementedError()
 
     def calcEfield(self, x, n, k, wave=standard_wavelength):
@@ -182,17 +182,8 @@ class ConstantIndexGlass(IsotropicMaterial):
                                      name="refractive index")
         return cls({"comment": comment}, {"lc": lc, "n": n}, name=name)
 
-    def getIndex(self, x, wave):
+    def get_optical_index(self, x, wave):
         return self.n.evaluate()
-
-    @staticmethod
-    def initFromDictionary(reconstruct_list):
-        [constantindexglass_dict,
-         dependent_classes,
-         variable_reconstruct] = reconstruct_list
-        print("constindex: ", constantindexglass_dict)
-
-        # TODO: incomplete!
 
 
 class ModelGlass(IsotropicMaterial):
@@ -221,7 +212,7 @@ class ModelGlass(IsotropicMaterial):
         return cls({"comment": comment}, {"lc": lc, "n0": n0, "A": A, "B": B},
                    name=name)
 
-    def getIndex(self, x, wave):
+    def get_optical_index(self, x, wave):
         """
         Private routine for all isotropic materials obeying the
         Snell law of refraction.

@@ -139,7 +139,7 @@ class SurfaceObject(AbstractObserver):
         self.initshapedict[shapetype](**kwargs)
         self.initaperturedict[aptype](**kwargs)
 
-        self.__obj.shapeclass.appendObservers([self])
+        self.__obj.shapeclass.append_observers([self])
         self.__obj.Proxy = self
 
     def getObject(self):
@@ -270,7 +270,7 @@ class SurfaceObject(AbstractObserver):
         #if prop in Aperture_GUIChangeableProperties:
         #    self.writebackaperturefunc[self.__obj.aperturetype](fp)
 
-    def informAboutUpdate(self):
+    def inform_about_update(self):
         # override AbstractObserver method
         FreeCAD.Console.PrintMessage("Changed Surface in Core " + self.__obj.Name + "\n")
 

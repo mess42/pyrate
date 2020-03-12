@@ -99,8 +99,8 @@ m2surf = Surface.p(lc2, shape=Conic.p(lc2, curv=0.01))
 m3surf = Surface.p(lc3, shape=Conic.p(lc3, curv=-0.006))
 image1 = Surface.p(lc4)
 oapara = Surface.p(lc3, shape=Conic.p(lc5, curv=0.01, cc=-1.))
-image2 = Surface.p(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
-image3 = Surface.p(lc7, aperture=CircularAperture(lc7, maxradius=20.0))
+image2 = Surface.p(lc6, aperture=CircularAperture.p(lc6, maxradius=20.0))
+image3 = Surface.p(lc7, aperture=CircularAperture.p(lc7, maxradius=20.0))
 
 
 elem = OpticalElement.p(lc0, name="TMA")
@@ -170,8 +170,8 @@ draw(s, [(r1p, "blue"), (r2p, "green"), (r3p, "orange")])
 #
 # oea = OpticalElementAnalysis(s.elements["TMA"])
 #
-# xyuvobjectstop = oea.calcXYUV([("object", "m1", 1), ("m1", "m2", 1)],
-#                               pilotbundle2, sysseq[0][1], air)
+# xyuvobjectstop = oea.calc_xyuv([("object", "m1", 1), ("m1", "m2", 1)],
+#                                pilotbundle2, sysseq[0][1], air)
 #
 # Axyuv = xyuvobjectstop[0:2, 0:2]
 # Bxyuv = xyuvobjectstop[0:2, 2:4]

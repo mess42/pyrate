@@ -66,13 +66,13 @@ lc4 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="image", decz=97.2),
 stopsurf = Surface.p(lc0, name="stopsurf")
 frontsurf = Surface.p(lc1, name="frontsurf",
                       shape=Conic.p(lc1, curv=1./62.8, name='conic1'),
-                      aperture=CircularAperture(lc1, maxradius=12.7))
+                      aperture=CircularAperture.p(lc1, maxradius=12.7))
 cementsurf = Surface.p(lc2, name="cementsurf",
                        shape=Conic.p(lc2, curv=-1./45.7, name='conic2'),
-                       aperture=CircularAperture(lc2, maxradius=12.7))
+                       aperture=CircularAperture.p(lc2, maxradius=12.7))
 rearsurf = Surface.p(lc3, name="rearsurf",
                      shape=Conic.p(lc3, curv=-1./128.2, name='conic3'),
-                     aperture=CircularAperture(lc3, maxradius=12.7))
+                     aperture=CircularAperture.p(lc3, maxradius=12.7))
 image = Surface.p(lc4, name="imagesurf")
 
 elem = OpticalElement.p(lc0, name="thorlabs_AC_254-100-A")

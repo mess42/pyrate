@@ -71,7 +71,7 @@ class MaterialObject(AbstractObserver):
         self.__obj.addProperty("App::PropertyString", "mattype", "Material", "specifies type").mattype = mattype
 
         self.initfundict[mattype](**kwargs)
-        self.__obj.matclass.appendObservers([self])
+        self.__obj.matclass.append_observers([self])
 
         self.__obj.Proxy = self
         # TODO: load/save
@@ -142,7 +142,7 @@ class MaterialObject(AbstractObserver):
             # write back changed properties to underlying material
             self.writebackfunc[self.__obj.mattype](fp)
 
-    def informAboutUpdate(self):
+    def inform_about_update(self):
         # override AbstractObserver method
         FreeCAD.Console.PrintMessage("Changed Material in Core " + self.__obj.Name + "\n")
 

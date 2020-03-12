@@ -85,18 +85,18 @@ surfaces_do_not_draw = parsed.do_not_draw_surfaces.split(",")
 raybundles_do_not_draw = [int(s) for s in parsed.do_not_draw_raybundles.split(",") if s != '']
 
 p = ZMXParser(file_to_read, name='ZMXParser')
-lctmp = LocalCoordinates("tmp")
+lctmp = LocalCoordinates.p("tmp")
 
 matdict = {"BK7": ConstantIndexGlass.p(lctmp, 1.5168),
            "LAFN21": ConstantIndexGlass.p(lctmp, 1.788),
            "SF53": ConstantIndexGlass.p(lctmp, 1.72)}
 
-(s, seq) = p.createOpticalSystem(matdict)
+(s, seq) = p.create_optical_system(matdict)
 
 if s is None:
     sys.exit()
 
-initialbundles_dict = p.createInitialBundle()
+initialbundles_dict = p.create_initial_bundle()
 
 osa = OpticalSystemAnalysis(s, seq, name="Analysis")
 
@@ -109,7 +109,7 @@ for d in initialbundles_dict:
     if show_spot:
         d["raster"] = raster.RectGrid()
         osa.aim(num_rays*num_rays, d, wave=standard_wavelength)
-        osa.drawSpotDiagram()
+        osa.draw_spotdiagram()
     else:
         d["raster"] = raster.MeridionalFan()
         d["anglex"] = anglex

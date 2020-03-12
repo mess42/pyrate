@@ -39,48 +39,54 @@ class Optimizer(BaseLogger):
                  name="", updatefunction=None):
         super(Optimizer, self).__init__(name=name)
 
-        def noupdate(cl):
+        def noupdate(_):
+            "No update dummy callback function"
             pass
 
         self.collector = OptimizableVariableActiveCollector(
-                classwithoptvariables)
+            classwithoptvariables)
         self.meritfunction = meritfunction  # function to minimize
         if updatefunction is None:
             updatefunction = noupdate
-        self.updatefunction = updatefunction  # function to be called to update classwithoptvariables
-        self.setBackend(backend)  # eats vector performs optimization, returns vector
+        self.updatefunction = updatefunction
+        # function to be called to update classwithoptvariables
+        self.set_backend(backend)
+        # eats vector performs optimization, returns vector
         # scipy Nelder-Mead, scipy ..., evolutionary, genetic, ...
 
         self.meritparameters = {}
         self.updateparameters = {}
-        self.number_of_calls = 0 # how often is the merit function called during one run?
+        self.number_of_calls = 0
+        # how often is the merit function called during one run?
 
     def setKind(self):
         self.kind = "optimizer"
 
-    def setBackend(self, backend):
+    def set_backend(self, backend):
+        "Setter for backend."
         self.__backend = backend
-        self.__backend.init(self.MeritFunctionWrapper)
+        self.__backend.init(self.meritfunction_wrapper)
 
-    backend = property(fget=None, fset=setBackend)
+    backend = property(fget=None, fset=set_backend)
 
-    def MeritFunctionWrapper(self, x):
+    def meritfunction_wrapper(self, vecx):
         """
         Merit function wrapper for backend.
-        Notice that x and length of active values must have the same size
+        Notice that vecx and length of active values must have the same size
 
-        :param x (np.array): active variable values
+        :param vecx (np.array): active variable values
         :param meritfunction (function): meritfunction depending on s
 
         :return value of the merit function
         """
         self.number_of_calls += 1
-        self.collector.fromNumpyArrayTransformed(x)
+        self.collector.fromNumpyArrayTransformed(vecx)
         self.updatefunction(self.collector.class_instance,
                             **self.updateparameters)
         res = self.meritfunction(self.collector.class_instance,
                                  **self.meritparameters)
-        self.debug("call number " + str(self.number_of_calls) + " meritfunction: " + str(res))
+        self.debug("call number " + str(self.number_of_calls) +
+                   " meritfunction: " + str(res))
         return res
 
     def run(self):
@@ -88,15 +94,15 @@ class Optimizer(BaseLogger):
         Funtion to perform a certain number of optimization steps.
         '''
         self.info("optimizer run start")
-        x0 = self.collector.toNumpyArrayTransformed()
+        vecx0 = self.collector.toNumpyArrayTransformed()
 
-        self.info("initial x: " + str(x0))
-        self.info("initial merit: " + str(self.MeritFunctionWrapper(x0)))
+        self.info("initial x: " + str(vecx0))
+        self.info("initial merit: " + str(self.meritfunction_wrapper(vecx0)))
         self.debug("calling backend run")
-        xfinal = self.__backend.run(x0)
+        xfinal = self.__backend.run(vecx0)
         self.debug("finished backend run")
         self.info("final x: " + str(xfinal))
-        self.info("final merit: " + str(self.MeritFunctionWrapper(xfinal)))
+        self.info("final merit: " + str(self.meritfunction_wrapper(xfinal)))
         self.collector.fromNumpyArrayTransformed(xfinal)
         self.info("called merit function " + str(self.number_of_calls) +
                   " times.")

@@ -64,13 +64,13 @@ def transform_points(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
     """
     Sequential local/global and back transformation yields original point.
     """
-    coordinate_system = LocalCoordinates(name="1",
-                                         decx=100.*(2.*dec_x-1.),
-                                         decy=100.*(2.*dec_y-1.),
-                                         decz=100.*(2.*dec_z-1.),
-                                         tiltx=2.*math.pi*tilt_x,
-                                         tilty=2.*math.pi*tilt_y,
-                                         tiltz=2.*math.pi*tilt_z)
+    coordinate_system = LocalCoordinates.p(name="1",
+                                           decx=100.*(2.*dec_x-1.),
+                                           decy=100.*(2.*dec_y-1.),
+                                           decz=100.*(2.*dec_z-1.),
+                                           tiltx=2.*math.pi*tilt_x,
+                                           tilty=2.*math.pi*tilt_y,
+                                           tiltz=2.*math.pi*tilt_z)
     global_points = coordinate_system.returnLocalToGlobalPoints(local_points)
     local_points2 = coordinate_system.returnGlobalToLocalPoints(global_points)
     assert np.allclose(local_points2-local_points, 0)
@@ -80,13 +80,13 @@ def transform_directions(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
     """
     Sequential local/global and back transformation yields original vector.
     """
-    system = LocalCoordinates(name="1",
-                              decx=100.*(2.*dec_x-1.),
-                              decy=100.*(2.*dec_y-1.),
-                              decz=100.*(2.*dec_z-1.),
-                              tiltx=2.*math.pi*tilt_x,
-                              tilty=2.*math.pi*tilt_y,
-                              tiltz=2.*math.pi*tilt_z)
+    system = LocalCoordinates.p(name="1",
+                                decx=100.*(2.*dec_x-1.),
+                                decy=100.*(2.*dec_y-1.),
+                                decz=100.*(2.*dec_z-1.),
+                                tiltx=2.*math.pi*tilt_x,
+                                tilty=2.*math.pi*tilt_y,
+                                tiltz=2.*math.pi*tilt_z)
     global_directions = system.returnLocalToGlobalDirections(local_directions)
     local_directions2 = system.returnGlobalToLocalDirections(global_directions)
     assert np.allclose(local_directions2-local_directions, 0)
@@ -96,13 +96,13 @@ def transform_tensors(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
     """
     Sequential local/global and back transformation yields original tensor.
     """
-    system = LocalCoordinates(name="1",
-                              decx=100.*(2.*dec_x-1.),
-                              decy=100.*(2.*dec_y-1.),
-                              decz=100.*(2.*dec_z-1.),
-                              tiltx=2.*math.pi*tilt_x,
-                              tilty=2.*math.pi*tilt_y,
-                              tiltz=2.*math.pi*tilt_z)
+    system = LocalCoordinates.p(name="1",
+                                decx=100.*(2.*dec_x-1.),
+                                decy=100.*(2.*dec_y-1.),
+                                decz=100.*(2.*dec_z-1.),
+                                tiltx=2.*math.pi*tilt_x,
+                                tilty=2.*math.pi*tilt_y,
+                                tiltz=2.*math.pi*tilt_z)
     global_tensor = system.returnLocalToGlobalTensors(local_tensor)
     local_tensor2 = system.returnGlobalToLocalTensors(global_tensor)
     assert np.allclose(local_tensor2-local_tensor, 0)
@@ -112,13 +112,13 @@ def directions_scalarproduct(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
     """
     Two vectors have same scalar product in two different coordinate systems.
     """
-    system = LocalCoordinates(name="1",
-                              decx=100.*(2.*dec_x-1.),
-                              decy=100.*(2.*dec_y-1.),
-                              decz=100.*(2.*dec_z-1.),
-                              tiltx=2.*math.pi*tilt_x,
-                              tilty=2.*math.pi*tilt_y,
-                              tiltz=2.*math.pi*tilt_z)
+    system = LocalCoordinates.p(name="1",
+                                decx=100.*(2.*dec_x-1.),
+                                decy=100.*(2.*dec_y-1.),
+                                decz=100.*(2.*dec_z-1.),
+                                tiltx=2.*math.pi*tilt_x,
+                                tilty=2.*math.pi*tilt_y,
+                                tiltz=2.*math.pi*tilt_z)
     global1 = system.returnLocalToGlobalDirections(local1)
     global2 = system.returnLocalToGlobalDirections(local2)
     scalarproduct_local = np.einsum('i...,i...', local1, local2)
@@ -130,13 +130,13 @@ def tensors_scalarproduct(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
     """
     Vectors/tensors have same contractions in different coordinate systems.
     """
-    system = LocalCoordinates(name="1",
-                              decx=100.*(2.*dec_x-1.),
-                              decy=100.*(2.*dec_y-1.),
-                              decz=100.*(2.*dec_z-1.),
-                              tiltx=2.*math.pi*tilt_x,
-                              tilty=2.*math.pi*tilt_y,
-                              tiltz=2.*math.pi*tilt_z)
+    system = LocalCoordinates.p(name="1",
+                                decx=100.*(2.*dec_x-1.),
+                                decy=100.*(2.*dec_y-1.),
+                                decz=100.*(2.*dec_z-1.),
+                                tiltx=2.*math.pi*tilt_x,
+                                tilty=2.*math.pi*tilt_y,
+                                tiltz=2.*math.pi*tilt_z)
     global_directions1 = system.returnLocalToGlobalDirections(directions1)
     global_directions2 = system.returnLocalToGlobalDirections(directions2)
     global_tensor1 = system.returnLocalToGlobalTensors(tensor1)
@@ -150,19 +150,19 @@ def tensors_scalarproduct(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
     # assert np.any(v2glob - v2loc != 0) FIXME: currently breaks
 
     # test trace of tensor
-    assert np.allclose((np.trace(global_tensor1, axis1=0, axis2=1)-
+    assert np.allclose((np.trace(global_tensor1, axis1=0, axis2=1) -
                         np.trace(tensor1, axis1=0, axis2=1)),
                        0)
     # test t1 t2 tensor contraction
     assert np.allclose((np.einsum('ij...,ij...',
-                                  global_tensor1, global_tensor2)-
+                                  global_tensor1, global_tensor2) -
                         np.einsum('ij...,ij...', tensor1, tensor2)),
                        0)
     # test v1 t1 v2
     assert np.allclose((np.einsum('i...,ij...,j...',
                                   global_directions1,
                                   global_tensor1,
-                                  global_directions2)-
+                                  global_directions2) -
                         np.einsum('i...,ij...,j...',
                                   directions1,
                                   tensor1,
@@ -173,13 +173,14 @@ def tensors_scalarproduct(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z,
                                   global_directions1,
                                   global_tensor1,
                                   global_tensor2,
-                                  global_directions2)-
+                                  global_directions2) -
                         np.einsum('i...,ij...,jk...,k...',
                                   directions1,
                                   tensor1,
                                   tensor2,
                                   directions2)),
                        0)
+
 
 def inverse_coordinate(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z):
     """
@@ -191,22 +192,22 @@ def inverse_coordinate(dec_x, dec_y, dec_z, tilt_x, tilt_y, tilt_z):
     tilt_x = 2.*math.pi*tilt_x
     tilt_y = 2.*math.pi*tilt_y
     tilt_z = 2.*math.pi*tilt_z
-    system1 = LocalCoordinates(name="1")
-    system2 = system1.addChild(LocalCoordinates(name="2"))
-    system3 = system2.addChild(LocalCoordinates(name="3",
-                                                decx=dec_x,
-                                                decy=dec_y,
-                                                decz=dec_z,
-                                                tiltx=tilt_x,
-                                                tilty=tilt_y,
-                                                tiltz=tilt_z,
-                                                tiltThenDecenter=0))
-    system4 = system3.addChild(LocalCoordinates(name="4",
-                                                decx=-dec_x,
-                                                decy=-dec_y,
-                                                decz=-dec_z,
-                                                tiltx=-tilt_x,
-                                                tilty=-tilt_y,
-                                                tiltz=-tilt_z,
-                                                tiltThenDecenter=1))
+    system1 = LocalCoordinates.p(name="1")
+    system2 = system1.addChild(LocalCoordinates.p(name="2"))
+    system3 = system2.addChild(LocalCoordinates.p(name="3",
+                                                  decx=dec_x,
+                                                  decy=dec_y,
+                                                  decz=dec_z,
+                                                  tiltx=tilt_x,
+                                                  tilty=tilt_y,
+                                                  tiltz=tilt_z,
+                                                  tiltThenDecenter=0))
+    system4 = system3.addChild(LocalCoordinates.p(name="4",
+                                                  decx=-dec_x,
+                                                  decy=-dec_y,
+                                                  decz=-dec_z,
+                                                  tiltx=-tilt_x,
+                                                  tilty=-tilt_y,
+                                                  tiltz=-tilt_z,
+                                                  tiltThenDecenter=1))
     assert np.allclose(system4.globalcoordinates, 0)

@@ -89,15 +89,15 @@ lc6 = s.addLocalCoordinateSystem(
 
 objectsurf = Surface.p(lc0)
 m1surf = Surface.p(lc1, shape=Conic.p(lc1, curv=-0.01),
-                 aperture=CircularAperture(lc1, maxradius=20.))
+                 aperture=CircularAperture.p(lc1, maxradius=20.))
 m2surf = Surface.p(lc2, shape=Conic.p(lc2, curv=0.01),
-                 aperture=CircularAperture(lc2, maxradius=12.7))
+                 aperture=CircularAperture.p(lc2, maxradius=12.7))
 m3surf = Surface.p(lc3, shape=Conic.p(lc3, curv=-0.006),
-                 aperture=CircularAperture(lc3, maxradius=20.7))
+                 aperture=CircularAperture.p(lc3, maxradius=20.7))
 image1 = Surface.p(lc4)
 oapara = Surface.p(lc3, shape=Conic.p(lc5, curv=0.01, cc=-1.),
-                 aperture=CircularAperture(lc5ap, maxradius=30.0))
-image2 = Surface.p(lc6, aperture=CircularAperture(lc6, maxradius=20.0))
+                 aperture=CircularAperture.p(lc5ap, maxradius=30.0))
+image2 = Surface.p(lc6, aperture=CircularAperture.p(lc6, maxradius=20.0))
 
 
 elem = OpticalElement.p(lc0, name="TMA")

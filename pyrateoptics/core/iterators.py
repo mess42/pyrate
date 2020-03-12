@@ -29,7 +29,7 @@ import numpy as np
 
 from .log import BaseLogger
 from .base import ClassWithOptimizableVariables
-from .optimizable_variable import OptimizableVariable, FixedState
+from .optimizable_variable import OptimizableVariable
 
 
 class AbstractIterator(BaseLogger):
@@ -37,7 +37,13 @@ class AbstractIterator(BaseLogger):
     This class traverses through a class by investigating the __dict__
     and collects several information of the underlying recursive structure.
     """
-    def __init__(self, class_instance, run=True, *args, **kwargs):
+    def __init__(self, class_instance, run=True, name="", *args, **kwargs):
+        """
+        Initialize abstract iterator with a class instance and
+        call the run method to traverse through it and its
+        subclasses.
+        """
+        super(AbstractIterator, self).__init__(name=name)
         self.class_instance = class_instance
         self.sub_instance = class_instance
         self.initVariables()
@@ -45,51 +51,97 @@ class AbstractIterator(BaseLogger):
             self.run(*args, **kwargs)
 
     def initVariables(self):
+        """
+        Initializes variables which are to be updated during
+        the iteration process. This may be an idlist to avoid
+        variables doubling or a dictionary to record the names.
+        """
         raise NotImplementedError()
 
     def isCollectableElement(self, variable, *args, **kwargs):
+        """
+        Should that element be collected?
+        """
         raise NotImplementedError()
 
     def isTraversableElement(self, variable, *args, **kwargs):
+        """
+        Should that element traversed?
+        """
         raise NotImplementedError()
 
     def collectElement(self, variable, keystring, *args, **kwargs):
+        """
+        What happens if some element is collected?
+        I.e. write it into a list or dictionary.
+        """
         raise NotImplementedError()
 
     def collectRest(self, variable, keystring, *args, **kwargs):
+        """
+        What about all other stuff, which is not collectable and
+        not traverseable?
+        """
         pass
 
     def collectAccessSpecifier(self, var, accessspecifier_string,
                                *args, **kwargs):
+        """
+        Collect name for accessing the variable over a dict.
+        """
         return ""
 
     def collectParentChild(self, typparent, parent, child, *args, **kwargs):
+        """
+        Get access to parent of current variable.
+        """
         pass
 
     def getCollectableVariableIdentifier(self, variable):
+        """
+        Get name of collectable variable.
+        """
         raise NotImplementedError()
 
     def getSubInstanceVariableIdentifier(self, variable):
+        """
+        Get name of subinstance which is to be traversed further.
+        """
         raise NotImplementedError
 
     def isSubInstance(self, variable, *args, **kwargs):
+        """
+        Is current variable subinstance which is to be traversed further?
+        """
         raise NotImplementedError()
 
     def preRun(self, *args, **kwargs):
+        """
+        Perform operations which are necessary before run.
+        """
         self.sub_instance = self.class_instance
         self.initVariables()
 
     def postRun(self, *args, **kwargs):
+        """
+        Perform operations which are necessary after run.
+        """
         pass
 
     def traverse(self, variable, keystring,
                  *args, **kwargs):
+        """
+        Traverse structure of ClassWithOptimizableVariables and
+        perform operations which are defined by the other
+        functions, which are implemented in different ways
+        throughout the class hierarchy.
+        """
         if self.isTraversableElement(variable, *args, **kwargs):
             if self.isCollectableElement(variable, *args, **kwargs):
                 newkeystring = keystring + self.collectAccessSpecifier(
-                        variable,
-                        self.getCollectableVariableIdentifier(variable),
-                        *args, **kwargs)
+                    variable,
+                    self.getCollectableVariableIdentifier(variable),
+                    *args, **kwargs)
                 self.collectParentChild(type(variable), variable, None)
                 self.collectElement(variable, newkeystring, *args, **kwargs)
                 return
@@ -105,7 +157,7 @@ class AbstractIterator(BaseLogger):
             elif isinstance(variable, dict):
                 for (key, value) in variable.items():
                     newkeystring = keystring + self.collectAccessSpecifier(
-                            variable, key, *args, **kwargs)
+                        variable, key, *args, **kwargs)
                     self.collectParentChild(type(variable), variable, value)
                     self.traverse(value, newkeystring, *args, **kwargs)
             elif self.isSubInstance(variable):
@@ -115,7 +167,7 @@ class AbstractIterator(BaseLogger):
                     self.collectAccessSpecifier(
                         variable,
                         self.getSubInstanceVariableIdentifier(
-                                variable
+                            variable
                         ),
                         *args, **kwargs)
                 self.collectParentChild(type(variable), variable,
@@ -127,29 +179,50 @@ class AbstractIterator(BaseLogger):
                 self.collectRest(variable, keystring, *args, **kwargs)
 
     def run(self, *args, **kwargs):
+        """
+        Perform traversation and appropriate pre and post run
+        operations. This is called in the constructor to
+        traverse the defined class instance directly after
+        class initialization.
+        """
         self.preRun(*args, **kwargs)
         self.traverse(self.class_instance, "", *args, **kwargs)
         self.postRun(*args, **kwargs)
 
 
 class VariableReference(object):
+    """
+    Dummy class for changing variables through the traversation
+    process.
+    """
     def __init__(self, value):
         self.value = value
 
 
 class AbstractModifyingIterator(AbstractIterator):
+    """
+    Abstract iterator class which is able to modify the
+    variables during iteration by using VariableReference
+    class.
+    """
 
     def modifyElement(self, variable_reference, newkeystring, *args, **kwargs):
+        """
+        How should the element be modified during traversation?
+        """
         raise NotImplementedError()
 
     def traverse_modify(self, variable_reference, keystring, *args, **kwargs):
+        """
+        Modifying variety of traversation of AbstractIterator.
+        """
         value = variable_reference.value
         if self.isTraversableElement(value, *args, **kwargs):
             if self.isCollectableElement(value, *args, **kwargs):
                 newkeystring = keystring + self.collectAccessSpecifier(
-                        value,
-                        self.getCollectableVariableIdentifier(value),
-                        *args, **kwargs)
+                    value,
+                    self.getCollectableVariableIdentifier(value),
+                    *args, **kwargs)
                 self.collectParentChild(type(value), value, None)
                 self.modifyElement(variable_reference, newkeystring,
                                    *args, **kwargs)
@@ -172,7 +245,7 @@ class AbstractModifyingIterator(AbstractIterator):
                 new_dict = {}
                 for (key, dict_val) in value.items():
                     newkeystring = keystring + self.collectAccessSpecifier(
-                            value, key, *args, **kwargs)
+                        value, key, *args, **kwargs)
                     self.collectParentChild(type(value), value, dict_val)
                     dict_val_reference = VariableReference(dict_val)
                     self.traverse_modify(dict_val_reference, newkeystring,
@@ -186,7 +259,7 @@ class AbstractModifyingIterator(AbstractIterator):
                     self.collectAccessSpecifier(
                         value,
                         self.getSubInstanceVariableIdentifier(
-                                value
+                            value
                         ),
                         *args, **kwargs)
                 self.collectParentChild(type(value), value,
@@ -289,21 +362,21 @@ class OptimizableVariableCollector(OptimizableVariableIterator):
                             for v in self.variables_list],
                            dtype=float, count=len(self.variables_list))
 
-    def fromNumpyArray(self, x):
+    def fromNumpyArray(self, vec_x):
         """
         Function to set all values of active variables to the values in the
-        large np.array x. Supports only float at the moment.
+        large np.array vec_x. Supports only float at the moment.
         """
-        [variable.set_value(value)
-         for (variable, value) in zip(self.variables_list, x.tolist())]
+        for (variable, value) in zip(self.variables_list, vec_x.tolist()):
+            variable.set_value(value)
 
-    def fromNumpyArrayTransformed(self, x):
+    def fromNumpyArrayTransformed(self, vec_x):
         """
         Function to set all values of active variables to the transformed
-        values in the large np.array x. Supports only float at the moment.
+        values in the large np.array vec_x. Supports only float at the moment.
         """
-        [variable.set_value_transformed(value)
-         for (variable, value) in zip(self.variables_list, x.tolist())]
+        for (variable, value) in zip(self.variables_list, vec_x.tolist()):
+            variable.set_value_transformed(value)
 
 
 class OptimizableVariableKeyIterator(OptimizableVariableCollector):
@@ -338,19 +411,23 @@ class OptimizableVariableKeyIterator(OptimizableVariableCollector):
     def collectRest(self, variable, keystring, *args, **kwargs):
         pass
 
-    def run(self, shortkeys=True):
+    def run(self, shortkeys=True, *args, **kwargs):
         super(OptimizableVariableKeyIterator, self).run(shortkeys)
 
 
 class OptimizableVariableSetKeyIterator(
         OptimizableVariableKeyIterator,
         AbstractOptimizableVariableModifyingCollector):
+    """
+    Collect all the keys to access the different variables via
+    a dict.
+    """
 
     def __init__(self, class_instance, key_assignment_dictionary, run=True,
                  *args, **kwargs):
         super().__init__(
-                class_instance,
-                run=run, *args, **kwargs)
+            class_instance,
+            run=run, *args, **kwargs)
         self.key_assignment_dictionary = key_assignment_dictionary
 
     def run(self, shortkeys=True, *args, **kwargs):
@@ -370,7 +447,7 @@ class OptimizableVariableActiveCollector(OptimizableVariableCollector):
     """
 
     def isCollectableElement(self, variable, *args, **kwargs):
-        return super(OptimizableVariableCollector,
+        return super(OptimizableVariableActiveCollector,
                      self).isCollectableElement(variable,
                                                 *args,
                                                 **kwargs) and\
@@ -385,28 +462,40 @@ class SerializationIterator(OptimizableVariableCollector):
 
     def initVariables(self):
         super(SerializationIterator, self).initVariables()
+        self.dictionary = {}
         self.classes_dictionary = {}
         self.variables_dictionary = {}
         self.structure = None
 
-    def collectStructure(self, remove=[]):
+    def collectStructure(self, remove=None):
+        """
+        Collect structure variable for later serialization.
+        """
+        if remove is None:
+            remove = []
 
-        def traverse_structure(var, remove=[]):
+        def traverse_structure(var, remove=None):
+            """
+            Traverse structure of class to support later
+            serialization.
+            """
+            if remove is None:
+                remove = []
             # this code is in some sense doubled traverse code
             # but its intention is another: while traverse only
             # traverses, traverse_structure modifies a data object with several
             # return statements
             if isinstance(var, dict):
                 newdict = {}
-                for (k, v) in var.items():
-                    newitem = traverse_structure(v)
-                    if k not in remove and newitem is not None:
-                        newdict[k] = newitem
+                for (key, val) in var.items():
+                    newitem = traverse_structure(val, remove=remove)
+                    if key not in remove and newitem is not None:
+                        newdict[key] = newitem
                 return newdict
             elif isinstance(var, list):
                 newlist = []
-                for (ind, v) in enumerate(var):
-                    newitem = traverse_structure(v)
+                for val in var:
+                    newitem = traverse_structure(val, remove=remove)
                     if newitem is not None:
                         newlist.append(newitem)
                 return newlist
@@ -418,6 +507,10 @@ class SerializationIterator(OptimizableVariableCollector):
                 # ignore all other variables
                 return None
 
+        #mymodifieddict = {}
+        #for (k, v) in self.class_instance.__dict__.items():
+        #    if k not in self.class_instance.serializationfilter:
+        #        mymodifieddict[k] = v
         self.structure = traverse_structure(self.class_instance.__dict__,
                                             remove=remove)
 
@@ -435,14 +528,16 @@ class SerializationIterator(OptimizableVariableCollector):
                 variable
         return result
 
-    def postRun(self, remove=[]):
+    def postRun(self, remove=None, *args, **kwargs):
+        if remove is None:
+            remove = []
         self.variables_dictionary = dict([(v.unique_id, v)
                                           for v in self.variables_list])
         self.classes_dictionary.pop(self.class_instance.unique_id)
         # remove class_instance from classes_dictionary
         self.collectStructure(remove=remove)
         self.dictionary = {}
-        self.dictionary.update(self.class_instance.getBasicInfo())
+        self.dictionary.update(self.class_instance.get_basic_info())
         self.dictionary["annotations"] = self.class_instance.annotations
         self.dictionary["structure"] = self.structure
         # standard things kind, name, version, id can be given by

@@ -11,10 +11,9 @@ sh = Conic(lc, curv=0, cc=-1)
 
 lc.decx.set_value(1.0)
 lc.decy.set_value(2.0)
-lc.decz.toPickup((fo, "f"), (lc.decx, lc.decy)) 
+lc.decz.to_pickup((fo, "f"), (lc.decx, lc.decy))
 
 
 
 dlg = ClassWithOptimizableVariablesTaskPanelEdit(sh)
 FreeCADGui.Control.showDialog(dlg)
- 

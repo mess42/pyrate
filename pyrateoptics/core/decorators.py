@@ -24,13 +24,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+
 def annotate_decorator(cls):
     """
     Class decorator based on example 4 of:
     https://krzysztofzuraw.com/blog/2016/python-class-decorators.html
     """
 
-    class AnnotateWrapper(object):
+    class AnnotateWrapper:
+        """
+        Wrapper of some class.
+        """
         def __init__(self, *args, **kwargs):
             self.annotations = {}
             self.wrapped = cls(*args, **kwargs)

@@ -24,17 +24,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import math
 import numpy as np
 
-from ..core.log import BaseLogger
-
-type_key = "type"
+from ..core.base import ClassWithOptimizableVariables
 
 
-class BaseAperture(BaseLogger):
+class BaseAperture(ClassWithOptimizableVariables):
     # for optimizable aperture it would be good to
     # derive from optimizable class, but I think
     # apertures will be inserted after optimization
+
+    # comment 20200217: class has to be derived from
+    # ClassWithOptimizableVariables anyway, for following
+    # reasons:
+    # * localcoordinate system is still optimizable
+    # * it is saved by serializer
     """
     Base class representing the aperture of a surface.
     Subclasses may define the actual shapes (circular,
@@ -45,38 +50,38 @@ class BaseAperture(BaseLogger):
 
     The base class does not limit the beam diameter.
     """
-    def __init__(self, lc, name=""):
-        super(BaseAperture, self).__init__(name=name)
-        self.lc = lc
-        self.typicaldimension = 1e16
+    @classmethod
+    def p(cls, lc, name="", *_):
+        return cls({"typicaldimension": 1e16}, {"lc": lc},
+                   name=name)
 
     def setKind(self):
         self.kind = "aperture"
 
-    def getTypicalDimension(self):
+    def get_typical_dimension(self):
         """
         Returns typical dimension of aperture
 
         :return self.typicaldimension: float
         """
 
-        return self.typicaldimension
+        return self.annotations["typicaldimension"]
 
-    def arePointsInAperture(self, x, y):
+    def are_points_in_aperture(self, x_intersection, y_intersection):
         """
 
         Returns of points given by numpy arrays x, y are within aperture
 
-        :param x: x in local coordinate system (1xn numpy array of floats)
-        :param y: y in local coordinate system (1xn numpy array of floats)
+        :param x_intersection: x in local coordinates (1xn npy array of floats)
+        :param y_intersection: y in local coordinates (1xn npy array of floats)
 
         :return True (1d numpy array of n bools)
         """
 
-        bool_func = self.getBooleanFunction()
-        return bool_func(x, y)  # return true always
+        bool_func = self.get_boolean_function()
+        return bool_func(x_intersection, y_intersection)  # return true always
 
-    def getBooleanFunction(self):
+    def get_boolean_function(self):
         """
 
         Returns boolean function of aperture
@@ -93,22 +98,20 @@ class CircularAperture(BaseAperture):
     Circular aperture of a surface.
     """
 
-    def __init__(self, lc, maxradius=1.0, minradius=0.0, **kwargs):
-        super(CircularAperture, self).__init__(lc, **kwargs)
-        self.maxradius = maxradius
-        self.minradius = minradius
-        self.typicaldimension = self.maxradius
+    def setKind(self):
+        self.kind = "aperture_Circular"
 
-    def getBooleanFunction(self):
-        return (lambda x, y: (x**2 + y**2 >= self.minradius**2) *
-                             (x**2 + y**2 <= self.maxradius**2))
+    @classmethod
+    def p(cls, lc, maxradius=1.0, minradius=0.0, name="", *_):
+        return cls({"maxradius": maxradius,
+                    "minradius": minradius,
+                    "typicaldimension": maxradius},
+                   {"lc": lc}, name=name)
 
-    def getDictionary(self):
-        res = super(CircularAperture, self).getDictionary()
-        res[type_key] = "CircularAperture"
-        res["minradius"] = self.minradius
-        res["maxradius"] = self.maxradius
-        return res
+    def get_boolean_function(self):
+        return (lambda x, y:
+                (x**2 + y**2 >= self.annotations["minradius"]**2) *
+                (x**2 + y**2 <= self.annotations["maxradius"]**2))
 
 
 class RectangularAperture(BaseAperture):
@@ -116,32 +119,35 @@ class RectangularAperture(BaseAperture):
     Rectangular aperture of a surface.
     """
 
-    def __init__(self, lc, width=1.0, height=1.0, **kwargs):
-        super(RectangularAperture, self).__init__(lc, **kwargs)
-        self.width = width
-        self.height = height
-        self.typicaldimension = np.sqrt(self.width**2 + self.height**2)
+    def setKind(self):
+        self.kind = "aperture_Rectangle"
 
-    def getBooleanFunction(self):
-        return (lambda x, y: (x >= -self.width * 0.5) *
-                (x <= self.width * 0.5) *
-                (y >= -self.height * 0.5) *
-                (y <= self.height * 0.5))
+    @classmethod
+    def p(cls, lc, width=1.0, height=1.0, name="", *_):
+        cls({"width": width,
+             "height": height,
+             "typicaldimension": math.sqrt(width**2 + height**2)},
+            {"lc": lc}, name=name)
 
-    def getDictionary(self):
-        res = super(CircularAperture, self).getDictionary()
-        res[type_key] = "RectangularAperture"
-        res["width"] = self.width
-        res["height"] = self.height
-        return res
+    def get_boolean_function(self):
+        width = self.annotations["width"]
+        height = self.annotations["height"]
+        return (lambda x, y: (x >= -width * 0.5) *
+                (x <= width * 0.5) *
+                (y >= -height * 0.5) *
+                (y <= height * 0.5))
 
 
-accessible_apertures = {None: BaseAperture,
+# Needed for convenience functions in pyrateoptics
+
+ACCESSIBLE_APERTURES = {None: BaseAperture,
                         "CircularAperture": CircularAperture,
                         "RectangularAperture": RectangularAperture}
 
 
-def createAperture(lc, ap_dict):
-
-    ap_type = ap_dict.pop(type_key, None)
-    return accessible_apertures[ap_type](lc, **ap_dict)
+def create_aperture(localcoordinates, ap_dict):
+    """
+    Creates aperture object from dictionary
+    """
+    ap_type = ap_dict.pop("type", None)
+    return ACCESSIBLE_APERTURES[ap_type].p(localcoordinates, **ap_dict)

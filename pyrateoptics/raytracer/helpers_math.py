@@ -24,8 +24,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import numpy as np
 import math
+import numpy as np
+
 
 def checkfinite(vec):
     """
@@ -35,70 +36,93 @@ def checkfinite(vec):
     return np.any(np.isfinite(vec) ^ True, axis=0) ^ True
 
 
-def checkEcompatibility2(E, E1, E2, tol=1e-8):
+def check_efield_compatibility2(efield, efield1, efield2, tol=1e-8):
     """
     Checks whether E is in the subspace spanned by
     E1 and E2 by using the determinant.
     """
     return np.abs(np.linalg.det(
-                np.concatenate(
-                    (E[:, np.newaxis, :], 
-                     E1[:, np.newaxis, :], 
-                     E2[:, np.newaxis, :]), axis=1).T)) < tol
+        np.concatenate(
+            (efield[:, np.newaxis, :],
+             efield1[:, np.newaxis, :],
+             efield2[:, np.newaxis, :]), axis=1).T)) < tol
 
-def checkEcompatibility1(E, E1, orthogen=None, tol=1e-8):
+
+def check_efield_compatibility1(efield, efield1,
+                                orthogen=None, tol=1e-8):
     """
     Check linear dependency by introducing another orthogonal vector and
     calculating the determinant once again.
     """
     if orthogen is None:
         # Choose orthogen randomly on unit sphere
-        orthogen = np.random.randn(*np.shape(E))
+        orthogen = np.random.randn(*np.shape(efield))
         orthogen = orthogen/np.linalg.norm(orthogen, axis=1)
-    
-    orthoE1 = orthogen - np.sum(orthogen*E1, axis=0)*E1/np.linalg.norm(E1, axis=1)**2
-    return checkEcompatibility2(E, E1, orthoE1, tol=tol)
 
-def rodrigues(angle, a):
-    ''' 
+    ortho_efield1 = orthogen -\
+        np.sum(orthogen*efield1, axis=0)*efield1\
+        /np.linalg.norm(efield1, axis=1)**2
+    return check_efield_compatibility2(efield, efield1, ortho_efield1, tol=tol)
+
+
+def rodrigues(angle, axis):
+    '''
     returns numpy matrix from Rodrigues formula.
-    
+
     @param: (float) angle in radians
     @param: (numpy (3x1)) axis of rotation (unit vector)
-    
+
     @return: (numpy (3x3)) matrix of rotation
     '''
-    mat = np.array(\
-        [[    0, -a[2],  a[1]],\
-         [ a[2],     0, -a[0]],\
-         [-a[1],  a[0],    0]]\
-         )
-    return np.lib.eye(3) + math.sin(angle)*mat + (1. - math.cos(angle))*np.dot(mat, mat)
+    mat = np.array([[0, -axis[2], axis[1]],
+                    [axis[2], 0, -axis[0]],
+                    [-axis[1], axis[0], 0]])
+
+    return np.lib.eye(3) + math.sin(angle)*mat +\
+        (1. - math.cos(angle))*np.dot(mat, mat)
 
 
-def random_unitary_matrix(n):
-    rnd = np.random.randn(n*n).reshape((n, n)) + complex(0, 1)*np.random.randn(n*n).reshape((n, n))
-    (q, r) = np.linalg.qr(rnd)
-    return q
-    
-def random_unitary_matrix_sample(n, m):
-    rnd = np.random.randn(n*n).reshape((n, n, m)) + complex(0, 1)*np.random.randn(n*n).reshape((n, n, m))
-    q = np.zeros_like(rnd, dtype=complex)
-    for j in range(m):
-        (ql, r) = np.linalg.qr(rnd[:, :, j])
-        q[:, :, j]= ql
-    return q
-    
-    
-def random_rotation_matrix(n):
-    rnd = np.random.randn(n*n).reshape((n, n))
-    (q, r) = np.linalg.qr(rnd)
-    return q
+def random_unitary_matrix(size):
+    """
+    Generates random unitary matrix of defined size.
+    """
+    rnd = np.random.randn(size*size).reshape((size, size)) +\
+        complex(0, 1)*np.random.randn(size*size).reshape((size, size))
+    (qmatrix, _) = np.linalg.qr(rnd)
+    return qmatrix
 
-def random_rotation_matrix_sample(n, m):
-    rnd = np.random.randn(n*n).reshape((n, n, m))
-    q = np.zeros_like(rnd)
-    for j in range(m):
-        (ql, r) = np.linalg.qr(rnd[:, :, j])
-        q[:, :, j]= ql
-    return q
+
+def random_unitary_matrix_sample(size, number):
+    """
+    Generates random unitary matrix sample of defined size
+    and number.
+    """
+    rnd = np.random.randn(size*size).reshape((size, size, number)) +\
+        complex(0, 1)*np.random.randn(size*size).reshape((size, size, number))
+    qsamples = np.zeros_like(rnd, dtype=complex)
+    for j in range(number):
+        (qmatrix, _) = np.linalg.qr(rnd[:, :, j])
+        qsamples[:, :, j] = qmatrix
+    return qsamples
+
+
+def random_rotation_matrix(size):
+    """
+    Generates random rotation matrix of defined size.
+    """
+    rnd = np.random.randn(size*size).reshape((size, size))
+    (qmatrix, _) = np.linalg.qr(rnd)
+    return qmatrix
+
+
+def random_rotation_matrix_sample(size, number):
+    """
+    Generates random rotation matrix sample of defined size and
+    number
+    """
+    rnd = np.random.randn(size*size).reshape((size, size, number))
+    qsamples = np.zeros_like(rnd)
+    for j in range(number):
+        (qmatrix, _) = np.linalg.qr(rnd[:, :, j])
+        qsamples[:, :, j] = qmatrix
+    return qsamples

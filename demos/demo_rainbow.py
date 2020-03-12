@@ -24,13 +24,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 import logging
+import json
+import yaml
+
+from pprint import pprint
 
 
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.raytracer.material.material_isotropic import\
     ConstantIndexGlass
 from pyrateoptics.raytracer.material.material_glasscat import\
-    refractiveindex_dot_info_glasscatalog, CatalogMaterial
+    GlassCatalog, CatalogMaterial
 from pyrateoptics.raytracer.surface_shape import Asphere
 from pyrateoptics.raytracer.optical_element import OpticalElement
 from pyrateoptics.raytracer.surface import Surface
@@ -38,6 +42,10 @@ from pyrateoptics.raytracer.optical_system import OpticalSystem
 
 from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
+
+from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
+from pyrateoptics.core.serializer import Serializer
+
 
 from pyrateoptics.raytracer.globalconstants import degree
 from pyrateoptics import raytrace, draw
@@ -76,16 +84,16 @@ lc4 = s.addLocalCoordinateSystem(
 
 
 stopsurf = Surface.p(lc0,
-                     aperture=CircularAperture(lc0, maxradius=7*dropletradius))
+                     aperture=CircularAperture.p(lc0, maxradius=7*dropletradius))
 frontsurf = Surface.p(lc1, shape=Asphere.p(lc1, curv=1./dropletradius),
-                      aperture=CircularAperture(lc1, maxradius=dropletradius))
+                      aperture=CircularAperture.p(lc1, maxradius=dropletradius))
 rearsurf = Surface.p(lc2, shape=Asphere.p(lc2, curv=-1./dropletradius),
-                     aperture=CircularAperture(lc2, maxradius=dropletradius))
+                     aperture=CircularAperture.p(lc2, maxradius=dropletradius))
 midsurf = Surface.p(lc3, shape=Asphere.p(lc3, curv=0),
-                    aperture=CircularAperture(lc3, maxradius=dropletradius))
+                    aperture=CircularAperture.p(lc3, maxradius=dropletradius))
 
 image = Surface.p(lc4,
-                aperture=CircularAperture(lc4, maxradius=7.*dropletradius))
+                aperture=CircularAperture.p(lc4, maxradius=7.*dropletradius))
 
 
 elem = OpticalElement.p(lc0, name="droplet")
@@ -97,8 +105,8 @@ book = "liquids"
 page = "water"
 
 try:
-    gcat = refractiveindex_dot_info_glasscatalog(database_basepath)
-    waterdict = gcat.getMaterialDict(shelf, book, page)
+    gcat = GlassCatalog(database_basepath)
+    waterdict = gcat.get_material_dict(shelf, book, page)
     water = CatalogMaterial.p(lc0, waterdict, name="water (catalogue)")
 except KeyError:
     logging.warning("refractive index database not found. please download it\
@@ -106,9 +114,9 @@ except KeyError:
     water = ConstantIndexGlass.p(lc0, n=1.336, name="water (failsafe)")
 
 logging.info("wavelength %f, index %f" %
-             (wave_red, water.getIndex(None, wave_red).real))
+             (wave_red, water.get_optical_index(None, wave_red).real))
 logging.info("wavelength %f, index %f" %
-             (wave_blue, water.getIndex(None, wave_blue).real))
+             (wave_blue, water.get_optical_index(None, wave_blue).real))
 
 elem.addMaterial("water", water)
 
@@ -139,3 +147,21 @@ r_red = raytrace(s, sysseq, 11, raysdict, wave=wave_red)[0]
 r_blue = raytrace(s, sysseq, 11, raysdict, wave=wave_blue)[0]
 
 draw(s, [(r_red, "red"), (r_blue, "blue")])
+
+system_dump = Serializer(s).serialization
+system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
+        s.elements["droplet"].surfaces["surf4"].shape).query_for_dictionary()
+
+#pprint(system_gui_toplevel)
+#pprint(system_dump)
+
+fp = open("rainbow.yaml", "wt")
+yaml.dump(system_dump, fp)
+fp.close()
+
+
+fp = open("rainbow.json", "wt")
+json.dump(system_dump, fp, indent=4)
+fp.close()
+
+

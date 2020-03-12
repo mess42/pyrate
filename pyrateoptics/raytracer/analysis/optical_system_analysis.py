@@ -60,7 +60,7 @@ class OpticalSystemAnalysis(BaseLogger):
     def setKind(self):
         self.kind = "opticalsystemanalysis"
 
-    def setSequence(self, seq):
+    def set_sequence(self, seq):
         """
         Sets sequence and optical element analyses.
         """
@@ -71,16 +71,17 @@ class OpticalSystemAnalysis(BaseLogger):
                 OpticalElementAnalysis(self.opticalsystem.elements[elem],
                                        elemseq, name="oea_" + elem)
 
-    def getSequence(self):
+    def get_sequence(self):
         """
         Returns sequence.
         """
         return self.__sequence
 
-    sequence = property(fget=getSequence, fset=setSequence)
+    sequence = property(fget=get_sequence, fset=set_sequence)
 
     def collimated_bundle(self, nrays,
-                          properties_dict={}, wave=standard_wavelength):
+                          properties_dict=None,
+                          wave=standard_wavelength):
         """
         Convenience function to generate a collimated bundle obeying the
         dispersion relation. Will later probably removed by aiming
@@ -90,6 +91,8 @@ class OpticalSystemAnalysis(BaseLogger):
         @param properties_dict (dict) collimated ray bundle properties
         @param wavelength (float) wavelength (default is standard_wavelength)
         """
+        if properties_dict is None:
+            properties_dict = {}
 
         material = self.opticalsystem.material_background
 
@@ -101,21 +104,23 @@ class OpticalSystemAnalysis(BaseLogger):
         angley = properties_dict.get("angley", 0.0)
         anglex = properties_dict.get("anglex", 0.0)
 
-        (px, py) = rasterobj.getGrid(nrays)
+        (point_x, point_y) = rasterobj.getGrid(nrays)
 
-        origin = np.vstack((radius*px + startx, radius*py + starty,
-                            startz*np.ones_like(px)))
+        origin = np.vstack((radius*point_x + startx, radius*point_y + starty,
+                            startz*np.ones_like(point_x)))
         unitvector = np.zeros_like(origin)
         unitvector[0, :] = np.sin(angley)*np.cos(anglex)
         unitvector[1, :] = np.sin(anglex)
         unitvector[2, :] = np.cos(angley)*np.cos(anglex)
 
-        (k0, E0) = material.sortKnormUnitEField(origin, unitvector,
-                                                unitvector, wave=wave)
+        (k_vec0, efield_vec0) = material.sortKnormUnitEField(origin,
+                                                             unitvector,
+                                                             unitvector,
+                                                             wave=wave)
 
-        return (origin, k0[2, :, :], E0[2, :, :])
+        return (origin, k_vec0[2, :, :], efield_vec0[2, :, :])
 
-    def divergent_bundle(self, nrays, properties_dict={},
+    def divergent_bundle(self, nrays, properties_dict=None,
                          wave=standard_wavelength):
         """
         Convenience function to generate a divergent bundle obeying the
@@ -126,6 +131,8 @@ class OpticalSystemAnalysis(BaseLogger):
         @param properties_dict (dict) collimated ray bundle properties
         @param wavelength (float) wavelength (default is standard_wavelength)
         """
+        if properties_dict is None:
+            properties_dict = {}
 
         material = self.opticalsystem.material_background
 
@@ -137,19 +144,24 @@ class OpticalSystemAnalysis(BaseLogger):
         angley = properties_dict.get("angley", 0.0)
         anglex = properties_dict.get("anglex", 0.0)
 
-        (ax, ay) = rasterobj.getGrid(nrays)
+        (angle_x, angle_y) = rasterobj.getGrid(nrays)
 
-        origin = np.vstack((startx*np.ones_like(ax), starty*np.ones_like(ax),
-                            startz*np.ones_like(ax)))
+        origin = np.vstack((startx*np.ones_like(angle_x),
+                            starty*np.ones_like(angle_x),
+                            startz*np.ones_like(angle_x)))
         unitvector = np.zeros_like(origin)
-        unitvector[0, :] = np.sin(angley + radius*ax) * np.cos(anglex + radius*ay)
-        unitvector[1, :] = np.sin(anglex + radius*ay)
-        unitvector[2, :] = np.cos(angley + radius*ax) * np.cos(anglex + radius*ay)
+        unitvector[0, :] = np.sin(angley + radius*angle_x) *\
+            np.cos(anglex + radius*angle_y)
+        unitvector[1, :] = np.sin(anglex + radius*angle_y)
+        unitvector[2, :] = np.cos(angley + radius*angle_x) *\
+            np.cos(anglex + radius*angle_y)
 
-        (k0, E0) = material.sortKnormUnitEField(origin, unitvector,
-                                                unitvector, wave=wave)
+        (k_vec0, efield_vec0) = material.sortKnormUnitEField(origin,
+                                                             unitvector,
+                                                             unitvector,
+                                                             wave=wave)
 
-        return (origin, k0[2, :, :], E0[2, :, :])
+        return (origin, k_vec0[2, :, :], efield_vec0[2, :, :])
 
     def aim(self, numrays, rays_dict, bundletype="collimated",
             wave=standard_wavelength):
@@ -162,8 +174,10 @@ class OpticalSystemAnalysis(BaseLogger):
         call_dict = {"collimated": self.collimated_bundle,
                      "divergent": self.divergent_bundle}
 
-        (o1, k1, E1) = call_dict[bundletype](numrays, rays_dict, wave=wave)
-        self.initial_bundles = [RayBundle(x0=o1, k0=k1, Efield0=E1, wave=wave)]
+        (org1, kvec1, evec1) = call_dict[bundletype](numrays, rays_dict,
+                                                     wave=wave)
+        self.initial_bundles = [RayBundle(x0=org1, k0=kvec1, Efield0=evec1,
+                                          wave=wave)]
         # TODO: need access to (o, k, E) triples
 
     def trace(self, **kwargs):
@@ -175,7 +189,7 @@ class OpticalSystemAnalysis(BaseLogger):
         return [self.opticalsystem.seqtrace(ib, self.sequence, **kwargs)
                 for ib in self.initial_bundles]
 
-    def trace3Dglobal(self, x0, k0, wave=standard_wavelength, **kwargs):
+    def trace_3d_global(self, x0, k0, wave=standard_wavelength, **kwargs):
         """
         Convenience function to trace rays in global coordinates.
         """
@@ -192,12 +206,12 @@ class OpticalSystemAnalysis(BaseLogger):
         return [[[(rb.x[0, :, :], rb.k[0, :, :])
                   for rb in rp.raybundles] for rp in fp] for fp in fp_raypaths]
 
-    def trace3Dlocal(self, **kwargs):
+    def trace_3d_local(self, **kwargs):
         """
         Convenience function to trace rays in local coordinates.
         """
         self.info("tracing rays to perform 3D local analysis")
-        fp_raypaths_3dglobal = self.trace3Dglobal(**kwargs)
+        fp_raypaths_3dglobal = self.trace_3d_global(**kwargs)
 
         flattened_seq = []
         for (elem, elemseq) in self.sequence:
@@ -205,41 +219,41 @@ class OpticalSystemAnalysis(BaseLogger):
                               for (surf, surf_opts) in elemseq]
 
         return [
+            [
                 [
-                 [
-                  (self.opticalsystem.
-                   elements[elemkey].
-                   surfaces[surfkey].
-                   rootcoordinatesystem.returnGlobalToLocalPoints(X),
-                   self.opticalsystem.
-                   elements[elemkey].
-                   surfaces[surfkey].
-                   rootcoordinatesystem.returnGlobalToLocalDirections(K))
-                      for ((elemkey, surfkey, surf_opts), (X, K))
-                          in zip(flattened_seq, rp)
-                 ] for rp in fp
-                ] for fp in fp_raypaths_3dglobal
-               ]
+                    (self.opticalsystem.
+                     elements[elemkey].
+                     surfaces[surfkey].
+                     rootcoordinatesystem.returnGlobalToLocalPoints(X),
+                     self.opticalsystem.
+                     elements[elemkey].
+                     surfaces[surfkey].
+                     rootcoordinatesystem.returnGlobalToLocalDirections(K))
+                    for ((elemkey, surfkey, surf_opts), (X, K))
+                    in zip(flattened_seq, rp)
+                ] for rp in fp
+            ] for fp in fp_raypaths_3dglobal
+            ]
 
-    def trace2Dlocal(self, **kwargs):
+    def trace_2d_local(self, **kwargs):
         """
         Convenience function to trace rays and report 2D local coordinates
         (footprints).
         """
 
         self.info("tracing rays to perform 3D local analysis")
-        fp_raypaths_3dlocal = self.trace3Dlocal(**kwargs)
+        fp_raypaths_3dlocal = self.trace_3d_local(**kwargs)
 
         return [
-                    [
-                        [
-                            (X[:2], K[:2])
-                            for (X, K) in rp
-                        ] for rp in fp
-                    ] for fp in fp_raypaths_3dlocal
-                ]
+            [
+                [
+                    (X[:2], K[:2])
+                    for (X, K) in rp
+                ] for rp in fp
+            ] for fp in fp_raypaths_3dlocal
+            ]
 
-    def getMatrices(self, **kwargs):
+    def get_matrices(self, **kwargs):
         """
         Convenience function should report transfer matrices.
         """
@@ -247,14 +261,16 @@ class OpticalSystemAnalysis(BaseLogger):
         # pilotbundle = RayBundle(
         #    x0=np.array([[0., 0.1., -0.1.], [0., 0., 0.], [0., 0., 0.]]))
 
-        (m_obj_stop, m_stop_img) = self.opticalsystem.extractXYUV(self, pilotbundle, self.sequence, **kwargs)
+        # (m_obj_stop, m_stop_img) = self.opticalsystem.extractXYUV(self,
+        #    pilotbundle, self.sequence, **kwargs)
         # FIXME: pilotbundle?
 
-        return (m_obj_stop, m_stop_img)
+        # return (m_obj_stop, m_stop_img)
+        raise NotImplementedError()
 
-    def getFootprint(self):  # hitlist_part argument?
+    def get_footprint(self):  # hitlist_part argument?
         """
-        Uses trace2Dlocal to obtain footprint diagrams.
+        Uses trace_2d_local to obtain footprint diagrams.
         """
         self.info("getting footprint")
         # use hitlist_part to select raypath part
@@ -263,7 +279,7 @@ class OpticalSystemAnalysis(BaseLogger):
 
         return xpos_in_surface_lc
 
-    def getSpot(self, raypath):
+    def get_spot(self, raypath):
         """
         Obtains spot diagrams.
         """
@@ -281,11 +297,11 @@ class OpticalSystemAnalysis(BaseLogger):
             returnGlobalToLocalPoints(last_x_global)
 
         ra = RayBundleAnalysis(last_raybundle)
-        rmscentroidsize = ra.getRMSspotSizeCentroid()
+        rmscentroidsize = ra.get_rms_spot_size_centroid()
 
         return (last_x_surf[0:2, :], rmscentroidsize)
 
-    def drawSpotDiagram(self, ax=None):
+    def draw_spotdiagram(self, ax=None):
         """
         Convenience function to draw spot diagrams.
         """
@@ -298,10 +314,10 @@ class OpticalSystemAnalysis(BaseLogger):
 
         for (fp_ind, fp) in enumerate(raypaths_fp):
             for (rp_ind, raypath) in enumerate(fp):
-                (spot_xy, rmscentroidsize) = self.getSpot(raypath)
+                (spot_xy, rmscentroidsize) = self.get_spot(raypath)
 
                 self.info("Field point %d, Raypath number: %d, spot size: %f um"
-                        % (fp_ind, rp_ind, 1000.*rmscentroidsize))
+                          % (fp_ind, rp_ind, 1000.*rmscentroidsize))
 
                 if ax is None:
                     ax = fig.add_subplot(fp_ind+1, rp_ind+1, 1)

@@ -22,16 +22,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 
-# TODO: maybe rewriteable into class decorator
-class AbstractObserver(object):
+class AbstractObserver:
+    """
+    Provide observer functionality i.e. for GUI.
+    """
     def __init__(self):
-        """ 
+        """
         Get actualized from to be observed object.
-        Most simple case: Observed object calls informAboutUpdate()
+        Most simple case: Observed object calls
+        inform_about_update()
         """
         super(AbstractObserver, self).__init__()
-    
-    def informAboutUpdate(self):
-        raise NotImplemented()
-    
+
+    def inform_about_update(self):
+        """
+        Inform the observer about an update of the observed
+        class.
+        """
+        raise NotImplementedError()
+
 

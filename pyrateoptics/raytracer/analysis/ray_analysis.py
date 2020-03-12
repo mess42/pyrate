@@ -40,7 +40,7 @@ class RayBundleAnalysis(BaseLogger):
     def setKind(self):
         self.kind = "rayanalysis"
 
-    def getCentroidPosition(self):
+    def get_centroid_position(self):
         """
         Returns the arithmetic average position of all rays at the end of the
         ray bundle.
@@ -48,13 +48,14 @@ class RayBundleAnalysis(BaseLogger):
         :return centr: centroid position (1d numpy array of 3 floats)
         """
 
-        o = self.raybundle.x[-1]
-        (_, num_points) = np.shape(o)
-        centroid = 1.0/(num_points + numerical_tolerance) * np.sum(o, axis=1)
+        position = self.raybundle.x[-1]
+        (_, num_points) = np.shape(position)
+        centroid = 1.0/(num_points + numerical_tolerance) * np.sum(position,
+                                                                   axis=1)
 
         return centroid
 
-    def getRMSspotSize(self, referencePos):
+    def get_rms_spot_size(self, reference_pos):
         """
         Returns the root mean square (RMS) deviation of all ray positions
         with respect to a reference position at the end of the ray bundle.
@@ -64,25 +65,26 @@ class RayBundleAnalysis(BaseLogger):
         :return rms: RMS spot size (float)
         """
 
-        o = self.raybundle.x[-1]
-        (_, num_points) = np.shape(o)
+        postion = self.raybundle.x[-1]
+        (_, num_points) = np.shape(postion)
 
-        delta = o - referencePos.reshape((3, 1)) * np.ones((3, num_points))
+        delta = postion - reference_pos.reshape((3, 1)) * np.ones((3,
+                                                                   num_points))
 
         return np.sqrt(np.sum(np.sum(delta**2)) /
                        (num_points - 1 + numerical_tolerance))
 
-    def getRMSspotSizeCentroid(self):
+    def get_rms_spot_size_centroid(self):
         """
         Returns the root mean square (RMS) deviation of all ray positions
         with respect to the centroid at the origin of the ray bundle.
 
         :return rms: RMS spot size (float)
         """
-        centr = self.getCentroidPosition()
-        return self.getRMSspotSize(centr)
+        centr = self.get_centroid_position()
+        return self.get_rms_spot_size(centr)
 
-    def getCentroidDirection(self):
+    def get_centroid_direction(self):
         """
         Returns the arithmetic average direction of all rays at the origin of
         the ray bundle.
@@ -98,7 +100,7 @@ class RayBundleAnalysis(BaseLogger):
 
         return com_d / length
 
-    def getRMSangluarSize(self, refDir):
+    def get_rms_angluar_size(self, ref_direction):
         """
         Returns the root mean square (RMS) deviation of all ray directions
         with respect to a reference direction. The return value is approximated
@@ -120,11 +122,11 @@ class RayBundleAnalysis(BaseLogger):
         directions = self.raybundle.returnKtoD()[-1]
         (_, num_rays) = np.shape(directions)
 
-        cross_product = np.cross(directions, refDir, axisa=0).T
+        cross_product = np.cross(directions, ref_direction, axisa=0).T
 
         return np.arcsin(np.sqrt(np.sum(cross_product**2) / num_rays))
 
-    def getRMSangluarSizeCentroid(self):
+    def get_rms_angluar_size_centroid(self):
         """
         Returns the root mean square (RMS) deviation of all ray directions
         with respect to the centroid direction.
@@ -132,14 +134,15 @@ class RayBundleAnalysis(BaseLogger):
         :return rms: RMS angular size in rad (float)
         """
         # TODO: to be tested
-        return self.getRMSangluarSize(self.getCentroidDirection())
+        return self.get_rms_angluar_size(self.get_centroid_direction())
 
-    def getArcLength(self):
+    def get_arc_length(self):
         """
         Calculates arc length for all rays.
 
         :return Arc length (1d numpy array of float)
         """
-        ds = np.sqrt(np.sum((self.raybundle.x[1:] - self.raybundle.x[:-1])**2,
-                            axis=1))  # arc element lengths for every ray
-        return np.sum(ds, axis=0)
+        delta_s = np.sqrt(np.sum(
+            (self.raybundle.x[1:] - self.raybundle.x[:-1])**2,
+            axis=1))  # arc element lengths for every ray
+        return np.sum(delta_s, axis=0)

@@ -31,18 +31,21 @@ from .log import BaseLogger
 
 
 class OptimizableVariablesPool(BaseLogger):
-
+    """
+    Provides a class for managing the loading and saving of
+    optimizable variables.
+    """
     def __init__(self, variables_pool_from_serialization_iter, name=""):
         super(OptimizableVariablesPool, self).__init__(name=name)
         self.variables_pool = variables_pool_from_serialization_iter
-        self.variables_pool = self.extendPool(self.variables_pool)
+        self.variables_pool = self.extend_pool(self.variables_pool)
         # guarantee that pool contains ALL variables which are referenced
         # by pickups
 
     def setKind(self):
         self.kind = "optimizablevariablespool"
 
-    def extendPool(self, pool):
+    def extend_pool(self, pool):
         """
         Collects all pickup variables in pool and checks whether their
         arguments are also in pool. If this is not the case than it adds them.
@@ -62,48 +65,56 @@ class OptimizableVariablesPool(BaseLogger):
             all_pickup_vars = list([ov for (k, ov) in pool.items()
                                     if ov.var_type() == "pickup"])
             res = all([all(
-                    [a.unique_id in pool
-                        for a in ov._state.parameters["args"]]
-                    ) for ov in all_pickup_vars])
+                [a.unique_id in pool
+                 for a in ov._state.parameters["args"]]
+                ) for ov in all_pickup_vars])
 
             return (res, all_pickup_vars)
 
         result_pool = {}
         # update result pool to pool items
-        for (key, ov) in pool.items():
-            result_pool[key] = ov
+        for (key, optvar) in pool.items():
+            result_pool[key] = optvar
 
         # check if all of the args are in pool
         (all_args_in_pool, pickup_vars) = are_all_args_in_pool(result_pool)
         # while this is not the case, add the args to the pool
         while not all_args_in_pool:
-            for ov in pickup_vars:
-                for arg_variable in ov._state.parameters["args"]:
+            for optvars in pickup_vars:
+                for arg_variable in optvars._state.parameters["args"]:
                     if arg_variable.unique_id not in result_pool:
                         result_pool[arg_variable.unique_id] = arg_variable
             (all_args_in_pool, pickup_vars) = are_all_args_in_pool(result_pool)
         return result_pool
 
-    def generateFunctionObjectsPool(self, name=""):
+    def generate_functionobjects_pool(self, name=""):
+        """
+        Generate functions pool from optimizable variables and
+        their necessary functions.
+        """
         functionobjects_dictionary = {}
-        for (key, ov) in self.variables_pool.items():
-            (tfo, ftrafo, finvtrafo) = ov._transform_functionobject_functionname_triple
+        for optvar in self.variables_pool.values():
+            (tfo, _, _) = optvar._transform_functionobject
             if tfo.unique_id not in functionobjects_dictionary:
                 functionobjects_dictionary[tfo.unique_id] = tfo
-            if ov.var_type() == "pickup":
-                (pfo, functionname) = ov._state.parameters["functionobject"]
+            if optvar.var_type() == "pickup":
+                (pfo, _) =\
+                    optvar._state.parameters["functionobject"]
                 if pfo.unique_id not in functionobjects_dictionary:
                     functionobjects_dictionary[pfo.unique_id] = pfo
         return FunctionObjectsPool(functionobjects_dictionary, name=name)
 
-    def toDictionary(self):
-        return dict([(uid, variable.toDictionary())
-                    for (uid, variable) in self.variables_pool.items()])
+    def to_dictionary(self):
+        """
+        Convert pool into dictionary.
+        """
+        return dict([(uid, variable.to_dictionary())
+                     for (uid, variable) in self.variables_pool.items()])
 
     @staticmethod
-    def fromDictionary(dictionary, functionpool_dictionary,
-                       source_checked,
-                       variables_checked, name=""):
+    def from_dictionary(dictionary, functionpool_dictionary,
+                        source_checked,
+                        variables_checked, name=""):
         """
         Reconstruct variable pool from dictionary. Pre initialize pickups
         and successively construct them such that at the end of the day
@@ -120,37 +131,41 @@ class OptimizableVariablesPool(BaseLogger):
         """
 
         def are_all_args_opt_vars(pool):
+            """
+            Check whether all pool variables are reconstructed.
+            """
             res = False
             all_pickup_vars = list([ov for (k, ov) in pool.items()
                                     if ov.var_type() == "pickup"])
             res = all([all(
-                    [isinstance(a, OptimizableVariable) for a in ov._state.parameters["args"]]
-                    ) for ov in all_pickup_vars])
+                [isinstance(a, OptimizableVariable) for a in ov._state.parameters["args"]]
+                ) for ov in all_pickup_vars])
 
             return (res, all_pickup_vars)
 
-        functionobjects_pool = FunctionObjectsPool.fromDictionary(
+        functionobjects_pool = FunctionObjectsPool.from_dictionary(
             functionpool_dictionary, source_checked, variables_checked)
 
         variables_pool = {}
         for (uid, var_dict) in dictionary.items():
-            variables_pool[uid] = OptimizableVariable.fromDictionary(
-                    var_dict, functionobjects_pool)
+            variables_pool[uid] = OptimizableVariable.from_dictionary(
+                var_dict, functionobjects_pool)
 
         (all_args_opt_vars, pickupvars) = are_all_args_opt_vars(variables_pool)
         while not all_args_opt_vars:
-            for ov in pickupvars:
+            for optvar in pickupvars:
                 new_args = []
-                for arg in ov._state.parameters["args"]:
+                for arg in optvar._state.parameters["args"]:
                     if isinstance(arg, str):
                         new_args.append(variables_pool[arg])
                     else:
                         new_args.append(arg)
-                ov._state.parameters["args"] = new_args
-                (all_args_opt_vars, pickupvars) = are_all_args_opt_vars(variables_pool)
+                optvar._state.parameters["args"] = new_args
+                (all_args_opt_vars, pickupvars) =\
+                    are_all_args_opt_vars(variables_pool)
 
-        for (k, ov) in variables_pool.items():
-            if ov.var_type() == "pickup":
-                ov._state.isvalid = True
+        for optvar in variables_pool.values():
+            if optvar.var_type() == "pickup":
+                optvar._state.isvalid = True
 
         return OptimizableVariablesPool(variables_pool, name=name)

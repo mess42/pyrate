@@ -28,25 +28,25 @@ import math
 import numpy as np
 
 # spectral lines
-iline      = 0.3650E-3 # i  (mm)
-hline      = 0.4047E-3 # h  (mm)
-gline      = 0.4358E-3 # g  (mm)
-Fprimeline = 0.4800E-3 # F' (mm)
-Fline      = 0.4861E-3 # F  (mm)
-eline      = 0.5461E-3 # e  (mm)
-dline      = 0.5876E-3 # d  (mm)
-Dline      = 0.5893E-3 # D  (mm)
-Cprimeline = 0.6438E-3 # C' (mm)
-Cline      = 0.6563E-3 # C  (mm)
-rline      = 0.7065E-3 # r  (mm)
-sline      = 0.8521E-3 # s  (mm)
-tline      = 1.0140E-3 # t  (mm)
+iline = 0.3650E-3  # i  (mm)
+hline = 0.4047E-3  # h  (mm)
+gline = 0.4358E-3  # g  (mm)
+Fprimeline = 0.4800E-3  # F' (mm)
+Fline = 0.4861E-3  # F  (mm)
+eline = 0.5461E-3  # e  (mm)
+dline = 0.5876E-3  # d  (mm)
+Dline = 0.5893E-3  # D  (mm)
+Cprimeline = 0.6438E-3  # C' (mm)
+Cline = 0.6563E-3  # C  (mm)
+rline = 0.7065E-3  # r  (mm)
+sline = 0.8521E-3  # s  (mm)
+tline = 1.0140E-3  # t  (mm)
 
 standard_wavelength = dline
 
-c0 = 299792458 # definition, m/s
-mu0 = 4.*math.pi*1e-7 # N/A**2
-eps0 = 1./(c0**2*mu0) # Vs/(Am)
+c0 = 299792458  # definition, m/s
+mu0 = 4.*math.pi*1e-7  # N/A**2
+eps0 = 1./(c0**2*mu0)  # Vs/(Am)
 
 canonical_ex = np.array([1, 0, 0])
 canonical_ey = np.array([0, 1, 0])
