@@ -711,10 +711,10 @@ class LinearCombination(ExplicitShape):
         xlocal = np.vstack((x, y, np.zeros_like(x)))
         zfinal = np.zeros_like(x)
 
-        for (coefficient, shape) in zip(
-                self.annotations["list_shape_coefficients"],
-                self.list_shapes
-                ):
+        my_shapes_list = list(zip(self.annotations["list_shape_coefficients"],
+                                  self.list_shapes))
+
+        for (coefficient, shape) in my_shapes_list:
             xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
             xs = xshape[0, :]
             ys = xshape[1, :]
@@ -724,7 +724,7 @@ class LinearCombination(ExplicitShape):
                                                                   self.lc)
             zfinal += coefficient*xtransform_shape[2]
 
-            return zfinal
+        return zfinal
 
     def gradF(self, x, y, z):  # gradient for implicit function z - af(x, y) = 0
         xlocal = np.vstack((x, y, np.zeros_like(x)))
