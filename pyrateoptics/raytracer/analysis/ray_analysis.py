@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -136,13 +136,68 @@ class RayBundleAnalysis(BaseLogger):
         # TODO: to be tested
         return self.get_rms_angluar_size(self.get_centroid_direction())
 
-    def get_arc_length(self):
+    def get_arc_length(self, first=0, last=None):
         """
         Calculates arc length for all rays.
 
         :return Arc length (1d numpy array of float)
         """
+        last_no = 0 if last is None else last
         delta_s = np.sqrt(np.sum(
-            (self.raybundle.x[1:] - self.raybundle.x[:-1])**2,
+            (self.raybundle.x[first + 1:last] -
+             self.raybundle.x[first:-1 + last_no])**2,
             axis=1))  # arc element lengths for every ray
         return np.sum(delta_s, axis=0)
+
+    def get_phase_difference(self, first=0, last=None):
+        """
+        Calculates phase differences for all rays.
+
+        :return phase difference (1d numpy array of float)
+        """
+        last_no = 0 if last is None else last
+        k_real = np.real(self.raybundle.k)
+        delta_ph = self.raybundle.x[first + 1:last] *\
+            k_real[first + 1:last] -\
+            self.raybundle.x[first:-1 + last_no] *\
+            k_real[first:-1 + last_no]
+        delta_ph = np.sum(delta_ph, axis=1)
+        return np.sum(delta_ph, axis=0)
+
+
+class RayPathAnalysis(BaseLogger):
+    """
+    Class for analysis of a single raypath.
+    """
+    def __init__(self, raypath, name=""):
+        super(RayPathAnalysis, self).__init__(name=name)
+        self.raypath = raypath
+
+    def get_arc_length(self, first=0, last=None):
+        """
+        Get arc lengths of all raybundles in a raypath.
+        """
+        (_, _, num_rays) = self.raypath.raybundles[0].x.shape
+        all_arc_len = np.zeros((num_rays,))
+        for raybundle in self.raypath.raybundles[first:last]:
+            all_arc_len += RayBundleAnalysis(raybundle).get_arc_length()
+
+        return all_arc_len
+
+    def get_phase_difference(self, first=0, last=None):
+        """
+        Get arc lengths of all raybundles in a raypath.
+        """
+        (_, _, num_rays) = self.raypath.raybundles[0].x.shape
+        all_phase_diff = np.zeros((num_rays,))
+        for raybundle in self.raypath.raybundles[first:last]:
+            all_phase_diff += RayBundleAnalysis(raybundle).get_phase_difference()
+
+        return all_phase_diff
+
+    def get_relative_phase_difference(self, first=0, last=None,
+                                      chiefray=None, wavelength=None):
+        """
+        Calculate
+        """
+        return 0.
