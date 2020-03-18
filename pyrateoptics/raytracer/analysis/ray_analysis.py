@@ -198,6 +198,15 @@ class RayPathAnalysis(BaseLogger):
     def get_relative_phase_difference(self, first=0, last=None,
                                       chiefray=None, wavelength=None):
         """
-        Calculate
+        Calculate relative phase differences in relation to a chiefray
         """
-        return 0.
+
+        final_phase_difference = self.get_phase_difference(first=first,
+                                                           last=last)
+
+        if chiefray is not None:
+            final_phase_difference -= final_phase_difference[chiefray]
+        if wavelength is not None:
+            final_phase_difference /= wavelength
+
+        return final_phase_difference
