@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -148,25 +148,25 @@ class Single(RectGrid):
 
 class CircularGrid(RectGrid):
     def getGrid(self, nray, requidistant=True):
-        
+
         nraysqrt = int(round(math.sqrt(nray)))
         r = np.linspace(0, 1, num=nraysqrt)
         if not requidistant:
             r = np.sqrt(r) # leads to nearly equal size area elements
         phi = np.linspace(0, 2.*math.pi, num=nraysqrt, endpoint=False)
-        
+
         (R, PHI) = np.meshgrid(r, phi)
 
         xpup = (R*np.cos(PHI)).flatten()
         ypup = (R*np.sin(PHI)).flatten()
-        
+
         return (xpup, ypup)
-        
+
 
 if __name__=="__main__":
     import matplotlib.pyplot as plt
     rrast = CircularGrid()
     (x, y) = rrast.getGrid(200, requidistant=False)
     plt.scatter(x, y)
-    plt.show()    
-    
+    plt.show()
+

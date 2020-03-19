@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -80,14 +80,14 @@ class CreateMaterialsCatalogueTool:
     def Activated(self):
 
         doc = FreeCAD.ActiveDocument
-        
-        (text, ok) = QInputDialog.getText(None, Title_MessageBoxes, "Name for material catalogue?", QLineEdit.Normal)        
+
+        (text, ok) = QInputDialog.getText(None, Title_MessageBoxes, "Name for material catalogue?", QLineEdit.Normal)
 
         if text and ok:
             MaterialCatalogueObject(doc, text)
 
 
-            
+
 FreeCADGui.addCommand('CreateMaterialsCommand', CreateMaterialsTool())
 FreeCADGui.addCommand('CreateMaterialsCatalogueCommand', CreateMaterialsCatalogueTool())
 

@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -41,17 +41,17 @@ import FreeCAD, FreeCADGui
 def uuidToName(uuid):
     tab = maketrans('-','_')
     return str(uuid).lower().translate(tab)
-    
+
 def getRelativeFilePath(relativefilename, targetfile):
     return os.path.join(os.path.dirname(relativefilename), targetfile)
-    
+
 # collect optical system observers
-    
+
 def getAllOpticalSystemObservers(doc):
     return [obj for obj in doc.Objects if isOpticalSystemObserver(obj)]
 
 # collect function objects
-    
+
 def getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os):
     fngroupname = os.NameFunctionsGroup
     fngroup = self.doc.getObject(fngroupname)
@@ -60,11 +60,11 @@ def getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os):
 def getFunctionObjectsFromOpticalSystemObserver(doc, os):
     subgroup = getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os)
     return subgroup.Group
-    
+
 def getAllFunctionObjects(doc):
     return [obj for obj in doc.Objects if isFunctionsObject(obj)]
 
-    
+
 # collect material catalogues
 
 def getAllMaterialCatalogues(doc):
@@ -73,8 +73,8 @@ def getAllMaterialCatalogues(doc):
 def getAllMaterials(doc):
     return [obj for obj in doc.Objects if isMaterial(obj)]
 
-# TODO:    
+# TODO:
 #def getAllMaterialsFromMaterialCatalogue(doc, matcat):
 #    pass
-    
-        
+
+

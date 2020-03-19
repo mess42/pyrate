@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -35,16 +35,16 @@ from .Interface_Identifiers import *
 
 class LocalCoordinatesTaskPanelAdd:
     def __init__(self, doc, oslabellist):
-        fn = getRelativeFilePath(__file__, 'Qt/dlg_localcoords_add.ui')        
-        
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_localcoords_add.ui')
+
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(fn)
         self.form.comboBoxOS.addItems(oslabellist)
-        self.form.comboBoxOS.activated.connect(self.onActivatedCBOS)        
+        self.form.comboBoxOS.activated.connect(self.onActivatedCBOS)
 
         self.doc = doc
         self.actualizeLCComboBoxFromOSComboBox()
-        
+
 
     def actualizeLCComboBoxFromOSComboBox(self):
         oslabel = self.form.comboBoxOS.currentText()
@@ -57,27 +57,27 @@ class LocalCoordinatesTaskPanelAdd:
             self.form.comboBoxParentLC.addItems(lclabellist)
         else:
             self.form.comboBoxParentLC.clear()
-        
+
 
     def onActivatedCBOS(self, index):
-        self.actualizeLCComboBoxFromOSComboBox()        
-        
+        self.actualizeLCComboBoxFromOSComboBox()
+
 
     def accept(self):
         if self.form.comboBoxOS.currentText() != "":
-            parentlclabel = self.form.comboBoxParentLC.currentText()        
+            parentlclabel = self.form.comboBoxParentLC.currentText()
             name_of_newlc = self.form.lineEditName.text()
             parentlclist = self.doc.getObjectsByLabel(parentlclabel)
             if parentlclist != []:
-                parentlc = parentlclist[0]                
-                parentlc.Proxy.addChild(name=name_of_newlc) 
+                parentlc = parentlclist[0]
+                parentlc.Proxy.addChild(name=name_of_newlc)
             else:
                 pass # either warning or new global LC
         else:
-            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "No optical system available! Please create one.")            
+            QtGui.QMessageBox.warning(None, Title_MessageBoxes, "No optical system available! Please create one.")
 
 
         FreeCADGui.Control.closeDialog()
 
-        
+
 
