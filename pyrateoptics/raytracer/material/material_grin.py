@@ -173,7 +173,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             k0_value = 1.  # 2.*math.pi/raybundle.wave
             newk = k0_value*updatedvel/self.nfunc(updatedpos, **self.params)
             efield_app = self.lc.returnLocalToGlobalDirections(
-                self.calcEfield(newpos, None, newk, wave=raybundle.wave))
+                self.calc_e_field(newpos, None, newk, wave=raybundle.wave))
             kapp = self.lc.returnLocalToGlobalDirections(newk)
             xapp = self.lc.returnLocalToGlobalPoints(updatedpos)
 

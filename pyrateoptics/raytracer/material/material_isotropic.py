@@ -36,35 +36,58 @@ from .material import MaxwellMaterial
 
 
 class IsotropicMaterial(MaxwellMaterial):
+    """
+    Isotropic material where the epsilon tensor is proportional
+    to the Kronecker delta.
+    """
 
     def setKind(self):
         self.kind = "isotropicmaterial"
 
-    def get_epsilon_tensor(self, x, wave=standard_wavelength):
-        (num_dims, num_pts) = np.shape(x)
+    def get_epsilon_tensor(self, xpos, wave=standard_wavelength):
+        """
+        Get epsilon tensor proportional to Kronecker delta.
+        """
+        (num_dims, num_pts) = np.shape(xpos)
         mat = np.zeros((num_dims, num_dims, num_pts))
         mat[0, 0, :] = 1.
         mat[1, 1, :] = 1.
         mat[2, 2, :] = 1.
-        return mat*self.getIsotropicEpsilon(x, wave=wave)
+        return mat*self.get_isotropic_epsilon(xpos, wave=wave)
 
-    def getIsotropicEpsilon(self, x, wave=standard_wavelength):
-        return self.get_optical_index(x, wave=wave)**2
+    def get_isotropic_epsilon(self, xpos, wave=standard_wavelength):
+        """
+        Epsilon = optical_index**2
+        """
+        return self.get_optical_index(xpos, wave=wave)**2
 
-    def get_optical_index(self, x, wave):
+    def get_optical_index(self, xpos, wave):
+        """
+        Get optical index for isotropic medium at position
+        xpos and for wavelength wave.
+        """
         raise NotImplementedError()
 
-    def calcEfield(self, x, n, k, wave=standard_wavelength):
-        # FIXME: Efield calculation wrong! For polarization
+    def calc_e_field(self, xpos, nvector, kvector,
+                     wave=standard_wavelength):
+        """
+        Calculate electrical field from boundary conditions
+        """
+        # FIXME: Efield calculation wrong!
+        # For polarization
         # you have to calc it correctly!
-        ey = np.zeros_like(k)
-        ey[1, :] = 1.
-        return np.cross(k, ey, axisa=0, axisb=0).T
+        ey_vector = np.zeros_like(kvector)
+        ey_vector[1, :] = 1.
+        return np.cross(kvector, ey_vector, axisa=0, axisb=0).T
 
-    def calcXi(self, x, normal, k_inplane, wave=standard_wavelength):
-        return self.calcXiIsotropic(x, normal, k_inplane, wave=wave)
+    def calc_xi(self, xpos, normal, k_inplane,
+                wave=standard_wavelength):
+        """
+        Calculate out-of-plane component of k vector.
+        """
+        return self.calc_xi_isotropic(xpos, normal, k_inplane, wave=wave)
 
-    def calcXiIsotropic(self, x, n, k_inplane, wave=standard_wavelength):
+    def calc_xi_isotropic(self, x, n, k_inplane, wave=standard_wavelength):
         """
         Calculate normal component of k after refraction
         in isotropic materials.
@@ -78,8 +101,8 @@ class IsotropicMaterial(MaxwellMaterial):
                 3x1 numpy array of bool)
         """
 
-        # k2_squared = 4.*math.pi**2 / wave**2 * self.getIsotropicEpsilon(x, wave=wave)
-        k2_squared = self.getIsotropicEpsilon(x, wave=wave)
+        # k2_squared = 4.*math.pi**2 / wave**2 * self.get_isotropic_epsilon(x, wave=wave)
+        k2_squared = self.get_isotropic_epsilon(x, wave=wave)
 
         square = k2_squared - np.sum(k_inplane * k_inplane, axis=0)
 
@@ -91,6 +114,9 @@ class IsotropicMaterial(MaxwellMaterial):
         return (xi, valid)
 
     def refract(self, raybundle, actualSurface, splitup=False):
+        """
+        Refraction in isotropic material.
+        """
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         normal = raybundle.getLocalSurfaceNormal(actualSurface,
@@ -101,10 +127,10 @@ class IsotropicMaterial(MaxwellMaterial):
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (xi, valid_refraction) = self.calcXiIsotropic(xlocal,
-                                                      normal,
-                                                      k_inplane,
-                                                      wave=raybundle.wave)
+        (xi, valid_refraction) = self.calc_xi_isotropic(xlocal,
+                                                        normal,
+                                                        k_inplane,
+                                                        wave=raybundle.wave)
 
         valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
@@ -117,12 +143,15 @@ class IsotropicMaterial(MaxwellMaterial):
 
         # FIXME: E field calculation wrong: xlocal, normal, newk in different
         # coordinate systems
-        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
+        Efield = self.calc_e_field(xlocal, normal, newk, wave=raybundle.wave)
 
         return (RayBundle(orig, newk, Efield, raybundle.rayID[valid],
                           raybundle.wave),)
 
     def reflect(self, raybundle, actualSurface, splitup=False):
+        """
+        Reflection in isotropic material.
+        """
 
         k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
         normal = raybundle.getLocalSurfaceNormal(actualSurface, self,
@@ -135,10 +164,10 @@ class IsotropicMaterial(MaxwellMaterial):
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (xi, valid_refraction) = self.calcXiIsotropic(xlocal,
-                                                      normal,
-                                                      k_inplane,
-                                                      wave=raybundle.wave)
+        (xi, valid_refraction) = self.calc_xi_Isotropic(xlocal,
+                                                        normal,
+                                                        k_inplane,
+                                                        wave=raybundle.wave)
 
         valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
@@ -151,7 +180,7 @@ class IsotropicMaterial(MaxwellMaterial):
         orig = raybundle.x[-1][:, valid]
         newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
-        Efield = self.calcEfield(xlocal, normal, newk, wave=raybundle.wave)
+        Efield = self.calc_e_field(xlocal, normal, newk, wave=raybundle.wave)
 
         return (RayBundle(orig, newk, Efield, raybundle.rayID[valid],
                           raybundle.wave),)
@@ -187,6 +216,11 @@ class ConstantIndexGlass(IsotropicMaterial):
 
 
 class ModelGlass(IsotropicMaterial):
+    """
+    Model glass is defined by providing three different parameters.
+    In a model glass the parameters can be tuned such that they
+    could be matched to a glass catalog.
+    """
 
     def setKind(self):
         self.kind = "modelglass"
