@@ -164,7 +164,7 @@ class IsotropicMaterial(MaxwellMaterial):
 
         k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
 
-        (xi, valid_refraction) = self.calc_xi_Isotropic(xlocal,
+        (xi, valid_refraction) = self.calc_xi_isotropic(xlocal,
                                                         normal,
                                                         k_inplane,
                                                         wave=raybundle.wave)

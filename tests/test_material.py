@@ -46,11 +46,11 @@ def test_anisotropic_xi_calculation_polynomial(rnd_data1, rnd_data2,
     given below (p4a, ..., p0a) should be identical. The test should work
     for real and complex epsilon and k values.
     """
-    lc = LocalCoordinates("1")
+    lc = LocalCoordinates.p("1")
     myeps = rnd_data1 + complex(0, 1)*rnd_data2
     ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
         tuple(myeps)
-    m = AnisotropicMaterial(lc, myeps)
+    m = AnisotropicMaterial.p(lc, myeps)
     n = np.zeros((3, 5))
     n[2, :] = 1.
     x = np.zeros((3, 5))
@@ -102,11 +102,11 @@ def test_anisotropic_xi_calculation_det(rnd_data1, rnd_data2, rnd_data3,
     via np.einsum and from analytical expression given below should coincide.
     The test should work for real and complex epsilon and k values.
     """
-    lc = LocalCoordinates("1")
+    lc = LocalCoordinates.p("1")
     myeps = rnd_data1 + complex(0, 1)*rnd_data2
     ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
         tuple(myeps)
-    m = AnisotropicMaterial(lc, myeps)
+    m = AnisotropicMaterial.p(lc, myeps)
     n = np.zeros((3, 5))
     n[2, :] = 1.
     x = np.zeros((3, 5))
@@ -152,11 +152,11 @@ def test_anisotropic_xi_calculation_polynomial_zeros(rnd_data1, rnd_data2,
     Check whether the roots calculated give really zero for the determinant.
     The test should work for real and complex epsilon and k values.
     """
-    lc = LocalCoordinates("1")
+    lc = LocalCoordinates.p("1")
     myeps = rnd_data1 + complex(0, 1)*rnd_data2
     # ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
     #     tuple(myeps)
-    m = AnisotropicMaterial(lc, myeps)
+    m = AnisotropicMaterial.p(lc, myeps)
     n = rnd_data3
     n = n/np.sqrt(np.sum(n*n, axis=0))
     x = np.zeros((3, 5))
@@ -184,14 +184,14 @@ def test_anisotropic_xi_eigenvalues(rnd_data1, rnd_data2,
     data. Comparing polynomial calculation from determinant, from quadratic
     eigenvalue problem and analytical calculation from sympy.
     """
-    lc = LocalCoordinates("1")
+    lc = LocalCoordinates.p("1")
     myeps = np.zeros((3, 3), dtype=complex)
     myeps[0:2, 0:2] = rnd_data1 + complex(0, 1)*rnd_data2
     myeps[2, 2] = rnd_data3 + complex(0, 1)*rnd_data4
 
     ((epsxx, epsxy, _), (epsyx, epsyy, _), (_, _, epszz)) = \
         tuple(myeps)
-    m = AnisotropicMaterial(lc, myeps)
+    m = AnisotropicMaterial.p(lc, myeps)
 
     #n = n/np.sqrt(np.sum(n*n, axis=0))
     n = np.zeros((3, 1))
@@ -212,14 +212,14 @@ def test_anisotropic_xi_eigenvalues(rnd_data1, rnd_data2,
     detm = m.det().collect(xi)
     soldetm = sympy.solve(detm, xi)
     subsdict = {
-        kx:kpa[0, 0],
-        ky:kpa[1, 0],
-        exx:epsxx,
-        exy:epsxy,
-        eyx:epsyx,
-        eyy:epsyy,
-        ezz:epszz,
-        sympy.I:complex(0, 1)
+        kx: kpa[0, 0],
+        ky: kpa[1, 0],
+        exx: epsxx,
+        exy: epsxy,
+        eyx: epsyx,
+        eyy: epsyy,
+        ezz: epszz,
+        sympy.I: complex(0, 1)
         }
     analytical_solution = np.sort_complex(np.array(
         [sol.evalf(subs=subsdict) for sol in soldetm], dtype=complex))
@@ -241,11 +241,11 @@ def test_anisotropic_xi_determinants(rnd_data1, rnd_data2, rnd_data3,
     associated GLEVP. This also verifies whether A6x6 and B6x6 are
     constructed correctly.
     """
-    lc = LocalCoordinates("1")
+    lc = LocalCoordinates.p("1")
     myeps = rnd_data1 + complex(0, 1)*rnd_data2
     # ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
     #    tuple(myeps)
-    m = AnisotropicMaterial(lc, myeps)
+    m = AnisotropicMaterial.p(lc, myeps)
     n = rnd_data3
     n = n/np.sqrt(np.sum(n*n, axis=0))
     x = np.zeros((3, 5))
@@ -279,11 +279,11 @@ def test_anisotropic_xi_eigenvectors(rnd_data1, rnd_data2, rnd_data3,
     """
     Check whether eigenvectors fulfill the QEVP.
     """
-    lc = LocalCoordinates("1")
+    lc = LocalCoordinates.p("1")
     myeps = rnd_data1 + complex(0, 1)*rnd_data2
     # ((epsxx, epsxy, epsxz), (epsyx, epsyy, epsyz), (epszx, epszy, epszz)) = \
     #    tuple(myeps)
-    m = AnisotropicMaterial(lc, myeps)
+    m = AnisotropicMaterial.p(lc, myeps)
     n = rnd_data3
     n = n/np.sqrt(np.sum(n*n, axis=0))
     x = np.zeros((3, 5))
@@ -294,7 +294,6 @@ def test_anisotropic_xi_eigenvectors(rnd_data1, rnd_data2, rnd_data3,
     (eigenvalues, eigenvectors) = m.calcXiEigenvectorsNorm(x,
                                                            n,
                                                            kpa)
-    #print(eigenvalues)
     should_be_zero = np.ones((4, 3, 5), dtype=complex)
     for j in range(5):
         for k in range(4):
