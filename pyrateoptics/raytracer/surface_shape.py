@@ -843,9 +843,15 @@ class XYPolynomials(ExplicitShape):
         self.kind = "shape_XYPolynomials"
 
     def getXYParameters(self):
-        return (self.params["normradius"](),
-                [(xpow, ypow, self.params["CX"+str(xpow)+"Y"+str(ypow)]())
-                    for (xpow, ypow) in self.list_coefficients])
+        coefficient_keys = [key for key in self.params.keys()
+                            if key[0] == "C"]
+        coefficient_tuples = [[int(s)
+                               for s in key.
+                               replace("CX", "").
+                               replace("Y", " ").
+                               split()] + [self.params[key]()]
+                              for key in coefficient_keys]
+        return (self.params["normradius"](), coefficient_tuples)
 
 
 class GridSag(ExplicitShape):
