@@ -124,10 +124,10 @@ class RectangularAperture(BaseAperture):
 
     @classmethod
     def p(cls, lc, width=1.0, height=1.0, name="", *_):
-        cls({"width": width,
-             "height": height,
-             "typicaldimension": math.sqrt(width**2 + height**2)},
-            {"lc": lc}, name=name)
+        return cls({"width": width,
+                    "height": height,
+                    "typicaldimension": math.sqrt(width**2 + height**2)},
+                   {"lc": lc}, name=name)
 
     def get_boolean_function(self):
         width = self.annotations["width"]

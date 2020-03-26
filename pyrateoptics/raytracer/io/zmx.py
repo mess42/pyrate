@@ -39,6 +39,7 @@ from ..surface_shape import (Conic,
                              Asphere,
                              LinearCombination,
                              ZernikeFringe,
+                             Biconic,
                              GridSag)
 from ..aperture import CircularAperture, RectangularAperture
 from ...core.log import BaseLogger
@@ -483,7 +484,7 @@ class ZMXParser(BaseLogger):
 
         return reconstruct_ftyp
 
-    def create_initial_bundle(self):
+    def create_initial_bundle(self, enpd_default=None):
         """
         Convenience function to extract field points and initial bundles from
         ZMX files.
@@ -492,7 +493,7 @@ class ZMXParser(BaseLogger):
         raybundle_dicts = []
         fielddict = self.read_field()
 
-        enpd = fielddict["fieldpoints_pupildef"].get("ENPD", None)
+        enpd = fielddict["fieldpoints_pupildef"].get("ENPD", enpd_default)
         xyfield_list = fielddict["fieldpoints"]
         self.debug(enpd)
 
@@ -659,17 +660,19 @@ class ZMXParser(BaseLogger):
 
             if sqap is None and clap is None:
                 aper = None
-            elif sqap is not None:
+            elif sqap is not None and clap is None:
                 self.debug("Rectangular aperture %f x %f" % tuple(sqap))
                 aper = RectangularAperture.p(lcapdec,
                                              width=sqap[0]*2,
                                              height=sqap[1]*2)
-            elif clap is not None:
+            elif clap is not None and sqap is None:
                 self.debug("Circular aperture min %f max %f" %
-                           (clap[0], clap[1]))
+                           tuple(clap))
                 aper = CircularAperture.p(lcapdec,
                                           minradius=clap[0],
                                           maxradius=clap[1])
+            else:  # both are not None
+                aper = None
 
             if surftype == "STANDARD":
                 self.debug("SURFACE: Standard surface found")
@@ -685,6 +688,19 @@ class ZMXParser(BaseLogger):
                                     shape=Asphere.p(localcoordinates,
                                                     curv=curv, cc=conic,
                                                     coefficients=acoeffs),
+                                    aperture=aper)
+            elif surftype == "BICONICX":
+                self.debug("SURFACE: biconic surface found")
+                Rx = parms.get(1, 0.0)
+                if abs(Rx) < 1e-16:
+                    curvx = 0.0
+                else:
+                    curvx = 1/Rx
+                ccx = parms.get(2, 0.0)
+                actsurf = Surface.p(localcoordinates, name=surfname,
+                                    shape=Biconic.p(localcoordinates,
+                                                    curvy=curv, ccy=conic,
+                                                    curvx=curvx, ccx=ccx),
                                     aperture=aper)
             elif surftype == "FZERNSAG":  # Zernike Fringe Sag
                 self.debug("SURFACE: Zernike standard surface found")
@@ -770,6 +786,8 @@ class ZMXParser(BaseLogger):
                 localcoordinates.tiltz.set_value(parms.get(5, 0.0)*degree)
                 localcoordinates.tiltThenDecenter = bool(parms.get(6, 0))
                 localcoordinates.update()
+                actsurf = Surface.p(localcoordinates, name=surfname)
+            else:
                 actsurf = Surface.p(localcoordinates, name=surfname)
 
             if lastsurfname is not None:
