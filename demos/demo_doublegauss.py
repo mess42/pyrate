@@ -113,8 +113,8 @@ def bundle_step1(nrays=100, rpup=7.5):
 
     return RayBundle(o, k, E0, wave=dline)
 
-initialbundle_step1 = bundle_step1()
 
+initialbundle_step1 = bundle_step1()
 
 # draw glass plates
 s.draw2d(axarr[0], color="grey", vertices=50, plane_normal=pn, up=up)
@@ -162,7 +162,7 @@ s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_variable()
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_variable()
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
     to_pickup((FunctionObject("f = lambda x: -x"), "f"),
-             (s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
+              (s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
 
 
 listOptimizableVariables(s, max_line_width=80)
@@ -371,6 +371,6 @@ system_dump.save_json(serialization_path + "double_gauss.json")
 system_dump.save_yaml(serialization_path + "double_gauss.yaml")
 
 # TODO: later
-#s2 = Deserializer.load_json(serialization_path + "double_gauss.json",
-#                            True, True)
-#draw(s2)
+# s2 = Deserializer.load_json(serialization_path + "double_gauss.json",
+#                             True, True)
+# draw(s2)
