@@ -42,7 +42,6 @@ from .raytracer.optical_system import OpticalSystem
 from .raytracer.localcoordinates import LocalCoordinates
 from .raytracer.optical_element import OpticalElement
 from .raytracer.surface import Surface
-from .raytracer.surface_shape import accessible_shapes, LinearCombination
 from .raytracer.globalconstants import (numerical_tolerance,
                                         standard_wavelength,
                                         degree)
@@ -52,6 +51,30 @@ from .raytracer.material.material_glasscat import GlassCatalog
 
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions
+
+from .raytracer.surface_shape import (Conic, Cylinder, Asphere,
+                                      Biconic, XYPolynomials,
+                                      LinearCombination,
+                                      GridSag, ZernikeFringe,
+                                      ZernikeStandard,
+                                      ZernikeANSI)
+from .raytracer.surface_shape_zmxdll import ZMXDLLShape
+
+# Needed by convenience functions in pyrateoptics
+
+accessible_shapes = {
+        "shape_Conic": Conic,
+        "shape_Cylinder": Cylinder,
+        "shape_Asphere": Asphere,
+        "shape_Biconic": Biconic,
+        "shape_LinearCombination": LinearCombination,
+        "shape_XYPolynomials": XYPolynomials,
+        "shape_GridSag": GridSag,
+        "shape_ZernikeFringe": ZernikeFringe,
+        "shape_ZernikeStandard": ZernikeStandard,
+        "shape_ZernikeANSI": ZernikeANSI,
+        "shape_ZMXDLLShape": ZMXDLLShape
+        }
 
 
 def build_rotationally_symmetric_optical_system(builduplist, **kwargs):
