@@ -38,7 +38,7 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics import raytrace, draw
 
-from pyrateoptics.core.serializer import Serializer
+from pyrateoptics.core.serializer import Serializer, Deserializer
 
 from pprint import pprint
 
@@ -50,23 +50,23 @@ wavelength = 0.5876e-3
 s = OpticalSystem.p()
 
 lc0 = s.addLocalCoordinateSystem(
-            LocalCoordinates.p(name="obj", decz=0.0),
-            refname=s.rootcoordinatesystem.name)
+    LocalCoordinates.p(name="obj", decz=0.0),
+    refname=s.rootcoordinatesystem.name)
 lc1 = s.addLocalCoordinateSystem(
-            LocalCoordinates.p(name="surf1", decz=10.0, tiltx=5.*math.pi/180.0),
-            refname=lc0.name)  # objectDist
+    LocalCoordinates.p(name="surf1", decz=10.0, tiltx=5.*math.pi/180.0),
+    refname=lc0.name)  # objectDist
 lc2 = s.addLocalCoordinateSystem(
-            LocalCoordinates.p(name="surf2", decz=20.0, tiltx=10.*math.pi/180.0),
-            refname=lc1.name)
+    LocalCoordinates.p(name="surf2", decz=20.0, tiltx=10.*math.pi/180.0),
+    refname=lc1.name)
 lc3 = s.addLocalCoordinateSystem(
-            LocalCoordinates.p(name="image", decz=10.0), refname=lc2.name)
+    LocalCoordinates.p(name="image", decz=10.0), refname=lc2.name)
 
 
 stopsurf = Surface.p(lc0)
 surf1 = Surface.p(lc1, shape=Conic.p(lc1, curv=1./24.0),
-                aperture=CircularAperture.p(lc1, maxradius=5.0))
+                  aperture=CircularAperture.p(lc1, maxradius=5.0))
 surf2 = Surface.p(lc2, shape=Conic.p(lc2, curv=-1./24.0),
-                aperture=CircularAperture.p(lc2, maxradius=5.0))
+                  aperture=CircularAperture.p(lc2, maxradius=5.0))
 image = Surface.p(lc3)
 
 elem = OpticalElement.p(lc0, name="grinelement")
@@ -147,5 +147,3 @@ r2 = raytrace(s, sysseq, 21,
               {"startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()},
               wave=wavelength)
 draw(s, r2)
-
-pprint(Serializer(grinmaterial).serialization)
