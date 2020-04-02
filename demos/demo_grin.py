@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import math
 import logging
 
-import numpy as np
-
 from pyrateoptics.sampling2d import raster
 from pyrateoptics.raytracer.material.material_grin import IsotropicGrinMaterial
 from pyrateoptics.raytracer.surface_shape import Conic
@@ -39,6 +37,10 @@ from pyrateoptics.raytracer.aperture import CircularAperture
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics import raytrace, draw
+
+from pyrateoptics.core.serializer import Serializer
+
+from pprint import pprint
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -69,53 +71,62 @@ image = Surface.p(lc3)
 
 elem = OpticalElement.p(lc0, name="grinelement")
 
+mysource =\
+r"""
+
+import numpy as np
+
 grin_strength = 0.5
 
 
 def nfunc(x, **kw):
-    """
+    '''
     Refractive index function.
-    """
+    '''
     return grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)+1.0
     # (2.5 - (x**2 + 100.0*y**4)/10.**2)
 
 
 def dndx(x, **kw):
-    """
+    '''
     d/dx of refractive index function
-    """
+    '''
     return -2.*x[0]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)
     # -2*x/10.**2
 
 
 def dndy(x, **kw):
-    """
+    '''
     d/dy of refractive index function
-    """
+    '''
     return -2.*4.*x[1]*grin_strength*np.exp(-x[0]**2 - 4.*x[1]**2)
     # -100.0*4.0*y**3/10.**2
 
 
 def dndz(x, **kw):
-    """
+    '''
     d/dz of refractive index function
-    """
+    '''
     return np.zeros_like(x[0])
 
 
 def bnd(x):
-    """
+    '''
     Boundary function.
-    """
+    '''
     return x[0]**2 + x[1]**2 < 10.**2
+"""
 
-
-# grinmaterial = ConstantIndexGlass(lc1, 1.0 + grin_strength)
-grinmaterial = IsotropicGrinMaterial.p(lc1, nfunc, dndx, dndy, dndz,
+# grinmaterial = ConstantIndexGlass.p(lc1, 1.0 + grin_strength)
+grinmaterial = IsotropicGrinMaterial.p(lc1, mysource,
+                                       "nfunc",
+                                       "dndx",
+                                       "dndy",
+                                       "dndz",
+                                       "bnd",
                                        parameterlist=[("n0", 0.5)])
-grinmaterial.ds = 0.05
-grinmaterial.energyviolation = 0.01
-grinmaterial.boundaryfunction = bnd
+grinmaterial.annotations["ds"] = 0.05
+grinmaterial.annotations["energyviolation"] = 0.01
 
 elem.addMaterial("grin", grinmaterial)
 
@@ -136,3 +147,5 @@ r2 = raytrace(s, sysseq, 21,
               {"startz": -5., "radius": 2.5, "raster": raster.MeridionalFan()},
               wave=wavelength)
 draw(s, r2)
+
+pprint(Serializer(grinmaterial).serialization)
