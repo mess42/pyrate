@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -30,7 +30,7 @@ import FreeCADGui
 from PySide.QtGui import QLineEdit, QInputDialog, QMessageBox
 
 
-from .Observer_OpticalSystem import OpticalSystemObserver 
+from .Observer_OpticalSystem import OpticalSystemObserver
 from .Object_MaterialCatalogue import MaterialCatalogueObject
 
 from .Interface_Identifiers import *
@@ -60,21 +60,21 @@ class CreateSystemTool:
         (text, ok) = QInputDialog.getText(None, Title_MessageBoxes, "Name for optical system?", QLineEdit.Normal)
         osobs = None
         if text and ok:
-            osobs = OpticalSystemObserver(doc, text) 
+            osobs = OpticalSystemObserver(doc, text)
 
         if existsStandardMaterials(doc):
-            result = QMessageBox.question(None, Title_MessageBoxes, 
-                                          "No Standard Materials Catalogue defined. Create one?", 
+            result = QMessageBox.question(None, Title_MessageBoxes,
+                                          "No Standard Materials Catalogue defined. Create one?",
                                           QMessageBox.Yes | QMessageBox.No)
             if result == QMessageBox.Yes:
                 stdmatcatalogue = MaterialCatalogueObject(doc, Group_StandardMaterials_Label)
                 stdmatcatalogue.addMaterial("ConstantIndexGlass", "PMMA", index=1.5)
                 stdmatcatalogue.addMaterial("ConstantIndexGlass", "Vacuum")
-                stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")                
+                stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")
 
         if osobs != None:
             osobs.initFromGivenOpticalSystem(osobs.initDemoSystem())
-        
+
         # TODO: 1 OSinterface per doc, but several optical systems
         # TODO: call wizard for creation of new system
 
@@ -108,7 +108,7 @@ class ShowRaybundlesTool:
         else:
             selection = FreeCADGui.Selection.getSelection()
             if len(selection) == 1 and isOpticalSystemObserver(selection[0]): #('wavelengths' in selection[0].PropertiesList):
-                # TODO: comparison with CheckObjects function?                
+                # TODO: comparison with CheckObjects function?
                 return True
             else:
                 return False
@@ -122,7 +122,7 @@ class ShowRaybundlesTool:
             raysobjectslabel = [o.Label for o in doc.Objects if o.Label.find("Ray") != -1]
             for r in raysobjectslabel:
                 doc.removeObject(r)
-            
+
             obj = selection[0]
             aimys = obj.Proxy.calculateAimys()
             rays = obj.Proxy.calculateRaypaths(aimys)
@@ -131,12 +131,12 @@ class ShowRaybundlesTool:
 
 class ShowSurfaceListTool:
     def GetResources(self):
-        return {"Pixmap"  : ":/icons/pyrate_shape_icon.svg", 
+        return {"Pixmap"  : ":/icons/pyrate_shape_icon.svg",
                 "MenuText": "Edit Surface List ...",
                 "Accel": "",
                 "ToolTip": "Manage Surface List"
                 }
-    
+
     def IsActive(self):
 
         if FreeCAD.ActiveDocument == None:
@@ -144,7 +144,7 @@ class ShowSurfaceListTool:
         else:
             selection = FreeCADGui.Selection.getSelection()
             if len(selection) == 1 and isOpticalSystemObserver(selection[0]): #('wavelengths' in selection[0].PropertiesList):
-                # TODO: comparison with CheckObjects function?                
+                # TODO: comparison with CheckObjects function?
                 return True
             else:
                 return False
@@ -158,7 +158,7 @@ class ShowSurfaceListTool:
         # TODO: every time something is changed the list in the core opticalsystem has to be actualized
         # TODO: initial Surfaces list from pyrateoptics opticalsystem
         # TODO: initial enumeration list from pyrateoptics opticalsystem
-        
+
         panel = SurfaceListTaskPanelEdit(osselection)
         FreeCADGui.Control.showDialog(panel)
 

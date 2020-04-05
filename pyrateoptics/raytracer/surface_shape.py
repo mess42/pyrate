@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -711,10 +711,10 @@ class LinearCombination(ExplicitShape):
         xlocal = np.vstack((x, y, np.zeros_like(x)))
         zfinal = np.zeros_like(x)
 
-        for (coefficient, shape) in zip(
-                self.annotations["list_shape_coefficients"],
-                self.list_shapes
-                ):
+        my_shapes_list = list(zip(self.annotations["list_shape_coefficients"],
+                                  self.list_shapes))
+
+        for (coefficient, shape) in my_shapes_list:
             xshape = shape.lc.returnOtherToActualPoints(xlocal, self.lc)
             xs = xshape[0, :]
             ys = xshape[1, :]
@@ -724,7 +724,7 @@ class LinearCombination(ExplicitShape):
                                                                   self.lc)
             zfinal += coefficient*xtransform_shape[2]
 
-            return zfinal
+        return zfinal
 
     def gradF(self, x, y, z):  # gradient for implicit function z - af(x, y) = 0
         xlocal = np.vstack((x, y, np.zeros_like(x)))
@@ -843,9 +843,15 @@ class XYPolynomials(ExplicitShape):
         self.kind = "shape_XYPolynomials"
 
     def getXYParameters(self):
-        return (self.params["normradius"](),
-                [(xpow, ypow, self.params["CX"+str(xpow)+"Y"+str(ypow)]())
-                    for (xpow, ypow) in self.list_coefficients])
+        coefficient_keys = [key for key in self.params.keys()
+                            if key[0] == "C"]
+        coefficient_tuples = [[int(s)
+                               for s in key.
+                               replace("CX", "").
+                               replace("Y", " ").
+                               split()] + [self.params[key]()]
+                              for key in coefficient_keys]
+        return (self.params["normradius"](), coefficient_tuples)
 
 
 class GridSag(ExplicitShape):
@@ -1148,229 +1154,11 @@ class ZernikeStandard(Zernike):
     def nmtoj(n_m_pair):
         raise NotImplementedError()
 
-################################################
-# ZMXDLLShape
-# TODO: maybe create own file for it
-################################################
 
-'''
-typedef struct
-{
-
-double x, y, z;     /* the coordinates */
-double l, m, n;     /* the ray direction cosines */
-double ln, mn, nn;  /* the surface normals */
-   double path;        /* the optical path change */
-   double sag1, sag2;  /* the sag and alternate hyperhemispheric sag */
-double index, dndx, dndy, dndz; /* for GRIN surfaces only */
-   double rel_surf_tran; /* for relative surface transmission data, if any */
-   double udreserved1, udreserved2, udreserved3, udreserved4; /* for future expansion */
-   char string[20];    /* for returning string data */
-
-}USER_DATA;
-'''
-class USER_DATA(ctypes.Structure):
-    _fields_ = [("x", ctypes.c_double), ("y", ctypes.c_double), ("z", ctypes.c_double),
-            ("l", ctypes.c_double), ("m", ctypes.c_double), ("n", ctypes.c_double),
-                        ("ln", ctypes.c_double), ("mn", ctypes.c_double), ("nn", ctypes.c_double),
-            ("path", ctypes.c_double), ("sag1", ctypes.c_double), ("sag2", ctypes.c_double),
-            ("index", ctypes.c_double), ("dndx", ctypes.c_double), ("dndy", ctypes.c_double), ("dndz", ctypes.c_double),
-                ("rel_surf_tran", ctypes.c_double),
-                ("udreserved1", ctypes.c_double),
-                ("udreserved2", ctypes.c_double),
-                ("udreserved3", ctypes.c_double),
-                ("udreserved4", ctypes.c_double),
-                 ("string", 20*ctypes.c_byte)]
-'''
-typedef struct
-{
-
-   int type, numb;     /* the requested data type and number */
-   int surf, wave;     /* the surface number and wavelength number */
-   double wavelength, pwavelength;      /* the wavelength and primary wavelength */
-   double n1, n2;      /* the index before and after */
-   double cv, thic, sdia, k; /* the curvature, thickness, semi-diameter, and conic */
-   double param[9];    /* the parameters 1-8 */
-   double fdreserved1, fdreserved2, fdreserved3, fdreserved4; /* for future expansion */
-   double xdata[201];  /* the extra data 1-200 */
-   char glass[21];     /* the glass name on the surface */
-
-}FIXED_DATA;
-'''
-class FIXED_DATA(ctypes.Structure):
-    _fields_ = [
-            ("type", ctypes.c_int),
-            ("numb", ctypes.c_int),
-            ("surf", ctypes.c_int),
-            ("wave", ctypes.c_int),
-            ("wavelength", ctypes.c_double),
-            ("pwavelength", ctypes.c_double),
-            ("n1", ctypes.c_double),
-            ("n2", ctypes.c_double),
-            ("cv", ctypes.c_double),
-            ("thic", ctypes.c_double),
-            ("sdia", ctypes.c_double),
-            ("k", ctypes.c_double),
-            ("param", 9*ctypes.c_double),
-            ("fdreserved1", ctypes.c_double),
-            ("xdata", 201*ctypes.c_double),
-            ("glass", 21*ctypes.c_byte)
-        ]
-
-
-
-
-class ZMXDLLShape(Conic):
-    """
-    This surface is able to calculate certain shape quantities from a DLL loaded externally.
-    """
-
-    def __init__(self, lc, dllfile,
-                 param_dict={},
-                 xdata_dict={},
-                 isWinDLL=False,
-                 curv=0.0,
-                 cc=0.0, name=""):
-        """
-        param: lc LocalCoordinateSystem of shape
-        param: dllfile (string) path to DLL file
-        param: param_dict (dictionary) key: string, value: (int 0 to 8, float); initializes optimizable variables.
-        param: xdata_dict (dictionary) key: string, value: (int  0 to 200, float); initializes optimizable variables.
-        param: isWinDLL (bool): is DLL compiled in Windows or Linux?
-
-        Notice that this class only calls the appropriate functions from the DLL.
-        The user is responsible to get all necessary functions running to use this DLL.
-        (i.e. intersect, sag, normal, ...)
-
-        To compile the DLL for Linux, remove all Windows and calling convention stuff an build it
-        via:
-
-            gcc -c -fpic -o us_stand.o us_stand.c -lm
-            gcc -shared -o us_stand.so us_stand.o
-
-
-        """
-        super(ZMXDLLShape, self).__init__(lc,
-                                          curv=curv,
-                                          cc=cc)
-
-        if isWinDLL:
-            self.dll = ctypes.WinDLL(dllfile)
-        else:
-            self.dll = ctypes.CDLL(dllfile)
-
-        self.param = {}
-        for (key, (value_int, value_float)) in param_dict.items():
-            self.param[value_int] = FloatOptimizableVariable(
-                    FixedState(value_float),
-                    name="param" + str(value_int))
-        self.xdata = {}
-        for (key, (value_int, value_float)) in xdata_dict.items():
-            self.xdata[value_int] = FloatOptimizableVariable(
-                    FixedState(value_float),
-                    name="xdata" + str(value_int))
-        self.us_surf = self.dll.UserDefinedSurface
-
-    def setKind(self):
-        self.kind = "shape_ZMXDLLShape"
-
-    def writeParam(self, f):
-        for (key, var) in self.param.items():
-            f.param[key] = var()
-        return f
-
-    def writeXdata(self, f):
-        for (key, var) in self.xdata.items():
-            f.xdata[key] = var()
-        return f
-
-    def intersect(self, raybundle):
-        (r0, rayDir) = self.getLocalRayBundleForIntersect(raybundle)
-
-        intersection = np.zeros_like(r0)
-
-        u = USER_DATA()
-        f = FIXED_DATA()
-
-        f.type = 5 # ask for intersection
-        f.k = self.cc()
-        f.cv = self.curvature()
-        f.wavelength = raybundle.wave
-
-
-        f = self.writeParam(f)
-        f = self.writeXdata(f)
-
-
-        x = r0[0, :]
-        y = r0[1, :]
-        z = r0[2, :]
-
-        l = rayDir[0, :]
-        m = rayDir[1, :]
-        n = rayDir[2, :]
-
-        for (ind, (xl, yl, zl, ll, ml, nl)) in zip(x.tolist(), y.tolist(), z.tolist(), l.tolist(), m.tolist(), n.tolist()):
-
-            u.x = xl
-            u.y = yl
-            u.z = zl
-            u.l = ll
-            u.m = ml
-            u.n = nl
-
-            self.us_surf(ctypes.byref(u), ctypes.byref(f))
-
-            intersection[0, ind] = u.x
-            intersection[1, ind] = u.y
-            intersection[2, ind] = u.z
-
-
-        globalinter = self.lc.returnLocalToGlobalPoints(intersection)
-
-        raybundle.append(globalinter, raybundle.k[-1], raybundle.Efield[-1], raybundle.valid[-1])
-
-    def getSag(self, x, y):
-        u = USER_DATA()
-        f = FIXED_DATA()
-
-        f.type = 3 # ask for sag
-        f.k = self.cc()
-        f.cv = self.curvature()
-
-
-        #f = self.writeParam(f)
-        #f = self.writeXdata(f)
-
-        z = np.zeros_like(x)
-
-        for (ind, (xp, yp)) in enumerate(zip(x.tolist(), y.tolist())):
-            u.x = xp
-            u.y = yp
-            retval = self.us_surf(ctypes.byref(u), ctypes.byref(f))
-            z[ind] = u.sag1 if retval == 0 else u.sag2
-
-        return z
-
-if __name__=="__main__":
+if __name__ == "__main__":
 
     from .localcoordinates import LocalCoordinates
     import matplotlib.pyplot as plt
-
-
-    lc = LocalCoordinates()
-
-    s = ZMXDLLShape(lc,
-                    "../us_stand_gcc.so",
-                    xdata_dict={"xd1":(1, 0.1), "xd2":(2, 0.2)},
-                    param_dict={"p1":(1, 0.3), "p2":(2, 0.4)}, curv=0.01, cc=0)
-
-    x = np.random.random(100)
-    y = np.random.random(100)
-
-    z = s.getSag(x, y)
-
-    print(z)
 
     sz = ZernikeFringe(lc)
 
@@ -1396,23 +1184,3 @@ if __name__=="__main__":
 
     plt.show()
 
-# Needed by convenience functions in pyrateoptics
-
-accessible_shapes = {
-        "shape_Conic": Conic,
-        "shape_Cylinder": Cylinder,
-        "shape_Asphere": Asphere,
-        "shape_Biconic": Biconic,
-        "shape_LinearCombination": LinearCombination,
-        "shape_XYPolynomials": XYPolynomials,
-        "shape_GridSag": GridSag,
-        "shape_ZernikeFringe": ZernikeFringe,
-        "shape_ZernikeStandard": ZernikeStandard,
-        "shape_ZernikeANSI": ZernikeANSI,
-        "shape_ZMXDLLShape": ZMXDLLShape
-        }
-
-
-def createShape(lc, shape_dict):
-    shape_type = shape_dict.pop("kind", "shape_Conic")
-    return accessible_shapes[shape_type](lc, **shape_dict)

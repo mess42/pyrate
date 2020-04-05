@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import numpy as np
 
 from ...core.optimizable_variable import FloatOptimizableVariable, FixedState
+from ...core.functionobject import FunctionObject
 from ..globalconstants import standard_wavelength
 
 from .material_isotropic import IsotropicMaterial
@@ -39,23 +40,49 @@ class IsotropicGrinMaterial(IsotropicMaterial):
     """
 
     @classmethod
-    def p(cls, lc, fun, dfdx, dfdy, dfdz,
+    def p(cls, lc, mysource, nfun_name,
+          dndx_name, dndy_name, dndz_name, bnd_name,
           parameterlist=None, name="", comment=""):
+        # TODO: fun,dfdx, dfdy, dfdz functionobjects
         if parameterlist is None:
             parameterlist = []
         params = {}
         for (name, value) in parameterlist:
             params[name] = FloatOptimizableVariable(
                 FixedState(value), name=name)
-        return cls({"comment": comment},
-                   {"lc": lc, "nfunc": fun,  # FunctionObject
-                    "dndx": dfdx, "dndy": dfdy, "dndz": dfdz,  # FunctionObject
-                    "boundaryfunction": lambda x: x[0]**2 + x[1]**2 <= 10.0**2,
-                    # FunctionObject
-                    "ds": 0.1,  # Annotations
-                    "energyviolation": 1e-3,  # Annotations
-                    "params": params
-                   }, name=name)
+
+        mygrinobj = cls({"comment": comment,
+                         "ds": 0.1,
+                         "energyviolation": 1e-2,
+                         "f_name": nfun_name,
+                         "dfdx_name": dndx_name,
+                         "dfdy_name": dndy_name,
+                         "dfdz_name": dndz_name,
+                         "bnd_name": bnd_name,
+                         "source": mysource
+                         },
+                        {"lc": lc,
+                         "params": params
+                         }, name=name)
+        return mygrinobj
+
+    def initialize_from_annotations(self):
+        (fname, dfdxname, dfdyname, dfdzname, bndname, mysource) =\
+        (self.annotations["f_name"],
+         self.annotations["dfdx_name"],
+         self.annotations["dfdy_name"],
+         self.annotations["dfdz_name"],
+         self.annotations["bnd_name"],
+         self.annotations["source"])
+
+        f_obj = FunctionObject(mysource)
+        f_obj.generate_functions_from_source(
+            [fname, dfdxname, dfdyname, dfdzname, bndname])
+        self.nfunc = f_obj.functions[fname]
+        self.dndx = f_obj.functions[dfdxname]
+        self.dndy = f_obj.functions[dfdyname]
+        self.dndz = f_obj.functions[dfdzname]
+        self.boundaryfunction = f_obj.functions[bndname]
 
     def get_epsilon_tensor(self, x, wave=standard_wavelength):
         (num_dims, num_pts) = np.shape(x)
@@ -67,7 +94,7 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         return mat*self.nfunc(x, **self.params)**2
 
     def get_optical_index(self, x, wave=standard_wavelength):
-        return self.nfunc(x, **self.params)**2
+        return self.nfunc(x, **self.params)
 
     def in_boundary(self, pos):
         """
@@ -105,9 +132,6 @@ class IsotropicGrinMaterial(IsotropicMaterial):
         valid = np.ones_like(startpoint[0], dtype=bool)
         final = np.zeros_like(startpoint[0], dtype=bool)
 
-        pointstodraw = []
-        momentatodraw = []
-
         updatedpos = startpoint
         updatedvel = velocities[-1]
 
@@ -141,10 +165,10 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             # testing for some critical energyviolation
             # and invalidate all rays
 
-            if abs(totalenergy) > self.energyviolation:
+            if abs(totalenergy) > self.annotations["energyviolation"]:
                 self.warning('integration aborted due to energy violation: ' +
                              'abs(' + str(totalenergy) + ') > ' +
-                             str(self.energyviolation))
+                             str(self.annotations["energyviolation"]))
                 self.warning('Please reduce integration step size.')
                 valid[:] = False
                 # all rays with energy violation are not useful due to
@@ -173,12 +197,9 @@ class IsotropicGrinMaterial(IsotropicMaterial):
             k0_value = 1.  # 2.*math.pi/raybundle.wave
             newk = k0_value*updatedvel/self.nfunc(updatedpos, **self.params)
             efield_app = self.lc.returnLocalToGlobalDirections(
-                self.calcEfield(newpos, None, newk, wave=raybundle.wave))
+                self.calc_e_field(newpos, None, newk, wave=raybundle.wave))
             kapp = self.lc.returnLocalToGlobalDirections(newk)
             xapp = self.lc.returnLocalToGlobalPoints(updatedpos)
-
-            pointstodraw.append(1.*updatedpos)
-            momentatodraw.append(1.*updatedvel)
 
             raybundle.append(xapp, kapp, efield_app, valid)
             # TODO: if pathlength of a certain ray is too long,
@@ -188,11 +209,11 @@ class IsotropicGrinMaterial(IsotropicMaterial):
 
             energies.append(totalenergy)
 
-        return (positions, velocities, pointstodraw, momentatodraw,
-                energies, valid)
+        return (positions, velocities, energies, valid)
 
-    def propagate(self, raybundle, nextSurface):
+    def propagate(self, raybundle, next_surface):
 
-        self.symplecticintegrator(raybundle, nextSurface, self.ds)
+        self.symplecticintegrator(raybundle, next_surface,
+                                  self.annotations["ds"])
 
-        nextSurface.intersect(raybundle)
+        next_surface.intersect(raybundle)

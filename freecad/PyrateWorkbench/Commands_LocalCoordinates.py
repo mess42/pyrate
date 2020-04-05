@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -60,8 +60,8 @@ class CreateLocalCoordinatesTool:
         for obj in doc.Objects:
             if isOpticalSystemObserver(obj):
                 osobservers.append(obj)
-            
-            
+
+
 
         lcpanel = LocalCoordinatesTaskPanelAdd(doc, [oso.Label for oso in osobservers])
         FreeCADGui.Control.showDialog(lcpanel)
@@ -69,7 +69,7 @@ class CreateLocalCoordinatesTool:
 
 
 class ContextAddChildToLocalCoordinatesTool:
-    
+
     "Tool for adding child to local coordinates within context menu"
 
     def GetResources(self):
@@ -87,14 +87,14 @@ class ContextAddChildToLocalCoordinatesTool:
             return True
 
     def Activated(self):
-        
+
         selection = [s  for s in FreeCADGui.Selection.getSelection() if s.Document == FreeCAD.ActiveDocument ]
         (name_of_child, accepted) = QInputDialog.getText(None, "Pyrate", "Name of Child Local Coordinates System", QLineEdit.Normal, "")
         if len(selection) == 1 and accepted:
             obj = selection[0]
             if isLocalCoordinatesObserver(obj):
                 obj.lcobserver.addChild(name = name_of_child)
-                
+
 class ContextIncreaseScaleOfAllLocalCoordinatesTool:
     def GetResources(self):
         return {"Pixmap"  : ":/icons/pyrate_coord_icon.svg", # resource qrc file needed, and precompile with python-rcc
@@ -134,7 +134,7 @@ class ContextDecreaseScaleOfAllLocalCoordinatesTool:
         for o in FreeCAD.ActiveDocument.Objects:
             if isLocalCoordinatesObserver(o):
                 o.scale -= 1
- 
+
 
 
 FreeCADGui.addCommand('CreateLocalCoordinatesCommand', CreateLocalCoordinatesTool())

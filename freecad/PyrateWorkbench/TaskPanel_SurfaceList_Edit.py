@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -31,18 +31,18 @@ from .Interface_Checks import *
 
 class SurfaceListTaskPanelEdit:
     def __init__(self, os):
-        # doc needs to be initialized first        
+        # doc needs to be initialized first
         self.os = os
 
 
-        fn = getRelativeFilePath(__file__, 'Qt/dlg_surfacelist_edit.ui')        
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_surfacelist_edit.ui')
 
-       
+
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(fn)
-        
+
 
     def accept(self):
-        
+
 
         FreeCADGui.Control.closeDialog()

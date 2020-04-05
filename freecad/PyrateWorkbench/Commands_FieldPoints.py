@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -66,14 +66,14 @@ class ShowFieldDialogCommand:
         else:
             selection = FreeCADGui.Selection.getSelection()
             if len(selection) == 1 and isOpticalSystemObserver(selection[0]): #('wavelengths' in selection[0].PropertiesList):
-                # TODO: comparison with CheckObjects function?                
+                # TODO: comparison with CheckObjects function?
                 return True
             else:
                 return False
 
     def Activated(self):
         osselection = FreeCADGui.Selection.getSelection()[0] # only active if len = 1 and obj is appropriate
-        
+
         fppanel = FieldPointsTaskPanel(osselection)
         FreeCADGui.Control.showDialog(fppanel)
 

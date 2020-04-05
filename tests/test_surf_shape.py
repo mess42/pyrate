@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -180,7 +180,7 @@ def biconic_sag(test_vector):
     """
     Computation of biconic sag equals explicit calculation
     """
-    coordinate_system = LocalCoordinates(name="root")
+    coordinate_system = LocalCoordinates.p(name="root")
 
     radiusx = 100.0
     radiusy = 120.0
@@ -209,8 +209,8 @@ def biconic_sag(test_vector):
     x_coordinate = values[0]
     y_coordinate = values[1]
 
-    shape = Biconic(coordinate_system, curvx=cx, curvy=cy, ccx=conic_constantx, ccy=conic_constanty,
-                    coefficients=[(alpha2, beta2), (alpha4, beta4), (alpha6, beta6)])
+    shape = Biconic.p(coordinate_system, curvx=cx, curvy=cy, ccx=conic_constantx, ccy=conic_constanty,
+                      coefficients=[(alpha2, beta2), (alpha4, beta4), (alpha6, beta6)])
     sag = shape.getSag(x_coordinate, y_coordinate)
     # comparison with explicitly entered formula
     comparison = ((cx*x_coordinate**2+cy*y_coordinate**2)/
@@ -229,7 +229,7 @@ def biconic_grad(test_vector):
     """
     Computation of biconic gradient equals explicit calculation
     """
-    coordinate_system = LocalCoordinates(name="root")
+    coordinate_system = LocalCoordinates.p(name="root")
 
     radiusx = 100.0
     radiusy = 120.0
@@ -258,8 +258,8 @@ def biconic_grad(test_vector):
     x = values[0]
     y = values[1]
 
-    shape = Biconic(coordinate_system, curvx=cx, curvy=cy, ccx=conic_constantx, ccy=conic_constanty,
-                    coefficients=[(alpha2, beta2), (alpha4, beta4), (alpha6, beta6)])
+    shape = Biconic.p(coordinate_system, curvx=cx, curvy=cy, ccx=conic_constantx, ccy=conic_constanty,
+                      coefficients=[(alpha2, beta2), (alpha4, beta4), (alpha6, beta6)])
 
     gradient = shape.getGrad(x, y)
 
@@ -287,7 +287,7 @@ def xypolynomials_sag(test_vector):
     """
     Computation of xy sag equals explicit calculation
     """
-    coordinate_system = LocalCoordinates(name="root")
+    coordinate_system = LocalCoordinates.p(name="root")
 
     maxradius = 1e6  # arbitrary choice
 
@@ -297,8 +297,8 @@ def xypolynomials_sag(test_vector):
 
     coefficients_list = [(0, 2, 1.), (4, 5, -1.), (3, 2, 0.1)]
 
-    shape = XYPolynomials(coordinate_system, normradius=1.,
-                          coefficients=coefficients_list)
+    shape = XYPolynomials.p(coordinate_system, normradius=1.,
+                            coefficients=coefficients_list)
 
     sag = shape.getSag(x_coordinate, y_coordinate)
 
@@ -320,7 +320,7 @@ def xypolynomials_grad(test_vector):
     """
     Computation of xy grad equals explicit calculation
     """
-    coordinate_system = LocalCoordinates(name="root")
+    coordinate_system = LocalCoordinates.p(name="root")
 
     maxradius = 1e6  # arbitrary choice
 
@@ -330,8 +330,8 @@ def xypolynomials_grad(test_vector):
 
     coefficients_list = [(0, 2, 1.), (4, 5, -1.), (3, 2, 0.1)]
 
-    shape = XYPolynomials(coordinate_system, normradius=1.,
-                          coefficients=coefficients_list)
+    shape = XYPolynomials.p(coordinate_system, normradius=1.,
+                            coefficients=coefficients_list)
 
     gradient = shape.getGrad(x_coordinate, y_coordinate)
 

@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -113,8 +113,8 @@ def bundle_step1(nrays=100, rpup=7.5):
 
     return RayBundle(o, k, E0, wave=dline)
 
-initialbundle_step1 = bundle_step1()
 
+initialbundle_step1 = bundle_step1()
 
 # draw glass plates
 s.draw2d(axarr[0], color="grey", vertices=50, plane_normal=pn, up=up)
@@ -131,12 +131,12 @@ for r in r2:
 # monochrome d
 # r1 = -r2
 
-def meritfunction_step2(my_s):
+def meritfunction_step2(my_s, **kwargs):
     """
     Merit function (=function to be minimized) for step 2.
     """
-    # initialbundle = bundle_step1()
-    rpaths = my_s.seqtrace(initialbundle_step1, seq)
+    initialbundle = kwargs.get("initialbundle", None)
+    rpaths = my_s.seqtrace(initialbundle, seq)
     x = rpaths[0].raybundles[-1].x[-1, 0, :]
     # y = rpaths[0].raybundles[-1].x[-1, 1, :]
     rba.raybundle = rpaths[0].raybundles[-1]
@@ -145,7 +145,7 @@ def meritfunction_step2(my_s):
     merit += 1000000.*math.exp(-len(x))
     # TODO: adding the exp-x is a dirty trick.
     # The prefactor also has to be adapted for each system.
-    # Is there a more elegant solution ?
+    # Is there a more elegant solution?
 
     return merit
 
@@ -162,13 +162,14 @@ s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_variable()
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_variable()
 s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.\
     to_pickup((FunctionObject("f = lambda x: -x"), "f"),
-             (s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
+              (s.elements["stdelem"].surfaces["lens4front"].shape.curvature,))
 
 
 listOptimizableVariables(s, max_line_width=80)
 
 optimi = Optimizer(s, meritfunction_step2, backend=ScipyBackend(),
                    updatefunction=updatefunction_allsteps, name="step2")
+optimi.meritparameters["initialbundle"] = initialbundle_step1
 s = optimi.run()
 
 # draw system with last lens biconvex
@@ -209,13 +210,21 @@ def bundles_step3(nrays=100, rpup=7.5, maxfield_deg=2.):
     return bundles
 
 
-def final_meritfunction(my_s, rpup, fno, maxfield_deg):
+def set_optimi_parameters(optimi, rpup, fno, maxfield_deg):
+    optimi.meritparameters["initialbundles"] = bundles_step3(
+        rpup=rpup, maxfield_deg=maxfield_deg)
+    optimi.meritparameters["fno"] = fno
+
+
+def final_meritfunction(my_s, **kwargs):
     """
     Merit function (=function to be minimized) for step 3 and following.
     """
     merit = 0
 
-    initialbundles = bundles_step3(rpup=rpup, maxfield_deg=maxfield_deg)
+    initialbundles = kwargs.get("initialbundles", None)
+    fno = kwargs.get("fno", 0.0)
+
     for bundle in initialbundles:
         rpaths = my_s.seqtrace(bundle, seq)
         x = rpaths[0].raybundles[-1].x[-1, 0, :]
@@ -240,11 +249,11 @@ def final_meritfunction(my_s, rpup, fno, maxfield_deg):
     return merit
 
 
-def meritfunction_step3(my_s):
+def meritfunction_step3(my_s, **kwargs):
     """
     Merit function for step 3
     """
-    return final_meritfunction(my_s, rpup=7.5, fno=100/15., maxfield_deg=2.)
+    return final_meritfunction(my_s, **kwargs)
 
 
 # optimize
@@ -255,12 +264,12 @@ s.elements["stdelem"].surfaces["elem3rear"].shape.curvature.to_variable()
 # outer radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2front"].shape.curvature.\
     to_pickup((FunctionObject("f = lambda x: -x"), "f"),
-             (s.elements["stdelem"].surfaces["elem3rear"].shape.curvature,))
+              (s.elements["stdelem"].surfaces["elem3rear"].shape.curvature,))
 
 # inner radii of both doulets should be symmetric
 s.elements["stdelem"].surfaces["elem2rear"].shape.curvature.\
     to_pickup((FunctionObject("f = lambda x: -x"), "f"),
-             (s.elements["stdelem"].surfaces["elem3front"].shape.curvature,))
+              (s.elements["stdelem"].surfaces["elem3front"].shape.curvature,))
 
 s.elements["stdelem"].surfaces["image"].rootcoordinatesystem.decz.to_variable()
 
@@ -271,6 +280,8 @@ s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_fixed()
 
 optimi = Optimizer(s, meritfunction_step3, backend=ScipyBackend(),
                    updatefunction=updatefunction_allsteps, name="step3")
+set_optimi_parameters(optimi, rpup=7.5, fno=100/15., maxfield_deg=2.)
+
 s = optimi.run()
 
 
@@ -286,18 +297,20 @@ for i in np.arange(len(b)):
 # Step 4: larger field
 #######################
 
-def meritfunction_step4a(my_s):
+def meritfunction_step4a(my_s, **kwargs):
     """
     Merit function with increased field angle.
     """
-    return final_meritfunction(my_s, rpup=7.5, fno=100/15., maxfield_deg=5.)
+    return final_meritfunction(my_s, **kwargs)
+    # , rpup=7.5, fno=100/15., maxfield_deg=5.)
 
 
-def meritfunction_step4b(my_s):
+def meritfunction_step4b(my_s, **kwargs):
     """
     Merit function with most increased field angle.
     """
-    return final_meritfunction(my_s, rpup=7.5, fno=100/15., maxfield_deg=7.)
+    return final_meritfunction(my_s, **kwargs)
+    # , rpup=7.5, fno=100/15., maxfield_deg=7.)
 
 
 s.elements["stdelem"].surfaces["lens4front"].shape.curvature.to_variable()
@@ -305,9 +318,11 @@ s.elements["stdelem"].surfaces["lens4rear"].shape.curvature.to_variable()
 
 optimi = Optimizer(s, meritfunction_step4a, backend=ScipyBackend(),
                    updatefunction=updatefunction_allsteps, name="step4a")
+set_optimi_parameters(optimi, rpup=7.5, fno=100/15., maxfield_deg=5.)
 s = optimi.run()
 optimi = Optimizer(s, meritfunction_step4b, backend=ScipyBackend(),
                    updatefunction=updatefunction_allsteps, name="step4b")
+set_optimi_parameters(optimi, rpup=7.5, fno=100/15., maxfield_deg=7.)
 s = optimi.run()
 
 
@@ -340,7 +355,7 @@ for r in r2:
 plt.show()
 
 system_gui_toplevel = UIInterfaceClassWithOptimizableVariables(
-        s.elements["stdelem"].surfaces["elem2rear"].shape).query_for_dictionary()
+    s.elements["stdelem"].surfaces["elem2rear"].shape).query_for_dictionary()
 
 pprint(system_gui_toplevel)
 
@@ -356,6 +371,6 @@ system_dump.save_json(serialization_path + "double_gauss.json")
 system_dump.save_yaml(serialization_path + "double_gauss.yaml")
 
 # TODO: later
-#s2 = Deserializer.load_json(serialization_path + "double_gauss.json",
-#                            True, True)
-#draw(s2)
+# s2 = Deserializer.load_json(serialization_path + "double_gauss.json",
+#                             True, True)
+# draw(s2)

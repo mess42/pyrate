@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -124,10 +124,10 @@ class RectangularAperture(BaseAperture):
 
     @classmethod
     def p(cls, lc, width=1.0, height=1.0, name="", *_):
-        cls({"width": width,
-             "height": height,
-             "typicaldimension": math.sqrt(width**2 + height**2)},
-            {"lc": lc}, name=name)
+        return cls({"width": width,
+                    "height": height,
+                    "typicaldimension": math.sqrt(width**2 + height**2)},
+                   {"lc": lc}, name=name)
 
     def get_boolean_function(self):
         width = self.annotations["width"]

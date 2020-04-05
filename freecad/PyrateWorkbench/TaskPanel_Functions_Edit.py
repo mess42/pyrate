@@ -2,7 +2,7 @@
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -32,8 +32,8 @@ from .Interface_Identifiers import *
 
 class FunctionsTaskPanelEdit:
     def __init__(self, fobj):
-        fn = getRelativeFilePath(__file__, 'Qt/dlg_functionsobject_edit.ui')        
-        
+        fn = getRelativeFilePath(__file__, 'Qt/dlg_functionsobject_edit.ui')
+
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(fn)
         self.fobj = fobj

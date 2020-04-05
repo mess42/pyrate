@@ -100,7 +100,7 @@ def symplecticintegrator(x0, d0, tau, functions, **parameters):
 
         k0 = 1. #2.*math.pi/raybundle.wave
         newk = k0*updatedvel/self.nfunc(updatedpos, **self.params)
-        Eapp = self.lc.returnLocalToGlobalDirections(self.calcEfield(newpos, None, newk, wave=raybundle.wave))
+        Eapp = self.lc.returnLocalToGlobalDirections(self.calc_e_field(newpos, None, newk, wave=raybundle.wave))
         kapp = self.lc.returnLocalToGlobalDirections(newk)
         xapp = self.lc.returnLocalToGlobalPoints(updatedpos)
 
