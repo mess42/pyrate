@@ -1,0 +1,115 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+
+%opening
+\title{Anisotropic Media Formulas from ``Landau Lifschitz -- Elektrodynamik der Kontinua''}
+
+\newcommand{\vct}[1]{{\bf #1}}
+
+\begin{document}
+
+\maketitle
+
+All units are in cgs. (TODO: convert to SI.)
+
+\section{Energy dissipation (paragraph 96)}
+\begin{align}
+  Q &= \frac{i \omega}{16 \pi} 
+  \left[
+    (\varepsilon^\ast_{ik} - \varepsilon_{ki})E_i E_k^\ast
+    + (\mu^\ast_{ik} - \mu_{ki})H_i H_k^\ast
+  \right]\,.
+\end{align}
+
+Useful either at every surface or in grin media at
+every integration point.
+
+\section{Formal plane wave (paragraph 83)}
+\begin{align}
+ \exp(i \vct{k} \vct{r}) &= \exp(i \vct{k}^\prime \vct{r})
+ \exp(-\vct{k}^{\prime\prime} \vct{r})\,,
+\end{align}
+where $\vct{k} = \vct{k}^\prime + i \vct{k}^{\prime\prime}$.
+
+\section{Eikonal (paragraph 85)}
+
+\begin{align}
+ \phi &= a \exp(i \psi)\,,\\
+ \frac{\partial \psi}{\partial t} &= -\omega\,,\quad
+ \vct{\nabla} \psi = \vct{k}\,,\\
+ \psi &= -\omega t + \frac{\omega}{c} \psi_1(x, y, z)\,.
+\end{align}
+From this it is:
+\begin{align}
+ \vct{\nabla}\psi_1 &= \vct{n}\text{ with }\vct{k} = \frac{\omega}{c}\vct{n}\,.
+\end{align}
+Therefore:
+\begin{align}
+ \psi_1 &= \int_A^B \vct{n}\text{d}\vct{l} \stackrel{\text{isotropic}}{=} \int_A^B n \text{d}l\,.
+\end{align}
+(For isotropic: $\vct{n}$ points in direction of $\text{d}\vct{l}$
+and $\vct{n}^2 = n^2$ is the square of the refractive index.)
+
+\section{Poynting Vector (paragraph 85)}
+Represents the ray direction in optics.
+\begin{align}
+ \bar{\vct{S}} &= I \vct{l}\text{ and }\vct{\nabla}(I \vct{l}) = 0\,.\\
+ \bar{\vct{S}} &= \mathfrak{R} 
+ \left(
+ \frac{c}{4\pi} \frac{1}{2} 
+ \vct{E} \times \vct{H}^\ast
+ \right)\,.
+\end{align}
+Also group $\tfrac{\partial \omega}{\partial \vct{k}}$ 
+velocity represents ray direction.
+
+\section{Dispersion for k (paragraph 97)}
+
+\begin{align}
+ (n^2 \delta_{ik} - n_i n_k - \varepsilon_{ik}) E_k &= 0\,,\\
+ f(\vct{k}, \omega) = \det(n^2 \delta_{ik} - n_i n_k - \varepsilon_{ik}) &= 0\,.
+\end{align}
+
+\section{Introducing ray vector s (paragraph 97)}
+
+Direction fixed by Poynting vector or group velocity.
+
+\begin{align}
+ \vct{s} &\sim \bar{\vct{S}} \sim \frac{\partial \omega}{\partial \vct{k}}\,.
+\end{align}
+
+Group velocity given by:
+\begin{align}
+ \frac{\partial \omega}{\partial \vct{k}} &= - 
+ \frac{\frac{\partial f}{\partial \vct{k}}}
+ {\frac{\partial f}{\partial \omega}}\,.
+\end{align}
+
+
+Introduction into Eikonal
+
+\begin{align}
+ \psi_1 &= \int_A^B \vct{n} \text{d}\vct{l}
+ = \int_A^B \vct{n}\cdot\frac{\vct{s}}{s} \text{d}l\,.
+\end{align}
+
+Absolute value is fixed by demanding that
+\begin{align}
+ \vct{n}\cdot\vct{s} &= 1\,,
+\end{align}
+such that
+\begin{align}
+ \psi_1 &= \int_A^B \frac{\text{d}l}{s}\,.
+\end{align}
+
+\section{Dual Dispersion for s (paragraph 97)}
+
+\begin{align}
+ \det(s^2 \delta_{ik} - s_i s_k - (\varepsilon^{-1})_{ik}) &= 0\,.
+\end{align}
+
+
+\end{document}
