@@ -112,4 +112,34 @@ such that
 \end{align}
 
 
+\section{Fermats principle and anisotropic media}
+
+Let $\psi_1$ be real and demand that $\psi_1$ is minimal along the path the wave travels,
+\begin{align}
+ \psi_1 &= \int_A^B \vct{n}(\vct{x}) \text{d} \vct{x} = \text{min}\,.
+\end{align}
+Then the Lagrangian after introduction of a curve parameter $\tau$ is given by
+\begin{align}
+ L &= \vct{n}(\vct{x}(\tau)) \frac{\text{d}\vct{x}}{\text{d}\tau} = n_\ell \dot{x}_\ell\,.
+\end{align}
+Then
+\begin{align}
+ \frac{\partial L}{\partial x_k} &= (\partial_k n_\ell) \dot{x}_\ell\,,\\
+ p_k = \frac{\partial L}{\partial \dot{x}_k} &= n_\ell \delta_{\ell k} = n_k\,. 
+\end{align}
+Therefore
+\begin{align}
+ \frac{\partial L}{\partial x_k} - \frac{\text{d}}{\text{d}\tau}\frac{\partial L}{\partial \dot{x}_k} &= 0\,,
+\end{align}
+leads to
+\begin{align}
+ (\partial_k n_\ell) \dot{x}_\ell - \frac{\text{d} n_k}{\text{d} \tau} &= 0\,.
+\end{align}
+This can further be simplified to
+\begin{align}
+ [(\partial_k n_\ell) - (\partial_\ell n_k)] \dot{x}_\ell &= 0\,.
+\end{align}
+
+
+
 \end{document}
