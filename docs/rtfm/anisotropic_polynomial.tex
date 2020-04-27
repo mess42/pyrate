@@ -1,0 +1,61 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+
+%opening
+\title{Anisotropic Refraction Formula}
+
+\newcommand{\vct}[1]{{\bf #1}}
+
+\begin{document}
+
+\maketitle
+
+\section{General dispersion formula}
+
+Let's start with the propagator formula for the electrical field after a plane wave decomposition of the Maxwell equations in
+source free notation.
+\begin{align}
+ (-\vct{k}^2 \delta_{ij} + k_i k_j + \omega^2 \mu_0 \varepsilon_{ij}) E_j &= 0\,.
+\end{align}
+Now pull out $\varepsilon_0$ from $\varepsilon_{ij} = \varepsilon_0 \epsilon_{ij}$ and $\tfrac{\omega}{c}$ 
+from $k_i = \tfrac{\omega}{c} \tilde{k}_i$. After using $\mu_0 \varepsilon_0 = \tfrac{1}{c^2}$, this leads to
+\begin{align}
+ \frac{\omega^2}{c^2} (-\vct{\tilde{k}}^2 \delta_{ij} + \tilde{k}_i \tilde{k}_j + \epsilon_{ij}) E_j &= 0\,.
+\end{align}
+Therefore the dispersion relation for $\tilde{k}_i$ -- if $\omega \ne 0$ -- is given by (in the following neglecting the tilda
+over $k_i$)
+\begin{align}
+ P(\vct{k}) = \det(-\vct{k}^2 \delta_{ij} + k_i k_j + \epsilon_{ij}) &= 0\,.
+\end{align}
+The determinant can be calculated in closed form and is given by (RTFM :-))
+\begin{align}
+\label{eq:det}
+ P(\vct{k}) &= -\det\epsilon + (\epsilon_{ij} k_i k_j)(\text{tr }\epsilon - \vct{k}^2) - (k_i \epsilon_{i\ell} \epsilon_{\ell j} k_j)\,.
+\end{align}
+
+\section{Decomposition}
+Now decomposing $k_i$ relative to a plane in the formula \eqref{eq:det} into an in-plane component $k_i^\parallel$ and an 
+out-of-plane component $\xi\,n_i$, namely $k_i = k_i^\parallel + \xi\,n_i$, where $\vct{n}^2 = 1$ and 
+$\vct{n}\cdot\vct{k}^\parallel = 0$.
+This leads to:
+\begin{align}
+ P(\vct{k}^\parallel, \xi) &= -\det\epsilon\nonumber\\& 
+  + [(\epsilon_{ij} k^\parallel_i k^\parallel_j) 
+    + \xi (\epsilon_{ij} + \epsilon_{ji}) k_i^\parallel n_j 
+    + \xi^2 (\epsilon_{ij} n_i n_j)](\text{tr }\epsilon - \vct{k}^2_\parallel - \xi^2)\nonumber\\&
+  - [(k^\parallel_i \epsilon_{i\ell} \epsilon_{\ell j} k^\parallel_j)
+     + \xi (\epsilon_{i\ell} \epsilon_{\ell j} + \epsilon_{j\ell} \epsilon_{\ell i}) k_i^\parallel n_j
+     + \xi^2 (n_i \epsilon_{i\ell} \epsilon_{\ell j} n_j)]\,.
+\end{align}
+or in more simplified form:
+\begin{align}
+ P &= a_0 + (a_1 + \xi a_2 + \xi^2 a_3) (a_4 - \xi^2) + (a_5 + \xi a_6 + \xi^2 a_7)\,.
+\end{align}
+As one can see, some of the $a_I$ could be rearranged into powers of $\xi$, but all of them are irreducible scalar quantities
+built from $\epsilon_{ij}$, $k_i^\parallel$, and $n_i$. Maybe we should have a look at the discriminant formulas of such a
+quartic equation.
+
+\end{document}
