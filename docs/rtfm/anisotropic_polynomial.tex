@@ -52,10 +52,96 @@ This leads to:
 \end{align}
 or in more simplified form:
 \begin{align}
- P &= a_0 + (a_1 + \xi a_2 + \xi^2 a_3) (a_4 - \xi^2) + (a_5 + \xi a_6 + \xi^2 a_7)\,.
+ P &= a_0 + (a_1 + \xi a_2 + \xi^2 a_3) (a_4 - \xi^2) + (a_5 + \xi a_6 + \xi^2 a_7)\,,\nonumber\\
+ &= a_0 + a_1 a_4 + a_5 + (a_4 a_2 + a_6) \xi + (a_3 a_4 + a_7 - a_1) \xi^2 - a_2 \xi^3 - a_3 \xi^4\,.
 \end{align}
+where
+\begin{subequations}
+\begin{align}
+  a_0 &= -\det\epsilon\,,\\
+  a_1 &= (\epsilon_{ij} k^\parallel_i k^\parallel_j)\,,\\
+  a_2 &= (\epsilon_{ij} + \epsilon_{ji}) k_i^\parallel n_j\,,\\
+  a_3 &= (\epsilon_{ij} n_i n_j)\,,\\
+  a_4 &= \text{tr }\epsilon\,,\\
+  a_5 &= (k^\parallel_i \epsilon_{i\ell} \epsilon_{\ell j} k^\parallel_j)\,,\\
+  a_6 &= (\epsilon_{i\ell} \epsilon_{\ell j} + \epsilon_{j\ell} \epsilon_{\ell i}) k_i^\parallel n_j\,,\\
+  a_7 &= (n_i \epsilon_{i\ell} \epsilon_{\ell j} n_j)\,.
+\end{align}
+\end{subequations}
 As one can see, some of the $a_I$ could be rearranged into powers of $\xi$, but all of them are irreducible scalar quantities
 built from $\epsilon_{ij}$, $k_i^\parallel$, and $n_i$. Maybe we should have a look at the discriminant formulas of such a
-quartic equation.
+quartic equation. 
+
+For this reason we introduce a new form first by dividing by $-a_3$ (which is even for very exotic materials $\ne0$)
+\begin{align}
+ \bar{P} = -\frac{P}{a_3} &= -\frac{a_0 + a_1 a_4 + a_5}{a_3} - \frac{a_4 a_2 + a_6}{a_3} \xi - \frac{a_3 a_4 + a_7 - a_1}{a_3} \xi^2 + \frac{a_2}{a_3} \xi^3 + \xi^4\,.
+\end{align}
+
+Usually, one would now introduce a linear Tschirnhaus transform ($\xi = u - \tfrac{a_2}{4 a_3}$) to achieve the depressed form of the quartic for $u$. 
+But since the coefficients get more complicated, maybe this is not the way to go. For us it is more interesting to investigate the zeros structure of 
+the polynomial by utilizing long division. Basis for this investigation is that
+\begin{itemize}
+ \item A polynomial $p(\xi)$ has no double zeros iff $\text{GCD}(p(\xi), p'(\xi)) = 1$
+ \item A polynomial $p(\xi)$ has no triple zeros iff $\text{GCD}(p(\xi), p''(\xi)) = 1$
+ \item A polynomial $p(\xi)$ has no quadruple zeros iff $\text{GCD}(p(\xi), p'''(\xi)) = 1$
+\end{itemize}
+Those arguments can easily be seen for
+\begin{align}
+ p(\xi) = (\xi - \xi_1)(\xi - \xi_2)(\xi - \xi_3)(\xi - \xi_4)\,,
+\end{align}
+where the $\xi_I$ are the zeros of the polynomial. If now $p(\xi)$ has a double zero, e.g., $\xi_1$, then the factor $(\xi - \xi_1)$
+would appear also in the first order derivative. Therefore the GCD would be $(\xi - \xi_1) \ne 1$. Same goes for triple zeros and
+quadruple zeros where the higher derivatives always have a factor in common with the polynomial. We demonstrate this for the third
+derivative, showing under which conditions there are quadruple zeros.
+
+For our polynomial, where the coefficients are now abbreviated by
+\begin{align}
+ \bar{P} &= \xi^4 + A \xi^3 + B \xi^2 + C \xi + D\,,
+\end{align}
+the third derivative for example is given by
+\begin{align}
+ \bar{P}''' &= 24 \xi + 6 A = 6 (4 \xi + A)\,.
+\end{align}
+{\tiny
+Dividing:
+\begin{align}
+ (\ast) &= \frac{1}{4} \xi^3 + \frac{3}{16} A \xi^2 + \left(\frac{B}{4} - \frac{3}{64} A^2\right) \xi + \frac{1}{4}\left[C - A \left(\frac{B}{4} - \frac{3}{64} A^2\right)\right]
+\end{align}
+\begin{align}
+\begin{array}{cccccccccc}
+ (\xi^4 & + A \xi^3 & + B \xi^2 & + C \xi & + D) & : & (4 \xi & + A) & = & (\ast)\\
+ (\xi^4 & + \frac{A}{4} \xi^3) & &         &      &   &        &      &   & \\
+ \hline
+	& (\frac{3}{4} A \xi^3 & + B \xi^2 & + C \xi & + D) & & &  & & \\
+	& (\frac{3}{4} A \xi^3 & + \frac{3}{16} A^2 \xi^2) & & & & &  & & \\
+	\hline
+	& & (\left(B - \frac{3}{16} A^2\right) \xi^2 & + C \xi & + D) & & &  & &  \\
+	& & (\left(B - \frac{3}{16} A^2\right) \xi^2 & + A \left(\frac{B}{4} - \frac{3}{64} A^2\right) \xi) & & & &  & &  \\
+	\hline
+	& & & (\left[C - A \left(\frac{B}{4} - \frac{3}{64} A^2\right)\right] \xi & +D) & & &  & &  \\
+	& & & (\left[C - A \left(\frac{B}{4} - \frac{3}{64} A^2\right)\right] \xi & \frac{A}{4}\left[C - A \left(\frac{B}{4} - \frac{3}{64} A^2\right)\right]) & & &  & &  \\
+	\hline
+	& & & & D - \frac{A}{4}\left[C - A \left(\frac{B}{4} - \frac{3}{64} A^2\right)\right] & & &  & &
+\end{array}
+\end{align}
+}
+This means the division remainder is vanishing (implying there are quadruple zeros) if
+\begin{align}
+ D - \frac{A}{4}\left[C - \frac{A}{4} \left(B - \frac{3}{16} A^2\right)\right] = 0\,,
+\end{align}
+where
+\begin{subequations}
+\begin{align}
+ A &= \frac{a_2}{a_3} = \dots\,,\\
+ B &= - a_4 - \frac{a_7 - a_1}{a_3} = \dots\,,\\
+ C &= a_4 A -\frac{a_6}{a_3} = \dots\,,\\
+ D &= -\frac{a_0 + a_1 a_4 + a_5}{a_3} = \dots\,.
+\end{align}
+\end{subequations}
+
+
+
+
+
 
 \end{document}
