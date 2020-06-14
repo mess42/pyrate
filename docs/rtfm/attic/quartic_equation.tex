@@ -122,6 +122,159 @@
 
 \begin{document}
 
+
+\section{The Problem}
+We are interested in solutions $x$ of the quartic equation
+\begin{eqnarray}
+ P = x^4 + a x^3 + b x^2 + c x + d = 0
+\end{eqnarray}
+where the coefficients $a,b,c,d$ are complex valued.
+
+\section{Strategy}
+Factor the equation into lower order terms.
+There are several approaches how to do that.
+
+\section{Direct Approach with 2 Parabolas}
+The quartic equation shall be factored into two parabolic terms.
+This approach does not depress the equation before solving.
+It uses elementary math only.
+\begin{eqnarray}
+ x^4 + a x^3 + b x^2 + c x + d = ( x^2 + p x + q )( x^2 + rx + s) 
+\end{eqnarray}
+We compare coefficients
+\begin{subequations}
+  \begin{eqnarray}
+    a &=& p + r
+    \\
+    b &=& s + q + pr
+    \\
+    c &=& ps + rq
+    \\
+    d &=& sq
+  \end{eqnarray}
+\end{subequations}
+We need to solve this system of equations in order to factor the quartic equation. We consider the first 2 equations
+\begin{subequations}
+  \begin{eqnarray}
+    r &=& a - p \\
+    s &=& b - q - pr \\
+      &=& b - q - p (a- p)
+  \end{eqnarray}
+\end{subequations}
+and eliminate the coefficients of the second parabola $(r,s)$ in the latter 2 equations
+\begin{subequations}
+  \begin{eqnarray}
+    c &=& p(b - q - p (a- p)) + (a-p)q
+    \\
+    d &=& (b - q - p (a- p))q
+  \end{eqnarray}
+\end{subequations}
+We solve the $c$ equation for $q$
+\begin{eqnarray}
+ c &=& p(b - p (a- p)) + ( a- 2p )q \\
+ q &=& \frac{c - p(b - p (a- p))}{a- 2p}
+\end{eqnarray}
+and insert in the equation for $d$
+\begin{eqnarray}
+    d &=& \left(b - \frac{c - p(b - p (a- p))}{a- 2p} - p (a- p)\right)\frac{c - p(b - p (a- p))}{a- 2p}
+\end{eqnarray}
+We reduced the system to one equation with $p$ as the only unknown.
+\begin{eqnarray}
+    d (a-2p)^2 &=& 
+    \left(b(a-2p) - (c - p(b - p (a- p))) - p (a- p)(a-2p)\right)\cdot\nonumber\\
+    &&\cdot\big(c - p(b - p (a- p))\big)
+    \\
+    &=& p^6 + ...
+\end{eqnarray}
+It is a polynomal of 6th degree in $p$.
+This means there are 6 solutions for $p$.
+We can understand the high degree considering the original polynomial as the product of its zeros $P=(x-x_1)(x-x_2)(x-x_3)(x-x_4)$.
+Splitting up the polynomial in two parabolas leaves 6 possibilities.
+
+\begin{tabular}{r|c|c}
+       & $(x^2 + px + q)$ & $(x^2 + rx + s)$\\
+ (i)   & $(x-x_1)(x-x_2)$ & $(x-x_3)(x-x_4)$\\
+ (ii)  & $(x-x_1)(x-x_3)$ & $(x-x_2)(x-x_4)$\\
+ (iii) & $(x-x_1)(x-x_4)$ & $(x-x_2)(x-x_3)$\\
+ (iv)  & $(x-x_2)(x-x_3)$ & $(x-x_1)(x-x_4)$\\
+ (v)   & $(x-x_2)(x-x_4)$ & $(x-x_1)(x-x_3)$\\
+ (vi)  & $(x-x_3)(x-x_4)$ & $(x-x_1)(x-x_2)$\\
+\end{tabular}
+
+So, we transformed the problem of solving quartic polynomial into the seemingly more difficult problem of solving a polynomial of 6th degree. Fortunately, we can simplify the polynomial.
+First we substitute $u=p(a-p)$, then we refactor the terms inside the first bracket on the right hand side.
+\begin{eqnarray}
+    d (a-2p)^2 &=& 
+    \left(b(a-2p) - (c - p(b - u)) - u(a-2p)\right)
+    \cdot
+    \big(c - p(b - u)\big)
+    \\
+    &=& 
+    \left((b-u)(a-2p) - c + p(b - u) \right)
+    \cdot
+    \big(c - p(b - u)\big)
+    \\
+    &=& 
+    \left((b-u)(a-p) - c \right)
+    \cdot
+    \big(c - p(b - u)\big)
+\end{eqnarray}
+We further expand
+\begin{eqnarray}
+    d (a-2p)^2 &=& 
+      (b-u)(a-p) c
+      + p(b - u) c
+      - c^2
+      - (b-u)^2(a-p)p
+    \\
+    &=& (b-u)a - c^2 - u(b-u)^2
+\end{eqnarray}
+and also expand the left hand side
+\begin{eqnarray}
+    d (a^2 - 4ap + 4p^2) &=& (b-u)ac - c^2 - u(b-u)^2
+    \\
+    d (a^2 - 4u) &=& (b-u)ac - c^2 - u(b-u)^2
+    \\
+    d a^2 - 4 du &=& abc - acu - c^2 - u b^2 + 2bu^2 - u^3
+\end{eqnarray}
+and rearrange the terms
+\begin{eqnarray}
+   u^3 
+   - (2b)u^2
+   + ( ac + b^2 - 4 d ) u
+   + (- abc + d a^2 + c^2)
+   &=& 
+   0
+\end{eqnarray}
+By solving this cubic equation, we can factor ans solve our quartic equation.
+
+
+\subsection{Summary}
+We can factor the quartic equation into two parabolas
+\begin{eqnarray}
+ x^4 + a x^3 + b x^2 + c x + d = ( x^2 + p x + q )( x^2 + rx + s) 
+\end{eqnarray}
+There are 6 solutions.
+Any particular solution will factor the quartic equation.
+\begin{eqnarray}
+  p &=& \frac{a}{2} \pm \sqrt{ \frac{a^2}{4} - u}
+\end{eqnarray}
+where $u$ is a solution of the cubic equation
+\begin{eqnarray}
+  u^3 - (2b)u^2 + ( ac + b^2 - 4 d ) u + (- abc + d a^2 + c^2)
+  &=& 0
+\end{eqnarray}
+The other coefficients follow the choice of the solution for $p$.
+\begin{eqnarray}
+ q &=& \frac{c - p(b - p (a- p))}{a- 2p} \\
+ r &=& a - p \\
+ s &=& \frac{d}{q}
+\end{eqnarray}
+
+
+
+
+\section{Application to Surface Intersections}
 Such equations are in principle analytically solvable. But on the one hand it is very complicated and on the other hand 
 it is not known whether there exists such a user-friendly numerically stable form of $t$ like in the former cases.\footnote{
 In fact the word ``biconic" is misleading because it suggests that
