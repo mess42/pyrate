@@ -48,6 +48,7 @@ from .raytracer.globalconstants import (numerical_tolerance,
 from .raytracer.ray import RayBundle, RayPath
 from .raytracer.material.material_isotropic import ConstantIndexGlass
 from .raytracer.material.material_glasscat import GlassCatalog
+from .raytracer.material.material_glasscat import CatalogMaterial
 
 # TODO: provide convenience classes for building a builduplist which could be
 # transferred to the build...functions
@@ -178,7 +179,9 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
             use_floating_point_value_for_constant_index_glass = False
             try:
                 n = float(mat)
-            except ValueError:
+            except ValueError: # this happens if mat is a string
+                use_floating_point_value_for_constant_index_glass = False
+            except TypeError: #this happens if mat is a material dict
                 use_floating_point_value_for_constant_index_glass = False
             else:
                 use_floating_point_value_for_constant_index_glass = True
@@ -186,6 +189,13 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                 gcat.material_dict_from_long_name(mat)
                 elem.addMaterial(mat,
                                  gcat.create_material_from_long_name(lc, mat))
+            elif isinstance(mat, dict) and not use_floating_point_value_for_constant_index_glass:
+                #print("material from dict")
+                #print(mat)
+                matobj = CatalogMaterial.p( lc, mat );
+                #print(matobj)
+                mat = str(mat['SPECS']['nd']);
+                elem.addMaterial( mat, matobj);
             elif use_floating_point_value_for_constant_index_glass:
                 mat = "constantindexglass_" + str(mat)
                 elem.addMaterial(mat, ConstantIndexGlass.p(lc, n=n))
