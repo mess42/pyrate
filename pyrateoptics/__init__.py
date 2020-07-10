@@ -190,10 +190,7 @@ def build_simple_optical_element(lc0, builduplist, material_db_path="",
                 elem.addMaterial(mat,
                                  gcat.create_material_from_long_name(lc, mat))
             elif isinstance(mat, dict) and not use_floating_point_value_for_constant_index_glass:
-                #print("material from dict")
-                #print(mat)
                 matobj = CatalogMaterial.p( lc, mat );
-                #print(matobj)
                 mat = str(mat['SPECS']['nd']);
                 elem.addMaterial( mat, matobj);
             elif use_floating_point_value_for_constant_index_glass:
