@@ -1,0 +1,97 @@
+"-- Version 5.0 file --","06-15-2020"
+"Thorlabs LBF254-050-A","",1
+#FALSE#
+0,#FALSE#,#FALSE#,#FALSE#,0
+1,1,0,0,587.56,486.13,656.27,486.1,900
+"1","Stop",#TRUE#,"Nom","lens",2,"0, 0",#TRUE#,"","","","","","air"," ","","","NonSH","",0
+" LENS 1"
+"   Surf  1","sphere",0,30.0599994659424,#TRUE#,"","",0,587.56,12.7,0,"","","","FALSE","FALSE|0|"
+"   Space 1",6.5,"","N-BK7","Schott                        ","","","","","","",""
+"      GlassIndex",1.51511669158936,1.5154675245285,1.51478004455566,"",""
+"   Surf  2","sphere",0,-172,#TRUE#,"","",0,587.56,12.7,0,"","","","FALSE","FALSE|0|"
+" LENS 1 End"
+"Defocus",0,0,""
+""
+"Zoom",1," ",0
+"ObjMedia","air",""," ","ImgMedia","air",""," "
+"ParameterTypes",1,0,0,0,"WaveWt"
+1,1,1,1,.5
+"Waveband",587.56,486.13,656.27,486.1,900
+"efl",50.2235522943853
+"ObjDist",-100,"   ImagDist",96.5574504883369
+"l",-100.645285456064,"   l'",100.249702664479
+"Mag",-.996069534804414,"   AngMag",0
+"Track",203.057450488337
+"ObjNa",.05,"   ImagNa",.0501973,"Stop Rad",5
+"entr rad",5,"exit rad",4.846923
+"fNos",5.022355
+"Entr Pup Rad",5,"Exit Pup Rad",5.065077
+"fNosEff",9.960695
+"ObjAngle",5,"   ObjHeight",8.74886635259239
+"ImagAngle",-4.936078,"ImagHeight",-8.71447923789269
+0,"GaussianBeam1 1,Circ, 632.8, .8057059, .001, 805.7059, 2, .8057059, .001, 805.7059, 2,-1000, 0","","","","","","",""
+"Scales"
+"Grid",2,2,.707106,.707106,.5,100,1
+"GridRatio",#FALSE#,0,0
+"Nos colors",1,"Nos fields",2
+"0","0"
+"Nos rings",20,"Spot sepn",.3
+"Spot Scl",.4,"Tra Scl",.1
+"Opd Scl wv",.5,"OPD Scl mm",.001
+"Astig",.1,"Dist",1,"LatCol",.1,"Astig a",1,"LatCol a",100
+"Spot Scl a",100,"Tra Scl a",100
+"Coat",100,0,800,400,25
+"Max MTF",0,"Thru MTF",0,"Thru Scale",0,#FALSE#
+"Max MTF a",0,"Thru MTF a",0,"Thru Scale a",0
+"OSC",.1,"OIC",.1
+"RelIll Mid",.6666667,"RelIll Small",.3333333
+"FldMtf Mid",.6666667,"FldMtf Small",.3333333
+-1,-1,0,0
+0,0,0,0
+#FALSE#,223.3632,111.1682
+#FALSE#,0,0,0
+0,-1,0,0
+400,800,632.8,.001,.8057059,805.7059,587.56,0,0,0
+#FALSE#,0
+#FALSE#,25,"","","","","","","",""
+"GROUPS START"
+"   GROUP: ",1,1,1,1
+"GROUPS END"
+"Optimisation Data"
+"WinLens Merit Function"
+"VERSION B"
+"NOTES: "
+"OPTIONS START"
+"ModeDamp        ",1
+"OptStrategy     ",0
+"ModeBCViols     ",0
+"UseDefEdgeLim   ",#TRUE#
+"DefThickCenGap  ",1,.1
+"DefThickEdgGap  ",1,.1
+"DefThickCenEle  ",1,.1
+"DefThickEdgEle  ",1,.1
+"CtrlVariables   ",#FALSE#
+"CtrlEdgeLims    ",#TRUE#
+"CtrlGlassCost   ",#TRUE#
+"Clear Aps options"
+"ClrApAuto       ",#FALSE#
+"ClrApExtra      ",0
+"ClrApRound      ",0
+"No GCost Options"
+"OPTIONS END"
+"OPTIONS EXTRA START"
+"OptStratNormDoScale ",#TRUE#,0,0,""
+"OptStratFindMinDamp ",#TRUE#,0,0,""
+"OptEx1 ",#FALSE#,0,0,""
+"OptEx2 ",#FALSE#,0,0,""
+"OptEx3 ",#FALSE#,0,0,""
+"OPTIONS EXTRA END"
+"ABERRATIONS START"
+"   ABN: ",2,600,606,"Edge horiz","98",#FALSE#,0,1,0,1,1,1,.1,13,1,1,0,"",0,0,0,#FALSE#
+"ABERRATIONS END"
+"MF END"
+""
+"","","","","","","","",#FALSE#
+#FALSE#,0
+"","","","","","",""
+"Thorlabs_LBF254_050_A.SPD"
