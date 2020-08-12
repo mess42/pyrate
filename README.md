@@ -137,9 +137,13 @@ maintainers https://github.com/FreeCAD/FreeCAD/releases
 - Choose workbench in FreeCAD
 - Happy optical design :-)
 
+Another way to install the workbench without AddonManager is to copy or link
+the actual pyrate directory into `.FreeCAD/Mod/pyrate` or the corresponding
+user directory in Windows. This is in particular useful for developing.
+
 TODO: update windows sections. (pip for Python2.7 not available for windows)
 
-Additional Notes for Windows 32
+Additional Notes for Windows 32 (obsolete and untested)
 -----------------------------------------
 
 For win32 you have to take care of additional scipy support:
@@ -161,7 +165,7 @@ Installation procedure:
 
 In the future it may be necessary to change the versions of numpy and scipy appropriatly.
 
-Additional Notes for Windows 64 (not tested, yet)
+Additional Notes for Windows 64 (probably obsolete and untested)
 -----------------------------------------
 
 For win64 you also need to take care of additional scipy support:
