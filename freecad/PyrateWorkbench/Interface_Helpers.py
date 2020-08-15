@@ -31,44 +31,51 @@ except ImportError:
 
 import os
 
-from .Interface_Identifiers import *
-from .Interface_Checks import *
+from .Interface_Checks import (isOpticalSystemObserver,
+                               isFunctionsObject,
+                               isMaterialCatalogue,
+                               isMaterial)
 
-import FreeCAD, FreeCADGui
 
 # general
 
 def uuidToName(uuid):
-    tab = maketrans('-','_')
+    tab = maketrans('-', '_')
     return str(uuid).lower().translate(tab)
+
 
 def getRelativeFilePath(relativefilename, targetfile):
     return os.path.join(os.path.dirname(relativefilename), targetfile)
 
 # collect optical system observers
 
+
 def getAllOpticalSystemObservers(doc):
     return [obj for obj in doc.Objects if isOpticalSystemObserver(obj)]
 
 # collect function objects
 
+
 def getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os):
     fngroupname = os.NameFunctionsGroup
-    fngroup = self.doc.getObject(fngroupname)
+    fngroup = doc.getObject(fngroupname)
     return fngroup
+
 
 def getFunctionObjectsFromOpticalSystemObserver(doc, os):
     subgroup = getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os)
     return subgroup.Group
 
+
 def getAllFunctionObjects(doc):
     return [obj for obj in doc.Objects if isFunctionsObject(obj)]
 
-
 # collect material catalogues
+
 
 def getAllMaterialCatalogues(doc):
     return [obj for obj in doc.Objects if isMaterialCatalogue(obj)]
+
 
 def getAllMaterials(doc):
     return [obj for obj in doc.Objects if isMaterial(obj)]
@@ -76,5 +83,3 @@ def getAllMaterials(doc):
 # TODO:
 #def getAllMaterialsFromMaterialCatalogue(doc, matcat):
 #    pass
-
-
