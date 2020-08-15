@@ -58,7 +58,7 @@ class LC(AbstractObserver):
         obj.addProperty("App::PropertyVector", "globalcoordinates", "LC", "global coords").globalcoordinates = FreeCAD.Base.Vector(tuple(coupling.globalcoordinates))
         obj.addProperty("App::PropertyVector", "decenter", "LC", "decenter").decenter = FreeCAD.Base.Vector((coupling.decx.evaluate(), coupling.decy.evaluate(), coupling.decz.evaluate()))
         obj.addProperty("App::PropertyVector", "tilt", "LC", "tilt in degrees").tilt = FreeCAD.Base.Vector((coupling.tiltx.evaluate()*180.0/math.pi, coupling.tilty.evaluate()*180.0/math.pi, coupling.tiltz.evaluate()*180.0/math.pi))
-        obj.addProperty("App::PropertyBool", "order", "LC", "First Tilt then Decenter?").order = bool(coupling.tiltThenDecenter)
+        obj.addProperty("App::PropertyBool", "order", "LC", "First Tilt then Decenter?").order = bool(coupling.annotations["tiltThenDecenter"])
         obj.addProperty("App::PropertyFloat", "scale", "LC", "Scale factor cross").scale = 1.0
 
         obj.addProperty("App::PropertyVector", "localbasisX", "LC", "local basis vector x").localbasisX = FreeCAD.Base.Vector(tuple(coupling.localbasis[:,0]))
@@ -93,7 +93,7 @@ class LC(AbstractObserver):
 
 
     def addChild(self, name=""):
-        ch = self.__lc.addChild(LocalCoordinates(name))
+        ch = self.__lc.addChild(LocalCoordinates.p(name))
         self.createSubgroupForChild(ch)
 
 

@@ -107,7 +107,7 @@ class OpticalSystemObserver(AbstractObserver):
         obj.addProperty("App::PropertyPythonObject",
                         "osclass",
                         "OS",
-                        "os class interface").osclass = OpticalSystem()
+                        "os class interface").osclass = OpticalSystem.p()
 
 
 
@@ -222,34 +222,34 @@ class OpticalSystemObserver(AbstractObserver):
 
 
     def initDemoSystem(self):
-        s = OpticalSystem()
+        s = OpticalSystem.p()
 
-        lc0 = s.addLocalCoordinateSystem(LocalCoordinates(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
-        lc1 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf1", decz=2.0), refname=lc0.name) # objectDist
-        lc2 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf2", decz=3.0), refname=lc1.name)
-        lc3 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0), refname=lc2.name)
-        lc4 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf4", decz=3.0), refname=lc3.name)
-        lc5 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf5", decz=3.0), refname=lc4.name)
-        lc6 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf6", decz=2.0), refname=lc5.name)
-        lc7 = s.addLocalCoordinateSystem(LocalCoordinates(name="surf7", decz=3.0), refname=lc6.name)
-        lc8 = s.addLocalCoordinateSystem(LocalCoordinates(name="image", decz=19.0), refname=lc7.name)
-
-
-        objectsurf = Surface(lc0)
-        surf1 = Surface(lc1, shape=Conic(lc1, curv=1/-5.922))
-        surf2 = Surface(lc2, shape=Conic(lc2, curv=1/-3.160))
-        surf3 = Surface(lc3, shape=Conic(lc3, curv=1/15.884))
-        surf4 = Surface(lc4, shape=Conic(lc4, curv=1/-12.756))
-        stopsurf = Surface(lc5)
-        surf6 = Surface(lc6, shape=Conic(lc6, curv=1/3.125))
-        surf7 = Surface(lc7, shape=Conic(lc7, curv=1/1.479))
-        image = Surface(lc8)
+        lc0 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="object", decz=0.0), refname=s.rootcoordinatesystem.name)
+        lc1 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf1", decz=2.0), refname=lc0.name) # objectDist
+        lc2 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf2", decz=3.0), refname=lc1.name)
+        lc3 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf3", decz=5.0, tiltx=0.0*math.pi/180.0), refname=lc2.name)
+        lc4 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf4", decz=3.0), refname=lc3.name)
+        lc5 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf5", decz=3.0), refname=lc4.name)
+        lc6 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf6", decz=2.0), refname=lc5.name)
+        lc7 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="surf7", decz=3.0), refname=lc6.name)
+        lc8 = s.addLocalCoordinateSystem(LocalCoordinates.p(name="image", decz=19.0), refname=lc7.name)
 
 
-        elem = OpticalElement(lc0, label="lenssystem")
+        objectsurf = Surface.p(lc0)
+        surf1 = Surface.p(lc1, shape=Conic.p(lc1, curv=1/-5.922))
+        surf2 = Surface.p(lc2, shape=Conic.p(lc2, curv=1/-3.160))
+        surf3 = Surface.p(lc3, shape=Conic.p(lc3, curv=1/15.884))
+        surf4 = Surface.p(lc4, shape=Conic.p(lc4, curv=1/-12.756))
+        stopsurf = Surface.p(lc5)
+        surf6 = Surface.p(lc6, shape=Conic.p(lc6, curv=1/3.125))
+        surf7 = Surface.p(lc7, shape=Conic.p(lc7, curv=1/1.479))
+        image = Surface.p(lc8)
 
-        glass = material_isotropic.ConstantIndexGlass(lc0, n=1.7)
-        glass2 = material_isotropic.ConstantIndexGlass(lc0, n=1.5)
+
+        elem = OpticalElement.p(lc0, name="lenssystem")
+
+        glass = material_isotropic.ConstantIndexGlass.p(lc0, n=1.7)
+        glass2 = material_isotropic.ConstantIndexGlass.p(lc0, n=1.5)
 
         elem.addMaterial("glass", glass)
         elem.addMaterial("glass2", glass2)
@@ -263,6 +263,9 @@ class OpticalSystemObserver(AbstractObserver):
         elem.addSurface("surf6", surf6, (None, "glass2"))
         elem.addSurface("surf7", surf7, ("glass2", None))
         elem.addSurface("image", image, (None, None))
+
+        for mysurf in elem.surfaces.values():
+            print(mysurf.aperture.annotations)
 
         s.addElement("lenssys", elem)
 

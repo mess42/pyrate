@@ -154,7 +154,7 @@ class SurfaceObject(AbstractObserver):
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
-            shapeclass = Conic(self.__obj.LocalCoordinatesLink.getLC(), curv=curv, cc=cc)
+            shapeclass = Conic.p(self.__obj.LocalCoordinatesLink.getLC(), curv=curv, cc=cc)
 
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
@@ -168,7 +168,7 @@ class SurfaceObject(AbstractObserver):
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
-            shapeclass = Cylinder(curv=curv, cc=cc)
+            shapeclass = Cylinder.p(curv=curv, cc=cc)
 
 
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature y").curv = curv
@@ -183,7 +183,7 @@ class SurfaceObject(AbstractObserver):
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
-            shapeclass = Asphere(curv=curv, cc=cc, acoeffs=asphereparams)
+            shapeclass = Asphere.p(curv=curv, cc=cc, acoeffs=asphereparams)
         self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
         self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
         self.__obj.addProperty("App::PropertyFloatList", "asphereparams", "Shape", "aspherical corrections").asphereparams = asphereparams
@@ -192,7 +192,7 @@ class SurfaceObject(AbstractObserver):
     def initShExplicit(self, **kwargs):
         # this function offers the flexibility to use function objects with tunable parameters
         # TODO: implement
-        self.__obj.shapeclass = Conic(curv=0, cc=0)
+        self.__obj.shapeclass = Conic.p(curv=0, cc=0)
 
     # shape readout
 
@@ -215,16 +215,16 @@ class SurfaceObject(AbstractObserver):
     # shape writeback
 
     def writebackShConic(self, fp):
-        self.__obj.shapeclass.curvature.setvalue(fp.curv)
-        self.__obj.shapeclass.conic.setvalue(fp.cc)
+        self.__obj.shapeclass.curvature.set_value(fp.curv)
+        self.__obj.shapeclass.conic.set_value(fp.cc)
 
     def writebackShCylinder(self, fp):
-        self.__obj.shapeclass.curvature.setvalue(fp.curv)
-        self.__obj.shapeclass.conic.setvalue(fp.cc)
+        self.__obj.shapeclass.curvature.set_value(fp.curv)
+        self.__obj.shapeclass.conic.set_value(fp.cc)
 
     def writebackShAsphere(self, fp):
-        self.__obj.shapeclass.curvature.setvalue(fp.curv)
-        self.__obj.shapeclass.conic.setvalue(fp.cc)
+        self.__obj.shapeclass.curvature.set_value(fp.curv)
+        self.__obj.shapeclass.conic.set_value(fp.cc)
 
     def writebackShExplicit(self, fp):
         pass
@@ -232,7 +232,7 @@ class SurfaceObject(AbstractObserver):
     # aperture initialization
 
     def initApBase(self, **kwargs):
-        self.__obj.apertureclass = BaseAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC())
+        self.__obj.apertureclass = BaseAperture.p(self.__obj.LocalCoordinatesLink.Proxy.getLC())
 
     def initApCircular(self, semidiameter=1.0, tx=0., ty=0., **kwargs):
 
@@ -243,7 +243,7 @@ class SurfaceObject(AbstractObserver):
             tx = apclass.tx
             ty = apclass.ty
         else:
-            apclass = CircularAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC(), semidiameter=semidiameter, tx=tx, ty=ty)
+            apclass = CircularAperture.p(self.__obj.LocalCoordinatesLink.Proxy.getLC(), semidiameter=semidiameter, tx=tx, ty=ty)
 
 
         self.__obj.addProperty("App::PropertyFloat", "semidiameter", "Aperture", "semidiameter").semidiameter = semidiameter
@@ -253,7 +253,7 @@ class SurfaceObject(AbstractObserver):
         self.__obj.apertureclass = apclass
 
     def initApUserDefined(self, **kwargs):
-        self.__obj.apertureclass = BaseAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC())
+        self.__obj.apertureclass = BaseAperture.p(self.__obj.LocalCoordinatesLink.Proxy.getLC())
 
 
 
