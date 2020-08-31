@@ -22,5 +22,5 @@ Dialogs and UI/UX
     * Links to other ClassWithOptimizableVariables if necessary
 
 * Dialogs for system creation
-    * Dialogs for the convenience functions (tabular data)
+    * Dialogs for the convenience functions (tabular data) => does not need the Mirror and STOP flags
     * in a first step no lens editor (done by tree view in FC)
