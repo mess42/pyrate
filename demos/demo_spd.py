@@ -35,23 +35,26 @@ from pyrateoptics.raytracer.material.material_glasscat import CatalogMaterial
 from pyrateoptics.raytracer.globalconstants import canonical_ex, canonical_ey
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.raytracer.analysis.ray_analysis import RayBundleAnalysis, RayPathAnalysis
-from pyrateoptics.raytracer.io.spd import SPDParser;
+from pyrateoptics.raytracer.io.spd import SPDParser
 
 
-from matplotlib import pyplot as plt;
+from matplotlib import pyplot as plt
+
+import numpy as np
 
 
-#ATTENTION: need to clone first !
-#> git clone https://github.com/polyanskiy/refractiveindex.info-database.git
-db_path = "refractiveindex.info-database/database"
+#ATTENTION: need to initialize submodules !
+#> git submodule update --init --recursive
+db_path = "../pyrateoptics/refractiveindex.info-database/database"
 
 #this way, we may look for names
 gcat = pyrateoptics.GlassCatalog(db_path)
 #print( gcat.find_pages_with_long_name("BK7") )
 
 if gcat.get_shelves() == []:
-    print("""Clone the glass data base first! 
-             > git clone https://github.com/polyanskiy/refractiveindex.info-database.git
+    print("""Get the glass data base first! 
+             > git submodule update --init --recursive
+             Be sure to run from the pyrate/demos directory.
           """);
     sys.exit( -1 );
 
