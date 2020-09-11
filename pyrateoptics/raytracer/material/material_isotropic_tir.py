@@ -29,94 +29,91 @@ import numpy as np
 from ...core.optimizable_variable import FloatOptimizableVariable, FixedState
 
 from ..ray import RayBundle
-from ..helpers_math import checkfinite
-from ..globalconstants import standard_wavelength
-
-from .material import MaxwellMaterial
 from .material_isotropic import IsotropicMaterial
+
 
 class IsotropicMaterialTIR(IsotropicMaterial):
     """
     An isoptropic material with a different refraction formula
-    that is considering total internal reflection. Rays that 
+    that is considering total internal reflection. Rays that
     would be reflected by TIR are zeroed in the solution.
     """
 
     def setKind(self):
         self.kind = "isotropicmaterialTIR"
 
-
     def refract(self, raybundle, actualSurface, splitup=False):
         """
         Refraction in isotropic material.
         """
-        #print("myrefract")
-    
-        
-        #direction vector - use k; which is normalized to the index 
-        normk = np.matmul(np.ones([3,1]),np.sqrt(np.sum(raybundle.k[0,:,:]**2.0,axis=0))[None,...]);
-        
-        index_before = normk;
-        index_after  = np.real( self.get_optical_index(0,wave=raybundle.wave) ) * np.ones( normk.shape );
-        
-        #positive, need ray pointing away from surface
-        dir_in = -(raybundle.k[0,:,:] / normk);
-        
-        
-        #negative - want outward pointing normal
+
+        # direction vector - use k; which is normalized to the index
+        normk = np.matmul(np.ones([3, 1]), np.sqrt(np.sum(
+            raybundle.k[0, :, :]**2.0, axis=0))[None, ...])
+
+        index_before = normk
+        index_after = np.real(self.get_optical_index(0, wave=raybundle.wave))\
+            * np.ones(normk.shape)
+
+        # positive, need ray pointing away from surface
+        dir_in = -(raybundle.k[0, :, :] / normk)
+
+        # negative - want outward pointing normal
         normal = -raybundle.getLocalSurfaceNormal(actualSurface,
-                                                 self, raybundle.x[-1]);
-        #for safety, normalize normal
-        normn = np.matmul(np.ones([3,1]),np.sqrt(np.sum(normal**2.0,axis=0))[None,...]);
-        normal /= normn;
-        
-        
-        #cos of angle between incident ray (pointing outward) and normal (pointing outward)
-        costheta = np.sum( dir_in * normal, axis = 0 );
-        sintheta = np.sqrt( 1-costheta ** 2.0 );
-        
-        #sin of angle of refracted ray (Snell's law)
-        sinthetadash = index_before[0,:] / index_after[0,:] * sintheta;
-        
-        
-        #total internal reflection ?
-        TIR = sinthetadash > 1.0;
-        
-        valid = (1-TIR).astype(bool);
-        
-        #cosine of refracted ray
-        costhetadash = np.sqrt( 1 - sinthetadash ** 2.0 );
-        
-        #Refraction: direction from normal to tip of direction vector orthogonal component)                                                                                                                                                  
-        a = dir_in - ( np.ones([3,1]) * costheta ) * normal;
-        
-        #compute outgoing ray direction
-        aout = np.zeros( a.shape );
-        
-        theta_ratio = index_before / index_after;
-        aout[ :, valid ] = -a[:, valid] * theta_ratio[:, valid]; 
-        
-        dir_out = -normal * (np.ones([3,1]) * costhetadash) + aout;
-        normk = np.matmul(np.ones([3,1]),np.sqrt(np.sum(dir_out**2.0,axis=0))[None,...]);
-        dir_out /= normk;
-        
-        
-        #ref. index is stored as vector length
-        k2 = dir_out * index_after;
-    
+                                                  self, raybundle.x[-1])
+        # for safety, normalize normal
+        normn = np.matmul(np.ones([3, 1]), np.sqrt(np.sum(normal**2.0, axis=0))
+                          [None, ...])
+        normal /= normn
+
+        # cos of angle between incident ray (pointing outward) and normal
+        # (pointing outward)
+        costheta = np.sum(dir_in * normal, axis=0)
+        sintheta = np.sqrt(1-costheta ** 2.0)
+
+        # sin of angle of refracted ray (Snell's law)
+        sinthetadash = index_before[0, :] / index_after[0, :] * sintheta
+
+        # total internal reflection ?
+        TIR = sinthetadash > 1.0
+
+        valid = (1-TIR).astype(bool)
+
+        # cosine of refracted ray
+        costhetadash = np.sqrt(1 - sinthetadash ** 2.0)
+
+        # Refraction: direction from normal to tip of direction vector
+        # orthogonal component)
+        a = dir_in - (np.ones([3, 1]) * costheta) * normal
+
+        # compute outgoing ray direction
+        aout = np.zeros(a.shape)
+
+        theta_ratio = index_before / index_after
+        aout[:, valid] = -a[:, valid] * theta_ratio[:, valid]
+
+        dir_out = -normal * (np.ones([3, 1]) * costhetadash) + aout
+        normk = np.matmul(np.ones([3, 1]), np.sqrt(
+            np.sum(dir_out**2.0, axis=0))[None, ...])
+        dir_out /= normk
+
+        # ref. index is stored as vector length
+        k2 = dir_out * index_after
+
         xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
-        
+
         # return ray with new direction and properties of old ray
         # return only valid rays
         orig = raybundle.x[-1][:, valid]
-        newk = self.lc.returnLocalToGlobalDirections(k2[:, valid]);
+        newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
 
         # FIXME: E field calculation wrong: xlocal, normal, newk in different
         # coordinate systems
         Efield = self.calc_e_field(xlocal, normal, newk, wave=raybundle.wave)
 
         return (RayBundle(orig, newk, Efield, raybundle.rayID[valid],
-                          raybundle.wave),)
+                          raybundle.wave), )
+
 
 class ConstantIndexGlassTIR(IsotropicMaterialTIR):
     """
