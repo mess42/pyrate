@@ -29,6 +29,12 @@ import uuid
 import random
 import json
 import os
+try:
+    import pkg_resources
+except ImportError:
+    pkg_resources_import_failed = True
+else:
+    pkg_resources_import_failed = False
 
 class BaseLogger(object):
     """
@@ -83,13 +89,26 @@ class BaseLogger(object):
         Setter for name.
         """
         if name == "":
-            mycorespath = os.path.dirname(__file__)
-            with open(mycorespath +
-                      "/names/adjectives.json", "rt") as file_adjectives:
-                adjectives = json.load(file_adjectives)
-            with open(mycorespath +
-                      "/names/nouns.json", "rt") as file_nouns:
-                nouns = json.load(file_nouns)
+
+            if not pkg_resources_import_failed:
+                file_adjectives_string = pkg_resources.resource_string(
+                    "pyrateoptics.core.names",
+                    "adjectives.json"
+                ).decode("utf-8")  # transform bytes into string
+                file_nouns_string = pkg_resources.resource_string(
+                    "pyrateoptics.core.names",
+                    "nouns.json"
+                ).decode("utf-8")
+                adjectives = json.loads(file_adjectives_string)
+                nouns = json.loads(file_nouns_string)
+            else:
+                mycorespath = os.path.dirname(__file__)
+                with open(mycorespath +
+                          "/names/adjectives.json", "rt") as file_adjectives:
+                    adjectives = json.load(file_adjectives)
+                with open(mycorespath +
+                          "/names/nouns.json", "rt") as file_nouns:
+                    nouns = json.load(file_nouns)
 
             my_index_ad = random.randint(0, len(adjectives) - 1)
             my_index_no = random.randint(0, len(nouns) - 1)

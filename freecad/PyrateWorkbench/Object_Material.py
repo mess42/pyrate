@@ -36,6 +36,8 @@ from pyrateoptics.raytracer.material.material_grin import\
 
 import numpy as np
 
+import FreeCAD
+
 class MaterialObject(AbstractObserver):
 
 
@@ -130,7 +132,6 @@ class MaterialObject(AbstractObserver):
 
     def readGrin(self):
         pass
-
 
     def onChanged(self, fp, prop):
         FreeCAD.Console.PrintMessage("Changed Material in GUI " + self.__obj.Name + "\n")

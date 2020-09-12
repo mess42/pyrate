@@ -59,12 +59,12 @@ class SurfaceView:
         vobj = obj.ViewObject
 
         surshape = None
-
-        if aperture.typicaldimension < 100.0:
+        if aperture.annotations["typicaldimension"] < 100.0:
 
             surPoints = []
 
-            rvalues = np.linspace(0, aperture.typicaldimension, rpoints)
+            rvalues = np.linspace(0, aperture.annotations["typicaldimension"],
+                                  rpoints)
             phivalues = np.linspace(0, 2*math.pi - 2*math.pi/phipoints, phipoints)
 
             PHI, R = np.meshgrid(phivalues, rvalues)

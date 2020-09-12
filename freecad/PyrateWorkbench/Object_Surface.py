@@ -35,12 +35,15 @@ from pyrateoptics.raytracer.surface_shape import (Conic,
                                                   ExplicitShape)
 from pyrateoptics.raytracer.aperture import BaseAperture, CircularAperture
 
+import FreeCAD
+
+
 class SurfaceObject(AbstractObserver):
 
-
-    def __init__(self, doc, group, name, shapetype, aptype, lclabel, matlabel, **kwargs):
-        self.__doc = doc # e.g. ActiveDocument
-        self.__group = group # surface group
+    def __init__(self, doc, group, name, shapetype, aptype, lclabel,
+                 matlabel, **kwargs):
+        self.__doc = doc  # e.g. ActiveDocument
+        self.__group = group  # surface group
         self.__obj = doc.addObject("Part::FeaturePython", name)
         self.__group.addObject(self.__obj)
 
@@ -96,8 +99,8 @@ class SurfaceObject(AbstractObserver):
             Shape_Explicit:self.readShExplicit
         }
 
-        # TODO: set values from initialized matclass coming from a predefined optical system
-
+        # TODO: set values from initialized matclass coming
+        # from a predefined optical system
 
         self.__obj.addProperty("App::PropertyPythonObject",
                                "shapeclass",
@@ -119,7 +122,6 @@ class SurfaceObject(AbstractObserver):
                                "Aperture",
                                "specifies type").aperturetype = aptype
 
-
         self.__obj.addProperty("App::PropertyString",
                                "comment",
                                "Surface",
@@ -134,7 +136,6 @@ class SurfaceObject(AbstractObserver):
                                "MaterialLink",
                                "Material",
                                "material associated with surface").MaterialLink = doc.getObjectsByLabel(matlabel)[0]
-
 
         self.initshapedict[shapetype](**kwargs)
         self.initaperturedict[aptype](**kwargs)
@@ -154,10 +155,13 @@ class SurfaceObject(AbstractObserver):
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
-            shapeclass = Conic(self.__obj.LocalCoordinatesLink.getLC(), curv=curv, cc=cc)
+            shapeclass = Conic.p(self.__obj.LocalCoordinatesLink.getLC(),
+                                 curv=curv, cc=cc)
 
-        self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
-        self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
+        self.__obj.addProperty("App::PropertyFloat", "curv", "Shape",
+                               "central curvature").curv = curv
+        self.__obj.addProperty("App::PropertyFloat", "cc", "Shape",
+                               "conic constant").cc = cc
         self.__obj.shapeclass = shapeclass
 
     def initShCylinder(self, curv=0., cc=0., **kwargs):
@@ -168,11 +172,12 @@ class SurfaceObject(AbstractObserver):
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
-            shapeclass = Cylinder(curv=curv, cc=cc)
+            shapeclass = Cylinder.p(curv=curv, cc=cc)
 
-
-        self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature y").curv = curv
-        self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant y").cc = cc
+        self.__obj.addProperty("App::PropertyFloat", "curv", "Shape",
+                               "central curvature y").curv = curv
+        self.__obj.addProperty("App::PropertyFloat", "cc", "Shape",
+                               "conic constant y").cc = cc
         self.__obj.shapeclass = shapeclass
 
     def initShAsphere(self, curv=0., cc=0., asphereparams=[], **kwargs):
@@ -183,16 +188,20 @@ class SurfaceObject(AbstractObserver):
             curv = shapeclass.curvature.evaluate()
             cc = shapeclass.conic.evaluate()
         else:
-            shapeclass = Asphere(curv=curv, cc=cc, acoeffs=asphereparams)
-        self.__obj.addProperty("App::PropertyFloat", "curv", "Shape", "central curvature").curv = curv
-        self.__obj.addProperty("App::PropertyFloat", "cc", "Shape", "conic constant").cc = cc
-        self.__obj.addProperty("App::PropertyFloatList", "asphereparams", "Shape", "aspherical corrections").asphereparams = asphereparams
+            shapeclass = Asphere.p(curv=curv, cc=cc, acoeffs=asphereparams)
+        self.__obj.addProperty("App::PropertyFloat", "curv", "Shape",
+                               "central curvature").curv = curv
+        self.__obj.addProperty("App::PropertyFloat", "cc", "Shape",
+                               "conic constant").cc = cc
+        self.__obj.addProperty("App::PropertyFloatList", "asphereparams",
+                               "Shape", "aspherical corrections").asphereparams = asphereparams
         self.__obj.shapeclass = shapeclass
 
     def initShExplicit(self, **kwargs):
-        # this function offers the flexibility to use function objects with tunable parameters
+        # this function offers the flexibility to use function objects
+        # with tunable parameters
         # TODO: implement
-        self.__obj.shapeclass = Conic(curv=0, cc=0)
+        self.__obj.shapeclass = Conic.p(curv=0, cc=0)
 
     # shape readout
 
@@ -215,16 +224,16 @@ class SurfaceObject(AbstractObserver):
     # shape writeback
 
     def writebackShConic(self, fp):
-        self.__obj.shapeclass.curvature.setvalue(fp.curv)
-        self.__obj.shapeclass.conic.setvalue(fp.cc)
+        self.__obj.shapeclass.curvature.set_value(fp.curv)
+        self.__obj.shapeclass.conic.set_value(fp.cc)
 
     def writebackShCylinder(self, fp):
-        self.__obj.shapeclass.curvature.setvalue(fp.curv)
-        self.__obj.shapeclass.conic.setvalue(fp.cc)
+        self.__obj.shapeclass.curvature.set_value(fp.curv)
+        self.__obj.shapeclass.conic.set_value(fp.cc)
 
     def writebackShAsphere(self, fp):
-        self.__obj.shapeclass.curvature.setvalue(fp.curv)
-        self.__obj.shapeclass.conic.setvalue(fp.cc)
+        self.__obj.shapeclass.curvature.set_value(fp.curv)
+        self.__obj.shapeclass.conic.set_value(fp.cc)
 
     def writebackShExplicit(self, fp):
         pass
@@ -232,7 +241,7 @@ class SurfaceObject(AbstractObserver):
     # aperture initialization
 
     def initApBase(self, **kwargs):
-        self.__obj.apertureclass = BaseAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC())
+        self.__obj.apertureclass = BaseAperture.p(self.__obj.LocalCoordinatesLink.Proxy.getLC())
 
     def initApCircular(self, semidiameter=1.0, tx=0., ty=0., **kwargs):
 
@@ -243,19 +252,22 @@ class SurfaceObject(AbstractObserver):
             tx = apclass.tx
             ty = apclass.ty
         else:
-            apclass = CircularAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC(), semidiameter=semidiameter, tx=tx, ty=ty)
+            apclass = CircularAperture.p(
+                self.__obj.LocalCoordinatesLink.Proxy.getLC(),
+                semidiameter=semidiameter, tx=tx, ty=ty)
 
-
-        self.__obj.addProperty("App::PropertyFloat", "semidiameter", "Aperture", "semidiameter").semidiameter = semidiameter
-        self.__obj.addProperty("App::PropertyFloat", "tx", "Aperture", "decentration x").tx = tx
-        self.__obj.addProperty("App::PropertyFloat", "ty", "Aperture", "decentration y").ty = ty
+        self.__obj.addProperty("App::PropertyFloat", "semidiameter",
+                               "Aperture", "semidiameter").semidiameter = semidiameter
+        self.__obj.addProperty("App::PropertyFloat", "tx",
+                               "Aperture", "decentration x").tx = tx
+        self.__obj.addProperty("App::PropertyFloat", "ty",
+                               "Aperture", "decentration y").ty = ty
 
         self.__obj.apertureclass = apclass
 
     def initApUserDefined(self, **kwargs):
-        self.__obj.apertureclass = BaseAperture(self.__obj.LocalCoordinatesLink.Proxy.getLC())
-
-
+        self.__obj.apertureclass = BaseAperture.p(
+            self.__obj.LocalCoordinatesLink.Proxy.getLC())
 
     def onChanged(self, fp, prop):
         FreeCAD.Console.PrintMessage("Changed Surface in GUI " + self.__obj.Name + "\n")
@@ -267,11 +279,12 @@ class SurfaceObject(AbstractObserver):
             # write back changed properties to underlying material
             self.writebackshapefunc[self.__obj.shapetype](fp)
 
-        #if prop in Aperture_GUIChangeableProperties:
-        #    self.writebackaperturefunc[self.__obj.aperturetype](fp)
+        # if prop in Aperture_GUIChangeableProperties:
+        #     self.writebackaperturefunc[self.__obj.aperturetype](fp)
 
     def inform_about_update(self):
         # override AbstractObserver method
-        FreeCAD.Console.PrintMessage("Changed Surface in Core " + self.__obj.Name + "\n")
+        FreeCAD.Console.PrintMessage("Changed Surface in Core "
+                                     + self.__obj.Name + "\n")
 
         self.readshapefunc[self.__obj.shapetype]()
