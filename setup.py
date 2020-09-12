@@ -2,7 +2,26 @@
 Setup pyrate optics.
 """
 
-from distutils.core import setup
+from setuptools import setup
+
+long_description="""\
+Pyrate - Optical Raytracing with Python
+-------------------------------------
+
+Supports:
+  - 3d arrangement of optical elements
+  - sequential raytracing (non sequential planned)
+  - isotropic media
+  - anisotropic media
+  - grin media
+  - dispersion relations of different types
+  - interface to refractive-index.info material data base
+  - optimization with different optimizers
+
+Works both with Python 2.7 and Python 3.5+.
+"""
+
+
 setup(
     name="pyrateoptics",
     packages=["pyrateoptics",
@@ -18,6 +37,8 @@ setup(
               "demos",
               "freecad",
               "freecad/PyrateWorkbench"],
+    package_data={"pyrateoptics/core/names": ["nouns.json",
+                                              "adjectives.json"]},
     include_package_data=True,
     install_requires=["numpy",
                       "scipy",
@@ -47,20 +68,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Scientific/Engineering :: Physics"
         ],
-    long_description="""\
-Pyrate - Optical Raytracing with Python
--------------------------------------
-
-Supports:
-  - 3d arrangement of optical elements
-  - sequential raytracing (non sequential planned)
-  - isotropic media
-  - anisotropic media
-  - grin media
-  - dispersion relations of different types
-  - interface to refractive-index.info material data base
-  - optimization with different optimizers
-
-Works both with Python 2.7 and Python 3.5+.
-"""
+    long_description=long_description
 )
