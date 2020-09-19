@@ -66,6 +66,14 @@ from the git repository:
     $ cd /to/directory/where/pyrate/cloned/git/repo/is
     $ pip install [-e] .
 
+In some Linux flavours exists a system wide Python installation
+for which it is not possible to install in the mentioned manner
+due to missing write access to the system directories.
+In this case it is recommended to use the `--user` flag for `pip` to
+avoid `sudo` or polluting the system wide `site-packages`.
+It is also recommended to use a more up-to-date Python installation
+via Anaconda or any other upgradable environments manager.
+
 Now you can import all the modules and functions as you wish.
 Since the raytracer itself is decoupled from the optimizer code,
 you may also optimize other problems without any relation to
