@@ -10,10 +10,70 @@ Optical Design with Python.
 
 ![pyrate screenshot2](https://cloud.githubusercontent.com/assets/12564815/21287091/7c56f076-c464-11e6-9cf9-5d623be63db6.png)
 
+Introduction
+---
+
 Our goal is to provide an easy to use optical raytracer for isotropic,
 homogeneous anisotropic and inhomogeneous isotropic GRIN media, which can
 mainly be controlled by a python script and which provides enough
 interface classes and functions to be integrated into a GUI.
+
+
+Requirements
+------------
+
+You need Python 2.7 or 3.x with NumPy, SciPy, Yaml, Sympy, and matplotlib installed to run pyrate.
+
+In Ubuntu, Mint and Debian you can use for Python 2.7
+
+    $ sudo apt-get install python python-numpy python-scipy python-matplotlib python-yaml python-sympy
+
+or
+
+    $ sudo apt-get install python3 python3-numpy python3-scipy python3-matplotlib python3-yaml python3-sympy
+
+for Python 3.x.
+If you want to run mypy on the project, you need also Python 3.x with mypy
+installed.
+
+In Ubuntu, Mint and Debian you can use:
+
+    $ sudo apt-get install python3 python3-pip
+    $ sudo pip3 install mypy-lang
+    $ sudo python3 -m pip install typed-ast
+
+
+Install
+---
+
+Clone the directory from the git repository:
+
+    $ git clone --recursive https://github.com/mess42/pyrate
+
+Notice, that we also linked the `refractiveindex.info` materials database
+and therefore, a recursive clone is recommended. If you already cloned without
+using the `--recursive` switch, please do:
+
+    $ cd /to/directory/where/pyrate/cloned/git/repo/is
+    $ git submodule init
+    $ git submodule update
+
+In order to use the provided modules and functions for your own optical
+investigations, please install the package via `pip install .` or
+for development via `pip install -e .` from the directory cloned
+from the git repository:
+
+    $ cd /to/directory/where/pyrate/cloned/git/repo/is
+    $ pip install [-e] .
+
+Now you can import all the modules and functions as you wish.
+Since the raytracer itself is decoupled from the optimizer code,
+you may also optimize other problems without any relation to
+optical engineering. For a small overview over the module structure
+see the following section.
+
+Overview
+---
 
 The code is divided into sub-modules which are more or less collections
 of classes for the appropriate tasks. The core functionality, the optimization code,
@@ -33,8 +93,9 @@ In the main directory you will find the following folders with their appropriate
 - `pyrateoptics` (this folder contains the main code of the package)
 - `tests` (here the tests are stored which are performed as part of the continous integration)
 
-Within the `pyrateoptics` folder there is an `__init__.py` file which provides some convenience functions
-as well as several sub folders which contain different parts of the core functionality.
+Within the `pyrateoptics` folder there is an `__init__.py` file which provides
+some convenience functions as well as several sub folders which contain different
+parts of the core functionality.
 
 - `core` (this folder contains all core functionality which is independent from the raytracer, i.e. management code and several base classes)
 - `optimize` (this folder contains the optimization logic and interface which is also independent from the raytracer)
@@ -42,24 +103,52 @@ as well as several sub folders which contain different parts of the core functio
 - `refractiveindex.info-database` (this is a sub module which contains a large database of optical material data)
 - `sampling2d` (this directory contains sampling code for a 2d area which is also needed for the raytracer)
 
-The `raytracer` folder contains several Python files and also three sub folders which are used to denote
-the parts of the functionality.
+The `raytracer` folder contains several Python files and also sub folders
+which are used to denote the parts of the functionality.
 
 - `analysis` (this folder is used to implement analysis classes which are used as interfaces to query any sub system and provide some sort of data for the user)
 - `io` (in this folder the in/out of external raytracer formats is collected)
 - `material` (in this folder the implemented material models including the propagation functions are located)
+- `config` (in this folder the config file `raytracer.yaml` is located, later)
 
-Install the package via `pip install pyrateoptics` or for development
-via `pip install -e .`. As a starting point, set up your initial system
-by using the convenience functions in the main namespace, see the wiki
-for an example.
+As a starting point, set up your initial system by using the convenience
+functions in the main namespace, see the wiki for an example.
 
 Use the `demo_*.py` files as a starting point for your investigations,
 these are mainly files which show what is pyrate able to do.
-It is also possible to use FreeCAD as a 3D interface (broken). Mainly the implementation uses
-wrapper codes to wrap the core functionality in a dialog and click & play manner.
-There is still no lens editor interface. At the moment you can only choose some demo
-directly in the sources.
+It is also possible to use FreeCAD as a 3D interface. Mainly the
+implementation uses wrapper codes to wrap the core functionality in a
+dialog and click & play manner. There is still no lens editor interface.
+At the moment you can only choose some demo directly in the sources.
+Therefore, the FreeCAD interface is in the status of a mockup.
+
+In order to simplify the use of the `refractiveindex.info` material
+database, a config file interface is provided. In the `raytracer.yaml`
+file there are two keys related to the database: a path and a flag
+which is true if the path is relative (wrt. the config file) and false if not.
+The location of config file is coded in a fixed manner, but the path to the
+database may be changed in the file. To obtain the correct paths, you may use
+something like:
+
+    >>> from pyrateoptics.raytracer.config import ConfigFile
+    >>> cfg = ConfigFile()
+    >>> cfg.get_refractive_index_database_path()
+
+which returns a proper path to the database. (In case the repo was
+cloned with sub modules updated, there is no need to change anything
+in the config file.) For getting the path to the config file, use
+this method (to, e.g., edit the correct one):
+
+    >>> cfg.get_config_file_path()
+
+For reloading the config file after editing, just call
+
+    >>> cfg.load_config_file()
+
+to update the internal dictionary.
+
+In the future there will be more properties of the raytracer added
+to the config file.
 
 Want to [contribute](CONTRIBUTING.md)?
 
@@ -75,8 +164,7 @@ Testing
 
 Perform the demos:
 
-    $ cd pyrate
-    $ python setup.py install --user
+    $ cd /to/directory/where/pyrate/git/repo/is
     $ python demos/demo_prism.py
 
 or perform directly in a script:
@@ -103,28 +191,6 @@ generated manually:
     >>> r = raytrace(s, seq, 21, {"radius": 9.0}) # trace again
     >>> draw(s, r) # show system + rays
 
-Requirements
-------------
-
-You need Python 2.7 or 3.x with NumPy, SciPy, Yaml, Sympy, and matplotlib installed to run pyrate.
-
-In Ubuntu, Mint and Debian you can use for Python 2.7
-
-    $ sudo apt-get install python python-numpy python-scipy python-matplotlib python-yaml python-sympy
-
-or
-
-    $ sudo apt-get install python3 python3-numpy python3-scipy python3-matplotlib python3-yaml python3-sympy
-
-for Python 3.x.
-If you want to run mypy on the project, you need also Python 3.x with mypy
-installed.
-
-In Ubuntu, Mint and Debian you can use:
-
-    $ sudo apt-get install python3 python3-pip
-    $ sudo pip3 install mypy-lang
-    $ sudo python3 -m pip install typed-ast
 
 FreeCAD Workbench
 -----------------
