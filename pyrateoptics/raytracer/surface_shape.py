@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import math
-import ctypes
 from distutils.version import StrictVersion
 
 import numpy as np
@@ -163,14 +162,24 @@ class Conic(Shape):
         Create rotationally symmetric surface
         with a conic cross section in the meridional plane.
 
+        Notice, for a, b being semiaxes of an rotational ellipsoid
+        (a in z direction, b in x, y direction), then:
+
+            R = 1/curv = b**2/a
+            cc = -1 + b**2/a**2,
+
+        a > b: prolate ellipsoid,
+        a < b: oblate ellipsoid,
+        a = b: sphere
+
         :param curv: Curvature of the surface (float).
         :param cc: Conic constant (float).
 
-        -1 < cc < 0 oblate rotational ellipsoid
+             cc < -1 rotational hyperbolic
+             cc = -1 rotational parabolic
+        -1 < cc < 0 prolate elliptic
              cc = 0 sphere
-         0 < cc < 1 prolate rotational ellipsoid
-             cc = 1 rotational paraboloid
-             cc > 1 rotational hyperboloid
+             cc > 0 oblate elliptic
         """
 
         curvature = FloatOptimizableVariable(FixedState(curv),
@@ -330,11 +339,11 @@ class Cylinder(Conic):
         :param curv: Curvature of the surface (float).
         :param cc: Conic constant (float).
 
-        -1 < cc < 0 oblate elliptic
+             cc < -1 hyperbolic
+             cc = -1 parabolic
+        -1 < cc < 0 prolate elliptic
              cc = 0 sphere
-         0 < cc < 1 prolate elliptic
-             cc = 1 parabolic
-             cc > 1 hyperbolic
+             cc > 0 oblate elliptic
         """
 
         curvature = FloatOptimizableVariable(FixedState(curv),
@@ -358,7 +367,7 @@ class Cylinder(Conic):
         :return sag: (float or 1d numpy array of floats)
         """
 
-        return self.conic_function( rsquared = y**2 )
+        return self.conic_function(rsquared=y**2)
 
     def intersect(self, raybundle):
 
@@ -1160,7 +1169,9 @@ if __name__ == "__main__":
     from .localcoordinates import LocalCoordinates
     import matplotlib.pyplot as plt
 
-    sz = ZernikeFringe(lc)
+    lc = LocalCoordinates.p()
+
+    sz = ZernikeFringe.p(lc)
 
     for ind in (np.array(list(range(36)))+1).tolist():
         print(ind, sz.jtonm(ind), sz.nmtoj(sz.jtonm(ind)))
