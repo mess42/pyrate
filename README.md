@@ -141,6 +141,7 @@ something like:
     >>> from pyrateoptics.raytracer.config import ConfigFile
     >>> cfg = ConfigFile()
     >>> cfg.get_refractive_index_database_path()
+    '/to/directory/where/pyrate/cloned/git/repo/is/pyrateoptics/refractiveindex.info-database'
 
 which returns a proper path to the database. (In case the repo was
 cloned with sub modules updated, there is no need to change anything
@@ -148,6 +149,7 @@ in the config file.) For getting the path to the config file, use
 this method (to, e.g., edit the correct one):
 
     >>> cfg.get_config_file_path()
+    '/to/directory/where/pyrate/cloned/git/repo/is/pyrateoptics/raytracer/config/raytracer.yaml'
 
 For reloading the config file after editing, just call
 
@@ -158,16 +160,7 @@ to update the internal dictionary.
 In the future there will be more properties of the raytracer added
 to the config file.
 
-Want to [contribute](CONTRIBUTING.md)?
-
-Pyrate in the public
----
-
-- In a class project where pyrate is used to train a neural network for imaging of an optical system: https://github.com/teaghan/ML_with_Pyrate
-- In a paper about optimization algorithms in optics [Open-source optimization algorithms for optical design](https://www.sciencedirect.com/science/article/pii/S0030402618315821) (behind a pay-wall, only mentioned)
-- In another class project where pyrate is used to provide an optimizer frontend to test several optimization strategies for optical systems https://github.com/LeErnst/ProjectCSE
-
-Testing
+Playing around
 ---
 
 Perform the demos:
@@ -215,10 +208,32 @@ Another way to install the workbench without AddonManager is to copy or link
 the actual pyrate directory into `.FreeCAD/Mod/pyrate` or the corresponding
 user directory in Windows. This is in particular useful for developing.
 
-TODO: update windows sections. (pip for Python2.7 not available for windows)
+Pyrate in the public
+---
+
+- In a class project where pyrate is used to train a neural network for imaging of an optical system: https://github.com/teaghan/ML_with_Pyrate
+- In a paper about optimization algorithms in optics [Open-source optimization algorithms for optical design](https://www.sciencedirect.com/science/article/pii/S0030402618315821) (behind a pay-wall, only mentioned)
+- In another class project where pyrate is used to provide an optimizer frontend to test several optimization strategies for optical systems https://github.com/LeErnst/ProjectCSE
+
+Contributing
+---
+
+Want to [contribute](CONTRIBUTING.md)?
+
+Communication
+---
+
+For providing bug reports or asking questions, you may just open
+an issue on github.
+
+Visit us on freenode (ports 6697, 7000, 7070 for SSL)
+channel #pyrate for some real time communication.
+
 
 Additional Notes for Windows 32 (obsolete and untested)
 -----------------------------------------
+
+TODO: update windows sections. (pip for Python2.7 not available for windows)
 
 For win32 you have to take care of additional scipy support:
 According to http://forum.freecadweb.org/viewtopic.php?f=4&t=20674 it is possible to
@@ -258,8 +273,3 @@ For win64 you also need to take care of additional scipy support:
 
 Please test this workflow. If there is anything incorrect, please file an issue.
 
-IRC
----
-
-
-Visit us on freenode (ports 6697, 7000, 7070 for SSL) channel #pyrate for some real time communication.
