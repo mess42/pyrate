@@ -25,9 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import logging
+import errno
 import os
 import yaml
 import pprint
+import shutil
 
 try:
     import pkg_resources
@@ -60,29 +62,135 @@ class ConfigFile:
         None.
 
         """
-        self.KEY_REFRACTIVE_INDEX_DB_PATH = "refractive_index_info_path_string"
-        self.KEY_REFRACTIVE_INDEX_DB_IS_RELATIVE = "refractive_index_info_path_is_relative"
-
-        self.relative_path_to_config = "config/raytracer.yaml"
-        self.raw_config_dict = {}
-        self.use_resource = config_filename is None
-
-        if self.use_resource:
-            self.raw_config_path = ""
-        else:
-            self.raw_config_path = config_filename
 
         if logger is None:
             self.logger = logging.getLogger(name="ConfigFile")
         else:
             self.logger = logger
 
-        self.load_config_file()
+        self.KEY_REFRACTIVE_INDEX_DB_PATH = "refractive_index_info_path_string"
+        self.KEY_REFRACTIVE_INDEX_DB_IS_RELATIVE = "refractive_index_info_path_is_relative"
 
-    def load_config_file(self):
+        self.relative_path_to_config_template = "config/raytracer.yaml"
+        self.raw_config_dict = {}  # initial value
+        self.raw_config_path = ""  # initial value
+        self.raw_template_config_path = ""  # initial value
+
+        # Generate config file in home directory
+        # from template config file in package
+        # if no config file exists there
+        self.create_config_file_in_home_directory()
+
+        # load config from
+        # 1. home directory
+        # 2. template in package
+        # 3. user provided path in config_filename
+        self.load_config_file(config_filename)
+
+    def create_config_file_in_home_directory(self):
+        """
+        Creates config file in home directory. Should be OS agnostic.
+
+        Raises
+        ------
+        exc
+            Raises exception if OSError is not "file exists".
+
+        Returns
+        -------
+        None.
+
+        """
+        self.home_directory_path_to_config = os.path.join(
+            os.path.expanduser("~"),
+            ".config/pyrate/raytracer.yaml")
+        self.logger.info("Creating config directory in\n" +
+                         self.home_directory_path_to_config)
+        try:
+            os.makedirs(os.path.dirname(self.home_directory_path_to_config))
+        except OSError as exc:  # maintains Python 2 compatibility
+            if exc.errno == errno.EEXIST:
+                self.logger.warning("Config file directory in home directory already exists")
+            else:
+                self.logger.error("Other OS Errror occured")
+                raise exc
+        (raw_config_dict_template, raw_config_template_path) =\
+            self.read_config_file()
+        if not os.path.isfile(self.home_directory_path_to_config):
+            self.logger.info("Config file does not exist. Creating.")
+            shutil.copy(raw_config_template_path,
+                        self.home_directory_path_to_config)
+        else:
+            self.logger.warning("Config file already exist. Make sure it is" +
+                                "not out of date.")
+            # TODO: check target config if it exists and contains
+            # the same keys as in the template
+            # with open(self.home_directory_path_to_config, "wt")\
+            #     as file_home_config:
+            #     yaml.dump(raw_config_dict_template, file_home_config)
+
+    def get_template_config_file_path(self):
+        self.logger.info("Using resource template.")
+        if not pkg_resources_import_failed:
+            self.logger.info("Using pkg_resources for resource extraction.")
+            raw_config_path = pkg_resources.resource_filename(
+                "pyrateoptics.raytracer",
+                self.relative_path_to_config_template)
+        else:
+            self.logger.info("Using relative path names for resource extraction")
+            filepath = os.path.dirname(__file__)
+            raw_config_path = os.path.join(
+                filepath, self.relative_path_to_config_template)
+        return raw_config_path
+
+
+    def read_config_file(self, config_filename=None):
+        """
+        Reads config file either from template resource or from
+        user defined path.
+
+        Parameters
+        ----------
+        config_filename : str, optional
+            Path to config file. The default is None.
+
+        Returns
+        -------
+        raw_config_dict : dict
+            Dictionary with config items.
+        raw_config_path : str
+            Path to config file.
+
+        """
+
+        self.logger.info("Reading config file.")
+        raw_config_path = ""
+        if config_filename is None:
+            raw_config_path = self.get_template_config_file_path()
+        else:
+            raw_config_path = config_filename
+            self.logger.info("Using \"" + raw_config_path + "\".")
+
+        raw_config_dict = {}
+        try:
+            with open(raw_config_path, "rt") as file_config:
+                raw_config_dict = yaml.safe_load(file_config)
+        except FileNotFoundError:
+            self.logger.error("Config file \"" +
+                              raw_config_path +
+                              "\" not found.")
+        return (raw_config_dict, raw_config_path)
+
+
+    def load_config_file(self, config_filename=None):
         """
         Generates path for config file. Outputs raw dictionary of config
         values.
+
+        Parameters
+        ----------
+        config_filename : str, optional
+            Path to config file. The default is None.
 
         Returns
         -------
@@ -91,28 +199,20 @@ class ConfigFile:
         """
         self.logger.info("Loading config file.")
 
-        if self.use_resource:
-            self.logger.info("Using internal one.")
-            if not pkg_resources_import_failed:
-                self.logger.info("Using pkg_resources for resource extraction.")
-                self.raw_config_path = pkg_resources.resource_filename(
-                    "pyrateoptics.raytracer",
-                    self.relative_path_to_config)
-            else:
-                self.logger.info("Using relative path names for resource extraction")
-                filepath = os.path.dirname(__file__)
-                self.raw_config_path = filepath + "/" +\
-                    self.relative_path_to_config
-        else:
-            self.logger.info("Using external one.")
 
-        try:
-            with open(self.raw_config_path, "rt") as file_config:
-                self.raw_config_dict = yaml.safe_load(file_config)
-        except FileNotFoundError:
-            self.logger.error("Config file \"" +
-                              self.get_config_file_path() +
-                              "\" not found.")
+        if config_filename is None:
+            if os.path.isfile(self.home_directory_path_to_config):
+                self.logger.info("... from home directory.")
+                dict_and_path = self.read_config_file(
+                    config_filename=self.home_directory_path_to_config)
+            else:
+                self.logger.info("... from resource template.")
+                dict_and_path = self.read_config_file()
+        else:
+            self.logger.info("... from \"" + config_filename + "\".")
+            dict_and_path = self.read_config_file(config_filename=config_filename)
+
+        (self.raw_config_dict, self.raw_config_path) = dict_and_path
 
         self.logger.info("\n\n" + pprint.pformat(self.raw_config_dict) + "\n\n")
 
@@ -143,7 +243,7 @@ class ConfigFile:
             is_db_path_relative =\
                 self.raw_config_dict[self.KEY_REFRACTIVE_INDEX_DB_IS_RELATIVE]
             if is_db_path_relative:
-                strip_file_name = os.path.dirname(self.get_config_file_path())
+                strip_file_name = os.path.dirname(self.get_template_config_file_path())
                 final_path =\
                     strip_file_name + "/" +\
                     self.raw_config_dict[self.KEY_REFRACTIVE_INDEX_DB_PATH]
