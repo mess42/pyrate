@@ -1,6 +1,7 @@
 ---
 # provide path string, where config class generates a fully valid string from it
-refractive_index_info_path_string: ../../refractiveindex.info-database/
-# is path string above relative to config file?
-refractive_index_info_path_is_relative: True
+refractive_index_path_string: ../../refractiveindex.info-database/
+# is path string relative to the config file template
+# in Python package?
+refractive_index_path_is_relative: True
 ...

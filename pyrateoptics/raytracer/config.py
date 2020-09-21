@@ -68,8 +68,14 @@ class ConfigFile:
         else:
             self.logger = logger
 
-        self.KEY_REFRACTIVE_INDEX_DB_PATH = "refractive_index_info_path_string"
-        self.KEY_REFRACTIVE_INDEX_DB_IS_RELATIVE = "refractive_index_info_path_is_relative"
+        (self.KEY_REFRACTIVE_INDEX_DB_PATH,
+        self.KEY_REFRACTIVE_INDEX_DB_IS_RELATIVE) =\
+        ("refractive_index_path_string",
+         "refractive_index_path_is_relative")
+
+        self.mandatory_keys = (self.KEY_REFRACTIVE_INDEX_DB_IS_RELATIVE,
+                               self.KEY_REFRACTIVE_INDEX_DB_PATH)
+
 
         self.relative_path_to_config_template = "config/raytracer.yaml"
         self.raw_config_dict = {}  # initial value
@@ -104,44 +110,39 @@ class ConfigFile:
         self.home_directory_path_to_config = os.path.join(
             os.path.expanduser("~"),
             ".config/pyrate/raytracer.yaml")
-        self.logger.info("Creating config directory in\n" +
-                         self.home_directory_path_to_config)
+        self.logger.debug("Creating config directory in\n" +
+                          self.home_directory_path_to_config)
         try:
             os.makedirs(os.path.dirname(self.home_directory_path_to_config))
         except OSError as exc:  # maintains Python 2 compatibility
             if exc.errno == errno.EEXIST:
-                self.logger.warning("Config file directory in home directory already exists")
+                self.logger.debug("Config directory in home directory already exists")
             else:
-                self.logger.error("Other OS Errror occured")
+                self.logger.error("Other OS error occured")
                 raise exc
         (raw_config_dict_template, raw_config_template_path) =\
             self.read_config_file()
         if not os.path.isfile(self.home_directory_path_to_config):
-            self.logger.info("Config file does not exist. Creating.")
+            self.logger.debug("Config file does not exist. Creating.")
             shutil.copy(raw_config_template_path,
                         self.home_directory_path_to_config)
         else:
-            self.logger.warning("Config file already exist. Make sure it is" +
-                                "not out of date.")
-            # TODO: check target config if it exists and contains
-            # the same keys as in the template
-            # with open(self.home_directory_path_to_config, "wt")\
-            #     as file_home_config:
-            #     yaml.dump(raw_config_dict_template, file_home_config)
+            self.logger.debug("Config file already exist. Make sure it is" +
+                              "not out of date.")
 
     def get_template_config_file_path(self):
-        self.logger.info("Using resource template.")
+        self.logger.debug("Using resource template.")
         if not pkg_resources_import_failed:
-            self.logger.info("Using pkg_resources for resource extraction.")
-            raw_config_path = pkg_resources.resource_filename(
+            self.logger.debug("Using pkg_resources for resource extraction.")
+            template_config_path = pkg_resources.resource_filename(
                 "pyrateoptics.raytracer",
                 self.relative_path_to_config_template)
         else:
-            self.logger.info("Using relative path names for resource extraction")
+            self.logger.debug("Using relative path names for resource extraction")
             filepath = os.path.dirname(__file__)
-            raw_config_path = os.path.join(
+            template_config_path = os.path.join(
                 filepath, self.relative_path_to_config_template)
-        return raw_config_path
+        return template_config_path
 
 
     def read_config_file(self, config_filename=None):
@@ -163,13 +164,12 @@ class ConfigFile:
 
         """
 
-        self.logger.info("Reading config file.")
+        self.logger.debug("Reading config file.")
         raw_config_path = ""
         if config_filename is None:
             raw_config_path = self.get_template_config_file_path()
         else:
             raw_config_path = config_filename
-            self.logger.info("Using \"" + raw_config_path + "\".")
 
         raw_config_dict = {}
         try:
@@ -206,6 +206,8 @@ class ConfigFile:
                 dict_and_path = self.read_config_file(
                     config_filename=self.home_directory_path_to_config)
             else:
+                # if generation of home directory config failed for
+                # some reason
                 self.logger.info("... from resource template.")
                 dict_and_path = self.read_config_file()
         else:
@@ -213,8 +215,25 @@ class ConfigFile:
             dict_and_path = self.read_config_file(config_filename=config_filename)
 
         (self.raw_config_dict, self.raw_config_path) = dict_and_path
+        keys_in_dict = [(mandatory_key, mandatory_key in self.raw_config_dict)
+                        for mandatory_key in self.mandatory_keys]
+        if any([not is_there for (_, is_there) in keys_in_dict]):
+            mys = "\n"
+            for (key, is_there) in keys_in_dict:
+                mys += "key: " + key + " " + ("" if is_there else "not ") +\
+                    "found\n"
+            mys += "\n"
+            self.logger.error("Some mandatory keywords not" +
+                              " found in config file:\n" +
+                              mys +
+                              "Expect problems! Compare your config\n" +
+                              self.raw_config_path + "\n"
+                              "with config template\n" +
+                              self.get_template_config_file_path() + "\n" +
+                              "and insert missing keys according to your" +
+                              " desires.")
 
-        self.logger.info("\n\n" + pprint.pformat(self.raw_config_dict) + "\n\n")
+        self.logger.debug("\n\n" + pprint.pformat(self.raw_config_dict) + "\n\n")
 
     def get_config_file_path(self):
         """
