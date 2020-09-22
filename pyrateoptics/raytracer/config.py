@@ -253,7 +253,20 @@ class ConfigFile:
         Returns
         -------
         str
-            Absolute proper path to refractive index database.
+            Absolute proper path to refractive index database directory.
+
+        """
+        return os.path.join(self.get_refractive_index_main_path(),
+                            "database")
+
+    def get_refractive_index_main_path(self):
+        """
+
+
+        Returns
+        -------
+        str
+            Absolute proper path to refractive index main directory.
 
         """
         if all([key in self.raw_config_dict
