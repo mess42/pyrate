@@ -535,14 +535,16 @@ class CatalogMaterial(IsotropicMaterial):
 
 if __name__ == "__main__":
 
+    from pyrateoptics.raytracer.config import ConfigFile
+
     def main():
         "main function for demo purposes"
-        database_basepath = "refractiveindex.info-database/database"
+
         shelf = "glass"
         book = "BK7"
         page = "SCHOTT"
 
-        gcat = GlassCatalog(database_basepath)
+        gcat = GlassCatalog(ConfigFile().get_refractive_index_database_path())
 
         print("Shelves:", gcat.get_shelves())
         print("")
