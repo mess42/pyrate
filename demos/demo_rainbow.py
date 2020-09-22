@@ -46,6 +46,7 @@ from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.core.base_ui import UIInterfaceClassWithOptimizableVariables
 from pyrateoptics.core.serializer import Serializer
 
+from pyrateoptics.raytracer.config import ConfigFile
 
 from pyrateoptics.raytracer.globalconstants import degree
 from pyrateoptics import raytrace, draw
@@ -99,19 +100,19 @@ image = Surface.p(lc4,
 elem = OpticalElement.p(lc0, name="droplet")
 
 
-database_basepath = "refractiveindex.info-database/database"
 shelf = "3d"
 book = "liquids"
 page = "water"
 
 try:
-    gcat = GlassCatalog(database_basepath)
+    gcat = GlassCatalog(ConfigFile().get_refractive_index_database_path())
     waterdict = gcat.get_material_dict(shelf, book, page)
     water = CatalogMaterial.p(lc0, waterdict, name="water (catalogue)")
-except KeyError:
-    logging.warning("refractive index database not found. please download it\
-                     and symlink\nto it in your local pyrate directory")
+except KeyError:  # TODO: this is maybe not the right way to catch the errors.
+    logging.warning("Refractive index database not found. See README.md file " +
+                    "on how to obtain it together with Pyrate.")
     water = ConstantIndexGlass.p(lc0, n=1.336, name="water (failsafe)")
+
 
 logging.info("wavelength %f, index %f" %
              (wave_red, water.get_optical_index(None, wave_red).real))

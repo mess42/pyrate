@@ -138,8 +138,9 @@ The location of config file is coded in a fixed manner, but the path to the
 database may be changed in the file.
 
 The file is copied to the home directory into
-the folder `/home/user/.config/pyrate/raytracer.yaml` if it does
-not exist. The file is searched within the following locations:
+the folder `/home/user/.config/pyrate/raytracer.yaml` (or
+`c:\Users\user\.config\pyrate\raytracer.yaml`)
+if it does not exist. The file is searched within the following locations:
 
 - home directory `/home/user/.config/pyrate/`
 - config template directory `/to/directory/where/pyrate/cloned/git/repo/is/pyrateoptics/raytracer/config/`

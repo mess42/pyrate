@@ -77,7 +77,8 @@ class ConfigFile:
                                self.KEY_REFRACTIVE_INDEX_DB_PATH)
 
 
-        self.relative_path_to_config_template = "config/raytracer.yaml"
+        self.relative_path_to_config_template = os.path.join("config",
+                                                             "raytracer.yaml")
         self.raw_config_dict = {}  # initial value
         self.raw_config_path = ""  # initial value
         self.raw_template_config_path = ""  # initial value
@@ -109,7 +110,7 @@ class ConfigFile:
         """
         self.home_directory_path_to_config = os.path.join(
             os.path.expanduser("~"),
-            ".config/pyrate/raytracer.yaml")
+            ".config", "pyrate", "raytracer.yaml")
         self.logger.debug("Creating config directory in\n" +
                           self.home_directory_path_to_config)
         try:
@@ -277,8 +278,9 @@ class ConfigFile:
             if is_db_path_relative:
                 strip_file_name = os.path.dirname(self.get_template_config_file_path())
                 final_path =\
-                    strip_file_name + "/" +\
-                    self.raw_config_dict[self.KEY_REFRACTIVE_INDEX_DB_PATH]
+                    os.path.join(
+                        strip_file_name,
+                        self.raw_config_dict[self.KEY_REFRACTIVE_INDEX_DB_PATH])
             else:
                 final_path =\
                     self.raw_config_dict[self.KEY_REFRACTIVE_INDEX_DB_PATH]
