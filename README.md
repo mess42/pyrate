@@ -135,15 +135,29 @@ database, a config file interface is provided. In the `raytracer.yaml`
 file there are two keys related to the database: a path and a flag
 which is true if the path is relative (wrt. the config file) and false if not.
 The location of config file is coded in a fixed manner, but the path to the
-database may be changed in the file. To obtain the correct paths, you may use
-something like:
+database may be changed in the file.
+
+The file is copied to the home directory into
+the folder `/home/user/.config/pyrate/raytracer.yaml` if it does
+not exist. The file is searched within the following locations:
+
+- home directory `/home/user/.config/pyrate/`
+- config template directory `/to/directory/where/pyrate/cloned/git/repo/is/pyrateoptics/raytracer/config/`
+- user defined path provided as parameter to the `ConfigFile()` constructor
+
+Notice, that the second option is not really an option, since this only
+happens if copying to the home directory fails and the file is not found
+there. In contrast, overriding the home directory by a user defined path
+is always possible.
+
+To obtain the correct path for the database, you may use:
 
     >>> from pyrateoptics.raytracer.config import ConfigFile
     >>> cfg = ConfigFile()
     >>> cfg.get_refractive_index_database_path()
-    '/to/directory/where/pyrate/cloned/git/repo/is/pyrateoptics/refractiveindex.info-database'
+    '/to/directory/where/pyrate/cloned/git/repo/is/pyrateoptics/refractiveindex.info-database/database'
 
-which returns a proper path to the database. (In case the repo was
+which returns a proper path. (In case the repo was
 cloned with sub modules updated, there is no need to change anything
 in the config file.) For getting the path to the config file, use
 this method (to, e.g., edit the correct one):
@@ -155,10 +169,12 @@ For reloading the config file after editing, just call
 
     >>> cfg.load_config_file()
 
-to update the internal dictionary.
+to update the internal dictionary `cfg.raw_config_dict`.
+It is planned that the `ConfigFile` class provides easy access
+to all stuff from the config file, not just the raw dictionary.
 
 In the future there will be more properties of the raytracer added
-to the config file.
+to the config file, like, e.g., standard values for drawing.
 
 Playing around
 ---
