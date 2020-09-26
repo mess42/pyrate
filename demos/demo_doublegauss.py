@@ -51,9 +51,11 @@ from pyrateoptics.raytracer.globalconstants import Fline, dline, Cline
 from pyrateoptics.raytracer.ray import RayBundle
 from pyrateoptics.raytracer.analysis.ray_analysis import RayBundleAnalysis
 
+from pyrateoptics.raytracer.config import ConfigFile
+
 logging.basicConfig(level=logging.INFO)
 
-db_path = "refractiveindex.info-database/database"
+db_path = ConfigFile().get_refractive_index_database_path()
 serialization_path = "serialization_stuff/"
 
 # drawing parameters

@@ -35,14 +35,13 @@ from pyrateoptics.raytracer.globalconstants import standard_wavelength, degree
 from pyrateoptics.raytracer.analysis.optical_system_analysis import\
     OpticalSystemAnalysis
 
+from pyrateoptics.raytracer.config import ConfigFile
 
 logging.basicConfig(level=logging.INFO)
 
 wavelength = standard_wavelength
 
 # definition of optical system
-
-db_path = "refractiveindex.info-database/database"
 
 (s, seq) = build_rotationally_symmetric_optical_system(
         [(-5.922, 0, 2.0, 1.7, "surf1", {}),
@@ -53,7 +52,7 @@ db_path = "refractiveindex.info-database/database"
          (3.125, 0, 2.0, 1.5, "surf5", {}),
          (1.479, 0, 3.0, None, "surf6", {}),
          (0, 0, 19.0, None, "surf7", {})
-         ], material_db_path=db_path)
+         ], material_db_path=ConfigFile().get_refractive_index_database_path())
 
 
 def mytiming():
