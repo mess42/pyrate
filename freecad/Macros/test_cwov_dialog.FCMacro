@@ -5,9 +5,9 @@ from pyrateoptics.raytracer.surface_shape import Conic
 from freecad.PyrateWorkbench.TaskPanel_ClassWithOptimizableVariables_Edit import ClassWithOptimizableVariablesTaskPanelEdit
 
 
-lc = LocalCoordinates()
+lc = LocalCoordinates.p()
 fo = FunctionObject("f = lambda x, y: x + y", ["f"])
-sh = Conic(lc, curv=0, cc=-1)
+sh = Conic.p(lc, curv=0, cc=-1)
 
 lc.decx.set_value(1.0)
 lc.decy.set_value(2.0)
