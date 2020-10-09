@@ -52,7 +52,10 @@ class IsotropicMaterialTIR(IsotropicMaterial):
             raybundle.k[0, :, :]**2.0, axis=0))[None, ...])
 
         index_before = normk
-        index_after = np.real(self.get_optical_index(0, wave=raybundle.wave))\
+        index_after = np.real(
+            self.get_optical_index(
+                np.zeros((3, 1)),
+                wave=raybundle.wave)) \
             * np.ones(normk.shape)  # FIXME: 0 is not valid xposition!
 
         # positive, need ray pointing away from surface
