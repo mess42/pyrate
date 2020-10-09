@@ -202,7 +202,7 @@ class Conic(Shape):
         :return sag: (float or 1d numpy array of floats)
         """
 
-        return self.conic_function( rsquared = x**2 + y**2 )
+        return self.conic_function(x**2 + y**2)
 
     def conic_function(self, rsquared):
         """
@@ -215,7 +215,7 @@ class Conic(Shape):
 
         return z
 
-    def getGrad(self, x,y):
+    def getGrad(self, x, y):
         """
         normal on a rotational symmetric conic section.
         :param x: x coordinates on the conic surface (float or 1d numpy array of floats)
@@ -229,10 +229,7 @@ class Conic(Shape):
 
         # gradient calculated from -1/2(1+cc)c z^2 + z -1/2 c (x^2 + y^2) = 0
 
-        gradient = np.zeros((3,len(x)), dtype=float)
-        gradient[0] = -curv * x
-        gradient[1] = -curv * y
-        gradient[2] = 1 - curv * z * ( 1 + cc )
+        gradient = np.vstack((-curv * x, -curv * y, 1. - curv * z * (1 + cc)))
 
         return gradient
 
