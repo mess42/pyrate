@@ -211,7 +211,9 @@ class Conic(Shape):
         :return z: sag (float or 1d numpy array of floats)
         """
         sqrtterm = 1 - (1+self.conic.evaluate()) * self.curvature.evaluate()**2 * rsquared
-        z =  self.curvature.evaluate() * rsquared / (1 + np.sqrt(sqrtterm))
+        rsquared[sqrtterm <= 0.] = 0.  # TODO: or np.nan?
+        sqrtterm[sqrtterm <= 0.] = 0.
+        z = self.curvature.evaluate() * rsquared / (1 + np.sqrt(sqrtterm))
 
         return z
 
