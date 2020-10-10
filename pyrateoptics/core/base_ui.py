@@ -114,7 +114,7 @@ class UIInterfaceClassWithOptimizableVariables(BaseLogger):
         experience.
         """
         if transform_dictionary_value is None:
-            transform_dictionary_value = transformation_dictionary_to_ui
+            transform_dictionary_value = TRANSFORMATION_DICTIONARY_TO_UI
         if transform_dictionary_strings is None:
             transform_dictionary_strings = TRANSFORMATION_DICTIONARY_UI_STRING
         # prevent modification
