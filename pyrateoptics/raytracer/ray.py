@@ -168,7 +168,9 @@ class RayBundle(object):
 
         ez = np.cross(plane_normal, up)
 
-        (num_points, num_dims, num_rays) = np.shape(self.x)
+        x = np.real(self.x)  # x values should be real
+
+        (num_points, num_dims, num_rays) = np.shape(x)
 
         if num_rays == 0:
             return
@@ -178,7 +180,7 @@ class RayBundle(object):
         ez = np.repeat(ez[:, np.newaxis], num_rays, axis=1)
         up = np.repeat(up[:, np.newaxis], num_rays, axis=1)
 
-        ptlist = [self.x[i] for i in np.arange(num_points)]
+        ptlist = [x[i] for i in np.arange(num_points)]
         validity = [self.valid[i] for i in np.arange(num_points)]
 
         for (pt1, pt2, todraw) in zip(ptlist[1:], ptlist[:-1], validity[1:]):
@@ -197,6 +199,7 @@ class RayBundle(object):
 
             y = np.vstack((ypt1, ypt2))[:, todraw]
             z = np.vstack((zpt1, zpt2))[:, todraw]
+
             ax.plot(z, y, color=color, **kwargs)
 
 
