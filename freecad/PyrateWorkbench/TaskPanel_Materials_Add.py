@@ -81,7 +81,7 @@ class MaterialsTaskPanelAdd:
         self.form.comboBoxLocalCoordinates.addItems(lcobjectslabels)
 
         # TODO: check whether glasscatalog exists and if not,
-        # disable page4 of dialog
+        # disable page4 and page5 of dialog
 
         self.form.comboBox_FO_N.addItems(fnobjectslabels)
         self.form.comboBox_FO_Nx.addItems(fnobjectslabels)
@@ -97,6 +97,24 @@ class MaterialsTaskPanelAdd:
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Nx, self.form.comboBox_FOf_Nx)
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Ny, self.form.comboBox_FOf_Ny)
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Nz, self.form.comboBox_FOf_Nz)
+
+        self.form.pushButtonSearch.clicked.connect(self.onClickedSearchButton)
+        self.form.comboBoxCandidates.currentIndexChanged(
+            self.onCurrentIndexChangedCandidates)
+
+    def onClickedSearchButton(self):
+        searchtext = self.form.lineEditSearch.text()
+        if searchtext.strip():
+            self.form.comboBoxCandidates.clear()
+            self.form.comboBoxCandidates.addItems(
+                [longname
+                    for longname in self.glasscatalog.get_dict_of_long_names()
+                    if searchtext in longname])
+
+    def onCurrentIndexChangedCandidates(self, index):
+        longname = self.form.comboBoxCandidates.currentText()
+        if longname:
+            pass
 
     def onCurrentIndexChangedShelf(self, index):
         shelf = self.form.comboBox_Shelf.currentText()
