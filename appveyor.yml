@@ -18,8 +18,6 @@ install:
   - conda update -q conda
   - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy matplotlib pytest"
   - activate test-environment
-  - pip install -U --user pip pip-tools
-  - pip-compile                       # requirements.in -> requirements.txt
   - pip install -r requirements.in   # install pyrate dependences
 
 test_script:
