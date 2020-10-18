@@ -12,6 +12,8 @@ install:
   - pip install -U pip pip-tools setuptools
   - pip-compile                       # requirements.in -> requirements.txt
   - pip install -r requirements.in  # install pyrate dependences
+  - pip install nose2[coverage_plugin] # coverage plugin (does not seem to
+                                       # to work with requirements.in ???)
 script:
   - python -m nose2 --with-coverage --cover-package=pyrateoptics tests.smoke_test
 after_success:
