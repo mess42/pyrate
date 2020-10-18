@@ -32,8 +32,7 @@ from PySide.QtGui import QLineEdit, QInputDialog
 from .TaskPanel_Materials_Add import MaterialsTaskPanelAdd
 from .Object_MaterialCatalogue import MaterialCatalogueObject
 
-from .Interface_Checks import *
-from .Interface_Identifiers import *
+from .Interface_Identifiers import Title_MessageBoxes
 
 
 class CreateMaterialsTool:
@@ -81,7 +80,9 @@ class CreateMaterialsCatalogueTool:
 
         doc = FreeCAD.ActiveDocument
 
-        (text, ok) = QInputDialog.getText(None, Title_MessageBoxes, "Name for material catalogue?", QLineEdit.Normal)
+        (text, ok) = QInputDialog.getText(None, Title_MessageBoxes,
+                                          "Name for material catalogue?",
+                                          QLineEdit.Normal)
 
         if text and ok:
             MaterialCatalogueObject(doc, text)

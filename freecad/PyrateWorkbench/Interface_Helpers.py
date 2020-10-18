@@ -34,7 +34,8 @@ import os
 from .Interface_Checks import (isOpticalSystemObserver,
                                isFunctionsObject,
                                isMaterialCatalogue,
-                               isMaterial)
+                               isMaterial,
+                               isLocalCoordinatesObserver)
 
 
 # general
@@ -59,11 +60,20 @@ def getOpticalSystemObservers(doc, name):
 
 # collect function objects
 
+def getObjectByLabel(doc, name):
+    objs = doc.getObjectsByLabel(name)
+    if len(objs) > 1:
+        return objs[0]
+    else:
+        return None
 
 def getFunctionObjectsSubgroupFromOpticalSystemObserver(doc, os):
     fngroupname = os.NameFunctionsGroup
     fngroup = doc.getObject(fngroupname)
     return fngroup
+
+def getAllLocalCoordinates(doc):
+    return [obj for obj in doc.Objects if isLocalCoordinatesObserver(obj)]
 
 
 def getFunctionObjectsFromOpticalSystemObserver(doc, os):

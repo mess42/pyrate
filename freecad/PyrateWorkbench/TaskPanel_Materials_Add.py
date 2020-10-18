@@ -24,11 +24,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+from pprint import pformat
+
+from pyrateoptics.raytracer.config import ConfigFile
+from pyrateoptics.raytracer.material.material_glasscat import GlassCatalog
+
 import FreeCADGui
 
-from .Interface_Helpers import *
-from .Interface_Checks import *
-from .Interface_Identifiers import *
+from .Interface_Helpers import (getRelativeFilePath,
+                                getAllFunctionObjects,
+                                getAllMaterialCatalogues,
+                                getAllLocalCoordinates,
+                                getObjectByLabel)
+from .Interface_Identifiers import (Material_ConstantIndexGlass,
+                                    Material_ModelGlass,
+                                    Material_GrinMedium,
+                                    Material_CatalogMaterial,
+                                    Material_GUI_TaskPanel_Add_TabWidget)
 
 from .Object_Material import MaterialObject
 
@@ -37,20 +49,39 @@ class MaterialsTaskPanelAdd:
         # doc needs to be initialized first
         self.doc = doc
 
+        # Catalog initialization
+        databasepath = ConfigFile().get_refractive_index_database_path()
+        self.glasscatalog = GlassCatalog(databasepath)
 
         fn = getRelativeFilePath(__file__, 'Qt/dlg_material_add.ui')
+        self.form = FreeCADGui.PySideUic.loadUi(fn)
+
+        self.form.comboBox_Shelf.clear()
+        self.form.comboBox_Shelf.addItems(self.glasscatalog.get_shelves())
+        self.onCurrentIndexChangedShelf(0)
+        self.onCurrentIndexChangedBook(0)
+        self.onCurrentIndexChangedPage(0)
+
+        self.form.comboBox_Shelf.currentIndexChanged.connect(
+            self.onCurrentIndexChangedShelf)
+        self.form.comboBox_Book.currentIndexChanged.connect(
+            self.onCurrentIndexChangedBook)
+        self.form.comboBox_Page.currentIndexChanged.connect(
+            self.onCurrentIndexChangedPage)
 
         self.fnobjectsindocument = getAllFunctionObjects(self.doc)
 
         fnobjectslabels = [obj.Label for obj in self.fnobjectsindocument]
         matcatobjectslabels = [obj.Label for obj in getAllMaterialCatalogues(doc)]
+        lcobjectslabels = [obj.Label for obj in getAllLocalCoordinates(doc)]
 
         # this will create a Qt widget from our ui file
-        self.form = FreeCADGui.PySideUic.loadUi(fn)
 
         self.form.comboBoxCatalogue.addItems(matcatobjectslabels)
+        self.form.comboBoxLocalCoordinates.addItems(lcobjectslabels)
 
-
+        # TODO: check whether glasscatalog exists and if not,
+        # disable page4 of dialog
 
         self.form.comboBox_FO_N.addItems(fnobjectslabels)
         self.form.comboBox_FO_Nx.addItems(fnobjectslabels)
@@ -67,40 +98,80 @@ class MaterialsTaskPanelAdd:
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Ny, self.form.comboBox_FOf_Ny)
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Nz, self.form.comboBox_FOf_Nz)
 
+    def onCurrentIndexChangedShelf(self, index):
+        shelf = self.form.comboBox_Shelf.currentText()
+        self.form.comboBox_Book.clear()
+        if shelf != "":
+            self.form.comboBox_Book.addItems(self.glasscatalog.get_books(shelf))
+            book = self.form.comboBox_Book.currentText()
+            if book != "":
+                self.form.comboBox_Page.clear()
+                self.form.comboBox_Page.addItems(self.glasscatalog.get_pages(
+                    shelf, book))
+
+    def onCurrentIndexChangedBook(self, index):
+        shelf = self.form.comboBox_Shelf.currentText()
+        book = self.form.comboBox_Book.currentText()
+        if shelf != "" and book != "":
+            self.form.comboBox_Page.clear()
+            self.form.comboBox_Page.addItems(self.glasscatalog.get_pages(
+                shelf, book))
+
+    def onCurrentIndexChangedPage(self, index):
+        shelf = self.form.comboBox_Shelf.currentText()
+        book = self.form.comboBox_Book.currentText()
+        page = self.form.comboBox_Page.currentText()
+        if shelf != "" and book != "" and page != "":
+            self.form.plainTextEditPreviewChoice.setPlainText(
+                pformat(self.glasscatalog.get_material_dict(shelf, book, page)))
 
 
     def updateCombo2FromCombo1WithFunctionObject(self, comb1, comb2):
-        fnobjects = self.doc.getObjectsByLabel(comb1.currentText())
-        if fnobjects != []:
+        #fnobjects = self.doc.getObjectsByLabel(comb1.currentText())
+        #if fnobjects != []:
+        #    comb2.clear()
+        #    comb2.addItems(fnobjects[0].functions)
+        fnobject = getObjectByLabel(self.doc, comb1.currentText())
+        if fnobject is not None:
             comb2.clear()
-            comb2.addItems(fnobjects[0].functions)
+            comb2.addItems(fnobject.functions)
 
 
     def onCurrentIndexChangedFO_N(self, index):
-        self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_N, self.form.comboBox_FOf_N)
+        self.updateCombo2FromCombo1WithFunctionObject(
+            self.form.comboBox_FO_N, self.form.comboBox_FOf_N)
 
     def onCurrentIndexChangedFO_Nx(self, index):
-        self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Nx, self.form.comboBox_FOf_Nx)
+        self.updateCombo2FromCombo1WithFunctionObject(
+            self.form.comboBox_FO_Nx, self.form.comboBox_FOf_Nx)
 
     def onCurrentIndexChangedFO_Ny(self, index):
-        self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Ny, self.form.comboBox_FOf_Ny)
+        self.updateCombo2FromCombo1WithFunctionObject(
+            self.form.comboBox_FO_Ny, self.form.comboBox_FOf_Ny)
 
     def onCurrentIndexChangedFO_Nz(self, index):
-        self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Nz, self.form.comboBox_FOf_Nz)
+        self.updateCombo2FromCombo1WithFunctionObject(
+            self.form.comboBox_FO_Nz, self.form.comboBox_FOf_Nz)
 
 
     # extraction functions for different material classes
 
     def extractConstantIndex(self):
-        return {"index":self.form.doubleSpinBoxIndex.value()}
+        return {"lc": getObjectByLabel(self.doc,
+                                       self.form.comboBoxLocalCoordinates.currentText()),
+                "index": self.form.doubleSpinBoxIndex.value()}
 
     def extractModel(self):
         return {
+                "lc": getObjectByLabel(self.doc,
+                                       self.form.comboBoxLocalCoordinates.currentText()),
                 "n0":self.form.doubleSpinBoxN0.value(),
                 "A":self.form.doubleSpinBox_A.value(),
                 "B":self.form.doubleSpinBox_B.value()
                 }
 
+
+    # TODO: GRIN: constructor changed to eat source together with function names
     def extractGrin(self):
         return {
             "fun":self.doc.getObjectsByLabel(
@@ -117,18 +188,29 @@ class MaterialsTaskPanelAdd:
             )
         }
 
-
+    def extractCatalogMaterial(self):
+        return {
+            "lc": getObjectByLabel(
+                self.doc,
+                self.form.comboBoxLocalCoordinates.currentText()),
+            "ymldict": self.glasscatalog.get_material_dict(
+                self.form.comboBox_Shelf.currentText(),
+                self.form.comboBox_Book.currentText(),
+                self.form.comboBox_Page.currentText())
+            }
 
     def accept(self):
 
         matname = self.form.lineEditName.text()
 
-        mattype = Material_GUI_TaskPanel_Add_TabWidget[self.form.tabWidget.currentIndex()]
+        mattype = Material_GUI_TaskPanel_Add_TabWidget[
+            self.form.tabWidget.currentIndex()]
 
         matextractfunc = {
             Material_ConstantIndexGlass:self.extractConstantIndex,
             Material_ModelGlass:self.extractModel,
-            Material_GrinMedium:self.extractGrin
+            Material_GrinMedium:self.extractGrin,
+            Material_CatalogMaterial:self.extractCatalogMaterial
         }
 
         # generating material object depending on type

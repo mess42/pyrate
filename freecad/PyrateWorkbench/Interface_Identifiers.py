@@ -46,6 +46,7 @@ Object_MaterialCatalogue_Properties_Label = "_Properties"
 Material_ConstantIndexGlass = "ConstantIndexGlass"
 Material_ModelGlass = "ModelGlass"
 Material_GrinMedium = "GrinMedium"
+Material_CatalogMaterial = "CatalogMaterial"
 Material_Mirror = "Mirror"
 
 Material_GUIChangeableProperties = ["index", "n0", "a", "b"]
@@ -53,7 +54,8 @@ Material_GUIChangeableProperties = ["index", "n0", "a", "b"]
 Material_GUI_TaskPanel_Add_TabWidget = {
     0: Material_ConstantIndexGlass,
     1: Material_ModelGlass,
-    2: Material_GrinMedium
+    2: Material_GrinMedium,
+    3: Material_CatalogMaterial
     }
 
 Shape_Conic = "Conic"

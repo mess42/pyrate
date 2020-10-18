@@ -15,6 +15,20 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">
+    <widget class="QLabel" name="label_15">
+     <property name="text">
+      <string>Material Catalog</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_16">
+     <property name="text">
+      <string>Coordinate System</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
     <widget class="QComboBox" name="comboBoxCatalogue"/>
    </item>
    <item row="0" column="0">
@@ -27,10 +41,10 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="6" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -220,7 +234,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabCatalogMaterial">
+     <widget class="QWidget" name="tabCatalogMaterial1">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -228,16 +242,19 @@
        </sizepolicy>
       </property>
       <attribute name="title">
-       <string>Catalog Material</string>
+       <string>Catalog Material (Choice)</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="1">
+        <widget class="QComboBox" name="comboBox_Shelf"/>
+       </item>
        <item row="2" column="1">
         <widget class="QComboBox" name="comboBox_Page"/>
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Shelve</string>
+          <string>Shelf</string>
          </property>
         </widget>
        </item>
@@ -255,20 +272,41 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="comboBox_Shelve"/>
-       </item>
        <item row="1" column="1">
         <widget class="QComboBox" name="comboBox_Book"/>
        </item>
-       <item row="0" column="2">
-        <widget class="QPlainTextEdit" name="plainTextEdit_References"/>
+       <item row="3" column="0" colspan="2">
+        <widget class="QPlainTextEdit" name="plainTextEditPreviewChoice"/>
        </item>
-       <item row="1" column="2">
-        <widget class="QPlainTextEdit" name="plainTextEdit_Comment"/>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabCatalogMaterial2">
+      <attribute name="title">
+       <string>Catalog Material (Search)</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_17">
+         <property name="text">
+          <string>Search for material</string>
+         </property>
+        </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QPlainTextEdit" name="plainTextEdit_Data"/>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="lineEditSearch"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_18">
+         <property name="text">
+          <string>Shelf, Book, Page</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="comboBoxCandidates"/>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QPlainTextEdit" name="plainTextEditPreviewSearch"/>
        </item>
       </layout>
      </widget>
@@ -280,6 +318,9 @@
       <string>material_name</string>
      </property>
     </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QComboBox" name="comboBoxLocalCoordinates"/>
    </item>
   </layout>
  </widget>
