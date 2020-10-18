@@ -31,6 +31,7 @@ from PySide import QtGui
 from .Interface_Identifiers import Title_MessageBoxes
 from .TaskPanel_Functions_Edit import FunctionsTaskPanelEdit
 
+from pyrateoptics.core.functionobject import FunctionObject
 
 class FunctionsView:
 
@@ -42,18 +43,25 @@ class FunctionsView:
         self.path = ""
 
     def doubleClicked(self, obj):
-        # TODO: open text editor window (dlg_functionobjects_edit.ui)
-        # TODO: implement widget class for text editor with syntax coloring
-        # TODO: implement widget class with line numbering
         panel = FunctionsTaskPanelEdit(self.obj)
         FreeCADGui.Control.showDialog(panel)
 
     def setupContextMenu(self, obj, menu):
-        actload = menu.addAction("Load function object")
-        actsave = menu.addAction("Save function object")
+        actload = menu.addAction("Load source code")
+        actsave = menu.addAction("Save source code")
+        acttrust = menu.addAction("Trust")
+        actuntrust = menu.addAction("Untrust")
 
         actload.triggered.connect(self.loadFile)
         actsave.triggered.connect(self.saveFile)
+        acttrust.triggered.connect(self.trust)
+        actuntrust.triggered.connect(self.untrust)
+
+    def trust(self):
+        self.obj.Proxy.trust()
+
+    def untrust(self):
+        self.obj.Proxy.untrust()
 
     def loadFile(self):
         (FileName, Result) = QtGui.QFileDialog.getOpenFileName(
@@ -61,23 +69,25 @@ class FunctionsView:
             "Source files (*.py *.FCMacro);;All files (*.*)")
 
         if Result:
-            self.path = FileName
-            fp = open(FileName)
-            self.obj.Proxy.Source = "".join([line for line in fp])
-            fp.close()
+            # sets automatically source_checked flag to false
+            self.obj.Proxy.CoreFunctionObject.load(FileName)
+            result = QtGui.QMessageBox.question(
+                None, Title_MessageBoxes,
+                "Did you verify the source code?",
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if result == QtGui.QMessageBox.Yes:
+                self.trust()
+            else:
+                self.untrust()
 
     def saveFile(self):
         QtGui.QMessageBox.information(
-            None, Title_MessageBoxes, self.obj.Proxy.Source)
+            None, Title_MessageBoxes, self.obj.Proxy.CoreFunctionObject.source)
         (FileName, Result) = QtGui.QFileDialog.getSaveFileName(
             None, Title_MessageBoxes, self.path,
             "Source files (*.py *.FCMacro);;All files (*.*)")
-        # TODO: implement file save procedure, but let messagebox show
-        # the first few lines of the code
         if Result:
-            fp = open(FileName, "w")
-            fp.write(self.obj.Proxy.Source)
-            fp.close()
+            self.obj.Proxy.CoreFunctionObject.save(FileName)
 
     def __setstate__(self, state):
         return None
@@ -100,59 +110,35 @@ class FunctionsObject:
     def __init__(self, name, initialsrc, doc, group):
         self.Document = doc  # e.g. ActiveDocument
         self.Group = group  # functions group
-        self.Object = doc.addObject("App::FeaturePython",
-                                    self.returnStructureLabel(name))
+        mylabel = self.returnStructureLabel(name)
+        self.Object = doc.addObject("App::FeaturePython", mylabel)
         self.Group.addObject(self.Object)
         self.Object.addProperty("App::PropertyStringList", "functions",
                                 "FunctionObject",
                                 "functions in object").functions = []
 
+        self.CoreFunctionObject = FunctionObject(initialsrc, name=mylabel)
         self.Object.Proxy = self
-        self.Source = initialsrc
-
-        # TODO: load/save
-
-    def getFunctionsFromSource(self, sourcecodestring, funcnamelist):
-        localsdict = {}
-        functionsobjects = []
-        try:
-            exec(sourcecodestring, localsdict)
-            # exec is a security risk, but the code to be executed is loaded from a file at most
-            # which has to be inspected by the user; there is no automatic code execution
-
-            # TODO: substitute this code by execfile interface
-
-        except (SyntaxError, NameError):
-            QtGui.QMessageBox.information(
-                None, Title_MessageBoxes,
-                "Exception caught. Problem in " + self.Object.Label)
-            return functionsobjects
-
-        for fn in funcnamelist:
-            myfunction = localsdict.get(fn, None)
-            # if key not found for some reason, return None
-            if myfunction is not None:
-                # Do not append None to list
-                functionsobjects.append(myfunction)
-        return functionsobjects
-
-    def createSourceCode(self):
-        return str(self.Source)
-        # removed reference to stringlist property source, due to security risk
-        # of loading and saving code from/to FreeCAD documents
 
     def returnFunctionObjects(self):
-        return self.getFunctionsFromSource(self.createSourceCode(),
-                                           self.Object.functions)
+        self.CoreFunctionObject.generate_functions_from_source(
+            self.Object.functions)
+        return self.CoreFunctionObject.functions
 
     def returnSingleFunctionObject(self, name):
-        result = None
-        result = self.getFunctionsFromSource(self.createSourceCode(),
-                                             [name])
-        if len(result) >= 1:
-            result = result[0]
+        self.CoreFunctionObject.generate_functions_from_source([name])
+        result = self.CoreFunctionObject.functions.get(name, None)
+        # if dictionary is not filled (due to security issues), return None
 
         return result
+
+    def trust(self):
+        self.CoreFunctionObject.sourcecode_security_checked = True
+        self.CoreFunctionObject.globals_security_checked = True
+
+    def untrust(self):
+        self.CoreFunctionObject.sourcecode_security_checked = False
+        self.CoreFunctionObject.globals_security_checked = False
 
     def returnStructureLabel(self, name):
         return "function_" + name

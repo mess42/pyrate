@@ -53,6 +53,10 @@ def getRelativeFilePath(relativefilename, targetfile):
 def getAllOpticalSystemObservers(doc):
     return [obj for obj in doc.Objects if isOpticalSystemObserver(obj)]
 
+def getOpticalSystemObservers(doc, name):
+    oso_list = getAllOpticalSystemObservers(doc)
+    return [obj for obj in oso_list if obj.Label == name]
+
 # collect function objects
 
 

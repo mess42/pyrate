@@ -26,12 +26,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import FreeCADGui
 
-from PySide import QtGui
+# from PySide import QtGui
 
 from .Object_Functions import FunctionsObject, FunctionsView
 
-from .Interface_Helpers import *
-from .Interface_Identifiers import Title_MessageBoxes
+from .Interface_Helpers import (
+    getRelativeFilePath,
+    getOpticalSystemObservers,
+    getFunctionObjectsSubgroupFromOpticalSystemObserver
+    )
+# from .Interface_Identifiers import Title_MessageBoxes
 
 class FunctionsTaskPanelAdd:
     def __init__(self, doc, stringlist):
@@ -43,12 +47,19 @@ class FunctionsTaskPanelAdd:
         self.doc = doc
 
     def accept(self):
-        oslabel = self.form.comboBox.currentText()
         name_of_functionsobject = self.form.lineEditName.text()
         initial_source_code = self.form.plainTextEdit.toPlainText()
 
-        fnobj = FunctionsObject(name_of_functionsobject, initial_source_code, self.doc, "")
-        FunctionsView(fnobj.Object.ViewObject)
+        oslabel = self.form.comboBox.currentText()
+        oslist = getOpticalSystemObservers(self.doc, oslabel)
+        if oslist != []:
+            os = oslist[0]
+            group = getFunctionObjectsSubgroupFromOpticalSystemObserver(
+                self.doc, os)
+            fnobj = FunctionsObject(name_of_functionsobject, initial_source_code,
+                                    self.doc,
+                                    group)
+            FunctionsView(fnobj.Object.ViewObject)
 
         FreeCADGui.Control.closeDialog()
 
