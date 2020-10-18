@@ -24,6 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+import FreeCAD
 import FreeCADGui
 
 from PySide import QtGui
@@ -58,10 +59,12 @@ class FunctionsView:
         actuntrust.triggered.connect(self.untrust)
 
     def trust(self):
-        self.obj.Proxy.trust()
+        self.obj.trusted = True
+        #self.obj.Proxy.trust()
 
     def untrust(self):
-        self.obj.Proxy.untrust()
+        self.obj.trusted = False
+        #self.obj.Proxy.untrust()
 
     def loadFile(self):
         (FileName, Result) = QtGui.QFileDialog.getOpenFileName(
@@ -111,13 +114,17 @@ class FunctionsObject:
         self.Document = doc  # e.g. ActiveDocument
         self.Group = group  # functions group
         mylabel = self.returnStructureLabel(name)
+        self.CoreFunctionObject = FunctionObject(initialsrc, name=mylabel)
+
         self.Object = doc.addObject("App::FeaturePython", mylabel)
         self.Group.addObject(self.Object)
         self.Object.addProperty("App::PropertyStringList", "functions",
                                 "FunctionObject",
                                 "functions in object").functions = []
+        self.Object.addProperty("App::PropertyBool", "trusted",
+                                "FunctionObject",
+                                "trusted?").trusted = True
 
-        self.CoreFunctionObject = FunctionObject(initialsrc, name=mylabel)
         self.Object.Proxy = self
 
     def returnFunctionObjects(self):
@@ -142,6 +149,13 @@ class FunctionsObject:
 
     def returnStructureLabel(self, name):
         return "function_" + name
+
+    def onChanged(self, fp, prop):
+        if prop == "trusted":
+            if self.Object.trusted:
+                self.trust()
+            else:
+                self.untrust()
 
     def __setstate__(self, state):
         return None
