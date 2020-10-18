@@ -39,7 +39,8 @@ from .Interface_Helpers import (getRelativeFilePath,
 from .Interface_Identifiers import (Material_ConstantIndexGlass,
                                     Material_ModelGlass,
                                     Material_GrinMedium,
-                                    Material_CatalogMaterial,
+                                    Material_CatalogMaterial1,
+                                    Material_CatalogMaterial2,
                                     Material_GUI_TaskPanel_Add_TabWidget)
 
 from .Object_Material import MaterialObject
@@ -99,7 +100,7 @@ class MaterialsTaskPanelAdd:
         self.updateCombo2FromCombo1WithFunctionObject(self.form.comboBox_FO_Nz, self.form.comboBox_FOf_Nz)
 
         self.form.pushButtonSearch.clicked.connect(self.onClickedSearchButton)
-        self.form.comboBoxCandidates.currentIndexChanged(
+        self.form.comboBoxCandidates.currentIndexChanged.connect(
             self.onCurrentIndexChangedCandidates)
 
     def onClickedSearchButton(self):
@@ -109,12 +110,16 @@ class MaterialsTaskPanelAdd:
             self.form.comboBoxCandidates.addItems(
                 [longname
                     for longname in self.glasscatalog.get_dict_of_long_names()
-                    if searchtext in longname])
+                    if searchtext.lower() in longname.lower()])
 
     def onCurrentIndexChangedCandidates(self, index):
         longname = self.form.comboBoxCandidates.currentText()
         if longname:
-            pass
+            mydict = {}
+            shelf_book_page = self.glasscatalog.get_dict_of_long_names()[
+                longname]
+            mydict = self.glasscatalog.get_material_dict(*shelf_book_page)
+            self.form.plainTextEditPreviewSearch.setPlainText(pformat(mydict))
 
     def onCurrentIndexChangedShelf(self, index):
         shelf = self.form.comboBox_Shelf.currentText()
@@ -206,7 +211,7 @@ class MaterialsTaskPanelAdd:
             )
         }
 
-    def extractCatalogMaterial(self):
+    def extractCatalogMaterial1(self):
         return {
             "lc": getObjectByLabel(
                 self.doc,
@@ -215,6 +220,18 @@ class MaterialsTaskPanelAdd:
                 self.form.comboBox_Shelf.currentText(),
                 self.form.comboBox_Book.currentText(),
                 self.form.comboBox_Page.currentText())
+            }
+
+    def extractCatalogMaterial2(self):
+        mydict = {}
+        shelf_book_page = self.glasscatalog.get_dict_of_long_names()[
+            self.form.comboBoxCandidates.currentText()]
+        mydict = self.glasscatalog.get_material_dict(*shelf_book_page)
+        return {
+            "lc": getObjectByLabel(
+                self.doc,
+                self.form.comboBoxLocalCoordinates.currentText()),
+            "ymldict": mydict
             }
 
     def accept(self):
@@ -228,7 +245,8 @@ class MaterialsTaskPanelAdd:
             Material_ConstantIndexGlass:self.extractConstantIndex,
             Material_ModelGlass:self.extractModel,
             Material_GrinMedium:self.extractGrin,
-            Material_CatalogMaterial:self.extractCatalogMaterial
+            Material_CatalogMaterial1:self.extractCatalogMaterial1,
+            Material_CatalogMaterial2:self.extractCatalogMaterial2
         }
 
         # generating material object depending on type
@@ -243,18 +261,6 @@ class MaterialsTaskPanelAdd:
         # TODO: If it already exists Check for Material Mirror (if it not exists, warning, rename yes/no)
         # TODO: if there is no such group: create one with uuid name and identifier label
         # TODO: build load/save functionality
-
-
-        #oslabel = self.form.comboBox.currentText()
-        #name_of_functionsobject = self.form.lineEditName.text()
-
-        #os = self.doc.getObjectsByLabel(oslabel)[0]
-        #
-        #fngroupname = os.NameFunctionsGroup
-        #fngroup = self.doc.getObject(fngroupname)
-
-        #FunctionsObject(name_of_functionsobject, self.doc, fngroup)
-
 
 
         FreeCADGui.Control.closeDialog()

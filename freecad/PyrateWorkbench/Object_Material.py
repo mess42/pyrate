@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # from .Interface_Helpers import *
 # from .Interface_Checks import *
-from .Interface_Identifiers import (Material_CatalogMaterial,
+from .Interface_Identifiers import (Material_CatalogMaterial1,
+                                    Material_CatalogMaterial2,
                                     Material_ConstantIndexGlass,
                                     Material_ModelGlass,
                                     Material_GrinMedium,
@@ -57,21 +58,24 @@ class MaterialObject(AbstractObserver):
             Material_ConstantIndexGlass: self.initConstantIndex,
             Material_ModelGlass: self.initModel,
             Material_GrinMedium: self.initGrin,
-            Material_CatalogMaterial: self.initCatalogMaterial
+            Material_CatalogMaterial1: self.initCatalogMaterial,
+            Material_CatalogMaterial2: self.initCatalogMaterial
             }
 
         self.writebackfunc = {
             Material_ConstantIndexGlass: self.writebackConstantIndex,
             Material_ModelGlass: self.writebackModel,
             Material_GrinMedium: self.writebackGrin,
-            Material_CatalogMaterial: self.writebackCatalogMaterial
+            Material_CatalogMaterial1: self.writebackCatalogMaterial,
+            Material_CatalogMaterial2: self.writebackCatalogMaterial
         }
 
         self.readfunc = {
             Material_ConstantIndexGlass: self.readConstantIndex,
             Material_ModelGlass: self.readModel,
             Material_GrinMedium: self.readGrin,
-            Material_CatalogMaterial: self.readCatalogMaterial
+            Material_CatalogMaterial1: self.readCatalogMaterial,
+            Material_CatalogMaterial2: self.readCatalogMaterial
         }
 
         # TODO: set values from initialized matclass coming from a predefined optical system
