@@ -3,7 +3,7 @@ scipy # pyrate dependency
 sympy # pyrate dependency
 matplotlib # pyrate dependency
 pyyaml # pyrate dependency
-nose2[coverage_plugin] # test automation with nose2
+nose2[coverage_plugin] # test automation
 hypothesis # quickcheck
 coverage # test coverage
 coveralls # coveralls.io CI
