@@ -1,7 +1,7 @@
 language: python
 python:
   # travis CI uses x64 VMs, python builds not available for OSX
-  - "2.7"
+  - "3.6"
 addons:
   apt:
     packages:
@@ -11,9 +11,9 @@ addons:
 install:
   - pip install -U pip pip-tools setuptools
   - pip-compile                       # requirements.in -> requirements.txt
-  - pip install -r requirements.txt   # install pyrate dependences
+  - pip install -r requirements.in  # install pyrate dependences
 script:
-  - python -m nose --with-coverage --cover-package=pyrateoptics tests.smoke_test
+  - python -m nose2 --with-coverage --cover-package=pyrateoptics tests.smoke_test
 after_success:
   - coveralls     # submit test coverage information to coveralls.io
 
