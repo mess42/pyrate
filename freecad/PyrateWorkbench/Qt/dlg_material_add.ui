@@ -7,13 +7,16 @@
     <x>0</x>
     <y>0</y>
     <width>487</width>
-    <height>410</height>
+    <height>510</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="0">
+    <widget class="QComboBox" name="comboBoxCatalogue"/>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
@@ -24,17 +27,13 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLineEdit" name="lineEditName">
-     <property name="placeholderText">
-      <string>material_name</string>
-     </property>
-    </widget>
-   </item>
    <item row="3" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
+     </property>
+     <property name="documentMode">
+      <bool>false</bool>
      </property>
      <widget class="QWidget" name="tabConstIndexGlass">
       <attribute name="title">
@@ -221,10 +220,66 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tabCatalogMaterial">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>Catalog Material</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="2" column="1">
+        <widget class="QComboBox" name="comboBox_Page"/>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Shelve</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Page</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Book</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="comboBox_Shelve"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="comboBox_Book"/>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPlainTextEdit" name="plainTextEdit_References"/>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPlainTextEdit" name="plainTextEdit_Comment"/>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPlainTextEdit" name="plainTextEdit_Data"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QComboBox" name="comboBoxCatalogue"/>
+   <item row="1" column="0">
+    <widget class="QLineEdit" name="lineEditName">
+     <property name="placeholderText">
+      <string>material_name</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
