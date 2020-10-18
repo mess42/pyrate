@@ -1,14 +1,14 @@
-build: false
+build: off
 
 environment:
   matrix:
     - platform: x86
-      PYTHON_ROOT: "C:\\Python27"
-      PYTHON_VERSION: "2.7"
+      PYTHON_ROOT: "C:\\Python36"
+      PYTHON_VERSION: "3.6"
       MINICONDA: "C:\\Miniconda"
     - platform: x64
-      PYTHON_ROOT: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7"
+      PYTHON_ROOT: "C:\\Python36-x64"
+      PYTHON_VERSION: "3.6"
       MINICONDA: "C:\\Miniconda-x64"
 
 install:
@@ -18,9 +18,7 @@ install:
   - conda update -q conda
   - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy matplotlib pytest"
   - activate test-environment
-  - pip install -U pip pip-tools
-  - pip-compile                       # requirements.in -> requirements.txt
-  - pip install -r requirements.txt   # install pyrate dependences
+  - pip install -r requirements.in   # install pyrate dependences
 
 test_script:
-  - python -m nose  tests.smoke_test # test automation, no coverage
+  - python -m nose2 tests.smoke_test # test automation, no coverage
