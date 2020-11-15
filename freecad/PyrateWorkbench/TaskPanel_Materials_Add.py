@@ -125,20 +125,25 @@ class MaterialsTaskPanelAdd:
         shelf = self.form.comboBox_Shelf.currentText()
         self.form.comboBox_Book.clear()
         if shelf != "":
-            self.form.comboBox_Book.addItems(self.glasscatalog.get_books(shelf))
+            self.form.comboBox_Book.addItems(
+                sorted(
+                    self.glasscatalog.get_books(shelf),
+                    key=lambda x: x.lower()))
             book = self.form.comboBox_Book.currentText()
             if book != "":
                 self.form.comboBox_Page.clear()
-                self.form.comboBox_Page.addItems(self.glasscatalog.get_pages(
-                    shelf, book))
+                self.form.comboBox_Page.addItems(
+                    sorted(self.glasscatalog.get_pages(shelf, book),
+                           key=lambda x: x.lower()))
 
     def onCurrentIndexChangedBook(self, index):
         shelf = self.form.comboBox_Shelf.currentText()
         book = self.form.comboBox_Book.currentText()
         if shelf != "" and book != "":
             self.form.comboBox_Page.clear()
-            self.form.comboBox_Page.addItems(self.glasscatalog.get_pages(
-                shelf, book))
+            self.form.comboBox_Page.addItems(
+                sorted(self.glasscatalog.get_pages(shelf, book),
+                       key=lambda x: x.lower()))
 
     def onCurrentIndexChangedPage(self, index):
         shelf = self.form.comboBox_Shelf.currentText()

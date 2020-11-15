@@ -298,7 +298,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="label_18">
          <property name="text">
-          <string>Shelf, Book, Page</string>
+          <string>Material</string>
          </property>
         </widget>
        </item>
