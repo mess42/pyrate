@@ -58,6 +58,17 @@ def isMaterial(fobj):
     return 'matclass' in fobj.PropertiesList
 
 
-def existsStandardMaterials(doc):
-    return all([obj.Label != Group_StandardMaterials_Label
+def existsStandardMaterialsCatalogue(doc):
+    return any([obj.Label == Group_StandardMaterials_Label
                 for obj in doc.Objects if isMaterialCatalogue(obj)])
+
+def getStandardMaterialsCatalogue(doc):
+    group_candidates = list([obj for obj in doc.Objects
+                             if isMaterialCatalogue(obj) and
+                                 obj.Label == Group_StandardMaterials_Label])
+    if len(group_candidates) > 0:
+        return group_candidates[0]
+    else:
+        return None
+
+

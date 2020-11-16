@@ -33,8 +33,11 @@ from PySide.QtGui import QLineEdit, QInputDialog, QMessageBox
 from .Observer_OpticalSystem import OpticalSystemObserver
 from .Object_MaterialCatalogue import MaterialCatalogueObject
 
-from .Interface_Identifiers import *
-from .Interface_Checks import *
+from .Interface_Identifiers import (Title_MessageBoxes,
+                                    Group_StandardMaterials_Label)
+from .Interface_Checks import (existsStandardMaterialsCatalogue,
+                               getStandardMaterialsCatalogue,
+                               isOpticalSystemObserver)
 
 from .TaskPanel_SurfaceList_Edit import SurfaceListTaskPanelEdit
 
@@ -62,15 +65,21 @@ class CreateSystemTool:
         if text and ok:
             osobs = OpticalSystemObserver(doc, text)
 
-        if existsStandardMaterials(doc):
-            result = QMessageBox.question(None, Title_MessageBoxes,
-                                          "No Standard Materials Catalogue defined. Create one?",
-                                          QMessageBox.Yes | QMessageBox.No)
-            if result == QMessageBox.Yes:
-                stdmatcatalogue = MaterialCatalogueObject(doc, Group_StandardMaterials_Label)
-                stdmatcatalogue.addMaterial("ConstantIndexGlass", "PMMA", index=1.5)
-                stdmatcatalogue.addMaterial("ConstantIndexGlass", "Vacuum")
-                stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")
+        if not existsStandardMaterialsCatalogue(doc):
+            # result = QMessageBox.question(None, Title_MessageBoxes,
+            #                               "No Standard Materials Catalogue defined. Create one?",
+            #                               QMessageBox.Yes | QMessageBox.No)
+            # if result == QMessageBox.Yes:
+            stdmatcatalogue = MaterialCatalogueObject(
+                doc, Group_StandardMaterials_Label)
+        else:
+            stdmatcatalogue = getStandardMaterialsCatalogue(doc)
+        if stdmatcatalogue is not None:
+            stdmatcatalogue.addMaterial("ConstantIndexGlass", "PMMA", index=1.5)
+            stdmatcatalogue.addMaterial("ConstantIndexGlass", "Vacuum")
+            stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")
+
+
 
         if osobs != None:
             osobs.initFromGivenOpticalSystem(osobs.initDemoSystem())
