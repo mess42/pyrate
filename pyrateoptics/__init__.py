@@ -1,4 +1,5 @@
-#!/usr/bin/env/python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Pyrate - Optical raytracing based on Python
 
@@ -23,9 +24,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
-
-# Use this file for convenience functions which should be called
-# at the main package level.
 
 import logging
 from distutils.version import StrictVersion

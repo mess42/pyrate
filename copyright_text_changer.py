@@ -1,8 +1,9 @@
-#!/usr/bin/env/python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2014-2018
+Copyright (C) 2014-2020
                by     Moritz Esslinger moritz.esslinger@web.de
                and    Johannes Hartung j.hartung@gmx.net
                and    Uwe Lippmann  uwe.lippmann@web.de
@@ -41,7 +42,7 @@ gpl_text = "\
 \"\"\"\n\
 Pyrate - Optical raytracing based on Python\n\
 \n\
-Copyright (C) 2014-2018\n\
+Copyright (C) 2014-2020\n\
                by     Moritz Esslinger moritz.esslinger@web.de\n\
                and    Johannes Hartung j.hartung@gmx.net\n\
                and    Uwe Lippmann  uwe.lippmann@web.de\n\
@@ -87,7 +88,7 @@ for subdir, dirs, filenames in os.walk('./'):
                 else:
                     start = min(a1, a2)
 
-                txt = "#!/usr/bin/env/python\n" + gpl_text + "\n" + txt[start:]
+                txt = "#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n" + gpl_text + "\n" + txt[start:]
 
                 f = open(relative_filename, "w")
                 f.write(txt)

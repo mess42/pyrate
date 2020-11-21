@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-SPD-Reader demo
+Pyrate - Optical raytracing based on Python
 
-Copyright (C) 2020
-               by     Ivo Ihrke
+Copyright (C) 2014-2020
+               by     Moritz Esslinger moritz.esslinger@web.de
+               and    Johannes Hartung j.hartung@gmx.net
+               and    Uwe Lippmann  uwe.lippmann@web.de
+               and    Thomas Heinze t.heinze@uni-jena.de
+               and    others
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
