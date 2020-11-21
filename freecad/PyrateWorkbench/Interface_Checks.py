@@ -28,37 +28,166 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 from .Interface_Identifiers import Group_StandardMaterials_Label
 
 
-def isLocalCoordinatesObserver(fobj):
-    tmp = 'lcclass' in fobj.PropertiesList
-    return tmp
+def isLocalCoordinatesObserver(freecad_obj):
+    """
+    Checks whether a specific object is a local coordinates system observer.
+    This means: There is a .Proxy property referring to a FreeCAD interface
+    object of a LocalCoordinates object.
 
+    Parameters
+    ----------
+    freecad_obj : FreeCAD object
+        FreeCAD object to be checked.
 
-def isOpticalSystemObserver(fobj):
-    tmp = 'wavelengths' in fobj.PropertiesList
-    return tmp
+    Returns
+    -------
+    result : bool
+        Returns True if object is a LocalCoordinatesObserver.
 
-
-def isFunctionsObject(fobj):
-    tmp = 'functions' in fobj.PropertiesList
-    return tmp
-
-
-def isGroup(fobj):
-    return 'Group' in fobj.PropertiesList
-
-
-def isMaterialCatalogue(fobj):
-    result = False
-    if isGroup(fobj):
-        result = any(['NameMaterialsCatalogue' in o.PropertiesList
-                      for o in fobj.Group])
+    """
+    result = 'lcclass' in freecad_obj.PropertiesList
     return result
 
 
-def isMaterial(fobj):
-    return 'matclass' in fobj.PropertiesList
+def isOpticalSystemObserver(freecad_obj):
+    """
+    Checks whether a specific object is an optical system observer.
+    This means: There is a .Proxy property referring to a FreeCAD interface
+    object of an Optical System object.
+
+    Parameters
+    ----------
+    freecad_obj : FreeCAD object
+        FreeCAD object to be checked.
+
+    Returns
+    -------
+    result : bool
+        Returns True if object is a OpticalSystemObserver.
+    """
+    # TODO: change check for 'wavelengths' to another property
+    # wavelengths is maybe not a good property to be in an OpticalSystem.
+    # They belong more to the raytracing.
+    result = 'wavelengths' in freecad_obj.PropertiesList
+    return result
 
 
-def existsStandardMaterials(doc):
-    return all([obj.Label != Group_StandardMaterials_Label
-                for obj in doc.Objects if isMaterialCatalogue(obj)])
+def isFunctionsObject(freecad_obj):
+    """
+    Checks whether a specific object is a functions object.
+    This means: There is a .Proxy property referring to a FreeCAD interface
+    object of a functions object.
+
+    Parameters
+    ----------
+    freecad_obj : FreeCAD object
+        FreeCAD object to be checked.
+
+    Returns
+    -------
+    bool
+        Returns True if functions object.
+
+    """
+    return 'functions' in freecad_obj.PropertiesList
+
+
+def isGroup(freecad_obj):
+    """
+    Checks whether specific object is a Group.
+
+    Parameters
+    ----------
+    freecad_obj : FreeCAD object
+        FreeCAD object to be checked.
+
+    Returns
+    -------
+    bool
+        Returns True if Group.
+
+    """
+    return 'Group' in freecad_obj.PropertiesList
+
+def isMaterialCatalogueObject(freecad_obj):
+    """
+    Every material catalogue group has a material catalogue object,
+    which can add a material to this group. This function checks
+    whether the object in question is such one.
+
+    Parameters
+    ----------
+    freecad_obj : FreeCAD object
+        FreeCAD object to be checked.
+
+    Returns
+    -------
+    bool
+        Returns True if material catalogue object.
+
+    """
+    return 'NameMaterialsCatalogue' in freecad_obj.PropertiesList
+
+def isMaterialCatalogue(freecad_obj):
+    """
+    This function checks whether a certain object is a material catalogue
+    group which contains material objects.
+
+    Parameters
+    ----------
+    freecad_obj : FreeCAD object
+        FreeCAD object to be checked.
+
+    Returns
+    -------
+    bool
+        Returns True if material catalogue group.
+
+    """
+    result = False
+    if isGroup(freecad_obj):
+        result = any([isMaterialCatalogueObject(o)
+                      for o in freecad_obj.Group])
+    return result
+
+
+def isMaterial(freecad_obj):
+    """
+    This function checks whether a given Free CAD object is a material
+    object, which has a .Proxy property referring to a Material derived
+    object from Pyrate.
+
+    Parameters
+    ----------
+    freecad_obj : FreeCAD object
+        FreeCAD object to be checked.
+
+    Returns
+    -------
+    bool
+        Returns True if material object.
+
+    """
+    return 'matclass' in freecad_obj.PropertiesList
+
+
+def existsStandardMaterialsCatalogue(freecad_doc):
+    """
+    Exists a standard material catalogue in FreeCAD document?
+
+    Parameters
+    ----------
+    freecad_doc : FreeCAD document
+        FreeCAD document in question.
+
+    Returns
+    -------
+    bool
+        Returns True if FreeCAD document contains a standard material catalogue.
+
+    """
+    return any([obj.Label == Group_StandardMaterials_Label
+                for obj in freecad_doc.Objects if isMaterialCatalogue(obj)])
+
+
+
