@@ -1,4 +1,5 @@
-#!/usr/bin/env/python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Pyrate - Optical raytracing based on Python
 
@@ -29,6 +30,7 @@ from hypothesis.strategies import floats
 from hypothesis.extra.numpy import arrays
 import numpy as np
 import sympy
+from sympy import sqrt
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.raytracer.material.material_anisotropic import\
     AnisotropicMaterial
@@ -205,12 +207,107 @@ def test_anisotropic_xi_eigenvalues(rnd_data1, rnd_data2,
     kx, ky, xi = sympy.symbols('k_x k_y xi')
     exx, exy, _, eyx, eyy, _, _, _, ezz \
         = sympy.symbols('e_xx e_xy e_xz e_yx e_yy e_yz e_zx e_zy e_zz')
-    #eps = Matrix([[exx, exy, exz], [eyx, eyy, eyz], [ezx, ezy, ezz]])
-    eps = sympy.Matrix([[exx, exy, 0], [eyx, eyy, 0], [0, 0, ezz]])
-    v = sympy.Matrix([[kx, ky, xi]])
-    m = -(v*v.T)[0]*sympy.eye(3) + v.T*v + eps
-    detm = m.det().collect(xi)
-    soldetm = sympy.solve(detm, xi)
+
+    #eps = sympy.Matrix([[exx, exy, 0], [eyx, eyy, 0], [0, 0, ezz]])
+    #v = sympy.Matrix([[kx, ky, xi]])
+    #m = -(v*v.T)[0]*sympy.eye(3) + v.T*v + eps
+    #detm = m.det().collect(xi)
+    #soldetm = sympy.solve(detm, xi)
+
+    # hard wired solution to the above code to avoid deadline issues during
+    # testing with pytest
+    soldetm = [-sqrt(2)*sqrt(exx - exx*kx**2/ezz - exy*kx*ky/ezz
+               - eyx*kx*ky/ezz + eyy - eyy*ky**2/ezz - kx**2
+               - ky**2 - sqrt(exx**2*ezz**2 - 2*exx**2*ezz*kx**2
+                              + exx**2*kx**4 - 2*exx*exy*ezz*kx*ky
+                              + 2*exx*exy*kx**3*ky - 2*exx*eyx*ezz*kx*ky
+                              + 2*exx*eyx*kx**3*ky - 2*exx*eyy*ezz**2
+                              + 2*exx*eyy*ezz*kx**2 + 2*exx*eyy*ezz*ky**2
+                              + 2*exx*eyy*kx**2*ky**2 + 2*exx*ezz**2*kx**2
+                              - 2*exx*ezz**2*ky**2 - 2*exx*ezz*kx**4
+                              - 2*exx*ezz*kx**2*ky**2 + exy**2*kx**2*ky**2
+                              + 4*exy*eyx*ezz**2 - 4*exy*eyx*ezz*kx**2
+                              - 4*exy*eyx*ezz*ky**2 + 2*exy*eyx*kx**2*ky**2
+                              - 2*exy*eyy*ezz*kx*ky + 2*exy*eyy*kx*ky**3
+                              + 4*exy*ezz**2*kx*ky - 2*exy*ezz*kx**3*ky
+                              - 2*exy*ezz*kx*ky**3 + eyx**2*kx**2*ky**2
+                              - 2*eyx*eyy*ezz*kx*ky + 2*eyx*eyy*kx*ky**3
+                              + 4*eyx*ezz**2*kx*ky - 2*eyx*ezz*kx**3*ky
+                              - 2*eyx*ezz*kx*ky**3 + eyy**2*ezz**2
+                              - 2*eyy**2*ezz*ky**2 + eyy**2*ky**4
+                              - 2*eyy*ezz**2*kx**2 + 2*eyy*ezz**2*ky**2
+                              - 2*eyy*ezz*kx**2*ky**2 - 2*eyy*ezz*ky**4
+                              + ezz**2*kx**4 + 2*ezz**2*kx**2*ky**2
+                              + ezz**2*ky**4)/ezz)/2,
+                sqrt(2)*sqrt(exx - exx*kx**2/ezz - exy*kx*ky/ezz
+                - eyx*kx*ky/ezz + eyy - eyy*ky**2/ezz - kx**2
+                - ky**2 - sqrt(exx**2*ezz**2
+                               - 2*exx**2*ezz*kx**2 + exx**2*kx**4
+                               - 2*exx*exy*ezz*kx*ky + 2*exx*exy*kx**3*ky
+                               - 2*exx*eyx*ezz*kx*ky + 2*exx*eyx*kx**3*ky
+                               - 2*exx*eyy*ezz**2 + 2*exx*eyy*ezz*kx**2
+                               + 2*exx*eyy*ezz*ky**2 + 2*exx*eyy*kx**2*ky**2
+                               + 2*exx*ezz**2*kx**2 - 2*exx*ezz**2*ky**2
+                               - 2*exx*ezz*kx**4 - 2*exx*ezz*kx**2*ky**2
+                               + exy**2*kx**2*ky**2 + 4*exy*eyx*ezz**2
+                               - 4*exy*eyx*ezz*kx**2 - 4*exy*eyx*ezz*ky**2
+                               + 2*exy*eyx*kx**2*ky**2 - 2*exy*eyy*ezz*kx*ky
+                               + 2*exy*eyy*kx*ky**3 + 4*exy*ezz**2*kx*ky
+                               - 2*exy*ezz*kx**3*ky - 2*exy*ezz*kx*ky**3
+                               + eyx**2*kx**2*ky**2 - 2*eyx*eyy*ezz*kx*ky
+                               + 2*eyx*eyy*kx*ky**3 + 4*eyx*ezz**2*kx*ky
+                               - 2*eyx*ezz*kx**3*ky - 2*eyx*ezz*kx*ky**3
+                               + eyy**2*ezz**2 - 2*eyy**2*ezz*ky**2
+                               + eyy**2*ky**4 - 2*eyy*ezz**2*kx**2
+                               + 2*eyy*ezz**2*ky**2 - 2*eyy*ezz*kx**2*ky**2
+                               - 2*eyy*ezz*ky**4 + ezz**2*kx**4
+                               + 2*ezz**2*kx**2*ky**2 + ezz**2*ky**4)/ezz)/2,
+                -sqrt(2)*sqrt(exx - exx*kx**2/ezz - exy*kx*ky/ezz
+                - eyx*kx*ky/ezz + eyy - eyy*ky**2/ezz - kx**2
+                - ky**2 + sqrt(exx**2*ezz**2 - 2*exx**2*ezz*kx**2
+                               + exx**2*kx**4 - 2*exx*exy*ezz*kx*ky
+                               + 2*exx*exy*kx**3*ky - 2*exx*eyx*ezz*kx*ky
+                               + 2*exx*eyx*kx**3*ky - 2*exx*eyy*ezz**2
+                               + 2*exx*eyy*ezz*kx**2 + 2*exx*eyy*ezz*ky**2
+                               + 2*exx*eyy*kx**2*ky**2 + 2*exx*ezz**2*kx**2
+                               - 2*exx*ezz**2*ky**2 - 2*exx*ezz*kx**4
+                               - 2*exx*ezz*kx**2*ky**2 + exy**2*kx**2*ky**2
+                               + 4*exy*eyx*ezz**2 - 4*exy*eyx*ezz*kx**2
+                               - 4*exy*eyx*ezz*ky**2 + 2*exy*eyx*kx**2*ky**2
+                               - 2*exy*eyy*ezz*kx*ky + 2*exy*eyy*kx*ky**3
+                               + 4*exy*ezz**2*kx*ky - 2*exy*ezz*kx**3*ky
+                               - 2*exy*ezz*kx*ky**3 + eyx**2*kx**2*ky**2
+                               - 2*eyx*eyy*ezz*kx*ky + 2*eyx*eyy*kx*ky**3
+                               + 4*eyx*ezz**2*kx*ky - 2*eyx*ezz*kx**3*ky
+                               - 2*eyx*ezz*kx*ky**3 + eyy**2*ezz**2
+                               - 2*eyy**2*ezz*ky**2 + eyy**2*ky**4
+                               - 2*eyy*ezz**2*kx**2 + 2*eyy*ezz**2*ky**2
+                               - 2*eyy*ezz*kx**2*ky**2 - 2*eyy*ezz*ky**4
+                               + ezz**2*kx**4 + 2*ezz**2*kx**2*ky**2
+                               + ezz**2*ky**4)/ezz)/2,
+                sqrt(2)*sqrt(exx - exx*kx**2/ezz - exy*kx*ky/ezz
+                - eyx*kx*ky/ezz + eyy - eyy*ky**2/ezz - kx**2
+                - ky**2 + sqrt(exx**2*ezz**2 - 2*exx**2*ezz*kx**2
+                               + exx**2*kx**4 - 2*exx*exy*ezz*kx*ky
+                               + 2*exx*exy*kx**3*ky - 2*exx*eyx*ezz*kx*ky
+                               + 2*exx*eyx*kx**3*ky - 2*exx*eyy*ezz**2
+                               + 2*exx*eyy*ezz*kx**2 + 2*exx*eyy*ezz*ky**2
+                               + 2*exx*eyy*kx**2*ky**2 + 2*exx*ezz**2*kx**2
+                               - 2*exx*ezz**2*ky**2 - 2*exx*ezz*kx**4
+                               - 2*exx*ezz*kx**2*ky**2 + exy**2*kx**2*ky**2
+                               + 4*exy*eyx*ezz**2 - 4*exy*eyx*ezz*kx**2
+                               - 4*exy*eyx*ezz*ky**2 + 2*exy*eyx*kx**2*ky**2
+                               - 2*exy*eyy*ezz*kx*ky + 2*exy*eyy*kx*ky**3
+                               + 4*exy*ezz**2*kx*ky - 2*exy*ezz*kx**3*ky
+                               - 2*exy*ezz*kx*ky**3 + eyx**2*kx**2*ky**2
+                               - 2*eyx*eyy*ezz*kx*ky + 2*eyx*eyy*kx*ky**3
+                               + 4*eyx*ezz**2*kx*ky - 2*eyx*ezz*kx**3*ky
+                               - 2*eyx*ezz*kx*ky**3 + eyy**2*ezz**2
+                               - 2*eyy**2*ezz*ky**2 + eyy**2*ky**4
+                               - 2*eyy*ezz**2*kx**2 + 2*eyy*ezz**2*ky**2
+                               - 2*eyy*ezz*kx**2*ky**2 - 2*eyy*ezz*ky**4
+                               + ezz**2*kx**4 + 2*ezz**2*kx**2*ky**2
+                               + ezz**2*ky**4)/ezz)/2]
     subsdict = {
         kx: kpa[0, 0],
         ky: kpa[1, 0],

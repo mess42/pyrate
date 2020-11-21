@@ -271,6 +271,46 @@ The other coefficients follow the choice of the solution for $p$.
  s &=& \frac{d}{q}
 \end{eqnarray}
 
+\section{Application to Refraction}
+
+\begin{align}
+0 &=  \xi ^4 
+      + \frac{c_3}{c_4} \xi ^3 
+      + \frac{c_2}{c_4} \xi ^2 
+      + \frac{c_1}{c_4} \xi 
+      + \frac{c_0}{c_4}
+\\
+ &= ( \xi^2 + p \xi + q )( \xi^2 + r \xi + s) 
+\end{align}
+\begin{eqnarray}
+  p &=& \frac{c_3}{2 c_4} \pm \sqrt{ \frac{c_3^2}{4 c_4^2} - x}
+\end{eqnarray}
+where $x$ is a solution of the cubic equation
+\begin{eqnarray}
+  x^3 
+  - \frac{2 c_2}{c_4} x^2 
+  + \frac{c_1 c_3 + c_2^2 - 4 c_0 c_4}{c_4^2} x
+  + \frac{- c_3 c_2 c_1 + c_0 c_3^2 + c_1^2 c_4}{c_4^3}
+  &=& 0
+\end{eqnarray}
+we abbreviate the polynomial coefficients
+\begin{eqnarray}
+ 0 &=& x^3 + b x^2 + c x + d\\
+ b &=& - \frac{2 c_2}{c_4}\\
+ c &=&   \frac{c_1 c_3 + c_2^2 - 4 c_0 c_4}{c_4^2}\\
+ d &=&   \frac{- c_3 c_2 c_1 + c_0 c_3^2 + c_1^2 c_4}{c_4^3}
+\end{eqnarray}
+We perform a linear Tschirnhaus transformation
+$x = z -\frac{b}{3}$ to depress the equation
+\begin{eqnarray}
+0 &=& z^3 + \tilde{p} z + \tilde{q}
+\\
+\tilde{p} &=& 3 e^2 + 2 \frac{b}{a} e + \frac{c}{a}
+\\
+\tilde{q} &=& e^3 + \frac{b}{a} e^2 + \frac{c}{a} e + \frac{d}{a}
+\\
+e &=& - \frac{b}{3}
+\end{eqnarray}
 
 
 
