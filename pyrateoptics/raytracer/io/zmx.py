@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
 import codecs
+import sys
 import re
 import math
 import uuid
@@ -87,9 +88,12 @@ class ZMXParser(BaseLogger):
 
         # rU - universal newline mode: translates all lineendings into \n
         # is obsolete in Python3 since U mode is default
-        with codecs.open(filename, "rU", encoding=codec_name) as filehandler:
+        open_mode = "r" if sys.version_info.major > 2 else "rU"
+        with codecs.open(filename, open_mode,
+                         encoding=codec_name) as filehandler:
             self.debug(str(filehandler))
             self.__textlines = list([line for line in filehandler])
+
 
         self.__full_textlines = "".join(self.__textlines)
         self.debug(self.__textlines[:10])
