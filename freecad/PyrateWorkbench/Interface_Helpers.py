@@ -36,6 +36,10 @@ from .Interface_Checks import (isOpticalSystemObserver,
                                isMaterialCatalogueObject,
                                isLocalCoordinatesObserver)
 
+try:
+    from string import maketrans
+except ImportError:
+    maketrans = str.maketrans
 
 # general
 
