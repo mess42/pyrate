@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import FreeCAD
 import FreeCADGui
 
-from PySide.QtGui import QLineEdit, QInputDialog, QMessageBox
+from PySide.QtGui import QLineEdit, QInputDialog
 
 
 from .Observer_OpticalSystem import OpticalSystemObserver
@@ -36,8 +36,11 @@ from .Object_MaterialCatalogue import MaterialCatalogueObject
 from .Interface_Identifiers import (Title_MessageBoxes,
                                     Group_StandardMaterials_Label)
 from .Interface_Checks import (existsStandardMaterialsCatalogue,
-                               getStandardMaterialsCatalogue,
                                isOpticalSystemObserver)
+from .Interface_Helpers import (getStandardMaterialsCatalogue,
+                                getStandardMaterialsCatalogueObject,
+                                getMaterialCatalogueObject,
+                                getAllMaterialsFromMaterialCatalogue)
 
 from .TaskPanel_SurfaceList_Edit import SurfaceListTaskPanelEdit
 
@@ -66,20 +69,34 @@ class CreateSystemTool:
             osobs = OpticalSystemObserver(doc, text)
 
         if not existsStandardMaterialsCatalogue(doc):
+            # No question for adding the standard material catalogue anymore
             # result = QMessageBox.question(None, Title_MessageBoxes,
             #                               "No Standard Materials Catalogue defined. Create one?",
             #                               QMessageBox.Yes | QMessageBox.No)
             # if result == QMessageBox.Yes:
+            # create standard materials catalogue
             stdmatcatalogue = MaterialCatalogueObject(
                 doc, Group_StandardMaterials_Label)
         else:
-            stdmatcatalogue = getStandardMaterialsCatalogue(doc)
+            # get standard materials catalogue
+            stdmatcatalogue = getStandardMaterialsCatalogueObject(doc)
+
         if stdmatcatalogue is not None:
-            stdmatcatalogue.addMaterial("ConstantIndexGlass", "PMMA", index=1.5)
-            stdmatcatalogue.addMaterial("ConstantIndexGlass", "Vacuum")
-            stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")
-
-
+            # check whether the materials are already in the catalogue
+            # if yes, do nothing
+            stdmatcatalogue_group = getStandardMaterialsCatalogue(doc)
+            all_materials_in_stdmatcatalogue =\
+                getAllMaterialsFromMaterialCatalogue(stdmatcatalogue_group)
+            if not any([material.Name in ("PMMA",
+                                          "Vacuum",
+                                          "mydefaultmodelglass")
+                        for material in all_materials_in_stdmatcatalogue]):
+                # checked for .Name since .Label may change afterwards, Name
+                # not
+                stdmatcatalogue.addMaterial("ConstantIndexGlass", "PMMA",
+                                            index=1.5)
+                stdmatcatalogue.addMaterial("ConstantIndexGlass", "Vacuum")
+                stdmatcatalogue.addMaterial("ModelGlass", "mydefaultmodelglass")
 
         if osobs != None:
             osobs.initFromGivenOpticalSystem(osobs.initDemoSystem())

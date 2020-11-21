@@ -188,42 +188,5 @@ def existsStandardMaterialsCatalogue(freecad_doc):
     return any([obj.Label == Group_StandardMaterials_Label
                 for obj in freecad_doc.Objects if isMaterialCatalogue(obj)])
 
-def getStandardMaterialsCatalogue(freecad_doc):
-    """
-    If document contains a standard material catalogue, return its
-    material catalogue object (which comes in handy, if one wants
-    to add new materials to it).
-
-    Parameters
-    ----------
-    freecad_doc : FreeCAD document
-        FreeCAD document in question.
-
-    Returns
-    -------
-    MaterialCatalogueObject
-        The material catalogue object of the standard material catalogue group
-        in the specified FreeCAD document.
-
-    """
-    group_candidates = list([obj for obj in freecad_doc.Objects
-                             if isMaterialCatalogue(obj) and
-                                 obj.Label == Group_StandardMaterials_Label])
-    # group_candidates contains all groups which are standard material groups
-    # this list should only be empty or contain one group
-    if len(group_candidates) > 0:
-        group = group_candidates[0]
-        # group is selected, now search for the material catalogue object
-        materialcatalogue_candidates = [obj for obj in group.Group
-                                        if isMaterialCatalogueObject(obj)]
-        # every material catalogue group has one (and only one)
-        if len(materialcatalogue_candidates) > 0:
-            # return .Proxy object from this object to be able to add further
-            # materials to the group
-            return materialcatalogue_candidates[0].Proxy
-        else:
-            return None
-    else:
-        return None
 
 
