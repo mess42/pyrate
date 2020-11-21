@@ -420,13 +420,17 @@ class OpticalElement(LocalCoordinatesTreeBase):
 
             (num_dims, num_pts) = dx0.shape
 
-            dx0timesdk0_real = np.reshape(np.einsum("i...,j...->ij...", dx0, dk0_real), (num_dims*num_dims, num_pts))
-            dx0timesdk0_imag = np.reshape(np.einsum("i...,j...->ij...", dx0, dk0_imag), (num_dims*num_dims, num_pts))
+            dx0timesdk0_real = np.reshape(
+                np.einsum("i...,j...->ij...", dx0, dk0_real),
+                (num_dims*num_dims, num_pts))
+            dx0timesdk0_imag = np.reshape(np.einsum("i...,j...->ij...",
+                                                    dx0, dk0_imag),
+                (num_dims*num_dims, num_pts))
 
             if pilotbundle_generation.lower() == "complex":
-                DX0 = np.asarray(np.vstack((dx0, dk0_real, dk0_imag)), dtype=float)  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
+                DX0 = np.real(np.vstack((dx0, dk0_real, dk0_imag)))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
             elif pilotbundle_generation.lower() == "real":
-                DX0 = np.asarray(np.vstack((dx0, dk0_real)), dtype=float)  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
+                DX0 = np.real(np.vstack((dx0, dk0_real)))  #, dx0timesdk0_real, dx0timesdk0_imag))  # for respecting image plane tilt
 
             self.debug("DX0\n" + np.array_str(DX0, precision=4, suppress_small=True, max_line_width=120))
 

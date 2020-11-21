@@ -189,6 +189,12 @@ class Surface(LocalCoordinatesTreeBase):
         yinap_shape = localpts_shape[1, :]
         zinap_shape = self.shape.getSag(xinap_shape, yinap_shape)
 
+        # check for finite values
+        xinap_shape = xinap_shape[np.isfinite(zinap_shape)]
+        yinap_shape = yinap_shape[np.isfinite(zinap_shape)]
+        zinap_shape = zinap_shape[np.isfinite(zinap_shape)]
+
+
         localpts_shape = np.row_stack((xinap_shape, yinap_shape, zinap_shape))
         localpts_surf =\
             self.rootcoordinatesystem.returnOtherToActualPoints(localpts_shape,

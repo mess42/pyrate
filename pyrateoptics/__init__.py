@@ -25,6 +25,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
+# Use this file for convenience functions which should be called
+# at the main package level.
+
+import uuid
 import logging
 from distutils.version import StrictVersion
 
@@ -294,6 +298,7 @@ def draw(os, rays=None,
          do_not_draw_raybundles=[],
          interactive=False,
          show_box=True,
+         label=None,
          linewidth=1.0,
          export_type="pdf",
          export=None, **kwargs):
@@ -309,6 +314,8 @@ def draw(os, rays=None,
 
     if export is not None:
         interactive = False
+    if label is None:
+        label = str(uuid.uuid4())
 
     axis_color = "lightgoldenrodyellow"
 
@@ -318,11 +325,11 @@ def draw(os, rays=None,
     fig = plt.figure(1, dpi=dpi, figsize=figsize)
 
     if not show_box:
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax = plt.Axes(fig, [0., 0., 1., 1.], label=label)
         ax.set_axis_off()
         fig.add_axes(ax)
     else:
-        ax = fig.add_subplot(1, 1, 1)
+        ax = fig.add_subplot(1, 1, 1, label=label)
 
     if interactive:
         fig.subplots_adjust(left=0.25, bottom=0.25)
