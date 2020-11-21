@@ -180,10 +180,14 @@ to the config file, like, e.g., standard values for drawing.
 Playing around
 ---
 
-Perform the demos:
+Perform all the demos:
 
     $ cd /to/directory/where/pyrate/git/repo/is
-    $ python demos/demo_prism.py
+    $ ./run_demos
+
+or run a single demo:
+
+    $ python3 demos/demo_prism.py
 
 or perform directly in a script:
 
