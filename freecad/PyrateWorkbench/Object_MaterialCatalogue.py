@@ -24,32 +24,36 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from .Interface_Identifiers import *
-from .Interface_Helpers import *
+from .Interface_Identifiers import Object_MaterialCatalogue_Properties_Label
+from .Interface_Helpers import uuidToName
 
 
 import uuid
 
 from .Object_Material import MaterialObject
 
-# TODO: material catalogue can either be filled by reading yaml files from
-# refractive-index.info or by reading a complete data base
-# subgroups are given by shelfs, books, ...
-# different material data bases are possible
-# objects are interfaces for isotropic, grin, anisotropic, catalogue, etc.
-
 class MaterialCatalogueObject:
 
 
     def __init__(self, doc, name):
         self.__doc = doc # e.g. ActiveDocument
-        self.__group = doc.addObject("App::DocumentObjectGroup", name + "_" + uuidToName(uuid.uuid4())) # materials catalogue group
+        self.__group = doc.addObject("App::DocumentObjectGroup",
+                                     name + "_" + uuidToName(uuid.uuid4()))
+        # materials catalogue group
         self.__group.Label = name
 
-        self.__obj = doc.addObject("App::FeaturePython", name + Object_MaterialCatalogue_Properties_Label)
+        self.__obj = doc.addObject("App::FeaturePython",
+                                   name +
+                                   Object_MaterialCatalogue_Properties_Label)
         self.__group.addObject(self.__obj)
-        self.__obj.addProperty("App::PropertyStringList", "comment", "Comment", "comment lines").comment = []
-        self.__obj.addProperty("App::PropertyString", "NameMaterialsCatalogue", "Comment", "name of material catalogue").NameMaterialsCatalogue = self.__group.Name
+        self.__obj.addProperty("App::PropertyStringList",
+                               "comment",  # property name
+                               "Comment",  # property group in task bar
+                               "comment lines").comment = []
+        self.__obj.addProperty("App::PropertyString",
+                               "NameMaterialsCatalogue",  # property name
+                               "Comment",  # property group in task bar
+                               "name of material catalogue").NameMaterialsCatalogue = self.__group.Name
 
         self.__obj.setEditorMode("NameMaterialsCatalogue", 1) # readonly
 
