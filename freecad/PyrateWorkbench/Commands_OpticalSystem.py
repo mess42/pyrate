@@ -82,6 +82,8 @@ class CreateSystemTool:
             stdmatcatalogue = getStandardMaterialsCatalogueObject(doc)
 
         if stdmatcatalogue is not None:
+            # TODO: put initialization procedure elsewhere
+
             # check whether the materials are already in the catalogue
             # if yes, do nothing
             stdmatcatalogue_group = getStandardMaterialsCatalogue(doc)

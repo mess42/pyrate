@@ -31,10 +31,12 @@ from PySide import QtGui
 
 from .Interface_Identifiers import Title_MessageBoxes
 from .TaskPanel_Functions_Edit import FunctionsTaskPanelEdit
+from .Object_NotSerializable import NotSerializable
 
 from pyrateoptics.core.functionobject import FunctionObject
 
-class FunctionsView:
+
+class FunctionsView(NotSerializable):
 
     def __init__(self, vobj):
         self.vobj = vobj
@@ -92,12 +94,6 @@ class FunctionsView:
         if Result:
             self.obj.Proxy.CoreFunctionObject.save(FileName)
 
-    def __setstate__(self, state):
-        return None
-
-    def __getstate__(self):
-        return None
-
 # TODO: adding objects to document and document_group_path
 # document_group_path: "/group1/subgroup_a/object_label",
 # "/" representing the root in the tree
@@ -108,7 +104,7 @@ class FunctionsView:
 # properties
 
 
-class FunctionsObject:
+class FunctionsObject(NotSerializable):
 
     def __init__(self, name, initialsrc, doc, group):
         self.Document = doc  # e.g. ActiveDocument
@@ -156,9 +152,3 @@ class FunctionsObject:
                 self.trust()
             else:
                 self.untrust()
-
-    def __setstate__(self, state):
-        return None
-
-    def __getstate__(self):
-        return None

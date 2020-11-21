@@ -41,23 +41,31 @@ from pyrateoptics.raytracer.surface import Surface
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 
 from pyrateoptics.raytracer import ray
+from pyrateoptics.raytracer import aim
 
 # freecad modules
 
-import FreeCAD, Part
+import FreeCAD, Part, Points
 
 # TODO: rename Observer to object (developer sees if it is derived from Observer)
+
+from .Object_NotSerializable import NotSerializable
 from .Observer_LocalCoordinates import LC
 
 from .Object_Surface import SurfaceObject
 from .View_Surface import SurfaceView
 
-from .Interface_Identifiers import *
-from .Interface_Helpers import *
-from .Interface_Checks import *
+from .Interface_Identifiers import (Group_OS_Label,
+                                    Group_Surface_Label,
+                                    Group_Functions_Label,
+                                    Group_Coordinates_Label)
+from .Interface_Helpers import uuidToName
+from .Interface_Checks import (isLocalCoordinatesObserver,
+                               isGroup,
+                               )
 
 
-class OpticalSystemObserver(AbstractObserver):
+class OpticalSystemObserver(AbstractObserver, NotSerializable):
     def __init__(self, doc, name):
         self.__doc = doc
         obj = doc.addObject("App::FeaturePython", name)
@@ -108,11 +116,6 @@ class OpticalSystemObserver(AbstractObserver):
                         "osclass",
                         "OS",
                         "os class interface").osclass = OpticalSystem.p()
-
-
-
-
-
 
         obj.addProperty("App::PropertyPythonObject",
                         "coords",
@@ -199,26 +202,18 @@ class OpticalSystemObserver(AbstractObserver):
         """ can be used if there are any observers coupled to the optical system """
         pass
 
-    def __getstate__(self):
-        '''When saving the document this object gets stored using Python's json module.\
-                Since we have some un-serializable parts here -- the Coin stuff -- we must define this method\
-                to return a tuple of all serializable objects or None.'''
-        return None
-
-    def __setstate__(self,state):
-        '''When restoring the serialized object from document we have the chance to set some internals here.\
-                Since no data were serialized nothing needs to be done here.'''
-        return None
 
     def getObjectsFromGroupTree(self, grp, boolfun):
         lstboolfun = [o for o in grp.Group if boolfun(o)]
-        lstsubgroups = sum([self.getObjectsFromGroupTree(o, boolfun) for o in grp.Group if isGroup(o)], []) # flatten
+        lstsubgroups = sum([self.getObjectsFromGroupTree(o, boolfun)
+                            for o in grp.Group if isGroup(o)], []) # flatten
         return sum([lstboolfun, lstsubgroups], [])
 
 
 
     def returnObjectsFromCoordinatesGroup(self):
-        return self.getObjectsFromGroupTree(self.__coordinatesgroup, isLocalCoordinatesObserver)
+        return self.getObjectsFromGroupTree(self.__coordinatesgroup,
+                                            isLocalCoordinatesObserver)
 
 
     def initDemoSystem(self):
@@ -349,9 +344,9 @@ class OpticalSystemObserver(AbstractObserver):
 
             self.intersectptsobs.append(FCptsobj)
 
-            for (n, ray) in enumerate(rays):
+            for (n, ray_object) in enumerate(rays):
                 FCrayobj = doc.addObject("Part::Feature", "Surf_"+str(i)+"_Ray_"+str(n))
-                FCrayobj.Shape = ray
+                FCrayobj.Shape = ray_object
                 FCrayview = FCrayobj.ViewObject
 
                 FCrayview.LineColor = color

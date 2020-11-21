@@ -23,10 +23,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+# freecad imports
 
-from .Interface_Helpers import *
-from .Interface_Checks import *
-from .Interface_Identifiers import *
+import FreeCAD
+
+# pyrate imports
 
 from pyrateoptics.core.observers import AbstractObserver
 from pyrateoptics.raytracer.surface_shape import (Conic,
@@ -35,10 +36,19 @@ from pyrateoptics.raytracer.surface_shape import (Conic,
                                                   ExplicitShape)
 from pyrateoptics.raytracer.aperture import BaseAperture, CircularAperture
 
-import FreeCAD
+# pyrate workbench imports
 
+from .Interface_Identifiers import (Surface_GUIChangeableProperties,
+                                    Shape_Asphere,
+                                    Shape_Conic,
+                                    Shape_Cylinder,
+                                    Shape_Explicit,
+                                    Aperture_Base,
+                                    Aperture_Circular,
+                                    Aperture_UserDefined)
+from .Object_NotSerializable import NotSerializable
 
-class SurfaceObject(AbstractObserver):
+class SurfaceObject(AbstractObserver, NotSerializable):
 
     def __init__(self, doc, group, name, shapetype, aptype, lclabel,
                  matlabel, **kwargs):
