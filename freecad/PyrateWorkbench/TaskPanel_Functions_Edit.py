@@ -27,8 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import FreeCADGui
 
-from .Interface_Helpers import *
-from .Interface_Identifiers import *
+from .Interface_Helpers import getRelativeFilePath
 
 
 class FunctionsTaskPanelEdit:
@@ -38,9 +37,14 @@ class FunctionsTaskPanelEdit:
         # this will create a Qt widget from our ui file
         self.form = FreeCADGui.PySideUic.loadUi(fn)
         self.fobj = fobj
-        self.form.plainTextEdit.insertPlainText(fobj.Proxy.Source)
+        self.form.plainTextEdit.insertPlainText(
+            fobj.Proxy.CoreFunctionObject.source)
 
     def accept(self):
-        self.fobj.Proxy.Source = self.form.plainTextEdit.toPlainText()
+        self.fobj.Proxy.CoreFunctionObject.source =\
+            self.form.plainTextEdit.toPlainText()
+        self.fobj.Proxy.trust()
+        # setting to True since source code was input via text field, which
+        # was seen by the user
 
         FreeCADGui.Control.closeDialog()

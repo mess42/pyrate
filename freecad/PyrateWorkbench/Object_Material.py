@@ -25,15 +25,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from .Interface_Helpers import *
-from .Interface_Checks import *
-from .Interface_Identifiers import *
+# from .Interface_Helpers import *
+# from .Interface_Checks import *
+from .Interface_Identifiers import (Material_CatalogMaterial1,
+                                    Material_CatalogMaterial2,
+                                    Material_ConstantIndexGlass,
+                                    Material_ModelGlass,
+                                    Material_GrinMedium,
+                                    Material_GUIChangeableProperties)
 
 from pyrateoptics.core.observers import AbstractObserver
 from pyrateoptics.raytracer.material.material_isotropic import\
     ConstantIndexGlass, ModelGlass
 from pyrateoptics.raytracer.material.material_grin import\
     IsotropicGrinMaterial
+from pyrateoptics.raytracer.material.material_glasscat import\
+    CatalogMaterial
 
 import numpy as np
 
@@ -49,22 +56,27 @@ class MaterialObject(AbstractObserver):
         self.__group.addObject(self.__obj)
 
         self.initfundict = {
-            Material_ConstantIndexGlass:self.initConstantIndex,
-            Material_ModelGlass:self.initModel,
-            Material_Mirror:self.initMirror,
-            Material_GrinMedium:self.initGrin
+            Material_ConstantIndexGlass: self.initConstantIndex,
+            Material_ModelGlass: self.initModel,
+            Material_GrinMedium: self.initGrin,
+            Material_CatalogMaterial1: self.initCatalogMaterial,
+            Material_CatalogMaterial2: self.initCatalogMaterial
             }
 
         self.writebackfunc = {
-            Material_ConstantIndexGlass:self.writebackConstantIndex,
-            Material_ModelGlass:self.writebackModel,
-            Material_GrinMedium:self.writebackGrin
+            Material_ConstantIndexGlass: self.writebackConstantIndex,
+            Material_ModelGlass: self.writebackModel,
+            Material_GrinMedium: self.writebackGrin,
+            Material_CatalogMaterial1: self.writebackCatalogMaterial,
+            Material_CatalogMaterial2: self.writebackCatalogMaterial
         }
 
         self.readfunc = {
-            Material_ConstantIndexGlass:self.readConstantIndex,
-            Material_ModelGlass:self.readModel,
-            Material_GrinMedium:self.readGrin
+            Material_ConstantIndexGlass: self.readConstantIndex,
+            Material_ModelGlass: self.readModel,
+            Material_GrinMedium: self.readGrin,
+            Material_CatalogMaterial1: self.readCatalogMaterial,
+            Material_CatalogMaterial2: self.readCatalogMaterial
         }
 
         # TODO: set values from initialized matclass coming from a predefined optical system
@@ -81,21 +93,20 @@ class MaterialObject(AbstractObserver):
 
     # initfunctions
 
-    def initConstantIndex(self, index=1.0):
+    def initConstantIndex(self, lc=None, index=1.0):
         self.__obj.addProperty("App::PropertyFloat", "index", "Material", "constant index").index = index
-        self.__obj.matclass = ConstantIndexGlass(index)
+        self.__obj.matclass = ConstantIndexGlass.p(lc, index)
 
-    def initModel(self, n0=1.49749699179, A=0.0100998734374, B=0.000328623343942):
+    def initModel(self, lc=None, n0=1.49749699179, A=0.0100998734374,
+                  B=0.000328623343942):
         self.__obj.addProperty("App::PropertyFloat", "n0", "Material", "Conrady index").n0 = n0
         self.__obj.addProperty("App::PropertyFloat", "A", "Material", "Conrady A").A = A
         self.__obj.addProperty("App::PropertyFloat", "B", "Material", "Conrady B").B = B
-        self.__obj.matclass = ModelGlass([n0, A, B])
-
-    def initMirror(self):
-        self.__obj.matclass = Mirror()
+        self.__obj.matclass = ModelGlass.p(lc, [n0, A, B])
 
     def initGrin(
         self,
+        lc=None,
         fun=lambda x, y, z: np.ones_like(x),
         dfdx=lambda x, y, z: np.zeros_like(x),
         dfdy=lambda x, y, z: np.zeros_like(x),
@@ -107,7 +118,13 @@ class MaterialObject(AbstractObserver):
         self.__obj.addProperty("App::PropertyFloat", "ds", "Integration", "Integration step").ds = ds
         self.__obj.addProperty("App::PropertyFloat", "energyviolation", "Integration", "Energy Violation").energyviolation = energyviolation
 
-        self.__obj.matclass = GrinMaterial(fun, dfdx, dfdy, dfdz, ds, energyviolation, bndfunction)
+        self.__obj.matclass = IsotropicGrinMaterial.p(lc, fun, dfdx, dfdy, dfdz,
+                                                      ds, energyviolation,
+                                                      bndfunction)
+
+    def initCatalogMaterial(self, lc=None, ymldict=None):
+        self.__obj.matclass = CatalogMaterial.p(lc, ymldict,
+                                                name=self.__obj.Label)
 
 
     def writebackConstantIndex(self, fp):
@@ -121,7 +138,8 @@ class MaterialObject(AbstractObserver):
     def writebackGrin(self, fp):
         pass
 
-    # TODO: GRIN
+    def writebackCatalogMaterial(self, fp):
+        pass
 
     def readConstantIndex(self):
         self.__obj.index = self.__obj.matclass.n.evaluate()
@@ -132,6 +150,9 @@ class MaterialObject(AbstractObserver):
         self.__obj.B = self.__obj.matclass.B.evaluate()
 
     def readGrin(self):
+        pass
+
+    def readCatalogMaterial(self):
         pass
 
     def onChanged(self, fp, prop):
