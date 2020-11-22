@@ -35,6 +35,7 @@ from pyrateoptics.core.observers import AbstractObserver
 
 from pyrateoptics.raytracer.material import material_isotropic
 from pyrateoptics.raytracer.surface_shape import Conic
+from pyrateoptics.raytracer.aperture import CircularAperture
 
 from pyrateoptics.raytracer.optical_system import OpticalSystem
 from pyrateoptics.raytracer.optical_element import OpticalElement
@@ -232,13 +233,20 @@ class OpticalSystemObserver(AbstractObserver, NotSerializable):
 
 
         objectsurf = Surface.p(lc0)
-        surf1 = Surface.p(lc1, shape=Conic.p(lc1, curv=1/-5.922))
-        surf2 = Surface.p(lc2, shape=Conic.p(lc2, curv=1/-3.160))
-        surf3 = Surface.p(lc3, shape=Conic.p(lc3, curv=1/15.884))
-        surf4 = Surface.p(lc4, shape=Conic.p(lc4, curv=1/-12.756))
-        stopsurf = Surface.p(lc5)
-        surf6 = Surface.p(lc6, shape=Conic.p(lc6, curv=1/3.125))
-        surf7 = Surface.p(lc7, shape=Conic.p(lc7, curv=1/1.479))
+        surf1 = Surface.p(lc1, shape=Conic.p(lc1, curv=1/-5.922),
+                          aperture=CircularAperture.p(lc1, maxradius=10.0))
+        surf2 = Surface.p(lc2, shape=Conic.p(lc2, curv=1/-3.160),
+                          aperture=CircularAperture.p(lc2, maxradius=10.0))
+        surf3 = Surface.p(lc3, shape=Conic.p(lc3, curv=1/15.884),
+                          aperture=CircularAperture.p(lc3, maxradius=10.0))
+        surf4 = Surface.p(lc4, shape=Conic.p(lc4, curv=1/-12.756),
+                          aperture=CircularAperture.p(lc4, maxradius=10.0))
+        stopsurf = Surface.p(lc5,
+                             aperture=CircularAperture.p(lc5, maxradius=10.0))
+        surf6 = Surface.p(lc6, shape=Conic.p(lc6, curv=1/3.125),
+                          aperture=CircularAperture.p(lc6, maxradius=10.0))
+        surf7 = Surface.p(lc7, shape=Conic.p(lc7, curv=1/1.479),
+                          aperture=CircularAperture.p(lc7, maxradius=10.0))
         image = Surface.p(lc8)
 
 

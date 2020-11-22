@@ -254,25 +254,22 @@ class SurfaceObject(AbstractObserver, NotSerializable):
     def initApBase(self, **kwargs):
         self.__obj.apertureclass = BaseAperture.p(self.__obj.LocalCoordinatesLink.Proxy.getLC())
 
-    def initApCircular(self, semidiameter=1.0, tx=0., ty=0., **kwargs):
+    def initApCircular(self, minradius=0., maxradius=1.0, **kwargs):
 
         apclass = None
         if "surface" in kwargs:
             apclass = kwargs["surface"].aperture
-            semidiameter = apclass.semidiameter
-            tx = apclass.tx
-            ty = apclass.ty
+            minradius = apclass.annotations["minradius"]
+            maxradius = apclass.annotations["maxradius"]
         else:
             apclass = CircularAperture.p(
                 self.__obj.LocalCoordinatesLink.Proxy.getLC(),
-                semidiameter=semidiameter, tx=tx, ty=ty)
+                minradius=minradius, maxradius=maxradius)
 
-        self.__obj.addProperty("App::PropertyFloat", "semidiameter",
-                               "Aperture", "semidiameter").semidiameter = semidiameter
-        self.__obj.addProperty("App::PropertyFloat", "tx",
-                               "Aperture", "decentration x").tx = tx
-        self.__obj.addProperty("App::PropertyFloat", "ty",
-                               "Aperture", "decentration y").ty = ty
+        self.__obj.addProperty("App::PropertyFloat", "minradius",
+                               "Aperture", "minradius").minradius = minradius
+        self.__obj.addProperty("App::PropertyFloat", "maxradius",
+                               "Aperture", "maxradius").maxradius = maxradius
 
         self.__obj.apertureclass = apclass
 
