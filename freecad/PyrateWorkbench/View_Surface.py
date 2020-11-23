@@ -25,20 +25,20 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-from .Interface_Helpers import *
-from .Interface_Checks import *
-from .Interface_Identifiers import *
+#from .Interface_Helpers import *
+#from .Interface_Checks import *
+#from .Interface_Identifiers import *
 
-from pyrateoptics.core.observers import AbstractObserver
-from pyrateoptics.raytracer.surface_shape import Conic, Asphere, ExplicitShape
-from pyrateoptics.raytracer.aperture import BaseAperture, CircularAperture
+#from pyrateoptics.core.observers import AbstractObserver
+#from pyrateoptics.raytracer.surface_shape import Conic, Asphere, ExplicitShape
+#from pyrateoptics.raytracer.aperture import BaseAperture, CircularAperture
 
 import Part, FreeCAD
 
 import numpy as np
 import math
 
-from timeit import default_timer as timer
+#from timeit import default_timer as timer
 
 class SurfaceView:
     def __init__(self, vobj):

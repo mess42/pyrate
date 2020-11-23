@@ -33,6 +33,7 @@ from .Interface_Identifiers import (Material_CatalogMaterial1,
                                     Material_ModelGlass,
                                     Material_GrinMedium,
                                     Material_GUIChangeableProperties)
+from .Object_NotSerializable import NotSerializable
 
 from pyrateoptics.core.observers import AbstractObserver
 from pyrateoptics.raytracer.material.material_isotropic import\
@@ -46,7 +47,7 @@ import numpy as np
 
 import FreeCAD
 
-class MaterialObject(AbstractObserver):
+class MaterialObject(AbstractObserver, NotSerializable):
 
 
     def __init__(self, doc, group, name, mattype, **kwargs):

@@ -32,8 +32,9 @@ from .Interface_Helpers import uuidToName
 import uuid
 
 from .Object_Material import MaterialObject
+from .Object_NotSerializable import NotSerializable
 
-class MaterialCatalogueObject:
+class MaterialCatalogueObject(NotSerializable):
 
 
     def __init__(self, doc, name):

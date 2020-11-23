@@ -24,10 +24,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+# freecad imports
 
-from .Interface_Helpers import *
-from .Interface_Checks import *
-from .Interface_Identifiers import *
+import FreeCAD
+
+# pyrate imports
 
 from pyrateoptics.core.observers import AbstractObserver
 from pyrateoptics.raytracer.surface_shape import (Conic,
@@ -36,10 +37,19 @@ from pyrateoptics.raytracer.surface_shape import (Conic,
                                                   ExplicitShape)
 from pyrateoptics.raytracer.aperture import BaseAperture, CircularAperture
 
-import FreeCAD
+# pyrate workbench imports
 
+from .Interface_Identifiers import (Surface_GUIChangeableProperties,
+                                    Shape_Asphere,
+                                    Shape_Conic,
+                                    Shape_Cylinder,
+                                    Shape_Explicit,
+                                    Aperture_Base,
+                                    Aperture_Circular,
+                                    Aperture_UserDefined)
+from .Object_NotSerializable import NotSerializable
 
-class SurfaceObject(AbstractObserver):
+class SurfaceObject(AbstractObserver, NotSerializable):
 
     def __init__(self, doc, group, name, shapetype, aptype, lclabel,
                  matlabel, **kwargs):
@@ -244,25 +254,22 @@ class SurfaceObject(AbstractObserver):
     def initApBase(self, **kwargs):
         self.__obj.apertureclass = BaseAperture.p(self.__obj.LocalCoordinatesLink.Proxy.getLC())
 
-    def initApCircular(self, semidiameter=1.0, tx=0., ty=0., **kwargs):
+    def initApCircular(self, minradius=0., maxradius=1.0, **kwargs):
 
         apclass = None
         if "surface" in kwargs:
             apclass = kwargs["surface"].aperture
-            semidiameter = apclass.semidiameter
-            tx = apclass.tx
-            ty = apclass.ty
+            minradius = apclass.annotations["minradius"]
+            maxradius = apclass.annotations["maxradius"]
         else:
             apclass = CircularAperture.p(
                 self.__obj.LocalCoordinatesLink.Proxy.getLC(),
-                semidiameter=semidiameter, tx=tx, ty=ty)
+                minradius=minradius, maxradius=maxradius)
 
-        self.__obj.addProperty("App::PropertyFloat", "semidiameter",
-                               "Aperture", "semidiameter").semidiameter = semidiameter
-        self.__obj.addProperty("App::PropertyFloat", "tx",
-                               "Aperture", "decentration x").tx = tx
-        self.__obj.addProperty("App::PropertyFloat", "ty",
-                               "Aperture", "decentration y").ty = ty
+        self.__obj.addProperty("App::PropertyFloat", "minradius",
+                               "Aperture", "minradius").minradius = minradius
+        self.__obj.addProperty("App::PropertyFloat", "maxradius",
+                               "Aperture", "maxradius").maxradius = maxradius
 
         self.__obj.apertureclass = apclass
 

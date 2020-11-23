@@ -25,21 +25,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 
-import sys
-import os
 import math
 
-from PySide import QtGui, QtCore
-from PySide.QtGui import QInputDialog
-from PySide.QtGui import QLineEdit
+# from PySide import QtGui, QtCore
+# from PySide.QtGui import QInputDialog
+# from PySide.QtGui import QLineEdit
 
-import FreeCADGui, FreeCAD, Part
+import FreeCAD, Part
 from pyrateoptics.raytracer.localcoordinates import LocalCoordinates
 from pyrateoptics.core.observers import AbstractObserver
 
-from .Interface_Checks import *
+from .Object_NotSerializable import NotSerializable
 
-class LC(AbstractObserver):
+# from .Interface_Checks import *
+
+class LC(AbstractObserver, NotSerializable):
     def __init__(self, obj, coupling, doc, group):
         if obj == None:
             obj = doc.addObject("Part::FeaturePython", self.returnStructureLabel(coupling.name))
@@ -129,13 +129,13 @@ class LC(AbstractObserver):
         if prop == "order" or prop == "tilt" or prop == "decenter":
             # write back changed properties to underlying localcoordinate class
             # and update tree
-            self.__lc.tiltx.setvalue(fp.tilt.x*math.pi/180.0)
-            self.__lc.tilty.setvalue(fp.tilt.y*math.pi/180.0)
-            self.__lc.tiltz.setvalue(fp.tilt.z*math.pi/180.0)
+            self.__lc.tiltx.set_value(fp.tilt.x*math.pi/180.0)
+            self.__lc.tilty.set_value(fp.tilt.y*math.pi/180.0)
+            self.__lc.tiltz.set_value(fp.tilt.z*math.pi/180.0)
 
-            self.__lc.decx.setvalue(fp.decenter.x)
-            self.__lc.decy.setvalue(fp.decenter.y)
-            self.__lc.decz.setvalue(fp.decenter.z)
+            self.__lc.decx.set_value(fp.decenter.x)
+            self.__lc.decy.set_value(fp.decenter.y)
+            self.__lc.decz.set_value(fp.decenter.z)
 
             self.__lc.tiltThenDecenter = fp.order
 
@@ -175,17 +175,6 @@ class LC(AbstractObserver):
 
         fp.Shape = Part.makeCompound([l1, l2, l3, c1, c2, c3])
         #FreeCAD.Console.PrintMessage("Recompute Python LC feature\n")
-
-    def __getstate__(self):
-        '''When saving the document this object gets stored using Python's json module.\
-                Since we have some un-serializable parts here -- the Coin stuff -- we must define this method\
-                to return a tuple of all serializable objects or None.'''
-        return None
-
-    def __setstate__(self,state):
-        '''When restoring the serialized object from document we have the chance to set some internals here.\
-                Since no data were serialized nothing needs to be done here.'''
-        return None
 
 
 
