@@ -463,7 +463,8 @@ class IndexFormulaContainer:
         wave_um = 1000 * wavelength  # wavelength in um
         # TODO: this is an if statement in a time-critical place
         if wave_um < self.waverange[0] or wave_um > self.waverange[1]:
-            raise Exception("wavelength out of range")
+            raise Exception("wavelength out of range: {0} um\n\
+must be between {1} um and {2} um".format(wave_um, *self.waverange))
 
         n_index = self.__dispersion_function(wave_um)
         return n_index
@@ -558,7 +559,7 @@ if __name__ == "__main__":
         print("")
 
         schott_nbk7_dict = gcat.get_material_dict(shelf, book, page)
-        schott_nbk7 = CatalogMaterial(None, schott_nbk7_dict)
+        schott_nbk7 = CatalogMaterial.p(None, schott_nbk7_dict)
 
         nF_index = schott_nbk7.get_optical_index(0, Fline)
         nd_index = schott_nbk7.get_optical_index(0, dline)
