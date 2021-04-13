@@ -489,7 +489,10 @@ class ZMXParser(BaseLogger):
 
         return reconstruct_ftyp
 
-    def create_initial_bundle(self, enpd_default=None):
+    def create_initial_bundle(self,
+                              enpd_default=None,
+                              obna_default=None,
+                              fnum_default=None):
         """
         Convenience function to extract field points and initial bundles from
         ZMX files.
@@ -497,18 +500,42 @@ class ZMXParser(BaseLogger):
 
         raybundle_dicts = []
         fielddict = self.read_field()
+        pupil_def = fielddict["fieldpoints_pupildef"]
+        self.debug(str(pupil_def))
 
-        enpd = fielddict["fieldpoints_pupildef"].get("ENPD", enpd_default)
         xyfield_list = fielddict["fieldpoints"]
-        self.debug(enpd)
+
+        radius_ftyp0 = None
+        radius_ftyp1 = None
+
+        if 'ENPD' in pupil_def:
+            enpd = pupil_def.get("ENPD", enpd_default)
+            radius_ftyp0 = 0.5*enpd
+            radius_ftyp1 = 0.5*enpd
+
+        elif 'OBNA' in pupil_def:
+            (obna, obna_flag) = pupil_def.get("OBNA", (obna_default, 0))
+            radius_ftyp0 = obna
+            # TODO: effective focal length missing to calculate beam radius
+            if obna_flag == 0:
+                radius_ftyp1 = math.asin(obna)
+            else:
+                radius_ftyp1 = 2*math.asin(obna)
+
 
         if fielddict["fieldpoints_type"] == 1:
-            raybundle_dicts = [{"startx": xf, "starty": yf, "radius": enpd*0.5}
+            # FTYP 1: (object hight)
+            raybundle_dicts = [{"startx": xf, "starty": yf,
+                                "radius": radius_ftyp0}
                                for (xf, yf) in xyfield_list]
         elif fielddict["fieldpoints_type"] == 0:
+            # FTYP 0: (Angle Deg)
             raybundle_dicts = [{"anglex": -xf*degree, "angley": -yf*degree,
-                                "radius": enpd*0.5}
+                                "radius": radius_ftyp1}
                                for (xf, yf) in xyfield_list]
+        else:
+            raybundle_dicts = [{}]
+
 
         return raybundle_dicts
 
