@@ -54,7 +54,7 @@ Install
 
 Clone the directory from the git repository:
 
-    $ git clone --recursive https://github.com/mess42/pyrate
+    $ git clone --recursive https://salsa.debian.org/mess42/pyrate
 
 Notice, that we also linked the `refractiveindex.info` materials database
 and therefore, a recursive clone is recommended. If you already cloned without
