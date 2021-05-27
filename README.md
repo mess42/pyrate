@@ -1,3 +1,9 @@
+Important
+======
+
+Our main repository and development of Pyrate moved to https://salsa.debian.org/mess42/pyrate/
+The github repository is occasionally updated, but the development there is abandoned. 
+
 Pyrate
 ======
 Optical Design with Python.
@@ -6,9 +12,9 @@ Optical Design with Python.
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/theinze/pyrate?branch=master&svg=true)](https://ci.appveyor.com/project/theinze/pyrate/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/theinze/pyrate/badge.svg?branch=master)](https://coveralls.io/github/theinze/pyrate?branch=master)
 
-![pyrate screenshot1](https://cloud.githubusercontent.com/assets/12564815/24820302/9b8cf4a0-1be8-11e7-8d8b-de0184587145.png)
+![pyrate screenshot1](images/pyrate_in_freecad.png)
 
-![pyrate screenshot2](https://cloud.githubusercontent.com/assets/12564815/21287091/7c56f076-c464-11e6-9cf9-5d623be63db6.png)
+![pyrate screenshot2](images/pyrate_mirror_system.png)
 
 Introduction
 ---
@@ -48,7 +54,7 @@ Install
 
 Clone the directory from the git repository:
 
-    $ git clone --recursive https://github.com/mess42/pyrate
+    $ git clone --recursive https://salsa.debian.org/mess42/pyrate
 
 Notice, that we also linked the `refractiveindex.info` materials database
 and therefore, a recursive clone is recommended. If you already cloned without

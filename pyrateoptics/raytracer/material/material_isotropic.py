@@ -72,14 +72,60 @@ class IsotropicMaterial(MaxwellMaterial):
     def calc_e_field(self, xpos, nvector, kvector,
                      wave=standard_wavelength):
         """
-        Calculate electrical field from boundary conditions
+        Calculate electrical field from boundary conditions.
+
+        At the moment the calculation is done in such a way
+        that it cannot reflect polarization. If polarization
+        is calculated eventually, then the Efield might depend on
+        the Efield from the former material. So it is maybe best
+        to calculate all these quantities in the global (ray)
+        coordinate system. For now, we use an SVD to calculate the
+        Efield from known k and epsilon and therefore it is best to
+        use local quantities.
         """
-        # FIXME: Efield calculation wrong!
-        # For polarization
-        # you have to calc it correctly!
-        ey_vector = np.zeros_like(kvector)
-        ey_vector[1, :] = 1.
-        return np.cross(kvector, ey_vector, axisa=0, axisb=0).T
+        # This Efield calculation is wrong!
+        # k x ey is perp to k, but pseudo vector and breaks down when
+        # k ~ ey.
+
+        #ey_vector = np.zeros_like(kvector)
+        #ey_vector[1, :] = 1.
+        #return np.cross(kvector, ey_vector, axisa=0, axisb=0).T
+
+        # An intermediate solution may be an svd like in the aiming code
+        # For polarization one has to calc it via the Fresnel equations!
+
+        Efield_result = np.zeros_like(kvector)
+
+        # TODO: codesmell: code doubling, see aim.py
+        # TODO: provide in general material a function to calculate the SVD
+        # TODO: provide another function to calculate Efield from that SVD
+        # make sure that user knows that SVD does not provide a specific
+        # polarization
+        (_, nlength) = kvector.shape
+
+        kronecker = np.repeat(np.identity(3)[np.newaxis, :, :],
+                              nlength, axis=0)
+
+        svdmatrix = -kronecker * np.sum(kvector * kvector,
+                                        axis=0)[:, np.newaxis, np.newaxis] +\
+            np.einsum("i...,j...", kvector, kvector) +\
+            self.get_epsilon_tensor(xpos, wave).T  # epstensor
+
+        # svdmatrix = -delta_ij (k*k) + k_i k_j + delta
+
+        # for SVD matrix has to be in form (N, M, M) whereas
+        # the epsilon tensor is (M, M, N) where N represents the copies
+        # for every ray
+
+        (unitary_arrays, singular_values, _) = np.linalg.svd(svdmatrix)
+
+        smallest_absolute_values = np.argsort(np.abs(singular_values),
+                                              axis=1).T[0]
+
+        for i in range(nlength):
+            Efield_result[:, i] =\
+                unitary_arrays[i, :, smallest_absolute_values[i]]
+        return Efield_result
 
     def calc_xi(self, xpos, normal, k_inplane,
                 wave=standard_wavelength):
@@ -119,35 +165,38 @@ class IsotropicMaterial(MaxwellMaterial):
         Refraction in isotropic material.
         """
 
-        k1 = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
-        normal = raybundle.getLocalSurfaceNormal(actualSurface,
+        k1_local = self.lc.returnGlobalToLocalDirections(raybundle.k[-1])
+        normal_local = raybundle.getLocalSurfaceNormal(actualSurface,
                                                  self, raybundle.x[-1])
-        xlocal = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
+        x_local = self.lc.returnGlobalToLocalPoints(raybundle.x[-1])
 
-        valid_normals = checkfinite(normal)
+        valid_normals = checkfinite(normal_local)
 
-        k_inplane = k1 - np.sum(k1 * normal, axis=0) * normal
+        k_inplane_local = k1_local - \
+            np.sum(k1_local * normal_local, axis=0) * normal_local
 
-        (xi, valid_refraction) = self.calc_xi_isotropic(xlocal,
-                                                        normal,
-                                                        k_inplane,
+        (xi, valid_refraction) = self.calc_xi_isotropic(x_local,
+                                                        normal_local,
+                                                        k_inplane_local,
                                                         wave=raybundle.wave)
 
         valid = raybundle.valid[-1] * valid_refraction * valid_normals
 
-        k2 = k_inplane + xi * normal
+        k2_local = k_inplane_local + xi * normal_local
+
+        # only calculate Efield for valid rays
+        Efield_local = self.calc_e_field(x_local[:, valid],
+                                         normal_local[:, valid],
+                                         k2_local[:, valid], wave=raybundle.wave)
 
         # return ray with new direction and properties of old ray
         # return only valid rays
-        orig = raybundle.x[-1][:, valid]
-        newk = self.lc.returnLocalToGlobalDirections(k2[:, valid])
+        x_new_global = raybundle.x[-1][:, valid]
+        k2_global = self.lc.returnLocalToGlobalDirections(k2_local[:, valid])
+        Efield_global = self.lc.returnLocalToGlobalDirections(Efield_local)
 
-        # FIXME: E field calculation wrong: xlocal, normal, newk in different
-        # coordinate systems
-        Efield = self.calc_e_field(xlocal, normal, newk, wave=raybundle.wave)
-
-        return (RayBundle(orig, newk, Efield, raybundle.rayID[valid],
-                          raybundle.wave),)
+        return (RayBundle(x_new_global, k2_global, Efield_global,
+                          raybundle.rayID[valid], raybundle.wave),)
 
     def reflect(self, raybundle, actualSurface, splitup=False):
         """
