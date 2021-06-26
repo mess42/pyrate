@@ -13,8 +13,8 @@
    height="194.88188"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.5 r10040"
-   sodipodi:docname="Neues Dokument 1">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="boundary_wavevectors.svg">
   <defs
      id="defs4">
     <marker
@@ -327,7 +327,7 @@
      showgrid="false"
      units="mm"
      inkscape:window-width="1366"
-     inkscape:window-height="702"
+     inkscape:window-height="704"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1" />
@@ -339,7 +339,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -462,25 +462,25 @@
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
-       style="font-size:18px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="11.69312"
        y="1030.3516"
-       id="text5044"
-       sodipodi:linespacing="125%"><tspan
+       id="text5044"><tspan
          sodipodi:role="line"
          id="tspan5046"
          x="11.69312"
-         y="1030.3516">a)</tspan></text>
+         y="1030.3516"
+         style="font-size:18px;line-height:1.25;font-family:sans-serif">a)</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:18px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
        x="294.53549"
        y="1029.8037"
-       id="text5044-9"
-       sodipodi:linespacing="125%"><tspan
+       id="text5044-9"><tspan
          sodipodi:role="line"
          id="tspan5046-7"
          x="294.53549"
-         y="1029.8037">b)</tspan></text>
+         y="1029.8037"
+         style="font-size:18px;line-height:1.25;font-family:sans-serif">b)</tspan></text>
   </g>
 </svg>

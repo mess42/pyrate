@@ -32,6 +32,7 @@
   \usepackage[dvips]{graphicx}
   \usepackage[colorlinks=false,dvips]{hyperref}
 \fi
+\usepackage{tikz}
 %\DeclareGraphicsRule{.jpg}{eps}{.jpg}{`convert #1 eps:-}
 
 \usepackage{ae}
@@ -216,7 +217,10 @@ which holds in vacuum in this form.
 All these proportionalities are experimentally proven.
 The proportionality factors, however, cannot be defined by a purely mechanical unit system and may be freely chosen, 
 as long as $a_1 = a_2 c_0^2$.
-The most common choices are
+As humans have no intuitive way to experience magnetic fields with their senses,
+there is no obvious choice.
+Historically, several choices have been proposed.
+Some common choices are
 
 \begin{tabular}{l|lll}
                        & $a_1$\qquad\qquad                    & $a_2$\qquad\qquad                  & $a_3$ \\
@@ -422,9 +426,18 @@ and
     \frac{1}{2 \omega \vacuumpermeability}\Re( 
 	\overline{\scalarEfield}_i \scalarEfield_i \delta_{j\ell}  
 	- \overline{\scalarEfield}_j \scalarEfield_\ell 
-      ) k_\ell\,.\label{eq:poyntingvector}
+      ) \wavenumber_\ell\,.\label{eq:poyntingvector}
 \end{eqnarray}
-In general, the direction of the Poynting vector is the real projection of a weighted sum of the directions of $\Wavevector$ and $\Efield$.
+This result is visualised in figure \ref{fig:poynting}.
+
+\begin{figure}
+  \centering
+   \includegraphics[width=0.35\columnwidth]{graphics/poynting}
+  \caption{a) In general, the direction of the Poynting vector is the real projection of a weighted sum of the directions of $\Wavevector$ and $\Efield$. b)
+In the special case when both are orthogonal, $ \scalarEfield_\ell \wavenumber_\ell = 0$, the Poynting vector points in the direction of the wavevector.
+}
+  \label{fig:poynting}
+\end{figure}
 
 
 \section{Plane Wave Solutions and Dispersion}
@@ -849,7 +862,11 @@ we fix the in-plane wavevector component and search for solutions of the materia
 In general, the dispersion is quartic and allows for 4 solutions in each medium.
 \begin{figure}
   \centering
-   \includegraphics[width=0.5\columnwidth]{boundary_wavevectors}
+  \begin{tikzpicture}
+    \draw (0, 0) node[inner sep=0] {\includegraphics[width=0.5\columnwidth]{graphics/boundary_wavevectors}};
+    \draw (1, 1) node {Hello world};
+  \end{tikzpicture}
+  
   \caption{a) Wavevectors with the same in-plane component.
            b) Scenario of a single incident plane wave.}
   \label{fig:boundary_wavevectors}
@@ -1294,7 +1311,7 @@ We call the points in the object and image plane field points.
 
 \begin{figure}
   \centering
-   \includegraphics[width=0.5\columnwidth]{pupil}
+   \includegraphics[width=0.5\columnwidth]{graphics/pupil}
   \caption{a) In an imaging system without vignetting, the stop acts as aperture for rays from all field points. The rays displayed are on-axis ray (blue), marginal rays (violet), chief ray (red), and coma rays (orange).
   b) In the system shown here, the lens creates a virtual image of the stop, the pupil (green).
   c) The imaging relation between pupil and stop causes rays aimed at the pupil border to be refracted onto the stop border.
@@ -2863,57 +2880,6 @@ The wavevectors have to be chosen such that they do not contribute to the imagin
 \begin{eqnarray}
  \hat{B} \Vector{e}_{K\,\textrm{astig}} &=& 0
 \end{eqnarray}
-Additionally, the $\hat{M}$ term must not contribute.
-In our initial optcial system, 
-it might occur that neither of these conditions can be fulfilled.
-Our strategy in finding the image plane is to construct a compensation operator.
-The compensation shall be a translation operator 
-that is appended to the last surface of the initial optical system.
-We split the construction in the following sections:
-\begin{itemize}
- \item Find a particular solution for a compensation operator that cancels the $\hat{M}$ term.
- \item After that, modify the compensation operator so that we can find ray fans for the $\hat{B}$ term.
- \item If the compensation operator is the same for all $\Vector{K}$, then we can fulfill the imaging equation. If not, we can only fulfill the astigmatic equation.
-\end{itemize}
-
-
-\subsection{Image Plane Tilt Compensation}
-We assume a general propagation operator and a following compensation propagator.
-The compensation shall cancel out the effect of the bilinear operators 
-$\hat{M}=0$ for finite conjugate images
-or $\hat{N}=0$ for infinite images.
-The compensation shall be a translation.
-\begin{eqnarray}
- \hat{M}_\tot &=& \hat{A}_{\text{comp}} \hat{M}_0 + \hat{B}_{\text{comp}} \hat{N}_0 + \hat{M}_{\text{comp}} \hat{A}_0 \hat{D}_0 + \hat{M}_{\text{comp}} \hat{B}_0 \hat{C}_0 \\
- \hat{N}_\tot &=& \hat{N}_0
-\end{eqnarray}
-As we can directly see, the compensation operation does not influence $\hat{N}$.
-It is not possible to compensate image plane tilt of infinite conjugate images by a translation operator.
-
-In the following, we focus on finite conjugate image planes.
-If we find one compensation operator, we can construct an infinite number of compensation operators by adding a parallel translation.
-If the first translation compensated for image plane tilt, then the parallel propagation does not add an additional tilt, as can be seen in \eqref{eq:xyuv_parallel_translation_matrices}.
-We only need to find one particular solution.
-We choose the parallel translation such that the pilot ray intersects the original final plane and the plane after compensation in the same point.
-This means $\hat{B}_{comp} = 0$.
-\begin{eqnarray}
- M_{\tot\,R_{im},R_{obj},K_{obj}} =&& A_{\text{comp}\,R_{im},R_1} M_{0\,R_1,R_{obj},K_{obj}} + \nonumber\\
-                                  &+& M_{\text{comp}\,R_{im},R_2,K_3} A_{0\,R_2,R_{obj}} D_{0\,K_3,K_{obj}} + \nonumber\\
-                                  &+& M_{\text{comp}\,R_{im},R_4,K_5} B_{0\,R_4,K_{obj}} C_{0\,K_5,R_{obj}}
-\end{eqnarray}
-where for all intermediate coordinates holds the Einstein sum convention.
-\begin{eqnarray}
- A_{R_1} M_{R_1} \rightarrow \sum_{R_1 \in \{ X_1,Y_1\} } A_{R_1} M_{R_1} \nonumber
-\end{eqnarray}
-All sums are to be performed at the boundary between initial propagation $0$ and the compensation operator.
-Surface deviations are expressed on the final surface of the initial propagator, 
-and wavevector deviations are expressed in coordinates of the final medium, in which also the compensation takes place.
-\begin{eqnarray}
- M_{\tot\,R_{im},R_{obj},K_{obj}} =&& A_{\text{comp}\,R_{im},R_1} M_{0\,R_1,R_{obj},K_{obj}} + \nonumber\\
-                                  &+& M_{\text{comp}\,R_{im},R_1,K_2} \left( A_{0\,R_1,R_{obj}} D_{0\,K_2,K_{obj}} + B_{0\,R_1,K_{obj}} C_{0\,K_2,R_{obj}} \right)\nonumber\\
-\end{eqnarray}
-For a compensation of image plane tilt, we desire $\hat{M}_{tot}=0$.
-\remark{Conjecture: The degrees of freedom of an image plane tilt do not suffice to compensate M in a 6-dimensional formalism. TODO: make a proof.}
 
 \section{4D XYUV Matrices}
 In many cases, we do not need four degrees of freedom for the wavevector deviation, but two suffice.
@@ -3393,7 +3359,7 @@ In the final optimisation step, it may be worth using the more accurate Huygens 
 
 \begin{figure}
   \centering
-   \includegraphics[width=0.5\columnwidth]{waveaberrations}
+   \includegraphics[width=0.5\columnwidth]{graphics/waveaberrations}
   \caption{a) In a perfect system, according to the Fermat principle, all rays have the same time of flight from the object to the image. b) In a real system, wave aberrations occur. A line of constant time of flight is displayed in magenta.
   Wave aberrations are the optical path differences corresponding to the difference in time of flight when hitting the exit pupil reference sphere.}
   \label{fig:waveaberrations}
